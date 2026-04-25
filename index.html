@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ivar Karm - Street performer, improviser, and handpan artist. Creating moments where sound and life converge across Berlin, Athens, and Europe.">
+  <title>Ivar Karm – Resonance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;1,300&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://player.vimeo.com/api/player.js"></script>
+</head>
+<body class="dark-mode">
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<div id="cursor"></div>
+
+<nav>
+  <div class="logo">Ivar Karm</div>
+  <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#story">Story</a></li>
+    <li><a href="#manifesto">Manifesto</a></li>
+    <li><a href="#media">Media</a></li>
+    <li><a href="#music">Music</a></li>
+    <li><a href="#videos">Videos</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<button class="dark-mode-toggle" id="darkModeToggle" aria-label="Toggle dark mode">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+</button>
+
+<canvas id="game" aria-hidden="true"></canvas>
+
+<div id="sections" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50;">
+  <!-- Home -->
+  <div class="section" id="s0" role="region" aria-label="Home">
+    <h1>Ivar karm</h1>
+    <p class="subtitle">street performer, improviser, handpan artist</p>
+    <p class="subtext">Before sound, there is listening.</p>
+  </div>
+
+  <!-- About -->
+  <div class="section" id="s1" role="region" aria-label="About">
+    <h2>About</h2>
+    <p>Street performer, improviser, and sonic wanderer.</p>
+    <p>From the streets of Berlin to the corners of Athens, creating moments where sound and life converge.</p>
+    <img class="section-image" data-section="1" src="https://s0undj0urney.wordpress.com/wp-content/uploads/2026/04/panbeats993034-1.jpg" alt="Ivar Karm performing handpan on the street" loading="lazy">
+  </div>
+
+  <!-- Story -->
+  <div class="section scrollable" id="s2" role="region" aria-label="Story">
+    <h2>The Story</h2>
+    <div class="scroll-content">
+      <p><strong>2008 — Berlin & Finding a Voice</strong></p>
+      <p>Teenage years in Berlin, squatting in abandoned buildings, busking in metro stations, and drumming on streets that never slept. Rosenthaler Platz, Alexanderplatz, Warschauer Brücke—cycling between spots, chasing crowds, dodging cops.</p>
+      <p style="margin-top: 1.5rem;"><strong>2015 — Travels Across Europe</strong></p>
+      <p>Curiosity and the streets carried me through Germany, Netherlands, Belgium, and back to Estonia. Tents, trains, urban parks, and random city corners became stages. The journey itself became the destination.</p>
+      <p style="margin-top: 1.5rem;"><strong>2023 — Athens & Today</strong></p>
+      <p>Living and performing in Athens for three years now. Streets are still my stage, handpan and drums in hand, improvisation guiding every note. The search continues.</p>
+      <img class="section-image" data-section="2" src="https://s0undj0urney.wordpress.com/wp-content/uploads/2026/04/panbeats_09763-1.jpg" alt="Street performance with handpan" loading="lazy">
+    </div>
+    <button class="scroll-toggle" data-section="s2">Pause</button>
+  </div>
+
+  <!-- Manifesto -->
+  <div class="section with-backdrop" id="s3" role="region" aria-label="Manifesto">
+    <h2>Manifesto</h2>
+    <p>I don't separate life from music.</p>
+    <p>What I play comes from how I live—moving, searching, messing up, starting again.</p>
+    <p>The street is my stage because it's real. No tickets, no barriers, no pretending.</p>
+    <p>If you stop, you're part of it. If you listen, we share something.</p>
+    <p>I don't chase perfection. I chase moments—those seconds where sound, place, and people line up and something honest happens.</p>
+    <p>Music, to me, is a language. You don't need to know it, just feel it.</p>
+  </div>
+
+  <!-- Media -->
+  <div class="section" id="s4" role="region" aria-label="Media Gallery">
+    <h2>Media</h2>
+    <div class="slideshow-container" role="img" aria-label="Photo slideshow of performances">
+      <img class="slideshow-image" src="https://s0undj0urney.wordpress.com/wp-content/uploads/2026/04/dsc_1326-1.jpg" alt="Handpan performance in urban setting" loading="lazy">
+      <img class="slideshow-image" src="https://s0undj0urney.wordpress.com/wp-content/uploads/2026/04/all-oiled-up-f09f94a5handpancare-1.jpg" alt="Handpan instrument care and maintenance" loading="lazy">
+      <img class="slideshow-image" src="https://s0undj0urney.wordpress.com/wp-content/uploads/2026/04/625050226_18091503209046219_5417257879914453604_n-1.jpg" alt="Street performance with audience" loading="lazy">
+      <img class="slideshow-image" src="https://s0undj0urney.wordpress.com/wp-content/uploads/2026/04/from-very-long-ago-in-the-middle-of-nowhere-somewhere-in-finland-1.jpg" alt="Performance in Finland countryside" loading="lazy">
+      <img class="slideshow-image" src="https://s0undj0urney.wordpress.com/wp-content/uploads/2026/04/crete-in-junephoto-by-40karmphotography_-1.jpg" alt="Performance in Crete, Greece" loading="lazy">
+      <img class="slideshow-image" src="https://s0undj0urney.wordpress.com/wp-content/uploads/2026/04/with-40giwrgosdamianos-at-ermou-street.handpan-handpancommunity-shot-by-40karmphotography_.jpg" alt="Collaborative performance on Ermou Street" loading="lazy">
+      <img class="slideshow-image" src="https://s0undj0urney.wordpress.com/wp-content/uploads/2026/04/streets-of-aegina-f09f8eb6aegina-greece-music-handpan-streetmusician-digitalart-ivarkarm.jpg" alt="Street performance in Aegina, Greece" loading="lazy">
+      <img class="slideshow-image" src="https://s0undj0urney.wordpress.com/wp-content/uploads/2026/04/rethymno-cretedigitalart-digitalartist-music-handpan-crete.jpg" alt="Performance in Rethymno, Crete" loading="lazy">
+      <img class="slideshow-image" src="https://s0undj0urney.wordpress.com/wp-content/uploads/2026/04/he-used-to-sit-right-next-to-me-while-i-played-the-man-with-the-balloons.every-day-i-was-there.jpg" alt="Street performance with balloon artist" loading="lazy">
+    </div>
+  </div>
+
+  <!-- Music -->
+  <div class="section with-backdrop" id="s5" role="region" aria-label="Music">
+    <h2>Music</h2>
+    <p>processed audio</p>
+    <div class="music-player">
+      <div class="track-info">
+        <span class="track-name" id="trackName">Select a track</span>
+        <span class="track-time" id="trackTime">0:00 / 0:00</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="player-controls">
+        <button class="control-btn prev-btn" id="prevBtn" aria-label="Previous track">
+          <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+        </button>
+        <button class="control-btn play-btn" id="playBtn" aria-label="Play">
+          <svg viewBox="0 0 24 24" class="play-icon"><path d="M8 5v14l11-7z"/></svg>
+          <svg viewBox="0 0 24 24" class="pause-icon" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+        <button class="control-btn next-btn" id="nextBtn" aria-label="Next track">
+          <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+        </button>
+      </div>
+      <div class="volume-control">
+        <svg viewBox="0 0 24 24" class="volume-icon"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.1" value="0.7" aria-label="Volume">
+      </div>
+    </div>
+    <audio id="audioPlayer" preload="metadata"></audio>
+  </div>
+
+  <!-- Videos -->
+  <div class="section" id="s6" role="region" aria-label="Videos">
+    <h2>Videos</h2>
+    <div class="videos-scroll-container">
+      <div class="video-item">
+        <p>Handpan vibes, city-side serenity.</p>
+        <div class="video-container">
+          <iframe data-src="https://player.vimeo.com/video/1186056126?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="From Victoria Park - Handpan performance" loading="lazy"></iframe>
+        </div>
+      </div>
+      <div class="video-item">
+        <p>Sofar Sounds Tallinn - For Jesse</p>
+        <div class="video-container">
+          <iframe data-src="https://player.vimeo.com/video/1186059928?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="Panbeats - For Jesse - Sofar Tallinn" loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact -->
+  <div class="section with-backdrop" id="s7" role="region" aria-label="Contact">
+    <h2>Let's Create Together</h2>
+    <p>If this resonated with you, reach out.</p>
+    <div class="contact-icons">
+      <a href="mailto:ivar.karm@gmail.com" class="contact-icon" aria-label="Send Email">
+        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      </a>
+      <a href="https://www.instagram.com/ivar.karm/" class="contact-icon" target="_blank" rel="noopener noreferrer" aria-label="Follow on Instagram">
+        <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      </a>
+      <a href="https://www.youtube.com/@IvarKarm" class="contact-icon" target="_blank" rel="noopener noreferrer" aria-label="Subscribe on YouTube">
+        <svg viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266-4.356-2.62-4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- QR Code Popup for Tips -->
+  <div class="qr-popup" id="qrPopup">
+    <div class="qr-content">
+      <h3>Tip Me</h3>
+      <p>Scan to tip via busk.co<br>Every bit helps keep the music playing</p>
+      <a href="https://busk.co/84950" target="_blank" rel="noopener noreferrer" class="qr-link">
+        <img src="https://s0undj0urney.wordpress.com/wp-content/uploads/2026/04/qrcode.png" alt="QR Code for tipping">
+      </a>
+      <p style="font-size: 0.8rem; color: #999;">busk.co/84950</p>
+      <button class="qr-close" id="qrCloseBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="instructions">
+  <span class="desktop-only"><kbd>A</kbd> <kbd>D</kbd> move · <kbd>SPACE</kbd> jump · <kbd>W</kbd> <kbd>S</kbd> scroll</span>
+  <span class="mobile-only">Tap left/right to move · Tap center to jump · Swipe up/down to scroll</span>
+</div>
+
+<div class="touch-zones" id="touchZones">
+  <div class="touch-zone left" id="touchLeft"></div>
+  <div class="touch-zone center" id="touchCenter"></div>
+  <div class="touch-zone right" id="touchRight"></div>
+</div>
+
+<div class="progress">
+  <div class="progress-dot" data-section="0"></div>
+  <div class="progress-dot" data-section="1"></div>
+  <div class="progress-dot" data-section="2"></div>
+  <div class="progress-dot" data-section="3"></div>
+  <div class="progress-dot" data-section="4"></div>
+  <div class="progress-dot" data-section="5"></div>
+  <div class="progress-dot" data-section="6"></div>
+  <div class="progress-dot" data-section="7"></div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
