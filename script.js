@@ -200,7 +200,7 @@ let touchStartY = 0;
 let touchStartTime = 0;
 let isTouching = false;
 let touchZone = null;
-const flickForce = 12; // Impulse force for flick
+const flickForce = 25; // Impulse force for flick
 
 function getTouchZone(clientX) {
   const width = window.innerWidth;
