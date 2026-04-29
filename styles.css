@@ -666,6 +666,65 @@ body.dark-mode .contact-icon:hover {
   box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
 }
 
+/* Partners Section Styles */
+.partners-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  align-items: center;
+}
+
+.partner-link {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.partner-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.partner-name {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: #000;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.partner-location {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.6);
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Dark mode styles for partners */
+body.dark-mode .partner-link {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+body.dark-mode .partner-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .partner-name {
+  color: #fff;
+}
+
+body.dark-mode .partner-location {
+  color: rgba(255, 255, 255, 0.7);
+}
+
 /* Music Player Styles */
 .music-player {
   background: rgba(0, 0, 0, 0.3);

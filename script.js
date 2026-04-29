@@ -144,7 +144,8 @@ const sectionPositions = [
   { x: 7400, index: 4 },
   { x: 9200, index: 5 },
   { x: 11000, index: 6 },
-  { x: 12800, index: 7 }
+  { x: 11900, index: 7 },
+  { x: 12800, index: 8 }
 ];
 
 const parallaxSpeed = 0.3;
@@ -341,6 +342,7 @@ const streetLamps = [
   { x: 7900, height: 310, hasLight: true },  // Near Media
   { x: 9700, height: 300, hasLight: true },  // Near Music
   { x: 11500, height: 280, hasLight: true },  // Near Videos
+  { x: 12400, height: 300, hasLight: true },  // Near Partners
   { x: 13300, height: 290, hasLight: true }   // Near Contact
 ];
 
@@ -768,7 +770,7 @@ function updateSections() {
       sectionEl.style.opacity = Math.max(0, opacity);
       
       // Add visible class to contact icons when contact section becomes visible
-      if (index === 7 && sectionEl.classList.contains('visible') && !contactIconsAnimated) {
+      if (index === 8 && sectionEl.classList.contains('visible') && !contactIconsAnimated) {
         const contactIcons = sectionEl.querySelectorAll('.contact-icon');
         contactIcons.forEach((icon) => {
           icon.classList.add('visible');
@@ -1349,15 +1351,15 @@ updateSections = function() {
   });
   
   // Show QR popup when player actually reaches Contact section position
-  if (currentSection === 7 && !qrPopupShown && x > 12300) {
+  if (currentSection === 8 && !qrPopupShown && x > 12300) {
     qrPopupTimer = setTimeout(() => {
-      if (currentSection === 7 && !qrPopupShown) {
+      if (currentSection === 8 && !qrPopupShown) {
         const qrPopup = document.getElementById('qrPopup');
         qrPopup.classList.add('visible');
         qrPopupShown = true;
       }
     }, 2000);
-  } else if (currentSection !== 7 || x <= 12300) {
+  } else if (currentSection !== 8 || x <= 12300) {
     // Reset timer if player leaves the area
     if (qrPopupTimer) {
       clearTimeout(qrPopupTimer);
