@@ -194,13 +194,16 @@ document.addEventListener("keydown", e => {
 });
 document.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 
-// Touch controls - FLICK mechanic
+// Touch/Mouse controls - THROW mechanic
 let touchStartX = 0;
 let touchStartY = 0;
 let touchStartTime = 0;
 let isTouching = false;
 let touchZone = null;
-const flickForce = 25; // Impulse force for flick
+let isDragging = false;
+let dragStartX = 0;
+let dragStartTime = 0;
+const throwMultiplier = 0.15; // Velocity multiplier for throw
 
 function getTouchZone(clientX) {
   const width = window.innerWidth;
@@ -218,6 +221,19 @@ function updateTouchZoneVisuals(zone) {
   }
 }
 
+function applyThrow(startX, endX, startTime, endTime) {
+  const deltaX = endX - startX;
+  const deltaTime = endTime - startTime;
+  
+  // Only throw if swipe was fast enough (less than 400ms) and had enough distance
+  if (deltaTime < 400 && Math.abs(deltaX) > 20) {
+    // Calculate throw velocity based on swipe speed
+    const throwVelocity = (deltaX / deltaTime) * 15; // Scale for game feel
+    vx += throwVelocity * throwMultiplier;
+  }
+}
+
+// Touch events
 document.addEventListener('touchstart', e => {
   const target = e.target;
   const isInteractive = target.closest('a, button, input, .btn, .qr-button, .social-btn, .nav-links, .qr-close, .qr-content, .qr-popup');
@@ -236,13 +252,6 @@ document.addEventListener('touchstart', e => {
   }
   
   updateTouchZoneVisuals(touchZone);
-  
-  // FLICK: Apply impulse on touch start for left/right zones
-  if (touchZone === 'left') {
-    vx -= flickForce;
-  } else if (touchZone === 'right') {
-    vx += flickForce;
-  }
 }, { passive: false });
 
 document.addEventListener('touchmove', e => {
@@ -269,29 +278,67 @@ document.addEventListener('touchmove', e => {
 }, { passive: false });
 
 document.addEventListener('touchend', e => {
-  isTouching = false;
-  touchZone = null;
-  updateTouchZoneVisuals(null);
+  if (!isTouching) return;
   
   const touchEndTime = Date.now();
-  const touchDuration = touchEndTime - touchStartTime;
   const touchEndX = e.changedTouches[0].clientX;
   const touchEndY = e.changedTouches[0].clientY;
   const deltaX = Math.abs(touchEndX - touchStartX);
   const deltaY = Math.abs(touchEndY - touchStartY);
+  const duration = touchEndTime - touchStartTime;
   
-  // Jump on quick tap in center
-  if (touchDuration < 200 && deltaX < 30 && deltaY < 30 && touchZone === 'center' && onGround) {
+  // THROW: Apply velocity based on swipe
+  applyThrow(touchStartX, touchEndX, touchStartTime, touchEndTime);
+  
+  // Jump on quick tap in center (no horizontal movement)
+  if (duration < 200 && deltaX < 30 && deltaY < 30 && touchZone === 'center' && onGround) {
     vy = -jumpForce;
     onGround = false;
   }
+  
+  isTouching = false;
+  touchZone = null;
+  updateTouchZoneVisuals(null);
 }, { passive: false });
 
 document.addEventListener('touchcancel', e => {
   isTouching = false;
-  keys['a'] = false;
-  keys['d'] = false;
+  touchZone = null;
   updateTouchZoneVisuals(null);
+});
+
+// Mouse drag events for desktop throw
+let mouseDown = false;
+
+document.addEventListener('mousedown', e => {
+  const target = e.target;
+  const isInteractive = target.closest('a, button, input, .btn, .qr-button, .social-btn, .nav-links, .qr-close, .qr-content, .qr-popup, canvas');
+  
+  if (isInteractive) return;
+  
+  mouseDown = true;
+  dragStartX = e.clientX;
+  dragStartTime = Date.now();
+  isDragging = false;
+});
+
+document.addEventListener('mousemove', e => {
+  if (!mouseDown) return;
+  isDragging = true;
+});
+
+document.addEventListener('mouseup', e => {
+  if (!mouseDown) return;
+  
+  const dragEndTime = Date.now();
+  
+  // THROW on mouse drag release
+  if (isDragging) {
+    applyThrow(dragStartX, e.clientX, dragStartTime, dragEndTime);
+  }
+  
+  mouseDown = false;
+  isDragging = false;
 });
 
 // Navigation clicks
