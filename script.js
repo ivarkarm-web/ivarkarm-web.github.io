@@ -160,8 +160,8 @@ function getGround(worldX) {
   const wave5 = Math.sin(worldX * 0.025) * 5;
   
   let hillBarrier = 0;
-  if (worldX > 12800) {
-    const hillProgress = (worldX - 12800) / 500;
+  if (worldX > 13800) {
+    const hillProgress = (worldX - 13800) / 500;
     hillBarrier = Math.pow(hillProgress, 2) * 800; // Mountain going UP
   }
   
@@ -850,8 +850,8 @@ function update() {
     const slope = getSlope(x);
     vx += slope * 0.5;
     
-    // Extra resistance on ending hill (9200+) - makes it harder to climb
-    if (x > 9200 && slope > 0.3) {
+    // Extra resistance on ending hill (13800+) - makes it harder to climb
+    if (x > 13800 && slope > 0.3) {
       vx *= 0.92; // Additional friction on steep uphill
     }
   } else {
@@ -1351,7 +1351,7 @@ updateSections = function() {
   });
   
   // Show QR popup when player actually reaches Contact section position
-  if (currentSection === 8 && !qrPopupShown && x > 12300) {
+  if (currentSection === 8 && !qrPopupShown && x > 12500) {
     qrPopupTimer = setTimeout(() => {
       if (currentSection === 8 && !qrPopupShown) {
         const qrPopup = document.getElementById('qrPopup');
@@ -1359,7 +1359,7 @@ updateSections = function() {
         qrPopupShown = true;
       }
     }, 2000);
-  } else if (currentSection !== 8 || x <= 12300) {
+  } else if (currentSection !== 8 || x <= 12500) {
     // Reset timer if player leaves the area
     if (qrPopupTimer) {
       clearTimeout(qrPopupTimer);
