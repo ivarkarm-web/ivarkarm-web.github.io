@@ -145,7 +145,7 @@ const sectionPositions = [
   { x: 9200, index: 5 },
   { x: 11000, index: 6 },
   { x: 11900, index: 7 },
-  { x: 12800, index: 8 }
+  { x: 13500, index: 8 }
 ];
 
 const parallaxSpeed = 0.3;
@@ -343,13 +343,13 @@ const streetLamps = [
   { x: 9700, height: 300, hasLight: true },  // Near Music
   { x: 11500, height: 280, hasLight: true },  // Near Videos
   { x: 12400, height: 300, hasLight: true },  // Near Partners
-  { x: 13300, height: 290, hasLight: true }   // Near Contact
+  { x: 14000, height: 290, hasLight: true }   // Near Contact
 ];
 
 function drawClouds(ctx, offset) {
   clouds.forEach(cloud => {
     // Cloud drift - reset when they go off screen
-    if (cloud.x > 13300) cloud.x = -200;
+    if (cloud.x > 15000) cloud.x = -200;
     
     const screenX = cloud.x - offset * 0.1; // parallax - slower than ball
     
@@ -1351,7 +1351,7 @@ updateSections = function() {
   });
   
   // Show QR popup when player actually reaches Contact section position
-  if (currentSection === 8 && !qrPopupShown && x > 12500) {
+  if (currentSection === 8 && !qrPopupShown && x > 13200) {
     qrPopupTimer = setTimeout(() => {
       if (currentSection === 8 && !qrPopupShown) {
         const qrPopup = document.getElementById('qrPopup');
@@ -1359,7 +1359,7 @@ updateSections = function() {
         qrPopupShown = true;
       }
     }, 2000);
-  } else if (currentSection !== 8 || x <= 12500) {
+  } else if (currentSection !== 8 || x <= 13200) {
     // Reset timer if player leaves the area
     if (qrPopupTimer) {
       clearTimeout(qrPopupTimer);
