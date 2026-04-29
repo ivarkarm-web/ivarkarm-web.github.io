@@ -194,12 +194,13 @@ document.addEventListener("keydown", e => {
 });
 document.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 
-// Touch controls
+// Touch controls - FLICK mechanic
 let touchStartX = 0;
 let touchStartY = 0;
 let touchStartTime = 0;
 let isTouching = false;
 let touchZone = null;
+const flickForce = 12; // Impulse force for flick
 
 function getTouchZone(clientX) {
   const width = window.innerWidth;
@@ -236,12 +237,11 @@ document.addEventListener('touchstart', e => {
   
   updateTouchZoneVisuals(touchZone);
   
+  // FLICK: Apply impulse on touch start for left/right zones
   if (touchZone === 'left') {
-    keys['a'] = true;
-    keys['d'] = false;
+    vx -= flickForce;
   } else if (touchZone === 'right') {
-    keys['d'] = true;
-    keys['a'] = false;
+    vx += flickForce;
   }
 }, { passive: false });
 
@@ -259,17 +259,7 @@ document.addEventListener('touchmove', e => {
     updateTouchZoneVisuals(touchZone);
   }
   
-  if (currentZone === 'left') {
-    keys['a'] = true;
-    keys['d'] = false;
-  } else if (currentZone === 'right') {
-    keys['d'] = true;
-    keys['a'] = false;
-  } else {
-    keys['a'] = false;
-    keys['d'] = false;
-  }
-  
+  // Handle scrollable sections
   const visibleSection = document.querySelector('.section.visible.scrollable');
   if (visibleSection) {
     const deltaY = touchStartY - e.touches[0].clientY;
@@ -280,8 +270,7 @@ document.addEventListener('touchmove', e => {
 
 document.addEventListener('touchend', e => {
   isTouching = false;
-  keys['a'] = false;
-  keys['d'] = false;
+  touchZone = null;
   updateTouchZoneVisuals(null);
   
   const touchEndTime = Date.now();
@@ -291,6 +280,7 @@ document.addEventListener('touchend', e => {
   const deltaX = Math.abs(touchEndX - touchStartX);
   const deltaY = Math.abs(touchEndY - touchStartY);
   
+  // Jump on quick tap in center
   if (touchDuration < 200 && deltaX < 30 && deltaY < 30 && touchZone === 'center' && onGround) {
     vy = -jumpForce;
     onGround = false;
@@ -802,20 +792,24 @@ function updateSections() {
   }
 }
 
-// Physics update - smoother movement
+// Physics update - flick mechanic with momentum
 function update() {
-  // Movement with acceleration
+  // FLICK: Apply impulse on key press (not hold)
   if (keys['a'] || keys['arrowleft']) {
-    vx -= moveAccel;
+    vx -= flickForce;
+    keys['a'] = false; // Reset so it only applies once per press
+    keys['arrowleft'] = false;
   }
   if (keys['d'] || keys['arrowright']) {
-    vx += moveAccel;
+    vx += flickForce;
+    keys['d'] = false; // Reset so it only applies once per press
+    keys['arrowright'] = false;
   }
   
   // Speed cap
   vx = Math.max(-maxSpeed, Math.min(maxSpeed, vx));
   
-  // Apply friction/resistance
+  // Apply friction/resistance (natural slowdown)
   if (onGround) {
     vx *= groundFriction;
   } else {
