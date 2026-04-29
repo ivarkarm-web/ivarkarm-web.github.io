@@ -145,7 +145,7 @@ const sectionPositions = [
   { x: 9200, index: 5 },
   { x: 11000, index: 6 },
   { x: 11900, index: 7 },
-  { x: 13500, index: 8 }
+  { x: 15000, index: 8 }
 ];
 
 const parallaxSpeed = 0.3;
@@ -160,8 +160,8 @@ function getGround(worldX) {
   const wave5 = Math.sin(worldX * 0.025) * 5;
   
   let hillBarrier = 0;
-  if (worldX > 13800) {
-    const hillProgress = (worldX - 13800) / 500;
+  if (worldX > 15800) {
+    const hillProgress = (worldX - 15800) / 500;
     hillBarrier = Math.pow(hillProgress, 2) * 800; // Mountain going UP
   }
   
@@ -343,13 +343,13 @@ const streetLamps = [
   { x: 9700, height: 300, hasLight: true },  // Near Music
   { x: 11500, height: 280, hasLight: true },  // Near Videos
   { x: 12400, height: 300, hasLight: true },  // Near Partners
-  { x: 14000, height: 290, hasLight: true }   // Near Contact
+  { x: 15500, height: 290, hasLight: true }   // Near Contact
 ];
 
 function drawClouds(ctx, offset) {
   clouds.forEach(cloud => {
     // Cloud drift - reset when they go off screen
-    if (cloud.x > 15000) cloud.x = -200;
+    if (cloud.x > 16500) cloud.x = -200;
     
     const screenX = cloud.x - offset * 0.1; // parallax - slower than ball
     
@@ -850,8 +850,8 @@ function update() {
     const slope = getSlope(x);
     vx += slope * 0.5;
     
-    // Extra resistance on ending hill (13800+) - makes it harder to climb
-    if (x > 13800 && slope > 0.3) {
+    // Extra resistance on ending hill (15800+) - makes it harder to climb
+    if (x > 15800 && slope > 0.3) {
       vx *= 0.92; // Additional friction on steep uphill
     }
   } else {
@@ -1351,7 +1351,7 @@ updateSections = function() {
   });
   
   // Show QR popup when player actually reaches Contact section position
-  if (currentSection === 8 && !qrPopupShown && x > 13200) {
+  if (currentSection === 8 && !qrPopupShown && x > 14700) {
     qrPopupTimer = setTimeout(() => {
       if (currentSection === 8 && !qrPopupShown) {
         const qrPopup = document.getElementById('qrPopup');
@@ -1359,7 +1359,7 @@ updateSections = function() {
         qrPopupShown = true;
       }
     }, 2000);
-  } else if (currentSection !== 8 || x <= 13200) {
+  } else if (currentSection !== 8 || x <= 14700) {
     // Reset timer if player leaves the area
     if (qrPopupTimer) {
       clearTimeout(qrPopupTimer);
