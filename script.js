@@ -194,24 +194,15 @@ document.addEventListener("keydown", e => {
 });
 document.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 
-// Touch/Mouse controls - THROW mechanic
+// Touch controls - DIRECT HANDPAN GRAB & THROW for mobile
 let touchStartX = 0;
 let touchStartY = 0;
 let touchStartTime = 0;
 let isTouching = false;
-let touchZone = null;
-let isDragging = false;
-let dragStartX = 0;
-let dragStartTime = 0;
-const throwMultiplier = 0.15; // Velocity multiplier for throw
-
-function getTouchZone(clientX) {
-  const width = window.innerWidth;
-  const third = width / 3;
-  if (clientX < third) return 'left';
-  if (clientX < third * 2) return 'center';
-  return 'right';
-}
+let isGrabbingHandpan = false;
+let grabStartX = 0;
+let grabStartWorldX = 0;
+const throwMultiplier = 0.25; // Velocity multiplier for throw
 
 function updateTouchZoneVisuals(zone) {
   document.querySelectorAll('.touch-zone').forEach(el => el.classList.remove('active'));
@@ -221,124 +212,99 @@ function updateTouchZoneVisuals(zone) {
   }
 }
 
-function applyThrow(startX, endX, startTime, endTime) {
-  const deltaX = endX - startX;
-  const deltaTime = endTime - startTime;
-  
-  // Only throw if swipe was fast enough (less than 400ms) and had enough distance
-  if (deltaTime < 400 && Math.abs(deltaX) > 20) {
-    // Calculate throw velocity based on swipe speed
-    const throwVelocity = (deltaX / deltaTime) * 15; // Scale for game feel
-    vx += throwVelocity * throwMultiplier;
-  }
+function isTouchOnHandpan(touchX, touchY) {
+  // Handpan is drawn at center of screen, at position y
+  const screenX = canvas.width / 2;
+  const screenY = y;
+  const distance = Math.sqrt(Math.pow(touchX - screenX, 2) + Math.pow(touchY - screenY, 2));
+  return distance < ballRadius * 1.5; // Slightly larger hit area
 }
 
-// Touch events
+// Touch events - direct handpan interaction
 document.addEventListener('touchstart', e => {
   const target = e.target;
   const isInteractive = target.closest('a, button, input, .btn, .qr-button, .social-btn, .nav-links, .qr-close, .qr-content, .qr-popup');
   
   if (isInteractive) return;
   
-  isTouching = true;
-  touchStartX = e.touches[0].clientX;
-  touchStartY = e.touches[0].clientY;
+  const touch = e.touches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
   touchStartTime = Date.now();
-  touchZone = getTouchZone(touchStartX);
   
-  const visibleSection = document.querySelector('.section.visible.scrollable');
-  if (!visibleSection) {
-    e.preventDefault();
+  // Check if touching the handpan directly
+  if (isTouchOnHandpan(touchStartX, touchStartY)) {
+    isGrabbingHandpan = true;
+    grabStartX = touchStartX;
+    grabStartWorldX = x;
+    isTouching = true;
+    e.preventDefault(); // Prevent default to grab the handpan
+    return;
   }
   
-  updateTouchZoneVisuals(touchZone);
+  // Otherwise handle as scroll or jump
+  const visibleSection = document.querySelector('.section.visible.scrollable');
+  if (visibleSection) {
+    isTouching = true;
+  }
 }, { passive: false });
 
 document.addEventListener('touchmove', e => {
-  if (!isTouching) return;
+  if (!isTouching && !isGrabbingHandpan) return;
   
   const target = e.target;
   const isInteractive = target.closest('a, button, input, .btn, .qr-button, .social-btn, .nav-links, .qr-close, .qr-content, .qr-popup');
   if (isInteractive) return;
   
-  const currentZone = getTouchZone(e.touches[0].clientX);
+  const touch = e.touches[0];
   
-  if (currentZone !== touchZone) {
-    touchZone = currentZone;
-    updateTouchZoneVisuals(touchZone);
+  // If grabbing handpan, move it with finger (visual feedback only, physics applied on release)
+  if (isGrabbingHandpan) {
+    e.preventDefault();
+    return;
   }
   
   // Handle scrollable sections
   const visibleSection = document.querySelector('.section.visible.scrollable');
-  if (visibleSection) {
-    const deltaY = touchStartY - e.touches[0].clientY;
+  if (visibleSection && isTouching) {
+    const deltaY = touchStartY - touch.clientY;
     visibleSection.scrollTop += deltaY * 0.5;
-    touchStartY = e.touches[0].clientY;
+    touchStartY = touch.clientY;
   }
 }, { passive: false });
 
 document.addEventListener('touchend', e => {
-  if (!isTouching) return;
+  if (!isTouching && !isGrabbingHandpan) return;
   
   const touchEndTime = Date.now();
   const touchEndX = e.changedTouches[0].clientX;
   const touchEndY = e.changedTouches[0].clientY;
-  const deltaX = Math.abs(touchEndX - touchStartX);
+  const deltaX = touchEndX - touchStartX;
   const deltaY = Math.abs(touchEndY - touchStartY);
-  const duration = touchEndTime - touchStartTime;
+  const deltaTime = touchEndTime - touchStartTime;
   
-  // THROW: Apply velocity based on swipe
-  applyThrow(touchStartX, touchEndX, touchStartTime, touchEndTime);
+  // THROW: If was grabbing handpan, throw it based on swipe speed
+  if (isGrabbingHandpan) {
+    // Calculate throw velocity based on swipe speed and distance
+    if (deltaTime < 500) { // Quick release = throw
+      const throwVelocity = (deltaX / deltaTime) * 20 * throwMultiplier;
+      vx += throwVelocity;
+    }
+    isGrabbingHandpan = false;
+  }
   
-  // Jump on quick tap in center (no horizontal movement)
-  if (duration < 200 && deltaX < 30 && deltaY < 30 && touchZone === 'center' && onGround) {
+  // Jump on quick tap (not grab, minimal movement)
+  if (!isGrabbingHandpan && deltaTime < 200 && Math.abs(deltaX) < 30 && deltaY < 30 && onGround) {
     vy = -jumpForce;
     onGround = false;
   }
   
   isTouching = false;
-  touchZone = null;
-  updateTouchZoneVisuals(null);
 }, { passive: false });
 
 document.addEventListener('touchcancel', e => {
   isTouching = false;
-  touchZone = null;
-  updateTouchZoneVisuals(null);
-});
-
-// Mouse drag events for desktop throw
-let mouseDown = false;
-
-document.addEventListener('mousedown', e => {
-  const target = e.target;
-  const isInteractive = target.closest('a, button, input, .btn, .qr-button, .social-btn, .nav-links, .qr-close, .qr-content, .qr-popup, canvas');
-  
-  if (isInteractive) return;
-  
-  mouseDown = true;
-  dragStartX = e.clientX;
-  dragStartTime = Date.now();
-  isDragging = false;
-});
-
-document.addEventListener('mousemove', e => {
-  if (!mouseDown) return;
-  isDragging = true;
-});
-
-document.addEventListener('mouseup', e => {
-  if (!mouseDown) return;
-  
-  const dragEndTime = Date.now();
-  
-  // THROW on mouse drag release
-  if (isDragging) {
-    applyThrow(dragStartX, e.clientX, dragStartTime, dragEndTime);
-  }
-  
-  mouseDown = false;
-  isDragging = false;
+  isGrabbingHandpan = false;
 });
 
 // Navigation clicks
@@ -839,24 +805,20 @@ function updateSections() {
   }
 }
 
-// Physics update - flick mechanic with momentum
+// Physics update - continuous movement for desktop, throw for mobile
 function update() {
-  // FLICK: Apply impulse on key press (not hold)
+  // DESKTOP: Continuous movement with A/D keys
   if (keys['a'] || keys['arrowleft']) {
-    vx -= flickForce;
-    keys['a'] = false; // Reset so it only applies once per press
-    keys['arrowleft'] = false;
+    vx -= moveAccel;
   }
   if (keys['d'] || keys['arrowright']) {
-    vx += flickForce;
-    keys['d'] = false; // Reset so it only applies once per press
-    keys['arrowright'] = false;
+    vx += moveAccel;
   }
   
   // Speed cap
   vx = Math.max(-maxSpeed, Math.min(maxSpeed, vx));
   
-  // Apply friction/resistance (natural slowdown)
+  // Apply friction/resistance
   if (onGround) {
     vx *= groundFriction;
   } else {
