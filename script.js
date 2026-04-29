@@ -763,10 +763,10 @@ function updateSections() {
     
     // Visibility based on proximity
     const distanceAbs = Math.abs(distance);
-    if (distanceAbs < 1200) {
+    if (distanceAbs < 800) {
       sectionEl.classList.add('visible');
       // Fade based on distance (slower fade-in)
-      const opacity = 1 - (distanceAbs / 1200);
+      const opacity = 1 - (distanceAbs / 800);
       sectionEl.style.opacity = Math.max(0, opacity);
       
       // Add visible class to contact icons when contact section becomes visible
