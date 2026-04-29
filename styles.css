@@ -1111,18 +1111,103 @@ body.dark-mode .volume-icon {
   position: absolute;
   top: 0;
   height: 100%;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+/* Left/Right movement buttons - clearly visible */
+.touch-zone.left,
+.touch-zone.right {
+  width: 80px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.touch-zone.left {
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 120px;
+  border-radius: 12px;
+}
+
+.touch-zone.right {
+  right: 10px;
+  left: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 120px;
+  border-radius: 12px;
+}
+
+/* Center jump zone - invisible but active */
+.touch-zone.center {
+  left: 100px;
+  right: 100px;
+  width: auto;
   opacity: 0;
-  transition: opacity 0.3s ease;
 }
 
-.touch-zone.active {
-  opacity: 0.1;
-  background: rgba(0, 0, 0, 0.3);
+/* Arrow indicators inside buttons */
+.touch-zone.left::before,
+.touch-zone.right::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-style: solid;
 }
 
-.touch-zone.left { left: 0; width: 33.33%; }
-.touch-zone.center { left: 33.33%; width: 33.33%; }
-.touch-zone.right { left: 66.66%; width: 33.33%; }
+.touch-zone.left::before {
+  border-width: 15px 20px 15px 0;
+  border-color: transparent rgba(0, 0, 0, 0.5) transparent transparent;
+}
+
+.touch-zone.right::before {
+  border-width: 15px 0 15px 20px;
+  border-color: transparent transparent transparent rgba(0, 0, 0, 0.5);
+}
+
+/* Active state - when holding */
+.touch-zone.left.active,
+.touch-zone.right.active {
+  background: rgba(212, 175, 55, 0.8);
+  border-color: rgba(212, 175, 55, 1);
+  transform: translateY(-50%) scale(0.95);
+}
+
+.touch-zone.left.active::before {
+  border-color: transparent #fff transparent transparent;
+}
+
+.touch-zone.right.active::before {
+  border-color: transparent transparent transparent #fff;
+}
+
+/* Dark mode adjustments */
+body.dark-mode .touch-zone.left,
+body.dark-mode .touch-zone.right {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+body.dark-mode .touch-zone.left::before {
+  border-color: transparent rgba(255, 255, 255, 0.6) transparent transparent;
+}
+
+body.dark-mode .touch-zone.right::before {
+  border-color: transparent transparent transparent rgba(255, 255, 255, 0.6);
+}
+
+body.dark-mode .touch-zone.left.active,
+body.dark-mode .touch-zone.right.active {
+  background: rgba(212, 175, 55, 0.8);
+  border-color: #d4af37;
+}
 
 @media (pointer: coarse) {
   .touch-zones {
