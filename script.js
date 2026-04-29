@@ -194,51 +194,52 @@ document.addEventListener("keydown", e => {
 });
 document.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 
-// Touch controls - DIRECT HANDPAN GRAB & THROW for mobile
+// MOBILE RAGDOLL: Direct handpan grab & toss physics
 let touchStartX = 0;
 let touchStartY = 0;
 let touchStartTime = 0;
 let isTouching = false;
 let isGrabbingHandpan = false;
-let grabStartX = 0;
-let grabStartWorldX = 0;
-const throwMultiplier = 0.25; // Velocity multiplier for throw
-
-function updateTouchZoneVisuals(zone) {
-  document.querySelectorAll('.touch-zone').forEach(el => el.classList.remove('active'));
-  if (zone) {
-    const el = document.getElementById('touch' + zone.charAt(0).toUpperCase() + zone.slice(1));
-    if (el) el.classList.add('active');
-  }
-}
+let grabFingerX = 0; // Current finger position
+let grabHandpanOffsetX = 0; // Offset between finger and handpan center
+let lastFingerX = 0;
+let lastFingerTime = 0;
+let fingerVelocityX = 0;
 
 function isTouchOnHandpan(touchX, touchY) {
-  // Handpan is drawn at center of screen, at position y
-  const screenX = canvas.width / 2;
-  const screenY = y;
-  const distance = Math.sqrt(Math.pow(touchX - screenX, 2) + Math.pow(touchY - screenY, 2));
-  return distance < ballRadius * 1.5; // Slightly larger hit area
+  const screenCenterX = canvas.width / 2;
+  const handpanScreenX = screenCenterX + (x - canvas.width / 2) * 0.3; // Account for parallax
+  const distance = Math.sqrt(Math.pow(touchX - handpanScreenX, 2) + Math.pow(touchY - y, 2));
+  return distance < ballRadius * 2.0; // Generous hit area
 }
 
-// Touch events - direct handpan interaction
+function getHandpanScreenX() {
+  const screenCenterX = canvas.width / 2;
+  return screenCenterX + (x - canvas.width / 2) * 0.3; // Account for parallax
+}
+
+// Touch events - RAGDOLL style
 document.addEventListener('touchstart', e => {
   const target = e.target;
   const isInteractive = target.closest('a, button, input, .btn, .qr-button, .social-btn, .nav-links, .qr-close, .qr-content, .qr-popup');
-  
   if (isInteractive) return;
   
   const touch = e.touches[0];
   touchStartX = touch.clientX;
   touchStartY = touch.clientY;
   touchStartTime = Date.now();
+  lastFingerX = touch.clientX;
+  lastFingerTime = Date.now();
+  fingerVelocityX = 0;
   
   // Check if touching the handpan directly
   if (isTouchOnHandpan(touchStartX, touchStartY)) {
     isGrabbingHandpan = true;
-    grabStartX = touchStartX;
-    grabStartWorldX = x;
     isTouching = true;
-    e.preventDefault(); // Prevent default to grab the handpan
+    grabFingerX = touchStartX;
+    grabHandpanOffsetX = getHandpanScreenX() - touchStartX;
+    vx = 0; // Stop current movement when grabbed
+    e.preventDefault();
     return;
   }
   
@@ -257,9 +258,19 @@ document.addEventListener('touchmove', e => {
   if (isInteractive) return;
   
   const touch = e.touches[0];
+  const now = Date.now();
   
-  // If grabbing handpan, move it with finger (visual feedback only, physics applied on release)
+  // Track finger velocity for throw calculation
+  const dt = now - lastFingerTime;
+  if (dt > 0) {
+    fingerVelocityX = (touch.clientX - lastFingerX) / dt;
+  }
+  lastFingerX = touch.clientX;
+  lastFingerTime = now;
+  
+  // RAGDOLL: If grabbing handpan, it follows finger with some drag
   if (isGrabbingHandpan) {
+    grabFingerX = touch.clientX;
     e.preventDefault();
     return;
   }
@@ -281,30 +292,32 @@ document.addEventListener('touchend', e => {
   const touchEndY = e.changedTouches[0].clientY;
   const deltaX = touchEndX - touchStartX;
   const deltaY = Math.abs(touchEndY - touchStartY);
-  const deltaTime = touchEndTime - touchStartTime;
+  const holdTime = touchEndTime - touchStartTime;
   
-  // THROW: If was grabbing handpan, throw it based on swipe speed
+  // RAGDOLL TOSS: Release handpan with finger velocity
   if (isGrabbingHandpan) {
-    // Calculate throw velocity based on swipe speed and distance
-    if (deltaTime < 500) { // Quick release = throw
-      const throwVelocity = (deltaX / deltaTime) * 20 * throwMultiplier;
-      vx += throwVelocity;
-    }
+    // Apply throw based on tracked finger velocity + release flick
+    const releaseVelocity = (touchEndX - lastFingerX) / Math.max(touchEndTime - lastFingerTime, 1);
+    const tossVelocity = fingerVelocityX * 25 + releaseVelocity * 15;
+    vx += tossVelocity;
     isGrabbingHandpan = false;
   }
-  
   // Jump on quick tap (not grab, minimal movement)
-  if (!isGrabbingHandpan && deltaTime < 200 && Math.abs(deltaX) < 30 && deltaY < 30 && onGround) {
+  else if (holdTime < 200 && Math.abs(deltaX) < 30 && deltaY < 30 && onGround) {
     vy = -jumpForce;
     onGround = false;
   }
   
   isTouching = false;
+  fingerVelocityX = 0;
 }, { passive: false });
 
 document.addEventListener('touchcancel', e => {
+  if (isGrabbingHandpan) {
+    isGrabbingHandpan = false;
+  }
   isTouching = false;
-  isGrabbingHandpan = false;
+  fingerVelocityX = 0;
 });
 
 // Navigation clicks
@@ -1018,7 +1031,28 @@ function draw(offset) {
   
   // Draw ball at center of screen
   const screenX = canvas.width / 2;
-  drawBall(screenX, y);
+  
+  // Draw grab connection line if handpan is being held
+  if (isGrabbingHandpan) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(212, 175, 55, 0.6)';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(grabFingerX, y - 100);
+    ctx.lineTo(screenX, y);
+    ctx.stroke();
+    ctx.restore();
+    
+    // Draw glow around handpan when grabbed
+    ctx.save();
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = '#d4af37';
+    drawBall(screenX, y);
+    ctx.restore();
+  } else {
+    drawBall(screenX, y);
+  }
   
   // Draw fireflies following handpan (only in dark mode)
   drawFireflies(ctx, screenX, y);
