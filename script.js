@@ -615,7 +615,7 @@ const vegMid = buildVegSet(0.62, 85, rngMid, [0.55, 1.15], {
   cypress: 0.22,
   olive: 0.24,
   pine: 0.24,
-  willow: 0.15,
+  birch: 0.15,
   bush: 0.15
 });
 const vegNear = buildVegSet(0.70, 52, rngNear, [0.85, 1.55], {
@@ -625,10 +625,57 @@ const vegNear = buildVegSet(0.70, 52, rngNear, [0.85, 1.55], {
   olivetree: 0.12,
   cypress: 0.08,
   pine: 0.12,
-  willow: 0.08
+  birch: 0.08
 });
 const vegFore = buildVegSet(0.16, 320, rngFore, [1.3, 2.2], { cypress: 0.35, olivetree: 0.35, pine: 0.30 });
 updateVegGlobalScale();
+
+// Populate Baltic Pine & Spruce Forest on the steep secret left climb (wx: 80 down to -820)
+function populateBalticForest() {
+  const rngBaltic = rand(584920);
+  // 1. Near layer: Dense Baltic Spruces, Scots Pines, Silver Birches and low heather undergrowth
+  for (let wx = 70; wx >= -780; wx -= (38 + rngBaltic() * 32)) {
+    const r = rngBaltic();
+    const type = r < 0.36 ? 'balticSpruce' : (r < 0.68 ? 'balticPine' : (r < 0.86 ? 'birch' : 'balticShrub'));
+    const size = 0.85 + rngBaltic() * 0.70;
+    vegNear.push({
+      wx: wx,
+      size: size,
+      seed: Math.floor(rngBaltic() * 1e7),
+      type: type,
+      biome: 'baltic'
+    });
+  }
+  // 2. Mid layer: Stately ridge trees providing depth up the mountain
+  for (let wx = 80; wx >= -800; wx -= (32 + rngBaltic() * 28)) {
+    const r = rngBaltic();
+    const type = r < 0.44 ? 'balticSpruce' : (r < 0.76 ? 'balticPine' : 'birch');
+    const size = 0.60 + rngBaltic() * 0.60;
+    vegMid.push({
+      wx: wx,
+      size: size,
+      seed: Math.floor(rngBaltic() * 1e7),
+      type: type,
+      biome: 'baltic'
+    });
+  }
+  // 3. Far layer: Distant forest canopy silhouetted on the northern horizon
+  for (let wx = 90; wx >= -820; wx -= (24 + rngBaltic() * 22)) {
+    const r = rngBaltic();
+    const size = 0.35 + rngBaltic() * 0.40;
+    vegFar.push({
+      wx: wx,
+      size: size,
+      seed: Math.floor(rngBaltic() * 1e7),
+      type: r < 0.6 ? 'balticSpruce' : 'balticPine',
+      biome: 'baltic'
+    });
+  }
+  vegNear.sort((a, b) => a.wx - b.wx);
+  vegMid.sort((a, b) => a.wx - b.wx);
+  vegFar.sort((a, b) => a.wx - b.wx);
+}
+populateBalticForest();
 
 const glowFlowers = [];
 (function buildGlowFlowers() {
@@ -1054,7 +1101,25 @@ function drawVegFar(offset) {
     ctx.save();
     ctx.globalAlpha = (ctx.globalAlpha || 1.0) * fade * 0.88;
 
-    if (isPine) {
+    if (v.biome === 'baltic' || v.type === 'balticSpruce') {
+      // Distant Baltic Spruce silhouette
+      const trunkTopY = gy - h;
+      ctx.beginPath();
+      ctx.moveTo(sx, gy);
+      ctx.lineTo(sx + sway * 0.5, trunkTopY);
+      ctx.strokeStyle = 'rgba(8, 12, 18, 0.88)';
+      ctx.lineWidth = Math.max(1.2, 1.6 * v.size);
+      ctx.stroke();
+
+      // Tiered spruce cone silhouette
+      ctx.beginPath();
+      ctx.moveTo(sx + sway * 0.5, trunkTopY);
+      ctx.lineTo(sx + (6 + 8 * v.size), gy - h * 0.15);
+      ctx.lineTo(sx - (6 + 8 * v.size), gy - h * 0.15);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(8, 12, 18, 0.90)';
+      ctx.fill();
+    } else if (isPine) {
       // Distant Mediterranean umbrella pine silhouette
       const trunkTopY = gy - h * 0.65;
       ctx.beginPath();
@@ -1382,29 +1447,6 @@ function drawOliveTreeNear(n, baseX, baseY, size, seed, time) {
     ctx.strokeStyle = 'rgba(212, 175, 55, 0.18)';
     ctx.lineWidth = 0.85;
     ctx.stroke();
-
-    // Delicate weeping branchlets with hanging leaves & olive nodes
-    for (let w = 0; w < 3; w++) {
-      const wt = (w + 1) / 4;
-      const wx = endX + (Math.cos(mb.angle) * mb.cloudR * 0.5) * (wt - 0.5) * 2;
-      const wy = endY + mb.cloudR * 0.45;
-      const wlen = size * 10 + 6;
-      const wtipX = wx + sway * 0.6;
-      const wtipY = wy + wlen;
-
-      ctx.beginPath();
-      ctx.moveTo(wx, wy);
-      ctx.quadraticCurveTo(wx + sway * 0.3, wy + wlen * 0.5, wtipX, wtipY);
-      ctx.strokeStyle = 'rgba(7, 9, 14, 0.94)';
-      ctx.lineWidth = 0.9;
-      ctx.stroke();
-
-      // Delicate olive leaf & gold-dusted fruit drupe
-      ctx.beginPath();
-      ctx.ellipse(wtipX, wtipY, 1.6, 3.2, 0.2, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(212, 175, 55, 0.45)';
-      ctx.fill();
-    }
   }
 
   ctx.restore();
@@ -1542,126 +1584,402 @@ function drawStonePineNear(n, baseX, baseY, size, seed, time) {
   ctx.restore();
 }
 
-// 4. WEEPING WILLOW & SILVER BIRCH (Salix alba — Poetic cascading weeping filaments)
-function drawWillowMid(m, baseX, baseY, size, seed, time) {
+// 4. REALISTIC NORDIC SILVER BIRCH (Betula pendula — Slender organic birch, realistic foliage clusters)
+function drawBirchMid(m, baseX, baseY, size, seed, time) {
   const rng = seedRand(seed);
-  const trunkH = 28 + size * 38;
-  const sway = windSway(time, m.wx || seed, 0.8) * 1.6;
+  const trunkH = 32 + size * 42;
+  const sway = windSway(time, m.wx || seed, 0.8) * 1.5;
 
   ctx.save();
   const crownX = baseX + sway * 0.6;
   const crownY = baseY - trunkH;
 
-  // Graceful sinuous trunk
+  // Slender organic trunk with gentle natural taper
   ctx.beginPath();
-  ctx.moveTo(baseX - 2.0 * size, baseY);
-  ctx.quadraticCurveTo(baseX + sway * 0.3, baseY - trunkH * 0.5, crownX, crownY);
-  ctx.lineTo(crownX + 1.6 * size, crownY);
-  ctx.quadraticCurveTo(baseX + sway * 0.3 + 1, baseY - trunkH * 0.5, baseX + 2.0 * size, baseY);
-  ctx.fillStyle = 'rgba(8, 10, 16, 0.96)';
+  ctx.moveTo(baseX - 1.8 * size, baseY);
+  ctx.quadraticCurveTo(baseX + sway * 0.25, baseY - trunkH * 0.5, crownX - 0.9 * size, crownY);
+  ctx.lineTo(crownX + 0.9 * size, crownY);
+  ctx.quadraticCurveTo(baseX + sway * 0.25 + 0.8, baseY - trunkH * 0.5, baseX + 1.8 * size, baseY);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(14, 18, 26, 0.96)';
   ctx.fill();
 
-  // Cascading weeping streamers
-  const streamerCount = 7;
-  for (let s = 0; s < streamerCount; s++) {
-    const st = (s / (streamerCount - 1) - 0.5) * 2;
-    const sx = crownX + st * (size * 14 + 8);
-    const sy = crownY + Math.abs(st) * 4;
-    const len = (size * 22 + 14) * (0.8 + rng() * 0.4);
-    const strandSway = windSway(time + s * 0.3, m.wx, 1.2) * 3.5;
+  // Natural upward-reaching branches with organic cloud lobes
+  const boughs = 3;
+  for (let b = 0; b < boughs; b++) {
+    const angle = -Math.PI * 0.75 + (b / (boughs - 1)) * Math.PI * 0.5;
+    const len = size * 16 + 10;
+    const bx = crownX + Math.cos(angle) * len + sway * 0.8;
+    const by = crownY + Math.sin(angle) * len * 0.7;
 
     ctx.beginPath();
-    ctx.moveTo(sx, sy);
-    ctx.quadraticCurveTo(sx + strandSway * 0.5, sy + len * 0.5, sx + strandSway, sy + len);
-    ctx.strokeStyle = 'rgba(7, 9, 14, 0.94)';
-    ctx.lineWidth = 1.0;
+    ctx.moveTo(crownX, crownY);
+    ctx.quadraticCurveTo(crownX + Math.cos(angle) * len * 0.5, crownY - 2, bx, by);
+    ctx.strokeStyle = 'rgba(14, 18, 26, 0.96)';
+    ctx.lineWidth = Math.max(1.2, 1.8 * size);
     ctx.stroke();
 
-    // Golden tip droplet
+    // Billowing foliage cloud
     ctx.beginPath();
-    ctx.arc(sx + strandSway, sy + len, 1.2, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(212, 175, 55, 0.45)';
+    ctx.ellipse(bx, by - 3, size * 12 + 8, size * 8 + 5, 0.1 * (b - 1), 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(8, 11, 18, 0.96)';
     ctx.fill();
+    ctx.strokeStyle = 'rgba(212, 175, 55, 0.12)';
+    ctx.lineWidth = 0.75;
+    ctx.stroke();
   }
 
   ctx.restore();
 }
 
-function drawWillowNear(n, baseX, baseY, size, seed, time) {
+function drawBirchNear(n, baseX, baseY, size, seed, time) {
   const rng = seedRand(seed);
-  const trunkH = 46 + size * 62;
-  const sway = windSway(time, n.wx, 0.85) * 2.2;
+  const trunkH = 50 + size * 68;
+  const sway = windSway(time, n.wx, 0.85) * 2.1;
 
   ctx.save();
   ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
 
-  const crownX = baseX + sway * 0.6;
+  const crownX = baseX + sway * 0.65;
   const crownY = baseY - trunkH;
 
-  // Sinuous, poetic trunk
+  // Stately slender birch trunk with natural lean
   ctx.beginPath();
-  ctx.moveTo(baseX - 3.8 * size, baseY);
-  ctx.quadraticCurveTo(baseX - 2.5 * size + sway * 0.3, baseY - trunkH * 0.45, crownX - 2 * size, crownY);
-  ctx.lineTo(crownX + 2 * size, crownY);
-  ctx.quadraticCurveTo(baseX + 2.5 * size + sway * 0.3, baseY - trunkH * 0.45, baseX + 3.8 * size, baseY);
+  ctx.moveTo(baseX - 3.2 * size, baseY);
+  ctx.quadraticCurveTo(baseX + sway * 0.25 - 1.5, baseY - trunkH * 0.45, crownX - 1.6 * size, crownY);
+  ctx.lineTo(crownX + 1.6 * size, crownY);
+  ctx.quadraticCurveTo(baseX + sway * 0.25 + 1.5, baseY - trunkH * 0.45, baseX + 3.2 * size, baseY);
   ctx.closePath();
-  ctx.fillStyle = 'rgba(6, 8, 14, 0.98)';
+  ctx.fillStyle = 'rgba(12, 16, 24, 0.98)';
   ctx.fill();
+
+  // Fine birch bark lenticel markings
+  for (let k = 0; k < 5; k++) {
+    const ky = baseY - (k + 1) * (trunkH * 0.15);
+    const kx = baseX + (crownX - baseX) * ((k + 1) * 0.15);
+    ctx.beginPath();
+    ctx.moveTo(kx - 2.2 * size, ky);
+    ctx.lineTo(kx + 2.2 * size, ky - 0.5);
+    ctx.strokeStyle = 'rgba(32, 40, 56, 0.95)';
+    ctx.lineWidth = 1.0;
+    ctx.stroke();
+  }
+
+  // Soft gold rim reflection on trunk
   ctx.strokeStyle = 'rgba(212, 175, 55, 0.16)';
-  ctx.lineWidth = 0.9;
+  ctx.lineWidth = 0.8;
   ctx.stroke();
 
-  // Spreading fountain boughs
-  const boughCount = 4;
-  for (let b = 0; b < boughCount; b++) {
-    const bt = (b / (boughCount - 1) - 0.5) * 2;
-    const bx = crownX + bt * (size * 22 + 12);
-    const by = crownY - (size * 10 + 6) * (1 - Math.abs(bt) * 0.4);
+  // Spreading master limbs
+  const limbAngles = [-Math.PI * 0.78, -Math.PI * 0.60, -Math.PI * 0.42, -Math.PI * 0.22];
+  for (let l = 0; l < limbAngles.length; l++) {
+    const angle = limbAngles[l];
+    const len = size * 28 + 18;
+    const lx = crownX + Math.cos(angle) * len + sway * 0.85;
+    const ly = crownY + Math.sin(angle) * len * 0.75;
 
     ctx.beginPath();
     ctx.moveTo(crownX, crownY);
-    ctx.quadraticCurveTo(crownX + bt * size * 10, crownY - size * 12, bx, by);
-    ctx.strokeStyle = 'rgba(6, 8, 14, 0.98)';
-    ctx.lineWidth = Math.max(1.8, 2.6 * size);
+    ctx.quadraticCurveTo(crownX + Math.cos(angle) * len * 0.45, crownY - 4, lx, ly);
+    ctx.strokeStyle = 'rgba(10, 14, 22, 0.98)';
+    ctx.lineWidth = Math.max(1.8, 2.6 * size * (1 - l * 0.1));
     ctx.stroke();
 
-    // Cascading curtain of weeping filaments
-    const filaments = 4;
-    for (let f = 0; f < filaments; f++) {
-      const ft = (f / filaments);
-      const fx = bx + (ft - 0.5) * 10;
-      const fy = by + 2;
-      const len = (size * 38 + 24) * (0.8 + rng() * 0.4);
-      const strandSway = windSway(time + b * 0.4 + f * 0.2, n.wx, 1.3) * 5.5;
-
-      ctx.beginPath();
-      ctx.moveTo(fx, fy);
-      ctx.bezierCurveTo(
-        fx + strandSway * 0.35, fy + len * 0.35,
-        fx + strandSway * 0.7, fy + len * 0.7,
-        fx + strandSway, fy + len
-      );
-      ctx.strokeStyle = 'rgba(6, 9, 15, 0.96)';
-      ctx.lineWidth = 0.9;
-      ctx.stroke();
-
-      // Delicate leaf droplets along the filament
-      for (let d = 1; d <= 3; d++) {
-        const dt = d / 4;
-        const dx = fx + strandSway * dt;
-        const dy = fy + len * dt;
-        ctx.beginPath();
-        ctx.ellipse(dx + 1.2, dy, 1.2, 2.4, 0.3, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(212, 175, 55, 0.42)';
-        ctx.fill();
-      }
-
-      // Golden apex dewdrop
-      ctx.beginPath();
-      ctx.arc(fx + strandSway, fy + len, 1.5, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(212, 175, 55, 0.65)';
-      ctx.fill();
+    // Billowing scalloped leaf clusters with organic rustle
+    ctx.beginPath();
+    const lobes = 9;
+    const cloudW = size * 22 + 14;
+    const cloudH = size * 14 + 9;
+    for (let c = 0; c < lobes; c++) {
+      const a = (c / lobes) * Math.PI * 2;
+      const rMod = 0.85 + 0.22 * Math.sin(c * 2.2 + l);
+      const px = lx + Math.cos(a) * cloudW * 0.5 * rMod;
+      const py = ly + Math.sin(a) * cloudH * 0.5 * rMod;
+      if (c === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
     }
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(7, 10, 16, 0.98)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(212, 175, 55, 0.14)';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+// 5. BALTIC NORWAY SPRUCE (Picea abies — Layered conical evergreen boughs)
+function drawBalticSpruceMid(m, baseX, baseY, size, seed, time) {
+  const rng = seedRand(seed);
+  const treeH = 38 + size * 48;
+  const sway = windSway(time, m.wx || seed, 0.6) * 1.2;
+
+  ctx.save();
+  const apexX = baseX + sway;
+  const apexY = baseY - treeH;
+
+  // Central spruce trunk
+  ctx.beginPath();
+  ctx.moveTo(baseX - 2.2 * size, baseY);
+  ctx.lineTo(baseX + 2.2 * size, baseY);
+  ctx.lineTo(apexX + 0.8 * size, apexY);
+  ctx.lineTo(apexX - 0.8 * size, apexY);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(8, 12, 18, 0.96)';
+  ctx.fill();
+
+  // Tiered downward-arching evergreen boughs (5 tiers)
+  const tiers = 5;
+  for (let t = 0; t < tiers; t++) {
+    const frac = (t + 1) / (tiers + 1);
+    const ty = apexY + treeH * frac;
+    const tx = baseX + (apexX - baseX) * (1 - frac);
+    const tierW = (size * 18 + 12) * frac;
+
+    ctx.beginPath();
+    ctx.moveTo(tx, ty - 4);
+    ctx.lineTo(tx + tierW, ty + 5);
+    ctx.lineTo(tx + tierW * 0.6, ty + 2);
+    ctx.lineTo(tx, ty + 7);
+    ctx.lineTo(tx - tierW * 0.6, ty + 2);
+    ctx.lineTo(tx - tierW, ty + 5);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(5, 8, 14, 0.98)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(212, 175, 55, 0.10)';
+    ctx.lineWidth = 0.7;
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawBalticSpruceNear(n, baseX, baseY, size, seed, time) {
+  const rng = seedRand(seed);
+  const treeH = 62 + size * 78;
+  const sway = windSway(time, n.wx, 0.65) * 1.8;
+
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  const apexX = baseX + sway;
+  const apexY = baseY - treeH;
+
+  // Stately straight spruce trunk
+  ctx.beginPath();
+  ctx.moveTo(baseX - 3.8 * size, baseY);
+  ctx.lineTo(baseX + 3.8 * size, baseY);
+  ctx.lineTo(apexX + 1.2 * size, apexY);
+  ctx.lineTo(apexX - 1.2 * size, apexY);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(6, 9, 15, 0.98)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(212, 175, 55, 0.14)';
+  ctx.lineWidth = 0.85;
+  ctx.stroke();
+
+  // 7 Tiered downward-sweeping coniferous boughs with serrated needle teeth
+  const tiers = 7;
+  for (let t = 0; t < tiers; t++) {
+    const frac = (t + 1) / (tiers + 1);
+    const ty = apexY + treeH * frac;
+    const tx = baseX + (apexX - baseX) * (1 - frac) * 0.8;
+    const tierW = (size * 28 + 18) * frac;
+    const tierH = size * 10 + 6;
+
+    ctx.beginPath();
+    ctx.moveTo(tx, ty - tierH * 0.4);
+    // Right arching bough with needle teeth
+    ctx.quadraticCurveTo(tx + tierW * 0.5, ty + tierH * 0.2, tx + tierW, ty + tierH * 0.8);
+    ctx.lineTo(tx + tierW * 0.72, ty + tierH * 0.4);
+    ctx.lineTo(tx + tierW * 0.45, ty + tierH * 0.6);
+    ctx.lineTo(tx, ty + tierH * 0.85);
+    // Left arching bough
+    ctx.lineTo(tx - tierW * 0.45, ty + tierH * 0.6);
+    ctx.lineTo(tx - tierW * 0.72, ty + tierH * 0.4);
+    ctx.quadraticCurveTo(tx - tierW * 0.5, ty + tierH * 0.2, tx - tierW, ty + tierH * 0.8);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(4, 7, 12, 0.98)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(212, 175, 55, 0.12)';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  }
+
+  // Pine apex spire needle
+  ctx.beginPath();
+  ctx.moveTo(apexX, apexY);
+  ctx.lineTo(apexX, apexY - 6);
+  ctx.strokeStyle = 'rgba(4, 7, 12, 0.98)';
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+// 6. BALTIC SCOTS PINE (Pinus sylvestris — Northern coastal pine with amber-ochre bark)
+function drawBalticPineMid(m, baseX, baseY, size, seed, time) {
+  const rng = seedRand(seed);
+  const trunkH = 36 + size * 46;
+  const sway = windSway(time, m.wx || seed, 0.7) * 1.4;
+
+  ctx.save();
+  const crownX = baseX + sway * 0.7;
+  const crownY = baseY - trunkH;
+
+  // Stately trunk with amber upper section
+  ctx.beginPath();
+  ctx.moveTo(baseX - 2.2 * size, baseY);
+  ctx.quadraticCurveTo(baseX + sway * 0.25, baseY - trunkH * 0.5, crownX - 1.1 * size, crownY);
+  ctx.lineTo(crownX + 1.1 * size, crownY);
+  ctx.quadraticCurveTo(baseX + sway * 0.25 + 0.8, baseY - trunkH * 0.5, baseX + 2.2 * size, baseY);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(8, 11, 16, 0.96)';
+  ctx.fill();
+
+  // High dense evergreen needle pads
+  const pads = 3;
+  for (let p = 0; p < pads; p++) {
+    const angle = -Math.PI * 0.75 + (p / (pads - 1)) * Math.PI * 0.5;
+    const len = size * 16 + 10;
+    const px = crownX + Math.cos(angle) * len + sway * 0.8;
+    const py = crownY + Math.sin(angle) * len * 0.6;
+
+    ctx.beginPath();
+    ctx.moveTo(crownX, crownY);
+    ctx.lineTo(px, py);
+    ctx.strokeStyle = 'rgba(8, 11, 16, 0.96)';
+    ctx.lineWidth = Math.max(1.4, 2.0 * size);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(px, py - 3, size * 13 + 8, size * 6 + 4, 0.1 * (p - 1), 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(5, 8, 13, 0.97)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(212, 175, 55, 0.12)';
+    ctx.lineWidth = 0.75;
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawBalticPineNear(n, baseX, baseY, size, seed, time) {
+  const rng = seedRand(seed);
+  const trunkH = 58 + size * 74;
+  const sway = windSway(time, n.wx, 0.75) * 2.0;
+
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  const crownX = baseX + sway * 0.7;
+  const crownY = baseY - trunkH;
+
+  // Stately Scots Pine trunk
+  ctx.beginPath();
+  ctx.moveTo(baseX - 4.0 * size, baseY);
+  ctx.quadraticCurveTo(baseX + sway * 0.25 - 1.5, baseY - trunkH * 0.45, crownX - 2.0 * size, crownY);
+  ctx.lineTo(crownX + 2.0 * size, crownY);
+  ctx.quadraticCurveTo(baseX + sway * 0.25 + 1.5, baseY - trunkH * 0.45, baseX + 4.0 * size, baseY);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(6, 8, 13, 0.98)';
+  ctx.fill();
+
+  // Characteristic Baltic Scots Pine reddish-cinnamon upper bark
+  ctx.beginPath();
+  ctx.moveTo(crownX - 2.0 * size, crownY);
+  ctx.quadraticCurveTo(baseX + sway * 0.25, baseY - trunkH * 0.65, crownX - 2.6 * size, baseY - trunkH * 0.55);
+  ctx.lineTo(crownX + 2.6 * size, baseY - trunkH * 0.55);
+  ctx.quadraticCurveTo(baseX + sway * 0.25, baseY - trunkH * 0.65, crownX + 2.0 * size, crownY);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(145, 82, 38, 0.25)';
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(212, 175, 55, 0.16)';
+  ctx.lineWidth = 0.85;
+  ctx.stroke();
+
+  // Spreading high cantilever arms
+  const boughs = [
+    { angle: -Math.PI * 0.80, len: size * 32 + 18, w: size * 24 + 14, h: size * 10 + 6 },
+    { angle: -Math.PI * 0.55, len: size * 36 + 20, w: size * 28 + 16, h: size * 12 + 7 },
+    { angle: -Math.PI * 0.25, len: size * 30 + 17, w: size * 24 + 14, h: size * 10 + 6 }
+  ];
+
+  for (let b = 0; b < boughs.length; b++) {
+    const bg = boughs[b];
+    const bx = crownX + Math.cos(bg.angle) * bg.len + sway * 0.85;
+    const by = crownY + Math.sin(bg.angle) * bg.len * 0.65;
+
+    ctx.beginPath();
+    ctx.moveTo(crownX, crownY);
+    ctx.quadraticCurveTo(crownX + Math.cos(bg.angle) * bg.len * 0.45, crownY - 5, bx, by);
+    ctx.strokeStyle = 'rgba(6, 8, 13, 0.98)';
+    ctx.lineWidth = Math.max(1.8, 2.8 * size * (1 - b * 0.08));
+    ctx.stroke();
+
+    // Dense horizontal evergreen needle cushion
+    ctx.beginPath();
+    const lobes = 8;
+    for (let l = 0; l < lobes; l++) {
+      const a = (l / lobes) * Math.PI * 2;
+      const rMod = 0.86 + 0.2 * Math.sin(l * 2.2 + b);
+      const px = bx + Math.cos(a) * bg.w * 0.5 * rMod;
+      const py = by + Math.sin(a) * bg.h * 0.5 * rMod;
+      if (l === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(4, 7, 12, 0.98)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(212, 175, 55, 0.14)';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+// 7. BALTIC HEATHER & FOREST FLOOR SHRUB (Calluna / Vaccinium myrtillus)
+function drawBalticShrubNear(n, baseX, baseY, size, seed, time) {
+  const rng = seedRand(seed);
+  const width = size * 20 + 14;
+  const height = size * 14 + 10;
+  const sway = windSway(time, n.wx, 0.9) * 1.5;
+
+  ctx.save();
+  const cx = baseX + sway * 0.4;
+
+  // Woody forest floor twigs
+  for (let t = 0; t < 3; t++) {
+    const tx = baseX + (t - 1) * size * 3;
+    ctx.beginPath();
+    ctx.moveTo(tx, baseY);
+    ctx.lineTo(cx + (t - 1) * size * 5, baseY - height * 0.7);
+    ctx.strokeStyle = 'rgba(6, 8, 14, 0.95)';
+    ctx.lineWidth = 1.0;
+    ctx.stroke();
+  }
+
+  // Low dense heather / bilberry mounds
+  const mounds = 4;
+  for (let i = 0; i < mounds; i++) {
+    const mt = i / (mounds - 1);
+    const mx = cx + (mt - 0.5) * width * 0.8;
+    const my = baseY - height * (0.35 + 0.65 * Math.sin(mt * Math.PI));
+    const mr = (size * 6 + 4) * (0.8 + rng() * 0.4);
+
+    ctx.beginPath();
+    ctx.arc(mx, my, mr, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(5, 7, 12, 0.96)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(212, 175, 55, 0.10)';
+    ctx.lineWidth = 0.6;
+    ctx.stroke();
   }
 
   ctx.restore();
@@ -1735,7 +2053,9 @@ function drawVegMid(offset) {
     if (m.type === 'cypress') drawCypressMid(m, sx, gy, sz, m.seed, time);
     else if (m.type === 'olive') drawOliveMid(m, sx, gy - 2, sz, m.seed, time);
     else if (m.type === 'pine') drawStonePineMid(m, sx, gy - 2, sz, m.seed, time);
-    else if (m.type === 'willow') drawWillowMid(m, sx, gy - 2, sz, m.seed, time);
+    else if (m.type === 'balticSpruce') drawBalticSpruceMid(m, sx, gy - 2, sz, m.seed, time);
+    else if (m.type === 'balticPine') drawBalticPineMid(m, sx, gy - 2, sz, m.seed, time);
+    else if (m.type === 'birch' || m.type === 'willow') drawBirchMid(m, sx, gy - 2, sz, m.seed, time);
     else drawBushMid(m, sx, gy, sz, m.seed, time);
     ctx.restore();
   }
@@ -1792,7 +2112,7 @@ function drawGrassNear(n, baseX, baseY, size, seed, time) {
     ctx.lineWidth = 1.0;
     ctx.stroke();
 
-    // Nodding feather awns & golden seed florets
+    // Nodding feather awns without fake glowing balls
     const seeds = 4;
     for (let s = 0; s < seeds; s++) {
       const st = s / seeds;
@@ -1803,15 +2123,9 @@ function drawGrassNear(n, baseX, baseY, size, seed, time) {
       ctx.beginPath();
       ctx.moveTo(sx, sy);
       ctx.lineTo(sx + curveDir * awnLen, sy - 2);
-      ctx.strokeStyle = 'rgba(212, 175, 55, 0.32)';
-      ctx.lineWidth = 0.7;
+      ctx.strokeStyle = 'rgba(212, 175, 55, 0.22)';
+      ctx.lineWidth = 0.65;
       ctx.stroke();
-
-      // Warm golden pollen seed
-      ctx.beginPath();
-      ctx.arc(sx, sy, 1.1, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(212, 175, 55, 0.55)';
-      ctx.fill();
     }
   }
 
@@ -1830,7 +2144,8 @@ function drawVegNear(offset) {
     if (fade <= 0.005) continue;
     const gy = getGround(n.wx);
     const slope = Math.abs(getSlope(n.wx));
-    if (slope > 0.55) continue;
+    const maxSlope = n.biome === 'baltic' ? 1.35 : 0.55;
+    if (slope > maxSlope) continue;
     const sz = n.size * vegGlobalScale;
 
     ctx.save();
@@ -1838,7 +2153,10 @@ function drawVegNear(offset) {
     if (n.type === 'cypress') drawCypressNear(n, sx, gy, sz, n.seed, time);
     else if (n.type === 'olivetree') drawOliveTreeNear(n, sx, gy, sz, n.seed, time);
     else if (n.type === 'pine') drawStonePineNear(n, sx, gy, sz, n.seed, time);
-    else if (n.type === 'willow') drawWillowNear(n, sx, gy, sz, n.seed, time);
+    else if (n.type === 'balticSpruce') drawBalticSpruceNear(n, sx, gy, sz, n.seed, time);
+    else if (n.type === 'balticPine') drawBalticPineNear(n, sx, gy, sz, n.seed, time);
+    else if (n.type === 'birch' || n.type === 'willow') drawBirchNear(n, sx, gy, sz, n.seed, time);
+    else if (n.type === 'balticShrub') drawBalticShrubNear(n, sx, gy, sz, n.seed, time);
     else drawGrassNear(n, sx, gy, sz, n.seed, time);
     ctx.restore();
   }
