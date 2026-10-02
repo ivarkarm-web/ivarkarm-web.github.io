@@ -1363,14 +1363,9 @@ nav {
   transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
-.touch-btn-jump {
+.touch-btn-dash {
   border-color: rgba(212, 175, 55, 0.6);
   color: var(--accent-gold);
-}
-
-.touch-btn-dash {
-  border-color: rgba(180, 200, 220, 0.45);
-  color: #d8e4f0;
 }
 
 .touch-action-btn:active {
