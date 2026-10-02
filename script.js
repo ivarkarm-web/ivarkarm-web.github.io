@@ -630,14 +630,14 @@ const vegNear = buildVegSet(0.70, 52, rngNear, [0.85, 1.55], {
 const vegFore = buildVegSet(0.16, 320, rngFore, [1.3, 2.2], { cypress: 0.35, olivetree: 0.35, pine: 0.30 });
 updateVegGlobalScale();
 
-// Populate Baltic Pine & Spruce Forest on the steep secret left climb (wx: 80 down to -820)
+// Populate Baltic Pine & Spruce Forest ONLY on top of the hill (summit plateau: wx: -655 down to -790)
 function populateBalticForest() {
   const rngBaltic = rand(584920);
-  // 1. Near layer: Dense Baltic Spruces, Scots Pines, Silver Birches and low heather undergrowth
-  for (let wx = 70; wx >= -780; wx -= (38 + rngBaltic() * 32)) {
+  // 1. Near layer: Baltic Spruces, Scots Pines, Silver Birches on top of the hill
+  for (let wx = -655; wx >= -785; wx -= (28 + rngBaltic() * 22)) {
     const r = rngBaltic();
     const type = r < 0.36 ? 'balticSpruce' : (r < 0.68 ? 'balticPine' : (r < 0.86 ? 'birch' : 'balticShrub'));
-    const size = 0.85 + rngBaltic() * 0.70;
+    const size = 0.85 + rngBaltic() * 0.65;
     vegNear.push({
       wx: wx,
       size: size,
@@ -646,11 +646,11 @@ function populateBalticForest() {
       biome: 'baltic'
     });
   }
-  // 2. Mid layer: Stately ridge trees providing depth up the mountain
-  for (let wx = 80; wx >= -800; wx -= (32 + rngBaltic() * 28)) {
+  // 2. Mid layer: Stately ridge trees on top of the summit
+  for (let wx = -650; wx >= -790; wx -= (25 + rngBaltic() * 20)) {
     const r = rngBaltic();
     const type = r < 0.44 ? 'balticSpruce' : (r < 0.76 ? 'balticPine' : 'birch');
-    const size = 0.60 + rngBaltic() * 0.60;
+    const size = 0.60 + rngBaltic() * 0.55;
     vegMid.push({
       wx: wx,
       size: size,
@@ -659,10 +659,10 @@ function populateBalticForest() {
       biome: 'baltic'
     });
   }
-  // 3. Far layer: Distant forest canopy silhouetted on the northern horizon
-  for (let wx = 90; wx >= -820; wx -= (24 + rngBaltic() * 22)) {
+  // 3. Far layer: Distant forest canopy silhouetted on the summit horizon
+  for (let wx = -650; wx >= -800; wx -= (20 + rngBaltic() * 18)) {
     const r = rngBaltic();
-    const size = 0.35 + rngBaltic() * 0.40;
+    const size = 0.35 + rngBaltic() * 0.38;
     vegFar.push({
       wx: wx,
       size: size,
@@ -2144,8 +2144,7 @@ function drawVegNear(offset) {
     if (fade <= 0.005) continue;
     const gy = getGround(n.wx);
     const slope = Math.abs(getSlope(n.wx));
-    const maxSlope = n.biome === 'baltic' ? 1.35 : 0.55;
-    if (slope > maxSlope) continue;
+    if (slope > 0.52) continue;
     const sz = n.size * vegGlobalScale;
 
     ctx.save();
