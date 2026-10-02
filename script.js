@@ -308,7 +308,7 @@ const ResonanceAudio = {
 };
 
 // Physics variables
-let x = 100;
+let x = 500;
 let y = canvas ? viewH / 2 : 300;
 let vx = 0;
 let vy = 0;
@@ -333,7 +333,7 @@ const DASH_COOLDOWN_TIME = 0.9;
 const dashTrail = [];
 
 let keys = {};
-let gameStarted = false;
+let gameStarted = true;
 let currentSection = -1;
 let contactIconsAnimated = false;
 
@@ -394,8 +394,8 @@ const resonantStones = [
 
 // ===== END OF ROAD (after Contact) =====
 const CONTACT_X = 11000;
-const END_FADE_START_X = 11350;
-const WORLD_END_X = 12100;
+const END_FADE_START_X = 12200;
+const WORLD_END_X = 12900;
 
 let endOfRoadState = {
   fading: false,
@@ -780,7 +780,8 @@ const sectionPositions = [
   { x: 5600, index: 3, title: "Manifesto" },
   { x: 7400, index: 4, title: "Album" },
   { x: 9200, index: 5, title: "Partners" },
-  { x: 11000, index: 6, title: "Contact" }
+  { x: 11000, index: 6, title: "Contact" },
+  { x: 11800, index: 7, title: "The Rabbit Hole" }
 ];
 
 const NARRATIVE_ZOOM_SECTION_INDICES = [2, 3, 4];
@@ -2602,7 +2603,7 @@ function updateSections() {
     const parallaxX = distance * parallaxSpeed;
     const terrainY = getGround(pos.x);
     const verticalOffset = (viewH * 0.5 - terrainY) * 0.3;
-    const revealRange = (index === 6) ? 900 : 800;
+    const revealRange = (index === 6 || index === 7) ? 900 : 800;
     if (Math.abs(distance) < revealRange) {
       sectionEl.classList.add('visible');
       const t = Math.max(0, 1 - (Math.abs(distance) / revealRange));
@@ -2744,7 +2745,6 @@ function showMemoryShard() {}
 function hideMemoryShard() {}
 
 function update(dt) {
-  if (!gameStarted) return;
   if (endOfRoadState.rabbitHoleShown) return;
   if (typeof videoPlayer !== 'undefined' && videoPlayer.isOpen) {
     updateCamera(dt);
@@ -3588,7 +3588,7 @@ function draw(offset) {
   drawAudioOrbs(offset);
 
   const edgeFade = leftSecretState.alpha;
-  if (gameStarted && edgeFade < 0.99 && endOfRoadState.fade > 0.01) {
+  if (edgeFade < 0.99 && endOfRoadState.fade > 0.01) {
     ctx.save();
     ctx.globalAlpha = (1 - edgeFade) * endOfRoadState.fade;
     // Calculate accurate screen position based on camera offset
@@ -3661,7 +3661,9 @@ const navLinkSectionIndex = {
   '#manifesto': 3,
   '#album': 4,
   '#partners': 5,
-  '#contact': 6
+  '#contact': 6,
+  '#rabbit-hole': 7,
+  '#archive': 7
 };
 
 document.querySelectorAll('.nav-links a').forEach(link => {
@@ -5842,6 +5844,18 @@ function initRabbitHolePortalControls() {
   }
 }
 
+
+  const sec7Btn = document.getElementById('openRabbitHoleSectionBtn');
+  if (sec7Btn) {
+    const onSec7Open = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openRabbitHoleScreen();
+    };
+    sec7Btn.addEventListener('click', onSec7Open);
+    sec7Btn.addEventListener('touchend', onSec7Open);
+  }
+
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initRabbitHolePortalControls);
 else initRabbitHolePortalControls();
 
@@ -5997,3 +6011,9 @@ function initPartnerLinks() {
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initPartnerLinks);
 else initPartnerLinks();
+
+
+// AUTO_RESUME_AUDIO_ON_FIRST_TOUCH
+window.addEventListener('touchstart', () => {
+  if (typeof ResonanceAudio !== 'undefined') ResonanceAudio.resume();
+}, { passive: true });
