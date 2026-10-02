@@ -48,6 +48,7 @@ const ResonanceAudio = {
   masterGain: null,
   ambientGain: null,
   isMuted: false,
+  isBackgroundSilenced: false,
   initialized: false,
   scale: [
     { name: 'D3', freq: 146.83, pan: 0 },       // Ding fundamental
@@ -259,7 +260,10 @@ const ResonanceAudio = {
   },
 
   updateRolling(speed, onGround) {
-    if (!this.rollingGain || !this.ctx || this.isMuted) return;
+    if (!this.rollingGain || !this.ctx || this.isMuted || this.isBackgroundSilenced) {
+      if (this.rollingGain && this.ctx) this.rollingGain.gain.setValueAtTime(0, this.ctx.currentTime);
+      return;
+    }
     const now = this.ctx.currentTime;
     const targetVol = onGround ? Math.min(0.16, (speed / 16) * 0.16) : 0;
     this.rollingGain.gain.setTargetAtTime(targetVol, now, 0.08);
@@ -943,12 +947,6 @@ document.addEventListener("keydown", e => {
     if (dmModal && dmModal.classList.contains('open')) {
       e.preventDefault();
       closeDirectMonographModal();
-      return;
-    }
-    const shard = document.getElementById('memoryShardHud');
-    if (shard && shard.classList.contains('active')) {
-      e.preventDefault();
-      hideMemoryShard();
       return;
     }
     const qrPopup = document.getElementById('qrPopup');
@@ -2479,40 +2477,112 @@ function drawAudioOrbs(offset) {
 const sectionRevealed = new Set();
 function revealSectionContent(sectionEl) {
   if (typeof gsap === 'undefined' || !sectionEl) return;
+  const isStory = sectionEl.id === 's2';
+  const isManifesto = sectionEl.id === 's3';
+
   const hairline = sectionEl.querySelector('.hairline');
   const heading = sectionEl.querySelector('h1, h2');
-  const rest = sectionEl.querySelectorAll(
-    '.eyebrow, .lead, .subtitle, .subtext, p:not(.lead), .story-entry, .music-player, .contact-icons'
-  );
+  const eyebrow = sectionEl.querySelector('.eyebrow');
+  const lead = sectionEl.querySelector('.lead');
+  const storyEntries = sectionEl.querySelectorAll('.story-entry');
+  const paragraphs = sectionEl.querySelectorAll('p:not(.lead):not(.story-era)');
   const partnerCards = sectionEl.querySelectorAll('.partner-card');
-  const all = [hairline, heading, ...rest, ...partnerCards].filter(Boolean);
+  const musicPlayerEl = sectionEl.querySelector('.music-player');
+  const contactIcons = sectionEl.querySelectorAll('.contact-icon');
+
+  const all = [hairline, heading, eyebrow, lead, ...storyEntries, ...paragraphs, ...partnerCards, musicPlayerEl, ...contactIcons].filter(Boolean);
   if (!all.length) return;
   gsap.killTweensOf(all);
 
   const tl = gsap.timeline();
-  if (hairline) {
-    tl.fromTo(hairline, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 0.6, duration: 0.5, ease: 'power2.out' }, 0);
+
+  // 1. Eyebrow tracking reveal
+  if (eyebrow) {
+    tl.fromTo(eyebrow,
+      { opacity: 0, y: -8, letterSpacing: '0.08em' },
+      { opacity: 0.85, y: 0, letterSpacing: '0.01em', duration: 0.6, ease: 'power2.out' },
+      0
+    );
   }
+
+  // 2. Glowing expanding hairline
+  if (hairline) {
+    tl.fromTo(hairline,
+      { scaleX: 0, opacity: 0 },
+      { scaleX: 1, opacity: 0.7, duration: 0.65, ease: 'power3.out' },
+      0.06
+    );
+  }
+
+  // 3. Cinematic heading unmasking
   if (heading) {
     tl.fromTo(heading,
-      { clipPath: 'inset(0 0 100% 0)', y: 14 },
-      { clipPath: 'inset(0 0 0% 0)', y: 0, duration: 0.85, ease: 'expo.out' },
-      hairline ? 0.08 : 0
+      { clipPath: 'inset(0 0 100% 0)', y: 22, opacity: 0 },
+      { clipPath: 'inset(0 0 0% 0)', y: 0, opacity: 1, duration: 0.95, ease: 'expo.out' },
+      0.1
     );
   }
-  if (rest.length) {
-    tl.fromTo(rest,
-      { opacity: 0, y: 12 },
-      { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', stagger: 0.05, overwrite: true },
-      heading ? 0.32 : 0.1
+
+  // 4. Custom Cinematic Story Section Animation (Section 2)
+  if (isStory && storyEntries.length) {
+    gsap.set(storyEntries, { transformPerspective: 1000 });
+    tl.fromTo(storyEntries,
+      { opacity: 0, x: -32, y: 20, rotateX: -14 },
+      { opacity: 1, x: 0, y: 0, rotateX: 0, duration: 0.88, ease: 'power3.out', stagger: 0.16 },
+      0.24
     );
   }
+
+  // 5. Custom Cinematic Manifesto Section Animation (Section 3)
+  if (isManifesto) {
+    if (lead) {
+      tl.fromTo(lead,
+        { opacity: 0, y: 18, scale: 0.97 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.82, ease: 'power3.out' },
+        0.22
+      );
+    }
+    if (paragraphs.length) {
+      tl.fromTo(paragraphs,
+        { opacity: 0, x: -22, y: 15, filter: 'blur(3px)' },
+        { opacity: 1, x: 0, y: 0, filter: 'blur(0px)', duration: 0.78, ease: 'power3.out', stagger: 0.12 },
+        0.34
+      );
+    }
+  }
+
+  // 6. Generic sections fallback & special cards
+  if (!isStory && !isManifesto) {
+    if (lead) {
+      tl.fromTo(lead,
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.65, ease: 'power2.out' },
+        0.2
+      );
+    }
+    if (paragraphs.length) {
+      tl.fromTo(paragraphs,
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', stagger: 0.06 },
+        0.28
+      );
+    }
+  }
+
   if (partnerCards.length) {
     gsap.set(partnerCards, { transformPerspective: 900 });
     tl.fromTo(partnerCards,
       { opacity: 0, y: 70, rotationX: -75, transformOrigin: '50% 100%' },
-      { opacity: 1, y: 0, rotationX: 0, duration: 1, ease: 'power4.out', stagger: 0.22, overwrite: true },
-      heading ? 0.34 : 0.12
+      { opacity: 1, y: 0, rotationX: 0, duration: 1, ease: 'power4.out', stagger: 0.22 },
+      0.3
+    );
+  }
+
+  if (musicPlayerEl) {
+    tl.fromTo(musicPlayerEl,
+      { opacity: 0, y: 28, scale: 0.97 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.85, ease: 'power3.out' },
+      0.3
     );
   }
 }
@@ -2532,15 +2602,18 @@ function updateSections() {
     const parallaxX = distance * parallaxSpeed;
     const terrainY = getGround(pos.x);
     const verticalOffset = (viewH * 0.5 - terrainY) * 0.3;
-    sectionEl.style.transform = 'translate(calc(-50% + ' + parallaxX + 'px), calc(-50% + ' + verticalOffset + 'px))';
     const revealRange = (index === 6) ? 900 : 800;
     if (Math.abs(distance) < revealRange) {
       sectionEl.classList.add('visible');
-      let opacity = Math.max(0, 1 - (Math.abs(distance) / revealRange));
+      const t = Math.max(0, 1 - (Math.abs(distance) / revealRange));
+      const smoothFactor = t * t * (3 - 2 * t);
+      let opacity = smoothFactor;
       if (index === 6 && x > CONTACT_X && endOfRoadState.fading) {
         opacity *= endOfRoadState.fade;
       }
       sectionEl.style.opacity = opacity;
+      const scale = 0.95 + 0.05 * smoothFactor;
+      sectionEl.style.transform = 'translate(calc(-50% + ' + parallaxX + 'px), calc(-50% + ' + verticalOffset + 'px)) scale(' + scale + ')';
       if (!sectionRevealed.has(index)) {
         sectionRevealed.add(index);
         revealSectionContent(sectionEl);
@@ -2552,7 +2625,8 @@ function updateSections() {
     } else {
       sectionEl.classList.remove('visible');
       sectionEl.style.opacity = 0;
-      if (Math.abs(distance) > 1600) sectionRevealed.delete(index);
+      sectionEl.style.transform = 'translate(calc(-50% + ' + parallaxX + 'px), calc(-50% + ' + verticalOffset + 'px)) scale(0.95)';
+      if (Math.abs(distance) > 1500) sectionRevealed.delete(index);
     }
   });
 
@@ -2661,31 +2735,13 @@ function checkResonantStones() {
       s.triggered = true;
       ResonanceAudio.playTone(s.noteIdx, 0.65, { duration: 3.2 });
       spawnSoundRing(s.x, getGround(s.x) - 25);
-      showMemoryShard(s);
       if (typeof triggerHaptic === 'function') triggerHaptic('medium');
     }
   }
 }
 
-function showMemoryShard(stone) {
-  const hud = document.getElementById('memoryShardHud');
-  if (!hud) return;
-  const metaEl = document.getElementById('memoryShardMeta');
-  const titleEl = document.getElementById('memoryShardTitle');
-  const textEl = document.getElementById('memoryShardText');
-  if (metaEl) metaEl.textContent = stone.meta;
-  if (titleEl) titleEl.textContent = stone.title;
-  if (textEl) textEl.textContent = stone.text;
-  hud.classList.add('active');
-  hud.setAttribute('aria-hidden', 'false');
-}
-
-function hideMemoryShard() {
-  const hud = document.getElementById('memoryShardHud');
-  if (!hud) return;
-  hud.classList.remove('active');
-  hud.setAttribute('aria-hidden', 'true');
-}
+function showMemoryShard() {}
+function hideMemoryShard() {}
 
 function update(dt) {
   if (!gameStarted) return;
@@ -3947,7 +4003,7 @@ function handleZoneTouchStart(e) {
 
   const target = e.target;
   // Ignore taps on interactive UI dialogs, modal buttons, and navigation
-  if (target && target.closest('button, a, input, select, textarea, .nav-links, .direct-monograph-modal, #videoModal, #qrPopup, .rh-deck-wrap, .rabbit-hole, .mp-controls, .mp-progress-wrap, .memory-shard-card, #welcome')) {
+  if (target && target.closest('button, a, input, select, textarea, .nav-links, .direct-monograph-modal, #videoModal, #qrPopup, .rh-deck-wrap, .rabbit-hole, .mp-controls, .mp-progress-wrap, .music-player, .mp-track, .mp-now, .mp-btn, #welcome')) {
     return;
   }
 
@@ -3974,7 +4030,7 @@ function handleZoneTouchMove(e) {
   if (!gameStarted || (typeof endOfRoadState !== 'undefined' && endOfRoadState.rabbitHoleShown)) return;
 
   const target = e.target;
-  if (target && target.closest('button, a, input, select, textarea, .nav-links, .direct-monograph-modal, #videoModal, #qrPopup, .rh-deck-wrap, .rabbit-hole, .mp-controls, .mp-progress-wrap, .memory-shard-card, #welcome')) {
+  if (target && target.closest('button, a, input, select, textarea, .nav-links, .direct-monograph-modal, #videoModal, #qrPopup, .rh-deck-wrap, .rabbit-hole, .mp-controls, .mp-progress-wrap, .music-player, .mp-track, .mp-now, .mp-btn, #welcome')) {
     return;
   }
 
@@ -4083,15 +4139,6 @@ if (audioToggleBtn) {
     e.preventDefault();
     ResonanceAudio.toggleMute();
     if (typeof triggerHaptic === 'function') triggerHaptic('light');
-  });
-}
-
-// Memory Shard Dismiss
-const memoryShardCloseBtn = document.getElementById('memoryShardClose');
-if (memoryShardCloseBtn) {
-  memoryShardCloseBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    hideMemoryShard();
   });
 }
 
@@ -4205,14 +4252,60 @@ function startGame() {
   }
 })();
 
+// ============================================================================
+// WEBSITE BACKGROUND AUDIO CONTROLLER
+// Stops website ambient soundscape, rolling audio, and orb loops during music playback
+// ============================================================================
+function stopWebsiteBackgroundAudio() {
+  // 1. Stop any currently playing audio file (e.g. ambient orbs)
+  if (typeof currentAudio !== 'undefined' && currentAudio) {
+    try {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    } catch (_) {}
+    currentAudio = null;
+  }
+  if (typeof audioFadeInterval !== 'undefined' && audioFadeInterval) {
+    clearInterval(audioFadeInterval);
+    audioFadeInterval = null;
+  }
+
+  // 2. Mute procedural background soundscape and rolling audio
+  if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.ctx) {
+    ResonanceAudio.isBackgroundSilenced = true;
+    const now = ResonanceAudio.ctx.currentTime;
+    if (ResonanceAudio.ambientGain) {
+      ResonanceAudio.ambientGain.gain.cancelScheduledValues(now);
+      ResonanceAudio.ambientGain.gain.setValueAtTime(ResonanceAudio.ambientGain.gain.value, now);
+      ResonanceAudio.ambientGain.gain.linearRampToValueAtTime(0, now + 0.12);
+    }
+    if (ResonanceAudio.rollingGain) {
+      ResonanceAudio.rollingGain.gain.cancelScheduledValues(now);
+      ResonanceAudio.rollingGain.gain.setValueAtTime(0, now);
+    }
+  }
+}
+
+function restoreWebsiteBackgroundAudio() {
+  if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.ctx && !ResonanceAudio.isMuted) {
+    ResonanceAudio.isBackgroundSilenced = false;
+    const now = ResonanceAudio.ctx.currentTime;
+    if (ResonanceAudio.ambientGain) {
+      ResonanceAudio.ambientGain.gain.cancelScheduledValues(now);
+      ResonanceAudio.ambientGain.gain.setValueAtTime(ResonanceAudio.ambientGain.gain.value, now);
+      ResonanceAudio.ambientGain.gain.linearRampToValueAtTime(0.20, now + 0.5);
+    }
+  }
+}
+
 // Music player
 const MUSIC_TRACKS = [
-  { title:'Berlin Dawn', subtitle:'Handpan · Improvised · Berlin', src:'./audio/berlin-dawn.wav' },
-  { title:'Alexanderplatz Drift', subtitle:'Handpan · Improvised · Berlin', src:'./audio/alexanderplatz-drift.wav' },
-  { title:"Hitchhiker's Scale", subtitle:'Handpan · Improvised · Travels', src:'./audio/hitchhikers-scale.wav' },
-  { title:'Baltic Wind', subtitle:'Handpan · Improvised · Travels', src:'./audio/baltic-wind.wav' },
-  { title:'Athens Courtyard', subtitle:'Handpan · Improvised · Greece', src:'./audio/athens-courtyard.wav' },
-  { title:'Resonance', subtitle:'Handpan · Improvised', src:'./audio/resonance.wav' }
+  { title:'Berlin Dawn', subtitle:'Handpan · Improvised · Berlin', src:'./audio/berlin-dawn.wav', duration: '3:45' },
+  { title:'Alexanderplatz Drift', subtitle:'Handpan · Improvised · Berlin', src:'./audio/alexanderplatz-drift.wav', duration: '4:12' },
+  { title:"Hitchhiker's Scale", subtitle:'Handpan · Improvised · Travels', src:'./audio/hitchhikers-scale.wav', duration: '3:58' },
+  { title:'Baltic Wind', subtitle:'Handpan · Improvised · Travels', src:'./audio/baltic-wind.wav', duration: '4:30' },
+  { title:'Athens Courtyard', subtitle:'Handpan · Improvised · Greece', src:'./audio/athens-courtyard.wav', duration: '3:24' },
+  { title:'Resonance', subtitle:'Handpan · Improvised', src:'./audio/resonance.wav', duration: '4:05' }
 ];
 
 const musicPlayer = { audio:null, index:-1, els:{} };
@@ -4251,39 +4344,81 @@ function mpLoadTrack(index, autoplay) {
   musicPlayer.index = index;
   const a = musicPlayer.audio;
   if (!a) return;
-  a.src = t.src;
-  a.load();
+
+  // STOP all background website audio whenever a track is loaded or changed
+  stopWebsiteBackgroundAudio();
+
   if (musicPlayer.els.title) musicPlayer.els.title.textContent = t.title;
   if (musicPlayer.els.subtitle) musicPlayer.els.subtitle.textContent = t.subtitle;
   if (musicPlayer.els.trackNum) musicPlayer.els.trackNum.textContent = String(index + 1).padStart(2, '0');
   mpHighlightTrack(index);
-  mpSetPlayingUI(false);
+
+  const targetSrc = t.src;
+  if (!a.src || !a.src.endsWith(targetSrc.replace(/^\.\//, ''))) {
+    a.src = targetSrc;
+  }
+
   if (autoplay) {
-    const p = a.play();
-    if (p && p.catch) p.catch(() => {});
+    stopWebsiteBackgroundAudio();
+    const playPromise = a.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        stopWebsiteBackgroundAudio();
+        mpSetPlayingUI(true);
+      }).catch((err) => {
+        console.warn('Track playback prevented by browser:', err);
+        mpSetPlayingUI(false);
+      });
+    }
+  } else {
+    mpSetPlayingUI(false);
   }
 }
 
 function mpTogglePlay() {
   const a = musicPlayer.audio;
   if (!a) return;
-  if (musicPlayer.index < 0) { mpLoadTrack(0, true); return; }
-  if (a.paused) a.play().catch(() => {});
-  else a.pause();
+  if (musicPlayer.index < 0) {
+    mpLoadTrack(0, true);
+    return;
+  }
+  if (a.paused) {
+    stopWebsiteBackgroundAudio();
+    const playPromise = a.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        stopWebsiteBackgroundAudio();
+        mpSetPlayingUI(true);
+      }).catch(() => {});
+    }
+  } else {
+    if (typeof a.pause === 'function') a.pause();
+    restoreWebsiteBackgroundAudio();
+    mpSetPlayingUI(false);
+  }
 }
 
 function mpPrev() {
-  if (musicPlayer.index < 0) { mpLoadTrack(0, true); return; }
-  mpLoadTrack((musicPlayer.index - 1 + MUSIC_TRACKS.length) % MUSIC_TRACKS.length, true);
+  if (musicPlayer.index < 0) {
+    mpLoadTrack(0, true);
+    return;
+  }
+  const nextIdx = (musicPlayer.index - 1 + MUSIC_TRACKS.length) % MUSIC_TRACKS.length;
+  mpLoadTrack(nextIdx, true);
 }
 
 function mpNext() {
-  if (musicPlayer.index < 0) { mpLoadTrack(0, true); return; }
-  mpLoadTrack((musicPlayer.index + 1) % MUSIC_TRACKS.length, true);
+  if (musicPlayer.index < 0) {
+    mpLoadTrack(0, true);
+    return;
+  }
+  const nextIdx = (musicPlayer.index + 1) % MUSIC_TRACKS.length;
+  mpLoadTrack(nextIdx, true);
 }
 
 function initMusicPlayer() {
-  if (!document.getElementById('musicPlayer')) return;
+  const container = document.getElementById('musicPlayer');
+  if (!container) return;
   musicPlayer.audio = document.getElementById('mpAudio');
   musicPlayer.els = {
     title: document.getElementById('mpTitle'),
@@ -4301,30 +4436,73 @@ function initMusicPlayer() {
   };
   const a = musicPlayer.audio;
   if (!a) return;
+
   a.addEventListener('timeupdate', mpUpdateProgress);
   a.addEventListener('loadedmetadata', mpUpdateProgress);
-  a.addEventListener('play', () => mpSetPlayingUI(true));
-  a.addEventListener('pause', () => mpSetPlayingUI(false));
+  a.addEventListener('play', () => {
+    stopWebsiteBackgroundAudio();
+    mpSetPlayingUI(true);
+  });
+  a.addEventListener('pause', () => {
+    mpSetPlayingUI(false);
+    restoreWebsiteBackgroundAudio();
+  });
   a.addEventListener('ended', mpNext);
-  if (musicPlayer.els.playBtn) musicPlayer.els.playBtn.addEventListener('click', (e) => { e.stopPropagation(); mpTogglePlay(); });
-  if (musicPlayer.els.prevBtn) musicPlayer.els.prevBtn.addEventListener('click', (e) => { e.stopPropagation(); mpPrev(); });
-  if (musicPlayer.els.nextBtn) musicPlayer.els.nextBtn.addEventListener('click', (e) => { e.stopPropagation(); mpNext(); });
-  if (musicPlayer.els.progress) {
-    musicPlayer.els.progress.addEventListener('click', (e) => {
+
+  const handleAction = (el, fn) => {
+    if (!el) return;
+    el.addEventListener('click', (e) => {
       e.stopPropagation();
-      const r = musicPlayer.els.progress.getBoundingClientRect();
-      const cx = e.clientX - r.left;
-      a.currentTime = Math.max(0, Math.min(1, cx / r.width)) * a.duration;
-      mpUpdateProgress();
+      e.preventDefault();
+      fn();
     });
+    el.addEventListener('touchend', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      fn();
+    });
+  };
+
+  handleAction(musicPlayer.els.playBtn, mpTogglePlay);
+  handleAction(musicPlayer.els.prevBtn, mpPrev);
+  handleAction(musicPlayer.els.nextBtn, mpNext);
+
+  if (musicPlayer.els.progress) {
+    const onSeek = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const r = musicPlayer.els.progress.getBoundingClientRect();
+      const clientX = (e.touches && e.touches.length) ? e.touches[0].clientX : e.clientX;
+      const frac = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
+      if (a && a.duration) {
+        a.currentTime = frac * a.duration;
+        mpUpdateProgress();
+      }
+    };
+    musicPlayer.els.progress.addEventListener('click', onSeek);
+    musicPlayer.els.progress.addEventListener('touchstart', onSeek, { passive: false });
   }
+
   if (musicPlayer.els.tracklist) {
     musicPlayer.els.tracklist.querySelectorAll('.mp-track').forEach((li) => {
       const idx = parseInt(li.getAttribute('data-index'), 10);
-      li.addEventListener('click', (e) => {
+      const onSelect = (e) => {
         e.stopPropagation();
-        if (musicPlayer.index === idx && !a.paused) a.pause();
-        else mpLoadTrack(idx, true);
+        e.preventDefault();
+        if (musicPlayer.index === idx && !a.paused) {
+          if (typeof a.pause === 'function') a.pause();
+          restoreWebsiteBackgroundAudio();
+        } else {
+          mpLoadTrack(idx, true);
+        }
+      };
+      li.addEventListener('click', onSelect);
+      li.addEventListener('touchend', onSelect);
+      li.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(e);
+        }
       });
     });
   }
