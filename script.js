@@ -4033,9 +4033,17 @@ function handleZoneTouchStart(e) {
   if (!gameStarted || (typeof endOfRoadState !== 'undefined' && endOfRoadState.rabbitHoleShown)) return;
 
   const target = e.target;
-  // Ignore taps on interactive UI dialogs, modal buttons, and navigation
-  if (target && target.closest('button, a, input, select, textarea, .nav-links, .direct-monograph-modal, #videoModal, #qrPopup, .rh-deck-wrap, .rabbit-hole, .mp-controls, .mp-progress-wrap, .music-player, .mp-track, .mp-now, .mp-btn, #welcome')) {
+  // Ignore taps on interactive UI dialogs, modal buttons, sections, cards, and music player
+  if (target && target.closest('button, a, input, select, textarea, .nav-links, .direct-monograph-modal, #videoModal, #qrPopup, .rh-deck-wrap, .rabbit-hole, .mp-controls, .mp-progress-wrap, .music-player, .mp-track, .mp-now, .mp-btn, #welcome, .section, .partner-card, .promo-card, .promo-copy-btn, .touch-controls')) {
     return;
+  }
+  const activeSec = document.querySelector('.section.visible');
+  if (activeSec) {
+    const sRect = activeSec.getBoundingClientRect();
+    const touchPt = (e.touches && e.touches[0]) || e;
+    if (touchPt.clientX >= sRect.left && touchPt.clientX <= sRect.right && touchPt.clientY >= sRect.top && touchPt.clientY <= sRect.bottom) {
+      return; // Do not steer while user interacts with visible section
+    }
   }
 
   UnifiedModalitySystem.activateMobileMode();
@@ -4103,10 +4111,7 @@ function handleZoneTouchEnd(e) {
   zoneEl.addEventListener('touchcancel', handleZoneTouchEnd, { passive: false });
 });
 
-window.addEventListener('touchstart', handleZoneTouchStart, { passive: false });
-window.addEventListener('touchmove', handleZoneTouchMove, { passive: false });
-window.addEventListener('touchend', handleZoneTouchEnd, { passive: false });
-window.addEventListener('touchcancel', handleZoneTouchEnd, { passive: false });
+// Global window touch listeners removed so sections, partner links and music player receive taps
 
 // ============================================================================
 // MOBILE DOUBLE-TAP JUMP SYSTEM
@@ -4135,7 +4140,7 @@ function handleTouchZoneDoubleTap(e) {
 
   // Do not trigger jump if tapping on interactive UI elements or dialogs
   const target = e.target;
-  if (target && target.closest('button.tip-button-mobile, button.touch-action-btn, a, input, select, textarea, .nav-links, .direct-monograph-modal, #videoModal, #qrPopup, .rh-deck-wrap, .rabbit-hole, .mp-controls, .mp-progress-wrap, .memory-shard-card')) {
+  if (target && target.closest('button, a, input, select, textarea, .nav-links, .direct-monograph-modal, #videoModal, #qrPopup, .rh-deck-wrap, .rabbit-hole, .mp-controls, .mp-progress-wrap, .music-player, .mp-track, .partner-card, .section.visible, .memory-shard-card')) {
     return;
   }
 
@@ -4485,7 +4490,6 @@ function initMusicPlayer() {
     if (!el) return;
     const trigger = (e) => {
       e.stopPropagation();
-      e.preventDefault();
       const now = Date.now();
       if (now - lastActionTime < 320) return; // Prevent double-trigger from touchend + click
       lastActionTime = now;
@@ -4525,7 +4529,6 @@ function initMusicPlayer() {
       let lastTrackTime = 0;
       const onSelect = (e) => {
         e.stopPropagation();
-        e.preventDefault();
         const now = Date.now();
         if (now - lastTrackTime < 320) return;
         lastTrackTime = now;
@@ -5743,3 +5746,28 @@ function initPromoCopyButtons() {
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initPromoCopyButtons);
 else initPromoCopyButtons();
+
+
+// ============================================================================
+// PARTNER LINKS MOBILE & DESKTOP INTERACTION HANDLER
+// ============================================================================
+function initPartnerLinks() {
+  const cards = document.querySelectorAll('.partner-card');
+  cards.forEach(card => {
+    let lastNavTime = 0;
+    const openLink = (e) => {
+      const now = Date.now();
+      if (now - lastNavTime < 450) return;
+      lastNavTime = now;
+      e.stopPropagation();
+      const href = card.getAttribute('href');
+      if (href) {
+        window.open(href, '_blank', 'noopener,noreferrer');
+      }
+    };
+    card.addEventListener('click', openLink);
+    card.addEventListener('touchend', openLink);
+  });
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initPartnerLinks);
+else initPartnerLinks();

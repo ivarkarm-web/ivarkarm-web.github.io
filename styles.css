@@ -4494,3 +4494,60 @@ body.rabbit-hole-open #cursor {
   border-color: rgba(72, 187, 120, 0.7) !important;
   color: #48bb78 !important;
 }
+
+
+/* MOBILE_INTERACTIVE_FIX_V2 */
+#sections {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+  z-index: 950 !important;
+}
+
+.section {
+  z-index: 950 !important;
+}
+
+.section.visible {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.section.visible * {
+  pointer-events: auto !important;
+}
+
+.partner-card,
+.partner-card * {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: rgba(212, 175, 55, 0.3) !important;
+}
+
+.music-player,
+.music-player *,
+.mp-btn,
+.mp-btn *,
+.mp-track,
+.mp-track *,
+.mp-progress,
+.mp-progress * {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: rgba(212, 175, 55, 0.3) !important;
+}
+
+/* Ensure touch zones do not swallow taps intended for visible sections */
+.touch-zones {
+  z-index: 850 !important;
+  pointer-events: none !important;
+}
+
+.touch-zone {
+  touch-action: none !important;
+}
