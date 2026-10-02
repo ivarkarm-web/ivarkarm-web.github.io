@@ -1009,6 +1009,31 @@ function windSway(time, wx, layer) {
     Math.sin(time * 2.4 + wx * 0.011) * 0.22;
 }
 
+// Universal smooth atmospheric screen-edge fade (Hermite smoothstep)
+// Prevents sharp popping when trees and architectural models enter/exit viewport
+function getScreenEdgeAlpha(sx, halfWidth = 60, fadeDist = 140) {
+  const leftBound = -halfWidth - fadeDist;
+  const rightBound = viewW + halfWidth + fadeDist;
+  if (sx <= leftBound || sx >= rightBound) return 0;
+
+  const leftMargin = halfWidth + fadeDist;
+  const rightMargin = viewW - (halfWidth + fadeDist);
+
+  if (sx >= leftMargin && sx <= rightMargin) {
+    return 1.0;
+  }
+
+  // Smooth Hermite fade-in on the left
+  if (sx < leftMargin) {
+    const t = Math.max(0, Math.min(1, (sx - leftBound) / (leftMargin - leftBound)));
+    return t * t * (3 - 2 * t);
+  }
+
+  // Smooth Hermite fade-out on the right
+  const t = Math.max(0, Math.min(1, (rightBound - sx) / (rightBound - rightMargin)));
+  return t * t * (3 - 2 * t);
+}
+
 function drawVegFar(offset) {
   if (!ctx || !canvas) return;
   const parallax = 0.40;
@@ -1019,11 +1044,15 @@ function drawVegFar(offset) {
   for (let i = 0; i < vegFar.length; i++) {
     const v = vegFar[i];
     const sx = v.wx - off;
-    if (sx < -60 || sx > viewW + 60) continue;
+    const fade = getScreenEdgeAlpha(sx, 50, 120);
+    if (fade <= 0.005) continue;
     const gy = getGroundFar(v.wx);
     const h = (18 + 28 * v.size);
     const sway = windSway(time, v.wx, 0) * 0.8;
     const isPine = (v.seed % 3 === 0);
+
+    ctx.save();
+    ctx.globalAlpha = (ctx.globalAlpha || 1.0) * fade * 0.88;
 
     if (isPine) {
       // Distant Mediterranean umbrella pine silhouette
@@ -1059,6 +1088,8 @@ function drawVegFar(offset) {
       ctx.lineWidth = 0.6;
       ctx.stroke();
     }
+
+    ctx.restore();
   }
 
   ctx.restore();
@@ -1694,14 +1725,19 @@ function drawVegMid(offset) {
   for (let i = 0; i < vegMid.length; i++) {
     const m = vegMid[i];
     const sx = m.wx - off;
-    if (sx < -80 || sx > viewW + 80) continue;
+    const fade = getScreenEdgeAlpha(sx, 65, 140);
+    if (fade <= 0.005) continue;
     const gy = getGroundMid(m.wx);
     const sz = m.size * Math.sqrt(vegGlobalScale);
+
+    ctx.save();
+    ctx.globalAlpha = (ctx.globalAlpha || 1.0) * fade;
     if (m.type === 'cypress') drawCypressMid(m, sx, gy, sz, m.seed, time);
     else if (m.type === 'olive') drawOliveMid(m, sx, gy - 2, sz, m.seed, time);
     else if (m.type === 'pine') drawStonePineMid(m, sx, gy - 2, sz, m.seed, time);
     else if (m.type === 'willow') drawWillowMid(m, sx, gy - 2, sz, m.seed, time);
     else drawBushMid(m, sx, gy, sz, m.seed, time);
+    ctx.restore();
   }
 }
 
@@ -1790,16 +1826,21 @@ function drawVegNear(offset) {
   for (let i = 0; i < vegNear.length; i++) {
     const n = vegNear[i];
     const sx = n.wx - off;
-    if (sx < -80 || sx > viewW + 80) continue;
+    const fade = getScreenEdgeAlpha(sx, 75, 150);
+    if (fade <= 0.005) continue;
     const gy = getGround(n.wx);
     const slope = Math.abs(getSlope(n.wx));
     if (slope > 0.55) continue;
     const sz = n.size * vegGlobalScale;
+
+    ctx.save();
+    ctx.globalAlpha = (ctx.globalAlpha || 1.0) * fade;
     if (n.type === 'cypress') drawCypressNear(n, sx, gy, sz, n.seed, time);
     else if (n.type === 'olivetree') drawOliveTreeNear(n, sx, gy, sz, n.seed, time);
     else if (n.type === 'pine') drawStonePineNear(n, sx, gy, sz, n.seed, time);
     else if (n.type === 'willow') drawWillowNear(n, sx, gy, sz, n.seed, time);
     else drawGrassNear(n, sx, gy, sz, n.seed, time);
+    ctx.restore();
   }
 }
 
@@ -1813,11 +1854,16 @@ function drawVegFore(offset) {
   for (let i = 0; i < vegFore.length; i++) {
     const n = vegFore[i];
     const sx = n.wx - off;
-    if (sx < -280 || sx > viewW + 280) continue;
+    const fade = getScreenEdgeAlpha(sx, 140, 220);
+    if (fade <= 0.005) continue;
     const gy = getGround(n.wx) + viewH * 0.06;
     const sz = n.size * vegGlobalScale * 1.15;
+    ctx.save();
+    ctx.globalAlpha = (ctx.globalAlpha || 1.0) * fade;
     if (n.type === 'cypress') drawCypressNear(n, sx, gy, sz, n.seed, time);
+    else if (n.type === 'pine') drawStonePineNear(n, sx, gy, sz, n.seed, time);
     else drawOliveTreeNear(n, sx, gy, sz, n.seed, time);
+    ctx.restore();
   }
   ctx.restore();
 }
@@ -2624,12 +2670,14 @@ function drawResonantStones(context, offset) {
   for (let i = 0; i < resonantStones.length; i++) {
     const s = resonantStones[i];
     const screenX = s.x - offset;
-    if (screenX < -120 || screenX > viewW + 120) continue;
+    const fade = getScreenEdgeAlpha(screenX, 50, 130);
+    if (fade <= 0.005) continue;
     const groundY = getGround(s.x);
     const stoneH = 68;
     const stoneW = 24;
 
     context.save();
+    context.globalAlpha = (context.globalAlpha || 1.0) * fade;
     // Ambient sound aura
     const pulse = 0.5 + 0.5 * Math.sin(time * 2.2 + i);
     const glowR = 48 + pulse * 14;
@@ -2687,11 +2735,13 @@ function drawChapterLandmarks(context, offset) {
 
   // A. Distant Berlin TV Tower (Fernsehturm) needle silhouette in twilight haze
   const tvX = 1850 - offset * 0.28;
-  if (tvX > -80 && tvX < viewW + 80) {
+  const tvFade = getScreenEdgeAlpha(tvX, 60, 160);
+  if (tvFade > 0.005) {
     const tvBaseY = getGroundFar(1850) + 15;
     const tvH = 260;
 
     context.save();
+    context.globalAlpha = (context.globalAlpha || 1.0) * tvFade;
     context.fillStyle = 'rgba(18, 24, 38, 0.45)';
     context.strokeStyle = 'rgba(212, 175, 55, 0.12)';
     context.lineWidth = 0.8;
@@ -2740,13 +2790,15 @@ function drawChapterLandmarks(context, offset) {
   // B. Berlin S-Bahn brick viaduct arches with hanging gas lanterns
   for (let vx = 1100; vx <= 2600; vx += 320) {
     const screenX = vx - offset * 0.62;
-    if (screenX < -180 || screenX > viewW + 180) continue;
+    const archFade = getScreenEdgeAlpha(screenX, 160, 240);
+    if (archFade <= 0.005) continue;
     const baseGround = getGroundFar(vx);
     const archH = 120;
     const span = 260;
     const pierW = 34;
 
     context.save();
+    context.globalAlpha = (context.globalAlpha || 1.0) * archFade;
 
     // Heavy masonry pier towers (left and right)
     const pierGrd = context.createLinearGradient(screenX - span / 2, baseGround - archH, screenX - span / 2 + pierW, baseGround);
@@ -2865,12 +2917,14 @@ function drawChapterLandmarks(context, offset) {
   // Stepped semicircular marble tiers cut into hillside, acoustic sounding altar
   // =========================================================================
   const odeonX = 6400 - offset * 0.70;
-  if (odeonX > -240 && odeonX < viewW + 240) {
+  const odeonFade = getScreenEdgeAlpha(odeonX, 140, 220);
+  if (odeonFade > 0.005) {
     const odeonGround = getGroundMid(6400);
     const tierCount = 7;
     const tierWMax = 220;
 
     context.save();
+    context.globalAlpha = (context.globalAlpha || 1.0) * odeonFade;
 
     // Stepped semicircular marble cavea tiers carved into hillside
     for (let t = tierCount; t >= 1; t--) {
@@ -2941,9 +2995,11 @@ function drawChapterLandmarks(context, offset) {
 
   // A. Distant Acropolis Hilltop Parthenon Colonnade on the horizon
   const acropolisX = 8900 - offset * 0.45;
-  if (acropolisX > -150 && acropolisX < viewW + 150) {
+  const acroFade = getScreenEdgeAlpha(acropolisX, 120, 200);
+  if (acroFade > 0.005) {
     const acroY = getGroundFar(8900) - 25;
     context.save();
+    context.globalAlpha = (context.globalAlpha || 1.0) * acroFade;
     context.fillStyle = 'rgba(16, 20, 30, 0.75)';
     context.strokeStyle = 'rgba(212, 175, 55, 0.15)';
     context.lineWidth = 0.8;
@@ -2989,10 +3045,12 @@ function drawChapterLandmarks(context, offset) {
   for (let s = 0; s < templeSites.length; s++) {
     const site = templeSites[s];
     const screenX = site.x - offset * 0.72;
-    if (screenX < -220 || screenX > viewW + 220) continue;
+    const siteFade = getScreenEdgeAlpha(screenX, 140, 220);
+    if (siteFade <= 0.005) continue;
     const baseGround = getGroundMid(site.x);
 
     context.save();
+    context.globalAlpha = (context.globalAlpha || 1.0) * siteFade;
 
     // 1. Stepped marble crepidoma / stylobate platform
     const platW = site.columns * 42 + 40;
@@ -3813,7 +3871,24 @@ function startGame() {
 
 (function () {
   const btn = document.getElementById('welcomeEnter');
-  if (btn) btn.addEventListener('click', (e) => { e.preventDefault(); startGame(); });
+  const welcome = document.getElementById('welcome');
+
+  const onEnterTrigger = (e) => {
+    if (e && e.cancelable) e.preventDefault();
+    startGame();
+  };
+
+  if (btn) {
+    btn.addEventListener('click', onEnterTrigger);
+    btn.addEventListener('touchend', onEnterTrigger, { passive: false });
+    btn.addEventListener('pointerup', onEnterTrigger);
+  }
+
+  if (welcome) {
+    welcome.addEventListener('click', (e) => {
+      if (!gameStarted) startGame();
+    });
+  }
 })();
 
 // Music player
