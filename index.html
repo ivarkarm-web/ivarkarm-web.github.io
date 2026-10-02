@@ -368,6 +368,21 @@
         <span class="contact-label">YouTube</span>
       </a>
     </div>
+    <!-- End of Road Monograph Portal Card -->
+    <div class="rabbit-hole-portal-card" id="rabbitHolePortalCard">
+      <div class="portal-card-glow"></div>
+      <div class="portal-card-header">
+        <span class="portal-card-tag">End of the Road</span>
+        <span class="portal-card-dot">·</span>
+        <span class="portal-card-time">Sound Archive &amp; Monograph</span>
+      </div>
+      <h3 class="portal-card-title">The Rabbit Hole</h3>
+      <p class="portal-card-desc">Beyond the road lies the complete solitary monograph, acoustic field archives, and artisan recordings.</p>
+      <button type="button" class="portal-card-btn" id="openRabbitHoleBtn" aria-label="Enter The Rabbit Hole">
+        <span>Enter The Rabbit Hole</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
   </div>
 
   <!-- QR Code Popup for Tips -->
@@ -524,14 +539,73 @@
      REDESIGNED RABBIT HOLE — Up & Down Scrollable Journey with Bespoke Reveals
      Each section fades as you scroll past; new sections fade in with unique reveals
      ========================================================================== -->
-<!-- Ultra-Premium Cinematic Rabbit Hole Transition Portal -->
-<div class="rabbit-hole-transition-overlay" id="rabbitHoleTransition" aria-hidden="true">
+<!-- Ultra-Premium Cinematic Rabbit Hole Transition Portal with Enter & Leave -->
+<div class="rabbit-hole-transition-overlay" id="rabbitHoleTransition" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="rhPortalTitle">
   <!-- Radial Acoustic Shockwave Ripple Rings -->
   <div class="rh-trans-ripple-wrap" aria-hidden="true">
     <div class="rh-trans-ripple rh-trans-ripple-1"></div>
     <div class="rh-trans-ripple rh-trans-ripple-2"></div>
     <div class="rh-trans-ripple rh-trans-ripple-3"></div>
   </div>
+
+  <!-- Deep Sacred Geometry Tonefield Watermark -->
+  <div class="rh-trans-sacred-geometry" aria-hidden="true">
+    <svg viewBox="0 0 200 200" fill="none" stroke="currentColor">
+      <circle cx="100" cy="100" r="92" stroke-width="0.7" opacity="0.3" stroke-dasharray="4 6"/>
+      <circle cx="100" cy="100" r="68" stroke-width="0.9" opacity="0.45"/>
+      <circle cx="100" cy="100" r="42" stroke-width="1.1" opacity="0.6"/>
+      <circle cx="100" cy="100" r="18" stroke-width="1.4" opacity="0.8"/>
+      <line x1="100" y1="8" x2="100" y2="192" stroke-width="0.5" opacity="0.25"/>
+      <line x1="8" y1="100" x2="192" y2="100" stroke-width="0.5" opacity="0.25"/>
+    </svg>
+  </div>
+
+  <!-- Ambient Light Vignette & Atmospheric Glow -->
+  <div class="rh-trans-glow" aria-hidden="true"></div>
+
+  <!-- High-Performance Golden Embers Particles Canvas -->
+  <canvas class="rh-trans-canvas" id="rhTransCanvas" aria-hidden="true"></canvas>
+
+  <!-- Luxury Sanctuary Portal Card -->
+  <div class="rh-trans-editorial">
+    <div class="rh-trans-eyebrow">
+      <span class="rh-trans-hairline-l"></span>
+      <span class="rh-trans-tag">The Archival Threshold</span>
+      <span class="rh-trans-hairline-r"></span>
+    </div>
+    <h2 class="rh-trans-title" id="rhPortalTitle">The Rabbit Hole</h2>
+    <p class="rh-trans-subtitle">
+      You have reached the edge of the wandering road. Beyond this threshold lies the solitary monograph, handpan metallurgy, unreleased acoustic recordings, and stories from 15 years on the road.
+    </p>
+
+    <!-- Luxury Portal Action Buttons (ENTER & LEAVE) -->
+    <div class="rh-portal-actions">
+      <button type="button" class="rh-portal-btn rh-portal-btn--enter" id="rhPortalEnterBtn" aria-label="Enter The Rabbit Hole">
+        <span class="rh-portal-btn-glow"></span>
+        <span class="rh-portal-btn-text">Enter The Rabbit Hole</span>
+        <svg class="rh-portal-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M12 5v14M19 12l-7 7-7-7"/>
+        </svg>
+      </button>
+
+      <button type="button" class="rh-portal-btn rh-portal-btn--leave" id="rhPortalLeaveBtn" aria-label="Leave and return to the road">
+        <svg class="rh-portal-btn-icon-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span class="rh-portal-btn-text">Return To The Road</span>
+      </button>
+    </div>
+
+    <!-- Acoustic Master Recording Hint -->
+    <div class="rh-trans-hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14" aria-hidden="true">
+        <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+      </svg>
+      <span>Includes 48kHz Master Recordings · 5 Chapters</span>
+    </div>
+  </div>
+</div>
 
   <!-- Deep Sacred Geometry Tonefield Watermark -->
   <div class="rh-trans-sacred-geometry" aria-hidden="true">
@@ -567,6 +641,15 @@
 </div>
 
 <div id="rabbit-hole" class="rabbit-hole" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="rhTitle">
+  <!-- Sticky Floating Mobile Leave Button -->
+  <div class="rh-mobile-leave-bar" id="rhMobileLeaveBar">
+    <button type="button" class="rh-mobile-leave-btn" id="rhMobileLeaveBtn" aria-label="Leave the Rabbit Hole and return to the road">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      <span>Return to Road</span>
+    </button>
+  </div>
   <!-- Ambient sacred geometry background watermark with multi-layer depth parallax -->
   <div class="rh-backdrop-geometry" aria-hidden="true" id="rhBackdropGeometry">
     <!-- Ambient Depth Aura -->

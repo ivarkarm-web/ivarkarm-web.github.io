@@ -5569,7 +5569,7 @@ if (document.readyState === 'loading') {
 // ===== RABBIT HOLE SCREEN OPEN / CLOSE =====
 
 // ============================================================================
-// ULTRA-PREMIUM CINEMATIC RABBIT HOLE TRANSITION SYSTEM
+// ULTRA-PREMIUM CINEMATIC RABBIT HOLE THRESHOLD PORTAL & CONTROLS
 // ============================================================================
 let rhTransAnimId = null;
 
@@ -5625,7 +5625,7 @@ function startTransitionEmbers() {
       ctx.fill();
     }
 
-    if (elapsed < 2400) {
+    if (elapsed < 3000) {
       rhTransAnimId = requestAnimationFrame(render);
     } else {
       ctx.clearRect(0, 0, w, h);
@@ -5647,19 +5647,16 @@ function stopTransitionEmbers() {
   }
 }
 
+// Opens the Threshold Portal with Enter & Leave buttons
 function openRabbitHoleScreen() {
-  if (endOfRoadState.rabbitHoleShown) return;
+  if (endOfRoadState.rabbitHoleShown && document.getElementById('rabbit-hole').classList.contains('visible')) return;
 
-  // 1. Acoustic Resonance Threshold Strike & Tactile Pulse
+  // 1. Acoustic chime & tactile confirmation
   if (typeof triggerHaptic === 'function') triggerHaptic('medium');
   if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.ctx) {
     try {
       ResonanceAudio.resume();
-      // Resonant harmonic chord: Deep Ding fundamental (D3) + subtle Fifth (A3)
-      ResonanceAudio.playTone(0, 0.9, { duration: 4.5, detune: -1200 });
-      setTimeout(() => {
-        ResonanceAudio.playTone(4, 0.6, { duration: 3.8, detune: -500 });
-      }, 150);
+      ResonanceAudio.playTone(0, 0.7, { duration: 3.5 });
     } catch (_) {}
   }
 
@@ -5671,49 +5668,61 @@ function openRabbitHoleScreen() {
   keys = {};
   vx = 0;
 
-  // 2. Road Canvas Cinematic Focus Shift
+  // 2. Cinematic road focus blur
   if (canvas) {
     canvas.style.transition = 'transform 1.1s cubic-bezier(0.16, 1, 0.3, 1), filter 1.1s cubic-bezier(0.16, 1, 0.3, 1)';
     canvas.style.transform = 'scale(1.06)';
     canvas.style.filter = 'blur(10px) brightness(0.4)';
   }
 
-  // 3. Activate the Ultra-Premium Transition Portal Overlay
+  // 3. Open the Threshold Portal overlay (awaits user choice: ENTER or LEAVE)
   const transitionOverlay = document.getElementById('rabbitHoleTransition');
   if (transitionOverlay) {
     transitionOverlay.classList.remove('active');
     void transitionOverlay.offsetWidth;
     transitionOverlay.classList.add('active');
+    transitionOverlay.setAttribute('aria-hidden', 'false');
     startTransitionEmbers();
   }
 
-  // 4. Reveal Rabbit Hole with Cinematic Depth Entrance
+  document.body.classList.add('rabbit-hole-open');
+}
+
+// User confirms ENTER: dissolves into the Monograph
+function confirmEnterRabbitHole() {
+  if (typeof triggerHaptic === 'function') triggerHaptic('heavy');
+  if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.ctx) {
+    try {
+      // Resonant harmonic chord: Deep Ding fundamental (D3) + Fifth (A3)
+      ResonanceAudio.playTone(0, 0.95, { duration: 4.8, detune: -1200 });
+      setTimeout(() => {
+        ResonanceAudio.playTone(4, 0.65, { duration: 4.0, detune: -500 });
+      }, 160);
+    } catch (_) {}
+  }
+
   const el = document.getElementById('rabbit-hole');
+  const transitionOverlay = document.getElementById('rabbitHoleTransition');
+
   if (el) {
     el.classList.remove('rabbit-hole-closing');
     el.setAttribute('aria-hidden', 'false');
     el.scrollTop = 0;
     void el.offsetWidth;
 
-    // Smooth entrance timing aligned with portal bloom
-    setTimeout(() => {
-      el.classList.add('visible');
-      rhScrollManager.reset();
-      rhScrollManager.startParallaxLoop();
-      if (typeof ScrollTrigger !== 'undefined') {
-        ScrollTrigger.refresh();
-      }
-      const closeBtn = document.getElementById('rabbitHoleBackBtn');
-      if (closeBtn) closeBtn.focus();
-    }, 750);
+    el.classList.add('visible');
+    rhScrollManager.reset();
+    rhScrollManager.startParallaxLoop();
+    if (typeof ScrollTrigger !== 'undefined') {
+      ScrollTrigger.refresh();
+    }
   }
 
-  document.body.classList.add('rabbit-hole-open');
-
-  // 5. Seamless Dissolve of Transition Portal once Monograph is presented
+  // Fade out portal overlay smoothly
   setTimeout(() => {
     if (transitionOverlay) {
       transitionOverlay.classList.remove('active');
+      transitionOverlay.setAttribute('aria-hidden', 'true');
     }
     setTimeout(() => {
       stopTransitionEmbers();
@@ -5723,8 +5732,120 @@ function openRabbitHoleScreen() {
         canvas.style.transition = '';
       }
     }, 600);
-  }, 1350);
+  }, 400);
 }
+
+// User chooses LEAVE: returns to the road
+function leaveRabbitHolePortal() {
+  if (typeof triggerHaptic === 'function') triggerHaptic('light');
+  if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.ctx) {
+    try {
+      ResonanceAudio.playTone(2, 0.5, { duration: 2.2 });
+    } catch (_) {}
+  }
+
+  const transitionOverlay = document.getElementById('rabbitHoleTransition');
+  if (transitionOverlay) {
+    transitionOverlay.classList.remove('active');
+    transitionOverlay.setAttribute('aria-hidden', 'true');
+  }
+
+  stopTransitionEmbers();
+
+  if (canvas) {
+    canvas.style.transform = '';
+    canvas.style.filter = '';
+    canvas.style.transition = '';
+  }
+
+  // Back up ball safely to CONTACT_X (11000) so it doesn't immediately re-trigger the threshold
+  x = CONTACT_X;
+  vx = 0;
+  vy = 0;
+  y = getGround(x) - ballRadius;
+  onGround = true;
+  cameraX = x - viewW / 2;
+  cameraY = (getGround(x) - viewH * 0.5) * 0.3;
+  keys = {};
+
+  endOfRoadState.archiveShown = false;
+  endOfRoadState.rabbitHoleShown = false;
+  endOfRoadState.fading = false;
+  endOfRoadState.fade = 1;
+  endOfRoadState.screenFade = 0;
+
+  document.body.classList.remove('rabbit-hole-open');
+}
+
+// Wire up portal buttons and mobile exit controls
+function initRabbitHolePortalControls() {
+  // 1. Enter button on portal
+  const enterBtn = document.getElementById('rhPortalEnterBtn');
+  if (enterBtn) {
+    let lastTime = 0;
+    const onEnter = (e) => {
+      const now = Date.now();
+      if (now - lastTime < 400) return;
+      lastTime = now;
+      e.preventDefault();
+      e.stopPropagation();
+      confirmEnterRabbitHole();
+    };
+    enterBtn.addEventListener('click', onEnter);
+    enterBtn.addEventListener('touchend', onEnter);
+  }
+
+  // 2. Leave button on portal
+  const leaveBtn = document.getElementById('rhPortalLeaveBtn');
+  if (leaveBtn) {
+    let lastTime = 0;
+    const onLeave = (e) => {
+      const now = Date.now();
+      if (now - lastTime < 400) return;
+      lastTime = now;
+      e.preventDefault();
+      e.stopPropagation();
+      leaveRabbitHolePortal();
+    };
+    leaveBtn.addEventListener('click', onLeave);
+    leaveBtn.addEventListener('touchend', onLeave);
+  }
+
+  // 3. Mobile floating leave button inside Rabbit Hole
+  const mobileLeaveBtn = document.getElementById('rhMobileLeaveBtn');
+  if (mobileLeaveBtn) {
+    mobileLeaveBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeRabbitHoleScreen(CONTACT_X);
+    });
+    mobileLeaveBtn.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeRabbitHoleScreen(CONTACT_X);
+    });
+  }
+
+  // 4. On-screen button at Section 6
+  const s6OpenBtn = document.getElementById('openRabbitHoleBtn');
+  if (s6OpenBtn) {
+    s6OpenBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openRabbitHoleScreen();
+    });
+    s6OpenBtn.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openRabbitHoleScreen();
+    });
+  }
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initRabbitHolePortalControls);
+else initRabbitHolePortalControls();
+
+
 
 
 function closeRabbitHoleScreen(targetWorldX) {
