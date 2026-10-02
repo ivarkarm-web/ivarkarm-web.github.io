@@ -5567,9 +5567,102 @@ if (document.readyState === 'loading') {
 }
 
 // ===== RABBIT HOLE SCREEN OPEN / CLOSE =====
+
+// ============================================================================
+// ULTRA-PREMIUM CINEMATIC RABBIT HOLE TRANSITION SYSTEM
+// ============================================================================
+let rhTransAnimId = null;
+
+function startTransitionEmbers() {
+  const c = document.getElementById('rhTransCanvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  if (!ctx) return;
+
+  const w = c.width = window.innerWidth;
+  const h = c.height = window.innerHeight;
+  const cx = w / 2;
+  const cy = h / 2;
+
+  const count = 55;
+  const embers = [];
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 0.6 + Math.random() * 2.2;
+    const dist = Math.random() * 90;
+    embers.push({
+      x: cx + Math.cos(angle) * dist,
+      y: cy + Math.sin(angle) * dist,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 0.45,
+      radius: 1.2 + Math.random() * 2.5,
+      alpha: 0.15 + Math.random() * 0.7,
+      pulseSpeed: 0.02 + Math.random() * 0.04,
+      pulsePhase: Math.random() * Math.PI,
+      hue: Math.random() > 0.4 ? 'rgba(212, 175, 55, ' : 'rgba(247, 236, 213, '
+    });
+  }
+
+  const startTime = Date.now();
+  if (rhTransAnimId) cancelAnimationFrame(rhTransAnimId);
+
+  function render() {
+    const elapsed = Date.now() - startTime;
+    ctx.clearRect(0, 0, w, h);
+
+    for (let i = 0; i < embers.length; i++) {
+      const p = embers[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.pulsePhase += p.pulseSpeed;
+
+      const currentAlpha = Math.max(0, p.alpha * (0.6 + 0.4 * Math.sin(p.pulsePhase)));
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = p.hue + currentAlpha + ')';
+      ctx.shadowColor = 'rgba(212, 175, 55, 0.6)';
+      ctx.shadowBlur = p.radius * 3.5;
+      ctx.fill();
+    }
+
+    if (elapsed < 2400) {
+      rhTransAnimId = requestAnimationFrame(render);
+    } else {
+      ctx.clearRect(0, 0, w, h);
+    }
+  }
+
+  rhTransAnimId = requestAnimationFrame(render);
+}
+
+function stopTransitionEmbers() {
+  if (rhTransAnimId) {
+    cancelAnimationFrame(rhTransAnimId);
+    rhTransAnimId = null;
+  }
+  const c = document.getElementById('rhTransCanvas');
+  if (c) {
+    const ctx = c.getContext('2d');
+    if (ctx) ctx.clearRect(0, 0, c.width, c.height);
+  }
+}
+
 function openRabbitHoleScreen() {
   if (endOfRoadState.rabbitHoleShown) return;
-  triggerHaptic('medium');
+
+  // 1. Acoustic Resonance Threshold Strike & Tactile Pulse
+  if (typeof triggerHaptic === 'function') triggerHaptic('medium');
+  if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.ctx) {
+    try {
+      ResonanceAudio.resume();
+      // Resonant harmonic chord: Deep Ding fundamental (D3) + subtle Fifth (A3)
+      ResonanceAudio.playTone(0, 0.9, { duration: 4.5, detune: -1200 });
+      setTimeout(() => {
+        ResonanceAudio.playTone(4, 0.6, { duration: 3.8, detune: -500 });
+      }, 150);
+    } catch (_) {}
+  }
+
   endOfRoadState.archiveShown = true;
   endOfRoadState.rabbitHoleShown = true;
   endOfRoadState.fading = false;
@@ -5578,21 +5671,31 @@ function openRabbitHoleScreen() {
   keys = {};
   vx = 0;
 
-  // Particle transition effect
-  const transitionOverlay = document.getElementById('rabbitHoleTransition');
-  if (transitionOverlay) {
-    transitionOverlay.classList.add('active');
-    createGoldenParticles();
-    setTimeout(() => {
-      transitionOverlay.classList.remove('active');
-    }, 600);
+  // 2. Road Canvas Cinematic Focus Shift
+  if (canvas) {
+    canvas.style.transition = 'transform 1.1s cubic-bezier(0.16, 1, 0.3, 1), filter 1.1s cubic-bezier(0.16, 1, 0.3, 1)';
+    canvas.style.transform = 'scale(1.06)';
+    canvas.style.filter = 'blur(10px) brightness(0.4)';
   }
 
+  // 3. Activate the Ultra-Premium Transition Portal Overlay
+  const transitionOverlay = document.getElementById('rabbitHoleTransition');
+  if (transitionOverlay) {
+    transitionOverlay.classList.remove('active');
+    void transitionOverlay.offsetWidth;
+    transitionOverlay.classList.add('active');
+    startTransitionEmbers();
+  }
+
+  // 4. Reveal Rabbit Hole with Cinematic Depth Entrance
   const el = document.getElementById('rabbit-hole');
   if (el) {
     el.classList.remove('rabbit-hole-closing');
     el.setAttribute('aria-hidden', 'false');
+    el.scrollTop = 0;
     void el.offsetWidth;
+
+    // Smooth entrance timing aligned with portal bloom
     setTimeout(() => {
       el.classList.add('visible');
       rhScrollManager.reset();
@@ -5602,10 +5705,27 @@ function openRabbitHoleScreen() {
       }
       const closeBtn = document.getElementById('rabbitHoleBackBtn');
       if (closeBtn) closeBtn.focus();
-    }, 80);
+    }, 750);
   }
+
   document.body.classList.add('rabbit-hole-open');
+
+  // 5. Seamless Dissolve of Transition Portal once Monograph is presented
+  setTimeout(() => {
+    if (transitionOverlay) {
+      transitionOverlay.classList.remove('active');
+    }
+    setTimeout(() => {
+      stopTransitionEmbers();
+      if (canvas) {
+        canvas.style.transform = '';
+        canvas.style.filter = '';
+        canvas.style.transition = '';
+      }
+    }, 600);
+  }, 1350);
 }
+
 
 function closeRabbitHoleScreen(targetWorldX) {
   const returnX = (typeof targetWorldX === "number") ? targetWorldX : CONTACT_X;
@@ -5671,22 +5791,7 @@ function closeRabbitHoleScreen(targetWorldX) {
   }
 }
 
-function createGoldenParticles() {
-  const container = document.getElementById('rabbitHoleParticles');
-  if (!container) return;
-  container.innerHTML = '';
-  for (let i = 0; i < 28; i++) {
-    const particle = document.createElement('div');
-    particle.className = 'rabbit-hole-particle';
-    particle.style.left = Math.random() * 100 + '%';
-    particle.style.animationDelay = Math.random() * 2 + 's';
-    particle.style.animationDuration = (2 + Math.random() * 1.5) + 's';
-    const size = 2 + Math.random() * 3;
-    particle.style.width = size + 'px';
-    particle.style.height = size + 'px';
-    container.appendChild(particle);
-  }
-}
+// Replaced by startTransitionEmbers() and Canvas engine
 
 (function initBackBtn() {
   const btn = document.getElementById('rabbitHoleBackBtn');
