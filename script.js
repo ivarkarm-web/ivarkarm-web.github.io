@@ -3621,6 +3621,39 @@ function loop(now) {
 requestAnimationFrame(loop);
 
 // Navigation links
+let dockedSectionIndex = -1;
+let dockedReleaseTime = 0;
+
+function navigateToSection(index) {
+  if (index === undefined || !sectionPositions[index]) return;
+  if (typeof startGame === "function") {
+    const welcome = document.getElementById("welcome");
+    if (welcome && !welcome.classList.contains("hidden")) startGame();
+  }
+  if (typeof endOfRoadState !== "undefined" && endOfRoadState.rabbitHoleShown) {
+    if (typeof closeRabbitHoleScreen === "function") closeRabbitHoleScreen(sectionPositions[index].x);
+  }
+  const target = sectionPositions[index];
+  x = target.x;
+  vx = 0;
+  vy = 0;
+  y = getGround(x) - ballRadius;
+  onGround = true;
+  cameraX = x - viewW / 2;
+  const terrainY = getGround(target.x);
+  cameraY = (terrainY - viewH * 0.5) * 0.3;
+  dockedSectionIndex = index;
+  dockedReleaseTime = Date.now() + 3000;
+  updateSections();
+  const secEl = document.getElementById("s" + index);
+  if (secEl) {
+    secEl.classList.add("visible");
+    secEl.style.opacity = 1;
+    secEl.style.pointerEvents = "auto";
+    revealSectionContent(secEl);
+  }
+}
+
 const navLinkSectionIndex = {
   '#home': 0,
   '#about': 1,
@@ -3644,10 +3677,8 @@ document.querySelectorAll('.nav-links a').forEach(link => {
       return;
     }
     const index = navLinkSectionIndex[hash];
-    if (index !== undefined && sectionPositions[index]) {
-      x = sectionPositions[index].x;
-      vx = 0;
-      if (endOfRoadState.rabbitHoleShown) closeRabbitHoleScreen();
+    if (index !== undefined) {
+      navigateToSection(index);
     }
   });
 });
@@ -4449,18 +4480,19 @@ function initMusicPlayer() {
   });
   a.addEventListener('ended', mpNext);
 
+  let lastActionTime = 0;
   const handleAction = (el, fn) => {
     if (!el) return;
-    el.addEventListener('click', (e) => {
+    const trigger = (e) => {
       e.stopPropagation();
       e.preventDefault();
+      const now = Date.now();
+      if (now - lastActionTime < 320) return; // Prevent double-trigger from touchend + click
+      lastActionTime = now;
       fn();
-    });
-    el.addEventListener('touchend', (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      fn();
-    });
+    };
+    el.addEventListener('click', trigger);
+    el.addEventListener('touchend', trigger);
   };
 
   handleAction(musicPlayer.els.playBtn, mpTogglePlay);
@@ -4486,9 +4518,17 @@ function initMusicPlayer() {
   if (musicPlayer.els.tracklist) {
     musicPlayer.els.tracklist.querySelectorAll('.mp-track').forEach((li) => {
       const idx = parseInt(li.getAttribute('data-index'), 10);
+      const durEl = li.querySelector('.mp-t-dur');
+      if (durEl && MUSIC_TRACKS[idx] && MUSIC_TRACKS[idx].duration) {
+        durEl.textContent = MUSIC_TRACKS[idx].duration;
+      }
+      let lastTrackTime = 0;
       const onSelect = (e) => {
         e.stopPropagation();
         e.preventDefault();
+        const now = Date.now();
+        if (now - lastTrackTime < 320) return;
+        lastTrackTime = now;
         if (musicPlayer.index === idx && !a.paused) {
           if (typeof a.pause === 'function') a.pause();
           restoreWebsiteBackgroundAudio();
@@ -5564,7 +5604,8 @@ function openRabbitHoleScreen() {
   document.body.classList.add('rabbit-hole-open');
 }
 
-function closeRabbitHoleScreen() {
+function closeRabbitHoleScreen(targetWorldX) {
+  const returnX = (typeof targetWorldX === "number") ? targetWorldX : CONTACT_X;
   const el = document.getElementById('rabbit-hole');
   if (el && el.classList.contains('visible')) {
     el.classList.add('rabbit-hole-closing');
@@ -5591,12 +5632,13 @@ function closeRabbitHoleScreen() {
       endOfRoadState.fading = false;
       endOfRoadState.fade = 1;
       endOfRoadState.screenFade = 0;
-      x = CONTACT_X;
+      x = returnX;
       vx = 0;
       vy = 0;
       y = getGround(x) - ballRadius;
       onGround = true;
-      cameraY = 0;
+      cameraX = x - viewW / 2;
+      cameraY = (getGround(x) - viewH * 0.5) * 0.3;
       keys = {};
       document.body.classList.remove('rabbit-hole-open');
       if (canvas) {
@@ -5611,12 +5653,13 @@ function closeRabbitHoleScreen() {
     endOfRoadState.fading = false;
     endOfRoadState.fade = 1;
     endOfRoadState.screenFade = 0;
-    x = CONTACT_X;
+    x = returnX;
     vx = 0;
     vy = 0;
     y = getGround(x) - ballRadius;
     onGround = true;
-    cameraY = 0;
+    cameraX = x - viewW / 2;
+    cameraY = (getGround(x) - viewH * 0.5) * 0.3;
     keys = {};
     document.body.classList.remove('rabbit-hole-open');
     if (canvas) {
@@ -5657,3 +5700,46 @@ function createGoldenParticles() {
 window.openRabbitHoleScreen = openRabbitHoleScreen;
 window.closeRabbitHoleScreen = closeRabbitHoleScreen;
 window.rhScrollManager = rhScrollManager;
+
+
+// ============================================================================
+// PROMO CODE COPY BUTTONS (Artisans & Makers Chapter)
+// ============================================================================
+function initPromoCopyButtons() {
+  const copyButtons = document.querySelectorAll('.promo-copy-btn');
+  copyButtons.forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const code = btn.getAttribute('data-code');
+      if (!code) return;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(code);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = code;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        if (typeof triggerHaptic === 'function') triggerHaptic('light');
+        const copyText = btn.querySelector('.copy-text');
+        const origText = copyText ? copyText.textContent : 'Copy';
+        if (copyText) copyText.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          if (copyText) copyText.textContent = origText;
+          btn.classList.remove('copied');
+        }, 2200);
+      } catch (err) {
+        console.warn('Clipboard copy failed:', err);
+      }
+    });
+  });
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initPromoCopyButtons);
+else initPromoCopyButtons();

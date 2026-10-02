@@ -4470,3 +4470,27 @@ body.rabbit-hole-open #cursor {
   }
 }
 
+
+
+/* Enhanced button & partner card accessibility */
+.partner-card {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+.section.visible .partner-card {
+  pointer-events: auto !important;
+}
+.promo-copy-btn {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+.promo-copy-btn:hover {
+  background: rgba(212, 175, 55, 0.25) !important;
+  border-color: rgba(212, 175, 55, 0.6) !important;
+}
+.promo-copy-btn.copied {
+  background: rgba(72, 187, 120, 0.2) !important;
+  border-color: rgba(72, 187, 120, 0.7) !important;
+  color: #48bb78 !important;
+}
