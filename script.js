@@ -4243,75 +4243,30 @@ if (cursorEl) {
   });
 }
 
-let siteEntered = false;
+let siteEntered = true;
 
 function startGame() {
-  if (siteEntered) return;
-  siteEntered = true;
-  gameStarted = true;
-
-  // Immediately dissolve and remove the welcome screen
-  const welcome = document.getElementById('welcome');
-  if (welcome) {
-    welcome.classList.add('hidden');
-    welcome.style.opacity = '0';
-    welcome.style.pointerEvents = 'none';
-    setTimeout(() => {
-      welcome.style.display = 'none';
-    }, 600);
-  }
-  document.body.classList.remove('pre-enter');
-
-  // Ground handpan at Home
-  x = (sectionPositions && sectionPositions[0]) ? sectionPositions[0].x : 500;
-  vx = 0;
-  vy = 0;
-  y = getGround(x) - ballRadius;
-  onGround = true;
-  cameraY = 0;
-  keys = {};
-
-  // Initialize Web Audio and strike welcoming Ding
   if (typeof ResonanceAudio !== 'undefined') {
     try {
       ResonanceAudio.init();
       ResonanceAudio.resume();
-      ResonanceAudio.playTone(0, 0.7, { duration: 3.2 });
     } catch (_) {}
   }
-
   if (typeof triggerHaptic === 'function') {
-    triggerHaptic('medium');
+    triggerHaptic('light');
   }
-
   if (canvas) {
     try { canvas.focus({ preventScroll: true }); } catch (e) {}
   }
 }
 
-(function () {
-  const btn = document.getElementById('welcomeEnter');
-  const welcome = document.getElementById('welcome');
-
-  const onEnterTrigger = (e) => {
-    if (e) {
-      if (e.cancelable) e.preventDefault();
-      if (e.stopPropagation) e.stopPropagation();
-    }
-    startGame();
-  };
-
-  if (btn) {
-    btn.addEventListener('click', onEnterTrigger);
-    btn.addEventListener('touchend', onEnterTrigger, { passive: false });
-    btn.addEventListener('pointerup', onEnterTrigger);
-  }
-
-  if (welcome) {
-    welcome.addEventListener('click', () => startGame());
-    welcome.addEventListener('touchend', () => startGame(), { passive: true });
-  }
-})();
+// Global touch & click activation to wake audio context immediately
+window.addEventListener('touchstart', () => {
+  if (typeof ResonanceAudio !== 'undefined') ResonanceAudio.resume();
+}, { passive: true });
+window.addEventListener('click', () => {
+  if (typeof ResonanceAudio !== 'undefined') ResonanceAudio.resume();
+}, { passive: true });
 
 // ============================================================================
 // WEBSITE BACKGROUND AUDIO CONTROLLER

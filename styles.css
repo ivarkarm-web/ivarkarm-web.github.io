@@ -5084,3 +5084,24 @@ body.rabbit-hole-open #cursor {
   justify-content: center;
   width: 100%;
 }
+
+/* ==========================================================================
+   INSTANT DIRECT EXPERIENCE OVERRIDE
+   Completely removes the welcome splash barrier and ensures instant visibility
+   ========================================================================== */
+.welcome {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.pre-enter nav,
+body.pre-enter .tip-button,
+body.pre-enter .tip-button-mobile,
+body.pre-enter .touch-controls,
+body.pre-enter .touch-zones,
+body.pre-enter #sections {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+}

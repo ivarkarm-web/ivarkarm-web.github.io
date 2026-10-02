@@ -97,45 +97,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 </head>
-<body class="pre-enter">
+<body>
 <a href="#main-content" class="skip-link">Skip to main content</a>
 
-<!-- Welcome / Enter screen -->
-<div id="welcome" class="welcome" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
-  <div class="welcome-flower-wrap" aria-hidden="true">
-    <svg class="welcome-flower" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
-      <g class="fol-ring fol-ring--outer">
-        <circle cx="300" cy="300" r="270" />
-      </g>
-      <g class="fol-ring fol-ring--mid">
-        <circle cx="300" cy="90"  r="90"/><circle cx="481.9" cy="195" r="90"/><circle cx="481.9" cy="405" r="90"/>
-        <circle cx="300" cy="510" r="90"/><circle cx="118.1" cy="405" r="90"/><circle cx="118.1" cy="195" r="90"/>
-      </g>
-      <g class="fol-ring fol-ring--inner">
-        <circle cx="300" cy="300" r="90"/>
-        <circle cx="300" cy="210" r="90"/><circle cx="377.9" cy="255" r="90"/><circle cx="377.9" cy="345" r="90"/>
-        <circle cx="300" cy="390" r="90"/><circle cx="222.1" cy="345" r="90"/><circle cx="222.1" cy="255" r="90"/>
-      </g>
-      <g class="fol-ring fol-ring--center">
-        <circle cx="300" cy="300" r="18"/>
-      </g>
-    </svg>
-  </div>
-  <div class="welcome-inner">
-    <span class="welcome-eyebrow">Resonance</span>
-    <h1 id="welcomeTitle" class="welcome-title">Ivar Karm</h1>
-    <div class="welcome-hairline"></div>
-    <p class="welcome-sub">street performer · improviser · handpan artist</p>
-    <button type="button" class="welcome-enter" id="welcomeEnter" aria-label="Enter the experience">
-      <span>Enter</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-    </button>
-    <p class="welcome-hint">
-      <span class="desktop-ctrl-hint keyboard-prompt-overlay">Use arrow keys or A / D to move · Space to jump · Shift to dash</span>
-      <span class="mobile-ctrl-hint">Hold sides to roll · Double-tap to jump · Dash button to glide</span>
-    </p>
-  </div>
-</div>
+
 
 <div id="cursor"></div>
 
@@ -190,7 +155,7 @@
 
 <div id="sections" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 950;">
   <!-- Home -->
-  <div class="section" id="s0" role="region" aria-label="Home">
+  <div class="section visible" id="s0" role="region" aria-label="Home">
     <span class="eyebrow">Resonance — a wandering handpan</span>
     <h1>Ivar karm</h1>
     <div class="hairline"></div>
