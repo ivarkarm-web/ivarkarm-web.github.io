@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ivar Karm – Resonance</title>
+  <meta name="description" content="Street performer, improviser, and handpan artist. Creating moments where sound and life converge across Berlin, Athens, and Europe.">
+  <meta name="keywords" content="Ivar Karm, handpan artist, street performer, improviser, Berlin handpan, Athens busker, European street music, acoustic handpan, handpan resonance, meditation music">
+  <meta name="author" content="Ivar Karm">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <link rel="canonical" href="https://ivarkarm-web.github.io/">
+
+  <!-- OpenGraph / Social Sharing -->
+  <meta property="og:title" content="Ivar Karm – Resonance">
+  <meta property="og:description" content="Street performer, improviser, and handpan artist. Creating moments where sound and life converge across Berlin, Athens, and Europe.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ivarkarm-web.github.io/">
+  <meta property="og:site_name" content="Ivar Karm – Resonance">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ivar Karm – Resonance">
+  <meta name="twitter:description" content="Street performer, improviser, and handpan artist. Creating moments where sound and life converge across Berlin, Athens, and Europe.">
+
+  <!-- Schema.org JSON-LD Structured Data for Google Search & Rich Snippets -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://ivarkarm-web.github.io/#person",
+        "name": "Ivar Karm",
+        "url": "https://ivarkarm-web.github.io/",
+        "jobTitle": "Handpan Artist & Street Performer",
+        "description": "Street performer, improviser, and handpan artist. Creating moments where sound and life converge across Berlin, Athens, and Europe.",
+        "sameAs": [
+          "https://github.com/ivarkarm-web"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://ivarkarm-web.github.io/#website",
+        "url": "https://ivarkarm-web.github.io/",
+        "name": "Ivar Karm – Resonance",
+        "description": "The official digital monograph and acoustic experience of Ivar Karm.",
+        "publisher": {
+          "@id": "https://ivarkarm-web.github.io/#person"
+        }
+      },
+      {
+        "@type": "MusicPlaylist",
+        "name": "Ivar Karm – Improvised Handpan Works",
+        "numTracks": 6,
+        "track": [
+          {
+            "@type": "MusicRecording",
+            "name": "Berlin Dawn",
+            "byArtist": { "@id": "https://ivarkarm-web.github.io/#person" }
+          },
+          {
+            "@type": "MusicRecording",
+            "name": "Alexanderplatz Drift",
+            "byArtist": { "@id": "https://ivarkarm-web.github.io/#person" }
+          },
+          {
+            "@type": "MusicRecording",
+            "name": "Hitchhiker's Scale",
+            "byArtist": { "@id": "https://ivarkarm-web.github.io/#person" }
+          },
+          {
+            "@type": "MusicRecording",
+            "name": "Baltic Wind",
+            "byArtist": { "@id": "https://ivarkarm-web.github.io/#person" }
+          },
+          {
+            "@type": "MusicRecording",
+            "name": "Athens Courtyard",
+            "byArtist": { "@id": "https://ivarkarm-web.github.io/#person" }
+          },
+          {
+            "@type": "MusicRecording",
+            "name": "Resonance",
+            "byArtist": { "@id": "https://ivarkarm-web.github.io/#person" }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340..600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <!-- GSAP & ScrollTrigger for standalone direct-branch hosting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+</head>
+<body class="pre-enter">
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- Welcome / Enter screen -->
+<div id="welcome" class="welcome" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+  <div class="welcome-flower-wrap" aria-hidden="true">
+    <svg class="welcome-flower" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+      <g class="fol-ring fol-ring--outer">
+        <circle cx="300" cy="300" r="270" />
+      </g>
+      <g class="fol-ring fol-ring--mid">
+        <circle cx="300" cy="90"  r="90"/><circle cx="481.9" cy="195" r="90"/><circle cx="481.9" cy="405" r="90"/>
+        <circle cx="300" cy="510" r="90"/><circle cx="118.1" cy="405" r="90"/><circle cx="118.1" cy="195" r="90"/>
+      </g>
+      <g class="fol-ring fol-ring--inner">
+        <circle cx="300" cy="300" r="90"/>
+        <circle cx="300" cy="210" r="90"/><circle cx="377.9" cy="255" r="90"/><circle cx="377.9" cy="345" r="90"/>
+        <circle cx="300" cy="390" r="90"/><circle cx="222.1" cy="345" r="90"/><circle cx="222.1" cy="255" r="90"/>
+      </g>
+      <g class="fol-ring fol-ring--center">
+        <circle cx="300" cy="300" r="18"/>
+      </g>
+    </svg>
+  </div>
+  <div class="welcome-inner">
+    <span class="welcome-eyebrow">Resonance</span>
+    <h1 id="welcomeTitle" class="welcome-title">Ivar Karm</h1>
+    <div class="welcome-hairline"></div>
+    <p class="welcome-sub">street performer · improviser · handpan artist</p>
+    <button type="button" class="welcome-enter" id="welcomeEnter" aria-label="Enter the experience">
+      <span>Enter</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+    <p class="welcome-hint">
+      <span class="desktop-ctrl-hint keyboard-prompt-overlay">Use arrow keys or A / D to move · Space to jump · Shift to dash</span>
+      <span class="mobile-ctrl-hint">Hold sides to roll · Double-tap to jump · Dash button to glide</span>
+    </p>
+  </div>
+</div>
+
+<div id="cursor"></div>
+
+<nav>
+  <div class="logo">Ivar Karm</div>
+  <div class="nav-right-actions">
+    <button type="button" class="nav-action-btn" id="audioToggleBtn" aria-label="Toggle interactive acoustic sound" title="Mute/Unmute sound (Key: M)">
+      <svg class="icon-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+      </svg>
+      <svg class="icon-sound-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="display:none;">
+        <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+        <line x1="23" y1="9" x2="17" y2="15"/>
+        <line x1="17" y1="9" x2="23" y2="15"/>
+      </svg>
+      <span class="nav-btn-label">Acoustic</span>
+    </button>
+    <button type="button" class="nav-action-btn" id="monographToggleBtn" aria-label="Open complete direct monograph reader" title="Read complete monograph directly">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+      <span class="nav-btn-label">Monograph</span>
+    </button>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#story">Story</a></li>
+    <li><a href="#manifesto">Manifesto</a></li>
+    <li><a href="#album">Album</a></li>
+    <li><a href="#partners">Partners</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#rabbit-hole">Rabbit Hole</a></li>
+  </ul>
+</nav>
+
+<button class="tip-button" id="tipButton" aria-label="Show tip QR code">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+  </svg>
+</button>
+
+<canvas id="game" aria-hidden="true"></canvas>
+
+<div id="sections" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50;">
+  <!-- Home -->
+  <div class="section" id="s0" role="region" aria-label="Home">
+    <span class="eyebrow">Resonance — a wandering handpan</span>
+    <h1>Ivar karm</h1>
+    <div class="hairline"></div>
+    <p class="subtitle">street performer, improviser, handpan artist</p>
+    <p class="subtext">Before sound, there is listening.</p>
+  </div>
+
+  <!-- About -->
+  <div class="section" id="s1" role="region" aria-label="About">
+    <span class="eyebrow">The short version</span>
+    <h2>About</h2>
+    <div class="hairline"></div>
+    <p class="lead">Street performer, improviser, and sonic wanderer.</p>
+    <p>From the streets of Berlin to the corners of Athens, creating moments where sound and life converge.</p>
+  </div>
+
+  <!-- Story -->
+  <div class="section with-backdrop" id="s2" role="region" aria-label="Story">
+    <span class="eyebrow">Two decades on the move</span>
+    <h2>The Story</h2>
+    <div class="hairline"></div>
+    <div class="story-entry">
+      <p class="story-era">2008 – 2012 · Berlin</p>
+      <p>Teenage years, squatting abandoned buildings, busking metro stations. Rosenthaler Platz, Alexanderplatz, Warschauer Brücke.</p>
+    </div>
+    <div class="story-entry">
+      <p class="story-era">2013 – 2020 · Travels</p>
+      <p>Traveled through Germany, Netherlands, Belgium, Poland, Latvia, Lithuania, Estonia. Hitchhiking, buses, tents, urban parks.</p>
+    </div>
+    <div class="story-entry">
+      <p class="story-era">Currently · Greece</p>
+      <p>Living in Greece. Streets are my stage, handpan in hand.</p>
+    </div>
+  </div>
+
+  <!-- Manifesto -->
+  <div class="section with-backdrop" id="s3" role="region" aria-label="Manifesto">
+    <span class="eyebrow">How I think about this</span>
+    <h2>Manifesto</h2>
+    <div class="hairline"></div>
+    <p class="lead">I don't separate life from music.</p>
+    <p>What I play comes from how I live—moving, searching, messing up, starting again.</p>
+    <p>The street is my stage because it's real. No tickets, no barriers.</p>
+    <p>If you stop, you're part of it. If you listen, we share something.</p>
+    <p>I don't chase perfection. I chase moments—where sound, place, and people line up.</p>
+  </div>
+
+  <!-- Album / Music -->
+  <div class="section with-backdrop" id="s4" role="region" aria-label="Album">
+    <span class="eyebrow">Improvised sessions</span>
+    <h2>Album</h2>
+    <div class="hairline"></div>
+    <p class="lead">Six moments of pure improvisation</p>
+    <div class="music-player" id="musicPlayer">
+      <div class="mp-now">
+        <div class="mp-meta">
+          <span class="mp-track-num" id="mpTrackNum">01</span>
+          <div class="mp-titles">
+            <span class="mp-title" id="mpTitle">Select a track</span>
+            <span class="mp-subtitle" id="mpSubtitle">Handpan · Improvised</span>
+          </div>
+        </div>
+        <div class="mp-progress-wrap">
+          <div class="mp-progress" id="mpProgress" role="slider" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="mp-progress-track">
+              <div class="mp-progress-filled" id="mpProgressFilled"></div>
+              <div class="mp-progress-handle" id="mpProgressHandle"></div>
+            </div>
+          </div>
+          <div class="mp-time"><span id="mpCurrentTime">0:00</span><span id="mpDuration">0:00</span></div>
+        </div>
+        <div class="mp-controls">
+          <button class="mp-btn" id="mpPrev" aria-label="Previous track"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+          <button class="mp-btn mp-btn-play" id="mpPlay" aria-label="Play">
+            <svg class="mp-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+            <svg class="mp-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+          </button>
+          <button class="mp-btn" id="mpNext" aria-label="Next track"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6v12z"/></svg></button>
+        </div>
+      </div>
+      <ul class="mp-tracklist" id="mpTracklist" role="list">
+        <li class="mp-track" data-index="0" role="button" tabindex="0"><span class="mp-t-num">01</span><span class="mp-t-name">Berlin Dawn</span><span class="mp-t-dur">—</span></li>
+        <li class="mp-track" data-index="1" role="button" tabindex="0"><span class="mp-t-num">02</span><span class="mp-t-name">Alexanderplatz Drift</span><span class="mp-t-dur">—</span></li>
+        <li class="mp-track" data-index="2" role="button" tabindex="0"><span class="mp-t-num">03</span><span class="mp-t-name">Hitchhiker's Scale</span><span class="mp-t-dur">—</span></li>
+        <li class="mp-track" data-index="3" role="button" tabindex="0"><span class="mp-t-num">04</span><span class="mp-t-name">Baltic Wind</span><span class="mp-t-dur">—</span></li>
+        <li class="mp-track" data-index="4" role="button" tabindex="0"><span class="mp-t-num">05</span><span class="mp-t-name">Athens Courtyard</span><span class="mp-t-dur">—</span></li>
+        <li class="mp-track" data-index="5" role="button" tabindex="0"><span class="mp-t-num">06</span><span class="mp-t-name">Resonance</span><span class="mp-t-dur">—</span></li>
+      </ul>
+      <audio id="mpAudio" preload="metadata"></audio>
+    </div>
+  </div>
+
+  <!-- Partners -->
+  <div class="section with-backdrop" id="s5" role="region" aria-label="Partners">
+    <span class="eyebrow">Who makes the instrument</span>
+    <h2>Partners</h2>
+    <div class="hairline"></div>
+    <p class="lead">Handpan makers I collaborate with</p>
+    <div class="partners-list" id="partnersList">
+      <a href="https://www.instagram.com/heka.handpans/" target="_blank" rel="noopener noreferrer" class="partner-card">
+        <div class="partner-shine"></div>
+        <div class="partner-mark partner-mark--heka">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="partner-svg-icon" aria-hidden="true">
+            <ellipse cx="12" cy="12" rx="9" ry="6"></ellipse>
+            <circle cx="12" cy="12" r="1.8" fill="currentColor"></circle>
+            <circle cx="8" cy="11" r="1"></circle>
+            <circle cx="16" cy="11" r="1"></circle>
+            <circle cx="10" cy="14" r="1"></circle>
+            <circle cx="14" cy="14" r="1"></circle>
+          </svg>
+        </div>
+        <div class="partner-meta">
+          <span class="partner-name">Heka Handpans</span>
+          <span class="partner-location">Greece</span>
+        </div>
+        <span class="partner-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+        </span>
+      </a>
+      <a href="https://namana-bags.com/" target="_blank" rel="noopener noreferrer" class="partner-card">
+        <div class="partner-shine"></div>
+        <div class="partner-mark partner-mark--namana">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="partner-svg-icon" aria-hidden="true">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+        </div>
+        <div class="partner-meta">
+          <span class="partner-name">Namana Bags</span>
+          <span class="partner-location">Travel Hardcases &amp; Bags</span>
+        </div>
+        <span class="partner-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+        </span>
+      </a>
+      <a href="https://godan.nl/en/godan/" target="_blank" rel="noopener noreferrer" class="partner-card">
+        <div class="partner-shine"></div>
+        <div class="partner-mark partner-mark--godan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="partner-svg-icon" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle>
+            <circle cx="12" cy="12" r="4"></circle>
+            <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
+            <path d="M12 3v3M12 18v3M3 12h3M18 12h3"></path>
+          </svg>
+        </div>
+        <div class="partner-meta">
+          <span class="partner-name">Godan Handpans</span>
+          <span class="partner-location">Netherlands</span>
+        </div>
+        <span class="partner-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+        </span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Contact -->
+  <div class="section with-backdrop" id="s6" role="region" aria-label="Contact">
+    <span class="eyebrow">Get in touch</span>
+    <h2>Let's Create Together</h2>
+    <div class="hairline"></div>
+    <p class="lead">If this resonated with you, reach out.</p>
+    <div class="contact-icons">
+      <a href="mailto:ivar.karm@gmail.com" class="contact-icon" aria-label="Send Email">
+        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        <span class="contact-label">Email</span>
+      </a>
+      <a href="https://www.instagram.com/ivar.karm/" class="contact-icon" target="_blank" rel="noopener noreferrer" aria-label="Follow on Instagram">
+        <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        <span class="contact-label">Instagram</span>
+      </a>
+      <a href="https://www.youtube.com/@IvarKarm" class="contact-icon" target="_blank" rel="noopener noreferrer" aria-label="Subscribe on YouTube">
+        <svg viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816.029-6.185.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+        <span class="contact-label">YouTube</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- QR Code Popup for Tips -->
+  <div class="qr-popup" id="qrPopup">
+    <div class="qr-content">
+      <h3>Tip Me</h3>
+      <p>Scan to tip via busk.co<br>Every bit helps keep the music playing</p>
+      <a href="https://busk.co/84950/tip" target="_blank" rel="noopener noreferrer" class="qr-link" aria-label="Open busk.co tip page">
+        <svg viewBox="0 0 27 27" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QR code linking to busk.co/84950">
+          <rect width="27" height="27" fill="#ffffff"/>
+          <path d="M1,1H2V2H1zM2,1H3V2H2zM3,1H4V2H3zM4,1H5V2H4zM5,1H6V2H5zM6,1H7V2H6zM7,1H8V2H7zM10,1H11V2H10zM12,1H13V2H12zM14,1H15V2H14zM17,1H18V2H17zM19,1H20V2H19zM20,1H21V2H20zM21,1H22V2H21zM22,1H23V2H22zM23,1H24V2H23zM24,1H25V2H24zM25,1H26V2H25zM1,2H2V3H1zM7,2H8V3H7zM9,2H10V3H9zM10,2H11V3H10zM11,2H12V3H11zM15,2H16V3H15zM19,2H20V3H19zM25,2H26V3H25zM1,3H2V4H1zM3,3H4V4H3zM4,3H5V4H4zM5,3H6V4H5zM7,3H8V4H7zM9,3H10V4H9zM13,3H14V4H13zM16,3H17V4H16zM19,3H20V4H19zM21,3H22V4H21zM22,3H23V4H22zM23,3H24V4H23zM25,3H26V4H25zM1,4H2V5H1zM3,4H4V5H3zM4,4H5V5H4zM5,4H6V5H5zM7,4H8V5H7zM9,4H10V5H9zM10,4H11V5H10zM14,4H15V5H14zM15,4H16V5H15zM16,4H17V5H16zM19,4H20V5H19zM21,4H22V5H21zM22,4H23V5H22zM23,4H24V5H23zM25,4H26V5H25zM1,5H2V6H1zM3,5H4V6H3zM4,5H5V6H4zM5,5H6V6H5zM7,5H8V6H7zM12,5H13V6H12zM13,5H14V6H13zM14,5H15V6H14zM15,5H16V6H15zM19,5H20V6H19zM21,5H22V6H21zM22,5H23V6H22zM23,5H24V6H23zM25,5H26V6H25zM1,6H2V7H1zM7,6H8V7H7zM10,6H11V7H10zM11,6H12V7H11zM17,6H18V7H17zM19,6H20V7H19zM25,6H26V7H25zM1,7H2V8H1zM2,7H3V8H2zM3,7H4V8H3zM4,7H5V8H4zM5,7H6V8H5zM6,7H7V8H6zM7,7H8V8H7zM9,7H10V8H9zM11,7H12V8H11zM13,7H14V8H13zM15,7H16V8H15zM17,7H18V8H17zM19,7H20V8H19zM20,7H21V8H20zM21,7H22V8H21zM22,7H23V8H22zM23,7H24V8H23zM24,7H25V8H24zM25,7H26V8H25zM9,8H10V9H9zM11,8H12V9H11zM13,8H14V9H13zM15,8H16V9H15zM16,8H17V9H16zM17,8H18V9H17zM1,9H2V10H1zM7,9H8V10H7zM9,9H10V10H9zM12,9H13V10H12zM14,9H15V10H14zM18,9H19V10H18zM19,9H20V10H19zM22,9H23V10H22zM23,9H24V10H23zM24,9H25V10H24zM4,10H5V11H4zM8,10H9V11H8zM11,10H12V11H11zM13,10H14V11H13zM16,10H17V11H16zM17,10H18V11H17zM18,10H19V11H18zM20,10H21V11H20zM21,10H22V11H21zM22,10H23V11H22zM23,10H24V11H23zM24,10H25V11H24zM1,11H2V12H1zM2,11H3V12H2zM3,11H4V12H3zM5,11H6V12H5zM7,11H8V12H7zM10,11H11V12H10zM15,11H16V12H15zM16,11H17V12H16zM17,11H18V12H17zM18,11H19V12H18zM19,11H20V12H19zM21,11H22V12H21zM22,11H23V12H22zM24,11H25V12H24zM25,11H26V12H25zM2,12H3V13H2zM3,12H4V13H3zM5,12H6V13H5zM8,12H9V13H8zM11,12H12V13H11zM13,12H14V13H13zM15,12H16V13H15zM16,12H17V13H16zM17,12H18V13H17zM18,12H19V13H18zM19,12H20V13H19zM22,12H23V13H22zM25,12H26V13H25zM6,13H7V14H6zM7,13H8V14H7zM8,13H9V14H8zM12,13H13V14H12zM13,13H14V14H13zM15,13H16V14H15zM17,13H18V14H17zM19,13H20V14H19zM20,13H21V14H20zM25,13H26V14H25zM1,14H2V15H1zM2,14H3V15H2zM3,14H4V15H3zM4,14H5V15H4zM5,14H6V15H5zM6,14H7V15H6zM15,14H16V15H15zM16,14H17V15H16zM17,14H18V15H17zM18,14H19V15H18zM20,14H21V15H20zM24,14H25V15H24zM1,15H2V16H1zM4,15H5V16H4zM5,15H6V16H5zM6,15H7V16H6zM7,15H8V16H7zM8,15H9V16H8zM12,15H13V16H12zM13,15H14V16H13zM16,15H17V16H16zM17,15H18V16H17zM19,15H20V16H19zM20,15H21V16H20zM21,15H22V16H21zM22,15H23V16H22zM24,15H25V16H24zM25,15H26V16H25zM1,16H2V17H1zM3,16H4V17H3zM4,16H5V17H4zM6,16H7V17H6zM10,16H11V17H10zM11,16H12V17H11zM12,16H13V17H12zM15,16H16V17H15zM16,16H17V17H16zM17,16H18V17H17zM18,16H19V17H18zM20,16H21V17H20zM22,16H23V17H22zM23,16H24V17H23zM25,16H26V17H25zM1,17H2V18H1zM3,17H4V18H3zM4,17H5V18H4zM7,17H8V18H7zM10,17H11V18H10zM11,17H12V18H11zM12,17H13V18H12zM16,17H17V18H16zM17,17H18V18H17zM18,17H19V18H18zM19,17H20V18H19zM20,17H21V18H20zM21,17H22V18H21zM23,17H24V18H23zM9,18H10V19H9zM10,18H11V19H10zM13,18H14V19H13zM14,18H15V19H14zM17,18H18V19H17zM21,18H22V19H21zM1,19H2V20H1zM2,19H3V20H2zM3,19H4V20H3zM4,19H5V20H4zM5,19H6V20H5zM6,19H7V20H6zM7,19H8V20H7zM10,19H11V20H10zM11,19H12V20H11zM12,19H13V20H12zM17,19H18V20H17zM19,19H20V20H19zM21,19H22V20H21zM25,19H26V20H25zM1,20H2V21H1zM7,20H8V21H7zM11,20H12V21H11zM13,20H14V21H13zM14,20H15V21H14zM16,20H17V21H16zM17,20H18V21H17zM21,20H22V21H21zM24,20H25V21H24zM25,20H26V21H25zM1,21H2V22H1zM3,21H4V22H3zM4,21H5V22H4zM5,21H6V22H5zM7,21H8V22H7zM11,21H12V22H11zM13,21H14V22H13zM15,21H16V22H15zM16,21H17V22H16zM17,21H18V22H17zM18,21H19V22H18zM19,21H20V22H19zM20,21H21V22H20zM21,21H22V22H21zM23,21H24V22H23zM24,21H25V22H24zM25,21H26V22H25zM1,22H2V23H1zM3,22H4V23H3zM4,22H5V23H4zM5,22H6V23H5zM7,22H8V23H7zM10,22H11V23H10zM11,22H12V23H11zM15,22H16V23H15zM18,22H19V23H18zM19,22H20V23H19zM24,22H25V23H24zM25,22H26V23H25zM1,23H2V24H1zM3,23H4V24H3zM4,23H5V24H4zM5,23H6V24H5zM7,23H8V24H7zM11,23H12V24H11zM12,23H13V24H12zM13,23H14V24H13zM17,23H18V24H17zM22,23H23V24H22zM23,23H24V24H23zM25,23H26V24H25zM1,24H2V25H1zM7,24H8V25H7zM11,24H12V25H11zM12,24H13V25H12zM15,24H16V25H15zM17,24H18V25H17zM20,24H21V25H20zM21,24H22V25H21zM25,24H26V25H25zM1,25H2V26H1zM2,25H3V26H2zM3,25H4V26H3zM4,25H5V26H4zM5,25H6V26H5zM6,25H7V26H6zM7,25H8V26H7zM9,25H10V26H9zM14,25H15V26H14zM15,25H16V26H15zM16,25H17V26H16zM17,25H18V26H17zM22,25H23V26H22zM25,25H26V26H25zM26,26H27V27H26z" fill="#000000"/>
+        </svg>
+      </a>
+      <p style="font-size: 0.8rem; color: #999;">busk.co/84950/tip</p>
+      <button class="qr-close" id="qrCloseBtn">Close</button>
+    </div>
+  </div>
+
+  <!-- Custom Video Modal -->
+  <div class="video-modal" id="videoModal" aria-hidden="true" role="dialog" aria-label="Video player">
+    <div class="video-modal-backdrop" id="videoModalBackdrop"></div>
+    <div class="video-player-shell">
+      <div class="video-player-header">
+        <span class="video-player-title" id="videoPlayerTitle">Performance</span>
+        <button class="video-player-close" id="videoPlayerClose" aria-label="Close video">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="video-player-frame">
+        <video id="handpanVideo" playsinline preload="metadata" poster=""></video>
+        <iframe id="vimeoFrame" class="vimeo-frame" src="" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="Vimeo video" style="display:none;"></iframe>
+        <button class="video-big-play" id="videoBigPlay" aria-label="Play">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5.14v14l11-7-11-7z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="video-controls" id="videoControls">
+        <button class="vc-btn" id="vcPlay" aria-label="Play / Pause">
+          <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+          <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+        </button>
+        <div class="vc-progress" id="vcProgress">
+          <div class="vc-progress-track">
+            <div class="vc-progress-filled" id="vcProgressFilled"></div>
+            <div class="vc-progress-handle" id="vcProgressHandle"></div>
+          </div>
+        </div>
+        <span class="vc-time" id="vcTime">0:00 / 0:00</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="touch-zones" id="touchZones">
+  <div class="touch-zone left" id="touchLeft" aria-hidden="true"></div>
+  <div class="touch-zone right" id="touchRight" aria-hidden="true"></div>
+</div>
+
+<div class="touch-controls" id="touchControls">
+  <div class="touch-cluster-left">
+    <button type="button" class="touch-arrow left" id="touchArrowLeft" aria-label="Roll left">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </button>
+    <button type="button" class="touch-arrow right" id="touchArrowRight" aria-label="Roll right">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </button>
+  </div>
+  <div class="touch-center">
+    <button class="tip-button-mobile" id="tipButtonMobile" aria-label="Show tip QR code">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+      </svg>
+    </button>
+    <div class="touch-message">Hold sides to roll · Double-tap to jump</div>
+  </div>
+  <div class="touch-cluster-right">
+    <button type="button" class="touch-action-btn touch-btn-dash" id="touchDash" aria-label="Dash forward">
+      <span>Dash</span>
+    </button>
+    <button type="button" class="touch-action-btn touch-btn-jump" id="touchJump" aria-label="Jump handpan">
+      <span>Jump</span>
+    </button>
+  </div>
+</div>
+
+<!-- Floating Resonant Memory Shard HUD -->
+<aside class="memory-shard-hud" id="memoryShardHud" aria-live="polite" aria-hidden="true">
+  <div class="memory-shard-card">
+    <div class="memory-shard-glow"></div>
+    <div class="memory-shard-header">
+      <span class="memory-shard-meta" id="memoryShardMeta">Artifact · Berlin 2010</span>
+      <button type="button" class="memory-shard-close" id="memoryShardClose" aria-label="Dismiss memory fragment">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <h4 class="memory-shard-title" id="memoryShardTitle">Alexanderplatz Viaduct</h4>
+    <p class="memory-shard-text" id="memoryShardText">A cold morning. The concrete arch caught the handpan's overtones like an acoustic cathedral.</p>
+    <div class="memory-shard-prompt">
+      <span class="desktop-ctrl-hint keyboard-prompt-overlay">Press SPACE to jump · SHIFT to glide</span>
+      <span class="mobile-ctrl-hint">Double-tap to jump · Tap Dash to glide</span>
+    </div>
+  </div>
+</aside>
+
+<!-- Accessible Direct Monograph Reader Modal -->
+<div class="direct-monograph-modal" id="directMonographModal" role="dialog" aria-modal="true" aria-labelledby="dmTitle" aria-hidden="true">
+  <div class="dm-backdrop" id="dmBackdrop"></div>
+  <div class="dm-shell">
+    <header class="dm-header">
+      <div class="dm-header-meta">
+        <span class="dm-eyebrow">Digital Monograph</span>
+        <h2 id="dmTitle" class="dm-title">Ivar Karm — Resonance</h2>
+      </div>
+      <button type="button" class="dm-close" id="dmCloseBtn" aria-label="Close monograph reader">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </header>
+    <div class="dm-content">
+      <section class="dm-section">
+        <span class="dm-sec-tag">Foundational Principle</span>
+        <h3>Before sound, there is listening.</h3>
+        <p class="dm-lead">I am a street performer, improviser, and handpan artist. The handpan is not merely an instrument — it is a wandering resonant chamber that mirrors wherever life places it.</p>
+      </section>
+
+      <section class="dm-section">
+        <span class="dm-sec-tag">Chapter I · Origins</span>
+        <h3>Berlin (2008 – 2012)</h3>
+        <p>Teenage years in Berlin, squatting forgotten spaces, playing inside S-Bahn viaducts and echoing metro tunnels. The cold industrial architecture taught me how overtones sustain in raw concrete.</p>
+      </section>
+
+      <section class="dm-section">
+        <span class="dm-sec-tag">Chapter II · The Open Road</span>
+        <h3>The European Crossing (2013 – 2020)</h3>
+        <p>Hitchhiking through the Netherlands, Belgium, Germany, Poland, Lithuania, Latvia, and Estonia with a handpan on my back. Sleeping under pines, playing in market squares, learning that music is the fastest bridge between strangers.</p>
+      </section>
+
+      <section class="dm-section">
+        <span class="dm-sec-tag">Chapter III · Current Horizon</span>
+        <h3>The Aegean &amp; Greece (Present)</h3>
+        <p>Living under Mediterranean light. Handpans tuned to ancient scales, stone amphitheaters, coastal winds, and street sessions in Athens. Music created directly from presence.</p>
+      </section>
+
+      <section class="dm-section">
+        <span class="dm-sec-tag">The Recorded Works</span>
+        <h3>Resonance (Improvised Sessions)</h3>
+        <div class="dm-tracks-list">
+          <div class="dm-track-row"><span>01</span><strong>Berlin Dawn</strong><em>Handpan · Improvised</em></div>
+          <div class="dm-track-row"><span>02</span><strong>Alexanderplatz Drift</strong><em>Handpan · Improvised</em></div>
+          <div class="dm-track-row"><span>03</span><strong>Hitchhiker's Scale</strong><em>Handpan · Improvised</em></div>
+          <div class="dm-track-row"><span>04</span><strong>Baltic Wind</strong><em>Handpan · Improvised</em></div>
+          <div class="dm-track-row"><span>05</span><strong>Athens Courtyard</strong><em>Handpan · Improvised</em></div>
+          <div class="dm-track-row"><span>06</span><strong>Resonance</strong><em>Handpan · Meditative Theme</em></div>
+        </div>
+      </section>
+
+      <footer class="dm-footer">
+        <p>To experience the full journey, return to the interactive world or open the deeper Rabbit Hole archive.</p>
+        <div class="dm-actions">
+          <button type="button" class="dm-cta-btn" id="dmOpenRhBtn">Enter Deep Rabbit Hole</button>
+          <a href="https://busk.co/84950/tip" target="_blank" rel="noopener noreferrer" class="dm-tip-btn">Support Busking (Tip)</a>
+        </div>
+      </footer>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==========================================================================
+     REDESIGNED RABBIT HOLE — Up & Down Scrollable Journey with Bespoke Reveals
+     Each section fades as you scroll past; new sections fade in with unique reveals
+     ========================================================================== -->
+<div class="rabbit-hole-transition-overlay" id="rabbitHoleTransition" aria-hidden="true">
+  <div class="rabbit-hole-particles" id="rabbitHoleParticles"></div>
+</div>
+
+<div id="rabbit-hole" class="rabbit-hole" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="rhTitle">
+  <!-- Ambient sacred geometry background watermark with multi-layer depth parallax -->
+  <div class="rh-backdrop-geometry" aria-hidden="true" id="rhBackdropGeometry">
+    <!-- Ambient Depth Aura -->
+    <div class="rh-parallax-aura" id="rhParallaxAura"></div>
+
+    <!-- Layer 1: Concentric Harmonic Soundwave Rings (Far depth) -->
+    <svg class="rh-geometry-layer rh-geometry-harmonics" id="rhParallaxHarmonics" viewBox="0 0 800 800">
+      <circle cx="400" cy="400" r="380" fill="none" stroke="rgba(212,175,55,0.03)" stroke-width="1" stroke-dasharray="4 8"/>
+      <circle cx="400" cy="400" r="320" fill="none" stroke="rgba(212,175,55,0.04)" stroke-width="1.2"/>
+      <circle cx="400" cy="400" r="260" fill="none" stroke="rgba(212,175,55,0.03)" stroke-width="1" stroke-dasharray="6 12"/>
+      <line x1="400" y1="20" x2="400" y2="780" stroke="rgba(212,175,55,0.02)" stroke-width="1"/>
+      <line x1="20" y1="400" x2="780" y2="400" stroke="rgba(212,175,55,0.02)" stroke-width="1"/>
+      <line x1="131" y1="131" x2="669" y2="669" stroke="rgba(212,175,55,0.02)" stroke-width="1" stroke-dasharray="4 6"/>
+      <line x1="131" y1="669" x2="669" y2="131" stroke="rgba(212,175,55,0.02)" stroke-width="1" stroke-dasharray="4 6"/>
+    </svg>
+
+    <!-- Layer 2: Core Sacred Flower of Life (Mid depth) -->
+    <svg class="rh-geometry-layer rh-flower-bg" id="rhParallaxFlower" viewBox="0 0 600 600">
+      <circle cx="300" cy="300" r="250" fill="none" stroke="rgba(212,175,55,0.08)" stroke-width="1.2"/>
+      <circle cx="300" cy="175" r="125" fill="none" stroke="rgba(212,175,55,0.06)" stroke-width="1"/>
+      <circle cx="300" cy="425" r="125" fill="none" stroke="rgba(212,175,55,0.06)" stroke-width="1"/>
+      <circle cx="192" cy="237" r="125" fill="none" stroke="rgba(212,175,55,0.06)" stroke-width="1"/>
+      <circle cx="408" cy="237" r="125" fill="none" stroke="rgba(212,175,55,0.06)" stroke-width="1"/>
+      <circle cx="192" cy="363" r="125" fill="none" stroke="rgba(212,175,55,0.06)" stroke-width="1"/>
+      <circle cx="408" cy="363" r="125" fill="none" stroke="rgba(212,175,55,0.06)" stroke-width="1"/>
+      <circle cx="300" cy="300" r="125" fill="none" stroke="rgba(212,175,55,0.04)" stroke-width="1"/>
+      <circle cx="300" cy="300" r="25" fill="none" stroke="rgba(212,175,55,0.16)" stroke-width="1.5"/>
+    </svg>
+
+    <!-- Layer 3: Overtone Constellation Nodes (Near depth) -->
+    <svg class="rh-geometry-layer rh-geometry-nodes" id="rhParallaxNodes" viewBox="0 0 600 600">
+      <circle cx="300" cy="50" r="3" fill="rgba(212,175,55,0.2)"/>
+      <circle cx="300" cy="550" r="3" fill="rgba(212,175,55,0.2)"/>
+      <circle cx="50" cy="300" r="3" fill="rgba(212,175,55,0.2)"/>
+      <circle cx="550" cy="300" r="3" fill="rgba(212,175,55,0.2)"/>
+      <circle cx="192" cy="112" r="2" fill="rgba(212,175,55,0.15)"/>
+      <circle cx="408" cy="112" r="2" fill="rgba(212,175,55,0.15)"/>
+      <circle cx="192" cy="488" r="2" fill="rgba(212,175,55,0.15)"/>
+      <circle cx="408" cy="488" r="2" fill="rgba(212,175,55,0.15)"/>
+    </svg>
+  </div>
+
+  <!-- Sticky Top Bar -->
+  <header class="rh-sticky-header">
+    <div class="rh-header-left">
+      <div class="rh-header-brand">
+        <h2 id="rhTitle" class="rh-header-title">The Rabbit Hole</h2>
+        <span class="rh-header-breadcrumb" id="rhBreadcrumb">01 / 07 · Early Life</span>
+        <span class="rh-header-progress-tag" id="rhProgressPercent" aria-hidden="true">0%</span>
+      </div>
+    </div>
+
+    <!-- Return to road button -->
+    <button type="button" class="rh-close-btn" id="rabbitHoleBackBtn" aria-label="Return to Contact on the road">
+      <span>Return</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <!-- Visual Dynamic Progress Bar along top scroll edge / header bottom -->
+    <div class="rh-progress-track" role="progressbar" id="rhProgressTrack" aria-label="Rabbit Hole reading progression" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+      <div class="rh-progress-fill" id="rhProgressBar"></div>
+      <div class="rh-progress-glow" id="rhProgressGlow"></div>
+    </div>
+  </header>
+
+  <!-- Floating Side Index Indicator -->
+  <nav class="rh-side-nav" aria-label="Rabbit Hole Section Navigator">
+    <button type="button" class="rh-side-pip active" data-sec-target="0" data-target="#rhSec0" aria-label="Jump to Chapter 1: Early Life">
+      <span class="rh-side-pip-label">01 Early Life</span>
+      <span class="rh-side-pip-dot"></span>
+    </button>
+    <button type="button" class="rh-side-pip" data-sec-target="1" data-target="#rhSec1" aria-label="Jump to Chapter 2: Way to Music">
+      <span class="rh-side-pip-label">02 Way to Music</span>
+      <span class="rh-side-pip-dot"></span>
+    </button>
+    <button type="button" class="rh-side-pip" data-sec-target="2" data-target="#rhSec2" aria-label="Jump to Chapter 3: Street Stories">
+      <span class="rh-side-pip-label">03 Street Stories</span>
+      <span class="rh-side-pip-dot"></span>
+    </button>
+    <button type="button" class="rh-side-pip" data-sec-target="3" data-target="#rhSec3" aria-label="Jump to Chapter 4: Artisans & Makers">
+      <span class="rh-side-pip-label">04 Artisans</span>
+      <span class="rh-side-pip-dot"></span>
+    </button>
+    <button type="button" class="rh-side-pip" data-sec-target="4" data-target="#rhSec4" aria-label="Jump to Chapter 5: Other Instruments">
+      <span class="rh-side-pip-label">05 Instruments</span>
+      <span class="rh-side-pip-dot"></span>
+    </button>
+    <button type="button" class="rh-side-pip" data-sec-target="5" data-target="#rhSec5" aria-label="Jump to Chapter 6: Tracks to Download">
+      <span class="rh-side-pip-label">06 Audio Vault</span>
+      <span class="rh-side-pip-dot"></span>
+    </button>
+    <button type="button" class="rh-side-pip" data-sec-target="6" data-target="#rhSec6" aria-label="Jump to Chapter 7: Notes & Patronage">
+      <span class="rh-side-pip-label">07 Road Notes</span>
+      <span class="rh-side-pip-dot"></span>
+    </button>
+  </nav>
+
+  <!-- Vertical Scroll Track with Dedicated Sections -->
+  <main class="rh-scroll-track" id="rhScrollTrack">
+
+    <!-- Chapter Progression Strip at top of scroll track -->
+    <div class="rh-track-intro-banner" id="rhTrackIntro">
+      <div class="rh-progression-card">
+        <div class="rh-progression-meta">
+          <div class="rh-progression-title-group">
+            <span class="rh-progression-eyebrow">Interactive Monograph</span>
+            <span class="rh-progression-label">Chapter Progression</span>
+          </div>
+          <div class="rh-progression-stat" id="rhProgressionStat">
+            <span class="rh-stat-highlight">0%</span> Explored · Chapter 1 of 7
+          </div>
+        </div>
+        <div class="rh-chapter-steps-bar" role="navigation" aria-label="Chapter progress markers">
+          <button type="button" class="rh-chapter-step active" data-sec-target="0" title="Jump to Chapter 01: Early Life">
+            <span class="rh-step-num">01</span>
+            <span class="rh-step-name">Roots</span>
+            <span class="rh-step-indicator"></span>
+          </button>
+          <button type="button" class="rh-chapter-step" data-sec-target="1" title="Jump to Chapter 02: Way to Music">
+            <span class="rh-step-num">02</span>
+            <span class="rh-step-name">Discovery</span>
+            <span class="rh-step-indicator"></span>
+          </button>
+          <button type="button" class="rh-chapter-step" data-sec-target="2" title="Jump to Chapter 03: Street Stories">
+            <span class="rh-step-num">03</span>
+            <span class="rh-step-name">Streets</span>
+            <span class="rh-step-indicator"></span>
+          </button>
+          <button type="button" class="rh-chapter-step" data-sec-target="3" title="Jump to Chapter 04: Artisans & Makers">
+            <span class="rh-step-num">04</span>
+            <span class="rh-step-name">Artisans</span>
+            <span class="rh-step-indicator"></span>
+          </button>
+          <button type="button" class="rh-chapter-step" data-sec-target="4" title="Jump to Chapter 05: Other Instruments">
+            <span class="rh-step-num">05</span>
+            <span class="rh-step-name">Instruments</span>
+            <span class="rh-step-indicator"></span>
+          </button>
+          <button type="button" class="rh-chapter-step" data-sec-target="5" title="Jump to Chapter 06: Audio Vault">
+            <span class="rh-step-num">06</span>
+            <span class="rh-step-name">Vault</span>
+            <span class="rh-step-indicator"></span>
+          </button>
+          <button type="button" class="rh-chapter-step" data-sec-target="6" title="Jump to Chapter 07: Notes & Patronage">
+            <span class="rh-step-num">07</span>
+            <span class="rh-step-name">Epilogue</span>
+            <span class="rh-step-indicator"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: Early Life (Reveal: Luminous Lift) -->
+    <section class="rh-section reveal-luminous in-view" id="rhSec0" data-section-index="0" data-section-title="Early Life">
+      <div class="rh-section-inner">
+        <div class="rh-sec-header">
+          <div class="rh-sec-meta">
+            <span>Chapter 01</span>
+            <span aria-hidden="true">·</span>
+            <span>Origins &amp; Silence</span>
+          </div>
+          <h3 class="rh-sec-title">Early Life &amp; The First Spark</h3>
+          <p class="rh-sec-lead">Found music in the quiet spaces between sounds — the wind through pine branches, rain striking rusty metal, the acoustic cadence of solitary walking.</p>
+          <div class="rh-sec-hairline"></div>
+        </div>
+
+        <div class="rh-stories-grid">
+          <div class="rh-story-card">
+            <span class="rh-story-era">Estonia · Childhood</span>
+            <p class="rh-story-text">Grew up surrounded by dense Baltic forests and profound silence. Learned that quietness is not the absence of sound, but the foundation upon which listening begins.</p>
+          </div>
+          <div class="rh-story-card">
+            <span class="rh-story-era">Limitation As Teacher</span>
+            <p class="rh-story-text">First instrument: a broken guitar with three nylon strings. Limitation isn't a barrier — it's an aesthetic direction. Each missing string forced deeper attention to what remained.</p>
+          </div>
+          <div class="rh-story-card">
+            <span class="rh-story-era">The Departure</span>
+            <p class="rh-story-text">Packed a modest canvas bag with spare clothes, a notebook, and that three-string guitar. No set destination in mind — just the absolute certainty that staying still was no longer viable.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll hint -->
+      <div class="rh-scroll-indicator" aria-hidden="true">
+        <span>Scroll down to journey deeper</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+      </div>
+    </section>
+
+    <!-- Chapter Separator 01 -> 02 -->
+    <div class="rh-section-separator" aria-hidden="true" data-separator-index="0">
+      <div class="rh-separator-track">
+        <div class="rh-separator-line"></div>
+        <div class="rh-separator-glow-bar"></div>
+        <div class="rh-separator-node">
+          <span class="rh-separator-pulse"></span>
+          <span class="rh-separator-diamond"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Way to Music (Reveal: Editorial Curtain Split) -->
+    <section class="rh-section reveal-curtain pending-below" id="rhSec1" data-section-index="1" data-section-title="Way to Music">
+      <div class="rh-section-inner">
+        <div class="rh-sec-header">
+          <div class="rh-sec-meta">
+            <span>Chapter 02</span>
+            <span aria-hidden="true">·</span>
+            <span>The Resonant Vessel</span>
+          </div>
+          <h3 class="rh-sec-title">How Sound Found Its Form</h3>
+          <p class="rh-sec-lead">The street does not ask for credentials or diplomas. It demands only one thing: total, uncompromising presence with the instrument.</p>
+          <div class="rh-sec-hairline"></div>
+        </div>
+
+        <div class="rh-stories-grid">
+          <div class="rh-story-card">
+            <span class="rh-story-era">First Encounter · Berlin</span>
+            <p class="rh-story-text">Heard it under an arching concrete bridge in a Berlin park. A lone busker was coaxing celestial tones from a steel sculpture. I stood motionless for an hour, captivated. I knew then I had to dedicate my life to that vibration.</p>
+          </div>
+          <div class="rh-story-card">
+            <span class="rh-story-era">Street Tuition</span>
+            <p class="rh-story-text">No formal conservatories, no sheet music. Just thousands of hours on wind-blown street corners, underground metro platforms, and public squares. Every stranger who paused became a subtle teacher of resonance.</p>
+          </div>
+          <div class="rh-story-card">
+            <span class="rh-story-era">The Core Philosophy</span>
+            <p class="rh-story-text">True improvisation is not about demonstrating technical acrobatics; it is an act of communion. When you align your breath, the steel tone field, and the ambient environment, the music plays itself.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter Separator 02 -> 03 -->
+    <div class="rh-section-separator" aria-hidden="true" data-separator-index="1">
+      <div class="rh-separator-track">
+        <div class="rh-separator-line"></div>
+        <div class="rh-separator-glow-bar"></div>
+        <div class="rh-separator-node">
+          <span class="rh-separator-pulse"></span>
+          <span class="rh-separator-diamond"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: Stories from the Streets (Reveal: Cinematic Atmospheric Focus) -->
+    <section class="rh-section reveal-cinematic pending-below" id="rhSec2" data-section-index="2" data-section-title="Street Stories">
+      <div class="rh-section-inner">
+        <div class="rh-sec-header">
+          <div class="rh-sec-meta">
+            <span>Chapter 03</span>
+            <span aria-hidden="true">·</span>
+            <span>Street Chronicles</span>
+          </div>
+          <h3 class="rh-sec-title">Moments of Pure Public Grace</h3>
+          <p class="rh-sec-lead">Unrehearsed encounters in the subterranean arteries and sunlit squares of Europe, where anonymous commuters become accidental companions in sound.</p>
+          <div class="rh-sec-hairline"></div>
+        </div>
+
+        <div class="rh-stories-duo">
+          <div class="rh-story-feature">
+            <div class="rh-quote-mark">“</div>
+            <span class="rh-story-era">Alexanderplatz, 3 AM</span>
+            <p class="rh-story-text">Playing into the echoing cavern of empty concrete. A solitary taxi driver parked on the curb, stepped into the midnight chill, and stood motionless for twenty minutes with his hands buried in his coat pockets. When the final harmonic decayed, he pressed a warm, folded banknote into my palm without uttering a single syllable.</p>
+          </div>
+          <div class="rh-story-feature">
+            <div class="rh-quote-mark">“</div>
+            <span class="rh-story-era">Paris Metro · Line 4</span>
+            <p class="rh-story-text">A young woman was weeping quietly on a bench across the tiled platform. I softened my touch, coaxing the handpan into an ambient, cyclical lullaby — wrapping the cold tunnel in warmth. She gently dried her eyes and remained until her train arrived. Sound speaks where language is inadequate.</p>
+          </div>
+        </div>
+
+        <div class="rh-stories-grid">
+          <div class="rh-story-card">
+            <span class="rh-story-era">Athens Square</span>
+            <p class="rh-story-text">An elderly gentleman showed up every Tuesday afternoon. After six months, he brought his grandson, who unclasped a wooden folk flute. Without rehearsals, we jammed under the Acropolis till dusk.</p>
+          </div>
+          <div class="rh-story-card">
+            <span class="rh-story-era">Winter In Amsterdam</span>
+            <p class="rh-story-text">Numb fingers, biting sleet, empty canals. Kept playing anyway. A neighborhood baker hurried outside with freshly baked bread and steaming tea: “Music shouldn’t freeze because the city is cold.”</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter Separator 03 -> 04 -->
+    <div class="rh-section-separator" aria-hidden="true" data-separator-index="2">
+      <div class="rh-separator-track">
+        <div class="rh-separator-line"></div>
+        <div class="rh-separator-glow-bar"></div>
+        <div class="rh-separator-node">
+          <span class="rh-separator-pulse"></span>
+          <span class="rh-separator-diamond"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: Artisans & Collaborators (Reveal: Constellation Settle) -->
+    <section class="rh-section reveal-constellation pending-below" id="rhSec3" data-section-index="3" data-section-title="Artisans">
+      <div class="rh-section-inner">
+        <div class="rh-sec-header">
+          <div class="rh-sec-meta">
+            <span>Chapter 04</span>
+            <span aria-hidden="true">·</span>
+            <span>Artisans &amp; Kinship</span>
+          </div>
+          <h3 class="rh-sec-title">The Makers &amp; Street Collectives</h3>
+          <p class="rh-sec-lead">Master metal sculptors and traveling buskers who have shaped my tonal palette and shared dusty pavements across Europe.</p>
+          <div class="rh-sec-hairline"></div>
+        </div>
+
+        <div class="rh-artisans-grid">
+          <div class="rh-artisan-card">
+            <div class="rh-artisan-symbol" aria-hidden="true">✦</div>
+            <div class="rh-artisan-info">
+              <span class="rh-artisan-name">Heka Handpans</span>
+              <span class="rh-artisan-loc">Greece</span>
+              <p class="rh-artisan-desc">Master steel hammer sculptors crafting nitrided instruments with warm, sustained sub-bass frequencies.</p>
+            </div>
+          </div>
+          <div class="rh-artisan-card">
+            <div class="rh-artisan-symbol" aria-hidden="true">✦</div>
+            <div class="rh-artisan-info">
+              <span class="rh-artisan-name">Godan Handpans</span>
+              <span class="rh-artisan-loc">Netherlands</span>
+              <p class="rh-artisan-desc">Pioneering Dutch handpan artisans known for crystalline overtones and stainless ceramic temper.</p>
+            </div>
+          </div>
+          <div class="rh-artisan-card">
+            <div class="rh-artisan-symbol" aria-hidden="true">✦</div>
+            <div class="rh-artisan-info">
+              <span class="rh-artisan-name">Namana Bags</span>
+              <span class="rh-artisan-loc">Armor &amp; Travel</span>
+              <p class="rh-artisan-desc">Ergonomic ultra-durable handpan flight cases and mountain travel backpacks that have sheltered my steel vessels across twenty countries.</p>
+            </div>
+          </div>
+          <div class="rh-artisan-card">
+            <div class="rh-artisan-symbol" aria-hidden="true">✦</div>
+            <div class="rh-artisan-info">
+              <span class="rh-artisan-name">Street Circles</span>
+              <span class="rh-artisan-loc">Berlin</span>
+              <p class="rh-artisan-desc">Loose cooperative of improvisers inhabiting Warschauer Brücke and Mauerpark Sunday sessions.</p>
+            </div>
+          </div>
+          <div class="rh-artisan-card">
+            <div class="rh-artisan-symbol" aria-hidden="true">✦</div>
+            <div class="rh-artisan-info">
+              <span class="rh-artisan-name">Metro Brass</span>
+              <span class="rh-artisan-loc">Paris</span>
+              <p class="rh-artisan-desc">Subterranean horn players creating explosive acoustic dialogues in high-vaulted station halls.</p>
+            </div>
+          </div>
+          <div class="rh-artisan-card">
+            <div class="rh-artisan-symbol" aria-hidden="true">✦</div>
+            <div class="rh-artisan-info">
+              <span class="rh-artisan-name">String Collective</span>
+              <span class="rh-artisan-loc">Athens</span>
+              <p class="rh-artisan-desc">Plucked-string wanderers fusing rebetiko modes with atmospheric modal drone experiments.</p>
+            </div>
+          </div>
+          <div class="rh-artisan-card">
+            <div class="rh-artisan-symbol" aria-hidden="true">✦</div>
+            <div class="rh-artisan-info">
+              <span class="rh-artisan-name">Baltic Drum Circle</span>
+              <span class="rh-artisan-loc">Estonia</span>
+              <p class="rh-artisan-desc">Deep woodland fire gatherings exploring hypnotic polyrhythms and ancient vocal chants.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chapter 4 Promo Codes Scroll Deck -->
+        <div class="promo-codes-wrap rh-promo-deck">
+          <div class="promo-header">
+            <span class="promo-eyebrow">Kinship Perks</span>
+            <h4 class="promo-title">Artisan &amp; Maker Discounts</h4>
+            <p class="promo-subtitle">Direct patronage promo codes negotiated for listeners and fellow travelers</p>
+          </div>
+
+          <div class="promo-scroll-container" tabindex="0" role="region" aria-label="Rabbit Hole Promo Codes Carousel">
+            <div class="promo-scroll-track">
+              <!-- Card 1: Heka Handpans -->
+              <div class="promo-card">
+                <div class="promo-badge">10% Commission Discount</div>
+                <div class="promo-brand">
+                  <span class="promo-brand-name">Heka Handpans</span>
+                  <span class="promo-brand-tag">Handcrafted in Greece · Nitrided Steel</span>
+                </div>
+                <p class="promo-desc">Receive 10% off your bespoke handpan scale commission crafted by master sculptor Spyros.</p>
+                <div class="promo-code-box">
+                  <span class="promo-code-label">PROMO CODE</span>
+                  <div class="promo-code-val-row">
+                    <code class="promo-code-val">IvarKarm10</code>
+                    <button type="button" class="promo-copy-btn" data-code="IvarKarm10" aria-label="Copy code IvarKarm10">
+                      <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                      <span class="copy-text">Copy</span>
+                    </button>
+                  </div>
+                </div>
+                <a href="https://www.instagram.com/heka.handpans/" target="_blank" rel="noopener noreferrer" class="promo-link-btn">
+                  <span>Contact Heka Workshop</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+                </a>
+              </div>
+
+              <!-- Card 2: Namana Bags -->
+              <div class="promo-card highlight-card">
+                <div class="promo-badge">Exclusive Gear Discount</div>
+                <div class="promo-brand">
+                  <span class="promo-brand-name">Namana Bags</span>
+                  <span class="promo-brand-tag">Ergonomic Road Armor &amp; Hardcases</span>
+                </div>
+                <p class="promo-desc">Get an exclusive discount on Namana's flight-ready, shockproof handpan travel backpacks.</p>
+                <div class="promo-code-box">
+                  <span class="promo-code-label">PROMO CODE</span>
+                  <div class="promo-code-val-row">
+                    <code class="promo-code-val">Safetravelsivar</code>
+                    <button type="button" class="promo-copy-btn" data-code="Safetravelsivar" aria-label="Copy code Safetravelsivar">
+                      <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                      <span class="copy-text">Copy</span>
+                    </button>
+                  </div>
+                </div>
+                <a href="https://namana-bags.com/" target="_blank" rel="noopener noreferrer" class="promo-link-btn">
+                  <span>Visit Namana Catalog</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+                </a>
+              </div>
+
+              <!-- Card 3: Godan Handpans -->
+              <div class="promo-card">
+                <div class="promo-badge">Workshop Care Kit</div>
+                <div class="promo-brand">
+                  <span class="promo-brand-name">Godan Handpans</span>
+                  <span class="promo-brand-tag">Stainless Precision · Netherlands</span>
+                </div>
+                <p class="promo-desc">Mention Ivar Karm for workshop tuning queue priority and complementary handpan elixir kit.</p>
+                <div class="promo-code-box">
+                  <span class="promo-code-label">PROMO CODE</span>
+                  <div class="promo-code-val-row">
+                    <code class="promo-code-val">IVARRESONANCE</code>
+                    <button type="button" class="promo-copy-btn" data-code="IVARRESONANCE" aria-label="Copy code IVARRESONANCE">
+                      <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                      <span class="copy-text">Copy</span>
+                    </button>
+                  </div>
+                </div>
+                <a href="https://godan.nl/en/godan/" target="_blank" rel="noopener noreferrer" class="promo-link-btn">
+                  <span>View Godan Handpans</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="promo-scroll-hint" aria-hidden="true">
+            <span>Scroll / swipe horizontally to explore all promo codes</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter Separator 04 -> 05 -->
+    <div class="rh-section-separator" aria-hidden="true" data-separator-index="3">
+      <div class="rh-separator-track">
+        <div class="rh-separator-line"></div>
+        <div class="rh-separator-glow-bar"></div>
+        <div class="rh-separator-node">
+          <span class="rh-separator-pulse"></span>
+          <span class="rh-separator-diamond"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5: Other Instruments (Reveal: Lateral Acoustic Slide) -->
+    <section class="rh-section reveal-acoustic pending-below" id="rhSec4" data-section-index="4" data-section-title="Instruments">
+      <div class="rh-section-inner">
+        <div class="rh-sec-header">
+          <div class="rh-sec-meta">
+            <span>Chapter 05</span>
+            <span aria-hidden="true">·</span>
+            <span>Acoustic Arsenal</span>
+          </div>
+          <h3 class="rh-sec-title">Other Voices of Resonance</h3>
+          <p class="rh-sec-lead">The handpan is my centerpiece, but each instrument in my travel bag unlocks a distinct acoustic frequency and cultural memory.</p>
+          <div class="rh-sec-hairline"></div>
+        </div>
+
+        <div class="rh-instruments-grid">
+          <div class="rh-instrument-card">
+            <div class="rh-instrument-icon" aria-hidden="true">筝</div>
+            <div class="rh-instrument-details">
+              <h4 class="rh-instrument-title">Japanese Koto</h4>
+              <p class="rh-instrument-desc">Thirteen silk-wound strings over movable bridges. Tuned to pentatonic scales that echo water ripples across stone gardens.</p>
+            </div>
+          </div>
+          <div class="rh-instrument-card">
+            <div class="rh-instrument-icon" aria-hidden="true">🥁</div>
+            <div class="rh-instrument-details">
+              <h4 class="rh-instrument-title">Peruvian Cajón</h4>
+              <p class="rh-instrument-desc">The resonant wooden crate that anchors open-air improvisations with punchy bass booms and crisp snare clacks.</p>
+            </div>
+          </div>
+          <div class="rh-instrument-card">
+            <div class="rh-instrument-icon" aria-hidden="true">🪘</div>
+            <div class="rh-instrument-details">
+              <h4 class="rh-instrument-title">African Djembes</h4>
+              <p class="rh-instrument-desc">Goatskin head stretched over carved hardwood. Connects street listeners directly to primal human heartbeat rhythms.</p>
+            </div>
+          </div>
+          <div class="rh-instrument-card">
+            <div class="rh-instrument-icon" aria-hidden="true">🎵</div>
+            <div class="rh-instrument-details">
+              <h4 class="rh-instrument-title">Jew Harps (Dan Moi)</h4>
+              <p class="rh-instrument-desc">Plucked brass reeds where the player’s mouth and cranial cavities act as dynamic acoustic modulation chambers.</p>
+            </div>
+          </div>
+          <div class="rh-instrument-card">
+            <div class="rh-instrument-icon" aria-hidden="true">🎶</div>
+            <div class="rh-instrument-details">
+              <h4 class="rh-instrument-title">Diatonic Harmonicas</h4>
+              <p class="rh-instrument-desc">Pocket wind vessels shaped purely by human breath, bending plaintive minor chords on nocturnal railway bridges.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter Separator 05 -> 06 -->
+    <div class="rh-section-separator" aria-hidden="true" data-separator-index="4">
+      <div class="rh-separator-track">
+        <div class="rh-separator-line"></div>
+        <div class="rh-separator-glow-bar"></div>
+        <div class="rh-separator-node">
+          <span class="rh-separator-pulse"></span>
+          <span class="rh-separator-diamond"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 6: Audio Vault / Downloadable Tracks (Reveal: Equalizer Cascade) -->
+    <section class="rh-section reveal-equalizer pending-below" id="rhSec5" data-section-index="5" data-section-title="Audio Vault">
+      <div class="rh-section-inner">
+        <div class="rh-sec-header">
+          <div class="rh-sec-meta">
+            <span>Chapter 06</span>
+            <span aria-hidden="true">·</span>
+            <span>Audio Vault</span>
+          </div>
+          <h3 class="rh-sec-title">Improvised Sessions To Keep</h3>
+          <p class="rh-sec-lead">Uncompressed studio and field recordings captured directly on location. Audition inline or download to carry the resonance with you.</p>
+          <div class="rh-sec-hairline"></div>
+        </div>
+
+        <div class="rh-tracks-list">
+          <div class="rh-track-row">
+            <div class="rh-track-meta">
+              <span class="rh-track-num">01</span>
+              <div class="rh-track-headings">
+                <span class="rh-track-name">Berlin Dawn</span>
+                <span class="rh-track-sub">Handpan · Improvised · Berlin</span>
+              </div>
+            </div>
+            <div class="rh-track-actions">
+              <button type="button" class="rh-preview-btn" data-preview-src="./audio/berlin-dawn.wav" aria-label="Preview Berlin Dawn">
+                <svg class="rh-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+                <svg class="rh-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+              </button>
+              <a class="rh-download-btn" href="./audio/berlin-dawn.wav" download="Ivar-Karm-Berlin-Dawn.wav" target="_blank" rel="noopener">Download</a>
+            </div>
+          </div>
+
+          <div class="rh-track-row">
+            <div class="rh-track-meta">
+              <span class="rh-track-num">02</span>
+              <div class="rh-track-headings">
+                <span class="rh-track-name">Alexanderplatz Drift</span>
+                <span class="rh-track-sub">Handpan · Improvised · Berlin</span>
+              </div>
+            </div>
+            <div class="rh-track-actions">
+              <button type="button" class="rh-preview-btn" data-preview-src="./audio/alexanderplatz-drift.wav" aria-label="Preview Alexanderplatz Drift">
+                <svg class="rh-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+                <svg class="rh-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+              </button>
+              <a class="rh-download-btn" href="./audio/alexanderplatz-drift.wav" download="Ivar-Karm-Alexanderplatz-Drift.wav" target="_blank" rel="noopener">Download</a>
+            </div>
+          </div>
+
+          <div class="rh-track-row">
+            <div class="rh-track-meta">
+              <span class="rh-track-num">03</span>
+              <div class="rh-track-headings">
+                <span class="rh-track-name">Hitchhiker's Scale</span>
+                <span class="rh-track-sub">Handpan · Improvised · Central Europe</span>
+              </div>
+            </div>
+            <div class="rh-track-actions">
+              <button type="button" class="rh-preview-btn" data-preview-src="./audio/hitchhikers-scale.wav" aria-label="Preview Hitchhiker's Scale">
+                <svg class="rh-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+                <svg class="rh-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+              </button>
+              <a class="rh-download-btn" href="./audio/hitchhikers-scale.wav" download="Ivar-Karm-Hitchhikers-Scale.wav" target="_blank" rel="noopener">Download</a>
+            </div>
+          </div>
+
+          <div class="rh-track-row">
+            <div class="rh-track-meta">
+              <span class="rh-track-num">04</span>
+              <div class="rh-track-headings">
+                <span class="rh-track-name">Baltic Wind</span>
+                <span class="rh-track-sub">Handpan · Improvised · Coastal Travels</span>
+              </div>
+            </div>
+            <div class="rh-track-actions">
+              <button type="button" class="rh-preview-btn" data-preview-src="./audio/baltic-wind.wav" aria-label="Preview Baltic Wind">
+                <svg class="rh-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+                <svg class="rh-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+              </button>
+              <a class="rh-download-btn" href="./audio/baltic-wind.wav" download="Ivar-Karm-Baltic-Wind.wav" target="_blank" rel="noopener">Download</a>
+            </div>
+          </div>
+
+          <div class="rh-track-row">
+            <div class="rh-track-meta">
+              <span class="rh-track-num">05</span>
+              <div class="rh-track-headings">
+                <span class="rh-track-name">Athens Courtyard</span>
+                <span class="rh-track-sub">Handpan · Improvised · Greece</span>
+              </div>
+            </div>
+            <div class="rh-track-actions">
+              <button type="button" class="rh-preview-btn" data-preview-src="./audio/athens-courtyard.wav" aria-label="Preview Athens Courtyard">
+                <svg class="rh-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+                <svg class="rh-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+              </button>
+              <a class="rh-download-btn" href="./audio/athens-courtyard.wav" download="Ivar-Karm-Athens-Courtyard.wav" target="_blank" rel="noopener">Download</a>
+            </div>
+          </div>
+
+          <div class="rh-track-row">
+            <div class="rh-track-meta">
+              <span class="rh-track-num">06</span>
+              <div class="rh-track-headings">
+                <span class="rh-track-name">Resonance</span>
+                <span class="rh-track-sub">Handpan · Meditative Theme</span>
+              </div>
+            </div>
+            <div class="rh-track-actions">
+              <button type="button" class="rh-preview-btn" data-preview-src="./audio/resonance.wav" aria-label="Preview Resonance">
+                <svg class="rh-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+                <svg class="rh-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+              </button>
+              <a class="rh-download-btn" href="./audio/resonance.wav" download="Ivar-Karm-Resonance.wav" target="_blank" rel="noopener">Download</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter Separator 06 -> 07 -->
+    <div class="rh-section-separator" aria-hidden="true" data-separator-index="5">
+      <div class="rh-separator-track">
+        <div class="rh-separator-line"></div>
+        <div class="rh-separator-glow-bar"></div>
+        <div class="rh-separator-node">
+          <span class="rh-separator-pulse"></span>
+          <span class="rh-separator-diamond"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 7: Philosophy & Patronage (Reveal: Epilogue Illumination) -->
+    <section class="rh-section reveal-epilogue pending-below" id="rhSec6" data-section-index="6" data-section-title="Road Notes">
+      <div class="rh-section-inner">
+        <div class="rh-sec-header">
+          <div class="rh-sec-meta">
+            <span>Chapter 07</span>
+            <span aria-hidden="true">·</span>
+            <span>Aphorisms &amp; Support</span>
+          </div>
+          <h3 class="rh-sec-title">Notes from the Open Road</h3>
+          <p class="rh-sec-lead">Reflections distilled from sixteen years of wandering with a steel handpan in hand.</p>
+          <div class="rh-sec-hairline"></div>
+        </div>
+
+        <div class="rh-support-grid">
+          <ul class="rh-aphorisms">
+            <li class="rh-aphorism-item">The street is the only sacred auditorium in modern civilization that does not charge for admission.</li>
+            <li class="rh-aphorism-item">Every scale I learn on the handpan began as a solitary walk through an unfamiliar city.</li>
+            <li class="rh-aphorism-item">If you pause for three seconds while walking past, you are no longer an observer — you are part of the composition.</li>
+          </ul>
+
+          <div class="rh-patron-card">
+            <a href="https://busk.co/84950/tip" target="_blank" rel="noopener noreferrer" class="rh-qr-frame" aria-label="Open busk.co tip page to support Ivar Karm">
+              <svg viewBox="0 0 27 27" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QR code linking to busk.co/84950">
+                <rect width="27" height="27" fill="#ffffff"/>
+                <path d="M1,1H2V2H1zM2,1H3V2H2zM3,1H4V2H3zM4,1H5V2H4zM5,1H6V2H5zM6,1H7V2H6zM7,1H8V2H7zM10,1H11V2H10zM12,1H13V2H12zM14,1H15V2H14zM17,1H18V2H17zM19,1H20V2H19zM20,1H21V2H20zM21,1H22V2H21zM22,1H23V2H22zM23,1H24V2H23zM24,1H25V2H24zM25,1H26V2H25zM1,2H2V3H1zM7,2H8V3H7zM9,2H10V3H9zM10,2H11V3H10zM11,2H12V3H11zM15,2H16V3H15zM19,2H20V3H19zM25,2H26V3H25zM1,3H2V4H1zM3,3H4V4H3zM4,3H5V4H4zM5,3H6V4H5zM7,3H8V4H7zM9,3H10V4H9zM13,3H14V4H13zM16,3H17V4H16zM19,3H20V4H19zM21,3H22V4H21zM22,3H23V4H22zM23,3H24V4H23zM25,3H26V4H25zM1,4H2V5H1zM3,4H4V5H3zM4,4H5V5H4zM5,4H6V5H5zM7,4H8V5H7zM9,4H10V5H9zM10,4H11V5H10zM14,4H15V5H14zM15,4H16V5H15zM16,4H17V5H16zM19,4H20V5H19zM21,4H22V5H21zM22,4H23V5H22zM23,4H24V5H23zM25,4H26V5H25zM1,5H2V6H1zM3,5H4V6H3zM4,5H5V6H4zM5,5H6V6H5zM7,5H8V6H7zM12,5H13V6H12zM13,5H14V6H13zM14,5H15V6H14zM15,5H16V6H15zM19,5H20V6H19zM21,5H22V6H21zM22,5H23V6H22zM23,5H24V6H23zM25,5H26V6H25zM1,6H2V7H1zM7,6H8V7H7zM10,6H11V7H10zM11,6H12V7H11zM17,6H18V7H17zM19,6H20V7H19zM25,6H26V7H25zM1,7H2V8H1zM2,7H3V8H2zM3,7H4V8H3zM4,7H5V8H4zM5,7H6V8H5zM6,7H7V8H6zM7,7H8V8H7zM9,7H10V8H9zM11,7H12V8H11zM13,7H14V8H13zM15,7H16V8H15zM17,7H18V8H17zM19,7H20V8H19zM20,7H21V8H20zM21,7H22V8H21zM22,7H23V8H22zM23,7H24V8H23zM24,7H25V8H24zM25,7H26V8H25zM9,8H10V9H9zM11,8H12V9H11zM13,8H14V9H13zM15,8H16V9H15zM16,8H17V9H16zM17,8H18V9H17zM1,9H2V10H1zM7,9H8V10H7zM9,9H10V10H9zM12,9H13V10H12zM14,9H15V10H14zM18,9H19V10H18zM19,9H20V10H19zM22,9H23V10H22zM23,9H24V10H23zM24,9H25V10H24zM4,10H5V11H4zM8,10H9V11H8zM11,10H12V11H11zM13,10H14V11H13zM16,10H17V11H16zM17,10H18V11H17zM18,10H19V11H18zM20,10H21V11H20zM21,10H22V11H21zM22,10H23V11H22zM23,10H24V11H23zM24,10H25V11H24zM1,11H2V12H1zM2,11H3V12H2zM3,11H4V12H3zM5,11H6V12H5zM7,11H8V12H7zM10,11H11V12H10zM15,11H16V12H15zM16,11H17V12H16zM17,11H18V12H17zM18,11H19V12H18zM19,11H20V12H19zM21,11H22V12H21zM22,11H23V12H22zM24,11H25V12H24zM25,11H26V12H25zM2,12H3V13H2zM3,12H4V13H3zM5,12H6V13H5zM8,12H9V13H8zM11,12H12V13H11zM13,12H14V13H13zM15,12H16V13H15zM16,12H17V13H16zM17,12H18V13H17zM18,12H19V13H18zM19,12H20V13H19zM22,12H23V13H22zM25,12H26V13H25zM6,13H7V14H6zM7,13H8V14H7zM8,13H9V14H8zM12,13H13V14H12zM13,13H14V14H13zM15,13H16V14H15zM17,13H18V14H17zM19,13H20V14H19zM20,13H21V14H20zM25,13H26V14H25zM1,14H2V15H1zM2,14H3V15H2zM3,14H4V15H3zM4,14H5V15H4zM5,14H6V15H5zM6,14H7V15H6zM15,14H16V15H15zM16,14H17V15H16zM17,14H18V15H17zM18,14H19V15H18zM20,14H21V15H20zM24,14H25V15H24zM1,15H2V16H1zM4,15H5V16H4zM5,15H6V16H5zM6,15H7V16H6zM7,15H8V16H7zM8,15H9V16H8zM12,15H13V16H12zM13,15H14V16H13zM16,15H17V16H16zM17,15H18V16H17zM19,15H20V16H19zM20,15H21V16H20zM21,15H22V16H21zM22,15H23V16H22zM24,15H25V16H24zM25,15H26V16H25zM1,16H2V17H1zM3,16H4V17H3zM4,16H5V17H4zM6,16H7V17H6zM10,16H11V17H10zM11,16H12V17H11zM12,16H13V17H12zM15,16H16V17H15zM16,16H17V17H16zM17,16H18V17H17zM18,16H19V17H18zM20,16H21V17H20zM22,16H23V17H22zM23,16H24V17H23zM25,16H26V17H25zM1,17H2V18H1zM3,17H4V18H3zM4,17H5V18H4zM7,17H8V18H7zM10,17H11V18H10zM11,17H12V18H11zM12,17H13V18H12zM16,17H17V18H16zM17,17H18V18H17zM18,17H19V18H18zM19,17H20V18H19zM20,17H21V18H20zM21,17H22V18H21zM23,17H24V18H23zM9,18H10V19H9zM10,18H11V19H10zM13,18H14V19H13zM14,18H15V19H14zM17,18H18V19H17zM21,18H22V19H21zM1,19H2V20H1zM2,19H3V20H2zM3,19H4V20H3zM4,19H5V20H4zM5,19H6V20H5zM6,19H7V20H6zM7,19H8V20H7zM10,19H11V20H10zM11,19H12V20H11zM12,19H13V20H12zM17,19H18V20H17zM19,19H20V20H19zM21,19H22V20H21zM25,19H26V20H25zM1,20H2V21H1zM7,20H8V21H7zM11,20H12V21H11zM13,20H14V21H13zM14,20H15V21H14zM16,20H17V21H16zM17,20H18V21H17zM21,20H22V21H21zM24,20H25V21H24zM25,20H26V21H25zM1,21H2V22H1zM3,21H4V22H3zM4,21H5V22H4zM5,21H6V22H5zM7,21H8V22H7zM11,21H12V22H11zM13,21H14V22H13zM15,21H16V22H15zM16,21H17V22H16zM17,21H18V22H17zM18,21H19V22H18zM19,21H20V22H19zM20,21H21V22H20zM21,21H22V22H21zM23,21H24V22H23zM24,21H25V22H24zM25,21H26V22H25zM1,22H2V23H1zM3,22H4V23H3zM4,22H5V23H4zM5,22H6V23H5zM7,22H8V23H7zM10,22H11V23H10zM11,22H12V23H11zM15,22H16V23H15zM18,22H19V23H18zM19,22H20V23H19zM24,22H25V23H24zM25,22H26V23H25zM1,23H2V24H1zM3,23H4V24H3zM4,23H5V24H4zM5,23H6V24H5zM7,23H8V24H7zM11,23H12V24H11zM12,23H13V24H12zM13,23H14V24H13zM17,23H18V24H17zM22,23H23V24H22zM23,23H24V24H23zM25,23H26V24H25zM1,24H2V25H1zM7,24H8V25H7zM11,24H12V25H11zM12,24H13V25H12zM15,24H16V25H15zM17,24H18V25H17zM20,24H21V25H20zM21,24H22V25H21zM25,24H26V25H25zM1,25H2V26H1zM2,25H3V26H2zM3,25H4V26H3zM4,25H5V26H4zM5,25H6V26H5zM6,25H7V26H6zM7,25H8V26H7zM9,25H10V26H9zM14,25H15V26H14zM15,25H16V26H15zM16,25H17V26H16zM17,25H18V26H17zM22,25H23V26H22zM25,25H26V26H25zM26,26H27V27H26z" fill="#000000"/>
+              </svg>
+            </a>
+            <p class="rh-tip-message">If this journey resonated with you, consider supporting the busking path. Every bit directly fuels travel, new scales, and spontaneous street sessions.</p>
+            <a href="https://busk.co/84950/tip" target="_blank" rel="noopener noreferrer" class="rh-tip-link-btn">
+              <span>Tip via busk.co/84950</span>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="./script.js" defer></script>
+</body>
+</html>

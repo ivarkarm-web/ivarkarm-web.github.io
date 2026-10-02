@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Host
+Host: https://ivarkarm-web.github.io
+
+# Sitemaps
+Sitemap: https://ivarkarm-web.github.io/sitemap.xml
