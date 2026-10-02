@@ -3626,10 +3626,7 @@ let dockedReleaseTime = 0;
 
 function navigateToSection(index) {
   if (index === undefined || !sectionPositions[index]) return;
-  if (typeof startGame === "function") {
-    const welcome = document.getElementById("welcome");
-    if (welcome && !welcome.classList.contains("hidden")) startGame();
-  }
+  if (typeof startGame === "function") startGame();
   if (typeof endOfRoadState !== "undefined" && endOfRoadState.rabbitHoleShown) {
     if (typeof closeRabbitHoleScreen === "function") closeRabbitHoleScreen(sectionPositions[index].x);
   }
@@ -4246,23 +4243,47 @@ if (cursorEl) {
   });
 }
 
+let siteEntered = false;
+
 function startGame() {
-  if (gameStarted) return;
+  if (siteEntered) return;
+  siteEntered = true;
   gameStarted = true;
-  x = sectionPositions[0] ? sectionPositions[0].x : 500;
-  vx = 0; vy = 0; y = getGround(x) - ballRadius; onGround = true; cameraY = 0; keys = {};
 
-  // Initialize Web Audio procedural resonance
-  ResonanceAudio.init();
-  ResonanceAudio.resume();
-  ResonanceAudio.playTone(0, 0.65, { duration: 3.0 }); // Rich welcoming Ding strike
-
+  // Immediately dissolve and remove the welcome screen
   const welcome = document.getElementById('welcome');
   if (welcome) {
     welcome.classList.add('hidden');
-    setTimeout(() => { welcome.style.display = 'none'; }, 950);
+    welcome.style.opacity = '0';
+    welcome.style.pointerEvents = 'none';
+    setTimeout(() => {
+      welcome.style.display = 'none';
+    }, 600);
   }
   document.body.classList.remove('pre-enter');
+
+  // Ground handpan at Home
+  x = (sectionPositions && sectionPositions[0]) ? sectionPositions[0].x : 500;
+  vx = 0;
+  vy = 0;
+  y = getGround(x) - ballRadius;
+  onGround = true;
+  cameraY = 0;
+  keys = {};
+
+  // Initialize Web Audio and strike welcoming Ding
+  if (typeof ResonanceAudio !== 'undefined') {
+    try {
+      ResonanceAudio.init();
+      ResonanceAudio.resume();
+      ResonanceAudio.playTone(0, 0.7, { duration: 3.2 });
+    } catch (_) {}
+  }
+
+  if (typeof triggerHaptic === 'function') {
+    triggerHaptic('medium');
+  }
+
   if (canvas) {
     try { canvas.focus({ preventScroll: true }); } catch (e) {}
   }
@@ -4273,7 +4294,10 @@ function startGame() {
   const welcome = document.getElementById('welcome');
 
   const onEnterTrigger = (e) => {
-    if (e && e.cancelable) e.preventDefault();
+    if (e) {
+      if (e.cancelable) e.preventDefault();
+      if (e.stopPropagation) e.stopPropagation();
+    }
     startGame();
   };
 
@@ -4284,9 +4308,8 @@ function startGame() {
   }
 
   if (welcome) {
-    welcome.addEventListener('click', (e) => {
-      if (!gameStarted) startGame();
-    });
+    welcome.addEventListener('click', () => startGame());
+    welcome.addEventListener('touchend', () => startGame(), { passive: true });
   }
 })();
 

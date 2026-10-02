@@ -1998,11 +1998,7 @@ body.pre-enter #sections {
   transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.welcome.hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
+.welcome.hidden { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
 
 .welcome-inner {
   position: relative;
