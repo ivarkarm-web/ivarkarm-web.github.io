@@ -102,7 +102,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340..600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=1791059815760">
+  <link rel="stylesheet" href="./styles.css?v=1791060652547">
   <!-- GSAP & ScrollTrigger for standalone direct-branch hosting -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -183,7 +183,7 @@
     <li><a href="#about">About</a></li>
     <li><a href="#story">Story</a></li>
     <li><a href="#manifesto">Manifesto</a></li>
-    <li><a href="#album">Album</a></li>
+    <li><a href="#album">Improv Sessions</a></li>
     <li><a href="#partners">Partners</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#rabbit-hole">Rabbit Hole</a></li>
@@ -248,50 +248,19 @@
     <p>I don't chase perfection. I chase moments—where sound, place, and people line up.</p>
   </div>
 
-  <!-- Album / Music -->
-  <div class="section with-backdrop" id="s4" role="region" aria-label="Album">
-    <span class="eyebrow">Improvised sessions</span>
-    <h2>Album</h2>
+  <!-- Improv Sessions Section -->
+  <div class="section with-backdrop" id="s4" role="region" aria-label="Improv Sessions">
+    <span class="eyebrow">Acoustic Recordings</span>
+    <h2>Improv Sessions</h2>
     <div class="hairline"></div>
-    <p class="lead">Six moments of pure improvisation</p>
-    <div class="music-player" id="musicPlayer">
-      <div class="mp-now">
-        <div class="mp-meta">
-          <span class="mp-track-num" id="mpTrackNum">01</span>
-          <div class="mp-titles">
-            <span class="mp-title" id="mpTitle">Bedroom Session 1</span>
-            <span class="mp-subtitle" id="mpSubtitle">Handpan · Bedroom Sessions · Archive.org</span>
-          </div>
-        </div>
-        <div class="mp-progress-wrap">
-          <div class="mp-progress" id="mpProgress" role="slider" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-            <div class="mp-progress-track">
-              <div class="mp-progress-filled" id="mpProgressFilled"></div>
-              <div class="mp-progress-handle" id="mpProgressHandle"></div>
-            </div>
-          </div>
-          <div class="mp-time"><span id="mpCurrentTime">0:00</span><span id="mpDuration">1:25</span></div>
-        </div>
-        <div class="mp-controls">
-          <button class="mp-btn" id="mpPrev" aria-label="Previous track"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
-          <button class="mp-btn mp-btn-play" id="mpPlay" aria-label="Play">
-            <svg class="mp-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
-            <svg class="mp-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
-          </button>
-          <button class="mp-btn" id="mpNext" aria-label="Next track"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6v12z"/></svg></button>
-        </div>
-      </div>
-      <ul class="mp-tracklist" id="mpTracklist" role="list">
-        <li class="mp-track active" data-index="0" role="button" tabindex="0"><span class="mp-t-num">01</span><span class="mp-t-name">Bedroom Session 1<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:25</span></li>
-        <li class="mp-track" data-index="1" role="button" tabindex="0"><span class="mp-t-num">02</span><span class="mp-t-name">Bedroom Session 2<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:46</span></li>
-        <li class="mp-track" data-index="2" role="button" tabindex="0"><span class="mp-t-num">03</span><span class="mp-t-name">Bedroom Session 3<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:29</span></li>
-        <li class="mp-track" data-index="3" role="button" tabindex="0"><span class="mp-t-num">04</span><span class="mp-t-name">Bedroom Session 4<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:05</span></li>
-        <li class="mp-track" data-index="4" role="button" tabindex="0"><span class="mp-t-num">05</span><span class="mp-t-name">Bedroom Session 5<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:46</span></li>
-        <li class="mp-track" data-index="5" role="button" tabindex="0"><span class="mp-t-num">06</span><span class="mp-t-name">Bedroom Session 7<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:17</span></li>
-        <li class="mp-track" data-index="6" role="button" tabindex="0"><span class="mp-t-num">07</span><span class="mp-t-name">Bedroom Session 8<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:08</span></li>
-        <li class="mp-track" data-index="7" role="button" tabindex="0"><span class="mp-t-num">08</span><span class="mp-t-name">Bedroom Sessions (Master)<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">2:43</span></li>
-      </ul>
-      <audio id="mpAudio" preload="metadata"></audio>
+    <p class="lead">Bedroom sessions &amp; acoustic overtones captured directly on location</p>
+    <p class="subtext">8 unreleased handpan improvisations recorded in solitary presence.</p>
+    <div class="mp-pull-up-wrapper">
+      <button type="button" class="mp-pull-up-trigger" id="mpOpenDrawerBtn" aria-label="Pull up to reveal Improv Sessions music player">
+        <span class="mp-pull-icon">▲</span>
+        <span class="mp-pull-text">Pull up for Improv Sessions</span>
+        <span class="mp-pull-meta">8 Recordings · Bedroom Sessions</span>
+      </button>
     </div>
   </div>
 
@@ -485,6 +454,69 @@
     </button>
     </div>
 </div>
+
+
+<!-- Improv Sessions Music Player Drawer Sheet -->
+<aside class="mp-drawer-overlay" id="mpDrawerOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="mpDrawerHeading">
+  <div class="mp-drawer-backdrop" id="mpDrawerBackdrop"></div>
+  <div class="mp-drawer-sheet" id="mpDrawerSheet">
+    <!-- Tactile Drawer Pull Handle / Dismiss Header -->
+    <div class="mp-drawer-header" id="mpDrawerHeader">
+      <div class="mp-drawer-drag-pill" aria-hidden="true"></div>
+      <div class="mp-drawer-header-row">
+        <div class="mp-drawer-heading-wrap">
+          <span class="mp-drawer-eyebrow">Acoustic Vault</span>
+          <h3 class="mp-drawer-title" id="mpDrawerHeading">Improv Sessions</h3>
+        </div>
+        <button type="button" class="mp-drawer-dismiss-btn" id="mpCloseDrawerBtn" aria-label="Pull down to return to terrain game">
+          <span class="mp-dismiss-icon">▼</span>
+          <span class="mp-dismiss-label">Return to road</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Rebuilt Functional Music Player -->
+    <div class="music-player" id="musicPlayer">
+      <div class="mp-now">
+        <div class="mp-meta">
+          <span class="mp-track-num" id="mpTrackNum">01</span>
+          <div class="mp-titles">
+            <span class="mp-title" id="mpTitle">Bedroom Session 1</span>
+            <span class="mp-subtitle" id="mpSubtitle">Handpan · Bedroom Sessions · Archive.org</span>
+          </div>
+        </div>
+        <div class="mp-progress-wrap">
+          <div class="mp-progress" id="mpProgress" role="slider" aria-label="Seek track" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+            <div class="mp-progress-track">
+              <div class="mp-progress-filled" id="mpProgressFilled"></div>
+              <div class="mp-progress-handle" id="mpProgressHandle"></div>
+            </div>
+          </div>
+          <div class="mp-time"><span id="mpCurrentTime">0:00</span><span id="mpDuration">1:25</span></div>
+        </div>
+        <div class="mp-controls">
+          <button class="mp-btn" id="mpPrev" aria-label="Previous track"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+          <button class="mp-btn mp-btn-play" id="mpPlay" aria-label="Play or pause">
+            <svg class="mp-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+            <svg class="mp-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+          </button>
+          <button class="mp-btn" id="mpNext" aria-label="Next track"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg></button>
+        </div>
+      </div>
+      <ul class="mp-tracklist" id="mpTracklist" role="list">
+        <li class="mp-track active" data-index="0" role="button" tabindex="0"><span class="mp-t-num">01</span><span class="mp-t-name">Bedroom Session 1<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:25</span></li>
+        <li class="mp-track" data-index="1" role="button" tabindex="0"><span class="mp-t-num">02</span><span class="mp-t-name">Bedroom Session 2<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:46</span></li>
+        <li class="mp-track" data-index="2" role="button" tabindex="0"><span class="mp-t-num">03</span><span class="mp-t-name">Bedroom Session 3<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:29</span></li>
+        <li class="mp-track" data-index="3" role="button" tabindex="0"><span class="mp-t-num">04</span><span class="mp-t-name">Bedroom Session 4<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:05</span></li>
+        <li class="mp-track" data-index="4" role="button" tabindex="0"><span class="mp-t-num">05</span><span class="mp-t-name">Bedroom Session 5<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:46</span></li>
+        <li class="mp-track" data-index="5" role="button" tabindex="0"><span class="mp-t-num">06</span><span class="mp-t-name">Bedroom Session 7<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:17</span></li>
+        <li class="mp-track" data-index="6" role="button" tabindex="0"><span class="mp-t-num">07</span><span class="mp-t-name">Bedroom Session 8<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:08</span></li>
+        <li class="mp-track" data-index="7" role="button" tabindex="0"><span class="mp-t-num">08</span><span class="mp-t-name">Bedroom Sessions (Master)<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">2:43</span></li>
+      </ul>
+      <audio id="mpAudio" preload="metadata"></audio>
+    </div>
+  </div>
+</aside>
 
 <!-- Accessible Direct Monograph Reader Modal -->
 <div class="direct-monograph-modal" id="directMonographModal" role="dialog" aria-modal="true" aria-labelledby="dmTitle" aria-hidden="true">
@@ -1315,6 +1347,6 @@
   </main>
 </div>
 
-<script src="./script.js?v=1791059815760" defer></script>
+<script src="./script.js?v=1791060652547" defer></script>
 </body>
 </html>

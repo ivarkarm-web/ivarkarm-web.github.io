@@ -4693,3 +4693,222 @@ body.rabbit-hole-open #cursor {
   color: var(--accent-gold) !important;
   font-weight: 500;
 }
+
+/* ==========================================================================
+   IMPROV SESSIONS DRAWER & TRANSITIONS (PULL UP / PULL DOWN)
+   ========================================================================== */
+.mp-pull-up-wrapper {
+  margin-top: 1.75rem;
+  display: flex;
+  justify-content: center;
+}
+
+.mp-pull-up-trigger {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(18, 18, 20, 0.88);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  border-radius: 999px;
+  padding: 0.9rem 2.2rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  pointer-events: auto !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 16px rgba(212, 175, 55, 0.16);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: mpPullPulse 3s infinite ease-in-out;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mp-pull-up-trigger:hover,
+.mp-pull-up-trigger:focus-visible {
+  transform: translateY(-4px) scale(1.03);
+  border-color: rgba(212, 175, 55, 0.85);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.75), 0 0 28px rgba(212, 175, 55, 0.32);
+}
+
+.mp-pull-icon {
+  font-size: 0.85rem;
+  color: var(--accent-gold);
+  animation: mpChevronBounce 1.8s infinite ease-in-out;
+}
+
+.mp-pull-text {
+  font-family: 'Fraunces', serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+  color: #fff;
+}
+
+.mp-pull-meta {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  opacity: 0.9;
+}
+
+@keyframes mpPullPulse {
+  0%, 100% { border-color: rgba(212, 175, 55, 0.35); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 14px rgba(212, 175, 55, 0.14); }
+  50% { border-color: rgba(212, 175, 55, 0.8); box-shadow: 0 12px 35px rgba(0, 0, 0, 0.75), 0 0 26px rgba(212, 175, 55, 0.35); }
+}
+
+@keyframes mpChevronBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* Drawer Overlay Modal */
+.mp-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0.5s;
+}
+
+.mp-drawer-overlay.active {
+  pointer-events: auto !important;
+  visibility: visible;
+}
+
+.mp-drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 4, 6, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  opacity: 0;
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mp-drawer-overlay.active .mp-drawer-backdrop {
+  opacity: 1;
+}
+
+.mp-drawer-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  background: rgba(12, 12, 14, 0.96);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border-top: 1px solid rgba(212, 175, 55, 0.4);
+  border-left: 1px solid rgba(212, 175, 55, 0.15);
+  border-right: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 26px 26px 0 0;
+  box-shadow: 0 -25px 75px rgba(0, 0, 0, 0.92), 0 -2px 25px rgba(212, 175, 55, 0.15);
+  padding: 1.1rem 1.6rem 2.2rem;
+  max-height: 84vh;
+  overflow-y: auto;
+  transform: translateY(105%);
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+  touch-action: pan-y;
+  pointer-events: auto !important;
+}
+
+.mp-drawer-overlay.active .mp-drawer-sheet {
+  transform: translateY(0);
+}
+
+.mp-drawer-sheet.dragging {
+  transition: none !important;
+}
+
+/* Header & Dismiss */
+.mp-drawer-header {
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 1.25rem;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.mp-drawer-drag-pill {
+  width: 50px;
+  height: 5px;
+  background: rgba(212, 175, 55, 0.45);
+  border-radius: 999px;
+  margin: 0 auto 0.85rem;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.mp-drawer-header:hover .mp-drawer-drag-pill {
+  background: var(--accent-gold);
+  transform: scaleX(1.15);
+}
+
+.mp-drawer-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mp-drawer-eyebrow {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  margin-bottom: 0.2rem;
+}
+
+.mp-drawer-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.45rem;
+  color: var(--text-primary);
+  margin: 0;
+  font-weight: 400;
+}
+
+.mp-drawer-dismiss-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.mp-drawer-dismiss-btn:hover {
+  background: rgba(212, 175, 55, 0.18);
+  border-color: var(--accent-gold);
+  color: var(--text-primary);
+  transform: translateY(1px);
+}
+
+.mp-dismiss-icon {
+  font-size: 0.75rem;
+  color: var(--accent-gold);
+  transition: transform 0.2s;
+}
+
+.mp-drawer-dismiss-btn:hover .mp-dismiss-icon {
+  transform: translateY(2px);
+}
+
+/* While drawer is open, disable touch zones and controls to prevent any collision */
+body.mp-drawer-open .touch-zones,
+body.mp-drawer-open .touch-controls {
+  pointer-events: none !important;
+  opacity: 0 !important;
+  transition: opacity 0.3s;
+}

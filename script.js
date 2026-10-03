@@ -798,7 +798,7 @@ const sectionPositions = [
   { x: 2000, index: 1, title: "About" },
   { x: 3800, index: 2, title: "Story" },
   { x: 5600, index: 3, title: "Manifesto" },
-  { x: 7400, index: 4, title: "Album" },
+  { x: 7400, index: 4, title: "Improv Sessions" },
   { x: 9200, index: 5, title: "Partners" },
   { x: 11000, index: 6, title: "Contact" }
 ];
@@ -4316,7 +4316,8 @@ const musicPlayer = {
   isPlaying: false,
   els: {},
   fadeTimer: null,
-  isEndingFade: false
+  isEndingFade: false,
+  isDrawerOpen: false
 };
 
 function mpFormatTime(sec) {
@@ -4373,7 +4374,6 @@ function mpUpdateProgress() {
     if (musicPlayer.els.duration) musicPlayer.els.duration.textContent = mpFormatTime(dur);
     if (musicPlayer.els.progress) musicPlayer.els.progress.setAttribute('aria-valuenow', Math.round(p));
 
-    // Natural fade out right before track end
     const timeLeft = dur - curTime;
     if (timeLeft <= 2.2 && !musicPlayer.isEndingFade && !a.paused && dur > 6) {
       musicPlayer.isEndingFade = true;
@@ -4414,10 +4414,6 @@ function mpHighlightTrack(i) {
   });
 }
 
-/**
- * Robust track selection & playback handler
- * Guarantees active class update, resets progress bar & timer to 0, and starts audio
- */
 function mpSelectAndPlayTrack(index) {
   if (index < 0 || index >= MUSIC_TRACKS.length) return;
   const track = MUSIC_TRACKS[index];
@@ -4426,7 +4422,7 @@ function mpSelectAndPlayTrack(index) {
   const a = musicPlayer.audio;
   if (!a) return;
 
-  // 1. Immediately update active class on track items
+  // 1. Immediately update active class
   mpHighlightTrack(index);
 
   // 2. Immediately reset progress bar and timer to zero
@@ -4469,7 +4465,7 @@ function mpSelectAndPlayTrack(index) {
       mpSetPlayingUI(true);
       mpFadeVolume(1.0, 600);
     }).catch((err) => {
-      console.warn('Audio playback error:', err);
+      console.warn('Audio playback notice:', err);
       mpSetPlayingUI(false);
     });
   }
@@ -4522,6 +4518,128 @@ function mpPrev() {
 function mpNext() {
   const nextIdx = (musicPlayer.index + 1) % MUSIC_TRACKS.length;
   mpSelectAndPlayTrack(nextIdx);
+}
+
+// ============================================================================
+// IMPROV SESSIONS DRAWER CONTROLLER (PULL UP / PULL DOWN)
+// ============================================================================
+function openMusicDrawer() {
+  const overlay = document.getElementById('mpDrawerOverlay');
+  if (!overlay) return;
+  musicPlayer.isDrawerOpen = true;
+  overlay.classList.add('active');
+  overlay.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('mp-drawer-open');
+  if (typeof triggerHaptic === 'function') triggerHaptic('medium');
+
+  // Pause game movement momentum so player doesn't roll away
+  if (typeof vx !== 'undefined') vx = 0;
+  if (typeof keys !== 'undefined') keys = {};
+}
+
+function closeMusicDrawer() {
+  const overlay = document.getElementById('mpDrawerOverlay');
+  if (!overlay) return;
+  musicPlayer.isDrawerOpen = false;
+  overlay.classList.remove('active');
+  overlay.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('mp-drawer-open');
+  if (typeof triggerHaptic === 'function') triggerHaptic('light');
+
+  // Reset any sheet drag inline styles
+  const sheet = document.getElementById('mpDrawerSheet');
+  if (sheet) {
+    sheet.classList.remove('dragging');
+    sheet.style.transform = '';
+  }
+}
+
+function initMusicDrawerGestures() {
+  const openBtn = document.getElementById('mpOpenDrawerBtn');
+  const closeBtn = document.getElementById('mpCloseDrawerBtn');
+  const backdrop = document.getElementById('mpDrawerBackdrop');
+  const header = document.getElementById('mpDrawerHeader');
+  const sheet = document.getElementById('mpDrawerSheet');
+  const s4Section = document.getElementById('s4');
+
+  if (openBtn) {
+    openBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openMusicDrawer();
+    });
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeMusicDrawer();
+    });
+  }
+
+  if (backdrop) {
+    backdrop.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeMusicDrawer();
+    });
+  }
+
+  // Swipe UP on Section 4 to reveal drawer
+  if (s4Section) {
+    let touchStartY = 0;
+    s4Section.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches[0]) touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    s4Section.addEventListener('touchend', (e) => {
+      if (e.changedTouches && e.changedTouches[0]) {
+        const deltaY = touchStartY - e.changedTouches[0].clientY;
+        if (deltaY > 60 && !musicPlayer.isDrawerOpen) {
+          openMusicDrawer();
+        }
+      }
+    }, { passive: true });
+  }
+
+  // Swipe / Drag DOWN on Drawer Header or Sheet to dismiss
+  if (header && sheet) {
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+
+    const onTouchStart = (e) => {
+      if (!e.touches || !e.touches[0]) return;
+      startY = e.touches[0].clientY;
+      currentY = startY;
+      isDragging = true;
+      sheet.classList.add('dragging');
+    };
+
+    const onTouchMove = (e) => {
+      if (!isDragging || !e.touches || !e.touches[0]) return;
+      currentY = e.touches[0].clientY;
+      const delta = currentY - startY;
+      if (delta > 0) {
+        // Resistance curve
+        sheet.style.transform = `translateY(${delta}px)`;
+      }
+    };
+
+    const onTouchEnd = () => {
+      if (!isDragging) return;
+      isDragging = false;
+      sheet.classList.remove('dragging');
+      const delta = currentY - startY;
+      if (delta > 75) {
+        closeMusicDrawer();
+      } else {
+        sheet.style.transform = '';
+      }
+    };
+
+    header.addEventListener('touchstart', onTouchStart, { passive: true });
+    header.addEventListener('touchmove', onTouchMove, { passive: true });
+    header.addEventListener('touchend', onTouchEnd, { passive: true });
+  }
 }
 
 function initMusicPlayer() {
@@ -4620,7 +4738,7 @@ function initMusicPlayer() {
       if (!trackEl) return;
 
       const now = performance.now();
-      if (now - lastTrackClickTime < 250) return; // Prevent double-trigger from touch+click
+      if (now - lastTrackClickTime < 250) return;
       lastTrackClickTime = now;
 
       e.stopPropagation();
@@ -4641,6 +4759,8 @@ function initMusicPlayer() {
       }
     });
   }
+
+  initMusicDrawerGestures();
 }
 
 if (document.readyState === 'loading') {
