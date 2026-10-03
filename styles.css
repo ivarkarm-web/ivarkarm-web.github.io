@@ -1544,7 +1544,10 @@ body.rabbit-hole-open .touch-zones {
   }
 
   .hamburger {
-    display: flex;
+    display: none !important;
+  }
+  .nav-links {
+    display: none !important;
   }
 
   .nav-links {
@@ -4624,4 +4627,22 @@ body.rabbit-hole-open #cursor {
 .rh-floating-leave-btn {
   position: relative;
   z-index: 10 !important;
+}
+
+/* Acoustic Toggle & Nav Action Enhancements */
+#audioToggleBtn,
+#monographToggleBtn {
+  pointer-events: auto !important;
+  cursor: pointer;
+  position: relative;
+  z-index: 1060;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+#audioToggleBtn.is-muted {
+  border-color: rgba(220, 80, 80, 0.45) !important;
+  color: rgba(220, 150, 150, 0.9) !important;
+}
+.memory-shard-hud {
+  display: none !important;
 }

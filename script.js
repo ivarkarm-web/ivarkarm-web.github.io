@@ -101,13 +101,33 @@ const ResonanceAudio = {
     if (!this.initialized) this.init();
     this.resume();
     this.isMuted = !this.isMuted;
-    localStorage.setItem('ivar_resonance_muted', this.isMuted ? 'true' : 'false');
+    try { localStorage.setItem('ivar_resonance_muted', this.isMuted ? 'true' : 'false'); } catch (_) {}
+
+    // 1. Procedural master gain
     if (this.masterGain && this.ctx) {
-      const now = this.ctx.currentTime;
-      this.masterGain.gain.cancelScheduledValues(now);
-      this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, now);
-      this.masterGain.gain.linearRampToValueAtTime(this.isMuted ? 0 : 0.7, now + 0.08);
+      try {
+        const now = this.ctx.currentTime;
+        this.masterGain.gain.cancelScheduledValues(now);
+        this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, now);
+        this.masterGain.gain.linearRampToValueAtTime(this.isMuted ? 0 : 0.7, now + 0.08);
+      } catch (_) {}
     }
+
+    // 2. Audio orb playback
+    if (typeof currentAudio !== 'undefined' && currentAudio) {
+      try { currentAudio.muted = this.isMuted; } catch (_) {}
+    }
+
+    // 3. Album music player
+    if (typeof musicPlayer !== 'undefined' && musicPlayer.audio) {
+      try { musicPlayer.audio.muted = this.isMuted; } catch (_) {}
+    }
+
+    // 4. Rabbit Hole preview audio
+    if (typeof rhScrollManager !== 'undefined' && rhScrollManager.activePreviewAudio) {
+      try { rhScrollManager.activePreviewAudio.muted = this.isMuted; } catch (_) {}
+    }
+
     this.updateUIIcon();
     return this.isMuted;
   },
@@ -119,6 +139,10 @@ const ResonanceAudio = {
     const offIcon = btn.querySelector('.icon-sound-off');
     if (onIcon) onIcon.style.display = this.isMuted ? 'none' : 'block';
     if (offIcon) offIcon.style.display = this.isMuted ? 'block' : 'none';
+    const label = btn.querySelector('.nav-btn-label');
+    if (label) label.textContent = this.isMuted ? 'Muted' : 'Acoustic';
+    btn.setAttribute('aria-pressed', this.isMuted ? 'true' : 'false');
+    btn.classList.toggle('is-muted', this.isMuted);
     btn.classList.toggle('active', !this.isMuted);
   },
 
@@ -797,9 +821,9 @@ function computeNarrativeZoomFactor() {
 }
 
 const audioOrbs = [
-  { x: 1500, audioFile: './audio/berlin-dawn.wav', collected: false },
-  { x: 4500, audioFile: './audio/alexanderplatz-drift.wav', collected: false },
-  { x: 7500, audioFile: './audio/baltic-wind.wav', collected: false }
+  { x: 1500, audioFile: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%203.wav', collected: false },
+  { x: 4500, audioFile: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%204.wav', collected: false },
+  { x: 7500, audioFile: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%205.wav', collected: false }
 ];
 
 let currentAudio = null;
@@ -2661,13 +2685,13 @@ function checkResonantStones() {
       s.triggered = true;
       ResonanceAudio.playTone(s.noteIdx, 0.65, { duration: 3.2 });
       spawnSoundRing(s.x, getGround(s.x) - 25);
-      showMemoryShard(s);
+      // showMemoryShard suppressed
       if (typeof triggerHaptic === 'function') triggerHaptic('medium');
     }
   }
 }
 
-function showMemoryShard(stone) {
+function showMemoryShard(stone) { return; // suppressed
   const hud = document.getElementById('memoryShardHud');
   if (!hud) return;
   const metaEl = document.getElementById('memoryShardMeta');
@@ -4083,11 +4107,23 @@ function handleTouchZoneDoubleTap(e) {
 // Audio Toggle Button
 const audioToggleBtn = document.getElementById('audioToggleBtn');
 if (audioToggleBtn) {
-  audioToggleBtn.addEventListener('click', (e) => {
-    e.preventDefault();
+  const handleAcousticToggle = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     ResonanceAudio.toggleMute();
     if (typeof triggerHaptic === 'function') triggerHaptic('light');
+  };
+  audioToggleBtn.addEventListener('click', handleAcousticToggle);
+  audioToggleBtn.addEventListener('pointerdown', (e) => {
+    e.stopPropagation();
   });
+  audioToggleBtn.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleAcousticToggle(e);
+  }, { passive: false });
 }
 
 // Memory Shard Dismiss
@@ -4410,6 +4446,12 @@ function mpLoadTrack(index, autoplay, isFadeIn = true) {
   mpSetPlayingUI(false);
 
   if (autoplay) {
+    // Fade out audio orb before player starts
+    if (typeof currentAudio !== 'undefined' && currentAudio) {
+      const orbAudio = currentAudio;
+      currentAudio = null;
+      if (typeof fadeOutAudio === 'function') fadeOutAudio(orbAudio);
+    }
     try { a.volume = 0; } catch (_) {}
     mpEnsureWebAudio();
     if (musicPlayer.gainNode && musicPlayer.audioCtx) {
@@ -4435,6 +4477,12 @@ function mpSwitchTrack(newIndex) {
   if (newIndex < 0 || newIndex >= MUSIC_TRACKS.length) return;
   const a = musicPlayer.audio;
   if (!a) return;
+  // Fade out audio orb before player starts
+  if (typeof currentAudio !== 'undefined' && currentAudio) {
+    const orbAudio = currentAudio;
+    currentAudio = null;
+    if (typeof fadeOutAudio === 'function') fadeOutAudio(orbAudio);
+  }
 
   musicPlayer.isSwitching = true;
   if (!a.paused) {
@@ -4450,6 +4498,12 @@ function mpSwitchTrack(newIndex) {
 function mpTogglePlay() {
   const a = musicPlayer.audio;
   if (!a) return;
+  // Fade out audio orb before player starts
+  if (typeof currentAudio !== 'undefined' && currentAudio) {
+    const orbAudio = currentAudio;
+    currentAudio = null;
+    if (typeof fadeOutAudio === 'function') fadeOutAudio(orbAudio);
+  }
   if (musicPlayer.index < 0) { mpLoadTrack(0, true, true); return; }
   if (a.paused) {
     try { a.volume = 0; } catch (_) {}
