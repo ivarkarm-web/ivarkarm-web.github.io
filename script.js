@@ -4224,15 +4224,135 @@ function startGame() {
 
 // Music player
 const MUSIC_TRACKS = [
-  { title:'Berlin Dawn', subtitle:'Handpan · Improvised · Berlin', src:'./audio/berlin-dawn.wav' },
-  { title:'Alexanderplatz Drift', subtitle:'Handpan · Improvised · Berlin', src:'./audio/alexanderplatz-drift.wav' },
-  { title:"Hitchhiker's Scale", subtitle:'Handpan · Improvised · Travels', src:'./audio/hitchhikers-scale.wav' },
-  { title:'Baltic Wind', subtitle:'Handpan · Improvised · Travels', src:'./audio/baltic-wind.wav' },
-  { title:'Athens Courtyard', subtitle:'Handpan · Improvised · Greece', src:'./audio/athens-courtyard.wav' },
-  { title:'Resonance', subtitle:'Handpan · Improvised', src:'./audio/resonance.wav' }
+  {
+    title: 'Bedroom Session 1',
+    subtitle: 'Handpan · Bedroom Sessions · Archive.org',
+    src: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%201.wav',
+    duration: 85
+  },
+  {
+    title: 'Bedroom Session 2',
+    subtitle: 'Handpan · Bedroom Sessions · Archive.org',
+    src: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%202.wav',
+    duration: 106
+  },
+  {
+    title: 'Bedroom Session 3',
+    subtitle: 'Handpan · Bedroom Sessions · Archive.org',
+    src: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%203.wav',
+    duration: 89
+  },
+  {
+    title: 'Bedroom Session 4',
+    subtitle: 'Handpan · Bedroom Sessions · Archive.org',
+    src: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%204.wav',
+    duration: 65
+  },
+  {
+    title: 'Bedroom Session 5',
+    subtitle: 'Handpan · Bedroom Sessions · Archive.org',
+    src: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%205.wav',
+    duration: 106
+  },
+  {
+    title: 'Bedroom Session 7',
+    subtitle: 'Handpan · Bedroom Sessions · Archive.org',
+    src: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%207.wav',
+    duration: 77
+  },
+  {
+    title: 'Bedroom Session 8',
+    subtitle: 'Handpan · Bedroom Sessions · Archive.org',
+    src: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%208.wav',
+    duration: 68
+  },
+  {
+    title: 'Bedroom Sessions (Master)',
+    subtitle: 'Handpan Extended Session · Archive.org',
+    src: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20sessions%20-%2003.10.2026%2C%2022.29.wav',
+    duration: 163
+  }
 ];
 
-const musicPlayer = { audio:null, index:-1, els:{} };
+const musicPlayer = {
+  audio: null,
+  index: -1,
+  els: {},
+  fadeRaf: null,
+  isEndingFade: false,
+  isSwitching: false,
+  audioCtx: null,
+  gainNode: null,
+  sourceNode: null
+};
+
+function mpEnsureWebAudio() {
+  if (musicPlayer.gainNode) return;
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx || !musicPlayer.audio) return;
+    if (!musicPlayer.audioCtx) {
+      musicPlayer.audioCtx = new AudioCtx();
+    }
+    if (musicPlayer.audioCtx.state === 'suspended') {
+      musicPlayer.audioCtx.resume();
+    }
+    if (!musicPlayer.sourceNode) {
+      try { musicPlayer.audio.crossOrigin = 'anonymous'; } catch (_) {}
+      musicPlayer.sourceNode = musicPlayer.audioCtx.createMediaElementSource(musicPlayer.audio);
+      musicPlayer.gainNode = musicPlayer.audioCtx.createGain();
+      musicPlayer.sourceNode.connect(musicPlayer.gainNode);
+      musicPlayer.gainNode.connect(musicPlayer.audioCtx.destination);
+    }
+  } catch (_) {
+    // If MediaElementSource fails (e.g. cross-origin restriction), fallback gracefully to audio.volume
+  }
+}
+
+function mpFadeVolume(targetVol, durationMs, onComplete) {
+  if (musicPlayer.fadeRaf) {
+    cancelAnimationFrame(musicPlayer.fadeRaf);
+    musicPlayer.fadeRaf = null;
+  }
+  const a = musicPlayer.audio;
+  if (!a) {
+    if (onComplete) onComplete();
+    return;
+  }
+
+  mpEnsureWebAudio();
+
+  const startVol = a.volume !== undefined ? a.volume : 1;
+  const startTime = performance.now();
+  durationMs = Math.max(120, durationMs || 900);
+
+  function tick(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(1, elapsed / durationMs);
+    // Smooth cosine/Hermite easing
+    const eased = progress * progress * (3 - 2 * progress);
+    const curVol = Math.max(0, Math.min(1, startVol + (targetVol - startVol) * eased));
+
+    try { a.volume = curVol; } catch (_) {}
+    if (musicPlayer.gainNode && musicPlayer.audioCtx) {
+      try { musicPlayer.gainNode.gain.setValueAtTime(curVol, musicPlayer.audioCtx.currentTime); } catch (_) {}
+    }
+
+    if (progress < 1) {
+      musicPlayer.fadeRaf = requestAnimationFrame(tick);
+    } else {
+      musicPlayer.fadeRaf = null;
+      try { a.volume = targetVol; } catch (_) {}
+      if (musicPlayer.gainNode && musicPlayer.audioCtx) {
+        try { musicPlayer.gainNode.gain.setValueAtTime(targetVol, musicPlayer.audioCtx.currentTime); } catch (_) {}
+      }
+      if (onComplete) onComplete();
+    }
+  }
+
+  musicPlayer.fadeRaf = requestAnimationFrame(tick);
+}
+
 function mpFormatTime(sec) {
   if (!isFinite(sec) || sec < 0) return '0:00';
   const m = Math.floor(sec / 60);
@@ -4242,12 +4362,22 @@ function mpFormatTime(sec) {
 
 function mpUpdateProgress() {
   const a = musicPlayer.audio;
-  if (!a || !a.duration) return;
-  const p = (a.currentTime / a.duration) * 100;
-  if (musicPlayer.els.filled) musicPlayer.els.filled.style.width = p + '%';
-  if (musicPlayer.els.handle) musicPlayer.els.handle.style.left = p + '%';
-  if (musicPlayer.els.current) musicPlayer.els.current.textContent = mpFormatTime(a.currentTime);
-  if (musicPlayer.els.duration) musicPlayer.els.duration.textContent = mpFormatTime(a.duration);
+  if (!a) return;
+  const dur = a.duration || (MUSIC_TRACKS[musicPlayer.index] ? MUSIC_TRACKS[musicPlayer.index].duration : 0);
+  if (dur > 0) {
+    const p = (a.currentTime / dur) * 100;
+    if (musicPlayer.els.filled) musicPlayer.els.filled.style.width = p + '%';
+    if (musicPlayer.els.handle) musicPlayer.els.handle.style.left = p + '%';
+    if (musicPlayer.els.current) musicPlayer.els.current.textContent = mpFormatTime(a.currentTime);
+    if (musicPlayer.els.duration) musicPlayer.els.duration.textContent = mpFormatTime(dur);
+
+    // Natural end-of-song fade out (starts 2.8s before track end)
+    const timeLeft = dur - a.currentTime;
+    if (timeLeft <= 2.8 && !musicPlayer.isEndingFade && !a.paused && !musicPlayer.isSwitching) {
+      musicPlayer.isEndingFade = true;
+      mpFadeVolume(0, Math.max(800, timeLeft * 1000 - 150));
+    }
+  }
 }
 
 function mpSetPlayingUI(playing) {
@@ -4262,12 +4392,15 @@ function mpHighlightTrack(i) {
   musicPlayer.els.tracklist.querySelectorAll('.mp-track').forEach((li, j) => li.classList.toggle('active', j === i));
 }
 
-function mpLoadTrack(index, autoplay) {
+function mpLoadTrack(index, autoplay, isFadeIn = true) {
   if (index < 0 || index >= MUSIC_TRACKS.length) return;
   const t = MUSIC_TRACKS[index];
   musicPlayer.index = index;
+  musicPlayer.isEndingFade = false;
+  musicPlayer.isSwitching = false;
   const a = musicPlayer.audio;
   if (!a) return;
+
   a.src = t.src;
   a.load();
   if (musicPlayer.els.title) musicPlayer.els.title.textContent = t.title;
@@ -4275,28 +4408,77 @@ function mpLoadTrack(index, autoplay) {
   if (musicPlayer.els.trackNum) musicPlayer.els.trackNum.textContent = String(index + 1).padStart(2, '0');
   mpHighlightTrack(index);
   mpSetPlayingUI(false);
+
   if (autoplay) {
+    try { a.volume = 0; } catch (_) {}
+    mpEnsureWebAudio();
+    if (musicPlayer.gainNode && musicPlayer.audioCtx) {
+      try { musicPlayer.gainNode.gain.setValueAtTime(0, musicPlayer.audioCtx.currentTime); } catch (_) {}
+    }
     const p = a.play();
-    if (p && p.catch) p.catch(() => {});
+    if (p && p.catch) {
+      p.catch(() => {}).then(() => {
+        if (!a.paused) {
+          mpSetPlayingUI(true);
+          if (isFadeIn) {
+            mpFadeVolume(1.0, 1200);
+          } else {
+            try { a.volume = 1.0; } catch (_) {}
+          }
+        }
+      });
+    }
+  }
+}
+
+function mpSwitchTrack(newIndex) {
+  if (newIndex < 0 || newIndex >= MUSIC_TRACKS.length) return;
+  const a = musicPlayer.audio;
+  if (!a) return;
+
+  musicPlayer.isSwitching = true;
+  if (!a.paused) {
+    // Fade out current song over 650ms, then start new song with fade-in
+    mpFadeVolume(0, 650, () => {
+      mpLoadTrack(newIndex, true, true);
+    });
+  } else {
+    mpLoadTrack(newIndex, true, true);
   }
 }
 
 function mpTogglePlay() {
   const a = musicPlayer.audio;
   if (!a) return;
-  if (musicPlayer.index < 0) { mpLoadTrack(0, true); return; }
-  if (a.paused) a.play().catch(() => {});
-  else a.pause();
+  if (musicPlayer.index < 0) { mpLoadTrack(0, true, true); return; }
+  if (a.paused) {
+    try { a.volume = 0; } catch (_) {}
+    mpEnsureWebAudio();
+    if (musicPlayer.gainNode && musicPlayer.audioCtx) {
+      try { musicPlayer.gainNode.gain.setValueAtTime(0, musicPlayer.audioCtx.currentTime); } catch (_) {}
+    }
+    const p = a.play();
+    if (p && p.catch) p.catch(() => {});
+    mpSetPlayingUI(true);
+    mpFadeVolume(1.0, 1000);
+  } else {
+    mpFadeVolume(0, 550, () => {
+      a.pause();
+      mpSetPlayingUI(false);
+    });
+  }
 }
 
 function mpPrev() {
-  if (musicPlayer.index < 0) { mpLoadTrack(0, true); return; }
-  mpLoadTrack((musicPlayer.index - 1 + MUSIC_TRACKS.length) % MUSIC_TRACKS.length, true);
+  if (musicPlayer.index < 0) { mpLoadTrack(0, true, true); return; }
+  const prevIdx = (musicPlayer.index - 1 + MUSIC_TRACKS.length) % MUSIC_TRACKS.length;
+  mpSwitchTrack(prevIdx);
 }
 
 function mpNext() {
-  if (musicPlayer.index < 0) { mpLoadTrack(0, true); return; }
-  mpLoadTrack((musicPlayer.index + 1) % MUSIC_TRACKS.length, true);
+  if (musicPlayer.index < 0) { mpLoadTrack(0, true, true); return; }
+  const nextIdx = (musicPlayer.index + 1) % MUSIC_TRACKS.length;
+  mpSwitchTrack(nextIdx);
 }
 
 function initMusicPlayer() {
@@ -4316,38 +4498,84 @@ function initMusicPlayer() {
     nextBtn: document.getElementById('mpNext'),
     tracklist: document.getElementById('mpTracklist')
   };
+
   const a = musicPlayer.audio;
   if (!a) return;
+
   a.addEventListener('timeupdate', mpUpdateProgress);
   a.addEventListener('loadedmetadata', mpUpdateProgress);
-  a.addEventListener('play', () => mpSetPlayingUI(true));
-  a.addEventListener('pause', () => mpSetPlayingUI(false));
-  a.addEventListener('ended', mpNext);
-  if (musicPlayer.els.playBtn) musicPlayer.els.playBtn.addEventListener('click', (e) => { e.stopPropagation(); mpTogglePlay(); });
-  if (musicPlayer.els.prevBtn) musicPlayer.els.prevBtn.addEventListener('click', (e) => { e.stopPropagation(); mpPrev(); });
-  if (musicPlayer.els.nextBtn) musicPlayer.els.nextBtn.addEventListener('click', (e) => { e.stopPropagation(); mpNext(); });
+  a.addEventListener('play', () => {
+    mpSetPlayingUI(true);
+    // Pause procedural ambient background audio while music player is playing
+    if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.masterGain) {
+      try { ResonanceAudio.masterGain.gain.setValueAtTime(0.05, ResonanceAudio.ctx.currentTime); } catch (_) {}
+    }
+  });
+  a.addEventListener('pause', () => {
+    mpSetPlayingUI(false);
+    if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.masterGain && !ResonanceAudio.isMuted) {
+      try { ResonanceAudio.masterGain.gain.setValueAtTime(1.0, ResonanceAudio.ctx.currentTime); } catch (_) {}
+    }
+  });
+  a.addEventListener('ended', () => {
+    mpNext();
+  });
+
+  if (musicPlayer.els.playBtn) {
+    musicPlayer.els.playBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      mpTogglePlay();
+    });
+  }
+  if (musicPlayer.els.prevBtn) {
+    musicPlayer.els.prevBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      mpPrev();
+    });
+  }
+  if (musicPlayer.els.nextBtn) {
+    musicPlayer.els.nextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      mpNext();
+    });
+  }
+
   if (musicPlayer.els.progress) {
     musicPlayer.els.progress.addEventListener('click', (e) => {
       e.stopPropagation();
       const r = musicPlayer.els.progress.getBoundingClientRect();
       const cx = e.clientX - r.left;
-      a.currentTime = Math.max(0, Math.min(1, cx / r.width)) * a.duration;
-      mpUpdateProgress();
+      const frac = Math.max(0, Math.min(1, cx / r.width));
+      const dur = a.duration || (MUSIC_TRACKS[musicPlayer.index] ? MUSIC_TRACKS[musicPlayer.index].duration : 0);
+      if (dur > 0) {
+        a.currentTime = frac * dur;
+        mpUpdateProgress();
+      }
     });
   }
+
   if (musicPlayer.els.tracklist) {
     musicPlayer.els.tracklist.querySelectorAll('.mp-track').forEach((li) => {
       const idx = parseInt(li.getAttribute('data-index'), 10);
       li.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (musicPlayer.index === idx && !a.paused) a.pause();
-        else mpLoadTrack(idx, true);
+        mpSwitchTrack(idx);
+      });
+      li.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          mpSwitchTrack(idx);
+        }
       });
     });
   }
 }
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initMusicPlayer);
-else initMusicPlayer();
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initMusicPlayer);
+} else {
+  initMusicPlayer();
+}
 
 
 // ==========================================================================
