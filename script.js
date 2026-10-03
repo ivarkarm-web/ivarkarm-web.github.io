@@ -338,7 +338,7 @@ let currentSection = -1;
 let contactIconsAnimated = false;
 
 // Cinematic camera
-let cameraX = 100;
+let cameraX = 500 - (typeof window !== "undefined" ? window.innerWidth / 2 : 200);
 let cameraY = 0;
 let zoomLevel = 1;
 let _zoomTarget = 1;
@@ -747,6 +747,21 @@ function getSteepHillHeight(worldX) {
 function getGround(worldX) {
   return getSteepHillHeight(worldX);
 }
+
+// Auto-initialize handpan ball firmly grounded and centered in camera
+function initHandpanPlacement() {
+  x = 500;
+  vx = 0;
+  vy = 0;
+  if (typeof getGround === 'function') {
+    y = getGround(x) - ballRadius;
+    onGround = true;
+    const terrainY = getGround(x);
+    cameraY = (terrainY - viewH * 0.5) * 0.3;
+  }
+  cameraX = x - viewW / 2;
+}
+try { initHandpanPlacement(); } catch (_) {}
 
 function hillClimbHeightMid(worldX) {
   const flatVal = (wx) => Math.sin(wx * 0.00055 + 2.3) * 68 + Math.cos(wx * 0.0014) * 28;
@@ -2909,8 +2924,7 @@ function drawBall(screenX, screenY) {
   // 1. Soft depth-adjusted contact shadow on the ground
   if (onGround) {
     ctx.save();
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    const shadowY = getGround(x) + 10;
+    const shadowY = getGround(x);
     const shadowW = r * 1.2;
     const g = ctx.createRadialGradient(screenX, shadowY, 0, screenX, shadowY, shadowW);
     g.addColorStop(0, 'rgba(212, 175, 55, 0.28)');
