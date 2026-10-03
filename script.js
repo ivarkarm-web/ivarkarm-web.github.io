@@ -4363,7 +4363,7 @@ function mpUpdateProgress() {
   if (!a) return;
   const track = MUSIC_TRACKS[musicPlayer.index] || MUSIC_TRACKS[0];
   const dur = (isFinite(a.duration) && a.duration > 0) ? a.duration : (track.duration || 85);
-  const curTime = a.currentTime || 0;
+  const curTime = (isFinite(a.currentTime) && a.currentTime > 0) ? a.currentTime : 0;
 
   if (dur > 0) {
     const p = Math.max(0, Math.min(100, (curTime / dur) * 100));
@@ -4371,6 +4371,7 @@ function mpUpdateProgress() {
     if (musicPlayer.els.handle) musicPlayer.els.handle.style.left = p + '%';
     if (musicPlayer.els.current) musicPlayer.els.current.textContent = mpFormatTime(curTime);
     if (musicPlayer.els.duration) musicPlayer.els.duration.textContent = mpFormatTime(dur);
+    if (musicPlayer.els.progress) musicPlayer.els.progress.setAttribute('aria-valuenow', Math.round(p));
 
     // Natural fade out right before track end
     const timeLeft = dur - curTime;
@@ -4405,11 +4406,19 @@ function mpHighlightTrack(i) {
     const isActive = j === i;
     li.classList.toggle('active', isActive);
     li.setAttribute('aria-selected', isActive ? 'true' : 'false');
-    if (!isActive) li.classList.remove('is-playing');
+    if (isActive && musicPlayer.isPlaying) {
+      li.classList.add('is-playing');
+    } else {
+      li.classList.remove('is-playing');
+    }
   });
 }
 
-function mpLoadTrack(index, autoplay = false, isFadeIn = true) {
+/**
+ * Robust track selection & playback handler
+ * Guarantees active class update, resets progress bar & timer to 0, and starts audio
+ */
+function mpSelectAndPlayTrack(index) {
   if (index < 0 || index >= MUSIC_TRACKS.length) return;
   const track = MUSIC_TRACKS[index];
   musicPlayer.index = index;
@@ -4417,69 +4426,52 @@ function mpLoadTrack(index, autoplay = false, isFadeIn = true) {
   const a = musicPlayer.audio;
   if (!a) return;
 
+  // 1. Immediately update active class on track items
+  mpHighlightTrack(index);
+
+  // 2. Immediately reset progress bar and timer to zero
+  if (musicPlayer.els.filled) musicPlayer.els.filled.style.width = '0%';
+  if (musicPlayer.els.handle) musicPlayer.els.handle.style.left = '0%';
+  if (musicPlayer.els.current) musicPlayer.els.current.textContent = '0:00';
+  if (musicPlayer.els.duration) musicPlayer.els.duration.textContent = mpFormatTime(track.duration);
+  if (musicPlayer.els.progress) musicPlayer.els.progress.setAttribute('aria-valuenow', '0');
+
+  // 3. Immediately update titles and track number
   if (musicPlayer.els.title) musicPlayer.els.title.textContent = track.title;
   if (musicPlayer.els.subtitle) musicPlayer.els.subtitle.textContent = track.subtitle;
   if (musicPlayer.els.trackNum) musicPlayer.els.trackNum.textContent = String(index + 1).padStart(2, '0');
-  if (musicPlayer.els.duration) musicPlayer.els.duration.textContent = mpFormatTime(track.duration);
-  if (musicPlayer.els.current) musicPlayer.els.current.textContent = '0:00';
-  if (musicPlayer.els.filled) musicPlayer.els.filled.style.width = '0%';
-  if (musicPlayer.els.handle) musicPlayer.els.handle.style.left = '0%';
 
-  mpHighlightTrack(index);
+  // 4. Fade out any background audio orb
+  if (typeof currentAudio !== 'undefined' && currentAudio) {
+    const orbAudio = currentAudio;
+    currentAudio = null;
+    if (typeof fadeOutAudio === 'function') fadeOutAudio(orbAudio);
+  }
 
+  // 5. Cancel any pending volume fade timer
+  if (musicPlayer.fadeTimer) {
+    clearInterval(musicPlayer.fadeTimer);
+    musicPlayer.fadeTimer = null;
+  }
+
+  // 6. Set source, reset currentTime to 0, and start playback
   if (a.src !== track.src) {
     a.src = track.src;
   }
+  a.currentTime = 0;
+  try { a.volume = 0; } catch (_) {}
 
-  if (autoplay) {
-    if (typeof currentAudio !== 'undefined' && currentAudio) {
-      const orbAudio = currentAudio;
-      currentAudio = null;
-      if (typeof fadeOutAudio === 'function') fadeOutAudio(orbAudio);
-    }
-
-    try { a.volume = 0; } catch (_) {}
-    mpSetPlayingUI(true);
-
-    const playPromise = a.play();
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        mpSetPlayingUI(true);
-        if (isFadeIn) {
-          mpFadeVolume(1.0, 750);
-        } else {
-          try { a.volume = 1.0; } catch (_) {}
-        }
-      }).catch((err) => {
-        console.warn('Playback notice:', err);
-        mpSetPlayingUI(false);
-      });
-    }
-  } else {
-    mpSetPlayingUI(false);
-  }
-}
-
-function mpSwitchTrack(newIndex) {
-  if (newIndex < 0 || newIndex >= MUSIC_TRACKS.length) return;
-  const a = musicPlayer.audio;
-
-  // Immediate UI feedback
-  const track = MUSIC_TRACKS[newIndex];
-  musicPlayer.index = newIndex;
-  if (musicPlayer.els.title) musicPlayer.els.title.textContent = track.title;
-  if (musicPlayer.els.subtitle) musicPlayer.els.subtitle.textContent = track.subtitle;
-  if (musicPlayer.els.trackNum) musicPlayer.els.trackNum.textContent = String(newIndex + 1).padStart(2, '0');
-  if (musicPlayer.els.duration) musicPlayer.els.duration.textContent = mpFormatTime(track.duration);
-  mpHighlightTrack(newIndex);
   mpSetPlayingUI(true);
 
-  if (a && !a.paused) {
-    mpFadeVolume(0, 200, () => {
-      mpLoadTrack(newIndex, true, true);
+  const playPromise = a.play();
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
+      mpSetPlayingUI(true);
+      mpFadeVolume(1.0, 600);
+    }).catch((err) => {
+      console.warn('Audio playback error:', err);
+      mpSetPlayingUI(false);
     });
-  } else {
-    mpLoadTrack(newIndex, true, true);
   }
 }
 
@@ -4488,24 +4480,26 @@ function mpTogglePlay() {
   if (!a) return;
 
   if (a.paused) {
-    mpSetPlayingUI(true);
     if (typeof currentAudio !== 'undefined' && currentAudio) {
       const orbAudio = currentAudio;
       currentAudio = null;
       if (typeof fadeOutAudio === 'function') fadeOutAudio(orbAudio);
     }
 
+    const currentTrack = MUSIC_TRACKS[musicPlayer.index] || MUSIC_TRACKS[0];
     if (!a.src || a.src === window.location.href) {
-      mpLoadTrack(musicPlayer.index || 0, true, true);
-      return;
+      a.src = currentTrack.src;
+      a.currentTime = 0;
     }
 
     try { a.volume = 0; } catch (_) {}
+    mpSetPlayingUI(true);
+
     const p = a.play();
     if (p !== undefined) {
       p.then(() => {
         mpSetPlayingUI(true);
-        mpFadeVolume(1.0, 750);
+        mpFadeVolume(1.0, 600);
       }).catch((err) => {
         console.warn('Play error:', err);
         mpSetPlayingUI(false);
@@ -4513,7 +4507,7 @@ function mpTogglePlay() {
     }
   } else {
     mpSetPlayingUI(false);
-    mpFadeVolume(0, 220, () => {
+    mpFadeVolume(0, 200, () => {
       try { a.pause(); } catch (_) {}
       mpSetPlayingUI(false);
     });
@@ -4522,12 +4516,12 @@ function mpTogglePlay() {
 
 function mpPrev() {
   const prevIdx = (musicPlayer.index - 1 + MUSIC_TRACKS.length) % MUSIC_TRACKS.length;
-  mpSwitchTrack(prevIdx);
+  mpSelectAndPlayTrack(prevIdx);
 }
 
 function mpNext() {
   const nextIdx = (musicPlayer.index + 1) % MUSIC_TRACKS.length;
-  mpSwitchTrack(nextIdx);
+  mpSelectAndPlayTrack(nextIdx);
 }
 
 function initMusicPlayer() {
@@ -4596,12 +4590,6 @@ function initMusicPlayer() {
       if (typeof triggerHaptic === 'function') triggerHaptic('light');
       action();
     });
-    el.addEventListener('touchend', (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      if (typeof triggerHaptic === 'function') triggerHaptic('light');
-      action();
-    }, { passive: false });
   };
 
   bindControl(musicPlayer.els.playBtn, mpTogglePlay);
@@ -4623,21 +4611,34 @@ function initMusicPlayer() {
     musicPlayer.els.progress.addEventListener('click', handleSeek);
   }
 
+  // Enhanced mpTracklist event delegation
   if (musicPlayer.els.tracklist) {
-    musicPlayer.els.tracklist.querySelectorAll('.mp-track').forEach((li) => {
-      const idx = parseInt(li.getAttribute('data-index'), 10);
-      const onSelect = (e) => {
-        e.stopPropagation();
-        e.preventDefault();
+    let lastTrackClickTime = 0;
+
+    const handleTracklistInteraction = (e) => {
+      const trackEl = e.target.closest('.mp-track');
+      if (!trackEl) return;
+
+      const now = performance.now();
+      if (now - lastTrackClickTime < 250) return; // Prevent double-trigger from touch+click
+      lastTrackClickTime = now;
+
+      e.stopPropagation();
+      if (e.cancelable) e.preventDefault();
+
+      const idx = parseInt(trackEl.getAttribute('data-index'), 10);
+      if (!isNaN(idx) && idx >= 0 && idx < MUSIC_TRACKS.length) {
         if (typeof triggerHaptic === 'function') triggerHaptic('light');
-        if (musicPlayer.index === idx && !a.paused) {
-          mpTogglePlay();
-        } else {
-          mpSwitchTrack(idx);
-        }
-      };
-      li.addEventListener('click', onSelect);
-      li.addEventListener('touchend', onSelect, { passive: false });
+        mpSelectAndPlayTrack(idx);
+      }
+    };
+
+    musicPlayer.els.tracklist.addEventListener('click', handleTracklistInteraction);
+    musicPlayer.els.tracklist.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleTracklistInteraction(e);
+      }
     });
   }
 }
