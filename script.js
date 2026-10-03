@@ -4385,6 +4385,103 @@ function triggerHaptic(type = 'light') {
 // and bespoke reveals for each section.
 // ==========================================================================
 
+
+// ============================================================================
+// RABBIT HOLE GALLERY BACKDROP MANAGER
+// Modern ambient artwork slideshow & scroll-synced background transitions
+// ============================================================================
+const rhGalleryManager = {
+  images: [
+    'https://i.postimg.cc/SsvpXcSN/Untitled-Artwork.png',
+    'https://i.postimg.cc/G22ChX1S/Untitled-Artwork-2.png',
+    'https://i.postimg.cc/G251Bvcg/Untitled-Artwork-3.png',
+    'https://i.postimg.cc/qR5dt2k5/Untitled-Artwork-4.png',
+    'https://i.postimg.cc/4dSTKpJM/Untitled-Artwork-5.png',
+    'https://i.postimg.cc/nzPtsqHW/Untitled-Artwork-6.png'
+  ],
+  currentIndex: 0,
+  layerA: null,
+  layerB: null,
+  activeLayer: 'a',
+  timer: null,
+  preloaded: [],
+
+  init() {
+    this.layerA = document.getElementById('rhGalleryLayerA');
+    this.layerB = document.getElementById('rhGalleryLayerB');
+    if (!this.layerA || !this.layerB) return;
+
+    this.images.forEach(src => {
+      try {
+        const img = new Image();
+        img.src = src;
+        this.preloaded.push(img);
+      } catch (_) {}
+    });
+
+    this.layerA.style.backgroundImage = 'url("' + this.images[0] + '")';
+    this.layerA.style.opacity = '1';
+    this.layerA.classList.add('active');
+    if (this.layerB) {
+      this.layerB.style.opacity = '0';
+      this.layerB.classList.remove('active');
+    }
+  },
+
+  showImage(index) {
+    if (index === undefined || index === null) return;
+    const cleanIndex = ((index % this.images.length) + this.images.length) % this.images.length;
+    if (cleanIndex === this.currentIndex && this.layerA && this.layerA.style.backgroundImage) return;
+    this.currentIndex = cleanIndex;
+
+    const nextSrc = this.images[this.currentIndex];
+    if (this.activeLayer === 'a') {
+      if (this.layerB) {
+        this.layerB.style.backgroundImage = 'url("' + nextSrc + '")';
+        this.layerB.style.opacity = '1';
+        this.layerB.classList.add('active');
+      }
+      if (this.layerA) {
+        this.layerA.style.opacity = '0';
+        this.layerA.classList.remove('active');
+      }
+      this.activeLayer = 'b';
+    } else {
+      if (this.layerA) {
+        this.layerA.style.backgroundImage = 'url("' + nextSrc + '")';
+        this.layerA.style.opacity = '1';
+        this.layerA.classList.add('active');
+      }
+      if (this.layerB) {
+        this.layerB.style.opacity = '0';
+        this.layerB.classList.remove('active');
+      }
+      this.activeLayer = 'a';
+    }
+  },
+
+  next() {
+    this.showImage(this.currentIndex + 1);
+  },
+
+  startSlideshow() {
+    this.stopSlideshow();
+    this.timer = setInterval(() => {
+      const rh = document.getElementById('rabbit-hole');
+      if (rh && rh.classList.contains('visible')) {
+        this.next();
+      }
+    }, 8500);
+  },
+
+  stopSlideshow() {
+    if (this.timer) {
+      clearInterval(this.timer);
+      this.timer = null;
+    }
+  }
+};
+
 const rhScrollManager = {
   container: null,
   sections: [],
@@ -4869,6 +4966,7 @@ const rhScrollManager = {
   },
 
   updateActiveNav(index) {
+    if (typeof rhGalleryManager !== 'undefined') rhGalleryManager.showImage(index);
     if (this.breadcrumb && this.sectionTitles[index]) {
       this.breadcrumb.textContent = this.sectionTitles[index];
     }
@@ -5360,6 +5458,7 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => rhScrollManager.init());
 } else {
   rhScrollManager.init();
+  if (typeof rhGalleryManager !== 'undefined') rhGalleryManager.init();
 }
 
 // ===== RABBIT HOLE SCREEN OPEN / CLOSE =====
@@ -5391,6 +5490,10 @@ function openRabbitHoleScreen() {
     void el.offsetWidth;
     setTimeout(() => {
       el.classList.add('visible');
+      if (typeof rhGalleryManager !== 'undefined') {
+        rhGalleryManager.showImage(0);
+        rhGalleryManager.startSlideshow();
+      }
       rhScrollManager.reset();
       rhScrollManager.startParallaxLoop();
       if (typeof ScrollTrigger !== 'undefined') {
