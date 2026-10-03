@@ -821,9 +821,7 @@ function computeNarrativeZoomFactor() {
 }
 
 const audioOrbs = [
-  { x: 1500, audioFile: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%203.wav', collected: false },
-  { x: 4500, audioFile: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%204.wav', collected: false },
-  { x: 7500, audioFile: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%205.wav', collected: false }
+  { x: 1500, audioFile: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%203.wav', collected: false }
 ];
 
 let currentAudio = null;
@@ -957,6 +955,13 @@ document.addEventListener("keydown", e => {
     ResonanceAudio.toggleMute();
     return;
   }
+  if (typeof musicPlayer !== 'undefined' && musicPlayer.isDrawerOpen) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeMusicDrawer();
+    }
+    return; // game controls stay frozen while the player is open
+  }
   if (e.code === 'KeyV') {
     e.preventDefault();
     toggleDirectMonographModal();
@@ -1010,6 +1015,12 @@ document.addEventListener("keydown", e => {
   if (e.code === 'KeyR' && !e.ctrlKey && !e.metaKey) {
     e.preventDefault();
     openRabbitHoleScreen();
+    return;
+  }
+
+  if (e.key === 'ArrowUp' && improvCueActive) {
+    e.preventDefault();
+    openMusicDrawer();
     return;
   }
 
@@ -2718,6 +2729,12 @@ function update(dt) {
     updateCamera(dt);
     return;
   }
+  // Music player drawer open: the platformer is frozen until the player is closed
+  if (typeof musicPlayer !== 'undefined' && musicPlayer.isDrawerOpen) {
+    ResonanceAudio.updateRolling(0, true);
+    updateCamera(dt);
+    return;
+  }
 
   const timeScale = dt * 60;
 
@@ -3575,12 +3592,31 @@ function draw(offset) {
   }
 }
 
+// Small glowing "pull up" cue for the Improv Sessions music player
+let improvCueActive = false;
+let improvCueEl = null;
+function updateImprovCue() {
+  if (!improvCueEl) improvCueEl = document.getElementById('mpPullCue');
+  if (!improvCueEl) return;
+  const pos = sectionPositions[4];
+  const drawerOpen = typeof musicPlayer !== 'undefined' && musicPlayer.isDrawerOpen;
+  const videoOpen = typeof videoPlayer !== 'undefined' && videoPlayer.isOpen;
+  const active = !!pos && gameStarted && !drawerOpen && !videoOpen &&
+    !endOfRoadState.rabbitHoleShown && Math.abs(pos.x - x) < 420;
+  if (active === improvCueActive) return;
+  improvCueActive = active;
+  improvCueEl.classList.toggle('show', active);
+  improvCueEl.setAttribute('aria-hidden', active ? 'false' : 'true');
+  improvCueEl.tabIndex = active ? 0 : -1;
+}
+
 let lastTime = performance.now();
 function loop(now) {
   const dt = Math.min(0.05, (now - lastTime) / 1000);
   lastTime = now;
   updateBackgroundSlideshow(dt);
   update(dt);
+  updateImprovCue();
   updateWorldParticles(dt);
   if (canvas) draw(cameraX);
   requestAnimationFrame(loop);
@@ -3603,6 +3639,7 @@ const navLinkSectionIndex = {
 document.querySelectorAll('.nav-links a').forEach(link => {
   link.addEventListener('click', (e) => {
     e.preventDefault();
+    if (typeof musicPlayer !== 'undefined' && musicPlayer.isDrawerOpen) closeMusicDrawer();
     const hash = link.getAttribute('href');
     const navLinksEl = document.getElementById('navLinks');
     const hamburgerEl = document.getElementById('hamburger');
@@ -4525,16 +4562,20 @@ function mpNext() {
 // ============================================================================
 function openMusicDrawer() {
   const overlay = document.getElementById('mpDrawerOverlay');
-  if (!overlay) return;
+  if (!overlay || musicPlayer.isDrawerOpen) return;
   musicPlayer.isDrawerOpen = true;
   overlay.classList.add('active');
   overlay.setAttribute('aria-hidden', 'false');
   document.body.classList.add('mp-drawer-open');
   if (typeof triggerHaptic === 'function') triggerHaptic('medium');
 
-  // Pause game movement momentum so player doesn't roll away
-  if (typeof vx !== 'undefined') vx = 0;
-  if (typeof keys !== 'undefined') keys = {};
+  // Freeze the platformer: no momentum, no held keys, no active touches
+  vx = 0;
+  keys = {};
+  if (typeof activeTouchAssignments !== 'undefined') activeTouchAssignments.clear();
+
+  const closeBtn = document.getElementById('mpCloseDrawerBtn');
+  if (closeBtn) { try { closeBtn.focus({ preventScroll: true }); } catch (_) {} }
 }
 
 function closeMusicDrawer() {
@@ -4552,10 +4593,14 @@ function closeMusicDrawer() {
     sheet.classList.remove('dragging');
     sheet.style.transform = '';
   }
+  keys = {};
+  if (typeof canvas !== 'undefined' && canvas) {
+    try { canvas.focus({ preventScroll: true }); } catch (_) {}
+  }
 }
 
 function initMusicDrawerGestures() {
-  const openBtn = document.getElementById('mpOpenDrawerBtn');
+  const openBtn = document.getElementById('mpPullCue');
   const closeBtn = document.getElementById('mpCloseDrawerBtn');
   const backdrop = document.getElementById('mpDrawerBackdrop');
   const header = document.getElementById('mpDrawerHeader');
@@ -4567,6 +4612,17 @@ function initMusicDrawerGestures() {
       e.stopPropagation();
       openMusicDrawer();
     });
+    // Swipe up on the cue also pulls the player up
+    let cueStartY = 0;
+    openBtn.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches[0]) cueStartY = e.touches[0].clientY;
+    }, { passive: true });
+    openBtn.addEventListener('touchend', (e) => {
+      if (e.changedTouches && e.changedTouches[0] && cueStartY - e.changedTouches[0].clientY > 24) {
+        if (e.cancelable) e.preventDefault();
+        openMusicDrawer();
+      }
+    }, { passive: false });
   }
 
   if (closeBtn) {

@@ -198,6 +198,15 @@
 
 <canvas id="game" aria-hidden="true"></canvas>
 
+<!-- Small glowing clue: pull up the Improv Sessions music player -->
+<button type="button" class="mp-pull-cue" id="mpPullCue" aria-label="Pull up to open the Improv Sessions music player" aria-hidden="true" tabindex="-1">
+  <span class="mp-cue-arrows" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15l7-7 7 7"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15l7-7 7 7"/></svg>
+  </span>
+  <span class="mp-cue-label">Improv Sessions</span>
+</button>
+
 <div id="sections" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50;">
   <!-- Home -->
   <div class="section" id="s0" role="region" aria-label="Home">
@@ -255,13 +264,6 @@
     <div class="hairline"></div>
     <p class="lead">Bedroom sessions &amp; acoustic overtones captured directly on location</p>
     <p class="subtext">8 unreleased handpan improvisations recorded in solitary presence.</p>
-    <div class="mp-pull-up-wrapper">
-      <button type="button" class="mp-pull-up-trigger" id="mpOpenDrawerBtn" aria-label="Pull up to reveal Improv Sessions music player">
-        <span class="mp-pull-icon">▲</span>
-        <span class="mp-pull-text">Pull up for Improv Sessions</span>
-        <span class="mp-pull-meta">8 Recordings · Bedroom Sessions</span>
-      </button>
-    </div>
   </div>
 
   <!-- Partners -->
@@ -457,7 +459,7 @@
 
 
 <!-- Improv Sessions Music Player Drawer Sheet -->
-<aside class="mp-drawer-overlay" id="mpDrawerOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="mpDrawerHeading">
+<aside class="mp-drawer-overlay" id="mpDrawerOverlay" aria-hidden="true" role="dialog" aria-labelledby="mpDrawerHeading">
   <div class="mp-drawer-backdrop" id="mpDrawerBackdrop"></div>
   <div class="mp-drawer-sheet" id="mpDrawerSheet">
     <!-- Tactile Drawer Pull Handle / Dismiss Header -->
@@ -468,9 +470,8 @@
           <span class="mp-drawer-eyebrow">Acoustic Vault</span>
           <h3 class="mp-drawer-title" id="mpDrawerHeading">Improv Sessions</h3>
         </div>
-        <button type="button" class="mp-drawer-dismiss-btn" id="mpCloseDrawerBtn" aria-label="Pull down to return to terrain game">
-          <span class="mp-dismiss-icon">▼</span>
-          <span class="mp-dismiss-label">Return to road</span>
+        <button type="button" class="mp-drawer-close-x" id="mpCloseDrawerBtn" aria-label="Close player and return to the game">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
       </div>
     </div>
