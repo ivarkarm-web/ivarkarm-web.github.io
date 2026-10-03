@@ -4646,3 +4646,50 @@ body.rabbit-hole-open #cursor {
 .memory-shard-hud {
   display: none !important;
 }
+
+/* ==========================================================================
+   MUSIC PLAYER LIVE EQUALIZER & ACTIVE TRACK INDICATOR
+   ========================================================================== */
+.mp-playing-badge {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  width: 13px;
+  height: 11px;
+  margin-left: 0.55rem;
+  vertical-align: middle;
+}
+.mp-playing-badge .bar {
+  width: 2.5px;
+  background: var(--accent-gold);
+  border-radius: 1px;
+  height: 3px;
+  opacity: 0.85;
+}
+.mp-track.active.is-playing .mp-playing-badge .b1 {
+  animation: mpEq1 0.7s infinite ease-in-out alternate;
+}
+.mp-track.active.is-playing .mp-playing-badge .b2 {
+  animation: mpEq2 0.55s infinite ease-in-out alternate;
+}
+.mp-track.active.is-playing .mp-playing-badge .b3 {
+  animation: mpEq3 0.85s infinite ease-in-out alternate;
+}
+@keyframes mpEq1 { 0% { height: 3px; } 100% { height: 11px; } }
+@keyframes mpEq2 { 0% { height: 10px; } 100% { height: 3px; } }
+@keyframes mpEq3 { 0% { height: 4px; } 100% { height: 11px; } }
+
+.mp-track.active {
+  background: rgba(212, 175, 55, 0.16) !important;
+  border-left: 3px solid var(--accent-gold) !important;
+  padding-left: calc(1rem - 3px) !important;
+}
+.mp-track.active .mp-t-name,
+.mp-track.active .mp-t-num {
+  color: #ffd977 !important;
+  font-weight: 600 !important;
+}
+.mp-track.active .mp-t-dur {
+  color: var(--accent-gold) !important;
+  font-weight: 500;
+}

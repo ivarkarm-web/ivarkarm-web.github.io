@@ -4312,82 +4312,12 @@ const MUSIC_TRACKS = [
 
 const musicPlayer = {
   audio: null,
-  index: -1,
+  index: 0,
+  isPlaying: false,
   els: {},
-  fadeRaf: null,
-  isEndingFade: false,
-  isSwitching: false,
-  audioCtx: null,
-  gainNode: null,
-  sourceNode: null
+  fadeTimer: null,
+  isEndingFade: false
 };
-
-function mpEnsureWebAudio() {
-  if (musicPlayer.gainNode) return;
-  try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx || !musicPlayer.audio) return;
-    if (!musicPlayer.audioCtx) {
-      musicPlayer.audioCtx = new AudioCtx();
-    }
-    if (musicPlayer.audioCtx.state === 'suspended') {
-      musicPlayer.audioCtx.resume();
-    }
-    if (!musicPlayer.sourceNode) {
-      try { musicPlayer.audio.crossOrigin = 'anonymous'; } catch (_) {}
-      musicPlayer.sourceNode = musicPlayer.audioCtx.createMediaElementSource(musicPlayer.audio);
-      musicPlayer.gainNode = musicPlayer.audioCtx.createGain();
-      musicPlayer.sourceNode.connect(musicPlayer.gainNode);
-      musicPlayer.gainNode.connect(musicPlayer.audioCtx.destination);
-    }
-  } catch (_) {
-    // If MediaElementSource fails (e.g. cross-origin restriction), fallback gracefully to audio.volume
-  }
-}
-
-function mpFadeVolume(targetVol, durationMs, onComplete) {
-  if (musicPlayer.fadeRaf) {
-    cancelAnimationFrame(musicPlayer.fadeRaf);
-    musicPlayer.fadeRaf = null;
-  }
-  const a = musicPlayer.audio;
-  if (!a) {
-    if (onComplete) onComplete();
-    return;
-  }
-
-  mpEnsureWebAudio();
-
-  const startVol = a.volume !== undefined ? a.volume : 1;
-  const startTime = performance.now();
-  durationMs = Math.max(120, durationMs || 900);
-
-  function tick(now) {
-    const elapsed = now - startTime;
-    const progress = Math.min(1, elapsed / durationMs);
-    // Smooth cosine/Hermite easing
-    const eased = progress * progress * (3 - 2 * progress);
-    const curVol = Math.max(0, Math.min(1, startVol + (targetVol - startVol) * eased));
-
-    try { a.volume = curVol; } catch (_) {}
-    if (musicPlayer.gainNode && musicPlayer.audioCtx) {
-      try { musicPlayer.gainNode.gain.setValueAtTime(curVol, musicPlayer.audioCtx.currentTime); } catch (_) {}
-    }
-
-    if (progress < 1) {
-      musicPlayer.fadeRaf = requestAnimationFrame(tick);
-    } else {
-      musicPlayer.fadeRaf = null;
-      try { a.volume = targetVol; } catch (_) {}
-      if (musicPlayer.gainNode && musicPlayer.audioCtx) {
-        try { musicPlayer.gainNode.gain.setValueAtTime(targetVol, musicPlayer.audioCtx.currentTime); } catch (_) {}
-      }
-      if (onComplete) onComplete();
-    }
-  }
-
-  musicPlayer.fadeRaf = requestAnimationFrame(tick);
-}
 
 function mpFormatTime(sec) {
   if (!isFinite(sec) || sec < 0) return '0:00';
@@ -4396,98 +4326,156 @@ function mpFormatTime(sec) {
   return m + ':' + (s < 10 ? '0' : '') + s;
 }
 
+function mpFadeVolume(targetVol, durationMs, onComplete) {
+  if (musicPlayer.fadeTimer) {
+    clearInterval(musicPlayer.fadeTimer);
+    musicPlayer.fadeTimer = null;
+  }
+  const a = musicPlayer.audio;
+  if (!a) {
+    if (onComplete) onComplete();
+    return;
+  }
+
+  const startVol = typeof a.volume === 'number' ? a.volume : 1;
+  const startTime = Date.now();
+  durationMs = Math.max(80, durationMs || 450);
+
+  musicPlayer.fadeTimer = setInterval(() => {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(1, elapsed / durationMs);
+    const factor = 0.5 - 0.5 * Math.cos(progress * Math.PI);
+    const curVol = Math.max(0, Math.min(1, startVol + (targetVol - startVol) * factor));
+
+    try { a.volume = curVol; } catch (_) {}
+
+    if (progress >= 1) {
+      clearInterval(musicPlayer.fadeTimer);
+      musicPlayer.fadeTimer = null;
+      try { a.volume = targetVol; } catch (_) {}
+      if (onComplete) onComplete();
+    }
+  }, 25);
+}
+
 function mpUpdateProgress() {
   const a = musicPlayer.audio;
   if (!a) return;
-  const dur = a.duration || (MUSIC_TRACKS[musicPlayer.index] ? MUSIC_TRACKS[musicPlayer.index].duration : 0);
+  const track = MUSIC_TRACKS[musicPlayer.index] || MUSIC_TRACKS[0];
+  const dur = (isFinite(a.duration) && a.duration > 0) ? a.duration : (track.duration || 85);
+  const curTime = a.currentTime || 0;
+
   if (dur > 0) {
-    const p = (a.currentTime / dur) * 100;
+    const p = Math.max(0, Math.min(100, (curTime / dur) * 100));
     if (musicPlayer.els.filled) musicPlayer.els.filled.style.width = p + '%';
     if (musicPlayer.els.handle) musicPlayer.els.handle.style.left = p + '%';
-    if (musicPlayer.els.current) musicPlayer.els.current.textContent = mpFormatTime(a.currentTime);
+    if (musicPlayer.els.current) musicPlayer.els.current.textContent = mpFormatTime(curTime);
     if (musicPlayer.els.duration) musicPlayer.els.duration.textContent = mpFormatTime(dur);
 
-    // Natural end-of-song fade out (starts 2.8s before track end)
-    const timeLeft = dur - a.currentTime;
-    if (timeLeft <= 2.8 && !musicPlayer.isEndingFade && !a.paused && !musicPlayer.isSwitching) {
+    // Natural fade out right before track end
+    const timeLeft = dur - curTime;
+    if (timeLeft <= 2.2 && !musicPlayer.isEndingFade && !a.paused && dur > 6) {
       musicPlayer.isEndingFade = true;
-      mpFadeVolume(0, Math.max(800, timeLeft * 1000 - 150));
+      mpFadeVolume(0, Math.max(400, timeLeft * 1000 - 150));
     }
   }
 }
 
 function mpSetPlayingUI(playing) {
+  musicPlayer.isPlaying = playing;
   const pi = musicPlayer.els.playBtn && musicPlayer.els.playBtn.querySelector('.mp-icon-play');
   const pa = musicPlayer.els.playBtn && musicPlayer.els.playBtn.querySelector('.mp-icon-pause');
   if (pi) pi.style.display = playing ? 'none' : 'block';
   if (pa) pa.style.display = playing ? 'block' : 'none';
+
+  if (musicPlayer.els.tracklist) {
+    musicPlayer.els.tracklist.querySelectorAll('.mp-track').forEach((li, idx) => {
+      if (idx === musicPlayer.index) {
+        li.classList.toggle('is-playing', playing);
+      } else {
+        li.classList.remove('is-playing');
+      }
+    });
+  }
 }
 
 function mpHighlightTrack(i) {
   if (!musicPlayer.els.tracklist) return;
-  musicPlayer.els.tracklist.querySelectorAll('.mp-track').forEach((li, j) => li.classList.toggle('active', j === i));
+  musicPlayer.els.tracklist.querySelectorAll('.mp-track').forEach((li, j) => {
+    const isActive = j === i;
+    li.classList.toggle('active', isActive);
+    li.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    if (!isActive) li.classList.remove('is-playing');
+  });
 }
 
-function mpLoadTrack(index, autoplay, isFadeIn = true) {
+function mpLoadTrack(index, autoplay = false, isFadeIn = true) {
   if (index < 0 || index >= MUSIC_TRACKS.length) return;
-  const t = MUSIC_TRACKS[index];
+  const track = MUSIC_TRACKS[index];
   musicPlayer.index = index;
   musicPlayer.isEndingFade = false;
-  musicPlayer.isSwitching = false;
   const a = musicPlayer.audio;
   if (!a) return;
 
-  a.src = t.src;
-  a.load();
-  if (musicPlayer.els.title) musicPlayer.els.title.textContent = t.title;
-  if (musicPlayer.els.subtitle) musicPlayer.els.subtitle.textContent = t.subtitle;
+  if (musicPlayer.els.title) musicPlayer.els.title.textContent = track.title;
+  if (musicPlayer.els.subtitle) musicPlayer.els.subtitle.textContent = track.subtitle;
   if (musicPlayer.els.trackNum) musicPlayer.els.trackNum.textContent = String(index + 1).padStart(2, '0');
+  if (musicPlayer.els.duration) musicPlayer.els.duration.textContent = mpFormatTime(track.duration);
+  if (musicPlayer.els.current) musicPlayer.els.current.textContent = '0:00';
+  if (musicPlayer.els.filled) musicPlayer.els.filled.style.width = '0%';
+  if (musicPlayer.els.handle) musicPlayer.els.handle.style.left = '0%';
+
   mpHighlightTrack(index);
-  mpSetPlayingUI(false);
+
+  if (a.src !== track.src) {
+    a.src = track.src;
+  }
 
   if (autoplay) {
-    // Fade out audio orb before player starts
     if (typeof currentAudio !== 'undefined' && currentAudio) {
       const orbAudio = currentAudio;
       currentAudio = null;
       if (typeof fadeOutAudio === 'function') fadeOutAudio(orbAudio);
     }
+
     try { a.volume = 0; } catch (_) {}
-    mpEnsureWebAudio();
-    if (musicPlayer.gainNode && musicPlayer.audioCtx) {
-      try { musicPlayer.gainNode.gain.setValueAtTime(0, musicPlayer.audioCtx.currentTime); } catch (_) {}
-    }
-    const p = a.play();
-    if (p && p.catch) {
-      p.catch(() => {}).then(() => {
-        if (!a.paused) {
-          mpSetPlayingUI(true);
-          if (isFadeIn) {
-            mpFadeVolume(1.0, 1200);
-          } else {
-            try { a.volume = 1.0; } catch (_) {}
-          }
+    mpSetPlayingUI(true);
+
+    const playPromise = a.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        mpSetPlayingUI(true);
+        if (isFadeIn) {
+          mpFadeVolume(1.0, 750);
+        } else {
+          try { a.volume = 1.0; } catch (_) {}
         }
+      }).catch((err) => {
+        console.warn('Playback notice:', err);
+        mpSetPlayingUI(false);
       });
     }
+  } else {
+    mpSetPlayingUI(false);
   }
 }
 
 function mpSwitchTrack(newIndex) {
   if (newIndex < 0 || newIndex >= MUSIC_TRACKS.length) return;
   const a = musicPlayer.audio;
-  if (!a) return;
-  // Fade out audio orb before player starts
-  if (typeof currentAudio !== 'undefined' && currentAudio) {
-    const orbAudio = currentAudio;
-    currentAudio = null;
-    if (typeof fadeOutAudio === 'function') fadeOutAudio(orbAudio);
-  }
 
-  musicPlayer.isSwitching = true;
-  if (!a.paused) {
-    // Fade out current song over 650ms, then start new song with fade-in
-    mpFadeVolume(0, 650, () => {
+  // Immediate UI feedback
+  const track = MUSIC_TRACKS[newIndex];
+  musicPlayer.index = newIndex;
+  if (musicPlayer.els.title) musicPlayer.els.title.textContent = track.title;
+  if (musicPlayer.els.subtitle) musicPlayer.els.subtitle.textContent = track.subtitle;
+  if (musicPlayer.els.trackNum) musicPlayer.els.trackNum.textContent = String(newIndex + 1).padStart(2, '0');
+  if (musicPlayer.els.duration) musicPlayer.els.duration.textContent = mpFormatTime(track.duration);
+  mpHighlightTrack(newIndex);
+  mpSetPlayingUI(true);
+
+  if (a && !a.paused) {
+    mpFadeVolume(0, 200, () => {
       mpLoadTrack(newIndex, true, true);
     });
   } else {
@@ -4498,45 +4486,54 @@ function mpSwitchTrack(newIndex) {
 function mpTogglePlay() {
   const a = musicPlayer.audio;
   if (!a) return;
-  // Fade out audio orb before player starts
-  if (typeof currentAudio !== 'undefined' && currentAudio) {
-    const orbAudio = currentAudio;
-    currentAudio = null;
-    if (typeof fadeOutAudio === 'function') fadeOutAudio(orbAudio);
-  }
-  if (musicPlayer.index < 0) { mpLoadTrack(0, true, true); return; }
+
   if (a.paused) {
-    try { a.volume = 0; } catch (_) {}
-    mpEnsureWebAudio();
-    if (musicPlayer.gainNode && musicPlayer.audioCtx) {
-      try { musicPlayer.gainNode.gain.setValueAtTime(0, musicPlayer.audioCtx.currentTime); } catch (_) {}
-    }
-    const p = a.play();
-    if (p && p.catch) p.catch(() => {});
     mpSetPlayingUI(true);
-    mpFadeVolume(1.0, 1000);
+    if (typeof currentAudio !== 'undefined' && currentAudio) {
+      const orbAudio = currentAudio;
+      currentAudio = null;
+      if (typeof fadeOutAudio === 'function') fadeOutAudio(orbAudio);
+    }
+
+    if (!a.src || a.src === window.location.href) {
+      mpLoadTrack(musicPlayer.index || 0, true, true);
+      return;
+    }
+
+    try { a.volume = 0; } catch (_) {}
+    const p = a.play();
+    if (p !== undefined) {
+      p.then(() => {
+        mpSetPlayingUI(true);
+        mpFadeVolume(1.0, 750);
+      }).catch((err) => {
+        console.warn('Play error:', err);
+        mpSetPlayingUI(false);
+      });
+    }
   } else {
-    mpFadeVolume(0, 550, () => {
-      a.pause();
+    mpSetPlayingUI(false);
+    mpFadeVolume(0, 220, () => {
+      try { a.pause(); } catch (_) {}
       mpSetPlayingUI(false);
     });
   }
 }
 
 function mpPrev() {
-  if (musicPlayer.index < 0) { mpLoadTrack(0, true, true); return; }
   const prevIdx = (musicPlayer.index - 1 + MUSIC_TRACKS.length) % MUSIC_TRACKS.length;
   mpSwitchTrack(prevIdx);
 }
 
 function mpNext() {
-  if (musicPlayer.index < 0) { mpLoadTrack(0, true, true); return; }
   const nextIdx = (musicPlayer.index + 1) % MUSIC_TRACKS.length;
   mpSwitchTrack(nextIdx);
 }
 
 function initMusicPlayer() {
-  if (!document.getElementById('musicPlayer')) return;
+  const playerEl = document.getElementById('musicPlayer');
+  if (!playerEl) return;
+
   musicPlayer.audio = document.getElementById('mpAudio');
   musicPlayer.els = {
     title: document.getElementById('mpTitle'),
@@ -4556,71 +4553,91 @@ function initMusicPlayer() {
   const a = musicPlayer.audio;
   if (!a) return;
 
+  // Pre-load track 0 immediately
+  const initialTrack = MUSIC_TRACKS[0];
+  if (musicPlayer.els.title) musicPlayer.els.title.textContent = initialTrack.title;
+  if (musicPlayer.els.subtitle) musicPlayer.els.subtitle.textContent = initialTrack.subtitle;
+  if (musicPlayer.els.trackNum) musicPlayer.els.trackNum.textContent = '01';
+  if (musicPlayer.els.duration) musicPlayer.els.duration.textContent = mpFormatTime(initialTrack.duration);
+  if (musicPlayer.els.current) musicPlayer.els.current.textContent = '0:00';
+  a.src = initialTrack.src;
+  mpHighlightTrack(0);
+
   a.addEventListener('timeupdate', mpUpdateProgress);
   a.addEventListener('loadedmetadata', mpUpdateProgress);
+  a.addEventListener('durationchange', mpUpdateProgress);
+  a.addEventListener('canplay', mpUpdateProgress);
+
   a.addEventListener('play', () => {
     mpSetPlayingUI(true);
-    // Pause procedural ambient background audio while music player is playing
     if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.masterGain) {
-      try { ResonanceAudio.masterGain.gain.setValueAtTime(0.05, ResonanceAudio.ctx.currentTime); } catch (_) {}
+      try { ResonanceAudio.masterGain.gain.setValueAtTime(0.04, ResonanceAudio.ctx.currentTime); } catch (_) {}
     }
   });
+
   a.addEventListener('pause', () => {
-    mpSetPlayingUI(false);
+    if (!musicPlayer.fadeTimer) {
+      mpSetPlayingUI(false);
+    }
     if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.masterGain && !ResonanceAudio.isMuted) {
-      try { ResonanceAudio.masterGain.gain.setValueAtTime(1.0, ResonanceAudio.ctx.currentTime); } catch (_) {}
+      try { ResonanceAudio.masterGain.gain.setValueAtTime(0.7, ResonanceAudio.ctx.currentTime); } catch (_) {}
     }
   });
+
   a.addEventListener('ended', () => {
     mpNext();
   });
 
-  if (musicPlayer.els.playBtn) {
-    musicPlayer.els.playBtn.addEventListener('click', (e) => {
+  const bindControl = (el, action) => {
+    if (!el) return;
+    el.addEventListener('click', (e) => {
       e.stopPropagation();
-      mpTogglePlay();
+      e.preventDefault();
+      if (typeof triggerHaptic === 'function') triggerHaptic('light');
+      action();
     });
-  }
-  if (musicPlayer.els.prevBtn) {
-    musicPlayer.els.prevBtn.addEventListener('click', (e) => {
+    el.addEventListener('touchend', (e) => {
       e.stopPropagation();
-      mpPrev();
-    });
-  }
-  if (musicPlayer.els.nextBtn) {
-    musicPlayer.els.nextBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      mpNext();
-    });
-  }
+      e.preventDefault();
+      if (typeof triggerHaptic === 'function') triggerHaptic('light');
+      action();
+    }, { passive: false });
+  };
+
+  bindControl(musicPlayer.els.playBtn, mpTogglePlay);
+  bindControl(musicPlayer.els.prevBtn, mpPrev);
+  bindControl(musicPlayer.els.nextBtn, mpNext);
 
   if (musicPlayer.els.progress) {
-    musicPlayer.els.progress.addEventListener('click', (e) => {
+    const handleSeek = (e) => {
       e.stopPropagation();
-      const r = musicPlayer.els.progress.getBoundingClientRect();
-      const cx = e.clientX - r.left;
-      const frac = Math.max(0, Math.min(1, cx / r.width));
-      const dur = a.duration || (MUSIC_TRACKS[musicPlayer.index] ? MUSIC_TRACKS[musicPlayer.index].duration : 0);
-      if (dur > 0) {
-        a.currentTime = frac * dur;
-        mpUpdateProgress();
-      }
-    });
+      const rect = musicPlayer.els.progress.getBoundingClientRect();
+      const clientX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+      const frac = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      const track = MUSIC_TRACKS[musicPlayer.index] || initialTrack;
+      const dur = (isFinite(a.duration) && a.duration > 0) ? a.duration : (track.duration || 85);
+      a.currentTime = frac * dur;
+      mpUpdateProgress();
+    };
+
+    musicPlayer.els.progress.addEventListener('click', handleSeek);
   }
 
   if (musicPlayer.els.tracklist) {
     musicPlayer.els.tracklist.querySelectorAll('.mp-track').forEach((li) => {
       const idx = parseInt(li.getAttribute('data-index'), 10);
-      li.addEventListener('click', (e) => {
+      const onSelect = (e) => {
         e.stopPropagation();
-        mpSwitchTrack(idx);
-      });
-      li.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
+        e.preventDefault();
+        if (typeof triggerHaptic === 'function') triggerHaptic('light');
+        if (musicPlayer.index === idx && !a.paused) {
+          mpTogglePlay();
+        } else {
           mpSwitchTrack(idx);
         }
-      });
+      };
+      li.addEventListener('click', onSelect);
+      li.addEventListener('touchend', onSelect, { passive: false });
     });
   }
 }
@@ -4630,7 +4647,6 @@ if (document.readyState === 'loading') {
 } else {
   initMusicPlayer();
 }
-
 
 // ==========================================================================
 // TACTILE FEEDBACK (Web Vibration API helper)
