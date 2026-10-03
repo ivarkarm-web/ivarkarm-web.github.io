@@ -5012,10 +5012,10 @@ const rhScrollManager = {
     "01 / 07 · Early Life",
     "02 / 07 · Way to Music",
     "03 / 07 · Street Stories",
-    "04 / 07 · Artisans & Makers",
+    "04 / 07 · The Makers",
     "05 / 07 · Instruments",
     "06 / 07 · Audio Vault",
-    "07 / 07 · Notes from the Road"
+    "07 / 07 · Road Notes"
   ],
 
   init() {

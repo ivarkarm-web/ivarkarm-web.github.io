@@ -3510,6 +3510,27 @@ body.rabbit-hole-open #cursor {
 .reveal-epilogue.in-view .rh-aphorism-item:nth-child(1) { opacity: 1; transform: translateX(0); transition-delay: 0.2s; }
 .reveal-epilogue.in-view .rh-aphorism-item:nth-child(2) { opacity: 1; transform: translateX(0); transition-delay: 0.35s; }
 .reveal-epilogue.in-view .rh-aphorism-item:nth-child(3) { opacity: 1; transform: translateX(0); transition-delay: 0.5s; }
+.reveal-epilogue.in-view .rh-aphorism-item:nth-child(n+4) { opacity: 1; transform: translateX(0); transition-delay: 0.6s; }
+
+/* Chapters with more than 3 story cards / 6 track rows: reveal every item,
+   not just the ones that have a hand-tuned nth-child delay above. */
+.reveal-luminous.in-view .rh-story-card:nth-child(n+4) {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+  transition-delay: 0.65s;
+}
+.reveal-curtain.in-view .rh-story-card:nth-child(n+4) {
+  opacity: 1;
+  transform: translateX(0);
+  border-left-color: var(--accent-gold);
+  transition-delay: 0.7s;
+}
+.reveal-equalizer.in-view .rh-track-row:nth-child(n+7) {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition-delay: 0.75s;
+}
 
 .reveal-epilogue.in-view .rh-patron-card {
   opacity: 1;
