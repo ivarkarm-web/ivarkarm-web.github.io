@@ -383,103 +383,22 @@ nav {
   margin-bottom: 1.3rem;
 }
 
-/* Upgraded Cinematic Narrative Section Card Styles */
-#s2.with-backdrop,
-#s3.with-backdrop {
-  background: radial-gradient(ellipse at 50% 0%, rgba(212, 175, 55, 0.08) 0%, rgba(12, 14, 20, 0.76) 80%), rgba(8, 10, 15, 0.82);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border: 1px solid rgba(212, 175, 55, 0.24);
-  box-shadow: 0 30px 90px -15px rgba(0, 0, 0, 0.88), 0 0 50px -15px rgba(212, 175, 55, 0.12);
-  border-radius: 20px;
-  position: absolute;
-  overflow: hidden;
-}
-
-#s2.with-backdrop::before,
-#s3.with-backdrop::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 12%;
-  right: 12%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.75), transparent);
-  pointer-events: none;
-}
-
 .story-entry {
-  position: relative;
-  max-width: 520px;
-  margin: 0 auto 1.6rem;
-  padding-left: 1.8rem;
-  border-left: 1px solid rgba(212, 175, 55, 0.25);
+  max-width: 480px;
+  margin: 0 auto 1.4rem;
+  padding-left: 1.1rem;
+  border-left: 1px solid var(--border-color);
   text-align: left;
-  transition: border-color 0.35s ease, transform 0.35s ease;
-}
-
-.story-entry::before {
-  content: '';
-  position: absolute;
-  left: -5px;
-  top: 4px;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--accent-gold);
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.75);
-  transition: transform 0.35s ease, box-shadow 0.35s ease;
-}
-
-.story-entry:hover {
-  border-left-color: rgba(212, 175, 55, 0.75);
-  transform: translateX(4px);
-}
-
-.story-entry:hover::before {
-  transform: scale(1.3);
-  box-shadow: 0 0 16px rgba(212, 175, 55, 0.95);
 }
 
 .story-era {
-  font-family: 'Fraunces', serif;
-  font-size: 0.95rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--accent-gold);
-  opacity: 0.95;
-  margin-bottom: 0.35rem;
-}
-
-#s3 .lead {
-  font-family: 'Fraunces', serif;
-  font-size: 1.55rem;
-  font-weight: 400;
-  color: #fff;
-  margin-bottom: 1.6rem;
-  letter-spacing: -0.01em;
-  text-shadow: 0 2px 25px rgba(212, 175, 55, 0.25);
-}
-
-#s3 p:not(.lead) {
-  position: relative;
   font-family: 'Inter', sans-serif;
-  font-size: 0.98rem;
-  line-height: 1.75;
-  color: rgba(235, 235, 235, 0.88);
-  font-weight: 300;
-  max-width: 520px;
-  margin: 0 auto 0.9rem;
-  padding-left: 1.4rem;
-  border-left: 1px solid rgba(212, 175, 55, 0.18);
-  text-align: left;
-  transition: border-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
-}
-
-#s3 p:not(.lead):hover {
-  border-left-color: var(--accent-gold);
-  color: #ffffff;
-  transform: translateX(4px);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--accent-gold);
+  opacity: 0.9;
+  margin-bottom: 0.4rem;
 }
 
 .section h1,
@@ -1444,9 +1363,14 @@ nav {
   transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
-.touch-btn-dash {
+.touch-btn-jump {
   border-color: rgba(212, 175, 55, 0.6);
   color: var(--accent-gold);
+}
+
+.touch-btn-dash {
+  border-color: rgba(180, 200, 220, 0.45);
+  color: #d8e4f0;
 }
 
 .touch-action-btn:active {
@@ -1998,7 +1922,11 @@ body.pre-enter #sections {
   transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.welcome.hidden { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+.welcome.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
 
 .welcome-inner {
   position: relative;
@@ -4025,254 +3953,47 @@ body.rabbit-hole-open #cursor {
 }
 
 /* Transition particle overlay */
-/* ==========================================================================
-   ULTRA-PREMIUM CINEMATIC RABBIT HOLE TRANSITION PORTAL
-   ========================================================================== */
 .rabbit-hole-transition-overlay {
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(20, 16, 10, 0.98) 0%, rgba(6, 6, 6, 0.99) 70%, #020202 100%);
+  background: var(--bg-color);
   z-index: 4600;
   opacity: 0;
-  visibility: hidden;
   pointer-events: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  perspective: 1200px;
-  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s ease;
-  will-change: opacity, transform;
+  transition: opacity 0.6s cubic-bezier(0.32, 0.72, 0.44, 1);
 }
 
 .rabbit-hole-transition-overlay.active {
   opacity: 1;
-  visibility: visible;
   pointer-events: auto;
 }
 
-/* Ambient Pulsing Golden Glow */
-.rh-trans-glow {
-  position: absolute;
-  width: 140vmax;
-  height: 140vmax;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.14) 0%, rgba(212, 175, 55, 0.035) 45%, transparent 72%);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  animation: rhTransGlowPulse 4.2s ease-in-out infinite alternate;
-}
-
-@keyframes rhTransGlowPulse {
-  0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.6; }
-  100% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.95; }
-}
-
-/* Concentric Acoustic Shockwave Ripple Rings */
-.rh-trans-ripple-wrap {
+.rabbit-hole-particles {
   position: absolute;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
   pointer-events: none;
 }
 
-.rh-trans-ripple {
+.rabbit-hole-particle {
   position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--accent-gold);
   border-radius: 50%;
-  border: 1px solid rgba(212, 175, 55, 0.4);
-  box-shadow: 0 0 50px rgba(212, 175, 55, 0.18), inset 0 0 30px rgba(212, 175, 55, 0.08);
-  pointer-events: none;
   opacity: 0;
-  transform: scale(0.2);
+  animation: particleFloat 3s ease-in-out infinite;
 }
 
-.rabbit-hole-transition-overlay.active .rh-trans-ripple-1 {
-  animation: rhRippleExpand 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
-}
-
-.rabbit-hole-transition-overlay.active .rh-trans-ripple-2 {
-  animation: rhRippleExpand 1.7s cubic-bezier(0.16, 1, 0.3, 1) 0.22s forwards;
-}
-
-.rabbit-hole-transition-overlay.active .rh-trans-ripple-3 {
-  animation: rhRippleExpand 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.38s forwards;
-}
-
-@keyframes rhRippleExpand {
-  0% {
-    transform: scale(0.15) rotate(0deg);
-    opacity: 0.9;
-    border-color: rgba(245, 215, 127, 0.75);
+@keyframes particleFloat {
+  0%, 100% {
+    opacity: 0;
+    transform: translateY(100vh) scale(0);
   }
   50% {
-    opacity: 0.55;
+    opacity: 0.6;
+    transform: translateY(0) scale(1);
   }
-  100% {
-    transform: scale(3.0) rotate(18deg);
-    opacity: 0;
-    border-color: rgba(212, 175, 55, 0);
-  }
-}
-
-/* Sacred Tonefield Geometry */
-.rh-trans-sacred-geometry {
-  position: absolute;
-  width: 520px;
-  height: 520px;
-  max-width: 90vw;
-  max-height: 90vw;
-  color: var(--accent-gold);
-  pointer-events: none;
-  opacity: 0;
-  transform: scale(0.85) rotate(-15deg);
-  transition: transform 1.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.9s ease;
-}
-
-.rabbit-hole-transition-overlay.active .rh-trans-sacred-geometry {
-  opacity: 0.28;
-  transform: scale(1.12) rotate(0deg);
-}
-
-/* Dynamic Golden Embers Canvas */
-.rh-trans-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Poetic Editorial Content Block */
-.rh-trans-editorial {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  max-width: 660px;
-  padding: 2.5rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.rh-trans-eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  width: 100%;
-  justify-content: center;
-  opacity: 0;
-  transform: translateY(14px);
-  transition: opacity 0.6s ease 0.18s, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.18s;
-}
-
-.rh-trans-hairline-l,
-.rh-trans-hairline-r {
-  flex: 1;
-  max-width: 65px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.6));
-}
-
-.rh-trans-hairline-r {
-  background: linear-gradient(90deg, rgba(212, 175, 55, 0.6), transparent);
-}
-
-.rh-trans-tag {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: var(--accent-gold);
-  opacity: 0.9;
-}
-
-.rh-trans-title {
-  font-family: 'Cinzel', 'Playfair Display', serif;
-  font-size: clamp(2.4rem, 6.2vw, 4rem);
-  font-weight: 400;
-  letter-spacing: 0.14em;
-  color: #fff;
-  background: linear-gradient(135deg, #ffffff 0%, #f7ecd5 40%, #d4af37 80%, #a88220 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin: 0;
-  line-height: 1.15;
-  opacity: 0;
-  transform: scale(0.92) translateY(20px);
-  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.25s, transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.25s;
-  text-shadow: 0 0 60px rgba(212, 175, 55, 0.4);
-}
-
-.rh-trans-subtitle {
-  font-family: 'Inter', sans-serif;
-  font-size: clamp(0.85rem, 2.3vw, 1.05rem);
-  font-weight: 300;
-  letter-spacing: 0.05em;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0;
-  opacity: 0;
-  transform: translateY(14px);
-  transition: opacity 0.7s ease 0.4s, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.4s;
-}
-
-.rh-trans-meter {
-  width: 140px;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-top: 0.85rem;
-  opacity: 0;
-  transition: opacity 0.4s ease 0.35s;
-}
-
-.rh-trans-meter-fill {
-  width: 0%;
-  height: 100%;
-  background: linear-gradient(90deg, #d4af37, #f7ecd5, #d4af37);
-  box-shadow: 0 0 12px rgba(212, 175, 55, 0.75);
-  border-radius: 2px;
-  transition: width 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.4s;
-}
-
-.rabbit-hole-transition-overlay.active .rh-trans-eyebrow,
-.rabbit-hole-transition-overlay.active .rh-trans-subtitle,
-.rabbit-hole-transition-overlay.active .rh-trans-meter {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.rabbit-hole-transition-overlay.active .rh-trans-title {
-  opacity: 1;
-  transform: scale(1) translateY(0);
-}
-
-.rabbit-hole-transition-overlay.active .rh-trans-meter-fill {
-  width: 100%;
-}
-
-/* Enhanced Rabbit Hole Entry Motion with Luxury Spatial Depth */
-.rabbit-hole {
-  transform: scale(0.97) translateY(24px);
-  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), 
-              visibility 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.rabbit-hole.visible {
-  transform: scale(1) translateY(0) !important;
-}
-
-.rabbit-hole.rabbit-hole-closing {
-  transform: scale(0.98) translateY(18px) !important;
-  opacity: 0 !important;
 }
 
 /* Responsive adjustments */
@@ -4387,6 +4108,113 @@ body.rabbit-hole-open #cursor {
   .rh-track-actions {
     align-self: flex-end;
   }
+}
+
+/* ==========================================================================
+   Memory Shard Discovery HUD
+   ========================================================================== */
+.memory-shard-hud {
+  position: fixed;
+  bottom: 5.5rem;
+  right: 2rem;
+  max-width: 370px;
+  width: calc(100% - 3rem);
+  z-index: 1250;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(20px) scale(0.97);
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.memory-shard-hud.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.memory-shard-card {
+  position: relative;
+  background: rgba(10, 13, 18, 0.88);
+  border: 1px solid rgba(212, 175, 55, 0.32);
+  border-radius: 14px;
+  padding: 1.35rem 1.4rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(212, 175, 55, 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  overflow: hidden;
+}
+
+.memory-shard-glow {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.22) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.memory-shard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+.memory-shard-meta {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+}
+
+.memory-shard-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.memory-shard-close:hover {
+  color: var(--text-primary);
+}
+
+.memory-shard-close svg {
+  width: 14px;
+  height: 14px;
+}
+
+.memory-shard-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+  line-height: 1.25;
+}
+
+.memory-shard-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.memory-shard-prompt {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(212, 175, 55, 0.65);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 0.6rem;
 }
 
 /* ==========================================================================
@@ -4635,6 +4463,12 @@ body.rabbit-hole-open #cursor {
 }
 
 @media (max-width: 640px) {
+  .memory-shard-hud {
+    right: 1.5rem;
+    left: 1.5rem;
+    bottom: 5.5rem;
+    width: auto;
+  }
   .dm-shell {
     width: 95%;
     max-height: 92vh;
@@ -4674,434 +4508,47 @@ body.rabbit-hole-open #cursor {
 }
 
 
-
-/* Enhanced button & partner card accessibility */
-.partner-card {
-  cursor: pointer !important;
-  pointer-events: auto !important;
-}
-.section.visible .partner-card {
-  pointer-events: auto !important;
-}
-.promo-copy-btn {
-  cursor: pointer !important;
-  pointer-events: auto !important;
-  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
-}
-.promo-copy-btn:hover {
-  background: rgba(212, 175, 55, 0.25) !important;
-  border-color: rgba(212, 175, 55, 0.6) !important;
-}
-.promo-copy-btn.copied {
-  background: rgba(72, 187, 120, 0.2) !important;
-  border-color: rgba(72, 187, 120, 0.7) !important;
-  color: #48bb78 !important;
-}
-
-
-/* MOBILE_INTERACTIVE_FIX_V2 */
-#sections {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  pointer-events: none !important;
-  z-index: 950 !important;
-}
-
-.section {
-  z-index: 950 !important;
-}
-
-.section.visible {
-  opacity: 1 !important;
-  pointer-events: auto !important;
-}
-
-.section.visible * {
-  pointer-events: auto !important;
-}
-
-.partner-card,
-.partner-card * {
-  pointer-events: auto !important;
-  cursor: pointer !important;
-  touch-action: manipulation !important;
-  -webkit-tap-highlight-color: rgba(212, 175, 55, 0.3) !important;
-}
-
-.music-player,
-.music-player *,
-.mp-btn,
-.mp-btn *,
-.mp-track,
-.mp-track *,
-.mp-progress,
-.mp-progress * {
-  pointer-events: auto !important;
-  cursor: pointer !important;
-  touch-action: manipulation !important;
-  -webkit-tap-highlight-color: rgba(212, 175, 55, 0.3) !important;
-}
-
-/* Ensure touch zones do not swallow taps intended for visible sections */
-.touch-zones {
-  z-index: 850 !important;
-  pointer-events: none !important;
-}
-
-.touch-zone {
-  touch-action: none !important;
-}
-
-
-/* ==========================================================================
-   PORTAL ACTION BUTTONS (ENTER & LEAVE)
-   ========================================================================== */
-.rh-portal-actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.25rem;
-  margin-top: 1.5rem;
-  width: 100%;
-  max-width: 520px;
-  z-index: 10;
-}
-
-@media (max-width: 600px) {
-  .rh-portal-actions {
-    flex-direction: column;
-    gap: 0.85rem;
-    width: 100%;
-  }
-}
-
-.rh-portal-btn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 1rem 1.8rem;
-  min-height: 52px;
-  border-radius: 12px;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.92rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  text-decoration: none;
-  cursor: pointer !important;
-  pointer-events: auto !important;
-  touch-action: manipulation !important;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(212, 175, 55, 0.3);
-}
-
-@media (max-width: 600px) {
-  .rh-portal-btn {
-    width: 100%;
-    min-height: 54px;
-    padding: 1.05rem 1.4rem;
-    font-size: 0.95rem;
-  }
-}
-
-/* Primary ENTER Button */
-.rh-portal-btn--enter {
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.35) 0%, rgba(245, 215, 127, 0.22) 50%, rgba(170, 133, 36, 0.38) 100%);
-  border: 1px solid rgba(212, 175, 55, 0.75);
-  color: #fff;
-  box-shadow: 0 10px 35px rgba(212, 175, 55, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
-.rh-portal-btn--enter:hover,
-.rh-portal-btn--enter:focus-visible {
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.5) 0%, rgba(245, 215, 127, 0.35) 50%, rgba(170, 133, 36, 0.5) 100%);
-  border-color: rgba(245, 215, 127, 0.9);
-  box-shadow: 0 12px 42px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  transform: translateY(-2px);
-}
-
-.rh-portal-btn--enter:active {
-  transform: translateY(1px) scale(0.98);
-}
-
-.rh-portal-btn-icon {
-  width: 18px;
-  height: 18px;
-  stroke: var(--accent-gold);
-  transition: transform 0.3s ease;
-}
-
-.rh-portal-btn--enter:hover .rh-portal-btn-icon {
-  transform: translateY(3px);
-}
-
-/* Secondary LEAVE Button */
-.rh-portal-btn--leave {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-.rh-portal-btn--leave:hover,
-.rh-portal-btn--leave:focus-visible {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.4);
-  color: #fff;
-  transform: translateY(-2px);
-}
-
-.rh-portal-btn--leave:active {
-  transform: translateY(1px) scale(0.98);
-}
-
-.rh-portal-btn-icon-back {
-  width: 18px;
-  height: 18px;
-  stroke: rgba(255, 255, 255, 0.7);
-  transition: transform 0.3s ease;
-}
-
-.rh-portal-btn--leave:hover .rh-portal-btn-icon-back {
-  transform: translateX(-3px);
-}
-
-/* Acoustic hint */
-.rh-trans-hint {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.74rem;
-  color: rgba(212, 175, 55, 0.85);
-  letter-spacing: 0.03em;
-}
-
-/* Sticky Floating Mobile Leave Button inside Rabbit Hole */
-.rh-mobile-leave-bar {
+/* Floating Mobile Return to Road Button */
+.rh-floating-leave-btn {
   position: fixed;
   bottom: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 4700;
-  display: none;
-  pointer-events: auto !important;
-}
-
-@media (max-width: 900px) {
-  .rh-mobile-leave-bar {
-    display: block;
-  }
-}
-
-.rh-mobile-leave-btn {
+  z-index: 1050;
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  padding: 0.85rem 1.6rem;
-  min-height: 48px;
-  background: rgba(18, 14, 9, 0.95);
-  border: 1px solid rgba(212, 175, 55, 0.6);
+  gap: 0.6rem;
+  padding: 0.75rem 1.4rem;
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 175, 55, 0.45);
   border-radius: 30px;
-  color: #fff;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.88rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(212, 175, 55, 0.3);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  cursor: pointer !important;
-  touch-action: manipulation !important;
-  pointer-events: auto !important;
-  transition: all 0.25s ease;
-}
-
-.rh-mobile-leave-btn svg {
-  width: 17px;
-  height: 17px;
-  stroke: var(--accent-gold);
-}
-
-.rh-mobile-leave-btn:active {
-  transform: scale(0.96);
-  background: rgba(212, 175, 55, 0.25);
-}
-
-/* On-screen Portal Card at Section 6 */
-.rabbit-hole-portal-card {
-  position: relative;
-  margin-top: 2.5rem;
-  padding: 1.8rem 2rem;
-  background: linear-gradient(145deg, rgba(212, 175, 55, 0.08), rgba(20, 16, 10, 0.65));
-  border: 1px solid rgba(212, 175, 55, 0.35);
-  border-radius: 20px;
-  max-width: 600px;
-  text-align: center;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  pointer-events: auto !important;
-  z-index: 10;
-}
-
-.portal-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.74rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
   color: var(--accent-gold);
-  margin-bottom: 0.6rem;
-}
-
-.portal-card-title {
-  font-family: 'Cinzel', serif;
-  font-size: 1.8rem;
-  color: #fff;
-  margin: 0 0 0.5rem;
-  letter-spacing: 0.08em;
-}
-
-.portal-card-desc {
   font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
-  line-height: 1.5;
-  margin: 0 0 1.25rem;
-}
-
-.portal-card-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.85rem 1.6rem;
-  min-height: 48px;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.4), rgba(170, 133, 36, 0.4));
-  border: 1px solid rgba(212, 175, 55, 0.7);
-  border-radius: 10px;
-  color: #fff;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.78rem;
   font-weight: 500;
-  cursor: pointer !important;
-  pointer-events: auto !important;
-  touch-action: manipulation !important;
-  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.25);
-  transition: all 0.25s ease;
-}
-
-.portal-card-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
-  border-color: rgba(245, 215, 127, 0.9);
-}
-
-.portal-card-btn:active {
-  transform: translateY(1px) scale(0.98);
-}
-
-
-/* ==========================================================================
-   SECTION 7: THE RABBIT HOLE DEDICATED PLACEHOLDER
-   ========================================================================== */
-.rabbit-hole-placeholder-section {
-  max-width: 780px !important;
-  background: radial-gradient(ellipse 90% 70% at 50% 30%, rgba(212, 175, 55, 0.12) 0%, rgba(18, 14, 8, 0.88) 60%, rgba(7, 6, 4, 0.96) 100%) !important;
-  border: 1px solid rgba(212, 175, 55, 0.45) !important;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 45px rgba(212, 175, 55, 0.18) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  border-radius: 24px !important;
-  padding: 2.8rem 2.2rem !important;
-  text-align: center;
-  z-index: 950 !important;
-}
-
-@media (max-width: 600px) {
-  .rabbit-hole-placeholder-section {
-    padding: 2.2rem 1.4rem !important;
-    width: 92% !important;
-  }
-}
-
-.rh-placeholder-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.45rem 1.1rem;
-  border-radius: 20px;
-  background: rgba(212, 175, 55, 0.12);
-  border: 1px solid rgba(212, 175, 55, 0.4);
-  font-family: 'Inter', sans-serif;
-  font-size: 0.76rem;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--accent-gold);
-  margin-bottom: 1.25rem;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(212, 175, 55, 0.2);
+  transition: all 0.3s ease;
 }
-
-.rh-placeholder-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent-gold);
-  box-shadow: 0 0 8px var(--accent-gold);
+.rh-floating-leave-btn:hover,
+.rh-floating-leave-btn:focus-visible {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: var(--accent-gold);
+  transform: translateX(-50%) translateY(-2px);
 }
-
-.rabbit-hole-placeholder-section h2 {
-  font-family: 'Cinzel', serif;
-  font-size: clamp(2.4rem, 5vw, 3.4rem);
-  letter-spacing: 0.1em;
-  color: #fff;
-  background: linear-gradient(135deg, #ffffff 0%, #f7ecd5 40%, #d4af37 80%, #aa8524 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin: 0 0 0.8rem;
+.rh-floating-leave-btn svg {
+  width: 16px;
+  height: 16px;
 }
-
-.rh-placeholder-desc {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.92rem;
-  color: rgba(255, 255, 255, 0.7);
-  line-height: 1.6;
-  margin: 0.8rem auto 1.8rem;
-  max-width: 580px;
-}
-
 .rh-placeholder-actions {
   display: flex;
   justify-content: center;
-  width: 100%;
+  margin-top: 1rem;
 }
-
-/* ==========================================================================
-   INSTANT DIRECT EXPERIENCE OVERRIDE
-   Completely removes the welcome splash barrier and ensures instant visibility
-   ========================================================================== */
-.welcome {
-  display: none !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
-
-body.pre-enter nav,
-body.pre-enter .tip-button,
-body.pre-enter .tip-button-mobile,
-body.pre-enter .touch-controls,
-body.pre-enter .touch-zones,
-body.pre-enter #sections {
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  visibility: visible !important;
+.rh-enter-portal-btn {
+  cursor: pointer;
 }

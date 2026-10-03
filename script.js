@@ -48,7 +48,6 @@ const ResonanceAudio = {
   masterGain: null,
   ambientGain: null,
   isMuted: false,
-  isBackgroundSilenced: false,
   initialized: false,
   scale: [
     { name: 'D3', freq: 146.83, pan: 0 },       // Ding fundamental
@@ -260,10 +259,7 @@ const ResonanceAudio = {
   },
 
   updateRolling(speed, onGround) {
-    if (!this.rollingGain || !this.ctx || this.isMuted || this.isBackgroundSilenced) {
-      if (this.rollingGain && this.ctx) this.rollingGain.gain.setValueAtTime(0, this.ctx.currentTime);
-      return;
-    }
+    if (!this.rollingGain || !this.ctx || this.isMuted) return;
     const now = this.ctx.currentTime;
     const targetVol = onGround ? Math.min(0.16, (speed / 16) * 0.16) : 0;
     this.rollingGain.gain.setTargetAtTime(targetVol, now, 0.08);
@@ -308,7 +304,7 @@ const ResonanceAudio = {
 };
 
 // Physics variables
-let x = 500;
+let x = 100;
 let y = canvas ? viewH / 2 : 300;
 let vx = 0;
 let vy = 0;
@@ -333,7 +329,7 @@ const DASH_COOLDOWN_TIME = 0.9;
 const dashTrail = [];
 
 let keys = {};
-let gameStarted = true;
+let gameStarted = false;
 let currentSection = -1;
 let contactIconsAnimated = false;
 
@@ -394,8 +390,8 @@ const resonantStones = [
 
 // ===== END OF ROAD (after Contact) =====
 const CONTACT_X = 11000;
-const END_FADE_START_X = 12200;
-const WORLD_END_X = 12900;
+const END_FADE_START_X = 11350;
+const WORLD_END_X = 12100;
 
 let endOfRoadState = {
   fading: false,
@@ -748,21 +744,6 @@ function getGround(worldX) {
   return getSteepHillHeight(worldX);
 }
 
-// Auto-initialize handpan ball firmly grounded and centered in camera
-function initHandpanPlacement() {
-  x = 500;
-  vx = 0;
-  vy = 0;
-  if (typeof getGround === 'function') {
-    y = getGround(x) - ballRadius;
-    onGround = true;
-    const terrainY = getGround(x);
-    cameraY = (terrainY - viewH * 0.5) * 0.3;
-  }
-  cameraX = x - viewW / 2;
-}
-try { initHandpanPlacement(); } catch (_) {}
-
 function hillClimbHeightMid(worldX) {
   const flatVal = (wx) => Math.sin(wx * 0.00055 + 2.3) * 68 + Math.cos(wx * 0.0014) * 28;
   return withLeftHill(worldX, flatVal, 590, 1.5, 41.2);
@@ -795,8 +776,7 @@ const sectionPositions = [
   { x: 5600, index: 3, title: "Manifesto" },
   { x: 7400, index: 4, title: "Album" },
   { x: 9200, index: 5, title: "Partners" },
-  { x: 11000, index: 6, title: "Contact" },
-  { x: 11800, index: 7, title: "The Rabbit Hole" }
+  { x: 11000, index: 6, title: "Contact" }
 ];
 
 const NARRATIVE_ZOOM_SECTION_INDICES = [2, 3, 4];
@@ -963,6 +943,12 @@ document.addEventListener("keydown", e => {
     if (dmModal && dmModal.classList.contains('open')) {
       e.preventDefault();
       closeDirectMonographModal();
+      return;
+    }
+    const shard = document.getElementById('memoryShardHud');
+    if (shard && shard.classList.contains('active')) {
+      e.preventDefault();
+      hideMemoryShard();
       return;
     }
     const qrPopup = document.getElementById('qrPopup');
@@ -2493,112 +2479,40 @@ function drawAudioOrbs(offset) {
 const sectionRevealed = new Set();
 function revealSectionContent(sectionEl) {
   if (typeof gsap === 'undefined' || !sectionEl) return;
-  const isStory = sectionEl.id === 's2';
-  const isManifesto = sectionEl.id === 's3';
-
   const hairline = sectionEl.querySelector('.hairline');
   const heading = sectionEl.querySelector('h1, h2');
-  const eyebrow = sectionEl.querySelector('.eyebrow');
-  const lead = sectionEl.querySelector('.lead');
-  const storyEntries = sectionEl.querySelectorAll('.story-entry');
-  const paragraphs = sectionEl.querySelectorAll('p:not(.lead):not(.story-era)');
+  const rest = sectionEl.querySelectorAll(
+    '.eyebrow, .lead, .subtitle, .subtext, p:not(.lead), .story-entry, .music-player, .contact-icons'
+  );
   const partnerCards = sectionEl.querySelectorAll('.partner-card');
-  const musicPlayerEl = sectionEl.querySelector('.music-player');
-  const contactIcons = sectionEl.querySelectorAll('.contact-icon');
-
-  const all = [hairline, heading, eyebrow, lead, ...storyEntries, ...paragraphs, ...partnerCards, musicPlayerEl, ...contactIcons].filter(Boolean);
+  const all = [hairline, heading, ...rest, ...partnerCards].filter(Boolean);
   if (!all.length) return;
   gsap.killTweensOf(all);
 
   const tl = gsap.timeline();
-
-  // 1. Eyebrow tracking reveal
-  if (eyebrow) {
-    tl.fromTo(eyebrow,
-      { opacity: 0, y: -8, letterSpacing: '0.08em' },
-      { opacity: 0.85, y: 0, letterSpacing: '0.01em', duration: 0.6, ease: 'power2.out' },
-      0
-    );
-  }
-
-  // 2. Glowing expanding hairline
   if (hairline) {
-    tl.fromTo(hairline,
-      { scaleX: 0, opacity: 0 },
-      { scaleX: 1, opacity: 0.7, duration: 0.65, ease: 'power3.out' },
-      0.06
-    );
+    tl.fromTo(hairline, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 0.6, duration: 0.5, ease: 'power2.out' }, 0);
   }
-
-  // 3. Cinematic heading unmasking
   if (heading) {
     tl.fromTo(heading,
-      { clipPath: 'inset(0 0 100% 0)', y: 22, opacity: 0 },
-      { clipPath: 'inset(0 0 0% 0)', y: 0, opacity: 1, duration: 0.95, ease: 'expo.out' },
-      0.1
+      { clipPath: 'inset(0 0 100% 0)', y: 14 },
+      { clipPath: 'inset(0 0 0% 0)', y: 0, duration: 0.85, ease: 'expo.out' },
+      hairline ? 0.08 : 0
     );
   }
-
-  // 4. Custom Cinematic Story Section Animation (Section 2)
-  if (isStory && storyEntries.length) {
-    gsap.set(storyEntries, { transformPerspective: 1000 });
-    tl.fromTo(storyEntries,
-      { opacity: 0, x: -32, y: 20, rotateX: -14 },
-      { opacity: 1, x: 0, y: 0, rotateX: 0, duration: 0.88, ease: 'power3.out', stagger: 0.16 },
-      0.24
+  if (rest.length) {
+    tl.fromTo(rest,
+      { opacity: 0, y: 12 },
+      { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', stagger: 0.05, overwrite: true },
+      heading ? 0.32 : 0.1
     );
   }
-
-  // 5. Custom Cinematic Manifesto Section Animation (Section 3)
-  if (isManifesto) {
-    if (lead) {
-      tl.fromTo(lead,
-        { opacity: 0, y: 18, scale: 0.97 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.82, ease: 'power3.out' },
-        0.22
-      );
-    }
-    if (paragraphs.length) {
-      tl.fromTo(paragraphs,
-        { opacity: 0, x: -22, y: 15, filter: 'blur(3px)' },
-        { opacity: 1, x: 0, y: 0, filter: 'blur(0px)', duration: 0.78, ease: 'power3.out', stagger: 0.12 },
-        0.34
-      );
-    }
-  }
-
-  // 6. Generic sections fallback & special cards
-  if (!isStory && !isManifesto) {
-    if (lead) {
-      tl.fromTo(lead,
-        { opacity: 0, y: 14 },
-        { opacity: 1, y: 0, duration: 0.65, ease: 'power2.out' },
-        0.2
-      );
-    }
-    if (paragraphs.length) {
-      tl.fromTo(paragraphs,
-        { opacity: 0, y: 14 },
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', stagger: 0.06 },
-        0.28
-      );
-    }
-  }
-
   if (partnerCards.length) {
     gsap.set(partnerCards, { transformPerspective: 900 });
     tl.fromTo(partnerCards,
       { opacity: 0, y: 70, rotationX: -75, transformOrigin: '50% 100%' },
-      { opacity: 1, y: 0, rotationX: 0, duration: 1, ease: 'power4.out', stagger: 0.22 },
-      0.3
-    );
-  }
-
-  if (musicPlayerEl) {
-    tl.fromTo(musicPlayerEl,
-      { opacity: 0, y: 28, scale: 0.97 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.85, ease: 'power3.out' },
-      0.3
+      { opacity: 1, y: 0, rotationX: 0, duration: 1, ease: 'power4.out', stagger: 0.22, overwrite: true },
+      heading ? 0.34 : 0.12
     );
   }
 }
@@ -2618,18 +2532,15 @@ function updateSections() {
     const parallaxX = distance * parallaxSpeed;
     const terrainY = getGround(pos.x);
     const verticalOffset = (viewH * 0.5 - terrainY) * 0.3;
-    const revealRange = (index === 6 || index === 7) ? 900 : 800;
+    sectionEl.style.transform = 'translate(calc(-50% + ' + parallaxX + 'px), calc(-50% + ' + verticalOffset + 'px))';
+    const revealRange = (index === 6) ? 900 : 800;
     if (Math.abs(distance) < revealRange) {
       sectionEl.classList.add('visible');
-      const t = Math.max(0, 1 - (Math.abs(distance) / revealRange));
-      const smoothFactor = t * t * (3 - 2 * t);
-      let opacity = smoothFactor;
+      let opacity = Math.max(0, 1 - (Math.abs(distance) / revealRange));
       if (index === 6 && x > CONTACT_X && endOfRoadState.fading) {
         opacity *= endOfRoadState.fade;
       }
       sectionEl.style.opacity = opacity;
-      const scale = 0.95 + 0.05 * smoothFactor;
-      sectionEl.style.transform = 'translate(calc(-50% + ' + parallaxX + 'px), calc(-50% + ' + verticalOffset + 'px)) scale(' + scale + ')';
       if (!sectionRevealed.has(index)) {
         sectionRevealed.add(index);
         revealSectionContent(sectionEl);
@@ -2641,8 +2552,7 @@ function updateSections() {
     } else {
       sectionEl.classList.remove('visible');
       sectionEl.style.opacity = 0;
-      sectionEl.style.transform = 'translate(calc(-50% + ' + parallaxX + 'px), calc(-50% + ' + verticalOffset + 'px)) scale(0.95)';
-      if (Math.abs(distance) > 1500) sectionRevealed.delete(index);
+      if (Math.abs(distance) > 1600) sectionRevealed.delete(index);
     }
   });
 
@@ -2751,15 +2661,34 @@ function checkResonantStones() {
       s.triggered = true;
       ResonanceAudio.playTone(s.noteIdx, 0.65, { duration: 3.2 });
       spawnSoundRing(s.x, getGround(s.x) - 25);
+      showMemoryShard(s);
       if (typeof triggerHaptic === 'function') triggerHaptic('medium');
     }
   }
 }
 
-function showMemoryShard() {}
-function hideMemoryShard() {}
+function showMemoryShard(stone) {
+  const hud = document.getElementById('memoryShardHud');
+  if (!hud) return;
+  const metaEl = document.getElementById('memoryShardMeta');
+  const titleEl = document.getElementById('memoryShardTitle');
+  const textEl = document.getElementById('memoryShardText');
+  if (metaEl) metaEl.textContent = stone.meta;
+  if (titleEl) titleEl.textContent = stone.title;
+  if (textEl) textEl.textContent = stone.text;
+  hud.classList.add('active');
+  hud.setAttribute('aria-hidden', 'false');
+}
+
+function hideMemoryShard() {
+  const hud = document.getElementById('memoryShardHud');
+  if (!hud) return;
+  hud.classList.remove('active');
+  hud.setAttribute('aria-hidden', 'true');
+}
 
 function update(dt) {
+  if (!gameStarted) return;
   if (endOfRoadState.rabbitHoleShown) return;
   if (typeof videoPlayer !== 'undefined' && videoPlayer.isOpen) {
     updateCamera(dt);
@@ -3602,7 +3531,7 @@ function draw(offset) {
   drawAudioOrbs(offset);
 
   const edgeFade = leftSecretState.alpha;
-  if (edgeFade < 0.99 && endOfRoadState.fade > 0.01) {
+  if (gameStarted && edgeFade < 0.99 && endOfRoadState.fade > 0.01) {
     ctx.save();
     ctx.globalAlpha = (1 - edgeFade) * endOfRoadState.fade;
     // Calculate accurate screen position based on camera offset
@@ -3635,36 +3564,6 @@ function loop(now) {
 requestAnimationFrame(loop);
 
 // Navigation links
-let dockedSectionIndex = -1;
-let dockedReleaseTime = 0;
-
-function navigateToSection(index) {
-  if (index === undefined || !sectionPositions[index]) return;
-  if (typeof startGame === "function") startGame();
-  if (typeof endOfRoadState !== "undefined" && endOfRoadState.rabbitHoleShown) {
-    if (typeof closeRabbitHoleScreen === "function") closeRabbitHoleScreen(sectionPositions[index].x);
-  }
-  const target = sectionPositions[index];
-  x = target.x;
-  vx = 0;
-  vy = 0;
-  y = getGround(x) - ballRadius;
-  onGround = true;
-  cameraX = x - viewW / 2;
-  const terrainY = getGround(target.x);
-  cameraY = (terrainY - viewH * 0.5) * 0.3;
-  dockedSectionIndex = index;
-  dockedReleaseTime = Date.now() + 3000;
-  updateSections();
-  const secEl = document.getElementById("s" + index);
-  if (secEl) {
-    secEl.classList.add("visible");
-    secEl.style.opacity = 1;
-    secEl.style.pointerEvents = "auto";
-    revealSectionContent(secEl);
-  }
-}
-
 const navLinkSectionIndex = {
   '#home': 0,
   '#about': 1,
@@ -3690,8 +3589,10 @@ document.querySelectorAll('.nav-links a').forEach(link => {
       return;
     }
     const index = navLinkSectionIndex[hash];
-    if (index !== undefined) {
-      navigateToSection(index);
+    if (index !== undefined && sectionPositions[index]) {
+      x = sectionPositions[index].x;
+      vx = 0;
+      if (endOfRoadState.rabbitHoleShown) closeRabbitHoleScreen();
     }
   });
 });
@@ -3932,6 +3833,7 @@ const touchLeftEl = document.getElementById('touchLeft');
 const touchRightEl = document.getElementById('touchRight');
 const touchArrowLeftEl = document.getElementById('touchArrowLeft') || document.querySelector('.touch-arrow.left');
 const touchArrowRightEl = document.getElementById('touchArrowRight') || document.querySelector('.touch-arrow.right');
+const touchJumpBtn = document.getElementById('touchJump');
 const touchDashBtn = document.getElementById('touchDash');
 
 // ============================================================================
@@ -3967,6 +3869,7 @@ function updateMovementKeys() {
   if (touchRightEl) touchRightEl.classList.toggle('active', hasRight);
   if (touchArrowRightEl) touchArrowRightEl.classList.toggle('active', hasRight);
   if (touchDashBtn) touchDashBtn.classList.toggle('active', hasDash);
+  if (touchJumpBtn) touchJumpBtn.classList.toggle('active', hasJump);
 }
 
 function bindTouchButton(element, actionKey) {
@@ -4036,6 +3939,7 @@ function bindTouchButton(element, actionKey) {
 // Bind explicit touch buttons
 bindTouchButton(touchArrowLeftEl, 'a');
 bindTouchButton(touchArrowRightEl, 'd');
+bindTouchButton(touchJumpBtn, ' ');
 bindTouchButton(touchDashBtn, 'dash');
 
 // ============================================================================
@@ -4046,17 +3950,9 @@ function handleZoneTouchStart(e) {
   if (!gameStarted || (typeof endOfRoadState !== 'undefined' && endOfRoadState.rabbitHoleShown)) return;
 
   const target = e.target;
-  // Ignore taps on interactive UI dialogs, modal buttons, sections, cards, and music player
-  if (target && target.closest('button, a, input, select, textarea, .nav-links, .direct-monograph-modal, #videoModal, #qrPopup, .rh-deck-wrap, .rabbit-hole, .mp-controls, .mp-progress-wrap, .music-player, .mp-track, .mp-now, .mp-btn, #welcome, .section, .partner-card, .promo-card, .promo-copy-btn, .touch-controls')) {
+  // Ignore taps on interactive UI dialogs, modal buttons, and navigation
+  if (target && target.closest('button, a, input, select, textarea, .nav-links, .direct-monograph-modal, #videoModal, #qrPopup, .rh-deck-wrap, .rabbit-hole, .mp-controls, .mp-progress-wrap, .memory-shard-card, #welcome')) {
     return;
-  }
-  const activeSec = document.querySelector('.section.visible');
-  if (activeSec) {
-    const sRect = activeSec.getBoundingClientRect();
-    const touchPt = (e.touches && e.touches[0]) || e;
-    if (touchPt.clientX >= sRect.left && touchPt.clientX <= sRect.right && touchPt.clientY >= sRect.top && touchPt.clientY <= sRect.bottom) {
-      return; // Do not steer while user interacts with visible section
-    }
   }
 
   UnifiedModalitySystem.activateMobileMode();
@@ -4082,7 +3978,7 @@ function handleZoneTouchMove(e) {
   if (!gameStarted || (typeof endOfRoadState !== 'undefined' && endOfRoadState.rabbitHoleShown)) return;
 
   const target = e.target;
-  if (target && target.closest('button, a, input, select, textarea, .nav-links, .direct-monograph-modal, #videoModal, #qrPopup, .rh-deck-wrap, .rabbit-hole, .mp-controls, .mp-progress-wrap, .music-player, .mp-track, .mp-now, .mp-btn, #welcome')) {
+  if (target && target.closest('button, a, input, select, textarea, .nav-links, .direct-monograph-modal, #videoModal, #qrPopup, .rh-deck-wrap, .rabbit-hole, .mp-controls, .mp-progress-wrap, .memory-shard-card, #welcome')) {
     return;
   }
 
@@ -4124,7 +4020,10 @@ function handleZoneTouchEnd(e) {
   zoneEl.addEventListener('touchcancel', handleZoneTouchEnd, { passive: false });
 });
 
-// Global window touch listeners removed so sections, partner links and music player receive taps
+window.addEventListener('touchstart', handleZoneTouchStart, { passive: false });
+window.addEventListener('touchmove', handleZoneTouchMove, { passive: false });
+window.addEventListener('touchend', handleZoneTouchEnd, { passive: false });
+window.addEventListener('touchcancel', handleZoneTouchEnd, { passive: false });
 
 // ============================================================================
 // MOBILE DOUBLE-TAP JUMP SYSTEM
@@ -4153,7 +4052,7 @@ function handleTouchZoneDoubleTap(e) {
 
   // Do not trigger jump if tapping on interactive UI elements or dialogs
   const target = e.target;
-  if (target && target.closest('button, a, input, select, textarea, .nav-links, .direct-monograph-modal, #videoModal, #qrPopup, .rh-deck-wrap, .rabbit-hole, .mp-controls, .mp-progress-wrap, .music-player, .mp-track, .partner-card, .section.visible, .memory-shard-card')) {
+  if (target && target.closest('button.tip-button-mobile, button.touch-action-btn, a, input, select, textarea, .nav-links, .direct-monograph-modal, #videoModal, #qrPopup, .rh-deck-wrap, .rabbit-hole, .mp-controls, .mp-progress-wrap, .memory-shard-card')) {
     return;
   }
 
@@ -4188,6 +4087,15 @@ if (audioToggleBtn) {
     e.preventDefault();
     ResonanceAudio.toggleMute();
     if (typeof triggerHaptic === 'function') triggerHaptic('light');
+  });
+}
+
+// Memory Shard Dismiss
+const memoryShardCloseBtn = document.getElementById('memoryShardClose');
+if (memoryShardCloseBtn) {
+  memoryShardCloseBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    hideMemoryShard();
   });
 }
 
@@ -4257,85 +4165,71 @@ if (cursorEl) {
   });
 }
 
-let siteEntered = true;
-
 function startGame() {
-  if (typeof ResonanceAudio !== 'undefined') {
-    try {
-      ResonanceAudio.init();
-      ResonanceAudio.resume();
-    } catch (_) {}
+  if (gameStarted) return;
+  gameStarted = true;
+  x = sectionPositions[0] ? sectionPositions[0].x : 500;
+  vx = 0;
+  vy = 0;
+  y = getGround(x) - ballRadius;
+  onGround = true;
+  cameraX = x - viewW / 2;
+  const terrainY = getGround(x);
+  cameraY = (terrainY - viewH * 0.5) * 0.3;
+  keys = {};
+
+  // Initialize Web Audio procedural resonance
+  ResonanceAudio.init();
+  ResonanceAudio.resume();
+  ResonanceAudio.playTone(0, 0.65, { duration: 3.0 }); // Rich welcoming Ding strike
+
+  const welcome = document.getElementById('welcome');
+  if (welcome) {
+    welcome.classList.add('hidden');
+    welcome.style.opacity = '0';
+    welcome.style.pointerEvents = 'none';
+    setTimeout(() => { welcome.style.display = 'none'; }, 950);
   }
-  if (typeof triggerHaptic === 'function') {
-    triggerHaptic('light');
-  }
+  document.body.classList.remove('pre-enter');
   if (canvas) {
     try { canvas.focus({ preventScroll: true }); } catch (e) {}
   }
 }
 
-// Global touch & click activation to wake audio context immediately
-window.addEventListener('touchstart', () => {
-  if (typeof ResonanceAudio !== 'undefined') ResonanceAudio.resume();
-}, { passive: true });
-window.addEventListener('click', () => {
-  if (typeof ResonanceAudio !== 'undefined') ResonanceAudio.resume();
-}, { passive: true });
+(function () {
+  const btn = document.getElementById('welcomeEnter');
+  const welcome = document.getElementById('welcome');
 
-// ============================================================================
-// WEBSITE BACKGROUND AUDIO CONTROLLER
-// Stops website ambient soundscape, rolling audio, and orb loops during music playback
-// ============================================================================
-function stopWebsiteBackgroundAudio() {
-  // 1. Stop any currently playing audio file (e.g. ambient orbs)
-  if (typeof currentAudio !== 'undefined' && currentAudio) {
-    try {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
-    } catch (_) {}
-    currentAudio = null;
-  }
-  if (typeof audioFadeInterval !== 'undefined' && audioFadeInterval) {
-    clearInterval(audioFadeInterval);
-    audioFadeInterval = null;
+  const onEnterTrigger = (e) => {
+    if (e && e.cancelable) e.preventDefault();
+    startGame();
+  };
+
+  if (btn) {
+    btn.addEventListener('click', onEnterTrigger);
+    btn.addEventListener('pointerdown', onEnterTrigger);
+    btn.addEventListener('touchend', onEnterTrigger, { passive: false });
+    btn.addEventListener('pointerup', onEnterTrigger);
   }
 
-  // 2. Mute procedural background soundscape and rolling audio
-  if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.ctx) {
-    ResonanceAudio.isBackgroundSilenced = true;
-    const now = ResonanceAudio.ctx.currentTime;
-    if (ResonanceAudio.ambientGain) {
-      ResonanceAudio.ambientGain.gain.cancelScheduledValues(now);
-      ResonanceAudio.ambientGain.gain.setValueAtTime(ResonanceAudio.ambientGain.gain.value, now);
-      ResonanceAudio.ambientGain.gain.linearRampToValueAtTime(0, now + 0.12);
-    }
-    if (ResonanceAudio.rollingGain) {
-      ResonanceAudio.rollingGain.gain.cancelScheduledValues(now);
-      ResonanceAudio.rollingGain.gain.setValueAtTime(0, now);
-    }
+  if (welcome) {
+    welcome.addEventListener('click', (e) => {
+      if (!gameStarted) startGame();
+    });
+    welcome.addEventListener('pointerdown', (e) => {
+      if (!gameStarted) startGame();
+    });
   }
-}
-
-function restoreWebsiteBackgroundAudio() {
-  if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.ctx && !ResonanceAudio.isMuted) {
-    ResonanceAudio.isBackgroundSilenced = false;
-    const now = ResonanceAudio.ctx.currentTime;
-    if (ResonanceAudio.ambientGain) {
-      ResonanceAudio.ambientGain.gain.cancelScheduledValues(now);
-      ResonanceAudio.ambientGain.gain.setValueAtTime(ResonanceAudio.ambientGain.gain.value, now);
-      ResonanceAudio.ambientGain.gain.linearRampToValueAtTime(0.20, now + 0.5);
-    }
-  }
-}
+})();
 
 // Music player
 const MUSIC_TRACKS = [
-  { title:'Berlin Dawn', subtitle:'Handpan · Improvised · Berlin', src:'./audio/berlin-dawn.wav', duration: '3:45' },
-  { title:'Alexanderplatz Drift', subtitle:'Handpan · Improvised · Berlin', src:'./audio/alexanderplatz-drift.wav', duration: '4:12' },
-  { title:"Hitchhiker's Scale", subtitle:'Handpan · Improvised · Travels', src:'./audio/hitchhikers-scale.wav', duration: '3:58' },
-  { title:'Baltic Wind', subtitle:'Handpan · Improvised · Travels', src:'./audio/baltic-wind.wav', duration: '4:30' },
-  { title:'Athens Courtyard', subtitle:'Handpan · Improvised · Greece', src:'./audio/athens-courtyard.wav', duration: '3:24' },
-  { title:'Resonance', subtitle:'Handpan · Improvised', src:'./audio/resonance.wav', duration: '4:05' }
+  { title:'Berlin Dawn', subtitle:'Handpan · Improvised · Berlin', src:'./audio/berlin-dawn.wav' },
+  { title:'Alexanderplatz Drift', subtitle:'Handpan · Improvised · Berlin', src:'./audio/alexanderplatz-drift.wav' },
+  { title:"Hitchhiker's Scale", subtitle:'Handpan · Improvised · Travels', src:'./audio/hitchhikers-scale.wav' },
+  { title:'Baltic Wind', subtitle:'Handpan · Improvised · Travels', src:'./audio/baltic-wind.wav' },
+  { title:'Athens Courtyard', subtitle:'Handpan · Improvised · Greece', src:'./audio/athens-courtyard.wav' },
+  { title:'Resonance', subtitle:'Handpan · Improvised', src:'./audio/resonance.wav' }
 ];
 
 const musicPlayer = { audio:null, index:-1, els:{} };
@@ -4374,81 +4268,39 @@ function mpLoadTrack(index, autoplay) {
   musicPlayer.index = index;
   const a = musicPlayer.audio;
   if (!a) return;
-
-  // STOP all background website audio whenever a track is loaded or changed
-  stopWebsiteBackgroundAudio();
-
+  a.src = t.src;
+  a.load();
   if (musicPlayer.els.title) musicPlayer.els.title.textContent = t.title;
   if (musicPlayer.els.subtitle) musicPlayer.els.subtitle.textContent = t.subtitle;
   if (musicPlayer.els.trackNum) musicPlayer.els.trackNum.textContent = String(index + 1).padStart(2, '0');
   mpHighlightTrack(index);
-
-  const targetSrc = t.src;
-  if (!a.src || !a.src.endsWith(targetSrc.replace(/^\.\//, ''))) {
-    a.src = targetSrc;
-  }
-
+  mpSetPlayingUI(false);
   if (autoplay) {
-    stopWebsiteBackgroundAudio();
-    const playPromise = a.play();
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        stopWebsiteBackgroundAudio();
-        mpSetPlayingUI(true);
-      }).catch((err) => {
-        console.warn('Track playback prevented by browser:', err);
-        mpSetPlayingUI(false);
-      });
-    }
-  } else {
-    mpSetPlayingUI(false);
+    const p = a.play();
+    if (p && p.catch) p.catch(() => {});
   }
 }
 
 function mpTogglePlay() {
   const a = musicPlayer.audio;
   if (!a) return;
-  if (musicPlayer.index < 0) {
-    mpLoadTrack(0, true);
-    return;
-  }
-  if (a.paused) {
-    stopWebsiteBackgroundAudio();
-    const playPromise = a.play();
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        stopWebsiteBackgroundAudio();
-        mpSetPlayingUI(true);
-      }).catch(() => {});
-    }
-  } else {
-    if (typeof a.pause === 'function') a.pause();
-    restoreWebsiteBackgroundAudio();
-    mpSetPlayingUI(false);
-  }
+  if (musicPlayer.index < 0) { mpLoadTrack(0, true); return; }
+  if (a.paused) a.play().catch(() => {});
+  else a.pause();
 }
 
 function mpPrev() {
-  if (musicPlayer.index < 0) {
-    mpLoadTrack(0, true);
-    return;
-  }
-  const nextIdx = (musicPlayer.index - 1 + MUSIC_TRACKS.length) % MUSIC_TRACKS.length;
-  mpLoadTrack(nextIdx, true);
+  if (musicPlayer.index < 0) { mpLoadTrack(0, true); return; }
+  mpLoadTrack((musicPlayer.index - 1 + MUSIC_TRACKS.length) % MUSIC_TRACKS.length, true);
 }
 
 function mpNext() {
-  if (musicPlayer.index < 0) {
-    mpLoadTrack(0, true);
-    return;
-  }
-  const nextIdx = (musicPlayer.index + 1) % MUSIC_TRACKS.length;
-  mpLoadTrack(nextIdx, true);
+  if (musicPlayer.index < 0) { mpLoadTrack(0, true); return; }
+  mpLoadTrack((musicPlayer.index + 1) % MUSIC_TRACKS.length, true);
 }
 
 function initMusicPlayer() {
-  const container = document.getElementById('musicPlayer');
-  if (!container) return;
+  if (!document.getElementById('musicPlayer')) return;
   musicPlayer.audio = document.getElementById('mpAudio');
   musicPlayer.els = {
     title: document.getElementById('mpTitle'),
@@ -4466,80 +4318,30 @@ function initMusicPlayer() {
   };
   const a = musicPlayer.audio;
   if (!a) return;
-
   a.addEventListener('timeupdate', mpUpdateProgress);
   a.addEventListener('loadedmetadata', mpUpdateProgress);
-  a.addEventListener('play', () => {
-    stopWebsiteBackgroundAudio();
-    mpSetPlayingUI(true);
-  });
-  a.addEventListener('pause', () => {
-    mpSetPlayingUI(false);
-    restoreWebsiteBackgroundAudio();
-  });
+  a.addEventListener('play', () => mpSetPlayingUI(true));
+  a.addEventListener('pause', () => mpSetPlayingUI(false));
   a.addEventListener('ended', mpNext);
-
-  let lastActionTime = 0;
-  const handleAction = (el, fn) => {
-    if (!el) return;
-    const trigger = (e) => {
-      e.stopPropagation();
-      const now = Date.now();
-      if (now - lastActionTime < 320) return; // Prevent double-trigger from touchend + click
-      lastActionTime = now;
-      fn();
-    };
-    el.addEventListener('click', trigger);
-    el.addEventListener('touchend', trigger);
-  };
-
-  handleAction(musicPlayer.els.playBtn, mpTogglePlay);
-  handleAction(musicPlayer.els.prevBtn, mpPrev);
-  handleAction(musicPlayer.els.nextBtn, mpNext);
-
+  if (musicPlayer.els.playBtn) musicPlayer.els.playBtn.addEventListener('click', (e) => { e.stopPropagation(); mpTogglePlay(); });
+  if (musicPlayer.els.prevBtn) musicPlayer.els.prevBtn.addEventListener('click', (e) => { e.stopPropagation(); mpPrev(); });
+  if (musicPlayer.els.nextBtn) musicPlayer.els.nextBtn.addEventListener('click', (e) => { e.stopPropagation(); mpNext(); });
   if (musicPlayer.els.progress) {
-    const onSeek = (e) => {
+    musicPlayer.els.progress.addEventListener('click', (e) => {
       e.stopPropagation();
-      e.preventDefault();
       const r = musicPlayer.els.progress.getBoundingClientRect();
-      const clientX = (e.touches && e.touches.length) ? e.touches[0].clientX : e.clientX;
-      const frac = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
-      if (a && a.duration) {
-        a.currentTime = frac * a.duration;
-        mpUpdateProgress();
-      }
-    };
-    musicPlayer.els.progress.addEventListener('click', onSeek);
-    musicPlayer.els.progress.addEventListener('touchstart', onSeek, { passive: false });
+      const cx = e.clientX - r.left;
+      a.currentTime = Math.max(0, Math.min(1, cx / r.width)) * a.duration;
+      mpUpdateProgress();
+    });
   }
-
   if (musicPlayer.els.tracklist) {
     musicPlayer.els.tracklist.querySelectorAll('.mp-track').forEach((li) => {
       const idx = parseInt(li.getAttribute('data-index'), 10);
-      const durEl = li.querySelector('.mp-t-dur');
-      if (durEl && MUSIC_TRACKS[idx] && MUSIC_TRACKS[idx].duration) {
-        durEl.textContent = MUSIC_TRACKS[idx].duration;
-      }
-      let lastTrackTime = 0;
-      const onSelect = (e) => {
+      li.addEventListener('click', (e) => {
         e.stopPropagation();
-        const now = Date.now();
-        if (now - lastTrackTime < 320) return;
-        lastTrackTime = now;
-        if (musicPlayer.index === idx && !a.paused) {
-          if (typeof a.pause === 'function') a.pause();
-          restoreWebsiteBackgroundAudio();
-        } else {
-          mpLoadTrack(idx, true);
-        }
-      };
-      li.addEventListener('click', onSelect);
-      li.addEventListener('touchend', onSelect);
-      li.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onSelect(e);
-        }
+        if (musicPlayer.index === idx && !a.paused) a.pause();
+        else mpLoadTrack(idx, true);
       });
     });
   }
@@ -5561,99 +5363,9 @@ if (document.readyState === 'loading') {
 }
 
 // ===== RABBIT HOLE SCREEN OPEN / CLOSE =====
-
-// ============================================================================
-// ULTRA-PREMIUM CINEMATIC RABBIT HOLE THRESHOLD PORTAL & CONTROLS
-// ============================================================================
-let rhTransAnimId = null;
-
-function startTransitionEmbers() {
-  const c = document.getElementById('rhTransCanvas');
-  if (!c) return;
-  const ctx = c.getContext('2d');
-  if (!ctx) return;
-
-  const w = c.width = window.innerWidth;
-  const h = c.height = window.innerHeight;
-  const cx = w / 2;
-  const cy = h / 2;
-
-  const count = 55;
-  const embers = [];
-  for (let i = 0; i < count; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const speed = 0.6 + Math.random() * 2.2;
-    const dist = Math.random() * 90;
-    embers.push({
-      x: cx + Math.cos(angle) * dist,
-      y: cy + Math.sin(angle) * dist,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed - 0.45,
-      radius: 1.2 + Math.random() * 2.5,
-      alpha: 0.15 + Math.random() * 0.7,
-      pulseSpeed: 0.02 + Math.random() * 0.04,
-      pulsePhase: Math.random() * Math.PI,
-      hue: Math.random() > 0.4 ? 'rgba(212, 175, 55, ' : 'rgba(247, 236, 213, '
-    });
-  }
-
-  const startTime = Date.now();
-  if (rhTransAnimId) cancelAnimationFrame(rhTransAnimId);
-
-  function render() {
-    const elapsed = Date.now() - startTime;
-    ctx.clearRect(0, 0, w, h);
-
-    for (let i = 0; i < embers.length; i++) {
-      const p = embers[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      p.pulsePhase += p.pulseSpeed;
-
-      const currentAlpha = Math.max(0, p.alpha * (0.6 + 0.4 * Math.sin(p.pulsePhase)));
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fillStyle = p.hue + currentAlpha + ')';
-      ctx.shadowColor = 'rgba(212, 175, 55, 0.6)';
-      ctx.shadowBlur = p.radius * 3.5;
-      ctx.fill();
-    }
-
-    if (elapsed < 3000) {
-      rhTransAnimId = requestAnimationFrame(render);
-    } else {
-      ctx.clearRect(0, 0, w, h);
-    }
-  }
-
-  rhTransAnimId = requestAnimationFrame(render);
-}
-
-function stopTransitionEmbers() {
-  if (rhTransAnimId) {
-    cancelAnimationFrame(rhTransAnimId);
-    rhTransAnimId = null;
-  }
-  const c = document.getElementById('rhTransCanvas');
-  if (c) {
-    const ctx = c.getContext('2d');
-    if (ctx) ctx.clearRect(0, 0, c.width, c.height);
-  }
-}
-
-// Opens the Threshold Portal with Enter & Leave buttons
 function openRabbitHoleScreen() {
-  if (endOfRoadState.rabbitHoleShown && document.getElementById('rabbit-hole').classList.contains('visible')) return;
-
-  // 1. Acoustic chime & tactile confirmation
-  if (typeof triggerHaptic === 'function') triggerHaptic('medium');
-  if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.ctx) {
-    try {
-      ResonanceAudio.resume();
-      ResonanceAudio.playTone(0, 0.7, { duration: 3.5 });
-    } catch (_) {}
-  }
-
+  if (endOfRoadState.rabbitHoleShown) return;
+  triggerHaptic('medium');
   endOfRoadState.archiveShown = true;
   endOfRoadState.rabbitHoleShown = true;
   endOfRoadState.fading = false;
@@ -5662,200 +5374,36 @@ function openRabbitHoleScreen() {
   keys = {};
   vx = 0;
 
-  // 2. Cinematic road focus blur
-  if (canvas) {
-    canvas.style.transition = 'transform 1.1s cubic-bezier(0.16, 1, 0.3, 1), filter 1.1s cubic-bezier(0.16, 1, 0.3, 1)';
-    canvas.style.transform = 'scale(1.06)';
-    canvas.style.filter = 'blur(10px) brightness(0.4)';
-  }
-
-  // 3. Open the Threshold Portal overlay (awaits user choice: ENTER or LEAVE)
+  // Particle transition effect
   const transitionOverlay = document.getElementById('rabbitHoleTransition');
   if (transitionOverlay) {
-    transitionOverlay.classList.remove('active');
-    void transitionOverlay.offsetWidth;
     transitionOverlay.classList.add('active');
-    transitionOverlay.setAttribute('aria-hidden', 'false');
-    startTransitionEmbers();
-  }
-
-  document.body.classList.add('rabbit-hole-open');
-}
-
-// User confirms ENTER: dissolves into the Monograph
-function confirmEnterRabbitHole() {
-  if (typeof triggerHaptic === 'function') triggerHaptic('heavy');
-  if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.ctx) {
-    try {
-      // Resonant harmonic chord: Deep Ding fundamental (D3) + Fifth (A3)
-      ResonanceAudio.playTone(0, 0.95, { duration: 4.8, detune: -1200 });
-      setTimeout(() => {
-        ResonanceAudio.playTone(4, 0.65, { duration: 4.0, detune: -500 });
-      }, 160);
-    } catch (_) {}
+    createGoldenParticles();
+    setTimeout(() => {
+      transitionOverlay.classList.remove('active');
+    }, 600);
   }
 
   const el = document.getElementById('rabbit-hole');
-  const transitionOverlay = document.getElementById('rabbitHoleTransition');
-
   if (el) {
     el.classList.remove('rabbit-hole-closing');
     el.setAttribute('aria-hidden', 'false');
-    el.scrollTop = 0;
     void el.offsetWidth;
-
-    el.classList.add('visible');
-    rhScrollManager.reset();
-    rhScrollManager.startParallaxLoop();
-    if (typeof ScrollTrigger !== 'undefined') {
-      ScrollTrigger.refresh();
-    }
-  }
-
-  // Fade out portal overlay smoothly
-  setTimeout(() => {
-    if (transitionOverlay) {
-      transitionOverlay.classList.remove('active');
-      transitionOverlay.setAttribute('aria-hidden', 'true');
-    }
     setTimeout(() => {
-      stopTransitionEmbers();
-      if (canvas) {
-        canvas.style.transform = '';
-        canvas.style.filter = '';
-        canvas.style.transition = '';
+      el.classList.add('visible');
+      rhScrollManager.reset();
+      rhScrollManager.startParallaxLoop();
+      if (typeof ScrollTrigger !== 'undefined') {
+        ScrollTrigger.refresh();
       }
-    }, 600);
-  }, 400);
+      const closeBtn = document.getElementById('rabbitHoleBackBtn');
+      if (closeBtn) closeBtn.focus();
+    }, 80);
+  }
+  document.body.classList.add('rabbit-hole-open');
 }
 
-// User chooses LEAVE: returns to the road
-function leaveRabbitHolePortal() {
-  if (typeof triggerHaptic === 'function') triggerHaptic('light');
-  if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.ctx) {
-    try {
-      ResonanceAudio.playTone(2, 0.5, { duration: 2.2 });
-    } catch (_) {}
-  }
-
-  const transitionOverlay = document.getElementById('rabbitHoleTransition');
-  if (transitionOverlay) {
-    transitionOverlay.classList.remove('active');
-    transitionOverlay.setAttribute('aria-hidden', 'true');
-  }
-
-  stopTransitionEmbers();
-
-  if (canvas) {
-    canvas.style.transform = '';
-    canvas.style.filter = '';
-    canvas.style.transition = '';
-  }
-
-  // Back up ball safely to CONTACT_X (11000) so it doesn't immediately re-trigger the threshold
-  x = CONTACT_X;
-  vx = 0;
-  vy = 0;
-  y = getGround(x) - ballRadius;
-  onGround = true;
-  cameraX = x - viewW / 2;
-  cameraY = (getGround(x) - viewH * 0.5) * 0.3;
-  keys = {};
-
-  endOfRoadState.archiveShown = false;
-  endOfRoadState.rabbitHoleShown = false;
-  endOfRoadState.fading = false;
-  endOfRoadState.fade = 1;
-  endOfRoadState.screenFade = 0;
-
-  document.body.classList.remove('rabbit-hole-open');
-}
-
-// Wire up portal buttons and mobile exit controls
-function initRabbitHolePortalControls() {
-  // 1. Enter button on portal
-  const enterBtn = document.getElementById('rhPortalEnterBtn');
-  if (enterBtn) {
-    let lastTime = 0;
-    const onEnter = (e) => {
-      const now = Date.now();
-      if (now - lastTime < 400) return;
-      lastTime = now;
-      e.preventDefault();
-      e.stopPropagation();
-      confirmEnterRabbitHole();
-    };
-    enterBtn.addEventListener('click', onEnter);
-    enterBtn.addEventListener('touchend', onEnter);
-  }
-
-  // 2. Leave button on portal
-  const leaveBtn = document.getElementById('rhPortalLeaveBtn');
-  if (leaveBtn) {
-    let lastTime = 0;
-    const onLeave = (e) => {
-      const now = Date.now();
-      if (now - lastTime < 400) return;
-      lastTime = now;
-      e.preventDefault();
-      e.stopPropagation();
-      leaveRabbitHolePortal();
-    };
-    leaveBtn.addEventListener('click', onLeave);
-    leaveBtn.addEventListener('touchend', onLeave);
-  }
-
-  // 3. Mobile floating leave button inside Rabbit Hole
-  const mobileLeaveBtn = document.getElementById('rhMobileLeaveBtn');
-  if (mobileLeaveBtn) {
-    mobileLeaveBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      closeRabbitHoleScreen(CONTACT_X);
-    });
-    mobileLeaveBtn.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      closeRabbitHoleScreen(CONTACT_X);
-    });
-  }
-
-  // 4. On-screen button at Section 6
-  const s6OpenBtn = document.getElementById('openRabbitHoleBtn');
-  if (s6OpenBtn) {
-    s6OpenBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      openRabbitHoleScreen();
-    });
-    s6OpenBtn.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      openRabbitHoleScreen();
-    });
-  }
-}
-
-
-  const sec7Btn = document.getElementById('openRabbitHoleSectionBtn');
-  if (sec7Btn) {
-    const onSec7Open = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      openRabbitHoleScreen();
-    };
-    sec7Btn.addEventListener('click', onSec7Open);
-    sec7Btn.addEventListener('touchend', onSec7Open);
-  }
-
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initRabbitHolePortalControls);
-else initRabbitHolePortalControls();
-
-
-
-
-function closeRabbitHoleScreen(targetWorldX) {
-  const returnX = (typeof targetWorldX === "number") ? targetWorldX : CONTACT_X;
+function closeRabbitHoleScreen() {
   const el = document.getElementById('rabbit-hole');
   if (el && el.classList.contains('visible')) {
     el.classList.add('rabbit-hole-closing');
@@ -5882,13 +5430,12 @@ function closeRabbitHoleScreen(targetWorldX) {
       endOfRoadState.fading = false;
       endOfRoadState.fade = 1;
       endOfRoadState.screenFade = 0;
-      x = returnX;
+      x = CONTACT_X;
       vx = 0;
       vy = 0;
       y = getGround(x) - ballRadius;
       onGround = true;
-      cameraX = x - viewW / 2;
-      cameraY = (getGround(x) - viewH * 0.5) * 0.3;
+      cameraY = 0;
       keys = {};
       document.body.classList.remove('rabbit-hole-open');
       if (canvas) {
@@ -5903,13 +5450,12 @@ function closeRabbitHoleScreen(targetWorldX) {
     endOfRoadState.fading = false;
     endOfRoadState.fade = 1;
     endOfRoadState.screenFade = 0;
-    x = returnX;
+    x = CONTACT_X;
     vx = 0;
     vy = 0;
     y = getGround(x) - ballRadius;
     onGround = true;
-    cameraX = x - viewW / 2;
-    cameraY = (getGround(x) - viewH * 0.5) * 0.3;
+    cameraY = 0;
     keys = {};
     document.body.classList.remove('rabbit-hole-open');
     if (canvas) {
@@ -5918,15 +5464,46 @@ function closeRabbitHoleScreen(targetWorldX) {
   }
 }
 
-// Replaced by startTransitionEmbers() and Canvas engine
+function createGoldenParticles() {
+  const container = document.getElementById('rabbitHoleParticles');
+  if (!container) return;
+  container.innerHTML = '';
+  for (let i = 0; i < 28; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'rabbit-hole-particle';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.animationDelay = Math.random() * 2 + 's';
+    particle.style.animationDuration = (2 + Math.random() * 1.5) + 's';
+    const size = 2 + Math.random() * 3;
+    particle.style.width = size + 'px';
+    particle.style.height = size + 'px';
+    container.appendChild(particle);
+  }
+}
 
 (function initBackBtn() {
   const btn = document.getElementById('rabbitHoleBackBtn');
   if (btn) {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      triggerHaptic('light');
+      if (typeof triggerHaptic === 'function') triggerHaptic('light');
       closeRabbitHoleScreen();
+    });
+  }
+  const floatBtn = document.getElementById('rhFloatingLeaveBtn');
+  if (floatBtn) {
+    floatBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (typeof triggerHaptic === 'function') triggerHaptic('light');
+      closeRabbitHoleScreen();
+    });
+  }
+  const enterBtn = document.getElementById('s7EnterRabbitHoleBtn');
+  if (enterBtn) {
+    enterBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (typeof triggerHaptic === 'function') triggerHaptic('medium');
+      openRabbitHoleScreen();
     });
   }
 })();
@@ -5935,77 +5512,3 @@ function closeRabbitHoleScreen(targetWorldX) {
 window.openRabbitHoleScreen = openRabbitHoleScreen;
 window.closeRabbitHoleScreen = closeRabbitHoleScreen;
 window.rhScrollManager = rhScrollManager;
-
-
-// ============================================================================
-// PROMO CODE COPY BUTTONS (Artisans & Makers Chapter)
-// ============================================================================
-function initPromoCopyButtons() {
-  const copyButtons = document.querySelectorAll('.promo-copy-btn');
-  copyButtons.forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const code = btn.getAttribute('data-code');
-      if (!code) return;
-      try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(code);
-        } else {
-          const ta = document.createElement('textarea');
-          ta.value = code;
-          ta.style.position = 'fixed';
-          ta.style.opacity = '0';
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
-        }
-        if (typeof triggerHaptic === 'function') triggerHaptic('light');
-        const copyText = btn.querySelector('.copy-text');
-        const origText = copyText ? copyText.textContent : 'Copy';
-        if (copyText) copyText.textContent = 'Copied!';
-        btn.classList.add('copied');
-        setTimeout(() => {
-          if (copyText) copyText.textContent = origText;
-          btn.classList.remove('copied');
-        }, 2200);
-      } catch (err) {
-        console.warn('Clipboard copy failed:', err);
-      }
-    });
-  });
-}
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initPromoCopyButtons);
-else initPromoCopyButtons();
-
-
-// ============================================================================
-// PARTNER LINKS MOBILE & DESKTOP INTERACTION HANDLER
-// ============================================================================
-function initPartnerLinks() {
-  const cards = document.querySelectorAll('.partner-card');
-  cards.forEach(card => {
-    let lastNavTime = 0;
-    const openLink = (e) => {
-      const now = Date.now();
-      if (now - lastNavTime < 450) return;
-      lastNavTime = now;
-      e.stopPropagation();
-      const href = card.getAttribute('href');
-      if (href) {
-        window.open(href, '_blank', 'noopener,noreferrer');
-      }
-    };
-    card.addEventListener('click', openLink);
-    card.addEventListener('touchend', openLink);
-  });
-}
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initPartnerLinks);
-else initPartnerLinks();
-
-
-// AUTO_RESUME_AUDIO_ON_FIRST_TOUCH
-window.addEventListener('touchstart', () => {
-  if (typeof ResonanceAudio !== 'undefined') ResonanceAudio.resume();
-}, { passive: true });
