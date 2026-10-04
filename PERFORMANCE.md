@@ -25,3 +25,24 @@ AppCore.setMode('low'); // or 'balanced' / 'high'
 - Prefer adding new visual density behind the `enableComplexFoliage` / `particleMax` flags.
 - Avoid per-frame `querySelector` or layout reads inside the draw path.
 - Large media should be hosted externally (archive.org is already used for session WAVs).
+
+## Vegetation & particle density
+
+Draw loops apply deterministic sparse sampling based on `AppCore.getSettings().vegDensityScale`.
+Particle spawn respects `particleMax`. Star layers respect `starCountScale`.
+
+Override at runtime:
+
+```js
+AppCore.setMode('low');
+```
+
+## Audio-reactive layers
+
+| Visual | Band influence |
+|--------|----------------|
+| Starfield brightness | amplitude + high |
+| Horizon light pulse | bass + amplitude |
+| Resonance particles | mid + amplitude |
+
+All influences are heavily smoothed and capped so the world feels like it is breathing with the handpan, never flashing like an equalizer.

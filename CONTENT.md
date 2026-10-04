@@ -30,3 +30,8 @@ New botanical types require a matching `draw*` function in `js/scenes.js`.
 
 Tip: `busk.co/84950` (QR + button in Contact / Road Notes).
 Update the URL in both the HTML and any hard-coded references.
+
+## Open Graph image
+
+`og-cover.svg` is the social sharing image (1200×630 viewBox).
+Replace with a photographic PNG if desired and update the meta tags in `index.html`.

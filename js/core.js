@@ -145,6 +145,19 @@ const AppCore = (() => {
     return { caps, mode, settings: modeSettings[mode] };
   }
 
+  function getVegDensityScale() {
+    return modeSettings[mode].vegDensityScale;
+  }
+  function getParticleMax() {
+    return modeSettings[mode].particleMax;
+  }
+  function getStarCountScale() {
+    return modeSettings[mode].starCountScale;
+  }
+  function shouldDrawComplexFoliage() {
+    return modeSettings[mode].enableComplexFoliage;
+  }
+
   return {
     init,
     detectCapabilities,
@@ -153,7 +166,11 @@ const AppCore = (() => {
     getSettings,
     setMode,
     isPageVisible,
-    isRafPaused
+    isRafPaused,
+    getVegDensityScale,
+    getParticleMax,
+    getStarCountScale,
+    shouldDrawComplexFoliage
   };
 })();
 

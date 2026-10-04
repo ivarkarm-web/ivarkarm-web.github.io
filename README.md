@@ -37,3 +37,14 @@ Production is static GitHub Pages — push to `main` deploys.
 ## License
 
 See repository.
+
+## Test matrix (minimum)
+
+| Platform | Conditions |
+|----------|------------|
+| Desktop Chrome / Firefox / Safari | mouse, keyboard, high-DPI |
+| iOS Safari | portrait, landscape, touch, reduced-motion |
+| Android Chrome | mid-range and low-end, Save-Data if available |
+| All | slow network, tab backgrounded, audio mute toggle |
+
+Verify: navigation, canvas journey, music drawer, rabbit-hole, tip QR, no console errors.

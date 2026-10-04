@@ -140,7 +140,8 @@ let resonanceTimer = 0;
 let wasOnGround = false;
 
 function spawnResonanceParticle() {
-  if (resonanceParticles.length >= PARTICLE_MAX) return;
+  const maxP = (typeof AppCore !== 'undefined' && AppCore.getSettings) ? (AppCore.getSettings().particleMax || PARTICLE_MAX) : PARTICLE_MAX;
+  if (resonanceParticles.length >= maxP) return;
   const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 0.6;
   const speed = 0.25 + Math.random() * 0.7;
   const golden = Math.random() < 0.75;
@@ -163,7 +164,8 @@ function spawnResonanceParticle() {
 function spawnLandingDust() {
   const count = 6 + Math.floor(Math.random() * 4);
   for (let i = 0; i < count; i++) {
-    if (resonanceParticles.length >= PARTICLE_MAX) break;
+    const maxP2 = (typeof AppCore !== 'undefined' && AppCore.getSettings) ? (AppCore.getSettings().particleMax || PARTICLE_MAX) : PARTICLE_MAX;
+    if (resonanceParticles.length >= maxP2) break;
     const side = Math.random() < 0.5 ? -1 : 1;
     const speed = 0.4 + Math.random() * 1.0;
     const up = 0.2 + Math.random() * 0.6;
@@ -192,6 +194,8 @@ function spawnSoundRing(worldX, worldY) {
   soundRings.push({ wx: worldX, wy: worldY, t: 0, life: 1 });
 }
 
+function poissonScatter(width, minDist, rngFn) {
+  const cell = minDist / Math.SQRT2;
   const cols = Math.ceil(width / cell);
   const grid = new Array(cols).fill(-1);
   const points = [];

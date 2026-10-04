@@ -46,3 +46,12 @@ Future work can encapsulate it behind a single `GameState` object and migrate to
 
 Narrative text lives primarily in `index.html` (crawlable).
 World coordinates, stones, and vegetation data live in `js/content.js`.
+
+## Additional scene modules
+
+| File | Responsibility |
+|------|----------------|
+| `js/scenes-effects.js` | Starfield, atmosphere bands, horizon lights, world particles |
+| `js/scenes.js` | Botanical models, terrain, landmarks, camera, section update, ball drawing |
+
+Load order places `scenes-effects.js` before `scenes.js`.

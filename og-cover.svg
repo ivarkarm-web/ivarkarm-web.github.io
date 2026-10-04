@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <radialGradient id="g" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#1a1510"/>
+      <stop offset="55%" stop-color="#0a0c12"/>
+      <stop offset="100%" stop-color="#030508"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d4af37" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#d4af37" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#d4af37" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <!-- soft horizon glow -->
+  <ellipse cx="600" cy="420" rx="480" ry="90" fill="#d4af37" opacity="0.06"/>
+  <!-- hairline -->
+  <rect x="420" y="312" width="360" height="1" fill="url(#gold)"/>
+  <text x="600" y="280" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="52" fill="#f5f0e6" letter-spacing="0.04em">Ivar Karm</text>
+  <text x="600" y="355" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="22" fill="#d4af37" letter-spacing="0.28em">RESONANCE</text>
+  <text x="600" y="480" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="#a89f8f" letter-spacing="0.06em">street performer · improviser · handpan artist</text>
+</svg>
