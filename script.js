@@ -249,34 +249,44 @@ function toggleTipQr(e) {
 if (tipButtonEl) tipButtonEl.addEventListener('click', toggleTipQr);
 if (tipButtonMobileEl) tipButtonMobileEl.addEventListener('click', toggleTipQr);
 
-// Close: capture phase so nothing else can swallow the event
-function onQrCloseClick(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  e.stopImmediatePropagation();
-  closeTipQr();
-}
-if (qrCloseBtn) {
-  qrCloseBtn.addEventListener('click', onQrCloseClick, true);
-  qrCloseBtn.addEventListener('pointerup', onQrCloseClick, true);
-}
-if (qrPopupEl) {
-  qrPopupEl.addEventListener('click', (e) => {
-    // backdrop only (not content)
-    if (e.target === qrPopupEl) {
+// Mobile-safe close: touchend + click in capture phase
+function onQrCloseEvent(e) {
+  if (e) {
+    try {
       e.preventDefault();
       e.stopPropagation();
-      closeTipQr();
-    }
-  }, true);
-  const content = qrPopupEl.querySelector('.qr-content');
-  if (content) {
-    content.addEventListener('click', (e) => {
-      // clicks inside content should not close, except the close button
-      if (e.target.closest('.qr-close')) onQrCloseClick(e);
-    });
+      e.stopImmediatePropagation();
+    } catch (_) {}
   }
+  closeTipQr();
 }
+
+function bindQrClose(el) {
+  if (!el) return;
+  // touchend is the reliable path on iOS/Android
+  el.addEventListener('touchend', onQrCloseEvent, { capture: true, passive: false });
+  el.addEventListener('pointerup', onQrCloseEvent, { capture: true });
+  el.addEventListener('click', onQrCloseEvent, { capture: true });
+}
+
+bindQrClose(qrCloseBtn);
+
+if (qrPopupEl) {
+  // Backdrop tap/touch closes
+  const closeIfBackdrop = (e) => {
+    if (e.target === qrPopupEl) onQrCloseEvent(e);
+  };
+  qrPopupEl.addEventListener('touchend', closeIfBackdrop, { capture: true, passive: false });
+  qrPopupEl.addEventListener('click', closeIfBackdrop, { capture: true });
+
+  // Event delegation inside popup (in case button is re-rendered)
+  qrPopupEl.addEventListener('touchend', (e) => {
+    if (e.target && e.target.closest && e.target.closest('#qrCloseBtn, .qr-close')) {
+      onQrCloseEvent(e);
+    }
+  }, { capture: true, passive: false });
+}
+
 document.addEventListener('keydown', (e) => {
   if ((e.key === 'Escape' || e.key === 'Esc') && qrPopupEl && qrPopupEl.classList.contains('visible')) {
     e.preventDefault();

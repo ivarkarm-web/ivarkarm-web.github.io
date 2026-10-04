@@ -275,6 +275,7 @@ bindTouchButton(touchDashBtn, 'dash');
 // Touching left half of screen rolls left, touching right half rolls right
 // ============================================================================
 function handleZoneTouchStart(e) {
+  if (document.body.classList.contains('qr-open')) return;
   if (!gameStarted || (typeof endOfRoadState !== 'undefined' && endOfRoadState.rabbitHoleShown)) return;
 
   const target = e.target;
@@ -303,6 +304,7 @@ function handleZoneTouchStart(e) {
 }
 
 function handleZoneTouchMove(e) {
+  if (document.body.classList.contains('qr-open')) return;
   if (!gameStarted || (typeof endOfRoadState !== 'undefined' && endOfRoadState.rabbitHoleShown)) return;
 
   const target = e.target;
@@ -328,6 +330,7 @@ function handleZoneTouchMove(e) {
 }
 
 function handleZoneTouchEnd(e) {
+  if (document.body.classList.contains('qr-open')) return;
   const touches = e.changedTouches ? e.changedTouches : [e];
 
   for (let i = 0; i < touches.length; i++) {
@@ -373,6 +376,7 @@ function executeMobileJump() {
 }
 
 function handleTouchZoneDoubleTap(e) {
+  if (document.body.classList.contains('qr-open')) return;
   if (!gameStarted || endOfRoadState.rabbitHoleShown) return;
 
   // Reject mouse clicks on desktop

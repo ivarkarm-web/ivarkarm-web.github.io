@@ -1274,6 +1274,28 @@ nav {
   border-color: var(--accent-gold);
 }
 
+/* QR mobile close hit area */
+.qr-close {
+  min-height: 48px;
+  min-width: 120px;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+body.qr-open {
+  overflow: hidden;
+}
+body.qr-open .touch-zones,
+body.qr-open .touch-controls,
+body.qr-open canvas#game {
+  pointer-events: none !important;
+}
+body.qr-open .qr-popup,
+body.qr-open .qr-popup * {
+  pointer-events: auto !important;
+}
+
+
 .qr-popup, .qr-popup *, .qr-close {
   cursor: auto !important;
   pointer-events: auto !important;
