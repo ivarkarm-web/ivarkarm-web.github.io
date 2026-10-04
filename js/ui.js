@@ -507,6 +507,48 @@ if (dmOpenRhBtn) {
   });
 }
 
+// Monograph reader: site navigation (Home, About, ... Rabbit Hole)
+(function initMonographSiteNav() {
+  const bar = document.getElementById('dmSiteNav');
+  if (!bar) return;
+  bar.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-site-target]');
+    if (!btn) return;
+    const hash = btn.getAttribute('data-site-target');
+    const link = document.querySelector('.nav-links a[href="' + hash + '"]');
+    const modal = document.getElementById('directMonographModal');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+    if (link) window.setTimeout(() => link.click(), 40);
+  });
+})();
+
+// Monograph reader quick-jump bar
+(function initMonographQuickNav() {
+  const nav = document.getElementById('dmQuickNav');
+  const content = document.getElementById('dmContent');
+  if (!nav || !content) return;
+  nav.addEventListener('click', (e) => {
+    const btn = e.target.closest('.dm-quicknav-btn');
+    if (!btn) return;
+    const target = document.getElementById(btn.getAttribute('data-dm-target'));
+    if (!target) return;
+    const top = target.getBoundingClientRect().top - content.getBoundingClientRect().top + content.scrollTop - 12;
+    content.scrollTo({ top, behavior: 'smooth' });
+  });
+  const buttons = Array.from(nav.querySelectorAll('.dm-quicknav-btn'));
+  content.addEventListener('scroll', () => {
+    let current = 0;
+    buttons.forEach((b, i) => {
+      const t = document.getElementById(b.getAttribute('data-dm-target'));
+      if (t && t.getBoundingClientRect().top - content.getBoundingClientRect().top < 80) current = i;
+    });
+    buttons.forEach((b, i) => b.classList.toggle('active', i === current));
+  }, { passive: true });
+})();
+
 // Mouse wheel navigation
 window.addEventListener('wheel', (e) => {
   if (!gameStarted || endOfRoadState.rabbitHoleShown) return;
@@ -1738,6 +1780,10 @@ const rhScrollManager = {
   handleScroll() {
     if (!this.container) return;
 
+    // Chapter strip stays pinned to the top while reading, and shrinks once you scroll
+    const banner = document.getElementById('rhTrackIntro');
+    if (banner) banner.classList.toggle('is-compact', this.container.scrollTop > 140);
+
     // --- Dynamic Scroll Progress Percentage Calculation ---
     const scrollTop = this.container.scrollTop;
     const maxScroll = this.container.scrollHeight - this.container.clientHeight;
@@ -1894,7 +1940,8 @@ const rhScrollManager = {
       // Direct scroll calculation if target element is not directly in this.sections
       this.isScrollingProgrammatically = true;
       const stickyHeader = document.querySelector('.rh-sticky-header');
-      const headerHeight = stickyHeader ? stickyHeader.offsetHeight : 64;
+      const stripEl = document.getElementById('rhTrackIntro');
+    const headerHeight = stripEl ? Math.min(stripEl.offsetHeight, 105) + 8 : (stickyHeader ? stickyHeader.offsetHeight : 64);
       const containerRect = this.container.getBoundingClientRect();
       const secRect = targetSec.getBoundingClientRect();
       let targetScrollTop = (this.container.scrollTop + (secRect.top - containerRect.top)) - (headerHeight + 8);
@@ -1940,7 +1987,8 @@ const rhScrollManager = {
 
     // Fixed sticky top header offset (default ~64px)
     const stickyHeader = document.querySelector('.rh-sticky-header');
-    const headerHeight = stickyHeader ? stickyHeader.offsetHeight : 64;
+    const stripEl = document.getElementById('rhTrackIntro');
+    const headerHeight = stripEl ? Math.min(stripEl.offsetHeight, 105) + 8 : (stickyHeader ? stickyHeader.offsetHeight : 64);
 
     // Calculate exact scroll target inside this.container (#rabbit-hole)
     let targetScrollTop = 0;
