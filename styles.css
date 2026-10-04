@@ -5558,3 +5558,31 @@ body.qr-open #cursor {
 .dm-header,
 .dm-quicknav { flex-shrink: 0; }
 .dm-content { min-height: 0; flex: 1 1 auto; }
+
+
+/* Site navigation lives only inside the Monograph reader — hidden on the game page */
+nav .nav-links,
+nav .hamburger { display: none !important; }
+
+.dm-sitenav {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.7rem 2.2rem 0.2rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+  background: rgba(10, 13, 18, 0.96);
+}
+.dm-sitenav::-webkit-scrollbar { display: none; }
+.dm-sitenav-label {
+  flex: 0 0 auto;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-right: 0.2rem;
+}
+.dm-sitenav + .dm-quicknav { border-top: none; padding-top: 0.5rem; }
+@media (max-width: 600px) { .dm-sitenav { padding: 0.6rem 1.2rem 0.15rem; } }

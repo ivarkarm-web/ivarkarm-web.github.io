@@ -507,6 +507,24 @@ if (dmOpenRhBtn) {
   });
 }
 
+// Monograph reader: site navigation (Home, About, ... Rabbit Hole)
+(function initMonographSiteNav() {
+  const bar = document.getElementById('dmSiteNav');
+  if (!bar) return;
+  bar.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-site-target]');
+    if (!btn) return;
+    const hash = btn.getAttribute('data-site-target');
+    const link = document.querySelector('.nav-links a[href="' + hash + '"]');
+    const modal = document.getElementById('directMonographModal');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+    if (link) window.setTimeout(() => link.click(), 40);
+  });
+})();
+
 // Monograph reader quick-jump bar
 (function initMonographQuickNav() {
   const nav = document.getElementById('dmQuickNav');
