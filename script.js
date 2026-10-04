@@ -221,24 +221,54 @@ if (hamburgerBtn && navLinksMenu) {
 // QR Tip Popup
 const qrPopupEl = document.getElementById('qrPopup');
 const qrCloseBtn = document.getElementById('qrCloseBtn');
-if (qrCloseBtn && qrPopupEl) {
-  qrCloseBtn.addEventListener('click', () => { qrPopupEl.classList.remove('visible'); });
-}
-if (qrPopupEl) {
-  qrPopupEl.addEventListener('click', (e) => {
-    if (e.target === qrPopupEl) qrPopupEl.classList.remove('visible');
-  });
-}
 
 const tipButtonEl = document.getElementById('tipButton');
 const tipButtonMobileEl = document.getElementById('tipButtonMobile');
+function openTipQr() {
+  if (!qrPopupEl) return;
+  qrPopupEl.classList.add('visible');
+  qrPopupEl.setAttribute('aria-hidden', 'false');
+}
+function closeTipQr() {
+  if (!qrPopupEl) return;
+  qrPopupEl.classList.remove('visible');
+  qrPopupEl.setAttribute('aria-hidden', 'true');
+}
+function toggleTipQr() {
+  if (!qrPopupEl) return;
+  if (qrPopupEl.classList.contains('visible')) closeTipQr();
+  else openTipQr();
+}
 function addTipButtonListener(button) {
   if (button && qrPopupEl) {
-    button.addEventListener('click', () => { qrPopupEl.classList.add('visible'); });
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleTipQr();
+    });
   }
 }
 addTipButtonListener(tipButtonEl);
 addTipButtonListener(tipButtonMobileEl);
+
+// Ensure close always works
+if (qrCloseBtn && qrPopupEl) {
+  qrCloseBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    closeTipQr();
+  });
+}
+if (qrPopupEl) {
+  qrPopupEl.addEventListener('click', (e) => {
+    if (e.target === qrPopupEl) closeTipQr();
+  });
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && qrPopupEl && qrPopupEl.classList.contains('visible')) {
+    closeTipQr();
+  }
+});
 
 // Video Modal
 const videoPlayer = {

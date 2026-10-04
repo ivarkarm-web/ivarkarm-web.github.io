@@ -446,8 +446,8 @@ function openDirectMonographModal() {
   if (modal.classList.contains('open')) return;
 
   playGoldParticleCurtain({
-    count: 44,
-    holdMs: 1000,
+    count: 12,
+    holdMs: 680,
     onMid: () => {
       modal.classList.add('open');
       modal.setAttribute('aria-hidden', 'false');
@@ -466,8 +466,8 @@ function closeDirectMonographModal() {
   if (!modal || !modal.classList.contains('open')) return;
 
   playGoldParticleCurtain({
-    count: 36,
-    holdMs: 900,
+    count: 10,
+    holdMs: 620,
     onMid: () => {
       modal.classList.remove('open');
       modal.setAttribute('aria-hidden', 'true');
@@ -2323,8 +2323,8 @@ function openRabbitHoleScreen() {
   document.body.classList.add('rabbit-hole-open');
 
   playGoldParticleCurtain({
-    count: 56,
-    holdMs: 1150,
+    count: 18,
+    holdMs: 780,
     onMid: () => {
       if (!el) return;
       el.classList.remove('rabbit-hole-closing');
@@ -2366,8 +2366,8 @@ function closeRabbitHoleScreen() {
     rhScrollManager.stopParallaxLoop();
 
     playGoldParticleCurtain({
-      count: 48,
-      holdMs: 1000,
+      count: 14,
+      holdMs: 680,
       onMid: () => {
         el.classList.remove('rabbit-hole-closing');
         endOfRoadState.archiveShown = false;
@@ -2412,7 +2412,7 @@ function createGoldenParticles(options) {
   const container = document.getElementById('rabbitHoleParticles');
   if (!container) return;
   const opts = options || {};
-  const count = opts.count || 48;
+  const count = opts.count || 16;
   container.innerHTML = '';
   for (let i = 0; i < count; i++) {
     const particle = document.createElement('div');
@@ -2432,7 +2432,7 @@ function createGoldenParticles(options) {
 function playGoldParticleCurtain(options) {
   const opts = options || {};
   const holdMs = opts.holdMs != null ? opts.holdMs : 1100;
-  const count = opts.count != null ? opts.count : 52;
+  const count = opts.count != null ? opts.count : 16;
   const overlay = document.getElementById('rabbitHoleTransition');
   if (!overlay) {
     if (typeof opts.onMid === 'function') opts.onMid();
@@ -2446,7 +2446,7 @@ function playGoldParticleCurtain(options) {
   overlay.classList.add('active');
   overlay.setAttribute('aria-hidden', 'false');
 
-  const midAt = Math.min(360, Math.floor(holdMs * 0.3));
+  const midAt = Math.min(220, Math.floor(holdMs * 0.28));
   window.setTimeout(() => {
     if (typeof opts.onMid === 'function') opts.onMid();
   }, midAt);
