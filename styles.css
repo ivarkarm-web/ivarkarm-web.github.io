@@ -3373,7 +3373,9 @@ body.rabbit-hole-open #cursor {
 
 
 /* ==========================================================================
-   PER-CARD EDGE SLIDES — each card animates on its own when it enters view
+   PER-CARD EDGE SLIDES
+   Waiting state uses opacity only (no transform) so layout stays on-screen
+   for scroll detection. Transform only runs during the entrance animation.
    ========================================================================== */
 @keyframes rhSlideInFromLeft {
   from {
@@ -3398,28 +3400,19 @@ body.rabbit-hole-open #cursor {
 
 .rh-reveal-item {
   opacity: 0;
-  will-change: transform, opacity;
+  transform: none; /* critical: stay in layout until animation starts */
 }
+
 .rh-reveal-item.rh-reveal-locked {
-  /* reserved space for scroll; not yet allowed to animate in */
   pointer-events: none;
 }
 
-.rh-reveal-item.rh-from-left {
-  transform: translate3d(-100vw, 0, 0);
-}
-
-.rh-reveal-item.rh-from-right {
-  transform: translate3d(100vw, 0, 0);
-}
-
-/* Smooth, unhurried entrance from the real screen edge */
 .rh-reveal-item.rh-card-visible.rh-from-left {
-  animation: rhSlideInFromLeft 1.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: rhSlideInFromLeft 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .rh-reveal-item.rh-card-visible.rh-from-right {
-  animation: rhSlideInFromRight 1.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: rhSlideInFromRight 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3652,7 +3645,7 @@ body.rabbit-hole-open #cursor {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: clamp(42vh, 48vh, 56vh); /* one card in the reading zone at a time */
+  gap: 2.75rem;
   max-width: 640px;
   margin: 0 auto;
 }
@@ -3702,7 +3695,7 @@ body.rabbit-hole-open #cursor {
 .rh-stories-duo {
   display: flex;
   flex-direction: column;
-  gap: clamp(42vh, 48vh, 56vh);
+  gap: 2.75rem;
   margin-bottom: 1.5rem;
   max-width: 640px;
   margin-left: auto;
@@ -3739,7 +3732,7 @@ body.rabbit-hole-open #cursor {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: clamp(40vh, 46vh, 54vh);
+  gap: 2.5rem;
   max-width: 640px;
   margin: 0 auto;
 }
@@ -3810,7 +3803,7 @@ body.rabbit-hole-open #cursor {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: clamp(40vh, 46vh, 54vh);
+  gap: 2.5rem;
   max-width: 640px;
   margin: 0 auto;
 }
@@ -5169,4 +5162,40 @@ html[data-perf-mode="low"] #game {
 /* Only apply legacy in-view transform reset if item is already visible */
 .rh-reveal-item.rh-card-visible {
   /* animation fills final state */
+}
+
+
+/* === Card reveals owned solely by .rh-reveal-item / .rh-card-visible === */
+.reveal-luminous .rh-story-card,
+.reveal-curtain .rh-story-card,
+.reveal-cinematic .rh-story-card,
+.reveal-cinematic .rh-story-feature,
+.reveal-constellation .rh-artisan-card,
+.reveal-acoustic .rh-instrument-card,
+.reveal-equalizer .rh-track-row,
+.reveal-epilogue .rh-aphorism-item,
+.reveal-epilogue .rh-patron-card {
+  transition: none !important;
+}
+.reveal-luminous.in-view .rh-story-card,
+.reveal-curtain.in-view .rh-story-card,
+.reveal-cinematic.in-view .rh-story-card,
+.reveal-cinematic.in-view .rh-story-feature,
+.reveal-constellation.in-view .rh-artisan-card,
+.reveal-acoustic.in-view .rh-instrument-card,
+.reveal-equalizer.in-view .rh-track-row,
+.reveal-epilogue.in-view .rh-aphorism-item,
+.reveal-epilogue.in-view .rh-patron-card {
+  /* do not force opacity/transform — .rh-card-visible animation does */
+  animation: none !important;
+}
+.rh-reveal-item:not(.rh-card-visible) {
+  opacity: 0 !important;
+  transform: none !important;
+}
+.rh-reveal-item.rh-card-visible.rh-from-left {
+  animation: rhSlideInFromLeft 1.2s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+}
+.rh-reveal-item.rh-card-visible.rh-from-right {
+  animation: rhSlideInFromRight 1.2s cubic-bezier(0.22, 1, 0.36, 1) both !important;
 }

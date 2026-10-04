@@ -1595,8 +1595,8 @@ const rhScrollManager = {
 
   CARD_REVEAL_SEL: '.rh-story-card, .rh-story-feature, .rh-artisan-card, .rh-instrument-card, .rh-track-row, .rh-aphorism-item, .rh-patron-card',
 
-  // Per-section index of the next card allowed to reveal
   cardRevealCursor: {},
+  cardRevealList: {},
 
   initCardReveals() {
     if (!this.container) return;
@@ -1607,100 +1607,92 @@ const rhScrollManager = {
     }
 
     this.cardRevealCursor = {};
+    this.cardRevealList = {};
 
     const sections = this.sections && this.sections.length
       ? this.sections
       : Array.from(this.container.querySelectorAll('.rh-section'));
 
+    sections.forEach((sec) => {
+      const secId = sec.id || ('sec-' + (sec.getAttribute('data-section-index') || 'x'));
+      const cards = Array.from(sec.querySelectorAll(this.CARD_REVEAL_SEL));
+      this.cardRevealCursor[secId] = 0;
+      this.cardRevealList[secId] = cards;
+
+      cards.forEach((el, i) => {
+        el.classList.add('rh-reveal-item');
+        el.classList.remove('rh-card-visible', 'rh-from-left', 'rh-from-right');
+        el.dataset.revealSection = secId;
+        el.dataset.revealIndex = String(i);
+        if (i % 2 === 0) el.classList.add('rh-from-left');
+        else el.classList.add('rh-from-right');
+        if (i === 0) el.classList.remove('rh-reveal-locked');
+        else el.classList.add('rh-reveal-locked');
+        // Clear any inline animation left over from earlier builds
+        el.style.animation = '';
+        el.style.opacity = '';
+        el.style.transform = '';
+      });
+    });
+
     if (this.reducedMotion) {
-      sections.forEach((sec) => {
-        sec.querySelectorAll(this.CARD_REVEAL_SEL).forEach((el) => {
-          el.classList.add('rh-reveal-item', 'rh-card-visible');
+      Object.keys(this.cardRevealList).forEach((secId) => {
+        this.cardRevealList[secId].forEach((el) => {
+          el.classList.add('rh-card-visible');
           el.classList.remove('rh-reveal-locked');
           el.style.opacity = '1';
           el.style.transform = 'none';
         });
+        this.cardRevealCursor[secId] = this.cardRevealList[secId].length;
       });
       return;
     }
 
-    const allCards = [];
+    // Initial pass (e.g. first card already in view on open)
+    this.updateCardReveals();
+  },
 
-    sections.forEach((sec) => {
-      const secId = sec.id || sec.getAttribute('data-section-index') || 'sec';
-      const cards = Array.from(sec.querySelectorAll(this.CARD_REVEAL_SEL));
-      this.cardRevealCursor[secId] = 0;
+  /**
+   * Sequential reveal driven by scroll position of the *layout* box.
+   * Cards stay untransformed until unlocked, so getBoundingClientRect works.
+   * Only the next card in each section can become visible; then the cursor advances.
+   */
+  updateCardReveals() {
+    if (!this.container || this.reducedMotion) return;
+    if (!this.cardRevealList) return;
 
-      cards.forEach((el, i) => {
-        el.classList.add('rh-reveal-item');
-        el.classList.remove('rh-card-visible');
-        el.classList.remove('rh-from-left', 'rh-from-right');
-        el.dataset.revealSection = secId;
-        el.dataset.revealIndex = String(i);
+    const rootRect = this.container.getBoundingClientRect();
+    // Reveal when the card's top crosses ~72% down the Rabbit Hole viewport
+    const triggerY = rootRect.top + rootRect.height * 0.72;
 
-        // Alternate edge per card
-        if (i % 2 === 0) el.classList.add('rh-from-left');
-        else el.classList.add('rh-from-right');
+    Object.keys(this.cardRevealList).forEach((secId) => {
+      const cards = this.cardRevealList[secId];
+      if (!cards || !cards.length) return;
 
-        // Only the first card in each section is unlocked initially
-        if (i === 0) {
-          el.classList.remove('rh-reveal-locked');
-        } else {
-          el.classList.add('rh-reveal-locked');
-        }
+      let next = this.cardRevealCursor[secId] || 0;
 
-        el.style.animation = '';
-        allCards.push(el);
-      });
-    });
-
-    // Reveal only when THIS card is the next in its section and sits in the reading band
-    this.cardObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        const el = entry.target;
-        const secId = el.dataset.revealSection;
-        const idx = parseInt(el.dataset.revealIndex, 10);
-        if (!secId || Number.isNaN(idx)) return;
-
-        const next = this.cardRevealCursor[secId] != null ? this.cardRevealCursor[secId] : 0;
-
-        if (entry.isIntersecting && idx === next && !el.classList.contains('rh-card-visible')) {
-          // Unlock + animate this card only
-          el.classList.remove('rh-reveal-locked');
-          el.classList.add('rh-card-visible');
-          // Advance cursor so the following card may reveal after further scroll
-          this.cardRevealCursor[secId] = idx + 1;
-
-          // Unlock the next card's lock flag so it can be observed as eligible,
-          // but it will not animate until it becomes the next index AND intersects
-          const section = el.closest('.rh-section');
-          if (section) {
-            const cards = section.querySelectorAll(this.CARD_REVEAL_SEL);
-            const following = cards[idx + 1];
-            if (following) following.classList.remove('rh-reveal-locked');
+      // Reveal as many as are already past the trigger (handles fast scrolls)
+      while (next < cards.length) {
+        const el = cards[next];
+        if (!el) break;
+        const rect = el.getBoundingClientRect();
+        // Card has scrolled up into the reading zone
+        if (rect.top < triggerY && rect.bottom > rootRect.top + 8) {
+          if (!el.classList.contains('rh-card-visible')) {
+            el.classList.remove('rh-reveal-locked');
+            // Restart animation cleanly
+            el.style.animation = 'none';
+            void el.offsetWidth;
+            el.style.animation = '';
+            el.classList.add('rh-card-visible');
           }
+          next += 1;
+          this.cardRevealCursor[secId] = next;
+          if (cards[next]) cards[next].classList.remove('rh-reveal-locked');
+        } else {
+          break;
         }
-
-        // If user scrolls back above a card far enough, allow re-sequence from there
-        if (!entry.isIntersecting && entry.boundingClientRect.top > (entry.rootBounds ? entry.rootBounds.bottom + 40 : window.innerHeight)) {
-          // card is below viewport again — only reset if we haven't gone past it in the sequence
-          // Keep revealed cards revealed while reading forward (don't hide previous while reading next)
-        }
-      });
-    }, {
-      root: this.container,
-      // Card must enter the upper-mid reading band (not just peek at the bottom)
-      rootMargin: '-12% 0px -38% 0px',
-      threshold: [0.15, 0.35, 0.5]
-    });
-
-    allCards.forEach((el) => this.cardObserver.observe(el));
-
-    // Immediately try to show the first unlocked card of the first section if already in band
-    requestAnimationFrame(() => {
-      allCards.forEach((el) => {
-        // IntersectionObserver will fire; nothing else needed
-      });
+      }
     });
   },
 
@@ -1740,6 +1732,7 @@ const rhScrollManager = {
 
     // --- Update Proximity Glow on Chapter Horizontal Separators ---
     this.updateSeparatorsProximity();
+    this.updateCardReveals();
 
     // Update Top Visual Progress Bar & Glow Spark
     if (this.progressBar) {
@@ -2325,15 +2318,6 @@ function openRabbitHoleScreen() {
       try {
         if (typeof rhScrollManager.initCardReveals === 'function') {
           rhScrollManager.initCardReveals();
-        }
-        // First card of chapter 1 should greet the reader immediately
-        const first = document.querySelector('#rhSec0 .rh-story-card');
-        if (first && rhScrollManager.cardRevealCursor) {
-          first.classList.remove('rh-reveal-locked');
-          first.classList.add('rh-card-visible');
-          rhScrollManager.cardRevealCursor['rhSec0'] = 1;
-          const second = document.querySelectorAll('#rhSec0 .rh-story-card')[1];
-          if (second) second.classList.remove('rh-reveal-locked');
         }
       } catch (e) {}
       rhScrollManager.startParallaxLoop();
