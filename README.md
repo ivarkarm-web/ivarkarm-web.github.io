@@ -58,3 +58,26 @@ This project is pre-configured with relative asset paths (`base: './'`) and an a
 
 ### Option 2: Manual / Custom Host Deployment
 Upload the contents of the generated `dist/` folder directly to GitHub Pages (e.g., using `gh-pages` branch), Vercel, Netlify, Cloudflare Pages, or any static hosting provider.
+
+## Architecture & Maintainability
+
+The interactive canvas experience (handpan physics journey) has been modularized for long-term maintainability:
+
+### Current module layout (`js/`)
+
+| Module | Responsibility |
+|--------|----------------|
+| `utilities.js` | Pure helpers: PRNG (`rand`/`seedRand`), noise (`hash2`/`fbm`), biome mapping, Poisson disk sampling, wind sway, screen-edge alpha, haptic feedback |
+| `audio.js` | `ResonanceAudio` – full Web Audio physical model of the handpan (D Celtic Minor / Kurd), ambient soundscapes, mute, rolling noise |
+| `script.js` | Remaining engine: canvas/physics/camera, botanical drawing models, scenes, UI modality, rabbit-hole archive, music drawer, main loop |
+
+### Planned further split (next iteration)
+
+- `physics.js` – ball state, gravity, ground height functions, dash, collisions with resonant stones
+- `scenes.js` – all `draw*` botanical, starfield, hills, landmarks, particles, atmosphere
+- `content.js` – section positions, resonant stones, audio orbs, horizon lights, vegetation data builders
+- `ui.js` – UnifiedModalitySystem, multi-touch controls, music/video drawers, rabbit-hole managers
+- `engine.js` – canvas resize, camera/zoom, update/draw orchestration, main `requestAnimationFrame` loop
+
+Scripts are loaded in dependency order via deferred tags in `index.html`. Future conversion to native ES modules (`type="module"`) is straightforward once the remaining global state is encapsulated.
+
