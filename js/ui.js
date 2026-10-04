@@ -2293,14 +2293,11 @@ function openRabbitHoleScreen() {
   keys = {};
   vx = 0;
 
-  // Particle transition effect
+  // Gold particle rain from the top of the screen (same language as leave)
   const transitionOverlay = document.getElementById('rabbitHoleTransition');
   if (transitionOverlay) {
     transitionOverlay.classList.add('active');
-    createGoldenParticles();
-    setTimeout(() => {
-      transitionOverlay.classList.remove('active');
-    }, 600);
+    createGoldenParticles({ count: 56 });
   }
 
   const el = document.getElementById('rabbit-hole');
@@ -2308,6 +2305,7 @@ function openRabbitHoleScreen() {
     el.classList.remove('rabbit-hole-closing');
     el.setAttribute('aria-hidden', 'false');
     void el.offsetWidth;
+    // Let the rain build, then reveal the archive underneath
     setTimeout(() => {
       el.classList.add('visible');
       if (typeof rhGalleryManager !== 'undefined') {
@@ -2326,9 +2324,16 @@ function openRabbitHoleScreen() {
       }
       const closeBtn = document.getElementById('rabbitHoleBackBtn');
       if (closeBtn) closeBtn.focus();
-    }, 80);
+    }, 320);
   }
   document.body.classList.add('rabbit-hole-open');
+
+  // Fade the curtain after the rain has swept the screen
+  if (transitionOverlay) {
+    setTimeout(() => {
+      transitionOverlay.classList.remove('active');
+    }, 1100);
+  }
 }
 
 function closeRabbitHoleScreen() {
@@ -2346,9 +2351,10 @@ function closeRabbitHoleScreen() {
     const transitionOverlay = document.getElementById('rabbitHoleTransition');
     if (transitionOverlay) {
       transitionOverlay.classList.add('active');
+      createGoldenParticles({ count: 48 });
       setTimeout(() => {
         transitionOverlay.classList.remove('active');
-      }, 600);
+      }, 1000);
     }
 
     const finish = () => {
@@ -2392,19 +2398,24 @@ function closeRabbitHoleScreen() {
   }
 }
 
-function createGoldenParticles() {
+function createGoldenParticles(options) {
   const container = document.getElementById('rabbitHoleParticles');
   if (!container) return;
+  const opts = options || {};
+  const count = opts.count || 48;
   container.innerHTML = '';
-  for (let i = 0; i < 28; i++) {
+  for (let i = 0; i < count; i++) {
     const particle = document.createElement('div');
     particle.className = 'rabbit-hole-particle';
-    particle.style.left = Math.random() * 100 + '%';
-    particle.style.animationDelay = Math.random() * 2 + 's';
-    particle.style.animationDuration = (2 + Math.random() * 1.5) + 's';
-    const size = 2 + Math.random() * 3;
+    particle.style.left = (Math.random() * 100) + '%';
+    // Stagger so the rain sweeps down the screen
+    particle.style.animationDelay = (Math.random() * 0.55) + 's';
+    particle.style.animationDuration = (1.05 + Math.random() * 0.7) + 's';
+    const size = 2 + Math.random() * 4;
     particle.style.width = size + 'px';
     particle.style.height = size + 'px';
+    // slight horizontal drift via CSS custom property if needed
+    particle.style.setProperty('--drift', ((Math.random() - 0.5) * 40) + 'px');
     container.appendChild(particle);
   }
 }

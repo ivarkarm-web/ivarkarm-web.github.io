@@ -4082,15 +4082,15 @@ body.rabbit-hole-open #cursor {
   transform: translateY(-1px);
 }
 
-/* Transition particle overlay */
+/* Transition particle overlay — gold rain from the top of the screen */
 .rabbit-hole-transition-overlay {
   position: fixed;
   inset: 0;
-  background: var(--bg-color);
+  background: rgba(5, 5, 5, 0.92);
   z-index: 4600;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.6s cubic-bezier(0.32, 0.72, 0.44, 1);
+  transition: opacity 0.45s cubic-bezier(0.32, 0.72, 0.44, 1);
 }
 
 .rabbit-hole-transition-overlay.active {
@@ -4107,22 +4107,30 @@ body.rabbit-hole-open #cursor {
 
 .rabbit-hole-particle {
   position: absolute;
+  top: -8px;
   width: 4px;
   height: 4px;
   background: var(--accent-gold);
   border-radius: 50%;
   opacity: 0;
-  animation: particleFloat 3s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.65), 0 0 2px rgba(255, 230, 150, 0.8);
+  animation: particleFallFromTop 1.35s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
 
-@keyframes particleFloat {
-  0%, 100% {
+@keyframes particleFallFromTop {
+  0% {
     opacity: 0;
-    transform: translateY(100vh) scale(0);
+    transform: translate3d(0, -12vh, 0) scale(0.4);
   }
-  50% {
-    opacity: 0.6;
-    transform: translateY(0) scale(1);
+  12% {
+    opacity: 0.95;
+  }
+  70% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, 110vh, 0) scale(1.05);
   }
 }
 
