@@ -446,8 +446,8 @@ function openDirectMonographModal() {
   if (modal.classList.contains('open')) return;
 
   playGoldParticleCurtain({
-    count: 28,
-    holdMs: 920,
+    count: 16,
+    holdMs: 850,
     onMid: () => {
       modal.classList.add('open');
       modal.setAttribute('aria-hidden', 'false');
@@ -466,8 +466,8 @@ function closeDirectMonographModal() {
   if (!modal || !modal.classList.contains('open')) return;
 
   playGoldParticleCurtain({
-    count: 22,
-    holdMs: 820,
+    count: 14,
+    holdMs: 800,
     onMid: () => {
       modal.classList.remove('open');
       modal.setAttribute('aria-hidden', 'true');
@@ -2323,8 +2323,8 @@ function openRabbitHoleScreen() {
   document.body.classList.add('rabbit-hole-open');
 
   playGoldParticleCurtain({
-    count: 34,
-    holdMs: 980,
+    count: 20,
+    holdMs: 900,
     onMid: () => {
       if (!el) return;
       el.classList.remove('rabbit-hole-closing');
@@ -2446,7 +2446,7 @@ function playGoldParticleCurtain(options) {
   overlay.classList.add('active');
   overlay.setAttribute('aria-hidden', 'false');
 
-  const midAt = Math.min(280, Math.floor(holdMs * 0.32));
+  const midAt = Math.min(200, Math.floor(holdMs * 0.22));
   window.setTimeout(() => {
     if (typeof opts.onMid === 'function') opts.onMid();
   }, midAt);

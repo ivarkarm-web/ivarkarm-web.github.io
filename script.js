@@ -224,51 +224,67 @@ const qrCloseBtn = document.getElementById('qrCloseBtn');
 
 const tipButtonEl = document.getElementById('tipButton');
 const tipButtonMobileEl = document.getElementById('tipButtonMobile');
+
 function openTipQr() {
   if (!qrPopupEl) return;
   qrPopupEl.classList.add('visible');
   qrPopupEl.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('qr-open');
 }
 function closeTipQr() {
   if (!qrPopupEl) return;
   qrPopupEl.classList.remove('visible');
   qrPopupEl.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('qr-open');
 }
-function toggleTipQr() {
+function toggleTipQr(e) {
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
   if (!qrPopupEl) return;
   if (qrPopupEl.classList.contains('visible')) closeTipQr();
   else openTipQr();
 }
-function addTipButtonListener(button) {
-  if (button && qrPopupEl) {
-    button.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      toggleTipQr();
-    });
-  }
-}
-addTipButtonListener(tipButtonEl);
-addTipButtonListener(tipButtonMobileEl);
+if (tipButtonEl) tipButtonEl.addEventListener('click', toggleTipQr);
+if (tipButtonMobileEl) tipButtonMobileEl.addEventListener('click', toggleTipQr);
 
-// Ensure close always works
-if (qrCloseBtn && qrPopupEl) {
-  qrCloseBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    closeTipQr();
-  });
+// Close: capture phase so nothing else can swallow the event
+function onQrCloseClick(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  e.stopImmediatePropagation();
+  closeTipQr();
+}
+if (qrCloseBtn) {
+  qrCloseBtn.addEventListener('click', onQrCloseClick, true);
+  qrCloseBtn.addEventListener('pointerup', onQrCloseClick, true);
 }
 if (qrPopupEl) {
   qrPopupEl.addEventListener('click', (e) => {
-    if (e.target === qrPopupEl) closeTipQr();
-  });
+    // backdrop only (not content)
+    if (e.target === qrPopupEl) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeTipQr();
+    }
+  }, true);
+  const content = qrPopupEl.querySelector('.qr-content');
+  if (content) {
+    content.addEventListener('click', (e) => {
+      // clicks inside content should not close, except the close button
+      if (e.target.closest('.qr-close')) onQrCloseClick(e);
+    });
+  }
 }
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && qrPopupEl && qrPopupEl.classList.contains('visible')) {
+  if ((e.key === 'Escape' || e.key === 'Esc') && qrPopupEl && qrPopupEl.classList.contains('visible')) {
+    e.preventDefault();
     closeTipQr();
   }
 });
+window.closeTipQr = closeTipQr;
+window.openTipQr = openTipQr;
 
 // Video Modal
 const videoPlayer = {

@@ -1173,15 +1173,16 @@ nav {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
+  z-index: 7500;
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.35s ease;
+  pointer-events: auto;
 }
 
 .qr-popup.visible {
@@ -1250,17 +1251,21 @@ nav {
 .qr-close {
   font-size: 0.75rem;
   color: #6b5c3d;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(212, 175, 55, 0.5);
+  cursor: pointer !important;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.55);
   padding: 10px 24px;
   border-radius: 30px;
   font-family: 'Inter', sans-serif;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   transition: var(--transition-smooth);
   margin-top: 1rem;
+  position: relative;
+  z-index: 2;
+  pointer-events: auto !important;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .qr-close:hover {
@@ -4119,17 +4124,17 @@ body.rabbit-hole-open #cursor {
 .rabbit-hole-transition-overlay {
   position: fixed;
   inset: 0;
-  /* middle ground: readable curtain, not a black flash */
-  background: rgba(6, 6, 8, 0.52);
+  /* nearly invisible veil — panels do the soft fade themselves */
+  background: transparent;
   z-index: 6000;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .rabbit-hole-transition-overlay.active {
   opacity: 1;
-  pointer-events: auto;
+  pointer-events: none; /* never block clicks during soft enter */
 }
 
 .rabbit-hole-particles {
@@ -4141,31 +4146,48 @@ body.rabbit-hole-open #cursor {
 
 .rabbit-hole-particle {
   position: absolute;
-  top: -8px;
-  width: 3px;
-  height: 3px;
-  background: rgba(212, 175, 55, 0.75);
-  border-radius: 50%;
+  top: -4px;
+  width: 2px;
+  height: 10px;
+  background: linear-gradient(to bottom, rgba(212, 175, 55, 0.55), rgba(212, 175, 55, 0));
+  border-radius: 1px;
   opacity: 0;
-  box-shadow: 0 0 7px rgba(212, 175, 55, 0.4);
-  animation: particleFallFromTop 1.5s cubic-bezier(0.28, 0.2, 0.25, 1) forwards;
+  box-shadow: none;
+  animation: particleFallFromTop 2.2s cubic-bezier(0.33, 0.05, 0.2, 1) forwards;
 }
 
 @keyframes particleFallFromTop {
   0% {
     opacity: 0;
-    transform: translate3d(0, -8vh, 0) scale(0.7);
+    transform: translate3d(0, -4vh, 0);
   }
-  18% {
-    opacity: 0.7;
+  15% {
+    opacity: 0.4;
   }
-  75% {
-    opacity: 0.35;
+  80% {
+    opacity: 0.15;
   }
   100% {
     opacity: 0;
-    transform: translate3d(0, 105vh, 0) scale(1);
+    transform: translate3d(0, 100vh, 0);
   }
+}
+
+/* Soft editorial panel fades */
+.rabbit-hole {
+  transition: opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.85s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+.direct-monograph-modal {
+  transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.75s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+.direct-monograph-modal .dm-shell {
+  transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1), transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateY(10px);
+  opacity: 0.92;
+}
+.direct-monograph-modal.open .dm-shell {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 /* Responsive adjustments */
