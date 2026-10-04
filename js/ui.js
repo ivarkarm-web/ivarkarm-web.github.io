@@ -2083,64 +2083,89 @@ const rhScrollManager = {
 
     this.killScrollTriggers();
 
+    // Directional slide chapters — no blur (blur made body text unreadable mid-scroll).
+    // Alternate enter/exit directions per chapter for clearer motion.
+    const enterDirs = [
+      { x: 0, y: 36 },      // 0: from below
+      { x: -48, y: 0 },     // 1: from left
+      { x: 48, y: 0 },      // 2: from right
+      { x: 0, y: 40 },      // 3: from below
+      { x: -40, y: 12 },    // 4: from left
+      { x: 40, y: 12 },     // 5: from right
+      { x: 0, y: 32 }       // 6: from below
+    ];
+    const exitDirs = [
+      { x: 0, y: -40 },
+      { x: 36, y: -16 },
+      { x: -36, y: -16 },
+      { x: 0, y: -44 },
+      { x: 28, y: -20 },
+      { x: -28, y: -20 },
+      { x: 0, y: -36 }
+    ];
+
     this.sections.forEach((sec, idx) => {
+      const enter = enterDirs[idx % enterDirs.length];
+      const exit = exitDirs[idx % exitDirs.length];
+
+      // Always clear any leftover blur from previous builds
+      gsap.set(sec, { filter: 'none', clearProps: 'filter' });
+
       if (idx === 0) {
-        // Chapter 1 is at the top of the track on arrival
         const tween = gsap.fromTo(sec,
-          { scale: 1, filter: 'blur(0px)', opacity: 1, y: 0 },
+          { opacity: 1, x: 0, y: 0, scale: 1 },
           {
-            scale: 0.85,
-            filter: 'blur(14px)',
-            opacity: 0,
-            y: -75,
-            ease: 'power2.in',
+            opacity: 0.35,
+            x: exit.x,
+            y: exit.y,
+            scale: 0.98,
+            ease: 'none',
             scrollTrigger: {
               trigger: sec,
               scroller: this.container,
-              start: 'top 5%',
+              start: 'top 8%',
               end: 'bottom top',
-              scrub: 0.7,
+              scrub: 0.45,
               invalidateOnRefresh: true,
               onUpdate: (self) => {
-                sec.style.pointerEvents = self.progress > 0.92 ? 'none' : 'auto';
+                sec.style.pointerEvents = self.progress > 0.9 ? 'none' : 'auto';
               }
             }
           }
         );
         if (tween.scrollTrigger) this.scrollTriggers.push(tween.scrollTrigger);
       } else {
-        // Chapters 2 through 7: Cinematic entrance, focal reading plateau, dynamic blur & scale-down exit
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: sec,
             scroller: this.container,
             start: 'top bottom',
             end: 'bottom top',
-            scrub: 0.7,
+            scrub: 0.45,
             invalidateOnRefresh: true,
             onUpdate: (self) => {
-              sec.style.pointerEvents = (self.progress < 0.1 || self.progress > 0.9) ? 'none' : 'auto';
+              sec.style.pointerEvents = (self.progress < 0.08 || self.progress > 0.92) ? 'none' : 'auto';
             }
           }
         });
 
-        // 1. Entrance: smoothly scale in, clear blur, and fade in as chapter enters from bottom
+        // Enter from alternate direction — opacity + translate only (readable the whole way)
         tl.fromTo(sec,
-          { scale: 0.93, filter: 'blur(8px)', opacity: 0.2, y: 45 },
-          { scale: 1, filter: 'blur(0px)', opacity: 1, y: 0, ease: 'power1.out', duration: 1 }
+          { opacity: 0.15, x: enter.x, y: enter.y, scale: 1 },
+          { opacity: 1, x: 0, y: 0, scale: 1, ease: 'none', duration: 1 }
         );
 
-        // 2. Focus: steady, crisp reading plateau while chapter is centered in view
-        tl.to(sec, { scale: 1, filter: 'blur(0px)', opacity: 1, y: 0, duration: 1.3 });
+        // Steady reading plateau
+        tl.to(sec, { opacity: 1, x: 0, y: 0, scale: 1, duration: 1.4 });
 
-        // 3. Exit: dynamic cinematic blur, scale-down, and upward drift as it exits the viewport
+        // Exit opposite direction, stay legible (no blur)
         tl.to(sec, {
-          scale: 0.85,
-          filter: 'blur(14px)',
-          opacity: 0,
-          y: -75,
-          ease: 'power2.in',
-          duration: 1.1
+          opacity: 0.25,
+          x: exit.x,
+          y: exit.y,
+          scale: 0.98,
+          ease: 'none',
+          duration: 1
         });
 
         if (tl.scrollTrigger) this.scrollTriggers.push(tl.scrollTrigger);
@@ -2192,7 +2217,7 @@ const rhScrollManager = {
       });
     }
     if (this.sections && this.sections.length && !this.reducedMotion) {
-      gsap.set(this.sections[0], { scale: 1, filter: 'blur(0px)', opacity: 1, y: 0 });
+      gsap.set(this.sections[0], { scale: 1, filter: 'none', opacity: 1, x: 0, y: 0 });
     }
     if (typeof ScrollTrigger !== 'undefined') {
       ScrollTrigger.refresh();

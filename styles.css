@@ -3149,7 +3149,7 @@ body.rabbit-hole-open #cursor {
   box-sizing: border-box;
   position: relative;
   transform-origin: center 35%;
-  will-change: opacity, transform, filter;
+  will-change: opacity, transform;
 }
 
 /* Base scroll states: active centered vs scrolled past vs pending */
@@ -3227,7 +3227,7 @@ body.rabbit-hole-open #cursor {
     rgba(212, 175, 55, 0) 100%
   );
   transform: translateY(-50%) scaleX(calc(0.3 + 0.7 * var(--glow-proximity, 0)));
-  filter: blur(calc(3px + 2px * var(--glow-proximity, 0)));
+  filter: none;
   opacity: var(--glow-proximity, 0);
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
   will-change: transform, opacity;
@@ -3392,27 +3392,31 @@ body.rabbit-hole-open #cursor {
 .reveal-luminous .rh-story-card {
   opacity: 0;
   transform: translateY(28px);
-  filter: blur(8px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-luminous .rh-story-card:nth-child(odd) {
+  transform: translateX(-28px);
+}
+
+.reveal-luminous .rh-story-card:nth-child(even) {
+  transform: translateX(28px);
 }
 
 .reveal-luminous.in-view .rh-story-card:nth-child(1) {
   opacity: 1;
-  transform: translateY(0);
-  filter: blur(0);
-  transition-delay: 0.25s;
+  transform: translate(0, 0);
+  transition-delay: 0.15s;
 }
 .reveal-luminous.in-view .rh-story-card:nth-child(2) {
   opacity: 1;
-  transform: translateY(0);
-  filter: blur(0);
-  transition-delay: 0.4s;
+  transform: translate(0, 0);
+  transition-delay: 0.28s;
 }
 .reveal-luminous.in-view .rh-story-card:nth-child(3) {
   opacity: 1;
-  transform: translateY(0);
-  filter: blur(0);
-  transition-delay: 0.55s;
+  transform: translate(0, 0);
+  transition-delay: 0.4s;
 }
 
 /* -------------------------------------------------------------
@@ -3588,9 +3592,8 @@ body.rabbit-hole-open #cursor {
    not just the ones that have a hand-tuned nth-child delay above. */
 .reveal-luminous.in-view .rh-story-card:nth-child(n+4) {
   opacity: 1;
-  transform: translateY(0);
-  filter: blur(0);
-  transition-delay: 0.65s;
+  transform: translate(0, 0);
+  transition-delay: 0.5s;
 }
 .reveal-curtain.in-view .rh-story-card:nth-child(n+4) {
   opacity: 1;
