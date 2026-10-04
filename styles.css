@@ -4119,12 +4119,12 @@ body.rabbit-hole-open #cursor {
 .rabbit-hole-transition-overlay {
   position: fixed;
   inset: 0;
-  /* soft editorial veil — not a full black flash */
-  background: rgba(6, 6, 8, 0.28);
+  /* middle ground: readable curtain, not a black flash */
+  background: rgba(6, 6, 8, 0.52);
   z-index: 6000;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .rabbit-hole-transition-overlay.active {
@@ -4141,30 +4141,30 @@ body.rabbit-hole-open #cursor {
 
 .rabbit-hole-particle {
   position: absolute;
-  top: -6px;
-  width: 2px;
-  height: 2px;
-  background: rgba(212, 175, 55, 0.55);
+  top: -8px;
+  width: 3px;
+  height: 3px;
+  background: rgba(212, 175, 55, 0.75);
   border-radius: 50%;
   opacity: 0;
-  box-shadow: 0 0 4px rgba(212, 175, 55, 0.25);
-  animation: particleFallFromTop 1.8s cubic-bezier(0.33, 0.1, 0.25, 1) forwards;
+  box-shadow: 0 0 7px rgba(212, 175, 55, 0.4);
+  animation: particleFallFromTop 1.5s cubic-bezier(0.28, 0.2, 0.25, 1) forwards;
 }
 
 @keyframes particleFallFromTop {
   0% {
     opacity: 0;
-    transform: translate3d(0, -6vh, 0);
+    transform: translate3d(0, -8vh, 0) scale(0.7);
   }
-  20% {
-    opacity: 0.45;
+  18% {
+    opacity: 0.7;
   }
-  85% {
-    opacity: 0.2;
+  75% {
+    opacity: 0.35;
   }
   100% {
     opacity: 0;
-    transform: translate3d(0, 100vh, 0);
+    transform: translate3d(0, 105vh, 0) scale(1);
   }
 }
 

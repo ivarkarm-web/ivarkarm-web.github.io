@@ -446,8 +446,8 @@ function openDirectMonographModal() {
   if (modal.classList.contains('open')) return;
 
   playGoldParticleCurtain({
-    count: 12,
-    holdMs: 680,
+    count: 28,
+    holdMs: 920,
     onMid: () => {
       modal.classList.add('open');
       modal.setAttribute('aria-hidden', 'false');
@@ -466,8 +466,8 @@ function closeDirectMonographModal() {
   if (!modal || !modal.classList.contains('open')) return;
 
   playGoldParticleCurtain({
-    count: 10,
-    holdMs: 620,
+    count: 22,
+    holdMs: 820,
     onMid: () => {
       modal.classList.remove('open');
       modal.setAttribute('aria-hidden', 'true');
@@ -2323,8 +2323,8 @@ function openRabbitHoleScreen() {
   document.body.classList.add('rabbit-hole-open');
 
   playGoldParticleCurtain({
-    count: 18,
-    holdMs: 780,
+    count: 34,
+    holdMs: 980,
     onMid: () => {
       if (!el) return;
       el.classList.remove('rabbit-hole-closing');
@@ -2412,15 +2412,15 @@ function createGoldenParticles(options) {
   const container = document.getElementById('rabbitHoleParticles');
   if (!container) return;
   const opts = options || {};
-  const count = opts.count || 16;
+  const count = opts.count || 28;
   container.innerHTML = '';
   for (let i = 0; i < count; i++) {
     const particle = document.createElement('div');
     particle.className = 'rabbit-hole-particle';
     particle.style.left = (Math.random() * 100) + '%';
-    particle.style.animationDelay = (Math.random() * 0.55) + 's';
-    particle.style.animationDuration = (1.05 + Math.random() * 0.7) + 's';
-    const size = 2 + Math.random() * 4;
+    particle.style.animationDelay = (Math.random() * 0.4) + 's';
+    particle.style.animationDuration = (1.25 + Math.random() * 0.45) + 's';
+    const size = 2.2 + Math.random() * 2.4;
     particle.style.width = size + 'px';
     particle.style.height = size + 'px';
     particle.style.setProperty('--drift', ((Math.random() - 0.5) * 40) + 'px');
@@ -2432,7 +2432,7 @@ function createGoldenParticles(options) {
 function playGoldParticleCurtain(options) {
   const opts = options || {};
   const holdMs = opts.holdMs != null ? opts.holdMs : 1100;
-  const count = opts.count != null ? opts.count : 16;
+  const count = opts.count != null ? opts.count : 28;
   const overlay = document.getElementById('rabbitHoleTransition');
   if (!overlay) {
     if (typeof opts.onMid === 'function') opts.onMid();
@@ -2446,7 +2446,7 @@ function playGoldParticleCurtain(options) {
   overlay.classList.add('active');
   overlay.setAttribute('aria-hidden', 'false');
 
-  const midAt = Math.min(220, Math.floor(holdMs * 0.28));
+  const midAt = Math.min(280, Math.floor(holdMs * 0.32));
   window.setTimeout(() => {
     if (typeof opts.onMid === 'function') opts.onMid();
   }, midAt);
