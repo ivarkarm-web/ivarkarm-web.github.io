@@ -293,6 +293,15 @@ nav {
   padding: 2rem;
   z-index: 900;
   will-change: transform, opacity;
+  box-sizing: border-box;
+  max-height: min(82vh, 820px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .section.with-backdrop {
@@ -308,6 +317,7 @@ nav {
   opacity: 1;
   pointer-events: auto;
   transform: translate(-50%, -50%) scale(1);
+  z-index: 1200; /* above touch-zones so text can scroll on mobile */
 }
 
 .section a,
@@ -1608,24 +1618,24 @@ body.rabbit-hole-open .touch-zones {
     margin-bottom: 1rem;
   }
 
-  /* Keep full section text readable on phone — no bottom clipping */
+  /* Phone: still centered, but tightly capped so nothing spills off-screen */
   .section {
-    top: 5.25rem;
-    bottom: auto;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
-    max-height: calc(100dvh - 6.5rem);
-    max-height: calc(100vh - 6.5rem);
+    transform: translate(-50%, -50%);
+    width: min(92vw, 520px);
+    max-width: 92vw;
+    max-height: min(78dvh, calc(100vh - 6rem));
+    padding: 1.1rem 1rem 1.25rem;
+    overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-    padding: 1.15rem 1.05rem 1.5rem;
-    width: min(92vw, 520px);
-    align-self: flex-start;
   }
 
   .section.visible {
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
+    z-index: 1200;
   }
 
   .section.with-backdrop {
@@ -1636,11 +1646,19 @@ body.rabbit-hole-open .touch-zones {
   .story-entry {
     margin: 0 auto 0.85rem;
     padding-left: 0.85rem;
+    max-width: 100%;
   }
 
   .story-era {
     font-size: 0.7rem;
     margin-bottom: 0.25rem;
+  }
+
+  .section p,
+  .section p.lead,
+  .section h1,
+  .section h2 {
+    max-width: 100%;
   }
 
   .music-player {
