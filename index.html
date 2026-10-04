@@ -503,44 +503,56 @@
       </button>
     </header>
 
-    <div class="dm-content">
-      <section class="dm-section">
+    <div class="dm-quicknav" id="dmQuickNav" role="navigation" aria-label="Jump to a section of the monograph">
+      <button type="button" class="dm-quicknav-btn" data-dm-target="dmSec0">Principle</button>
+      <button type="button" class="dm-quicknav-btn" data-dm-target="dmSec1">I · Early Life</button>
+      <button type="button" class="dm-quicknav-btn" data-dm-target="dmSec2">II · Way to Music</button>
+      <button type="button" class="dm-quicknav-btn" data-dm-target="dmSec3">III · Street Stories</button>
+      <button type="button" class="dm-quicknav-btn" data-dm-target="dmSec4">IV · Instruments</button>
+      <button type="button" class="dm-quicknav-btn" data-dm-target="dmSec5">V · Makers</button>
+      <button type="button" class="dm-quicknav-btn" data-dm-target="dmSec6">Recordings</button>
+      <button type="button" class="dm-quicknav-btn" data-dm-target="dmSec7">Road Notes</button>
+      <button type="button" class="dm-quicknav-btn dm-quicknav-btn--rh" data-dm-target="dmFooter">Rabbit Hole ↓</button>
+    </div>
+
+    <div class="dm-content" id="dmContent">
+      <section class="dm-section" id="dmSec0">
         <span class="dm-sec-tag">Foundational Principle</span>
         <h3>Before sound, there is listening.</h3>
         <p class="dm-lead">Street performer, improviser, and handpan artist from eastern Estonia. For me the music is the journey, not the product — so you will not find a polished album here.</p>
       </section>
 
-      <section class="dm-section">
+      <section class="dm-section" id="dmSec1">
         <span class="dm-sec-tag">Chapter I · Early Life</span>
         <h3>The Teacher's Weird Kid</h3>
         <p>Eastern Estonia after the Soviet collapse. Restless childhood, early hitchhiking, and the first glimpse of a handpan on a screen. The full map is in the Rabbit Hole.</p>
       </section>
 
-      <section class="dm-section">
+      <section class="dm-section" id="dmSec2">
         <span class="dm-sec-tag">Chapter II · Way to Music</span>
         <h3>One-way tickets</h3>
         <p>Left culinary school for Barcelona, then Berlin with a cheap djembe and the street as school. Years of busking shaped the player more than any classroom.</p>
       </section>
 
-      <section class="dm-section">
+      <section class="dm-section" id="dmSec3">
         <span class="dm-sec-tag">Chapter III · Street Stories</span>
         <h3>Loss and gift</h3>
         <p>A stolen handpan. A crowdfund. A maker who sent a new one free of charge. Tallinn with a dog in the case; Athens still the open stage.</p>
       </section>
 
-      <section class="dm-section">
+      <section class="dm-section" id="dmSec4">
         <span class="dm-sec-tag">Chapter IV · Instruments</span>
         <h3>What I carry</h3>
         <p>Handpan at the center. Djembe from the early road. Other voices collected along the way — each one earned, not collected for show.</p>
       </section>
 
-      <section class="dm-section">
+      <section class="dm-section" id="dmSec5">
         <span class="dm-sec-tag">Chapter V · Makers</span>
         <h3>People behind the steel</h3>
         <p>A short list of makers I trust and work with. Names and notes live in the Rabbit Hole archive.</p>
       </section>
 
-      <section class="dm-section">
+      <section class="dm-section" id="dmSec6">
         <span class="dm-sec-tag">The Recorded Works</span>
         <h3>Bedroom Sessions</h3>
         <p>Eight raw handpan improvisations. No studio polish — listen on the road or download from the Rabbit Hole.</p>
@@ -549,13 +561,13 @@
         </div>
       </section>
 
-      <section class="dm-section">
+      <section class="dm-section" id="dmSec7">
         <span class="dm-sec-tag">Road Notes</span>
         <h3>How I think about this</h3>
         <p>The street is the stage because it is real. I was terrible when I started. Then I got better. If you stop, you are part of it.</p>
       </section>
 
-      <footer class="dm-footer">
+      <footer class="dm-footer" id="dmFooter">
         <p>This monograph is a condensed map of the full story. The deeper archive — makers, downloads, and the unedited road — lives in the Rabbit Hole.</p>
         <div class="dm-actions">
           <button type="button" class="dm-cta-btn" id="dmOpenRhBtn">Enter Deep Rabbit Hole</button>
@@ -634,6 +646,10 @@
         <span class="rh-header-breadcrumb" id="rhBreadcrumb">01 / 07 · Early Life</span>
         <span class="rh-header-progress-tag" id="rhProgressPercent" aria-hidden="true">0%</span>
       </div>
+      <button type="button" class="rh-toc-toggle-btn" id="rhTocToggleBtn" aria-label="Open chapter menu" aria-expanded="false" aria-controls="rhTocDrawer" title="Jump to chapter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>
+        <span>Chapters</span>
+      </button>
     </div>
 
     <!-- Return to road button -->
@@ -682,6 +698,94 @@
       <span class="rh-side-pip-dot"></span>
     </button>
   </nav>
+
+  <button type="button" class="rh-toc-floating-btn" id="rhTocFloatingBtn" aria-label="Open chapter menu" aria-expanded="false" aria-controls="rhTocDrawer" title="Chapters">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" width="16" height="16"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>
+    <span class="rh-toc-float-label">Chapters</span>
+  </button>
+
+  <div class="rh-toc-backdrop" id="rhTocBackdrop" aria-hidden="true"></div>
+  <aside class="rh-toc-drawer" id="rhTocDrawer" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="rhTocHeading">
+    <div class="rh-toc-header">
+      <div class="rh-toc-title-wrap">
+        <span class="rh-toc-eyebrow">Interactive Monograph</span>
+        <h3 class="rh-toc-heading" id="rhTocHeading">Chapters</h3>
+        <p class="rh-toc-summary">Jump to any chapter.</p>
+      </div>
+      <button type="button" class="rh-toc-close-btn" id="rhTocCloseBtn" aria-label="Close chapter menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="rh-toc-list">
+      <button type="button" class="rh-toc-item active" data-sec-target="0" aria-label="Jump to Chapter 01: Early Life">
+        <span class="rh-toc-item-header"><span class="rh-toc-num">01</span><span class="rh-toc-item-badge">Active</span></span>
+        <span class="rh-toc-item-content">
+          <span class="rh-toc-item-topline"><span class="rh-toc-item-tag">Chapter 01</span><span class="rh-toc-item-divider">·</span><span class="rh-toc-item-era">Early Life</span></span>
+          <span class="rh-toc-item-title">The Teacher's Weird Kid</span>
+          <span class="rh-toc-item-desc">Eastern Estonia after the Soviet collapse.</span>
+        </span>
+        <span class="rh-toc-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="14" height="14"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button type="button" class="rh-toc-item" data-sec-target="1" aria-label="Jump to Chapter 02: Way to Music">
+        <span class="rh-toc-item-header"><span class="rh-toc-num">02</span><span class="rh-toc-item-badge">Pending</span></span>
+        <span class="rh-toc-item-content">
+          <span class="rh-toc-item-topline"><span class="rh-toc-item-tag">Chapter 02</span><span class="rh-toc-item-divider">·</span><span class="rh-toc-item-era">Way to Music</span></span>
+          <span class="rh-toc-item-title">From a one-way ticket to a €30 drum</span>
+          <span class="rh-toc-item-desc">Barcelona, Berlin, and the street as school.</span>
+        </span>
+        <span class="rh-toc-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="14" height="14"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button type="button" class="rh-toc-item" data-sec-target="2" aria-label="Jump to Chapter 03: Street Stories">
+        <span class="rh-toc-item-header"><span class="rh-toc-num">03</span><span class="rh-toc-item-badge">Pending</span></span>
+        <span class="rh-toc-item-content">
+          <span class="rh-toc-item-topline"><span class="rh-toc-item-tag">Chapter 03</span><span class="rh-toc-item-divider">·</span><span class="rh-toc-item-era">Street Stories</span></span>
+          <span class="rh-toc-item-title">What actually happened out there</span>
+          <span class="rh-toc-item-desc">Loss, a gift, and the road.</span>
+        </span>
+        <span class="rh-toc-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="14" height="14"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button type="button" class="rh-toc-item" data-sec-target="3" aria-label="Jump to Chapter 04: The Makers">
+        <span class="rh-toc-item-header"><span class="rh-toc-num">04</span><span class="rh-toc-item-badge">Pending</span></span>
+        <span class="rh-toc-item-content">
+          <span class="rh-toc-item-topline"><span class="rh-toc-item-tag">Chapter 04</span><span class="rh-toc-item-divider">·</span><span class="rh-toc-item-era">The Makers</span></span>
+          <span class="rh-toc-item-title">People and companies I work with</span>
+          <span class="rh-toc-item-desc">Instrument makers I stand behind.</span>
+        </span>
+        <span class="rh-toc-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="14" height="14"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button type="button" class="rh-toc-item" data-sec-target="4" aria-label="Jump to Chapter 05: Instruments">
+        <span class="rh-toc-item-header"><span class="rh-toc-num">05</span><span class="rh-toc-item-badge">Pending</span></span>
+        <span class="rh-toc-item-content">
+          <span class="rh-toc-item-topline"><span class="rh-toc-item-tag">Chapter 05</span><span class="rh-toc-item-divider">·</span><span class="rh-toc-item-era">Instruments</span></span>
+          <span class="rh-toc-item-title">What's in the bag</span>
+          <span class="rh-toc-item-desc">Handpan, djembe, koto and more.</span>
+        </span>
+        <span class="rh-toc-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="14" height="14"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button type="button" class="rh-toc-item" data-sec-target="5" aria-label="Jump to Chapter 06: Audio Vault">
+        <span class="rh-toc-item-header"><span class="rh-toc-num">06</span><span class="rh-toc-item-badge">Pending</span></span>
+        <span class="rh-toc-item-content">
+          <span class="rh-toc-item-topline"><span class="rh-toc-item-tag">Chapter 06</span><span class="rh-toc-item-divider">·</span><span class="rh-toc-item-era">Audio Vault</span></span>
+          <span class="rh-toc-item-title">Bedroom sessions to keep</span>
+          <span class="rh-toc-item-desc">Raw improvisations to hear or download.</span>
+        </span>
+        <span class="rh-toc-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="14" height="14"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button type="button" class="rh-toc-item" data-sec-target="6" aria-label="Jump to Chapter 07: Road Notes">
+        <span class="rh-toc-item-header"><span class="rh-toc-num">07</span><span class="rh-toc-item-badge">Pending</span></span>
+        <span class="rh-toc-item-content">
+          <span class="rh-toc-item-topline"><span class="rh-toc-item-tag">Chapter 07</span><span class="rh-toc-item-divider">·</span><span class="rh-toc-item-era">Road Notes</span></span>
+          <span class="rh-toc-item-title">Things I figured out out here</span>
+          <span class="rh-toc-item-desc">Mostly the hard way.</span>
+        </span>
+        <span class="rh-toc-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="14" height="14"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+    </div>
+    <div class="rh-toc-footer">
+      <div class="rh-toc-overall-progress"><span class="rh-toc-progress-text">Overall progress</span><span class="rh-toc-progress-val" id="rhTocProgressVal">0%</span></div>
+      <div class="rh-toc-mini-bar"><div class="rh-toc-mini-fill" id="rhTocMiniFill"></div></div>
+    </div>
+  </aside>
 
   <!-- Vertical Scroll Track with Dedicated Sections -->
   <main class="rh-scroll-track" id="rhScrollTrack">
