@@ -4,6 +4,12 @@
  * ground, particles, audio orbs, landmarks, and all canvas drawing helpers.
  * Depends on: utilities.js, content.js (veg data, constants)
  */
+
+function getVegGlobalScale() {
+  if (typeof vegGlobalScale !== 'undefined') return vegGlobalScale;
+  if (typeof window !== 'undefined' && typeof window.vegGlobalScale === 'number') return window.vegGlobalScale;
+  return 1;
+}
 function getCanvas() {
   return (typeof canvas !== 'undefined' && canvas) ? canvas : (window.canvas || document.getElementById('game'));
 }
@@ -917,7 +923,7 @@ function drawVegMid(offset) {
     const fade = getScreenEdgeAlpha(sx, 65, 140);
     if (fade <= 0.005) continue;
     const gy = getGroundMid(m.wx);
-    const sz = m.size * Math.sqrt(vegGlobalScale);
+    const sz = m.size * Math.sqrt(getVegGlobalScale());
 
     ctx.save();
     ctx.globalAlpha = (ctx.globalAlpha || 1.0) * fade;
@@ -1035,7 +1041,7 @@ function drawVegNear(offset) {
 }
 
 function drawVegFore(offset) {
-  if (!ctx || !viewW) return;
+  if (!getCtx() || !getCanvas()) return;
   const parallax = 1.45;
   const off = offset * parallax;
   const time = Date.now() * 0.001;
@@ -1049,7 +1055,7 @@ function drawVegFore(offset) {
     const fade = getScreenEdgeAlpha(sx, 140, 220);
     if (fade <= 0.005) continue;
     const gy = getGround(n.wx) + viewH * 0.06;
-    const sz = n.size * vegGlobalScale * 1.15;
+    const sz = n.size * getVegGlobalScale() * 1.15;
     ctx.save();
     ctx.globalAlpha = (ctx.globalAlpha || 1.0) * fade;
     if (n.type === 'cypress') drawCypressNear(n, sx, gy, sz, n.seed, time);
@@ -1057,6 +1063,10 @@ function drawVegFore(offset) {
     else drawOliveTreeNear(n, sx, gy, sz, n.seed, time);
     ctx.restore();
   }
+  ctx.filter = 'none';
+  ctx.restore();
+}
+
 function drawVegFar(offset) {
   if (!getCtx() || !getCanvas()) return;
   const parallax = 0.40;
@@ -1135,9 +1145,6 @@ function drawVegFar(offset) {
 
     ctx.restore();
   }
-
-  ctx.restore();
-}
 
   ctx.restore();
 }
