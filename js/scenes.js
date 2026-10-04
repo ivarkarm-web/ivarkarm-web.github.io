@@ -2466,3 +2466,16 @@ function drawGiantBackgroundFlowerOfLife(context) {
 
 
 // Drawing helpers (drawVeg*, drawBall, drawResonantStones, drawChapterLandmarks, etc.) moved to js/scenes.js
+
+// Ensure critical draw fns are reachable even if lexical scope is odd
+try {
+  window.drawVegFar = drawVegFar;
+  window.drawVegMid = drawVegMid;
+  window.drawVegNear = drawVegNear;
+  window.drawVegFore = drawVegFore;
+  window.drawBall = drawBall;
+  window.drawGround = drawGround;
+  window.drawHillsFar = drawHillsFar;
+  window.drawHillsMid = drawHillsMid;
+  window.update = update;
+} catch (e) { console.warn('scene export', e); }

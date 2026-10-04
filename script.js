@@ -55,6 +55,7 @@ window.addEventListener('orientationchange', resizeCanvas);
 // Background slideshow + remaining early draw helpers moved to js/scenes.js
 function draw(offset) {
   if (!ctx || !canvas) return;
+  const call = (fn, ...args) => { if (typeof fn === 'function') try { fn(...args); } catch (e) { console.warn('draw layer error', e.message); } };
   ctx.save();
   ctx.fillStyle = '#030508';
   ctx.fillRect(0, 0, viewW, viewH);
@@ -66,23 +67,23 @@ function draw(offset) {
     ctx.scale(zoom, zoom);
     ctx.translate(-zcx, -zcy);
   }
-  drawGiantBackgroundFlowerOfLife(ctx);
-  drawStarfield(ctx, offset);
-  drawBackgroundGalleryImages(ctx, offset);
-  drawAtmosphereBands(ctx);
+  call(drawGiantBackgroundFlowerOfLife, ctx);
+  call(drawStarfield, ctx, offset);
+  call(drawBackgroundGalleryImages, ctx, offset);
+  call(drawAtmosphereBands, ctx);
   if (Math.abs(cameraY) > 0.01) ctx.translate(0, -cameraY);
 
-  drawHillsFar(offset);
-  drawChapterLandmarks(ctx, offset);
-  drawVegFar(offset);
-  drawHorizonLights(offset);
-  drawHillsMid(offset);
-  drawVegMid(offset);
-  drawGround(offset);
-  drawResonantStones(ctx, offset);
-  drawVegNear(offset);
-  drawWorldParticles(offset);
-  drawAudioOrbs(offset);
+  call(drawHillsFar, offset);
+  call(drawChapterLandmarks, ctx, offset);
+  call(typeof drawVegFar === "function" ? drawVegFar : window.drawVegFar, offset);
+  call(drawHorizonLights, offset);
+  call(drawHillsMid, offset);
+  call(drawVegMid, offset);
+  call(drawGround, offset);
+  call(drawResonantStones, ctx, offset);
+  call(drawVegNear, offset);
+  call(drawWorldParticles, offset);
+  call(drawAudioOrbs, offset);
 
   const edgeFade = leftSecretState.alpha;
   if (gameStarted && edgeFade < 0.99 && endOfRoadState.fade > 0.01) {
@@ -90,10 +91,10 @@ function draw(offset) {
     ctx.globalAlpha = (1 - edgeFade) * endOfRoadState.fade;
     // Calculate accurate screen position based on camera offset
     const ballScreenX = x - offset;
-    drawBall(ballScreenX, y);
+    call(typeof drawBall === "function" ? drawBall : window.drawBall, ballScreenX, y);
     ctx.restore();
   }
-  drawVegFore(offset);
+  call(drawVegFore, offset);
   ctx.restore();
 
   if (endOfRoadState.screenFade > 0.01 && !endOfRoadState.rabbitHoleShown) {
