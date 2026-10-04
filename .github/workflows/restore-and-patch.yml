@@ -9,18 +9,23 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout last known good commit
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: 2876e092d087ad72462dd9956b60a4fcc2c81066
           fetch-depth: 0
+
+      - name: Restore files from last good commit
+        run: |
+          git show 2876e092d087ad72462dd9956b60a4fcc2c81066:index.html > index.html
+          git show 2876e092d087ad72462dd9956b60a4fcc2c81066:styles.css > styles.css
+          git show 2876e092d087ad72462dd9956b60a4fcc2c81066:js/ui.js > js/ui.js
+          echo "Restored base files"
 
       - name: Apply sticky chapter progression + TOC quick-menu patch
         run: |
           python3 << 'PY'
           from pathlib import Path
 
-          # --- index.html ---
           html = Path('index.html').read_text()
 
           old_header = '''    <div class="rh-header-left">
@@ -52,8 +57,7 @@ jobs:
           html = html.replace(old_header, new_header, 1)
 
           marker = '  <!-- Vertical Scroll Track with Dedicated Sections -->'
-          floating = '''  <!-- Persistent floating Chapters quick-menu button -->
-  <button type="button" class="rh-toc-floating-btn" id="rhTocFloatingBtn" aria-label="Open chapter menu" aria-expanded="false" aria-controls="rhTocDrawer" title="Chapters">
+          floating = '''  <button type="button" class="rh-toc-floating-btn" id="rhTocFloatingBtn" aria-label="Open chapter menu" aria-expanded="false" aria-controls="rhTocDrawer" title="Chapters">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" width="16" height="16">
       <line x1="4" y1="7" x2="20" y2="7"/>
       <line x1="4" y1="12" x2="20" y2="12"/>
@@ -68,7 +72,6 @@ jobs:
           html = html.replace(marker, floating + marker, 1)
 
           toc = '''
-  <!-- Chapter Quick Menu (TOC Drawer) -->
   <div class="rh-toc-backdrop" id="rhTocBackdrop" aria-hidden="true"></div>
   <aside class="rh-toc-drawer" id="rhTocDrawer" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="rhTocHeading">
     <div class="rh-toc-header">
@@ -108,7 +111,6 @@ jobs:
           Path('index.html').write_text(html)
           print('index.html patched', len(html))
 
-          # --- styles.css ---
           css = Path('styles.css').read_text()
           old = '''/* Chapter Progression Strip at top of scroll track */
 .rh-track-intro-banner {
@@ -166,7 +168,6 @@ jobs:
           Path('styles.css').write_text(css)
           print('styles.css patched', len(css))
 
-          # --- js/ui.js ---
           js = Path('js/ui.js').read_text()
           oldjs = '''    // Fixed sticky top header offset (default ~64px)
     const stickyHeader = document.querySelector('.rh-sticky-header');
@@ -206,11 +207,10 @@ jobs:
           print('ui.js patched', len(js))
           PY
 
-      - name: Commit restored + patched files to main
+      - name: Commit and push
         run: |
           git config user.name "ivarkarm-web"
           git config user.email "ivarkarm@gmail.com"
-          git checkout -B main
           git add index.html styles.css js/ui.js
           git commit -m "Restore site + sticky chapter progression + chapter quick-menu TOC" || echo "No changes"
-          git push origin main --force-with-lease
+          git push origin HEAD:main
