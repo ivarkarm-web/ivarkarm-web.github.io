@@ -1,0 +1,216 @@
+name: Restore and patch navigation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout last known good commit
+        uses: actions/checkout@v4
+        with:
+          ref: 2876e092d087ad72462dd9956b60a4fcc2c81066
+          fetch-depth: 0
+
+      - name: Apply sticky chapter progression + TOC quick-menu patch
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+
+          # --- index.html ---
+          html = Path('index.html').read_text()
+
+          old_header = '''    <div class="rh-header-left">
+      <div class="rh-header-brand">
+        <h2 id="rhTitle" class="rh-header-title">The Rabbit Hole</h2>
+        <span class="rh-header-breadcrumb" id="rhBreadcrumb">01 / 07 · Early Life</span>
+        <span class="rh-header-progress-tag" id="rhProgressPercent" aria-hidden="true">0%</span>
+      </div>
+    </div>'''
+
+          new_header = '''    <div class="rh-header-left">
+      <div class="rh-header-brand">
+        <h2 id="rhTitle" class="rh-header-title">The Rabbit Hole</h2>
+        <span class="rh-header-breadcrumb" id="rhBreadcrumb">01 / 07 · Early Life</span>
+        <span class="rh-header-progress-tag" id="rhProgressPercent" aria-hidden="true">0%</span>
+      </div>
+      <button type="button" class="rh-toc-toggle-btn" id="rhTocToggleBtn" aria-label="Open chapter menu" aria-expanded="false" aria-controls="rhTocDrawer" title="Jump to chapter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <line x1="4" y1="7" x2="20" y2="7"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="17" x2="14" y2="17"/>
+        </svg>
+        <span>Chapters</span>
+      </button>
+    </div>'''
+
+          if old_header not in html:
+              raise SystemExit('header block missing')
+          html = html.replace(old_header, new_header, 1)
+
+          marker = '  <!-- Vertical Scroll Track with Dedicated Sections -->'
+          floating = '''  <!-- Persistent floating Chapters quick-menu button -->
+  <button type="button" class="rh-toc-floating-btn" id="rhTocFloatingBtn" aria-label="Open chapter menu" aria-expanded="false" aria-controls="rhTocDrawer" title="Chapters">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" width="16" height="16">
+      <line x1="4" y1="7" x2="20" y2="7"/>
+      <line x1="4" y1="12" x2="20" y2="12"/>
+      <line x1="4" y1="17" x2="14" y2="17"/>
+    </svg>
+    <span class="rh-toc-float-label">Chapters</span>
+  </button>
+
+'''
+          if marker not in html:
+              raise SystemExit('scroll track marker missing')
+          html = html.replace(marker, floating + marker, 1)
+
+          toc = '''
+  <!-- Chapter Quick Menu (TOC Drawer) -->
+  <div class="rh-toc-backdrop" id="rhTocBackdrop" aria-hidden="true"></div>
+  <aside class="rh-toc-drawer" id="rhTocDrawer" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="rhTocHeading">
+    <div class="rh-toc-header">
+      <div class="rh-toc-title-wrap">
+        <span class="rh-toc-eyebrow">Interactive Monograph</span>
+        <h3 class="rh-toc-heading" id="rhTocHeading">Chapters</h3>
+      </div>
+      <button type="button" class="rh-toc-close-btn" id="rhTocCloseBtn" aria-label="Close chapter menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <nav class="rh-toc-list" aria-label="Monograph chapters">
+      <button type="button" class="rh-toc-item active" data-sec-target="0"><span class="rh-toc-item-badge">01</span><span class="rh-toc-item-body"><span class="rh-toc-item-title">Early Life</span><span class="rh-toc-item-desc">Roots in eastern Estonia</span></span><span class="rh-toc-item-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg></span></button>
+      <button type="button" class="rh-toc-item" data-sec-target="1"><span class="rh-toc-item-badge">02</span><span class="rh-toc-item-body"><span class="rh-toc-item-title">Way to Music</span><span class="rh-toc-item-desc">Discovery of the handpan path</span></span><span class="rh-toc-item-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg></span></button>
+      <button type="button" class="rh-toc-item" data-sec-target="2"><span class="rh-toc-item-badge">03</span><span class="rh-toc-item-body"><span class="rh-toc-item-title">Street Stories</span><span class="rh-toc-item-desc">Berlin, Tallinn, Athens corners</span></span><span class="rh-toc-item-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg></span></button>
+      <button type="button" class="rh-toc-item" data-sec-target="3"><span class="rh-toc-item-badge">04</span><span class="rh-toc-item-body"><span class="rh-toc-item-title">The Makers</span><span class="rh-toc-item-desc">Instrument builders I trust</span></span><span class="rh-toc-item-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg></span></button>
+      <button type="button" class="rh-toc-item" data-sec-target="4"><span class="rh-toc-item-badge">05</span><span class="rh-toc-item-body"><span class="rh-toc-item-title">Instruments</span><span class="rh-toc-item-desc">Other instruments on the road</span></span><span class="rh-toc-item-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg></span></button>
+      <button type="button" class="rh-toc-item" data-sec-target="5"><span class="rh-toc-item-badge">06</span><span class="rh-toc-item-body"><span class="rh-toc-item-title">Audio Vault</span><span class="rh-toc-item-desc">Tracks to listen and download</span></span><span class="rh-toc-item-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg></span></button>
+      <button type="button" class="rh-toc-item" data-sec-target="6"><span class="rh-toc-item-badge">07</span><span class="rh-toc-item-body"><span class="rh-toc-item-title">Road Notes</span><span class="rh-toc-item-desc">Closing notes and tip jar</span></span><span class="rh-toc-item-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg></span></button>
+    </nav>
+    <div class="rh-toc-footer">
+      <div class="rh-toc-overall-progress">
+        <span class="rh-toc-progress-text">Explored</span>
+        <span class="rh-toc-progress-val" id="rhTocProgressVal">0%</span>
+      </div>
+      <div class="rh-toc-mini-bar" aria-hidden="true"><div class="rh-toc-mini-fill" id="rhTocMiniFill"></div></div>
+    </div>
+  </aside>
+
+'''
+          close = '  </main>\n</div>\n\n<script src="./js/utilities.js'
+          if close not in html:
+              raise SystemExit('close marker missing')
+          html = html.replace(close, '  </main>\n' + toc + '</div>\n\n<script src="./js/utilities.js', 1)
+          html = html.replace('styles.css?v=26', 'styles.css?v=27')
+          html = html.replace('js/ui.js?v=25', 'js/ui.js?v=26')
+          Path('index.html').write_text(html)
+          print('index.html patched', len(html))
+
+          # --- styles.css ---
+          css = Path('styles.css').read_text()
+          old = '''/* Chapter Progression Strip at top of scroll track */
+.rh-track-intro-banner {
+  width: 100%;
+  max-width: 980px;
+  margin: 1.5rem auto 1.5rem;
+  padding: 0 2.5rem;
+  box-sizing: border-box;
+}'''
+          new = '''/* Chapter Progression Strip — sticky so it follows while reading */
+.rh-track-intro-banner {
+  width: 100%;
+  max-width: 980px;
+  margin: 1.5rem auto 1.5rem;
+  padding: 0 2.5rem;
+  box-sizing: border-box;
+  position: sticky;
+  top: 4.75rem;
+  z-index: 80;
+}
+.rh-track-intro-banner .rh-progression-card {
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(212, 175, 55, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}'''
+          if old not in css:
+              raise SystemExit('css track-intro block missing')
+          css = css.replace(old, new, 1)
+          old900 = '''  .rh-track-intro-banner {
+    padding: 0 1.5rem;
+    margin: 1.2rem auto 0.8rem;
+  }'''
+          new900 = '''  .rh-track-intro-banner {
+    padding: 0 1.5rem;
+    margin: 1.2rem auto 0.8rem;
+    top: 4.25rem;
+  }'''
+          if old900 in css:
+              css = css.replace(old900, new900, 1)
+          css += '''
+.rh-toc-item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+@media (max-width: 640px) {
+  .rh-track-intro-banner {
+    top: 3.9rem;
+    padding: 0 1rem;
+  }
+}
+'''
+          Path('styles.css').write_text(css)
+          print('styles.css patched', len(css))
+
+          # --- js/ui.js ---
+          js = Path('js/ui.js').read_text()
+          oldjs = '''    // Fixed sticky top header offset (default ~64px)
+    const stickyHeader = document.querySelector('.rh-sticky-header');
+    const headerHeight = stickyHeader ? stickyHeader.offsetHeight : 64;
+
+    // Calculate exact scroll target inside this.container (#rabbit-hole)
+    let targetScrollTop = 0;
+    if (index === 0) {
+      targetScrollTop = 0;
+    } else {
+      const containerRect = this.container.getBoundingClientRect();
+      const secRect = targetSec.getBoundingClientRect();
+      targetScrollTop = (this.container.scrollTop + (secRect.top - containerRect.top)) - (headerHeight + 8);
+    }'''
+          newjs = '''    // Fixed sticky top header + sticky chapter progression strip offset
+    const stickyHeader = document.querySelector('.rh-sticky-header');
+    const headerHeight = stickyHeader ? stickyHeader.offsetHeight : 64;
+    const progressionBanner = document.getElementById('rhTrackIntro');
+    const progressionHeight = (progressionBanner && index > 0)
+      ? progressionBanner.offsetHeight
+      : 0;
+    const totalOffset = headerHeight + progressionHeight + 12;
+
+    // Calculate exact scroll target inside this.container (#rabbit-hole)
+    let targetScrollTop = 0;
+    if (index === 0) {
+      targetScrollTop = 0;
+    } else {
+      const containerRect = this.container.getBoundingClientRect();
+      const secRect = targetSec.getBoundingClientRect();
+      targetScrollTop = (this.container.scrollTop + (secRect.top - containerRect.top)) - totalOffset;
+    }'''
+          if oldjs not in js:
+              raise SystemExit('ui.js scroll offset block missing')
+          js = js.replace(oldjs, newjs, 1)
+          Path('js/ui.js').write_text(js)
+          print('ui.js patched', len(js))
+          PY
+
+      - name: Commit restored + patched files to main
+        run: |
+          git config user.name "ivarkarm-web"
+          git config user.email "ivarkarm@gmail.com"
+          git checkout -B main
+          git add index.html styles.css js/ui.js
+          git commit -m "Restore site + sticky chapter progression + chapter quick-menu TOC" || echo "No changes"
+          git push origin main --force-with-lease
