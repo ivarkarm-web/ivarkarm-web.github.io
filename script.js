@@ -218,83 +218,88 @@ if (hamburgerBtn && navLinksMenu) {
   });
 }
 
-// QR Tip Popup
-const qrPopupEl = document.getElementById('qrPopup');
-const qrCloseBtn = document.getElementById('qrCloseBtn');
+// QR Tip Popup — mobile-first, isolated from game touch steering
+(function initTipQr() {
+  const popup = document.getElementById('qrPopup');
+  if (!popup) return;
 
-const tipButtonEl = document.getElementById('tipButton');
-const tipButtonMobileEl = document.getElementById('tipButtonMobile');
+  const BUSK_URL = 'https://busk.co/84950/tip';
 
-function openTipQr() {
-  if (!qrPopupEl) return;
-  qrPopupEl.classList.add('visible');
-  qrPopupEl.setAttribute('aria-hidden', 'false');
-  document.body.classList.add('qr-open');
-}
-function closeTipQr() {
-  if (!qrPopupEl) return;
-  qrPopupEl.classList.remove('visible');
-  qrPopupEl.setAttribute('aria-hidden', 'true');
-  document.body.classList.remove('qr-open');
-}
-function toggleTipQr(e) {
-  if (e) {
-    e.preventDefault();
-    e.stopPropagation();
+  function openTipQr() {
+    popup.classList.add('visible');
+    popup.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('qr-open');
   }
-  if (!qrPopupEl) return;
-  if (qrPopupEl.classList.contains('visible')) closeTipQr();
-  else openTipQr();
-}
-if (tipButtonEl) tipButtonEl.addEventListener('click', toggleTipQr);
-if (tipButtonMobileEl) tipButtonMobileEl.addEventListener('click', toggleTipQr);
+  function closeTipQr() {
+    popup.classList.remove('visible');
+    popup.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('qr-open');
+  }
+  function toggleTipQr() {
+    if (popup.classList.contains('visible')) closeTipQr();
+    else openTipQr();
+  }
 
-// Mobile-safe close: touchend + click in capture phase
-function onQrCloseEvent(e) {
-  if (e) {
-    try {
+  window.openTipQr = openTipQr;
+  window.closeTipQr = closeTipQr;
+  window.toggleTipQr = toggleTipQr;
+
+  // Open from nav tip button(s)
+  ['tipButton', 'tipButtonMobile'].forEach((id) => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    const open = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      e.stopImmediatePropagation();
-    } catch (_) {}
-  }
-  closeTipQr();
-}
+      toggleTipQr();
+    };
+    btn.addEventListener('click', open);
+    btn.addEventListener('touchend', open, { passive: false });
+  });
 
-function bindQrClose(el) {
-  if (!el) return;
-  // touchend is the reliable path on iOS/Android
-  el.addEventListener('touchend', onQrCloseEvent, { capture: true, passive: false });
-  el.addEventListener('pointerup', onQrCloseEvent, { capture: true });
-  el.addEventListener('click', onQrCloseEvent, { capture: true });
-}
+  // Unified handler for anything inside the popup
+  const onPopupActivate = (e) => {
+    const t = e.target;
+    if (!t || !t.closest) return;
 
-bindQrClose(qrCloseBtn);
-
-if (qrPopupEl) {
-  // Backdrop tap/touch closes
-  const closeIfBackdrop = (e) => {
-    if (e.target === qrPopupEl) onQrCloseEvent(e);
-  };
-  qrPopupEl.addEventListener('touchend', closeIfBackdrop, { capture: true, passive: false });
-  qrPopupEl.addEventListener('click', closeIfBackdrop, { capture: true });
-
-  // Event delegation inside popup (in case button is re-rendered)
-  qrPopupEl.addEventListener('touchend', (e) => {
-    if (e.target && e.target.closest && e.target.closest('#qrCloseBtn, .qr-close')) {
-      onQrCloseEvent(e);
+    // CLOSE
+    if (t.closest('#qrCloseBtn, #qrCloseTextBtn, .qr-close, .qr-close-x')) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeTipQr();
+      return;
     }
-  }, { capture: true, passive: false });
-}
 
-document.addEventListener('keydown', (e) => {
-  if ((e.key === 'Escape' || e.key === 'Esc') && qrPopupEl && qrPopupEl.classList.contains('visible')) {
-    e.preventDefault();
-    closeTipQr();
-  }
-});
-window.closeTipQr = closeTipQr;
-window.openTipQr = openTipQr;
+    // BUSK LINK / BUTTON — force navigation (iOS-safe)
+    const busk = t.closest('#qrBuskLink, #qrBuskBtn, .qr-link, .qr-busk-btn');
+    if (busk) {
+      e.preventDefault();
+      e.stopPropagation();
+      // Prefer new tab; fall back to same tab if blocked
+      const win = window.open(BUSK_URL, '_blank', 'noopener,noreferrer');
+      if (!win) window.location.href = BUSK_URL;
+      return;
+    }
+
+    // Backdrop (tap outside the card)
+    if (t === popup) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeTipQr();
+    }
+  };
+
+  // Prefer touchend on mobile; click for desktop — both bound
+  popup.addEventListener('touchend', onPopupActivate, { passive: false });
+  popup.addEventListener('click', onPopupActivate);
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'Escape' || e.key === 'Esc') && popup.classList.contains('visible')) {
+      e.preventDefault();
+      closeTipQr();
+    }
+  });
+})();
 
 // Video Modal
 const videoPlayer = {

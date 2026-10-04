@@ -276,6 +276,7 @@ bindTouchButton(touchDashBtn, 'dash');
 // ============================================================================
 function handleZoneTouchStart(e) {
   if (document.body.classList.contains('qr-open')) return;
+  if (e.target && e.target.closest && e.target.closest('#qrPopup, .qr-popup')) return;
   if (!gameStarted || (typeof endOfRoadState !== 'undefined' && endOfRoadState.rabbitHoleShown)) return;
 
   const target = e.target;
@@ -305,6 +306,7 @@ function handleZoneTouchStart(e) {
 
 function handleZoneTouchMove(e) {
   if (document.body.classList.contains('qr-open')) return;
+  if (e.target && e.target.closest && e.target.closest('#qrPopup, .qr-popup')) return;
   if (!gameStarted || (typeof endOfRoadState !== 'undefined' && endOfRoadState.rabbitHoleShown)) return;
 
   const target = e.target;
