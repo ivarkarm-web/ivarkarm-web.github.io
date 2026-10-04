@@ -9,36 +9,36 @@ const resonantStones = [
   {
     id: 'summit',
     x: -650,
-    title: 'The Mountain Hermitage',
-    meta: 'Secret Vista · 1,400m',
-    text: 'Above the tree line, the sound of the steel travels for miles into the quiet valleys. Silence is as heavy as stone.',
+    title: 'Baltic Edge',
+    meta: 'Early Life · Eastern Estonia',
+    text: 'After the Soviet collapse, a restless kid with pots, a harmonica, and a torn djembe. Abandoned factories, the Baltic beach, first hitchhikes at ten. The seed of the handpan arrived on YouTube during home schooling.',
     noteIdx: 0,
     triggered: false
   },
   {
     id: 'berlin',
     x: 1800,
-    title: 'Alexanderplatz Viaduct',
-    meta: 'Origins · Berlin 2010',
-    text: 'Cold autumn dawn. The raw concrete arches under the S-Bahn caught the handpan’s overtones like an acoustic cathedral.',
+    title: 'Warschauer Straße',
+    meta: 'Way to Music · Berlin',
+    text: 'A one-way ticket out of Tallinn. A €30 djembe from a Kreuzberg thrift shop. Six to nine hours a day in the underground. Sixty or seventy a weekend on Warschauer Straße until the handpan called.',
     noteIdx: 1,
     triggered: false
   },
   {
     id: 'road',
     x: 4200,
-    title: 'The Hitchhiker’s Pack',
-    meta: 'The Road · Baltic Corridor 2015',
-    text: 'Twelve rides across Poland with a backpack and a handpan strapped with climbing cord. Strangers became an audience in seconds.',
+    title: 'The Stolen Steel',
+    meta: 'The Road · Tallinn & The Hague',
+    text: 'First Spacedrum practiced like a djembe. Then the locked staircase and an empty case — the lowest point. Crowdfunding, then Godan in The Hague sent a brand new handpan free of charge.',
     noteIdx: 4,
     triggered: false
   },
   {
     id: 'greece',
     x: 8000,
-    title: 'Aegean Sunstone',
-    meta: 'Greece · Athens & Samos 2021',
-    text: 'Warm stone steps in Monastiraki. People sitting down in the midday heat, listening to the scale while the city kept hurrying past.',
+    title: 'Ermou Street',
+    meta: 'Greece · Samos & Athens',
+    text: 'Trapped in Estonia, then a chance at Greece. A restaurant on Samos that did not last. Back to street life in Athens — notes left in the case, dogs from Berlin, the open road again.',
     noteIdx: 6,
     triggered: false
   },
@@ -47,7 +47,7 @@ const resonantStones = [
     x: 10500,
     title: 'The Threshold',
     meta: 'Deep Archive · The Rabbit Hole',
-    text: 'Where the journey reflects back on itself. Every street, every note, every face remembered and preserved in the deep archive.',
+    text: 'Where the public road ends and the full story begins. Makers, bedroom sessions, instruments, and the notes figured out the hard way.',
     noteIdx: 8,
     triggered: false
   }
