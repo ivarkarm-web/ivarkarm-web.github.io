@@ -1294,7 +1294,44 @@
 <script src="./js/scenes.js" defer></script>
 <script src="./js/ui.js" defer></script>
 <script src="./js/engine.js" defer></script>
-<script src="./script.js?v=1791060652550" defer></script>
+<script src="./script.js?v=1791060652600" defer></script>
 <script src="./js/analytics.js" defer></script>
+
+<script>
+// Emergency enter binding — runs immediately, independent of module load order
+(function(){
+  function dismissWelcome(){
+    try {
+      if (typeof startGame === 'function') { startGame(); return; }
+    } catch(e) {}
+    var w = document.getElementById('welcome');
+    if (w) {
+      w.classList.add('hidden');
+      w.style.opacity = '0';
+      w.style.pointerEvents = 'none';
+      w.style.display = 'none';
+    }
+    if (document.body) document.body.classList.remove('pre-enter');
+    try { if (typeof gameStarted !== 'undefined') gameStarted = true; } catch(e) {}
+  }
+  function bind(){
+    var btn = document.getElementById('welcomeEnter');
+    var wel = document.getElementById('welcome');
+    if (btn) {
+      btn.addEventListener('click', dismissWelcome);
+      btn.addEventListener('pointerup', dismissWelcome);
+    }
+    if (wel) {
+      wel.addEventListener('click', function(e){
+        if (e.target && e.target.closest && e.target.closest('a,button,input')) return;
+        dismissWelcome();
+      });
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+  else bind();
+})();
+</script>
+
 </body>
 </html>

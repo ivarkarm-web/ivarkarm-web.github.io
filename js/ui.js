@@ -340,7 +340,7 @@ function handleZoneTouchEnd(e) {
 }
 
 // Bind steering directly on touch zones, canvas, and window for guaranteed capture
-[touchLeftEl, touchRightEl, touchZonesEl, canvas].forEach((zoneEl) => {
+[touchLeftEl, touchRightEl, touchZonesEl, document.getElementById('game')].forEach((zoneEl) => {
   if (!zoneEl) return;
   zoneEl.addEventListener('touchstart', handleZoneTouchStart, { passive: false });
   zoneEl.addEventListener('touchmove', handleZoneTouchMove, { passive: false });
@@ -403,7 +403,7 @@ function handleTouchZoneDoubleTap(e) {
 }
 
 // Bind double-tap event listener directly to mobile touch zones, touch arrows, and canvas
-[touchLeftEl, touchRightEl, touchZonesEl, touchArrowLeftEl, touchArrowRightEl, canvas].forEach((zoneEl) => {
+[touchLeftEl, touchRightEl, touchZonesEl, touchArrowLeftEl, touchArrowRightEl, document.getElementById('game')].forEach((zoneEl) => {
   if (!zoneEl) return;
   zoneEl.addEventListener('touchstart', handleTouchZoneDoubleTap, { passive: true });
 });
@@ -2271,7 +2271,7 @@ function closeRabbitHoleScreen() {
       cameraY = 0;
       keys = {};
       document.body.classList.remove('rabbit-hole-open');
-      if (canvas) {
+      if (typeof canvas !== 'undefined' && canvas) {
         try { canvas.focus({ preventScroll: true }); } catch (e) {}
       }
     };
@@ -2291,7 +2291,7 @@ function closeRabbitHoleScreen() {
     cameraY = 0;
     keys = {};
     document.body.classList.remove('rabbit-hole-open');
-    if (canvas) {
+    if (typeof canvas !== 'undefined' && canvas) {
       try { canvas.focus({ preventScroll: true }); } catch (e) {}
     }
   }

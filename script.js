@@ -134,17 +134,23 @@ function loop(now) {
   // Reduced motion: still advance state lightly but skip heavy visual updates if desired
   const reduced = (typeof AppCore !== 'undefined' && AppCore.getCapabilities && AppCore.getCapabilities().reducedMotion);
 
-  if (typeof updateBackgroundSlideshow === 'function') updateBackgroundSlideshow(dt);
-  if (typeof update === 'function') update(dt);
-  if (typeof updateImprovCue === 'function') updateImprovCue();
-  if (typeof updateWorldParticles === 'function') updateWorldParticles(dt);
-  // Subtle audio reactivity (breathing of the world)
-  if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.updateBands) {
-    ResonanceAudio.updateBands();
-  }
-
-  if (canvas && ctx) {
-    draw(cameraX);
+  try {
+    if (typeof updateBackgroundSlideshow === 'function') updateBackgroundSlideshow(dt);
+    if (typeof update === 'function') update(dt);
+    if (typeof updateImprovCue === 'function') updateImprovCue();
+    if (typeof updateWorldParticles === 'function') updateWorldParticles(dt);
+    if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.updateBands) {
+      ResonanceAudio.updateBands();
+    }
+    if (typeof canvas !== 'undefined' && canvas && ctx) {
+      draw(cameraX);
+    }
+  } catch (loopErr) {
+    // Keep the loop alive; log once per second max
+    if (!loop._lastErr || now - loop._lastErr > 1000) {
+      console.warn('frame error:', loopErr);
+      loop._lastErr = now;
+    }
   }
 }
 
