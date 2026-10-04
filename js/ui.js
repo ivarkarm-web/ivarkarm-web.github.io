@@ -1592,6 +1592,16 @@ const rhScrollManager = {
     });
   },
 
+  _replayEdgeSlides(sec) {
+    if (!sec) return;
+    const sel = '.rh-story-card, .rh-story-feature, .rh-artisan-card, .rh-instrument-card, .rh-track-row, .rh-aphorism-item, .rh-patron-card';
+    sec.querySelectorAll(sel).forEach((el) => {
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = '';
+    });
+  },
+
   handleScroll() {
     if (!this.container) return;
 
@@ -1671,14 +1681,24 @@ const rhScrollManager = {
       if (rect.bottom < viewportHeight * 0.22) {
         sec.classList.remove('in-view', 'pending-below');
         sec.classList.add('scrolled-past');
-      } else if (rect.top > viewportHeight * 0.88) {
-        // Pending below viewport
+      } else if (rect.top > viewportHeight * 0.78) {
+        // Still mostly below — keep parked off-screen so enter anim can play
         sec.classList.remove('in-view', 'scrolled-past');
         sec.classList.add('pending-below');
       } else {
-        // In viewport view
+        // Entering view — restart edge-slide animations once per entry
+        const wasInView = sec.classList.contains('in-view');
         sec.classList.remove('scrolled-past', 'pending-below');
-        sec.classList.add('in-view');
+        if (!wasInView) {
+          sec.classList.remove('in-view');
+          // Force style recalc so @keyframes run from off-screen again
+          // eslint-disable-next-line no-unused-expressions
+          void sec.offsetWidth;
+          sec.classList.add('in-view');
+          this._replayEdgeSlides(sec);
+        } else {
+          sec.classList.add('in-view');
+        }
       }
     });
 
@@ -2199,6 +2219,19 @@ function openRabbitHoleScreen() {
         rhGalleryManager.startSlideshow();
       }
       rhScrollManager.reset();
+      try {
+        const s0 = document.getElementById('rhSec0');
+        if (s0) {
+          s0.classList.remove('in-view', 'scrolled-past');
+          s0.classList.add('pending-below');
+          void s0.offsetWidth;
+          s0.classList.remove('pending-below');
+          s0.classList.add('in-view');
+          if (typeof rhScrollManager._replayEdgeSlides === 'function') {
+            rhScrollManager._replayEdgeSlides(s0);
+          }
+        }
+      } catch (e) {}
       rhScrollManager.startParallaxLoop();
       if (typeof ScrollTrigger !== 'undefined') {
         ScrollTrigger.refresh();

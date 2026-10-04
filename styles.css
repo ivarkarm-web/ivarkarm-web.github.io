@@ -3148,7 +3148,7 @@ body.rabbit-hole-open #cursor {
   padding: 5rem 2.5rem 6rem;
   box-sizing: border-box;
   position: relative;
-  overflow-x: clip;
+  overflow: visible; /* allow cards to enter from true viewport edges */
 }
 
 /* Base scroll states: active centered vs scrolled past vs pending */
@@ -3370,6 +3370,131 @@ body.rabbit-hole-open #cursor {
   50% { transform: translate(-50%, 8px); opacity: 0.9; }
 }
 
+
+
+/* ==========================================================================
+   FULL EDGE SLIDE REVEALS — cards enter from the real phone/screen edge
+   ========================================================================== */
+@keyframes rhSlideInFromLeft {
+  from {
+    transform: translate3d(-100vw, 0, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+@keyframes rhSlideInFromRight {
+  from {
+    transform: translate3d(100vw, 0, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+/* Default: park cards fully off-screen until section is in view */
+.rh-section:not(.in-view) .rh-story-card,
+.rh-section:not(.in-view) .rh-story-feature,
+.rh-section:not(.in-view) .rh-artisan-card,
+.rh-section:not(.in-view) .rh-instrument-card,
+.rh-section:not(.in-view) .rh-track-row,
+.rh-section:not(.in-view) .rh-aphorism-item,
+.rh-section:not(.in-view) .rh-patron-card {
+  opacity: 0;
+  animation: none !important;
+}
+
+.rh-section:not(.in-view) .rh-story-card:nth-child(odd),
+.rh-section:not(.in-view) .rh-story-feature:nth-child(odd),
+.rh-section:not(.in-view) .rh-artisan-card:nth-child(odd),
+.rh-section:not(.in-view) .rh-instrument-card:nth-child(odd),
+.rh-section:not(.in-view) .rh-track-row:nth-child(odd),
+.rh-section:not(.in-view) .rh-aphorism-item:nth-child(odd) {
+  transform: translate3d(-100vw, 0, 0);
+}
+
+.rh-section:not(.in-view) .rh-story-card:nth-child(even),
+.rh-section:not(.in-view) .rh-story-feature:nth-child(even),
+.rh-section:not(.in-view) .rh-artisan-card:nth-child(even),
+.rh-section:not(.in-view) .rh-instrument-card:nth-child(even),
+.rh-section:not(.in-view) .rh-track-row:nth-child(even),
+.rh-section:not(.in-view) .rh-aphorism-item:nth-child(even),
+.rh-section:not(.in-view) .rh-patron-card {
+  transform: translate3d(100vw, 0, 0);
+}
+
+/* In view: play full-width edge entrance */
+.rh-section.in-view .rh-story-card:nth-child(odd),
+.rh-section.in-view .rh-story-feature:nth-child(odd),
+.rh-section.in-view .rh-artisan-card:nth-child(odd),
+.rh-section.in-view .rh-instrument-card:nth-child(odd),
+.rh-section.in-view .rh-track-row:nth-child(odd),
+.rh-section.in-view .rh-aphorism-item:nth-child(odd) {
+  animation: rhSlideInFromLeft 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.rh-section.in-view .rh-story-card:nth-child(even),
+.rh-section.in-view .rh-story-feature:nth-child(even),
+.rh-section.in-view .rh-artisan-card:nth-child(even),
+.rh-section.in-view .rh-instrument-card:nth-child(even),
+.rh-section.in-view .rh-track-row:nth-child(even),
+.rh-section.in-view .rh-aphorism-item:nth-child(even),
+.rh-section.in-view .rh-patron-card {
+  animation: rhSlideInFromRight 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Stagger so each card is readable as it arrives */
+.rh-section.in-view .rh-story-card:nth-child(1),
+.rh-section.in-view .rh-story-feature:nth-child(1),
+.rh-section.in-view .rh-artisan-card:nth-child(1),
+.rh-section.in-view .rh-instrument-card:nth-child(1),
+.rh-section.in-view .rh-track-row:nth-child(1),
+.rh-section.in-view .rh-aphorism-item:nth-child(1) { animation-delay: 0.05s; }
+
+.rh-section.in-view .rh-story-card:nth-child(2),
+.rh-section.in-view .rh-story-feature:nth-child(2),
+.rh-section.in-view .rh-artisan-card:nth-child(2),
+.rh-section.in-view .rh-instrument-card:nth-child(2),
+.rh-section.in-view .rh-track-row:nth-child(2),
+.rh-section.in-view .rh-aphorism-item:nth-child(2) { animation-delay: 0.14s; }
+
+.rh-section.in-view .rh-story-card:nth-child(3),
+.rh-section.in-view .rh-artisan-card:nth-child(3),
+.rh-section.in-view .rh-instrument-card:nth-child(3),
+.rh-section.in-view .rh-track-row:nth-child(3),
+.rh-section.in-view .rh-aphorism-item:nth-child(3) { animation-delay: 0.23s; }
+
+.rh-section.in-view .rh-story-card:nth-child(4),
+.rh-section.in-view .rh-artisan-card:nth-child(4),
+.rh-section.in-view .rh-instrument-card:nth-child(4),
+.rh-section.in-view .rh-track-row:nth-child(4),
+.rh-section.in-view .rh-aphorism-item:nth-child(4) { animation-delay: 0.32s; }
+
+.rh-section.in-view .rh-story-card:nth-child(n+5),
+.rh-section.in-view .rh-artisan-card:nth-child(n+5),
+.rh-section.in-view .rh-instrument-card:nth-child(n+5),
+.rh-section.in-view .rh-track-row:nth-child(n+5),
+.rh-section.in-view .rh-aphorism-item:nth-child(n+5) { animation-delay: 0.4s; }
+
+.rh-section.in-view .rh-patron-card { animation-delay: 0.28s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rh-section.in-view .rh-story-card,
+  .rh-section.in-view .rh-story-feature,
+  .rh-section.in-view .rh-artisan-card,
+  .rh-section.in-view .rh-instrument-card,
+  .rh-section.in-view .rh-track-row,
+  .rh-section.in-view .rh-aphorism-item,
+  .rh-section.in-view .rh-patron-card {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
 
 /* ==========================================================================
    REVEAL STYLES (Different bespoke reveal for each section)
@@ -3609,8 +3734,11 @@ body.rabbit-hole-open #cursor {
 .rh-story-card:hover {
   background: rgba(212, 175, 55, 0.06);
   border-color: var(--border-gold);
-  transform: translateY(-3px) !important;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+.rh-section.in-view .rh-story-card:hover {
+  border-color: var(--border-gold);
+  background: rgba(18, 18, 20, 0.98);
 }
 
 .rh-story-era {
