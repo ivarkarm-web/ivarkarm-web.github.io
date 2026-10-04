@@ -635,7 +635,7 @@ const MUSIC_TRACKS = [
   }
 ];
 
-const musicPlayer = {
+const musicPlayer = window.musicPlayer = {
   audio: null,
   index: 0,
   isPlaying: false,

@@ -4,6 +4,14 @@
  * ground, particles, audio orbs, landmarks, and all canvas drawing helpers.
  * Depends on: utilities.js, content.js (veg data, constants)
  */
+function getCanvas() {
+  return (typeof canvas !== 'undefined' && canvas) ? canvas : (window.canvas || document.getElementById('game'));
+}
+function getCtx() {
+  const c = getCanvas();
+  return (typeof ctx !== 'undefined' && ctx) ? ctx : (window.ctx || (c ? c.getContext('2d') : null));
+}
+
 
 /** Runtime density scale from performance mode (1 = full, lower = sparser). */
 function getVegDensityScale() {
@@ -896,7 +904,7 @@ function drawBushMid(m, baseX, baseY, size, seed, time) {
 }
 
 function drawVegMid(offset) {
-  if (!ctx || !canvas) return;
+  if (!getCtx() || !getCanvas()) return;
   const parallax = 0.72;
   const off = offset * parallax;
   const time = Date.now() * 0.001;
@@ -996,7 +1004,7 @@ function drawGrassNear(n, baseX, baseY, size, seed, time) {
 }
 
 function drawVegNear(offset) {
-  if (!ctx || !canvas) return;
+  if (!getCtx() || !getCanvas()) return;
   const parallax = 1.0;
   const off = offset * parallax;
   const time = Date.now() * 0.001;
@@ -1050,7 +1058,7 @@ function drawVegFore(offset) {
     ctx.restore();
   }
 function drawVegFar(offset) {
-  if (!ctx || !canvas) return;
+  if (!getCtx() || !getCanvas()) return;
   const parallax = 0.40;
   const off = offset * parallax;
   const time = Date.now() * 0.001;
@@ -1136,7 +1144,7 @@ function drawVegFar(offset) {
 
 // Starfield, atmosphere, horizon lights, particles → js/scenes-effects.js
 function drawAudioOrbs(offset) {
-  if (!ctx || !canvas) return;
+  if (!getCtx() || !getCanvas()) return;
   audioOrbs.forEach(orb => {
     if (orb.collected) return;
     const screenX = orb.x - offset;
@@ -1550,7 +1558,7 @@ const brushedRingSeeds = (function () {
 // Equatorial brass join seam + acoustic vibration pulse
 // ============================================================================
 function drawBall(screenX, screenY) {
-  if (!ctx || !canvas) return;
+  if (!getCtx() || !getCanvas()) return;
   const r = ballRadius;
 
   // 1. Soft depth-adjusted contact shadow on the ground
@@ -1684,7 +1692,7 @@ function drawBall(screenX, screenY) {
 }
 
 function drawResonantStones(context, offset) {
-  if (!context || !canvas) return;
+  if (!context || !getCanvas()) return;
   const time = Date.now() * 0.001;
   for (let i = 0; i < resonantStones.length; i++) {
     const s = resonantStones[i];
@@ -1745,7 +1753,7 @@ function drawResonantStones(context, offset) {
 }
 
 function drawChapterLandmarks(context, offset) {
-  if (!context || !canvas) return;
+  if (!context || !getCanvas()) return;
 
   // =========================================================================
   // 1. BERLIN INDUSTRIAL S-BAHN VIADUCT ARCHES & TV TOWER (x = 1000 to 2800)
@@ -2268,7 +2276,7 @@ function drawCoverImage(context, img, alpha, yOffset = 0) {
 }
 
 function drawBackgroundVignette(context) {
-  if (!context || !canvas) return;
+  if (!context || !getCanvas()) return;
   const cw = viewW;
   const ch = viewH;
   const z = Math.max(0.3, Math.min(1, zoomLevel || 1));
@@ -2432,7 +2440,7 @@ function drawFlowerOfLife(context, cx, cy, radius) {
 }
 
 function drawGiantBackgroundFlowerOfLife(context) {
-  if (!context || !canvas) return;
+  if (!context || !getCanvas()) return;
   const time = Date.now() * 0.001;
   const cw = viewW;
   const ch = viewH;

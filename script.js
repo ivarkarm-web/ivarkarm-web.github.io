@@ -6,6 +6,9 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
 // Canvas setup
 const canvas = document.getElementById("game");
 const ctx = canvas ? canvas.getContext("2d") : null;
+// Expose on window so modules that load earlier can safely reference them
+window.canvas = canvas;
+window.ctx = ctx;
 
 // --- Resolution-independent sizing -----------------------------------------
 let viewW = window.innerWidth;
@@ -38,6 +41,10 @@ function resizeCanvas() {
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   }
   updateVegGlobalScale();
+  window.viewW = viewW;
+  window.viewH = viewH;
+  window.DPR = DPR;
+  window.vegGlobalScale = vegGlobalScale;
 }
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
