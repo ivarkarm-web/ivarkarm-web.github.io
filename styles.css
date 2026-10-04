@@ -3373,7 +3373,7 @@ body.rabbit-hole-open #cursor {
 
 
 /* ==========================================================================
-   FULL EDGE SLIDE REVEALS — cards enter from the real phone/screen edge
+   PER-CARD EDGE SLIDES — each card animates on its own when it enters view
    ========================================================================== */
 @keyframes rhSlideInFromLeft {
   from {
@@ -3396,100 +3396,32 @@ body.rabbit-hole-open #cursor {
   }
 }
 
-/* Default: park cards fully off-screen until section is in view */
-.rh-section:not(.in-view) .rh-story-card,
-.rh-section:not(.in-view) .rh-story-feature,
-.rh-section:not(.in-view) .rh-artisan-card,
-.rh-section:not(.in-view) .rh-instrument-card,
-.rh-section:not(.in-view) .rh-track-row,
-.rh-section:not(.in-view) .rh-aphorism-item,
-.rh-section:not(.in-view) .rh-patron-card {
+.rh-reveal-item {
   opacity: 0;
-  animation: none !important;
+  will-change: transform, opacity;
+  /* no transition here — keyframes handle the motion */
 }
 
-.rh-section:not(.in-view) .rh-story-card:nth-child(odd),
-.rh-section:not(.in-view) .rh-story-feature:nth-child(odd),
-.rh-section:not(.in-view) .rh-artisan-card:nth-child(odd),
-.rh-section:not(.in-view) .rh-instrument-card:nth-child(odd),
-.rh-section:not(.in-view) .rh-track-row:nth-child(odd),
-.rh-section:not(.in-view) .rh-aphorism-item:nth-child(odd) {
+.rh-reveal-item.rh-from-left {
   transform: translate3d(-100vw, 0, 0);
 }
 
-.rh-section:not(.in-view) .rh-story-card:nth-child(even),
-.rh-section:not(.in-view) .rh-story-feature:nth-child(even),
-.rh-section:not(.in-view) .rh-artisan-card:nth-child(even),
-.rh-section:not(.in-view) .rh-instrument-card:nth-child(even),
-.rh-section:not(.in-view) .rh-track-row:nth-child(even),
-.rh-section:not(.in-view) .rh-aphorism-item:nth-child(even),
-.rh-section:not(.in-view) .rh-patron-card {
+.rh-reveal-item.rh-from-right {
   transform: translate3d(100vw, 0, 0);
 }
 
-/* In view: play full-width edge entrance */
-.rh-section.in-view .rh-story-card:nth-child(odd),
-.rh-section.in-view .rh-story-feature:nth-child(odd),
-.rh-section.in-view .rh-artisan-card:nth-child(odd),
-.rh-section.in-view .rh-instrument-card:nth-child(odd),
-.rh-section.in-view .rh-track-row:nth-child(odd),
-.rh-section.in-view .rh-aphorism-item:nth-child(odd) {
-  animation: rhSlideInFromLeft 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+/* Smooth, unhurried entrance from the real screen edge */
+.rh-reveal-item.rh-card-visible.rh-from-left {
+  animation: rhSlideInFromLeft 1.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-.rh-section.in-view .rh-story-card:nth-child(even),
-.rh-section.in-view .rh-story-feature:nth-child(even),
-.rh-section.in-view .rh-artisan-card:nth-child(even),
-.rh-section.in-view .rh-instrument-card:nth-child(even),
-.rh-section.in-view .rh-track-row:nth-child(even),
-.rh-section.in-view .rh-aphorism-item:nth-child(even),
-.rh-section.in-view .rh-patron-card {
-  animation: rhSlideInFromRight 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+.rh-reveal-item.rh-card-visible.rh-from-right {
+  animation: rhSlideInFromRight 1.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-
-/* Stagger so each card is readable as it arrives */
-.rh-section.in-view .rh-story-card:nth-child(1),
-.rh-section.in-view .rh-story-feature:nth-child(1),
-.rh-section.in-view .rh-artisan-card:nth-child(1),
-.rh-section.in-view .rh-instrument-card:nth-child(1),
-.rh-section.in-view .rh-track-row:nth-child(1),
-.rh-section.in-view .rh-aphorism-item:nth-child(1) { animation-delay: 0.05s; }
-
-.rh-section.in-view .rh-story-card:nth-child(2),
-.rh-section.in-view .rh-story-feature:nth-child(2),
-.rh-section.in-view .rh-artisan-card:nth-child(2),
-.rh-section.in-view .rh-instrument-card:nth-child(2),
-.rh-section.in-view .rh-track-row:nth-child(2),
-.rh-section.in-view .rh-aphorism-item:nth-child(2) { animation-delay: 0.14s; }
-
-.rh-section.in-view .rh-story-card:nth-child(3),
-.rh-section.in-view .rh-artisan-card:nth-child(3),
-.rh-section.in-view .rh-instrument-card:nth-child(3),
-.rh-section.in-view .rh-track-row:nth-child(3),
-.rh-section.in-view .rh-aphorism-item:nth-child(3) { animation-delay: 0.23s; }
-
-.rh-section.in-view .rh-story-card:nth-child(4),
-.rh-section.in-view .rh-artisan-card:nth-child(4),
-.rh-section.in-view .rh-instrument-card:nth-child(4),
-.rh-section.in-view .rh-track-row:nth-child(4),
-.rh-section.in-view .rh-aphorism-item:nth-child(4) { animation-delay: 0.32s; }
-
-.rh-section.in-view .rh-story-card:nth-child(n+5),
-.rh-section.in-view .rh-artisan-card:nth-child(n+5),
-.rh-section.in-view .rh-instrument-card:nth-child(n+5),
-.rh-section.in-view .rh-track-row:nth-child(n+5),
-.rh-section.in-view .rh-aphorism-item:nth-child(n+5) { animation-delay: 0.4s; }
-
-.rh-section.in-view .rh-patron-card { animation-delay: 0.28s; }
 
 @media (prefers-reduced-motion: reduce) {
-  .rh-section.in-view .rh-story-card,
-  .rh-section.in-view .rh-story-feature,
-  .rh-section.in-view .rh-artisan-card,
-  .rh-section.in-view .rh-instrument-card,
-  .rh-section.in-view .rh-track-row,
-  .rh-section.in-view .rh-aphorism-item,
-  .rh-section.in-view .rh-patron-card {
+  .rh-reveal-item,
+  .rh-reveal-item.rh-card-visible {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
@@ -5197,4 +5129,33 @@ body.mp-drawer-open nav {
 /* Performance mode data attribute hooks (optional visual tuning) */
 html[data-perf-mode="low"] #game {
   /* Engine already lowers DPR; CSS can hide purely decorative overlays if needed */
+}
+
+
+/* Per-card system owns motion — disable legacy section-wide reveal transforms */
+.reveal-luminous .rh-story-card,
+.reveal-curtain .rh-story-card,
+.reveal-cinematic .rh-story-card,
+.reveal-cinematic .rh-story-feature,
+.reveal-constellation .rh-artisan-card,
+.reveal-acoustic .rh-instrument-card,
+.reveal-equalizer .rh-track-row,
+.reveal-epilogue .rh-aphorism-item,
+.reveal-epilogue .rh-patron-card {
+  /* base position handled by .rh-reveal-item when present */
+}
+.reveal-luminous.in-view .rh-story-card,
+.reveal-curtain.in-view .rh-story-card,
+.reveal-cinematic.in-view .rh-story-card,
+.reveal-cinematic.in-view .rh-story-feature,
+.reveal-constellation.in-view .rh-artisan-card,
+.reveal-acoustic.in-view .rh-instrument-card,
+.reveal-equalizer.in-view .rh-track-row,
+.reveal-epilogue.in-view .rh-aphorism-item,
+.reveal-epilogue.in-view .rh-patron-card {
+  animation: none; /* per-card observer drives .rh-card-visible instead */
+}
+/* Only apply legacy in-view transform reset if item is already visible */
+.rh-reveal-item.rh-card-visible {
+  /* animation fills final state */
 }

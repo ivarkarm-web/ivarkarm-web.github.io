@@ -1340,6 +1340,7 @@ const rhScrollManager = {
 
     // Initialize IntersectionObserver to dynamically update active state styling
     this.initIntersectionObserver();
+    this.initCardReveals();
 
     // Initialize GSAP ScrollTrigger dynamic exit transitions
     this.initScrollTriggers();
@@ -1592,13 +1593,75 @@ const rhScrollManager = {
     });
   },
 
-  _replayEdgeSlides(sec) {
-    if (!sec) return;
-    const sel = '.rh-story-card, .rh-story-feature, .rh-artisan-card, .rh-instrument-card, .rh-track-row, .rh-aphorism-item, .rh-patron-card';
-    sec.querySelectorAll(sel).forEach((el) => {
-      el.style.animation = 'none';
-      void el.offsetWidth;
+  CARD_REVEAL_SEL: '.rh-story-card, .rh-story-feature, .rh-artisan-card, .rh-instrument-card, .rh-track-row, .rh-aphorism-item, .rh-patron-card',
+
+  initCardReveals() {
+    if (!this.container || this.reducedMotion) {
+      // Show everything immediately if reduced motion
+      if (this.container) {
+        this.container.querySelectorAll(this.CARD_REVEAL_SEL).forEach((el) => {
+          el.classList.add('rh-reveal-item', 'rh-card-visible');
+          el.style.opacity = '1';
+          el.style.transform = 'none';
+        });
+      }
+      return;
+    }
+
+    if (this.cardObserver) {
+      try { this.cardObserver.disconnect(); } catch (e) {}
+      this.cardObserver = null;
+    }
+
+    const cards = Array.from(this.container.querySelectorAll(this.CARD_REVEAL_SEL));
+    let dirToggle = 0;
+    cards.forEach((el) => {
+      el.classList.add('rh-reveal-item');
+      el.classList.remove('rh-card-visible', 'rh-from-left', 'rh-from-right');
+      // Alternate direction per card (not per section)
+      if (dirToggle % 2 === 0) {
+        el.classList.add('rh-from-left');
+      } else {
+        el.classList.add('rh-from-right');
+      }
+      dirToggle += 1;
       el.style.animation = '';
+    });
+
+    this.cardObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const el = entry.target;
+        if (entry.isIntersecting) {
+          // Each card slides in on its own when it crosses into view
+          if (!el.classList.contains('rh-card-visible')) {
+            el.classList.add('rh-card-visible');
+          }
+          // Keep observing so re-entry can replay if user scrolls away far enough
+        } else if (entry.boundingClientRect.top > (entry.rootBounds ? entry.rootBounds.bottom : 0)) {
+          // Only reset when card goes below viewport (upcoming again)
+          el.classList.remove('rh-card-visible');
+          el.style.animation = 'none';
+          void el.offsetWidth;
+          el.style.animation = '';
+        }
+      });
+    }, {
+      root: this.container,
+      // Start the slide a bit before the card is centered — still per-card
+      rootMargin: '0px 0px -8% 0px',
+      threshold: [0, 0.08, 0.15]
+    });
+
+    cards.forEach((el) => this.cardObserver.observe(el));
+  },
+
+  _replayEdgeSlides(sec) {
+    // Legacy no-op kept for call sites — per-card observer owns motion now
+    if (!sec || !this.cardObserver) return;
+    sec.querySelectorAll(this.CARD_REVEAL_SEL).forEach((el) => {
+      if (el.classList.contains('rh-card-visible')) return;
+      // nudge observer by toggling
+      el.classList.remove('rh-card-visible');
     });
   },
 
@@ -1686,19 +1749,9 @@ const rhScrollManager = {
         sec.classList.remove('in-view', 'scrolled-past');
         sec.classList.add('pending-below');
       } else {
-        // Entering view — restart edge-slide animations once per entry
-        const wasInView = sec.classList.contains('in-view');
+        // Section chrome (headers) may still use .in-view; cards animate via cardObserver
         sec.classList.remove('scrolled-past', 'pending-below');
-        if (!wasInView) {
-          sec.classList.remove('in-view');
-          // Force style recalc so @keyframes run from off-screen again
-          // eslint-disable-next-line no-unused-expressions
-          void sec.offsetWidth;
-          sec.classList.add('in-view');
-          this._replayEdgeSlides(sec);
-        } else {
-          sec.classList.add('in-view');
-        }
+        sec.classList.add('in-view');
       }
     });
 
@@ -2144,6 +2197,7 @@ const rhScrollManager = {
     this.scrollVelocity.lastScrollTime = performance.now();
     this.updateActiveNav(0);
     this.initIntersectionObserver();
+    this.initCardReveals();
     this.closeToc();
     if (this.progressBar) this.progressBar.style.width = '0%';
     if (this.progressGlow) {
@@ -2220,16 +2274,8 @@ function openRabbitHoleScreen() {
       }
       rhScrollManager.reset();
       try {
-        const s0 = document.getElementById('rhSec0');
-        if (s0) {
-          s0.classList.remove('in-view', 'scrolled-past');
-          s0.classList.add('pending-below');
-          void s0.offsetWidth;
-          s0.classList.remove('pending-below');
-          s0.classList.add('in-view');
-          if (typeof rhScrollManager._replayEdgeSlides === 'function') {
-            rhScrollManager._replayEdgeSlides(s0);
-          }
+        if (typeof rhScrollManager.initCardReveals === 'function') {
+          rhScrollManager.initCardReveals();
         }
       } catch (e) {}
       rhScrollManager.startParallaxLoop();
