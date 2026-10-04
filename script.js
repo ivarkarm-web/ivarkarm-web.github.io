@@ -24,7 +24,12 @@ function resizeCanvas() {
   if (!canvas) return;
   viewW = window.innerWidth;
   viewH = window.innerHeight;
-  DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
+  // Use performance-mode DPR cap when available
+  let dprCap = 2;
+  if (typeof AppCore !== 'undefined' && AppCore.getSettings) {
+    dprCap = AppCore.getSettings().dprCap || 2;
+  }
+  DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, dprCap));
   canvas.style.width = viewW + 'px';
   canvas.style.height = viewH + 'px';
   canvas.width = Math.round(viewW * DPR);
@@ -112,17 +117,48 @@ function updateImprovCue() {
 }
 
 let lastTime = performance.now();
+let rafId = null;
+
 function loop(now) {
+  rafId = requestAnimationFrame(loop);
+
+  // Pause expensive work when tab is hidden
+  if (typeof AppCore !== 'undefined' && AppCore.isRafPaused && AppCore.isRafPaused()) {
+    lastTime = now;
+    return;
+  }
+
   const dt = Math.min(0.05, (now - lastTime) / 1000);
   lastTime = now;
-  updateBackgroundSlideshow(dt);
-  update(dt);
-  updateImprovCue();
-  updateWorldParticles(dt);
-  if (canvas) draw(cameraX);
-  requestAnimationFrame(loop);
+
+  // Reduced motion: still advance state lightly but skip heavy visual updates if desired
+  const reduced = (typeof AppCore !== 'undefined' && AppCore.getCapabilities && AppCore.getCapabilities().reducedMotion);
+
+  if (typeof updateBackgroundSlideshow === 'function') updateBackgroundSlideshow(dt);
+  if (typeof update === 'function') update(dt);
+  if (typeof updateImprovCue === 'function') updateImprovCue();
+  if (typeof updateWorldParticles === 'function') updateWorldParticles(dt);
+  // Subtle audio reactivity (breathing of the world)
+  if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.updateBands) {
+    ResonanceAudio.updateBands();
+  }
+
+  if (canvas && ctx) {
+    draw(cameraX);
+  }
 }
-requestAnimationFrame(loop);
+
+// Resume cleanly after tab becomes visible again
+window.addEventListener('appresume', () => {
+  lastTime = performance.now();
+});
+
+// React to performance mode changes (re-apply DPR)
+window.addEventListener('perfmodechange', () => {
+  resizeCanvas();
+});
+
+rafId = requestAnimationFrame(loop);
 
 // Navigation links
 const navLinkSectionIndex = {

@@ -27,6 +27,10 @@ const ResonanceAudio = {
   rollingFilter: null,
   ambientFilter: null,
   lastNoteTime: 0,
+  analyser: null,
+  analyserData: null,
+  // Smoothed frequency bands for visual reactivity (0-1)
+  bands: { bass: 0, mid: 0, high: 0, amplitude: 0 },
 
   init() {
     if (this.initialized) return;
@@ -37,6 +41,17 @@ const ResonanceAudio = {
       this.masterGain = this.ctx.createGain();
       this.masterGain.gain.setValueAtTime(0.7, this.ctx.currentTime);
       this.masterGain.connect(this.ctx.destination);
+
+      // Analyser for subtle visual reactivity (not a cheesy equalizer)
+      try {
+        this.analyser = this.ctx.createAnalyser();
+        this.analyser.fftSize = 256;
+        this.analyser.smoothingTimeConstant = 0.82;
+        this.masterGain.connect(this.analyser);
+        this.analyserData = new Uint8Array(this.analyser.frequencyBinCount);
+      } catch (_) {
+        this.analyser = null;
+      }
 
       this.ambientGain = this.ctx.createGain();
       this.ambientGain.gain.setValueAtTime(0.20, this.ctx.currentTime);

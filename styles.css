@@ -4976,3 +4976,47 @@ body.mp-drawer-open nav {
 .section:not(.visible) * {
   pointer-events: none !important;
 }
+
+/* ==========================================================================
+   Accessibility & Performance: prefers-reduced-motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .welcome-flower,
+  .rabbit-hole-particle,
+  .mp-pull-cue {
+    animation: none !important;
+  }
+}
+
+/* Ensure visible focus for keyboard users */
+:focus-visible {
+  outline: 2px solid var(--accent-gold, #d4af37);
+  outline-offset: 3px;
+}
+
+/* Larger touch targets on coarse pointers */
+@media (pointer: coarse) {
+  .nav-action-btn,
+  .touch-arrow,
+  .touch-action-btn,
+  .welcome-enter,
+  .rh-tip-link-btn,
+  .mp-drawer-close-x {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Performance mode data attribute hooks (optional visual tuning) */
+html[data-perf-mode="low"] #game {
+  /* Engine already lowers DPR; CSS can hide purely decorative overlays if needed */
+}

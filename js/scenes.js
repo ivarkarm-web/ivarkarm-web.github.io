@@ -1117,6 +1117,12 @@ function drawStarfield(context, offset) {
   const PARALLAX_MID = 0.28;
   const PARALLAX_NEAR = 0.52;
 
+  // Subtle breathing with the handpan (never a hard equalizer)
+  let audioBoost = 1;
+  if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.bands) {
+    audioBoost = 1 + ResonanceAudio.bands.amplitude * 0.55 + ResonanceAudio.bands.high * 0.25;
+  }
+
   function drawLayer(stars, parallax, baseAlpha, glow) {
     for (let i = 0; i < stars.length; i++) {
       const s = stars[i];
@@ -1127,7 +1133,7 @@ function drawStarfield(context, offset) {
       const screenY = s.y * ch;
       if (screenX < -10 || screenX > viewW + 10) continue;
       const twinkle = 0.72 + 0.28 * Math.sin(time * 1.6 + s.tw);
-      const alpha = baseAlpha * twinkle;
+      const alpha = Math.min(1, baseAlpha * twinkle * audioBoost);
       if (glow) {
         const grd = context.createRadialGradient(screenX, screenY, 0, screenX, screenY, s.r * 3.2);
         grd.addColorStop(0, 'rgba(255, 236, 180, ' + (alpha * 0.65) + ')');
