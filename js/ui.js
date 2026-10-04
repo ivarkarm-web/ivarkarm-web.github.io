@@ -2079,100 +2079,25 @@ const rhScrollManager = {
   },
 
   initScrollTriggers() {
+    // No section-level filter/opacity scrub — that blurred and dimmed body text.
+    // Chapter motion is handled by CSS card slides (full off-screen enter).
     if (this.reducedMotion || !this.sections.length || !this.container) return;
 
     this.killScrollTriggers();
 
-    // Directional slide chapters — no blur (blur made body text unreadable mid-scroll).
-    // Alternate enter/exit directions per chapter for clearer motion.
-    const enterDirs = [
-      { x: 0, y: 36 },      // 0: from below
-      { x: -48, y: 0 },     // 1: from left
-      { x: 48, y: 0 },      // 2: from right
-      { x: 0, y: 40 },      // 3: from below
-      { x: -40, y: 12 },    // 4: from left
-      { x: 40, y: 12 },     // 5: from right
-      { x: 0, y: 32 }       // 6: from below
-    ];
-    const exitDirs = [
-      { x: 0, y: -40 },
-      { x: 36, y: -16 },
-      { x: -36, y: -16 },
-      { x: 0, y: -44 },
-      { x: 28, y: -20 },
-      { x: -28, y: -20 },
-      { x: 0, y: -36 }
-    ];
-
-    this.sections.forEach((sec, idx) => {
-      const enter = enterDirs[idx % enterDirs.length];
-      const exit = exitDirs[idx % exitDirs.length];
-
-      // Always clear any leftover blur from previous builds
-      gsap.set(sec, { filter: 'none', clearProps: 'filter' });
-
-      if (idx === 0) {
-        const tween = gsap.fromTo(sec,
-          { opacity: 1, x: 0, y: 0, scale: 1 },
-          {
-            opacity: 0.35,
-            x: exit.x,
-            y: exit.y,
-            scale: 0.98,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: sec,
-              scroller: this.container,
-              start: 'top 8%',
-              end: 'bottom top',
-              scrub: 0.45,
-              invalidateOnRefresh: true,
-              onUpdate: (self) => {
-                sec.style.pointerEvents = self.progress > 0.9 ? 'none' : 'auto';
-              }
-            }
-          }
-        );
-        if (tween.scrollTrigger) this.scrollTriggers.push(tween.scrollTrigger);
-      } else {
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: sec,
-            scroller: this.container,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 0.45,
-            invalidateOnRefresh: true,
-            onUpdate: (self) => {
-              sec.style.pointerEvents = (self.progress < 0.08 || self.progress > 0.92) ? 'none' : 'auto';
-            }
-          }
-        });
-
-        // Enter from alternate direction — opacity + translate only (readable the whole way)
-        tl.fromTo(sec,
-          { opacity: 0.15, x: enter.x, y: enter.y, scale: 1 },
-          { opacity: 1, x: 0, y: 0, scale: 1, ease: 'none', duration: 1 }
-        );
-
-        // Steady reading plateau
-        tl.to(sec, { opacity: 1, x: 0, y: 0, scale: 1, duration: 1.4 });
-
-        // Exit opposite direction, stay legible (no blur)
-        tl.to(sec, {
-          opacity: 0.25,
-          x: exit.x,
-          y: exit.y,
-          scale: 0.98,
-          ease: 'none',
-          duration: 1
-        });
-
-        if (tl.scrollTrigger) this.scrollTriggers.push(tl.scrollTrigger);
-      }
+    this.sections.forEach((sec) => {
+      try {
+        gsap.set(sec, { clearProps: 'filter,opacity,x,y,scale,transform' });
+        sec.style.filter = 'none';
+        sec.style.opacity = '1';
+        sec.style.transform = 'none';
+        sec.style.pointerEvents = 'auto';
+      } catch (e) {}
     });
 
-    ScrollTrigger.refresh();
+    if (typeof ScrollTrigger !== 'undefined') {
+      ScrollTrigger.refresh();
+    }
   },
 
   killScrollTriggers() {
@@ -2217,7 +2142,13 @@ const rhScrollManager = {
       });
     }
     if (this.sections && this.sections.length && !this.reducedMotion) {
-      gsap.set(this.sections[0], { scale: 1, filter: 'none', opacity: 1, x: 0, y: 0 });
+      this.sections.forEach((sec) => {
+        try {
+          gsap.set(sec, { clearProps: 'filter,opacity,x,y,scale,transform' });
+          sec.style.filter = 'none';
+          sec.style.opacity = '1';
+        } catch (e) {}
+      });
     }
     if (typeof ScrollTrigger !== 'undefined') {
       ScrollTrigger.refresh();

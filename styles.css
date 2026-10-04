@@ -3148,8 +3148,7 @@ body.rabbit-hole-open #cursor {
   padding: 5rem 2.5rem 6rem;
   box-sizing: border-box;
   position: relative;
-  transform-origin: center 35%;
-  will-change: opacity, transform;
+  overflow-x: clip;
 }
 
 /* Base scroll states: active centered vs scrolled past vs pending */
@@ -3323,10 +3322,10 @@ body.rabbit-hole-open #cursor {
 
 .rh-sec-lead {
   font-family: 'Inter', sans-serif;
-  font-size: 1.05rem;
-  font-weight: 300;
-  line-height: 1.7;
-  color: var(--text-secondary);
+  font-size: 1.08rem;
+  font-weight: 400;
+  line-height: 1.65;
+  color: rgba(220, 220, 218, 0.9);
   max-width: 65ch;
   margin: 0;
 }
@@ -3391,33 +3390,22 @@ body.rabbit-hole-open #cursor {
 
 .reveal-luminous .rh-story-card {
   opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
 .reveal-luminous .rh-story-card:nth-child(odd) {
-  transform: translateX(-28px);
+  transform: translate3d(-110vw, 0, 0);
 }
-
 .reveal-luminous .rh-story-card:nth-child(even) {
-  transform: translateX(28px);
+  transform: translate3d(110vw, 0, 0);
 }
-
-.reveal-luminous.in-view .rh-story-card:nth-child(1) {
+.reveal-luminous.in-view .rh-story-card {
   opacity: 1;
-  transform: translate(0, 0);
-  transition-delay: 0.15s;
+  transform: translate3d(0, 0, 0);
 }
-.reveal-luminous.in-view .rh-story-card:nth-child(2) {
-  opacity: 1;
-  transform: translate(0, 0);
-  transition-delay: 0.28s;
-}
-.reveal-luminous.in-view .rh-story-card:nth-child(3) {
-  opacity: 1;
-  transform: translate(0, 0);
-  transition-delay: 0.4s;
-}
+.reveal-luminous.in-view .rh-story-card:nth-child(1) { transition-delay: 0.08s; }
+.reveal-luminous.in-view .rh-story-card:nth-child(2) { transition-delay: 0.18s; }
+.reveal-luminous.in-view .rh-story-card:nth-child(3) { transition-delay: 0.28s; }
+.reveal-luminous.in-view .rh-story-card:nth-child(n+4) { transition-delay: 0.36s; }
 
 /* -------------------------------------------------------------
    REVEAL 2: Editorial Curtain Split (Way to Music)
@@ -3436,29 +3424,22 @@ body.rabbit-hole-open #cursor {
 
 .reveal-curtain .rh-story-card {
   opacity: 0;
-  transform: translateX(-24px);
+  transform: translate3d(-110vw, 0, 0);
   border-left: 2px solid transparent;
-  transition: all 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
 }
-
-.reveal-curtain.in-view .rh-story-card:nth-child(1) {
+.reveal-curtain .rh-story-card:nth-child(even) {
+  transform: translate3d(110vw, 0, 0);
+}
+.reveal-curtain.in-view .rh-story-card {
   opacity: 1;
-  transform: translateX(0);
+  transform: translate3d(0, 0, 0);
   border-left-color: var(--accent-gold);
-  transition-delay: 0.3s;
 }
-.reveal-curtain.in-view .rh-story-card:nth-child(2) {
-  opacity: 1;
-  transform: translateX(0);
-  border-left-color: var(--accent-gold);
-  transition-delay: 0.45s;
-}
-.reveal-curtain.in-view .rh-story-card:nth-child(3) {
-  opacity: 1;
-  transform: translateX(0);
-  border-left-color: var(--accent-gold);
-  transition-delay: 0.6s;
-}
+.reveal-curtain.in-view .rh-story-card:nth-child(1) { transition-delay: 0.1s; }
+.reveal-curtain.in-view .rh-story-card:nth-child(2) { transition-delay: 0.2s; }
+.reveal-curtain.in-view .rh-story-card:nth-child(3) { transition-delay: 0.3s; }
+.reveal-curtain.in-view .rh-story-card:nth-child(n+4) { transition-delay: 0.38s; }
 
 /* -------------------------------------------------------------
    REVEAL 3: Cinematic Atmospheric Focus (Stories from the Streets)
@@ -3466,35 +3447,34 @@ body.rabbit-hole-open #cursor {
    ------------------------------------------------------------- */
 .reveal-cinematic .rh-story-feature {
   opacity: 0;
-  transform: perspective(900px) rotateX(-12deg) translateY(35px);
-  transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
-.reveal-cinematic.in-view .rh-story-feature:nth-child(1) {
+.reveal-cinematic .rh-story-feature:nth-child(odd) {
+  transform: translate3d(-110vw, 0, 0);
+}
+.reveal-cinematic .rh-story-feature:nth-child(even) {
+  transform: translate3d(110vw, 0, 0);
+}
+.reveal-cinematic.in-view .rh-story-feature {
   opacity: 1;
-  transform: perspective(900px) rotateX(0deg) translateY(0);
-  transition-delay: 0.25s;
+  transform: translate3d(0, 0, 0);
 }
-
-.reveal-cinematic.in-view .rh-story-feature:nth-child(2) {
-  opacity: 1;
-  transform: perspective(900px) rotateX(0deg) translateY(0);
-  transition-delay: 0.45s;
-}
-
+.reveal-cinematic.in-view .rh-story-feature:nth-child(1) { transition-delay: 0.1s; }
+.reveal-cinematic.in-view .rh-story-feature:nth-child(2) { transition-delay: 0.22s; }
 .reveal-cinematic .rh-story-card {
   opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translate3d(-110vw, 0, 0);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
+.reveal-cinematic .rh-story-card:nth-child(even) {
+  transform: translate3d(110vw, 0, 0);
+}
 .reveal-cinematic.in-view .rh-story-card {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate3d(0, 0, 0);
 }
-
-.reveal-cinematic.in-view .rh-story-card:nth-child(1) { transition-delay: 0.6s; }
-.reveal-cinematic.in-view .rh-story-card:nth-child(2) { transition-delay: 0.75s; }
+.reveal-cinematic.in-view .rh-story-card:nth-child(1) { transition-delay: 0.28s; }
+.reveal-cinematic.in-view .rh-story-card:nth-child(2) { transition-delay: 0.38s; }
 
 /* -------------------------------------------------------------
    REVEAL 4: Constellation Settle (Artisans & Makers)
@@ -3502,17 +3482,15 @@ body.rabbit-hole-open #cursor {
    ------------------------------------------------------------- */
 .reveal-constellation .rh-artisan-card {
   opacity: 0;
-  transform: scale(0.92) rotate(-3deg);
-  transition: all 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translate3d(-110vw, 0, 0);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
 .reveal-constellation .rh-artisan-card:nth-child(even) {
-  transform: scale(0.92) rotate(3deg);
+  transform: translate3d(110vw, 0, 0);
 }
-
 .reveal-constellation.in-view .rh-artisan-card {
   opacity: 1;
-  transform: scale(1) rotate(0deg);
+  transform: translate3d(0, 0, 0);
 }
 
 .reveal-constellation.in-view .rh-artisan-card:nth-child(1) { transition-delay: 0.2s; }
@@ -3528,13 +3506,13 @@ body.rabbit-hole-open #cursor {
    ------------------------------------------------------------- */
 .reveal-acoustic .rh-instrument-card:nth-child(odd) {
   opacity: 0;
-  transform: translateX(-40px);
+  transform: translate3d(-110vw, 0, 0);
   transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .reveal-acoustic .rh-instrument-card:nth-child(even) {
   opacity: 0;
-  transform: translateX(40px);
+  transform: translate3d(110vw, 0, 0);
   transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -3572,7 +3550,7 @@ body.rabbit-hole-open #cursor {
    ------------------------------------------------------------- */
 .reveal-epilogue .rh-aphorism-item {
   opacity: 0;
-  transform: translateX(-20px);
+  transform: translate3d(-110vw, 0, 0);
   transition: all 0.75s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -3590,17 +3568,8 @@ body.rabbit-hole-open #cursor {
 
 /* Chapters with more than 3 story cards / 6 track rows: reveal every item,
    not just the ones that have a hand-tuned nth-child delay above. */
-.reveal-luminous.in-view .rh-story-card:nth-child(n+4) {
-  opacity: 1;
-  transform: translate(0, 0);
-  transition-delay: 0.5s;
-}
-.reveal-curtain.in-view .rh-story-card:nth-child(n+4) {
-  opacity: 1;
-  transform: translateX(0);
-  border-left-color: var(--accent-gold);
-  transition-delay: 0.7s;
-}
+
+
 .reveal-equalizer.in-view .rh-track-row:nth-child(n+7) {
   opacity: 1;
   transform: translateY(0) scale(1);
@@ -3627,15 +3596,14 @@ body.rabbit-hole-open #cursor {
 
 .rh-story-card {
   padding: 1.75rem 1.8rem;
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.008));
-  border: 1px solid var(--border-color);
+  background: rgba(12, 12, 14, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 18px;
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: var(--transition-fast);
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+  will-change: transform, opacity;
 }
 
 .rh-story-card:hover {
@@ -3656,11 +3624,12 @@ body.rabbit-hole-open #cursor {
 
 .rh-story-text {
   font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 300;
-  line-height: 1.75;
-  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.7;
+  color: rgba(232, 232, 230, 0.92);
   margin: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Two-column expanded layout for narrative stories (Chapter 3) */
@@ -3673,15 +3642,13 @@ body.rabbit-hole-open #cursor {
 
 .rh-story-feature {
   padding: 2.2rem;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.008));
-  border: 1px solid var(--border-color);
+  background: rgba(12, 12, 14, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
   position: relative;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
 
 .rh-story-feature:hover {
