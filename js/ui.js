@@ -1595,64 +1595,113 @@ const rhScrollManager = {
 
   CARD_REVEAL_SEL: '.rh-story-card, .rh-story-feature, .rh-artisan-card, .rh-instrument-card, .rh-track-row, .rh-aphorism-item, .rh-patron-card',
 
+  // Per-section index of the next card allowed to reveal
+  cardRevealCursor: {},
+
   initCardReveals() {
-    if (!this.container || this.reducedMotion) {
-      // Show everything immediately if reduced motion
-      if (this.container) {
-        this.container.querySelectorAll(this.CARD_REVEAL_SEL).forEach((el) => {
-          el.classList.add('rh-reveal-item', 'rh-card-visible');
-          el.style.opacity = '1';
-          el.style.transform = 'none';
-        });
-      }
-      return;
-    }
+    if (!this.container) return;
 
     if (this.cardObserver) {
       try { this.cardObserver.disconnect(); } catch (e) {}
       this.cardObserver = null;
     }
 
-    const cards = Array.from(this.container.querySelectorAll(this.CARD_REVEAL_SEL));
-    let dirToggle = 0;
-    cards.forEach((el) => {
-      el.classList.add('rh-reveal-item');
-      el.classList.remove('rh-card-visible', 'rh-from-left', 'rh-from-right');
-      // Alternate direction per card (not per section)
-      if (dirToggle % 2 === 0) {
-        el.classList.add('rh-from-left');
-      } else {
-        el.classList.add('rh-from-right');
-      }
-      dirToggle += 1;
-      el.style.animation = '';
+    this.cardRevealCursor = {};
+
+    const sections = this.sections && this.sections.length
+      ? this.sections
+      : Array.from(this.container.querySelectorAll('.rh-section'));
+
+    if (this.reducedMotion) {
+      sections.forEach((sec) => {
+        sec.querySelectorAll(this.CARD_REVEAL_SEL).forEach((el) => {
+          el.classList.add('rh-reveal-item', 'rh-card-visible');
+          el.classList.remove('rh-reveal-locked');
+          el.style.opacity = '1';
+          el.style.transform = 'none';
+        });
+      });
+      return;
+    }
+
+    const allCards = [];
+
+    sections.forEach((sec) => {
+      const secId = sec.id || sec.getAttribute('data-section-index') || 'sec';
+      const cards = Array.from(sec.querySelectorAll(this.CARD_REVEAL_SEL));
+      this.cardRevealCursor[secId] = 0;
+
+      cards.forEach((el, i) => {
+        el.classList.add('rh-reveal-item');
+        el.classList.remove('rh-card-visible');
+        el.classList.remove('rh-from-left', 'rh-from-right');
+        el.dataset.revealSection = secId;
+        el.dataset.revealIndex = String(i);
+
+        // Alternate edge per card
+        if (i % 2 === 0) el.classList.add('rh-from-left');
+        else el.classList.add('rh-from-right');
+
+        // Only the first card in each section is unlocked initially
+        if (i === 0) {
+          el.classList.remove('rh-reveal-locked');
+        } else {
+          el.classList.add('rh-reveal-locked');
+        }
+
+        el.style.animation = '';
+        allCards.push(el);
+      });
     });
 
+    // Reveal only when THIS card is the next in its section and sits in the reading band
     this.cardObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         const el = entry.target;
-        if (entry.isIntersecting) {
-          // Each card slides in on its own when it crosses into view
-          if (!el.classList.contains('rh-card-visible')) {
-            el.classList.add('rh-card-visible');
+        const secId = el.dataset.revealSection;
+        const idx = parseInt(el.dataset.revealIndex, 10);
+        if (!secId || Number.isNaN(idx)) return;
+
+        const next = this.cardRevealCursor[secId] != null ? this.cardRevealCursor[secId] : 0;
+
+        if (entry.isIntersecting && idx === next && !el.classList.contains('rh-card-visible')) {
+          // Unlock + animate this card only
+          el.classList.remove('rh-reveal-locked');
+          el.classList.add('rh-card-visible');
+          // Advance cursor so the following card may reveal after further scroll
+          this.cardRevealCursor[secId] = idx + 1;
+
+          // Unlock the next card's lock flag so it can be observed as eligible,
+          // but it will not animate until it becomes the next index AND intersects
+          const section = el.closest('.rh-section');
+          if (section) {
+            const cards = section.querySelectorAll(this.CARD_REVEAL_SEL);
+            const following = cards[idx + 1];
+            if (following) following.classList.remove('rh-reveal-locked');
           }
-          // Keep observing so re-entry can replay if user scrolls away far enough
-        } else if (entry.boundingClientRect.top > (entry.rootBounds ? entry.rootBounds.bottom : 0)) {
-          // Only reset when card goes below viewport (upcoming again)
-          el.classList.remove('rh-card-visible');
-          el.style.animation = 'none';
-          void el.offsetWidth;
-          el.style.animation = '';
+        }
+
+        // If user scrolls back above a card far enough, allow re-sequence from there
+        if (!entry.isIntersecting && entry.boundingClientRect.top > (entry.rootBounds ? entry.rootBounds.bottom + 40 : window.innerHeight)) {
+          // card is below viewport again — only reset if we haven't gone past it in the sequence
+          // Keep revealed cards revealed while reading forward (don't hide previous while reading next)
         }
       });
     }, {
       root: this.container,
-      // Start the slide a bit before the card is centered — still per-card
-      rootMargin: '0px 0px -8% 0px',
-      threshold: [0, 0.08, 0.15]
+      // Card must enter the upper-mid reading band (not just peek at the bottom)
+      rootMargin: '-12% 0px -38% 0px',
+      threshold: [0.15, 0.35, 0.5]
     });
 
-    cards.forEach((el) => this.cardObserver.observe(el));
+    allCards.forEach((el) => this.cardObserver.observe(el));
+
+    // Immediately try to show the first unlocked card of the first section if already in band
+    requestAnimationFrame(() => {
+      allCards.forEach((el) => {
+        // IntersectionObserver will fire; nothing else needed
+      });
+    });
   },
 
   _replayEdgeSlides(sec) {
@@ -2276,6 +2325,15 @@ function openRabbitHoleScreen() {
       try {
         if (typeof rhScrollManager.initCardReveals === 'function') {
           rhScrollManager.initCardReveals();
+        }
+        // First card of chapter 1 should greet the reader immediately
+        const first = document.querySelector('#rhSec0 .rh-story-card');
+        if (first && rhScrollManager.cardRevealCursor) {
+          first.classList.remove('rh-reveal-locked');
+          first.classList.add('rh-card-visible');
+          rhScrollManager.cardRevealCursor['rhSec0'] = 1;
+          const second = document.querySelectorAll('#rhSec0 .rh-story-card')[1];
+          if (second) second.classList.remove('rh-reveal-locked');
         }
       } catch (e) {}
       rhScrollManager.startParallaxLoop();

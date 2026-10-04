@@ -3399,7 +3399,10 @@ body.rabbit-hole-open #cursor {
 .rh-reveal-item {
   opacity: 0;
   will-change: transform, opacity;
-  /* no transition here — keyframes handle the motion */
+}
+.rh-reveal-item.rh-reveal-locked {
+  /* reserved space for scroll; not yet allowed to animate in */
+  pointer-events: none;
 }
 
 .rh-reveal-item.rh-from-left {
@@ -3412,11 +3415,11 @@ body.rabbit-hole-open #cursor {
 
 /* Smooth, unhurried entrance from the real screen edge */
 .rh-reveal-item.rh-card-visible.rh-from-left {
-  animation: rhSlideInFromLeft 1.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: rhSlideInFromLeft 1.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .rh-reveal-item.rh-card-visible.rh-from-right {
-  animation: rhSlideInFromRight 1.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: rhSlideInFromRight 1.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3646,9 +3649,12 @@ body.rabbit-hole-open #cursor {
 
 /* Stories Grid */
 .rh-stories-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: clamp(42vh, 48vh, 56vh); /* one card in the reading zone at a time */
+  max-width: 640px;
+  margin: 0 auto;
 }
 
 .rh-story-card {
@@ -3694,10 +3700,13 @@ body.rabbit-hole-open #cursor {
 
 /* Two-column expanded layout for narrative stories (Chapter 3) */
 .rh-stories-duo {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(42vh, 48vh, 56vh);
   margin-bottom: 1.5rem;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .rh-story-feature {
