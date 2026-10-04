@@ -277,7 +277,7 @@ const vegNear = buildVegSet(0.70, 52, rngNear, [0.85, 1.55], {
   birch: 0.08
 });
 const vegFore = buildVegSet(0.16, 320, rngFore, [1.3, 2.2], { cypress: 0.35, olivetree: 0.35, pine: 0.30 });
-updateVegGlobalScale();
+// updateVegGlobalScale() deferred to engine resize (script.js) — do not call before it exists
 
 // Populate Baltic Pine & Spruce Forest ONLY on top of the hill (summit plateau: wx: -655 down to -790)
 function populateBalticForest() {

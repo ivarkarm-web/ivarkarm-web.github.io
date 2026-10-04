@@ -506,23 +506,44 @@ if (cursorEl) {
 }
 
 function startGame() {
-  if (gameStarted) return;
-  gameStarted = true;
-  x = sectionPositions[0] ? sectionPositions[0].x : 500;
-  vx = 0;
-  vy = 0;
-  y = getGround(x) - ballRadius;
-  onGround = true;
-  cameraX = x - viewW / 2;
-  const terrainY = getGround(x);
-  cameraY = (terrainY - viewH * 0.5) * 0.3;
-  keys = {};
+  if (typeof gameStarted !== 'undefined' && gameStarted) return;
+  try {
+    gameStarted = true;
+    const startX = (typeof sectionPositions !== 'undefined' && sectionPositions[0])
+      ? sectionPositions[0].x : 500;
+    x = startX;
+    vx = 0;
+    vy = 0;
+    if (typeof getGround === 'function' && typeof ballRadius !== 'undefined') {
+      y = getGround(x) - ballRadius;
+      onGround = true;
+      if (typeof viewW !== 'undefined') cameraX = x - viewW / 2;
+      if (typeof viewH !== 'undefined') {
+        const terrainY = getGround(x);
+        cameraY = (terrainY - viewH * 0.5) * 0.3;
+      }
+    } else {
+      y = (typeof viewH !== 'undefined' ? viewH * 0.65 : 400);
+      onGround = true;
+    }
+    keys = {};
 
-  // Initialize Web Audio procedural resonance
-  ResonanceAudio.init();
-  ResonanceAudio.resume();
-  ResonanceAudio.playTone(0, 0.65, { duration: 3.0 }); // Rich welcoming Ding strike
+    // Initialize Web Audio procedural resonance
+    if (typeof ResonanceAudio !== 'undefined') {
+      try {
+        ResonanceAudio.init();
+        ResonanceAudio.resume();
+        ResonanceAudio.playTone(0, 0.65, { duration: 3.0 });
+      } catch (audioErr) {
+        console.warn('ResonanceAudio init failed:', audioErr);
+      }
+    }
+  } catch (err) {
+    console.error('startGame setup error (continuing to dismiss welcome):', err);
+    gameStarted = true;
+  }
 
+  // Always dismiss welcome — never leave the user stuck
   const welcome = document.getElementById('welcome');
   if (welcome) {
     welcome.classList.add('hidden');
@@ -530,8 +551,8 @@ function startGame() {
     welcome.style.pointerEvents = 'none';
     setTimeout(() => { welcome.style.display = 'none'; }, 950);
   }
-  document.body.classList.remove('pre-enter');
-  if (canvas) {
+  if (document.body) document.body.classList.remove('pre-enter');
+  if (typeof canvas !== 'undefined' && canvas) {
     try { canvas.focus({ preventScroll: true }); } catch (e) {}
   }
 }
