@@ -1761,8 +1761,8 @@ const rhScrollManager = {
         gsap.killTweensOf(this.container);
         gsap.to(this.container, {
           scrollTop: targetScrollTop,
-          duration: 0.85,
-          ease: 'power2.inOut',
+          duration: 0.55,
+          ease: 'power2.out',
           overwrite: 'auto',
           onUpdate: () => this.handleScroll(),
           onComplete: () => {
@@ -1821,8 +1821,8 @@ const rhScrollManager = {
       gsap.killTweensOf(this.container);
       gsap.to(this.container, {
         scrollTop: targetScrollTop,
-        duration: 0.85,
-        ease: 'power2.inOut',
+        duration: 0.55,
+        ease: 'power2.out',
         overwrite: 'auto',
         onUpdate: () => {
           this.handleScroll();
@@ -1845,13 +1845,31 @@ const rhScrollManager = {
   },
 
   bindTouchSwipe() {
+    // Native touch scrolling only — no section-snap on swipe.
+    // Snap-to-section on every flick made mobile scroll feel aggressive
+    // and unpredictable (a small swipe jumped a full chapter).
+    // Keyboard arrows / TOC / side nav still jump sections deliberately.
+    if (!this.container) return;
+
+    // Optional: very deliberate edge-flick only (almost full-screen, fast)
+    // Disabled by default on coarse pointers for predictable reading.
+    const allowSnap = false;
+    if (!allowSnap) return;
+
     let startY = 0;
     let startTime = 0;
+    let moved = 0;
 
     this.container.addEventListener('touchstart', (e) => {
       if (e.touches.length !== 1) return;
       startY = e.touches[0].clientY;
       startTime = performance.now();
+      moved = 0;
+    }, { passive: true });
+
+    this.container.addEventListener('touchmove', (e) => {
+      if (!startY || e.touches.length !== 1) return;
+      moved = Math.max(moved, Math.abs(e.touches[0].clientY - startY));
     }, { passive: true });
 
     this.container.addEventListener('touchend', (e) => {
@@ -1860,19 +1878,19 @@ const rhScrollManager = {
       const deltaY = endY - startY;
       const duration = performance.now() - startTime;
       const velocity = Math.abs(deltaY) / Math.max(1, duration);
+      // Require a huge, fast flick (>45% viewport) so normal reading never snaps
+      const threshold = Math.max(180, window.innerHeight * 0.45);
 
-      // Fast vertical flick
-      if (Math.abs(deltaY) > 70 && velocity > 0.35) {
+      if (Math.abs(deltaY) > threshold && velocity > 0.85 && moved > threshold * 0.8) {
         triggerHaptic('medium');
         if (deltaY < 0) {
-          // Swiped up -> next section
           this.scrollToSection(Math.min(this.sections.length - 1, this.currentSectionIndex + 1));
         } else {
-          // Swiped down -> prev section
           this.scrollToSection(Math.max(0, this.currentSectionIndex - 1));
         }
       }
       startY = 0;
+      moved = 0;
     }, { passive: true });
   },
 

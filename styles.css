@@ -1579,15 +1579,68 @@ body.rabbit-hole-open .touch-zones {
   }
 
   .section h1 {
-    font-size: 3.2rem;
+    font-size: 2.6rem;
   }
 
   .section h2 {
-    font-size: 1.8rem;
+    font-size: 1.55rem;
+    margin-bottom: 0.45rem;
   }
 
   .section p {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    margin-bottom: 0.55rem;
+  }
+
+  .section p.lead {
+    font-size: 1.1rem;
+    line-height: 1.35;
+    margin-bottom: 0.75rem;
+  }
+
+  .section .eyebrow {
+    font-size: 0.7rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .section .hairline {
+    margin-bottom: 1rem;
+  }
+
+  /* Keep full section text readable on phone — no bottom clipping */
+  .section {
+    top: 5.25rem;
+    bottom: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    max-height: calc(100dvh - 6.5rem);
+    max-height: calc(100vh - 6.5rem);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 1.15rem 1.05rem 1.5rem;
+    width: min(92vw, 520px);
+    align-self: flex-start;
+  }
+
+  .section.visible {
+    transform: translateX(-50%);
+  }
+
+  .section.with-backdrop {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .story-entry {
+    margin: 0 auto 0.85rem;
+    padding-left: 0.85rem;
+  }
+
+  .story-era {
+    font-size: 0.7rem;
+    margin-bottom: 0.25rem;
   }
 
   .music-player {
@@ -2097,6 +2150,8 @@ body.pre-enter #sections {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  scroll-behavior: auto; /* avoid fighting touch; JS handles intentional jumps */
   background: #050505;
   opacity: 0;
   visibility: hidden;
@@ -4033,8 +4088,16 @@ body.rabbit-hole-open #cursor {
     margin: 1.2rem auto 0.8rem;
   }
   .rh-section {
-    padding: 4.5rem 1.5rem 5rem;
+    padding: 3.5rem 1.25rem 3rem;
     min-height: auto;
+  }
+
+  .rh-scroll-track {
+    padding-top: 3.5rem;
+  }
+
+  .rh-section-separator {
+    padding: 1.5rem 1.25rem;
   }
   .rh-stories-duo,
   .rh-support-grid {
