@@ -443,17 +443,36 @@ if (memoryShardCloseBtn) {
 function openDirectMonographModal() {
   const modal = document.getElementById('directMonographModal');
   if (!modal) return;
-  modal.classList.add('open');
-  modal.setAttribute('aria-hidden', 'false');
-  ResonanceAudio.resume();
-  ResonanceAudio.playTone(3, 0.45);
+  if (modal.classList.contains('open')) return;
+
+  playGoldParticleCurtain({
+    count: 44,
+    holdMs: 1000,
+    onMid: () => {
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      try {
+        if (typeof ResonanceAudio !== 'undefined') {
+          ResonanceAudio.resume();
+          ResonanceAudio.playTone(3, 0.45);
+        }
+      } catch (e) {}
+    }
+  });
 }
 
 function closeDirectMonographModal() {
   const modal = document.getElementById('directMonographModal');
-  if (!modal) return;
-  modal.classList.remove('open');
-  modal.setAttribute('aria-hidden', 'true');
+  if (!modal || !modal.classList.contains('open')) return;
+
+  playGoldParticleCurtain({
+    count: 36,
+    holdMs: 900,
+    onMid: () => {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+  });
 }
 
 function toggleDirectMonographModal() {
@@ -473,8 +492,15 @@ if (dmCloseBtn) dmCloseBtn.addEventListener('click', closeDirectMonographModal);
 if (dmBackdrop) dmBackdrop.addEventListener('click', closeDirectMonographModal);
 if (dmOpenRhBtn) {
   dmOpenRhBtn.addEventListener('click', () => {
-    closeDirectMonographModal();
-    openRabbitHoleScreen();
+    const modal = document.getElementById('directMonographModal');
+    // Close monograph quietly, then run the full Rabbit Hole enter rain
+    if (modal) {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+    window.setTimeout(() => {
+      openRabbitHoleScreen();
+    }, 40);
   });
 }
 
@@ -2293,20 +2319,17 @@ function openRabbitHoleScreen() {
   keys = {};
   vx = 0;
 
-  // Gold particle rain from the top of the screen (same language as leave)
-  const transitionOverlay = document.getElementById('rabbitHoleTransition');
-  if (transitionOverlay) {
-    transitionOverlay.classList.add('active');
-    createGoldenParticles({ count: 56 });
-  }
-
   const el = document.getElementById('rabbit-hole');
-  if (el) {
-    el.classList.remove('rabbit-hole-closing');
-    el.setAttribute('aria-hidden', 'false');
-    void el.offsetWidth;
-    // Let the rain build, then reveal the archive underneath
-    setTimeout(() => {
+  document.body.classList.add('rabbit-hole-open');
+
+  playGoldParticleCurtain({
+    count: 56,
+    holdMs: 1150,
+    onMid: () => {
+      if (!el) return;
+      el.classList.remove('rabbit-hole-closing');
+      el.setAttribute('aria-hidden', 'false');
+      void el.offsetWidth;
       el.classList.add('visible');
       if (typeof rhGalleryManager !== 'undefined') {
         rhGalleryManager.showImage(0);
@@ -2323,17 +2346,11 @@ function openRabbitHoleScreen() {
         ScrollTrigger.refresh();
       }
       const closeBtn = document.getElementById('rabbitHoleBackBtn');
-      if (closeBtn) closeBtn.focus();
-    }, 320);
-  }
-  document.body.classList.add('rabbit-hole-open');
-
-  // Fade the curtain after the rain has swept the screen
-  if (transitionOverlay) {
-    setTimeout(() => {
-      transitionOverlay.classList.remove('active');
-    }, 1100);
-  }
+      if (closeBtn) {
+        try { closeBtn.focus(); } catch (e) {}
+      }
+    }
+  });
 }
 
 function closeRabbitHoleScreen() {
@@ -2348,36 +2365,29 @@ function closeRabbitHoleScreen() {
     rhScrollManager.closeToc();
     rhScrollManager.stopParallaxLoop();
 
-    const transitionOverlay = document.getElementById('rabbitHoleTransition');
-    if (transitionOverlay) {
-      transitionOverlay.classList.add('active');
-      createGoldenParticles({ count: 48 });
-      setTimeout(() => {
-        transitionOverlay.classList.remove('active');
-      }, 1000);
-    }
-
-    const finish = () => {
-      el.classList.remove('rabbit-hole-closing');
-      endOfRoadState.archiveShown = false;
-      endOfRoadState.rabbitHoleShown = false;
-      endOfRoadState.fading = false;
-      endOfRoadState.fade = 1;
-      endOfRoadState.screenFade = 0;
-      x = CONTACT_X;
-      vx = 0;
-      vy = 0;
-      y = getGround(x) - ballRadius;
-      onGround = true;
-      cameraY = 0;
-      keys = {};
-      document.body.classList.remove('rabbit-hole-open');
-      if (typeof canvas !== 'undefined' && canvas) {
-        try { canvas.focus({ preventScroll: true }); } catch (e) {}
+    playGoldParticleCurtain({
+      count: 48,
+      holdMs: 1000,
+      onMid: () => {
+        el.classList.remove('rabbit-hole-closing');
+        endOfRoadState.archiveShown = false;
+        endOfRoadState.rabbitHoleShown = false;
+        endOfRoadState.fading = false;
+        endOfRoadState.fade = 1;
+        endOfRoadState.screenFade = 0;
+        x = CONTACT_X;
+        vx = 0;
+        vy = 0;
+        y = getGround(x) - ballRadius;
+        onGround = true;
+        cameraY = 0;
+        keys = {};
+        document.body.classList.remove('rabbit-hole-open');
+        if (typeof canvas !== 'undefined' && canvas) {
+          try { canvas.focus({ preventScroll: true }); } catch (e) {}
+        }
       }
-    };
-
-    setTimeout(finish, 450);
+    });
   } else {
     endOfRoadState.archiveShown = false;
     endOfRoadState.rabbitHoleShown = false;
@@ -2408,17 +2418,46 @@ function createGoldenParticles(options) {
     const particle = document.createElement('div');
     particle.className = 'rabbit-hole-particle';
     particle.style.left = (Math.random() * 100) + '%';
-    // Stagger so the rain sweeps down the screen
     particle.style.animationDelay = (Math.random() * 0.55) + 's';
     particle.style.animationDuration = (1.05 + Math.random() * 0.7) + 's';
     const size = 2 + Math.random() * 4;
     particle.style.width = size + 'px';
     particle.style.height = size + 'px';
-    // slight horizontal drift via CSS custom property if needed
     particle.style.setProperty('--drift', ((Math.random() - 0.5) * 40) + 'px');
     container.appendChild(particle);
   }
 }
+
+/** Gold rain curtain from the top of the screen. Shared by Rabbit Hole + Monograph. */
+function playGoldParticleCurtain(options) {
+  const opts = options || {};
+  const holdMs = opts.holdMs != null ? opts.holdMs : 1100;
+  const count = opts.count != null ? opts.count : 52;
+  const overlay = document.getElementById('rabbitHoleTransition');
+  if (!overlay) {
+    if (typeof opts.onMid === 'function') opts.onMid();
+    if (typeof opts.onDone === 'function') opts.onDone();
+    return;
+  }
+  // Restart cleanly if a previous curtain is still active
+  overlay.classList.remove('active');
+  void overlay.offsetWidth;
+  createGoldenParticles({ count: count });
+  overlay.classList.add('active');
+  overlay.setAttribute('aria-hidden', 'false');
+
+  const midAt = Math.min(360, Math.floor(holdMs * 0.3));
+  window.setTimeout(() => {
+    if (typeof opts.onMid === 'function') opts.onMid();
+  }, midAt);
+
+  window.setTimeout(() => {
+    overlay.classList.remove('active');
+    overlay.setAttribute('aria-hidden', 'true');
+    if (typeof opts.onDone === 'function') opts.onDone();
+  }, holdMs);
+}
+
 
 (function initBackBtn() {
   const btn = document.getElementById('rabbitHoleBackBtn');
