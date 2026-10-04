@@ -2204,28 +2204,48 @@ function drawChapterLandmarks(context, offset) {
 
 // --- end of additional scenes extract ---
 function updateBackgroundSlideshow(dt) {
-  if (bgImages.length < 2 || bgReadyCount < 1) return;
-  bgTimer += dt;
-  if (bgPhase === 'hold') {
-    if (bgTimer >= BG_HOLD_DURATION && bgReadyCount >= 2) {
-      bgPhase = 'fade';
-      bgTimer = 0;
-      bgFadeProgress = 0;
+  const images = (typeof bgImages !== 'undefined' && bgImages) ? bgImages : (window.bgImages || []);
+  const ready = (typeof bgReadyCount !== 'undefined') ? bgReadyCount : (window.bgReadyCount || 0);
+  if (images.length < 2 || ready < 1) return;
+
+  // Use window-backed state so missing lexical bindings cannot crash the loop
+  if (typeof window.bgPhase === 'undefined') window.bgPhase = 'hold';
+  if (typeof window.bgTimer === 'undefined') window.bgTimer = 0;
+  if (typeof window.bgFadeProgress === 'undefined') window.bgFadeProgress = 0;
+  if (typeof window.bgCurrentIndex === 'undefined') window.bgCurrentIndex = 0;
+  if (typeof window.bgNextIndex === 'undefined') window.bgNextIndex = 1;
+  const holdDur = (typeof BG_HOLD_DURATION !== 'undefined') ? BG_HOLD_DURATION : 4.0;
+  const fadeDur = (typeof BG_FADE_DURATION !== 'undefined') ? BG_FADE_DURATION : 2.5;
+
+  window.bgTimer += dt;
+  if (window.bgPhase === 'hold') {
+    if (window.bgTimer >= holdDur && ready >= 2) {
+      window.bgPhase = 'fade';
+      window.bgTimer = 0;
+      window.bgFadeProgress = 0;
       let attempts = 0;
       do {
-        bgNextIndex = (bgCurrentIndex + 1 + attempts) % bgImages.length;
+        window.bgNextIndex = (window.bgCurrentIndex + 1 + attempts) % images.length;
         attempts++;
-      } while ((!bgImages[bgNextIndex].complete || bgImages[bgNextIndex].naturalWidth === 0) && attempts < bgImages.length);
+      } while (images[window.bgNextIndex] && (!images[window.bgNextIndex].complete || images[window.bgNextIndex].naturalWidth === 0) && attempts < images.length);
     }
-  } else if (bgPhase === 'fade') {
-    bgFadeProgress = Math.min(1, bgTimer / BG_FADE_DURATION);
-    if (bgFadeProgress >= 1) {
-      bgCurrentIndex = bgNextIndex;
-      bgFadeProgress = 0;
-      bgPhase = 'hold';
-      bgTimer = 0;
+  } else if (window.bgPhase === 'fade') {
+    window.bgFadeProgress = Math.min(1, window.bgTimer / fadeDur);
+    if (window.bgFadeProgress >= 1) {
+      window.bgCurrentIndex = window.bgNextIndex;
+      window.bgFadeProgress = 0;
+      window.bgPhase = 'hold';
+      window.bgTimer = 0;
     }
   }
+  // Mirror onto lexical bindings when they exist
+  try {
+    if (typeof bgPhase !== 'undefined') bgPhase = window.bgPhase;
+    if (typeof bgTimer !== 'undefined') bgTimer = window.bgTimer;
+    if (typeof bgFadeProgress !== 'undefined') bgFadeProgress = window.bgFadeProgress;
+    if (typeof bgCurrentIndex !== 'undefined') bgCurrentIndex = window.bgCurrentIndex;
+    if (typeof bgNextIndex !== 'undefined') bgNextIndex = window.bgNextIndex;
+  } catch (_) {}
 }
 
 function drawCoverImage(context, img, alpha, yOffset = 0) {
@@ -2272,18 +2292,29 @@ function drawBackgroundVignette(context) {
 }
 
 function drawBackgroundGalleryImages(context) {
-  if (!context || !canvas || bgReadyCount === 0) return;
-  const currentImg = bgImages[bgCurrentIndex];
-  const nextImg = bgImages[bgNextIndex];
-  const currentAlpha = BG_MAX_OPACITY * (1 - bgFadeProgress);
-  const nextAlpha = BG_MAX_OPACITY * bgFadeProgress;
+  const images = (typeof bgImages !== 'undefined' && bgImages) ? bgImages : (window.bgImages || []);
+  const ready = (typeof bgReadyCount !== 'undefined') ? bgReadyCount : (window.bgReadyCount || 0);
+  const cnv = (typeof canvas !== 'undefined') ? canvas : document.getElementById('game');
+  if (!context || !cnv || ready === 0 || images.length === 0) return;
 
-  const upOffset = -viewH * 0.25;
+  const curIdx = (typeof window.bgCurrentIndex !== 'undefined') ? window.bgCurrentIndex : (typeof bgCurrentIndex !== 'undefined' ? bgCurrentIndex : 0);
+  const nextIdx = (typeof window.bgNextIndex !== 'undefined') ? window.bgNextIndex : (typeof bgNextIndex !== 'undefined' ? bgNextIndex : 1);
+  const fade = (typeof window.bgFadeProgress !== 'undefined') ? window.bgFadeProgress : (typeof bgFadeProgress !== 'undefined' ? bgFadeProgress : 0);
+  const phase = (typeof window.bgPhase !== 'undefined') ? window.bgPhase : (typeof bgPhase !== 'undefined' ? bgPhase : 'hold');
+  const maxOp = (typeof BG_MAX_OPACITY !== 'undefined') ? BG_MAX_OPACITY : 0.55;
+
+  const currentImg = images[curIdx];
+  const nextImg = images[nextIdx];
+  const currentAlpha = maxOp * (1 - fade);
+  const nextAlpha = maxOp * fade;
+
+  const vh = (typeof viewH !== 'undefined') ? viewH : window.innerHeight;
+  const upOffset = -vh * 0.25;
   const yOffsetFor = (idx) => (idx === 2 || idx === 5 || idx === 6) ? upOffset : 0;
 
-  drawCoverImage(context, currentImg, currentAlpha, yOffsetFor(bgCurrentIndex));
-  if (bgPhase === 'fade' && nextImg) {
-    drawCoverImage(context, nextImg, nextAlpha, yOffsetFor(bgNextIndex));
+  drawCoverImage(context, currentImg, currentAlpha, yOffsetFor(curIdx));
+  if (phase === 'fade' && nextImg) {
+    drawCoverImage(context, nextImg, nextAlpha, yOffsetFor(nextIdx));
   }
   drawBackgroundVignette(context);
 }

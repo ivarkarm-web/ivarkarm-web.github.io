@@ -465,3 +465,17 @@ const BG_HOLD_DURATION = 4.0;
 let bgTimer = 0;
 let bgPhase = 'hold';
 const BG_MAX_OPACITY = 0.55;
+
+// Expose slideshow state on window for cross-script resilience
+try {
+  window.bgPhase = bgPhase;
+  window.bgTimer = bgTimer;
+  window.bgFadeProgress = bgFadeProgress;
+  window.bgCurrentIndex = bgCurrentIndex;
+  window.bgNextIndex = bgNextIndex;
+  window.bgImages = bgImages;
+  window.bgReadyCount = bgReadyCount;
+  window.BG_FADE_DURATION = BG_FADE_DURATION;
+  window.BG_HOLD_DURATION = BG_HOLD_DURATION;
+  window.BG_MAX_OPACITY = BG_MAX_OPACITY;
+} catch (_) {}
