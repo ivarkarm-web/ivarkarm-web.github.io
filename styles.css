@@ -821,11 +821,12 @@ nav {
   flex-shrink: 0;
   width: 68px;
   height: 68px;
-  border-radius: 14px;
+  border-radius: 50%;
   overflow: hidden;
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  border: 2px solid rgba(212, 175, 55, 0.35);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0,0,0,0.4);
   transition: var(--transition-smooth);
+  background: #0c0c0e;
 }
 
 .partner-card:hover .partner-mark {
@@ -837,7 +838,9 @@ nav {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
+  border-radius: 50%;
 }
 
 .partner-meta {
@@ -3753,17 +3756,31 @@ body.rabbit-hole-open #cursor {
 }
 
 .rh-artisan-symbol {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
   background: rgba(212, 175, 55, 0.1);
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  border: 2px solid rgba(212, 175, 55, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
   color: var(--accent-gold);
   flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+.rh-artisan-symbol.rh-artisan-logo {
+  padding: 0;
+  background: #0c0c0e;
+}
+.rh-artisan-symbol.rh-artisan-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border-radius: 50%;
 }
 
 .rh-artisan-info {
