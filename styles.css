@@ -3736,9 +3736,12 @@ body.rabbit-hole-open #cursor {
 
 /* Artisans Grid (Chapter 4) */
 .rh-artisans-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: clamp(40vh, 46vh, 54vh);
+  max-width: 640px;
+  margin: 0 auto;
 }
 
 .rh-artisan-card {
@@ -3746,17 +3749,14 @@ body.rabbit-hole-open #cursor {
   align-items: flex-start;
   gap: 1.1rem;
   padding: 1.5rem 1.6rem;
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid var(--border-color);
+  background: rgba(12, 12, 14, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 18px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 .rh-artisan-card:hover {
-  background: rgba(212, 175, 55, 0.06);
+  background: rgba(18, 18, 20, 0.98);
   border-color: var(--border-gold);
-  transform: translateY(-2px);
 }
 
 .rh-artisan-symbol {
@@ -3798,35 +3798,36 @@ body.rabbit-hole-open #cursor {
 
 .rh-artisan-desc {
   font-family: 'Inter', sans-serif;
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  line-height: 1.55;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: rgba(220, 220, 218, 0.9);
+  line-height: 1.6;
   margin-top: 0.2rem;
 }
 
 /* Instruments Grid (Chapter 5) */
 .rh-instruments-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: clamp(40vh, 46vh, 54vh);
+  max-width: 640px;
+  margin: 0 auto;
 }
 
 .rh-instrument-card {
   padding: 1.6rem 1.8rem;
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid var(--border-color);
+  background: rgba(12, 12, 14, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 18px;
   display: flex;
   align-items: flex-start;
   gap: 1.3rem;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 .rh-instrument-card:hover {
-  background: rgba(212, 175, 55, 0.06);
+  background: rgba(18, 18, 20, 0.98);
   border-color: var(--border-gold);
-  transform: translateY(-2px);
 }
 
 .rh-instrument-icon {
@@ -3857,10 +3858,11 @@ body.rabbit-hole-open #cursor {
 
 .rh-instrument-desc {
   font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 300;
+  font-size: 0.92rem;
+  font-weight: 400;
+  color: rgba(220, 220, 218, 0.9);
   line-height: 1.65;
-  color: var(--text-secondary);
+  margin: 0;
 }
 
 /* Tracks Vault (Chapter 6) */
