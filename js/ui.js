@@ -162,7 +162,6 @@ const touchRightEl = document.getElementById('touchRight');
 const touchArrowLeftEl = document.getElementById('touchArrowLeft') || document.querySelector('.touch-arrow.left');
 const touchArrowRightEl = document.getElementById('touchArrowRight') || document.querySelector('.touch-arrow.right');
 const touchJumpBtn = document.getElementById('touchJump');
-const touchDashBtn = document.getElementById('touchDash');
 
 // ============================================================================
 // MULTI-TOUCH MOVEMENT & CONTROL ENGINE
@@ -196,7 +195,6 @@ function updateMovementKeys() {
   if (touchArrowLeftEl) touchArrowLeftEl.classList.toggle('active', hasLeft);
   if (touchRightEl) touchRightEl.classList.toggle('active', hasRight);
   if (touchArrowRightEl) touchArrowRightEl.classList.toggle('active', hasRight);
-  if (touchDashBtn) touchDashBtn.classList.toggle('active', hasDash);
   if (touchJumpBtn) touchJumpBtn.classList.toggle('active', hasJump);
 }
 
@@ -268,7 +266,6 @@ function bindTouchButton(element, actionKey) {
 bindTouchButton(touchArrowLeftEl, 'a');
 bindTouchButton(touchArrowRightEl, 'd');
 bindTouchButton(touchJumpBtn, ' ');
-bindTouchButton(touchDashBtn, 'dash');
 
 // ============================================================================
 // TOUCH ZONES & FULL-SCREEN TOUCH STEERING

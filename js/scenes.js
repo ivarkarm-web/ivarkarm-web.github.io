@@ -1426,8 +1426,8 @@ function update(dt) {
     dashCooldown -= dt;
   }
 
-  // Trigger dash
-  if ((keys['shift'] || keys['dash']) && dashCooldown <= 0 && gameStarted) {
+  // Dash removed from controls — keep vars inert
+  if (false && (keys['shift'] || keys['dash']) && dashCooldown <= 0 && gameStarted) {
     dashActive = true;
     dashTimeRemaining = DASH_DURATION;
     dashCooldown = DASH_COOLDOWN_TIME;
