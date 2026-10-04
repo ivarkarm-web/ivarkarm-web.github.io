@@ -294,14 +294,13 @@ nav {
   z-index: 900;
   will-change: transform, opacity;
   box-sizing: border-box;
-  max-height: min(82vh, 820px);
+  max-height: min(88vh, 900px);
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   word-wrap: break-word;
   overflow-wrap: break-word;
-  hyphens: auto;
 }
 
 .section.with-backdrop {
@@ -1625,7 +1624,7 @@ body.rabbit-hole-open .touch-zones {
     transform: translate(-50%, -50%);
     width: min(92vw, 520px);
     max-width: 92vw;
-    max-height: min(78dvh, calc(100vh - 6rem));
+    max-height: min(85dvh, calc(100vh - 5.5rem));
     padding: 1.1rem 1rem 1.25rem;
     overflow-x: hidden;
     overflow-y: auto;
