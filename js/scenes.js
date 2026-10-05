@@ -1394,17 +1394,24 @@ function checkResonantStones() {
   }
 }
 
+let memoryShardTimer = null;
+
 function showMemoryShard(stone) {
   const hud = document.getElementById('memoryShardHud');
   if (!hud) return;
   const metaEl = document.getElementById('memoryShardMeta');
   const titleEl = document.getElementById('memoryShardTitle');
   const textEl = document.getElementById('memoryShardText');
-  if (metaEl) metaEl.textContent = stone.meta;
-  if (titleEl) titleEl.textContent = stone.title;
-  if (textEl) textEl.textContent = stone.text;
+  if (metaEl) metaEl.textContent = stone.meta || '';
+  if (titleEl) titleEl.textContent = stone.title || '';
+  if (textEl) textEl.textContent = stone.text || '';
   hud.classList.add('active');
   hud.setAttribute('aria-hidden', 'false');
+  if (memoryShardTimer) clearTimeout(memoryShardTimer);
+  memoryShardTimer = setTimeout(() => {
+    hideMemoryShard();
+    memoryShardTimer = null;
+  }, 10000);
 }
 
 function hideMemoryShard() {
@@ -1412,6 +1419,10 @@ function hideMemoryShard() {
   if (!hud) return;
   hud.classList.remove('active');
   hud.setAttribute('aria-hidden', 'true');
+  if (memoryShardTimer) {
+    clearTimeout(memoryShardTimer);
+    memoryShardTimer = null;
+  }
 }
 
 function update(dt) {

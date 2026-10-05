@@ -10,6 +10,13 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
 :root {
   /* Materials */
   --bg-color: #050505;
@@ -1854,19 +1861,37 @@ body.rabbit-hole-open .touch-zones {
     margin-bottom: 1rem;
   }
 
-  /* Phone: still centered, but tightly capped so nothing spills off-screen */
+  /* Phone: centered plate; scroll inside so long story/route text is not clipped */
   .section {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: min(92vw, 520px);
     max-width: 92vw;
-    max-height: min(85dvh, calc(100vh - 5.5rem));
-    padding: 1.1rem 1rem 1.25rem;
+    max-height: min(78dvh, calc(100dvh - 6.5rem));
+    padding: 1rem 1rem 1.35rem;
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+  }
+  .route-map {
+    max-height: none;
+    margin: 0.9rem auto 0.75rem;
+  }
+  .route-place { font-size: 1rem; }
+  .route-note { font-size: 0.72rem; }
+  .manifesto-lead {
+    max-width: 100%;
+    font-size: 1.2rem;
+  }
+  .discovery-counter {
+    top: max(4.75rem, env(safe-area-inset-top) + 3.75rem);
+    left: 0.65rem;
+    padding: 0.3rem 0.55rem;
+  }
+  .memory-shard-hud {
+    z-index: 1300;
   }
 
   .section.visible {
