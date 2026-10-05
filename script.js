@@ -229,6 +229,7 @@ if (hamburgerBtn && navLinksMenu) {
     popup.classList.add('visible');
     popup.setAttribute('aria-hidden', 'false');
     document.body.classList.add('qr-open');
+    if (typeof trackEvent === 'function') trackEvent('tip_open', { source: 'nav' });
   }
   function closeTipQr() {
     popup.classList.remove('visible');

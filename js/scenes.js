@@ -1385,13 +1385,16 @@ function checkResonantStones() {
       } catch (_) {}
       ResonanceAudio.playTone(s.noteIdx, 0.65, { duration: 3.2 });
       spawnSoundRing(s.x, getGround(s.x) - 25);
-      // showMemoryShard suppressed
+      showMemoryShard(s);
+      if (typeof trackEvent === 'function') {
+        trackEvent('discovery', { id: s.id || '', title: s.title || '' });
+      }
       if (typeof triggerHaptic === 'function') triggerHaptic('medium');
     }
   }
 }
 
-function showMemoryShard(stone) { return; // suppressed
+function showMemoryShard(stone) {
   const hud = document.getElementById('memoryShardHud');
   if (!hud) return;
   const metaEl = document.getElementById('memoryShardMeta');

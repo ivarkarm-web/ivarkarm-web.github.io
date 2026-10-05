@@ -447,6 +447,7 @@ function openDirectMonographModal() {
   const modal = document.getElementById('directMonographModal');
   if (!modal) return;
   if (modal.classList.contains('open')) return;
+  if (typeof trackEvent === 'function') trackEvent('monograph_open');
 
   playGoldParticleCurtain({
     count: 16,
@@ -580,6 +581,7 @@ function startGame() {
   if (typeof gameStarted !== 'undefined' && gameStarted) return;
   try {
     gameStarted = true;
+    if (typeof trackEvent === 'function') trackEvent('enter_experience');
     const startX = (typeof sectionPositions !== 'undefined' && sectionPositions[0])
       ? sectionPositions[0].x : 500;
     x = startX;
@@ -812,6 +814,13 @@ function mpUpdateProgress() {
 
 function mpSetPlayingUI(playing) {
   musicPlayer.isPlaying = playing;
+  if (typeof trackEvent === 'function') {
+    trackEvent(playing ? 'music_play' : 'music_pause', {
+      track: (typeof MUSIC_TRACKS !== 'undefined' && MUSIC_TRACKS[musicPlayer.index])
+        ? MUSIC_TRACKS[musicPlayer.index].title
+        : ''
+    });
+  }
   const pi = musicPlayer.els.playBtn && musicPlayer.els.playBtn.querySelector('.mp-icon-play');
   const pa = musicPlayer.els.playBtn && musicPlayer.els.playBtn.querySelector('.mp-icon-pause');
   if (pi) pi.style.display = playing ? 'none' : 'block';
@@ -2410,6 +2419,7 @@ if (document.readyState === 'loading') {
 // ===== RABBIT HOLE SCREEN OPEN / CLOSE =====
 function openRabbitHoleScreen() {
   if (endOfRoadState.rabbitHoleShown) return;
+  if (typeof trackEvent === 'function') trackEvent('rabbit_hole_open');
   triggerHaptic('medium');
   endOfRoadState.archiveShown = true;
   endOfRoadState.rabbitHoleShown = true;
