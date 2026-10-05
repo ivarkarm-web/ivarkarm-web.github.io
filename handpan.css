@@ -142,16 +142,17 @@ body:not(.hp-entering) .hp-head {
   color: var(--text-secondary);
 }
 
-/* ---- Back pill (same language as .welcome-enter) ---- */
+/* ---- Back pill (same language as .welcome-enter) — right side for easier reach ---- */
 .hp-back {
   position: fixed;
   top: calc(var(--safe-top) + 1.1rem);
-  left: calc(var(--safe-left) + 1.1rem);
+  right: calc(var(--safe-right) + 1.1rem);
+  left: auto;
   z-index: 6;
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  padding: 0.62rem 1.2rem 0.62rem 1rem;
+  padding: 0.62rem 1rem 0.62rem 1.2rem;
   background: rgba(8, 8, 12, 0.5);
   border: 1px solid rgba(212, 175, 55, 0.45);
   border-radius: 40px;
@@ -309,7 +310,7 @@ body.hp-leaving .hp-veil {
 
 @media (max-width: 480px) {
   .hp-back {
-    padding: 0.55rem 1rem 0.55rem 0.85rem;
+    padding: 0.55rem 0.85rem 0.55rem 1rem;
     font-size: 0.62rem;
   }
 
