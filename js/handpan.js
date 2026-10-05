@@ -50,12 +50,11 @@
     { key: 'd', code: 'KeyD' }
   ];
 
-  // Two-ring layout (no overlaps, fills the steel):
-  // Inner ring – 8 lower tones, every 45°, zig-zag alternating sides from bottom
-  // Outer rim  – 4 highest tones on the UPPER half, continuing the same ascending zig-zag
-  //              (B4 sits where E5 used to be)
+  // Two-ring zig-zag layout:
+  // Inner (larger) – 8 lower tones, alternating L/R from bottom up to the top
+  // Outer (smaller) – 4 highest tones; the LAST high note sits radially on top of the LAST low note (both at 0°)
   var INNER_ANGLES = [180, 225, 135, 270, 90, 315, 45, 0];
-  var OUTER_ANGLES = [292.5, 67.5, 337.5, 22.5];
+  var OUTER_ANGLES = [247.5, 112.5, 337.5, 0];
 
   var SHAPE = {
     ding: { dist: 0,    rx: 0.175, ry: 0.175 },
