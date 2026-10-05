@@ -6927,76 +6927,161 @@ canvas#game {
 
 
 
-/* Partners — compact list, clean sequential rise (Heka → Godan → Namana) */
-#s5.path-plate {
-  max-height: min(90dvh, calc(100dvh - 4.5rem));
+/* Partners — flip-in rectangles; plate stays narrow so side roll controls stay free */
+#s5.path-plate,
+#s5.path-plate--partners {
+  max-width: min(420px, 86vw);
+  width: min(420px, 86vw);
+  max-height: min(82dvh, calc(100dvh - 5rem));
+  padding: 1.35rem 1.15rem 1.25rem;
   overflow-y: auto;
+  overflow-x: hidden;
 }
-.partners-list--stack {
+/* Plate must not steal left/right roll touches — only the cards are clickable */
+#s5.path-plate.visible,
+#s5.path-plate--partners.visible {
+  pointer-events: none;
+}
+#s5.path-plate a,
+#s5.path-plate button,
+#s5.path-plate--partners a,
+#s5.path-plate--partners button {
+  pointer-events: auto;
+}
+
+.partners-list--flip {
   display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 2.2rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.7rem;
   width: 100%;
-  max-width: 580px;
-  margin: 1.4rem auto 0.4rem;
+  max-width: 360px;
+  margin: 1.15rem auto 0.2rem;
+  perspective: 1200px;
+  transform-style: preserve-3d;
 }
-.partner-card--compact {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  text-align: center !important;
+
+.partner-card--flip {
+  display: block !important;
+  flex: none !important;
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 0 !important;
-  min-height: 0 !important;
   border-radius: 0 !important;
-  text-decoration: none;
-  gap: 0.65rem !important;
+  text-decoration: none !important;
   cursor: pointer !important;
   pointer-events: auto !important;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-style: preserve-3d;
   will-change: transform, opacity;
+  -webkit-tap-highlight-color: transparent;
 }
-.partner-card--compact:hover {
-  transform: translateY(-4px) scale(1.05);
+
+.partner-card-face {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.012));
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
+  transition: border-color 0.35s ease, background 0.35s ease, box-shadow 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
 }
-.partner-card--compact .partner-mark {
-  width: 66px !important;
-  height: 66px !important;
-  border-radius: 50% !important;
+
+.partner-card--flip:hover .partner-card-face,
+.partner-card--flip:focus-visible .partner-card-face {
+  border-color: rgba(212, 175, 55, 0.55);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.38), 0 0 20px rgba(212, 175, 55, 0.12);
+  transform: translateY(-2px);
+}
+
+.partner-card--flip .partner-mark {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 12px !important;
   overflow: hidden;
-  border: 2px solid rgba(212, 175, 55, 0.48);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 18px rgba(212, 175, 55, 0.2);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  border: 1.5px solid rgba(212, 175, 55, 0.4);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
   background: #0c0c0e;
   flex-shrink: 0;
+  transition: border-color 0.3s ease, transform 0.3s ease;
 }
-.partner-card--compact:hover .partner-mark {
-  border-color: var(--accent-gold);
-  box-shadow: 0 6px 28px rgba(212, 175, 55, 0.5), 0 0 24px rgba(212, 175, 55, 0.35);
-  transform: scale(1.08);
+
+.partner-card--flip:hover .partner-mark {
+  border-color: rgba(212, 175, 55, 0.7);
+  transform: scale(1.04);
 }
-.partner-card--compact .partner-logo-img {
+
+.partner-card--flip .partner-logo-img {
   width: 100% !important;
   height: 100% !important;
   object-fit: cover;
-  border-radius: 50% !important;
   display: block;
+  border-radius: 10px !important;
 }
-.partner-card--compact .partner-name {
+
+.partner-card--flip .partner-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.12rem;
+  min-width: 0;
+  flex: 1;
+  text-align: left;
+}
+
+.partner-card--flip .partner-tag {
+  display: block;
   font-family: 'Inter', sans-serif;
-  font-size: 0.88rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  color: var(--text-primary);
-  display: block;
-  text-align: center;
-  line-height: 1.35;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  opacity: 0.85;
+  margin: 0;
 }
+
+.partner-card--flip .partner-name {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 550;
+  letter-spacing: 0.01em;
+  color: var(--text-primary);
+  line-height: 1.25;
+  text-align: left;
+}
+
+.partner-card--flip .partner-loc-inline {
+  display: block;
+  font-weight: 400;
+  color: var(--accent-gold);
+  opacity: 0.75;
+  font-size: 0.72rem;
+  margin-top: 0;
+  letter-spacing: 0.04em;
+}
+
+.partner-card-arrow {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  color: rgba(212, 175, 55, 0.55);
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.partner-card--flip:hover .partner-card-arrow {
+  color: var(--accent-gold);
+  transform: translateX(3px);
+}
+
 .partner-tag {
   display: inline-block;
   font-family: 'Inter', sans-serif;
@@ -7018,8 +7103,6 @@ canvas#game {
 }
 .partner-card--compact .partner-story,
 .partner-card--compact .partner-location {
-  display: none !important;
-}
 [data-theme="light"] .partner-tag {
   color: #7a6218;
 }
@@ -7042,6 +7125,27 @@ canvas#game {
 [data-theme="light"] .partner-card--compact .partner-loc-inline {
   color: #7a6218 !important;
 }
+[data-theme="light"] .partner-card--flip .partner-card-face {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(248, 246, 240, 0.88));
+  border-color: rgba(160, 130, 40, 0.28);
+  box-shadow: 0 6px 18px rgba(40, 30, 10, 0.08);
+}
+[data-theme="light"] .partner-card--flip:hover .partner-card-face {
+  border-color: rgba(180, 140, 40, 0.5);
+  box-shadow: 0 10px 24px rgba(40, 30, 10, 0.12);
+}
+[data-theme="light"] .partner-card--flip .partner-name {
+  color: #1a1814;
+}
+[data-theme="light"] .partner-card--flip .partner-loc-inline,
+[data-theme="light"] .partner-card--flip .partner-tag {
+  color: #9a7a20;
+}
+[data-theme="light"] .partner-card--flip .partner-mark {
+  border-color: rgba(160, 130, 40, 0.4);
+  background: #f4f1ea;
+}
+
 :root:not([data-theme="light"]) .partner-card--compact {
   background: transparent !important;
   border: none !important;
