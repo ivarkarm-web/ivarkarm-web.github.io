@@ -52,11 +52,11 @@
 
   // Maker-style zig-zag with roomy spacing:
   // Inner 8 (larger fields) at 45° — ascending L/R from bottom → top
-  // Outer 4 (high notes) clustered upper half next to high lower-notes:
-  //   1st high next to G4 @ 45°, 2nd next to A4 @ 0°,
-  //   3rd & 4th (D5/E5) tight flanking the top
+  // Outer 4 ascending B4→C5→D5→E5, no overlap:
+  //   B4 by G4 @ 45°, C5 by F4 @ 315°,
+  //   D5 toward A4 @ 350°, E5 above B4 toward A4 @ 20°
   var INNER_ANGLES = [180, 225, 135, 270, 90, 315, 45, 0];
-  var OUTER_ANGLES = [45, 0, 330, 30];
+  var OUTER_ANGLES = [45, 315, 350, 20];
 
   var SHAPE = {
     ding: { dist: 0,    rx: 0.175, ry: 0.175 },
