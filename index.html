@@ -420,44 +420,10 @@
 
     <div class="contact-book-cta">
       <span class="contact-cta-rule" aria-hidden="true"></span>
-      <button type="button" class="book-me-button" id="bookMeButton" aria-haspopup="dialog" aria-controls="bookingModal">
-        <span>Book me</span><span class="book-me-arrow" aria-hidden="true">↗</span>
+      <button type="button" class="book-me-button" id="bookMeButton" aria-haspopup="page">
+        <span>Book me</span>
       </button>
       <span class="contact-cta-rule" aria-hidden="true"></span>
-    </div>
-  </div>
-
-  <div class="booking-modal" id="bookingModal" aria-hidden="true">
-    <div class="booking-modal-backdrop" id="bookingModalBackdrop"></div>
-    <div class="booking-dialog" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
-      <button type="button" class="booking-close" id="bookingClose" aria-label="Close booking form">×</button>
-      <div class="booking-eyebrow">Booking enquiry</div>
-      <h2 id="bookingTitle">Bring the music into the room.</h2>
-      <p class="booking-intro">Tell me a little about the event. I’ll get back to you at the email address you provide.</p>
-      <form id="bookingForm" class="booking-form" action="mailto:ivar.karm@gmail.com" method="post" enctype="text/plain">
-        <div class="booking-grid">
-          <label><span>Your name</span><input name="name" type="text" autocomplete="name" required></label>
-          <label><span>Your email</span><input name="email" type="email" autocomplete="email" required></label>
-          <fieldset class="booking-event-picker">
-            <legend>What are you planning?</legend>
-            <div class="booking-event-options">
-              <label class="booking-event-option"><input type="radio" name="event_type" value="Private event" required><span>Private event</span><small>Celebration · gathering · home</small></label>
-              <label class="booking-event-option"><input type="radio" name="event_type" value="Festival / concert"><span>Festival / concert</span><small>Stage · outdoor · venue</small></label>
-              <label class="booking-event-option"><input type="radio" name="event_type" value="Cultural space"><span>Cultural space</span><small>Gallery · museum · community</small></label>
-              <label class="booking-event-option"><input type="radio" name="event_type" value="Film / installation"><span>Film / installation</span><small>Sound · image · atmosphere</small></label>
-              <label class="booking-event-option"><input type="radio" name="event_type" value="Collaboration"><span>Collaboration</span><small>Artist · music · creative work</small></label>
-              <label class="booking-event-option"><input type="radio" name="event_type" value="Other"><span>Something else</span><small>Tell me what you have in mind</small></label>
-            </div>
-          </fieldset>
-          <label><span>Event date</span><input name="event_date" type="date"></label>
-          <label><span>Location</span><input name="location" type="text" placeholder="City / venue"></label>
-          <label><span>Approx. duration</span><select name="duration"><option value="" selected>Not sure yet</option><option>15–30 min</option><option>30–60 min</option><option>60–90 min</option><option>2+ hours</option></select></label>
-        </div>
-        <label><span>Tell me about it</span><textarea name="message" rows="5" placeholder="What are you planning, and what would you like the music to be part of?"></textarea></label>
-        <label class="booking-honeypot" aria-hidden="true">Leave this empty<input name="_gotcha" tabindex="-1" autocomplete="off"></label>
-        <div class="booking-form-footer"><span class="booking-note">No commitment — this is an enquiry.</span><button type="submit" class="booking-submit">Send enquiry <span aria-hidden="true">↗</span></button></div>
-        <p class="booking-status" id="bookingStatus" role="status" aria-live="polite"></p>
-      </form>
     </div>
   </div>
 
