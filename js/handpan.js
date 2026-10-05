@@ -50,12 +50,12 @@
     { key: 'd', code: 'KeyD' }
   ];
 
-  // Maker-style continuous zig-zag (pitch order):
-  // Alternating left/right from bottom → top so you can run the scale up/down naturally.
-  // First 8 tones sit on the larger inner ring; the 4 highest sit on the outer rim
-  // (same angular path, further out) — no overlaps, consecutive notes stay reachable.
-  var INNER_ANGLES = [180, 210, 150, 240, 120, 270, 90, 300];
-  var OUTER_ANGLES = [60, 330, 30, 0];
+  // Maker-style zig-zag with roomy spacing:
+  // Inner 8 (larger fields) at 45° — no smushing of the lower notes
+  // Outer 4 (high notes) sit in the upper gaps of that ring so they never overlap
+  // Pitch order alternates L/R from bottom → top for natural scale runs
+  var INNER_ANGLES = [180, 225, 135, 270, 90, 315, 45, 0];
+  var OUTER_ANGLES = [337.5, 22.5, 292.5, 67.5];
 
   var SHAPE = {
     ding: { dist: 0,    rx: 0.175, ry: 0.175 },
