@@ -108,7 +108,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340..600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=28">
+  <link rel="stylesheet" href="./styles.css?v=29">
   <!-- GSAP & ScrollTrigger for standalone direct-branch hosting -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -261,45 +261,36 @@
     <h2>Partners</h2>
     <div class="hairline"></div>
     <p class="lead">Instrument makers and companies I work with and recommend. No codes, no discounts — people whose work I stand behind.</p>
-    <div class="partners-list" id="partnersList">
-      <a href="https://www.instagram.com/heka.handpans/" target="_blank" rel="noopener noreferrer" class="partner-card">
-        <div class="partner-shine"></div>
+    <div class="partners-list partners-list--editorial" id="partnersList">
+      <a href="https://godan.nl/en/godan/" target="_blank" rel="noopener noreferrer" class="partner-card partner-card--story">
+        <div class="partner-mark partner-mark--godan">
+          <img class="partner-logo-img" src="https://i.postimg.cc/W1dNrQsm/Godan-handpan.jpg" alt="Godan Handpans logo" width="68" height="68" loading="lazy" decoding="async" />
+        </div>
+        <div class="partner-meta">
+          <span class="partner-name">Godan Handpans</span>
+          <span class="partner-location">The Hague · Netherlands</span>
+          <p class="partner-story">A short walk and talk with the maker. Later, when a handpan was stolen, Godan sent a new one free of charge.</p>
+        </div>
+      </a>
+      <a href="https://www.instagram.com/heka.handpans/" target="_blank" rel="noopener noreferrer" class="partner-card partner-card--story">
         <div class="partner-mark partner-mark--heka">
           <img class="partner-logo-img" src="https://i.postimg.cc/W1dNrQs6/heka-handpan.jpg" alt="Heka Handpans logo" width="68" height="68" loading="lazy" decoding="async" />
         </div>
         <div class="partner-meta">
           <span class="partner-name">Heka Handpans</span>
           <span class="partner-location">Greece</span>
+          <p class="partner-story">Instrument makers I work with and recommend — steel shaped for the road, not the shop window.</p>
         </div>
-        <span class="partner-arrow" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
-        </span>
       </a>
-      <a href="https://namana-bags.com/" target="_blank" rel="noopener noreferrer" class="partner-card">
-        <div class="partner-shine"></div>
+      <a href="https://namana-bags.com/" target="_blank" rel="noopener noreferrer" class="partner-card partner-card--story">
         <div class="partner-mark partner-mark--namana">
           <img class="partner-logo-img" src="https://i.postimg.cc/52X4vZfS/images.jpg" alt="Namana Bags logo" width="68" height="68" loading="lazy" decoding="async" />
         </div>
         <div class="partner-meta">
           <span class="partner-name">Namana Bags</span>
-          <span class="partner-location">Travel Hardcases &amp; Bags</span>
+          <span class="partner-location">Cases &amp; travel</span>
+          <p class="partner-story">Hardcases and bags that survive busking, trains, and the kind of travel that is not a tour schedule.</p>
         </div>
-        <span class="partner-arrow" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
-        </span>
-      </a>
-      <a href="https://godan.nl/en/godan/" target="_blank" rel="noopener noreferrer" class="partner-card">
-        <div class="partner-shine"></div>
-        <div class="partner-mark partner-mark--godan">
-          <img class="partner-logo-img" src="https://i.postimg.cc/W1dNrQsm/Godan-handpan.jpg" alt="Godan Handpans logo" width="68" height="68" loading="lazy" decoding="async" />
-        </div>
-        <div class="partner-meta">
-          <span class="partner-name">Godan Handpans</span>
-          <span class="partner-location">Netherlands</span>
-        </div>
-        <span class="partner-arrow" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
-        </span>
       </a>
     </div>
   </div>
@@ -450,7 +441,9 @@
           <span class="mp-track-num" id="mpTrackNum">01</span>
           <div class="mp-titles">
             <span class="mp-title" id="mpTitle">Bedroom Session 1</span>
-            <span class="mp-subtitle" id="mpSubtitle">Handpan · Bedroom Sessions · Archive.org</span>
+            <span class="mp-subtitle" id="mpSubtitle">Handpan · Improvised</span>
+            <span class="mp-field-note" id="mpNote">Raw take. Kept as it was.</span>
+            <span class="mp-field-loc" id="mpLocation">Private room</span>
           </div>
         </div>
         <div class="mp-progress-wrap">
@@ -524,7 +517,7 @@
       <button type="button" class="dm-quicknav-btn dm-quicknav-btn--rh" data-dm-target="dmFooter">Rabbit Hole ↓</button>
     </div>
 
-    <div class="dm-content" id="dmContent">
+    <div class="dm-content dm-content--book" id="dmContent">
       <section class="dm-section" id="dmSec0">
         <span class="dm-sec-tag">Foundational Principle</span>
         <h3>Before sound, there is listening.</h3>
@@ -1118,16 +1111,18 @@
         </div>
 
         <div class="rh-instruments-grid">
-          <div class="rh-instrument-card">
-            <div class="rh-instrument-icon" aria-hidden="true">🎵</div>
+          <div class="rh-instrument-card rh-instrument-card--cabinet">
+            <div class="rh-instrument-icon" aria-hidden="true"><span class="rh-inst-glyph">◎</span></div>
             <div class="rh-instrument-details">
+              <span class="rh-inst-meta">Centerpiece · Steel</span>
               <h4 class="rh-instrument-title">Handpan</h4>
               <p class="rh-instrument-desc">My centerpiece. My first was a C major pentatonic Spacedrum, the one everybody wanted because of Yuki Koshimoto. Years later I learned it sounded closer to a steelpan than what we call a handpan today. I loved her more than anything anyway.</p>
             </div>
           </div>
-          <div class="rh-instrument-card">
-            <div class="rh-instrument-icon" aria-hidden="true">🪘</div>
+          <div class="rh-instrument-card rh-instrument-card--cabinet">
+            <div class="rh-instrument-icon" aria-hidden="true"><span class="rh-inst-glyph">◯</span></div>
             <div class="rh-instrument-details">
+              <span class="rh-inst-meta">Early road · Skin</span>
               <h4 class="rh-instrument-title">Djembe</h4>
               <p class="rh-instrument-desc">The first one was my aunt's torn-skin gift. The one that changed my life cost €30 in a Berlin thrift store full of vintage jackets, military boots and used accordions. It sounded earthy and a bit rough, and it was a huge step up from the soaked, rotten drum I found in the trash.</p>
             </div>
@@ -1375,12 +1370,12 @@
 
 <script src="./js/utilities.js?v=5" defer></script>
 <script src="./js/core.js?v=28" defer></script>
-<script src="./js/content.js?v=6" defer></script>
-<script src="./js/audio.js?v=5" defer></script>
+<script src="./js/content.js?v=29" defer></script>
+<script src="./js/audio.js?v=29" defer></script>
 <script src="./js/physics.js?v=5" defer></script>
-<script src="./js/scenes-effects.js?v=5" defer></script>
-<script src="./js/scenes.js?v=25" defer></script>
-<script src="./js/ui.js?v=28" defer></script>
+<script src="./js/scenes-effects.js?v=29" defer></script>
+<script src="./js/scenes.js?v=29" defer></script>
+<script src="./js/ui.js?v=29" defer></script>
 <script src="./js/engine.js?v=5" defer></script>
 <script src="./script.js?v=28" defer></script>
 <script src="./js/analytics.js?v=5" defer></script>

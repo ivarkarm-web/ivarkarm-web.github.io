@@ -105,19 +105,31 @@ function getZoomDrawRange() {
   return { min: half * (1 - 1 / z), max: half * (1 + 1 / z) };
 }
 
+function getAudioTerrainOffset() {
+  if (typeof ResonanceAudio === 'undefined' || !ResonanceAudio.bands) return 0;
+  if (typeof AppCore !== 'undefined' && AppCore.caps && AppCore.caps.reducedMotion) return 0;
+  const b = ResonanceAudio.bands;
+  // Bass lifts the land gently; amplitude adds slow breathing
+  return -(b.bass * 10 + b.amplitude * 4);
+}
+
 function buildTerrainPath(context, offset, getHeightFn, step) {
   step = step || 6;
   const range = getZoomDrawRange();
+  const audioY = getAudioTerrainOffset();
   context.beginPath();
   let first = true;
   for (let i = range.min; i <= range.max; i += step) {
     const worldX = i + offset;
-    const gy = getHeightFn(worldX);
+    // Spatial modulation so the whole ridge does not bounce as one block
+    const wave = Math.sin(worldX * 0.004 + (Date.now() * 0.0004)) * (ResonanceAudio.bands ? ResonanceAudio.bands.mid * 3 : 0);
+    const gy = getHeightFn(worldX) + audioY + wave;
     if (first) { context.moveTo(i, gy); first = false; }
     else context.lineTo(i, gy);
   }
   const lastWorldX = range.max + offset;
-  context.lineTo(range.max, getHeightFn(lastWorldX));
+  const lastY = getHeightFn(lastWorldX) + audioY;
+  context.lineTo(range.max, lastY);
   context.lineTo(range.max, viewH + 120);
   context.lineTo(range.min, viewH + 120);
   context.closePath();

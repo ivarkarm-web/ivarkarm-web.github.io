@@ -657,50 +657,82 @@ function startGame() {
 // Music player
 const MUSIC_TRACKS = [
   {
+    num: '01',
     title: 'Bedroom Session 1',
-    subtitle: 'Handpan · Bedroom Sessions · Archive.org',
+    subtitle: 'Handpan · Improvised',
+    location: 'Private room',
+    note: 'Raw take. Kept as it was.',
+    instrument: 'Handpan',
     src: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%201.wav',
     duration: 85
   },
   {
+    num: '02',
     title: 'Bedroom Session 2',
-    subtitle: 'Handpan · Bedroom Sessions · Archive.org',
+    subtitle: 'Handpan · Improvised',
+    location: 'Private room',
+    note: 'Second pass the same night.',
+    instrument: 'Handpan',
     src: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%202.wav',
     duration: 106
   },
   {
+    num: '03',
     title: 'Bedroom Session 3',
-    subtitle: 'Handpan · Bedroom Sessions · Archive.org',
+    subtitle: 'Handpan · Improvised',
+    location: 'Private room',
+    note: 'Shorter breath between phrases.',
+    instrument: 'Handpan',
     src: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%203.wav',
     duration: 89
   },
   {
+    num: '04',
     title: 'Bedroom Session 4',
-    subtitle: 'Handpan · Bedroom Sessions · Archive.org',
+    subtitle: 'Handpan · Improvised',
+    location: 'Private room',
+    note: 'Compact form.',
+    instrument: 'Handpan',
     src: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%204.wav',
     duration: 65
   },
   {
+    num: '05',
     title: 'Bedroom Session 5',
-    subtitle: 'Handpan · Bedroom Sessions · Archive.org',
+    subtitle: 'Handpan · Improvised',
+    location: 'Private room',
+    note: 'Longer sustained lines.',
+    instrument: 'Handpan',
     src: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%205.wav',
     duration: 106
   },
   {
+    num: '06',
     title: 'Bedroom Session 7',
-    subtitle: 'Handpan · Bedroom Sessions · Archive.org',
+    subtitle: 'Handpan · Improvised',
+    location: 'Private room',
+    note: 'Session seven in the series.',
+    instrument: 'Handpan',
     src: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%207.wav',
     duration: 77
   },
   {
+    num: '07',
     title: 'Bedroom Session 8',
-    subtitle: 'Handpan · Bedroom Sessions · Archive.org',
+    subtitle: 'Handpan · Improvised',
+    location: 'Private room',
+    note: 'Closing short take.',
+    instrument: 'Handpan',
     src: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%208.wav',
     duration: 68
   },
   {
+    num: '08',
     title: 'Bedroom Sessions (Master)',
-    subtitle: 'Handpan Extended Session · Archive.org',
+    subtitle: 'Handpan · Extended',
+    location: 'Private room',
+    note: 'Longer continuous improvisation.',
+    instrument: 'Handpan',
     src: 'https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20sessions%20-%2003.10.2026%2C%2022.29.wav',
     duration: 163
   }
@@ -831,6 +863,9 @@ function mpSelectAndPlayTrack(index) {
   // 3. Immediately update titles and track number
   if (musicPlayer.els.title) musicPlayer.els.title.textContent = track.title;
   if (musicPlayer.els.subtitle) musicPlayer.els.subtitle.textContent = track.subtitle;
+  if (musicPlayer.els.trackNum) musicPlayer.els.trackNum.textContent = track.num || String(musicPlayer.index + 1).padStart(2, '0');
+  if (musicPlayer.els.note) musicPlayer.els.note.textContent = track.note || '';
+  if (musicPlayer.els.location) musicPlayer.els.location.textContent = track.location || '';
   if (musicPlayer.els.trackNum) musicPlayer.els.trackNum.textContent = String(index + 1).padStart(2, '0');
 
   // 4. Fade out any background audio orb
@@ -1066,6 +1101,8 @@ function initMusicPlayer() {
     title: document.getElementById('mpTitle'),
     subtitle: document.getElementById('mpSubtitle'),
     trackNum: document.getElementById('mpTrackNum'),
+    note: document.getElementById('mpNote'),
+    location: document.getElementById('mpLocation'),
     filled: document.getElementById('mpProgressFilled'),
     handle: document.getElementById('mpProgressHandle'),
     progress: document.getElementById('mpProgress'),
@@ -2553,3 +2590,22 @@ function playGoldParticleCurtain(options) {
 window.openRabbitHoleScreen = openRabbitHoleScreen;
 window.closeRabbitHoleScreen = closeRabbitHoleScreen;
 window.rhScrollManager = rhScrollManager;
+
+
+/** Route the improv player into ResonanceAudio's analyser so the world responds to recordings. */
+function connectMusicToAnalyser(audioEl) {
+  try {
+    if (!audioEl || typeof ResonanceAudio === 'undefined') return;
+    ResonanceAudio.init();
+    if (!ResonanceAudio.ctx || !ResonanceAudio.analyser) return;
+    if (audioEl._resonanceConnected) return;
+    const src = ResonanceAudio.ctx.createMediaElementSource(audioEl);
+    src.connect(ResonanceAudio.analyser);
+    // Also to speakers via master
+    if (ResonanceAudio.masterGain) src.connect(ResonanceAudio.masterGain);
+    else src.connect(ResonanceAudio.ctx.destination);
+    audioEl._resonanceConnected = true;
+  } catch (e) {
+    // MediaElementSource can only be created once; ignore repeats
+  }
+}

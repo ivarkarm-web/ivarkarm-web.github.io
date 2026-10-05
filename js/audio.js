@@ -301,6 +301,50 @@ const ResonanceAudio = {
     } else if (biome === 'greece') {
       this.ambientFilter.frequency.setTargetAtTime(270, now, 1.5);
     }
+  },
+
+  /**
+   * Smooth frequency bands for organic visual reactivity.
+   * Maps analyser bins → bass / mid / high / amplitude (0–1).
+   * Safe no-op when analyser unavailable or muted.
+   */
+  updateBands() {
+    if (!this.analyser || !this.analyserData || this.isMuted) {
+      // Settle toward silence
+      const b = this.bands;
+      b.bass *= 0.92;
+      b.mid *= 0.92;
+      b.high *= 0.92;
+      b.amplitude *= 0.92;
+      return this.bands;
+    }
+    try {
+      this.analyser.getByteFrequencyData(this.analyserData);
+      const data = this.analyserData;
+      const n = data.length;
+      // Bin ranges for ~fftSize 256 → 128 bins (0–nyquist)
+      let bassSum = 0, midSum = 0, highSum = 0, allSum = 0;
+      const bassEnd = Math.max(2, Math.floor(n * 0.08));
+      const midEnd = Math.max(bassEnd + 1, Math.floor(n * 0.4));
+      for (let i = 0; i < n; i++) {
+        const v = data[i] / 255;
+        allSum += v;
+        if (i < bassEnd) bassSum += v;
+        else if (i < midEnd) midSum += v;
+        else highSum += v;
+      }
+      const bass = bassSum / bassEnd;
+      const mid = midSum / Math.max(1, midEnd - bassEnd);
+      const high = highSum / Math.max(1, n - midEnd);
+      const amplitude = allSum / n;
+      // Exponential smoothing — organic, not jittery
+      const a = 0.18;
+      this.bands.bass += (bass - this.bands.bass) * a;
+      this.bands.mid += (mid - this.bands.mid) * a;
+      this.bands.high += (high - this.bands.high) * a;
+      this.bands.amplitude += (amplitude - this.bands.amplitude) * a;
+    } catch (_) {}
+    return this.bands;
   }
 };
 

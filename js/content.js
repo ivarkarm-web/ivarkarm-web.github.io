@@ -16,30 +16,75 @@ const resonantStones = [
     triggered: false
   },
   {
+    id: 'djembe-seed',
+    x: 900,
+    title: 'The €30 Drum',
+    meta: 'Way to Music · Berlin',
+    text: 'Kreuzberg thrift shop. A cheap African djembe. The street became the classroom — not a conservatory.',
+    noteIdx: 2,
+    triggered: false
+  },
+  {
     id: 'berlin',
     x: 1800,
     title: 'Warschauer Straße',
     meta: 'Way to Music · Berlin',
-    text: 'A one-way ticket out of Tallinn. A €30 djembe from a Kreuzberg thrift shop. Six to nine hours a day in the underground. Sixty or seventy a weekend on Warschauer Straße until the handpan called.',
+    text: 'Six to nine hours a day in the underground. Sixty or seventy euros a good weekend on Warschauer Straße. The handpan was still a rumour on a screen.',
     noteIdx: 1,
+    triggered: false
+  },
+  {
+    id: 'spacedrum',
+    x: 3000,
+    title: 'First Steel',
+    meta: 'Instruments · Spacedrum',
+    text: 'A C major pentatonic Spacedrum — the one everyone wanted after Yuki Koshimoto. Practiced like a djembe until the steel taught its own language.',
+    noteIdx: 3,
     triggered: false
   },
   {
     id: 'road',
     x: 4200,
     title: 'The Stolen Steel',
-    meta: 'The Road · Tallinn & The Hague',
-    text: 'First Spacedrum practiced like a djembe. Then the locked staircase and an empty case — the lowest point. Crowdfunding, then Godan in The Hague sent a brand new handpan free of charge.',
+    meta: 'The Road · Tallinn',
+    text: 'A locked staircase. An empty case. The lowest point on the road — and the start of asking for help.',
     noteIdx: 4,
+    triggered: false
+  },
+  {
+    id: 'godan-gift',
+    x: 5200,
+    title: 'The Hague',
+    meta: 'Makers · Godan',
+    text: 'A short walk and talk with a maker. Later, a message: a brand new handpan, free of charge. Still the nicest thing anyone has done on this road.',
+    noteIdx: 5,
+    triggered: false
+  },
+  {
+    id: 'tallinn-dog',
+    x: 6400,
+    title: 'Case & Companion',
+    meta: 'Tallinn streets',
+    text: 'Busking Tallinn with a dog in the case. The street does not pay on time, but nobody tells you when to stop.',
+    noteIdx: 7,
     triggered: false
   },
   {
     id: 'greece',
     x: 8000,
     title: 'Ermou Street',
-    meta: 'Greece · Samos & Athens',
-    text: 'Trapped in Estonia, then a chance at Greece. A restaurant on Samos that did not last. Back to street life in Athens — notes left in the case, dogs from Berlin, the open road again.',
+    meta: 'Greece · Athens',
+    text: 'Samos did not last. Athens did. Notes left in the case, open stage, the road continuing.',
     noteIdx: 6,
+    triggered: false
+  },
+  {
+    id: 'bedroom',
+    x: 9200,
+    title: 'Bedroom Sessions',
+    meta: 'Recordings · Archive',
+    text: 'Eight raw handpan improvisations. No studio polish — kept as they were. Listen on the road or from the vault.',
+    noteIdx: 8,
     triggered: false
   },
   {
@@ -47,8 +92,8 @@ const resonantStones = [
     x: 10500,
     title: 'The Threshold',
     meta: 'Deep Archive · The Rabbit Hole',
-    text: 'Where the public road ends and the full story begins. Makers, bedroom sessions, instruments, and the notes figured out the hard way.',
-    noteIdx: 8,
+    text: 'Where the public road ends and the full story begins. Makers, sessions, instruments, and the notes figured out the hard way.',
+    noteIdx: 9,
     triggered: false
   }
 ];

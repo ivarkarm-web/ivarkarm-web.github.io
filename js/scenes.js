@@ -1713,8 +1713,12 @@ function drawResonantStones(context, offset) {
     context.save();
     context.globalAlpha = (context.globalAlpha || 1.0) * fade;
     // Ambient sound aura
-    const pulse = 0.5 + 0.5 * Math.sin(time * 2.2 + i);
-    const glowR = 48 + pulse * 14;
+    let audioHigh = 0;
+    if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.bands) {
+      audioHigh = ResonanceAudio.bands.high * 0.55 + ResonanceAudio.bands.amplitude * 0.25;
+    }
+    const pulse = 0.5 + 0.5 * Math.sin(time * 2.2 + i) + audioHigh * 0.35;
+    const glowR = 48 + pulse * 14 + audioHigh * 18;
     const aura = context.createRadialGradient(screenX, groundY - stoneH * 0.55, 0, screenX, groundY - stoneH * 0.55, glowR);
     aura.addColorStop(0, s.triggered ? 'rgba(212, 175, 55, 0.24)' : 'rgba(212, 175, 55, 0.10)');
     aura.addColorStop(1, 'rgba(0, 0, 0, 0)');
