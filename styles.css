@@ -5303,38 +5303,36 @@ body.mp-drawer-open .touch-controls {
 
 
 /* ==========================================================================
-   IMPROV SESSIONS: GLOWING PULL-DOWN CUE + CORNER CLOSE (X)
+   IMPROV SESSIONS: SLEEK HORIZONTAL PULL-DOWN CUE (NON-CHUNKY)
    ========================================================================== */
 .mp-pull-cue {
   position: relative;
   left: auto;
   bottom: auto;
-  transform: translateY(6px);
+  transform: translateY(-2px);
   z-index: 10;
   display: inline-flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 0.15rem;
-  margin: 0.6rem auto 1.35rem;
-  padding: 0.7rem 1.5rem 0.65rem;
-  background: rgba(10, 10, 14, 0.82);
-  border: 1px solid rgba(212, 175, 55, 0.45);
+  gap: 0.45rem;
+  margin: 0 auto 0.85rem;
+  padding: 0.38rem 0.95rem 0.38rem 0.8rem;
+  background: rgba(14, 14, 18, 0.75);
+  border: 1px solid rgba(212, 175, 55, 0.38);
   border-radius: 999px;
   box-shadow:
-    0 0 0 1px rgba(212, 175, 55, 0.12),
-    0 8px 24px rgba(0, 0, 0, 0.5),
-    0 0 24px rgba(212, 175, 55, 0.22);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+    0 2px 12px rgba(0, 0, 0, 0.45),
+    0 0 12px rgba(212, 175, 55, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: var(--accent-gold);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
   cursor: pointer !important;
-  transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: opacity 0.4s ease, transform 0.3s ease, border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  animation: mpCuePulse 2.8s ease-in-out infinite;
 }
 
 .mp-pull-cue.show,
@@ -5345,71 +5343,62 @@ body.mp-drawer-open .touch-controls {
   transform: translateY(0);
 }
 
-.mp-cue-glow {
-  position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  background: radial-gradient(ellipse at 50% 0%, rgba(212, 175, 55, 0.22), transparent 65%);
-  pointer-events: none;
-  opacity: 0.9;
-}
-
-.mp-cue-arrows {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 28px;
-  z-index: 1;
-}
-
-.mp-cue-arrows svg {
-  width: 18px;
-  height: 18px;
-  opacity: 0;
-  filter: drop-shadow(0 0 6px rgba(212, 175, 55, 1)) drop-shadow(0 0 16px rgba(212, 175, 55, 0.55));
-  animation: mpCueDrop 1.8s infinite ease-in-out;
-}
-
-.mp-cue-arrows svg + svg {
-  margin-top: -8px;
-  animation-delay: 0.28s;
+.mp-cue-down-icon {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.2;
+  color: var(--accent-gold);
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+  animation: mpSleekDrop 2s ease-in-out infinite;
 }
 
 .mp-cue-label {
-  position: relative;
-  z-index: 1;
   font-family: 'Inter', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(255, 236, 180, 0.95);
-  text-shadow: 0 0 14px rgba(212, 175, 55, 0.65), 0 1px 2px rgba(0, 0, 0, 0.5);
-  transition: color 0.3s ease;
+  color: rgba(255, 240, 200, 0.9);
+  white-space: nowrap;
 }
 
 .mp-pull-cue:hover,
 .mp-pull-cue:focus-visible {
-  border-color: rgba(228, 195, 90, 0.7);
-  box-shadow:
-    0 0 0 1px rgba(212, 175, 55, 0.2),
-    0 12px 40px rgba(0, 0, 0, 0.5),
-    0 0 40px rgba(212, 175, 55, 0.32);
+  background: rgba(212, 175, 55, 0.14);
+  border-color: var(--accent-gold);
+  box-shadow: 0 4px 18px rgba(212, 175, 55, 0.3), 0 0 20px rgba(212, 175, 55, 0.2);
+  transform: translateY(1px);
 }
 
-.mp-pull-cue:hover .mp-cue-label,
-.mp-pull-cue:focus-visible .mp-cue-label {
-  color: #fff4d0;
+.mp-pull-cue:hover .mp-cue-down-icon {
+  transform: translateY(2px);
 }
 
 .mp-pull-cue:focus-visible {
   outline: none;
 }
 
-@keyframes mpCuePulse {
-  0%, 100% { box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.08), 0 10px 36px rgba(0, 0, 0, 0.45), 0 0 22px rgba(212, 175, 55, 0.16); }
-  50% { box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.18), 0 10px 36px rgba(0, 0, 0, 0.45), 0 0 36px rgba(212, 175, 55, 0.32); }
+@keyframes mpSleekDrop {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px); }
+}
+
+[data-theme="light"] .mp-pull-cue {
+  background: rgba(245, 240, 230, 0.88);
+  border-color: rgba(122, 98, 24, 0.4);
+  color: #7a6218;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .mp-pull-cue .mp-cue-down-icon {
+  color: #7a6218;
+}
+[data-theme="light"] .mp-pull-cue .mp-cue-label {
+  color: #5c4714;
+}
+[data-theme="light"] .mp-pull-cue:hover {
+  background: rgba(122, 98, 24, 0.14);
+  border-color: #7a6218;
 }
 
 /* Rabbit Hole roll-forward cue (after Contact) */
@@ -7008,6 +6997,17 @@ canvas#game {
   text-align: center;
   line-height: 1.35;
 }
+.partner-tag {
+  display: inline-block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  opacity: 0.82;
+  margin-bottom: 0.1rem;
+}
 .partner-loc-inline {
   display: block;
   font-weight: 400;
@@ -7019,6 +7019,9 @@ canvas#game {
 .partner-card--compact .partner-story,
 .partner-card--compact .partner-location {
   display: none !important;
+}
+[data-theme="light"] .partner-tag {
+  color: #7a6218;
 }
 [data-theme="light"] .partner-card--compact {
   background: transparent !important;
