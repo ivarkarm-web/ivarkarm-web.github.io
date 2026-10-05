@@ -166,7 +166,7 @@ function collectJs(dir) {
   if (!fs.existsSync(abs)) return;
   for (const entry of fs.readdirSync(abs, { withFileTypes: true })) {
     const rel = path.join(dir, entry.name);
-    if (entry.isDirectory()) collectJs(rel);
+    if (entry.isDirectory() && !['node_modules', '.git', 'dist'].includes(entry.name)) collectJs(rel);
     else if (entry.isFile() && entry.name.endsWith('.js')) jsFiles.push(rel);
   }
 }
