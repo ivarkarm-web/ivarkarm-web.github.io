@@ -4663,18 +4663,20 @@ body.rabbit-hole-open #cursor {
 .direct-monograph-modal {
   position: fixed;
   inset: 0;
-  z-index: 2500;
+  z-index: 5200; /* above welcome (5000) so it works from welcome screen */
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
   visibility: hidden;
+  pointer-events: none;
   transition: opacity 0.4s ease, visibility 0.4s ease;
 }
 
 .direct-monograph-modal.open {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
 }
 
 .dm-backdrop {

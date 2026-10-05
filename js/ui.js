@@ -492,19 +492,35 @@ const dmCloseBtn = document.getElementById('dmCloseBtn');
 const dmBackdrop = document.getElementById('dmBackdrop');
 const dmOpenRhBtn = document.getElementById('dmOpenRhBtn');
 
+let _welcomeMonoLock = false;
 function openMonographFromWelcome(e) {
   if (e) {
     e.preventDefault();
     e.stopPropagation();
     if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
   }
-  if (typeof openDirectMonographModal === 'function') openDirectMonographModal();
+  if (_welcomeMonoLock) return;
+  _welcomeMonoLock = true;
+  window.setTimeout(() => { _welcomeMonoLock = false; }, 600);
+
+  // Open immediately (no particle wait) so it appears over welcome without Enter
+  const modal = document.getElementById('directMonographModal');
+  if (modal) {
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    modal.style.zIndex = '5200';
+  }
+  if (typeof trackEvent === 'function') trackEvent('monograph_open', { from: 'welcome' });
+  try {
+    if (typeof ResonanceAudio !== 'undefined') {
+      ResonanceAudio.resume();
+      ResonanceAudio.playTone(3, 0.35);
+    }
+  } catch (_) {}
 }
 if (welcomeMonographBtn) {
-  // Capture phase so welcome's bubble listeners never start the game
-  ['pointerdown', 'pointerup', 'click', 'touchend'].forEach((type) => {
-    welcomeMonographBtn.addEventListener(type, openMonographFromWelcome, true);
-  });
+  welcomeMonographBtn.addEventListener('click', openMonographFromWelcome, true);
+  welcomeMonographBtn.addEventListener('pointerup', openMonographFromWelcome, true);
 }
 if (monographToggleBtn) {
   monographToggleBtn.addEventListener('click', toggleDirectMonographModal);
