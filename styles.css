@@ -6921,3 +6921,64 @@ canvas#game {
   color: #1a1712;
   background: rgba(122, 98, 24, 0.1);
 }
+
+
+/* Path action buttons sit under "Hold sides to roll" on mobile */
+@media (max-width: 900px), (pointer: coarse) {
+  body:not(.pre-enter):not(.rabbit-hole-open) .touch-hint {
+    bottom: max(4.75rem, calc(env(safe-area-inset-bottom, 0px) + 4.1rem));
+  }
+
+  body:not(.pre-enter):not(.rabbit-hole-open):not(.qr-open) nav .nav-right-actions {
+    position: fixed;
+    left: 50%;
+    right: auto;
+    top: auto;
+    bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    z-index: 1200;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.5rem;
+    margin: 0;
+    pointer-events: auto;
+    background: rgba(8, 8, 10, 0.45);
+    border: 1px solid rgba(212, 175, 55, 0.16);
+    border-radius: 999px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  body:not(.pre-enter):not(.rabbit-hole-open):not(.qr-open) nav .nav-right-actions .nav-action-btn,
+  body:not(.pre-enter):not(.rabbit-hole-open):not(.qr-open) nav .nav-right-actions .nav-action-btn--icon,
+  body:not(.pre-enter):not(.rabbit-hole-open):not(.qr-open) nav .nav-right-actions #monographToggleBtn {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    min-height: 42px;
+    padding: 0;
+    margin: 0;
+  }
+
+  body:not(.pre-enter):not(.rabbit-hole-open):not(.qr-open) nav .nav-right-actions .hamburger {
+    display: none !important;
+  }
+
+  [data-theme="light"] body:not(.pre-enter) nav .nav-right-actions,
+  body:not(.pre-enter):not(.rabbit-hole-open) [data-theme="light"] nav .nav-right-actions {
+    /* light chrome handled via tokens on buttons */
+  }
+  [data-theme="light"] nav .nav-right-actions {
+    background: rgba(250, 247, 240, 0.72);
+    border-color: rgba(26, 23, 18, 0.12);
+  }
+
+  /* Welcome / rabbit hole: keep actions out of the way (welcome uses its own controls) */
+  body.pre-enter nav .nav-right-actions,
+  body.rabbit-hole-open nav .nav-right-actions {
+    /* existing pre-enter hides whole nav */
+  }
+}
