@@ -6687,3 +6687,99 @@ canvas#game {
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   color: var(--text-primary) !important;
 }
+
+
+/* ==========================================================================
+   Handpan path plates — cohesive dark/light (no bare white boxes)
+   ========================================================================== */
+.section.path-plate,
+.section.with-backdrop {
+  border-radius: 6px; /* editorial, not bubbly */
+  border: 1px solid var(--border-color);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+}
+
+.section.path-plate:not(.with-backdrop) {
+  background: rgba(10, 10, 12, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* Light: shared parchment plate for every path card including About */
+[data-theme="light"] .section,
+[data-theme="light"] .section.path-plate,
+[data-theme="light"] .section.with-backdrop,
+[data-theme="light"] .section.visible {
+  background: #f0ebe0 !important;
+  border: 1px solid rgba(26, 23, 18, 0.16) !important;
+  border-radius: 6px !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 14px 36px rgba(40, 30, 10, 0.12) !important;
+  color: #1a1712 !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .section h1,
+[data-theme="light"] .section h2,
+[data-theme="light"] .section .type-monumental,
+[data-theme="light"] .section .type-display {
+  color: #1a1712 !important;
+}
+[data-theme="light"] .section p,
+[data-theme="light"] .section .lead,
+[data-theme="light"] .section .subtitle,
+[data-theme="light"] .section .subtext {
+  color: #3f3a32 !important;
+}
+[data-theme="light"] .section .eyebrow,
+[data-theme="light"] .section .type-artifact {
+  color: #7a6218 !important;
+}
+[data-theme="light"] .section .hairline {
+  background: #7a6218 !important;
+}
+
+/* Partners: sequential flip-in when Partners section is visible */
+#s5 .partner-card {
+  opacity: 0;
+  transform: perspective(900px) rotateY(-28deg) translateX(-12px);
+  transform-origin: left center;
+  transition:
+    opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+#s5.visible .partner-card {
+  opacity: 1;
+  transform: perspective(900px) rotateY(0deg) translateX(0);
+}
+#s5.visible .partner-card:nth-child(1) { transition-delay: 0.08s; }
+#s5.visible .partner-card:nth-child(2) { transition-delay: 0.28s; }
+#s5.visible .partner-card:nth-child(3) { transition-delay: 0.48s; }
+#s5.visible .partner-card:nth-child(4) { transition-delay: 0.68s; }
+#s5.visible .partner-card:nth-child(5) { transition-delay: 0.88s; }
+
+/* Leave: reverse stagger slightly */
+#s5:not(.visible) .partner-card {
+  transition-delay: 0s;
+}
+
+[data-theme="light"] #s5 .partner-card,
+[data-theme="light"] #s5 .partner-card--story {
+  background: #e8e1d2 !important;
+  border: 1px solid rgba(26, 23, 18, 0.14) !important;
+  border-radius: 6px !important;
+}
+[data-theme="light"] #s5 .partner-card:hover {
+  background: #f5f0e6 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #s5 .partner-card {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
