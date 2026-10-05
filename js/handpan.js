@@ -51,11 +51,10 @@
   ];
 
   // Maker-style zig-zag with roomy spacing:
-  // Inner 8 (larger fields) at 45° — no smushing of the lower notes
-  // Outer 4 (high notes) sit in the upper gaps of that ring so they never overlap
-  // Pitch order alternates L/R from bottom → top for natural scale runs
+  // Inner 8 (larger fields) at 45° — ascending L/R from bottom → top
+  // Outer 4 (high notes) in upper gaps — same ascending direction (B4→C5→D5→E5)
   var INNER_ANGLES = [180, 225, 135, 270, 90, 315, 45, 0];
-  var OUTER_ANGLES = [337.5, 22.5, 292.5, 67.5];
+  var OUTER_ANGLES = [67.5, 292.5, 22.5, 337.5];
 
   var SHAPE = {
     ding: { dist: 0,    rx: 0.175, ry: 0.175 },
