@@ -240,12 +240,24 @@
 
 <!-- Small glowing clue: pull up the Improv Sessions music player -->
 <button type="button" class="mp-pull-cue" id="mpPullCue" aria-label="Swipe or tap to open Improv Sessions music" aria-hidden="true" tabindex="-1">
+  <span class="mp-cue-glow" aria-hidden="true"></span>
   <span class="mp-cue-arrows" aria-hidden="true">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15l7-7 7 7"/></svg>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15l7-7 7 7"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15l7-7 7 7"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15l7-7 7 7"/></svg>
   </span>
-  <span class="mp-cue-label">Pull up · Music</span>
+  <span class="mp-cue-label">Pull up for music</span>
 </button>
+
+<!-- End-of-road hint: keep rolling into the Rabbit Hole (after Contact) -->
+<div class="rh-roll-cue" id="rhRollCue" aria-hidden="true" role="status">
+  <span class="rh-cue-glow" aria-hidden="true"></span>
+  <span class="rh-cue-label">Keep rolling</span>
+  <span class="rh-cue-arrows" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+  </span>
+  <span class="rh-cue-sub">into the Rabbit Hole</span>
+</div>
 
 <div id="sections" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50;">
   <!-- Home -->
