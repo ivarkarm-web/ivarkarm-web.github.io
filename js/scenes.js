@@ -1201,6 +1201,7 @@ function revealSectionContent(sectionEl) {
   if (!all.length) return;
   gsap.killTweensOf(all);
 
+  const isPartners = sectionEl.id === 's5';
   const tl = gsap.timeline();
   if (hairline) {
     tl.fromTo(hairline, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 0.6, duration: 0.5, ease: 'power2.out' }, 0);
@@ -1220,20 +1221,40 @@ function revealSectionContent(sectionEl) {
     );
   }
   if (partnerCards.length) {
-    gsap.set(partnerCards, { transformPerspective: 1000 });
+    const list = sectionEl.querySelector('.partners-list');
+    if (list) gsap.set(list, { transformPerspective: 1200, transformStyle: 'preserve-3d' });
+    gsap.set(partnerCards, {
+      transformPerspective: 1200,
+      transformStyle: 'preserve-3d',
+      transformOrigin: 'left center',
+      opacity: 0
+    });
     partnerCards.forEach((card, idx) => {
+      // Sequential 3D flip-in: edge hinge from left, slight rise, no oversized scale
       tl.fromTo(card,
-        { opacity: 0, scale: 0.35, y: 32, filter: 'blur(8px)' },
+        {
+          opacity: 0,
+          rotateY: isPartners ? -92 : -40,
+          rotateX: isPartners ? 6 : 0,
+          x: isPartners ? -28 : 0,
+          y: 18,
+          scale: 0.92,
+          filter: 'blur(6px)'
+        },
         {
           opacity: 1,
-          scale: 1,
+          rotateY: 0,
+          rotateX: 0,
+          x: 0,
           y: 0,
+          scale: 1,
           filter: 'blur(0px)',
-          duration: 0.65,
-          ease: 'back.out(2)',
-          overwrite: true
+          duration: isPartners ? 0.72 : 0.65,
+          ease: isPartners ? 'power3.out' : 'back.out(2)',
+          overwrite: true,
+          clearProps: 'filter'
         },
-        0.2 + idx * 0.28 // Individual sequential reveal for each maker!
+        (isPartners ? 0.42 : 0.2) + idx * (isPartners ? 0.22 : 0.28)
       );
     });
   }
@@ -1255,15 +1276,21 @@ function updateSections() {
     const terrainY = getGround(pos.x);
     const verticalOffset = (viewH * 0.5 - terrainY) * 0.3;
     sectionEl.style.transform = 'translate(calc(-50% + ' + parallaxX + 'px), calc(-50% + ' + verticalOffset + 'px))';
-    const revealRange = (index === 0) ? 700 : (index === 6) ? 1000 : 1100;
+    // Partners (5): tighter window so the flip sequence is visible on-screen, not off to the side
+    const revealRange = (index === 0) ? 700 : (index === 5) ? 720 : (index === 6) ? 1000 : 1100;
+    const contentRevealDist = (index === 5) ? 420 : revealRange;
     if (Math.abs(distance) < revealRange) {
       sectionEl.classList.add('visible');
       let opacity = Math.max(0, 1 - (Math.abs(distance) / revealRange));
       if (index === 6 && x > CONTACT_X && endOfRoadState.fading) {
         opacity *= endOfRoadState.fade;
       }
+      // Partners: hold cards invisible until the flip timeline runs (avoids early glimpse)
+      if (index === 5 && !sectionRevealed.has(index)) {
+        sectionEl.querySelectorAll('.partner-card').forEach((c) => { c.style.opacity = '0'; });
+      }
       sectionEl.style.opacity = String(Math.min(1, Math.max(0.15, opacity)));
-      if (!sectionRevealed.has(index)) {
+      if (Math.abs(distance) < contentRevealDist && !sectionRevealed.has(index)) {
         sectionRevealed.add(index);
         revealSectionContent(sectionEl);
       }
