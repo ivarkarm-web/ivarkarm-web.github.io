@@ -6203,3 +6203,151 @@ canvas#game {
     display: none !important;
   }
 }
+
+
+/* ==========================================================================
+   LIGHT MODE READABILITY + cohesive chrome
+   ========================================================================== */
+[data-theme="light"] {
+  --bg-color: #e6dfd0;
+  --surface-color: #f3eee3;
+  --surface-raised: #faf7f0;
+  --surface-glass: rgba(250, 247, 240, 0.92);
+  --text-primary: #1a1712;
+  --text-secondary: #3f3a32;
+  --text-muted: #5e574c;
+  --accent-gold: #7a6218;
+  --accent-gold-bright: #9a7b20;
+  --border-color: rgba(26, 23, 18, 0.14);
+  --border-hover: rgba(26, 23, 18, 0.28);
+  --border-gold: rgba(122, 98, 24, 0.45);
+}
+
+[data-theme="light"] body {
+  background: var(--bg-color);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .logo,
+[data-theme="light"] .section h1,
+[data-theme="light"] .section h2,
+[data-theme="light"] .section p,
+[data-theme="light"] .section .lead,
+[data-theme="light"] .section .subtitle,
+[data-theme="light"] .section .subtext,
+[data-theme="light"] .type-monumental,
+[data-theme="light"] .type-editorial,
+[data-theme="light"] .route-place,
+[data-theme="light"] .route-note,
+[data-theme="light"] .route-foot,
+[data-theme="light"] .manifesto-lead,
+[data-theme="light"] .manifesto-body,
+[data-theme="light"] .partner-name,
+[data-theme="light"] .partner-story,
+[data-theme="light"] .partner-location,
+[data-theme="light"] .contact-label,
+[data-theme="light"] .welcome-title,
+[data-theme="light"] .welcome-sub,
+[data-theme="light"] .welcome-eyebrow {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .section .eyebrow,
+[data-theme="light"] .type-artifact,
+[data-theme="light"] .partner-location,
+[data-theme="light"] .route-note,
+[data-theme="light"] .welcome-quiet {
+  color: var(--accent-gold) !important;
+}
+
+[data-theme="light"] .section p,
+[data-theme="light"] .section .subtext,
+[data-theme="light"] .partner-story,
+[data-theme="light"] .route-foot,
+[data-theme="light"] .manifesto-body {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .section.with-backdrop,
+[data-theme="light"] .section.visible {
+  background: rgba(250, 247, 240, 0.94) !important;
+  border: 1px solid rgba(26, 23, 18, 0.14) !important;
+  box-shadow: 0 12px 36px rgba(40, 30, 10, 0.12) !important;
+  color: var(--text-primary);
+}
+
+[data-theme="light"] nav .logo {
+  color: #1a1712 !important;
+  text-shadow: none;
+}
+
+[data-theme="light"] .nav-action-btn {
+  background: rgba(250, 247, 240, 0.9) !important;
+  border-color: rgba(26, 23, 18, 0.18) !important;
+  color: #1a1712 !important;
+}
+[data-theme="light"] .nav-action-btn svg {
+  stroke: #7a6218 !important;
+}
+
+[data-theme="light"] .welcome {
+  background: #e6dfd0 !important;
+}
+[data-theme="light"] .welcome-enter {
+  color: #1a1712;
+  border-color: rgba(122, 98, 24, 0.5);
+}
+[data-theme="light"] .welcome-hint {
+  color: #5e574c !important;
+}
+
+[data-theme="light"] .mp-drawer-sheet,
+[data-theme="light"] .music-player,
+[data-theme="light"] .dm-shell,
+[data-theme="light"] .dm-content,
+[data-theme="light"] .qr-content,
+[data-theme="light"] .memory-shard-card,
+[data-theme="light"] .rh-progression-card,
+[data-theme="light"] .rabbit-hole {
+  background: #f3eee3 !important;
+  color: #1a1712 !important;
+}
+[data-theme="light"] .mp-title,
+[data-theme="light"] .mp-subtitle,
+[data-theme="light"] .mp-field-note,
+[data-theme="light"] .dm-content h3,
+[data-theme="light"] .dm-content p,
+[data-theme="light"] .rh-sec-title,
+[data-theme="light"] .rh-story-text,
+[data-theme="light"] .memory-shard-title,
+[data-theme="light"] .memory-shard-text {
+  color: #1a1712 !important;
+}
+[data-theme="light"] .mp-field-loc,
+[data-theme="light"] .dm-sec-tag,
+[data-theme="light"] .memory-shard-meta {
+  color: #7a6218 !important;
+}
+
+[data-theme="light"] .rabbit-hole {
+  background: #e6dfd0 !important;
+}
+[data-theme="light"] .rh-sticky-header {
+  background: rgba(230, 223, 208, 0.92) !important;
+  border-bottom-color: rgba(26, 23, 18, 0.12) !important;
+}
+[data-theme="light"] .rh-header-title,
+[data-theme="light"] .rh-header-breadcrumb {
+  color: #1a1712 !important;
+}
+
+[data-theme="light"] canvas#game {
+  opacity: 1;
+  background: #d8d0be !important;
+}
+
+[data-theme="light"] .touch-hint,
+[data-theme="light"] .touch-hint-line {
+  color: #3f3a32 !important;
+  background: rgba(250, 247, 240, 0.85);
+}

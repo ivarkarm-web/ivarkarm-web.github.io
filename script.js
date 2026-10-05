@@ -53,11 +53,30 @@ window.addEventListener('orientationchange', resizeCanvas);
 // Physics state (ball, dash, keys, camera, gameStarted) moved to js/physics.js
 // Data (resonantStones, veg*, sectionPositions, audioOrbs, bg*, stars, etc.) moved to js/content.js
 // Background slideshow + remaining early draw helpers moved to js/scenes.js
+function isLightTheme() {
+  try {
+    return document.documentElement.getAttribute('data-theme') === 'light';
+  } catch (_) {
+    return false;
+  }
+}
+window.isLightTheme = isLightTheme;
+
 function draw(offset) {
   if (!ctx || !canvas) return;
   const call = (fn, ...args) => { if (typeof fn === 'function') try { fn(...args); } catch (e) { console.warn('draw layer error', e.message); } };
+  const light = isLightTheme();
   ctx.save();
-  ctx.fillStyle = '#030508';
+  // Cohesive sky: night charcoal vs day parchment atmosphere
+  if (light) {
+    const sky = ctx.createLinearGradient(0, 0, 0, viewH);
+    sky.addColorStop(0, '#d8d0be');
+    sky.addColorStop(0.45, '#ebe4d4');
+    sky.addColorStop(1, '#cfc6b4');
+    ctx.fillStyle = sky;
+  } else {
+    ctx.fillStyle = '#030508';
+  }
   ctx.fillRect(0, 0, viewW, viewH);
   const zoom = zoomLevel || 1;
   if (zoom !== 1) {
@@ -100,7 +119,9 @@ function draw(offset) {
   if (endOfRoadState.screenFade > 0.01 && !endOfRoadState.rabbitHoleShown) {
     ctx.save();
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    ctx.fillStyle = 'rgba(5, 5, 5, ' + (endOfRoadState.screenFade * 0.92) + ')';
+    ctx.fillStyle = (typeof isLightTheme === 'function' && isLightTheme())
+      ? ('rgba(235, 228, 212, ' + (endOfRoadState.screenFade * 0.92) + ')')
+      : ('rgba(5, 5, 5, ' + (endOfRoadState.screenFade * 0.92) + ')');
     ctx.fillRect(0, 0, viewW, viewH);
     ctx.restore();
   }

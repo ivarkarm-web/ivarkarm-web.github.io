@@ -19,6 +19,8 @@ function shouldDrawComplexFoliage() {
 
 function drawStarfield(context, offset) {
   if (!context || !canvas) return;
+  // Day journey: no night stars
+  if (typeof isLightTheme === 'function' && isLightTheme()) return;
   const ch = viewH;
   const time = Date.now() * 0.001;
   const PARALLAX_FAR = 0.10;
@@ -74,6 +76,7 @@ function drawStarfield(context, offset) {
 
 function drawAtmosphereBands(context) {
   if (!context || !canvas) return;
+  const light = typeof isLightTheme === 'function' && isLightTheme();
   const cw = viewW;
   const ch = viewH;
   const z = Math.max(0.3, Math.min(1, zoomLevel || 1));
@@ -84,16 +87,23 @@ function drawAtmosphereBands(context) {
   const eh = ch * expand;
 
   const lowFog = context.createLinearGradient(0, oy + eh * 0.48, 0, oy + eh);
-  lowFog.addColorStop(0, 'rgba(3, 5, 8, 0)');
-  lowFog.addColorStop(0.35, 'rgba(3, 5, 8, 0.45)');
-  lowFog.addColorStop(0.65, 'rgba(3, 5, 8, 0.82)');
-  lowFog.addColorStop(1, 'rgba(3, 5, 8, 0.95)');
+  if (light) {
+    lowFog.addColorStop(0, 'rgba(200, 190, 170, 0)');
+    lowFog.addColorStop(0.4, 'rgba(190, 178, 155, 0.35)');
+    lowFog.addColorStop(0.75, 'rgba(175, 162, 138, 0.7)');
+    lowFog.addColorStop(1, 'rgba(160, 148, 124, 0.88)');
+  } else {
+    lowFog.addColorStop(0, 'rgba(3, 5, 8, 0)');
+    lowFog.addColorStop(0.35, 'rgba(3, 5, 8, 0.45)');
+    lowFog.addColorStop(0.65, 'rgba(3, 5, 8, 0.82)');
+    lowFog.addColorStop(1, 'rgba(3, 5, 8, 0.95)');
+  }
   context.fillStyle = lowFog;
   context.fillRect(ox, oy + eh * 0.48, ew, eh * 0.52);
 
   const maskTop = oy + eh * 0.62;
   const maskH = (oy + eh) - maskTop + ch * 0.15;
-  context.fillStyle = 'rgba(3, 5, 8, 0.92)';
+  context.fillStyle = light ? 'rgba(165, 152, 128, 0.75)' : 'rgba(3, 5, 8, 0.92)';
   context.fillRect(ox - cw * 0.1, maskTop, ew + cw * 0.2, maskH);
 }
 
@@ -140,7 +150,9 @@ function drawHillsFar(offset) {
   const parallaxOffset = offset * 0.40;
   ctx.save();
   buildTerrainPath(ctx, parallaxOffset, getGroundFar, 10);
-  ctx.fillStyle = 'rgba(10, 14, 22, 0.72)';
+  ctx.fillStyle = (typeof isLightTheme === 'function' && isLightTheme())
+    ? 'rgba(186, 175, 150, 0.85)'
+    : 'rgba(10, 14, 22, 0.72)';
   ctx.fill();
   ctx.restore();
 }
@@ -185,23 +197,26 @@ function drawHillsMid(offset) {
   const parallaxOffset = offset * 0.72;
   ctx.save();
   buildTerrainPath(ctx, parallaxOffset, getGroundMid, 8);
-  ctx.fillStyle = 'rgba(7, 9, 14, 0.90)';
+  ctx.fillStyle = (typeof isLightTheme === 'function' && isLightTheme())
+    ? 'rgba(168, 156, 132, 0.92)'
+    : 'rgba(7, 9, 14, 0.90)';
   ctx.fill();
   ctx.restore();
 }
 
 function drawGround(offset) {
   if (!ctx || !canvas) return;
+  const light = typeof isLightTheme === 'function' && isLightTheme();
   ctx.save();
   buildTerrainPath(ctx, offset, getGround, 6);
-  ctx.fillStyle = '#07090e';
+  ctx.fillStyle = light ? '#b5a88e' : '#07090e';
   ctx.fill();
   ctx.restore();
 
   ctx.save();
   const step = 6;
   const range = getZoomDrawRange();
-  ctx.strokeStyle = 'rgba(212, 175, 55, 0.40)';
+  ctx.strokeStyle = light ? 'rgba(120, 90, 30, 0.55)' : 'rgba(212, 175, 55, 0.40)';
   ctx.lineWidth = 2.5;
   ctx.beginPath();
   let first2 = true;
