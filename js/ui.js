@@ -492,14 +492,16 @@ const dmCloseBtn = document.getElementById('dmCloseBtn');
 const dmBackdrop = document.getElementById('dmBackdrop');
 const dmOpenRhBtn = document.getElementById('dmOpenRhBtn');
 
-if (monographToggleBtn) if (welcomeMonographBtn) {
+if (welcomeMonographBtn) {
   welcomeMonographBtn.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (typeof openDirectMonographModal === 'function') openDirectMonographModal();
   });
 }
-monographToggleBtn.addEventListener('click', toggleDirectMonographModal);
+if (monographToggleBtn) {
+  monographToggleBtn.addEventListener('click', toggleDirectMonographModal);
+}
 if (dmCloseBtn) dmCloseBtn.addEventListener('click', closeDirectMonographModal);
 if (dmBackdrop) dmBackdrop.addEventListener('click', closeDirectMonographModal);
 if (dmOpenRhBtn) {
