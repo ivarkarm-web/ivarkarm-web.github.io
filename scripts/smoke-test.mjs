@@ -32,6 +32,8 @@ const required = [
   'script.js',
   'js/analytics.js',
   'js/audio.js',
+  'js/music-data.js',
+  'js/music-player.js',
   'js/content.js',
   'js/core.js',
   'js/ui.js',
