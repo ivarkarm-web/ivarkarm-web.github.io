@@ -38,6 +38,7 @@ const required = [
   'js/core.js',
   'js/ui.js',
   'js/scenes.js',
+  'js/scene-vegetation.js',
   'js/scenes-effects.js',
   'js/physics.js',
   'js/utilities.js',
@@ -149,6 +150,14 @@ if (!/const\s+MUSIC_TRACKS\s*=/.test(uiSource)) ok('UI controller no longer owns
 else fail('UI controller still declares MUSIC_TRACKS');
 if (/const\s+MUSIC_TRACKS\s*=/.test(musicPlayerSource) && musicPlayerSource.includes('function initMusicPlayer')) ok('Music player owns catalogue binding and initialization');
 else fail('Music player module boundary is incomplete');
+
+const vegetationPos = html.indexOf('js/scene-vegetation.js');
+const scenesPos = html.indexOf('js/scenes.js');
+if (vegetationPos >= 0 && vegetationPos < scenesPos) ok('Vegetation renderer loads before scene orchestration');
+else fail('Vegetation renderer load order is invalid');
+const scenesSource = read('js/scenes.js') || '';
+if (!scenesSource.includes('function drawCypressMid') && !scenesSource.includes('function drawVegNear')) ok('Scene orchestration no longer owns vegetation primitives');
+else fail('Vegetation primitives still live in scenes.js');
 
 // Lightweight syntax validation for every JavaScript source file.
 const jsFiles = [];
