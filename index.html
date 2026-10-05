@@ -734,38 +734,54 @@
     </div>
   </header>
 
-  <!-- Floating Side Index Indicator -->
-  <!-- Bottom chapter progression (easy thumb access) -->
-  <nav class="rh-side-nav rh-bottom-progress" aria-label="Rabbit Hole chapter progression">
-    <button type="button" class="rh-side-pip active" data-sec-target="0" data-target="#rhSec0" aria-label="Jump to Chapter 1: Early Life">
-      <span class="rh-side-pip-num">01</span>
-      <span class="rh-side-pip-label">Early Life</span>
-    </button>
-    <button type="button" class="rh-side-pip" data-sec-target="1" data-target="#rhSec1" aria-label="Jump to Chapter 2: Way to Music">
-      <span class="rh-side-pip-num">02</span>
-      <span class="rh-side-pip-label">Way to Music</span>
-    </button>
-    <button type="button" class="rh-side-pip" data-sec-target="2" data-target="#rhSec2" aria-label="Jump to Chapter 3: Street Stories">
-      <span class="rh-side-pip-num">03</span>
-      <span class="rh-side-pip-label">Street Stories</span>
-    </button>
-    <button type="button" class="rh-side-pip" data-sec-target="3" data-target="#rhSec3" aria-label="Jump to Chapter 4: The Makers">
-      <span class="rh-side-pip-num">04</span>
-      <span class="rh-side-pip-label">Makers</span>
-    </button>
-    <button type="button" class="rh-side-pip" data-sec-target="4" data-target="#rhSec4" aria-label="Jump to Chapter 5: Other Instruments">
-      <span class="rh-side-pip-num">05</span>
-      <span class="rh-side-pip-label">Instruments</span>
-    </button>
-    <button type="button" class="rh-side-pip" data-sec-target="5" data-target="#rhSec5" aria-label="Jump to Chapter 6: Tracks to Download">
-      <span class="rh-side-pip-num">06</span>
-      <span class="rh-side-pip-label">Audio Vault</span>
-    </button>
-    <button type="button" class="rh-side-pip" data-sec-target="6" data-target="#rhSec6" aria-label="Jump to Chapter 7: Road Notes">
-      <span class="rh-side-pip-num">07</span>
-      <span class="rh-side-pip-label">Road Notes</span>
-    </button>
-  </nav>
+  <!-- Fixed Bottom Chapter Progression Bar -->
+  <aside class="rh-track-intro-banner" id="rhTrackIntro" aria-label="Rabbit Hole chapter progression">
+    <div class="rh-progression-card">
+      <div class="rh-progression-meta">
+        <div class="rh-progression-stat" id="rhProgressionStat">
+          <span class="rh-stat-highlight">0%</span> Explored · Chapter 1 of 7
+        </div>
+      </div>
+      <div class="rh-chapter-steps-bar" role="navigation" aria-label="Chapter progress markers">
+        <button type="button" class="rh-chapter-step active" data-sec-target="0" title="Jump to Chapter 01: Early Life">
+          <span class="rh-step-num">01</span>
+          <span class="rh-step-name">Roots</span>
+          <span class="rh-step-indicator"></span>
+        </button>
+        <button type="button" class="rh-chapter-step" data-sec-target="1" title="Jump to Chapter 02: Way to Music">
+          <span class="rh-step-num">02</span>
+          <span class="rh-step-name">Discovery</span>
+          <span class="rh-step-indicator"></span>
+        </button>
+        <button type="button" class="rh-chapter-step" data-sec-target="2" title="Jump to Chapter 03: Street Stories">
+          <span class="rh-step-num">03</span>
+          <span class="rh-step-name">Streets</span>
+          <span class="rh-step-indicator"></span>
+        </button>
+        <button type="button" class="rh-chapter-step" data-sec-target="3" title="Jump to Chapter 04: The Makers">
+          <span class="rh-step-num">04</span>
+          <span class="rh-step-name">Makers</span>
+          <span class="rh-step-indicator"></span>
+        </button>
+        <button type="button" class="rh-chapter-step" data-sec-target="4" title="Jump to Chapter 05: Other Instruments">
+          <span class="rh-step-num">05</span>
+          <span class="rh-step-name">Instruments</span>
+          <span class="rh-step-indicator"></span>
+        </button>
+        <button type="button" class="rh-chapter-step" data-sec-target="5" title="Jump to Chapter 06: Audio Vault">
+          <span class="rh-step-num">06</span>
+          <span class="rh-step-name">Vault</span>
+          <span class="rh-step-indicator"></span>
+        </button>
+        <button type="button" class="rh-chapter-step" data-sec-target="6" title="Jump to Chapter 07: Road Notes">
+          <span class="rh-step-num">07</span>
+          <span class="rh-step-name">Epilogue</span>
+          <span class="rh-step-indicator"></span>
+        </button>
+      </div>
+    </div>
+  </aside>
+  <nav class="rh-side-nav" style="display:none;" aria-hidden="true"></nav>
 
 
   <div class="rh-toc-backdrop" id="rhTocBackdrop" aria-hidden="true"></div>
@@ -853,58 +869,6 @@
 
   <!-- Vertical Scroll Track with Dedicated Sections -->
   <main class="rh-scroll-track" id="rhScrollTrack">
-
-    <!-- Chapter Progression Strip at top of scroll track -->
-    <div class="rh-track-intro-banner" id="rhTrackIntro">
-      <div class="rh-progression-card">
-        <div class="rh-progression-meta">
-          <div class="rh-progression-title-group">
-            <span class="rh-progression-eyebrow">Interactive Monograph</span>
-            <span class="rh-progression-label">Chapter Progression</span>
-          </div>
-          <div class="rh-progression-stat" id="rhProgressionStat">
-            <span class="rh-stat-highlight">0%</span> Explored · Chapter 1 of 7
-          </div>
-        </div>
-        <div class="rh-chapter-steps-bar" role="navigation" aria-label="Chapter progress markers">
-          <button type="button" class="rh-chapter-step active" data-sec-target="0" title="Jump to Chapter 01: Early Life">
-            <span class="rh-step-num">01</span>
-            <span class="rh-step-name">Roots</span>
-            <span class="rh-step-indicator"></span>
-          </button>
-          <button type="button" class="rh-chapter-step" data-sec-target="1" title="Jump to Chapter 02: Way to Music">
-            <span class="rh-step-num">02</span>
-            <span class="rh-step-name">Discovery</span>
-            <span class="rh-step-indicator"></span>
-          </button>
-          <button type="button" class="rh-chapter-step" data-sec-target="2" title="Jump to Chapter 03: Street Stories">
-            <span class="rh-step-num">03</span>
-            <span class="rh-step-name">Streets</span>
-            <span class="rh-step-indicator"></span>
-          </button>
-          <button type="button" class="rh-chapter-step" data-sec-target="3" title="Jump to Chapter 04: The Makers">
-            <span class="rh-step-num">04</span>
-            <span class="rh-step-name">Makers</span>
-            <span class="rh-step-indicator"></span>
-          </button>
-          <button type="button" class="rh-chapter-step" data-sec-target="4" title="Jump to Chapter 05: Other Instruments">
-            <span class="rh-step-num">05</span>
-            <span class="rh-step-name">Instruments</span>
-            <span class="rh-step-indicator"></span>
-          </button>
-          <button type="button" class="rh-chapter-step" data-sec-target="5" title="Jump to Chapter 06: Audio Vault">
-            <span class="rh-step-num">06</span>
-            <span class="rh-step-name">Vault</span>
-            <span class="rh-step-indicator"></span>
-          </button>
-          <button type="button" class="rh-chapter-step" data-sec-target="6" title="Jump to Chapter 07: Road Notes">
-            <span class="rh-step-num">07</span>
-            <span class="rh-step-name">Epilogue</span>
-            <span class="rh-step-indicator"></span>
-          </button>
-        </div>
-      </div>
-    </div>
 
     <!-- SECTION 1: Early Life (Reveal: Luminous Lift) -->
     <section class="rh-section reveal-luminous pending-below" id="rhSec0" data-section-index="0" data-section-title="Early Life">

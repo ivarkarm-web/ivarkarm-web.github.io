@@ -2,6 +2,8 @@
 node_modules/
 .pnp
 .pnp.js
+bun.lock
+bun.lockb
 
 # Production build outputs
 dist/
@@ -25,6 +27,7 @@ Thumbs.db
 .idea/
 .vscode/
 *.sw?
+tsconfig.json
 
 # Coverage
 coverage/

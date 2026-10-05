@@ -1868,10 +1868,7 @@ const rhScrollManager = {
   handleScroll() {
     if (!this.container) return;
 
-    // Chapter strip stays pinned to the top while reading, and shrinks once you scroll
-    const banner = document.getElementById('rhTrackIntro');
-    if (banner) banner.classList.toggle('is-compact', this.container.scrollTop > 140);
-
+    // Chapter progression strip is fixed at bottom
     // --- Dynamic Scroll Progress Percentage Calculation ---
     const scrollTop = this.container.scrollTop;
     const maxScroll = this.container.scrollHeight - this.container.clientHeight;
@@ -2040,8 +2037,7 @@ const rhScrollManager = {
       // Direct scroll calculation if target element is not directly in this.sections
       this.isScrollingProgrammatically = true;
       const stickyHeader = document.querySelector('.rh-sticky-header');
-      const stripEl = document.getElementById('rhTrackIntro');
-    const headerHeight = stripEl ? Math.min(stripEl.offsetHeight, 105) + 8 : (stickyHeader ? stickyHeader.offsetHeight : 64);
+      const headerHeight = stickyHeader ? stickyHeader.offsetHeight : 64;
       const containerRect = this.container.getBoundingClientRect();
       const secRect = targetSec.getBoundingClientRect();
       let targetScrollTop = (this.container.scrollTop + (secRect.top - containerRect.top)) - (headerHeight + 8);
@@ -2087,8 +2083,7 @@ const rhScrollManager = {
 
     // Fixed sticky top header offset (default ~64px)
     const stickyHeader = document.querySelector('.rh-sticky-header');
-    const stripEl = document.getElementById('rhTrackIntro');
-    const headerHeight = stripEl ? Math.min(stripEl.offsetHeight, 105) + 8 : (stickyHeader ? stickyHeader.offsetHeight : 64);
+    const headerHeight = stickyHeader ? stickyHeader.offsetHeight : 64;
 
     // Calculate exact scroll target inside this.container (#rabbit-hole)
     let targetScrollTop = 0;
