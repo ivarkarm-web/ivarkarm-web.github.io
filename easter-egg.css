@@ -83,9 +83,24 @@
   opacity: 0;
   transform: translateY(8px);
   pointer-events: none;
+  white-space: nowrap;
+  flex-wrap: nowrap;
   transition: opacity 0.9s var(--ease-reveal, cubic-bezier(0.22, 1, 0.36, 1)),
               transform 0.9s var(--ease-reveal, cubic-bezier(0.22, 1, 0.36, 1)),
               background 0.4s, border-color 0.4s, box-shadow 0.4s;
+}
+
+.egg .egg-play span {
+  white-space: nowrap;
+}
+
+/* Keep both words on one line on narrow phones (letter-spacing is wide) */
+@media (max-width: 380px) {
+  .egg .egg-play {
+    letter-spacing: 0.14em;
+    padding-left: 1.4rem;
+    padding-right: 1.4rem;
+  }
 }
 
 .egg.is-cta .egg-play {
