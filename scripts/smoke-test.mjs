@@ -33,6 +33,7 @@ const required = [
   'js/analytics.js',
   'js/audio.js',
   'js/input-controller.js',
+  'js/booking.js',
   'js/music-data.js',
   'js/music-player.js',
   'js/content.js',
@@ -194,6 +195,10 @@ for (const rel of jsFiles) {
     warn(`Could not syntax-check ${rel}: ${e.message}`);
   }
 }
+
+if (html.includes('id="contact"') && html.includes('data-section-id="s6"')) ok('Contact section has stable semantic and world anchors'); else fail('Contact anchors missing');
+if (html.includes('id="bookMeButton"') && html.includes('id="bookingModal"') && html.includes('id="bookingForm"')) ok('Booking CTA and modal form present'); else fail('Booking experience missing');
+if (html.includes('mailto:ivar.karm@gmail.com') && html.includes('name="email"') && html.includes('name="event_type"')) ok('Booking form has email fallback and core enquiry fields'); else fail('Booking form fields/fallback missing');
 
 console.log('');
 if (errors.length) {
