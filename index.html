@@ -1,1 +1,1525 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ivar Karm – Resonance</title>
+  <meta name="description" content="Street performer, improviser, and handpan artist from eastern Estonia. An interactive acoustic journey — Berlin streets, European roads, Athens stages.">
+  <meta name="keywords" content="Ivar Karm, handpan artist, street performer, improviser, Estonian handpan, Athens busker, Berlin street music, European busker, acoustic handpan, handpan resonance, meditation music">
+  <meta name="author" content="Ivar Karm">
+  <meta name="theme-color" content="#050505">
+  <meta name="color-scheme" content="dark light">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('ivar_theme');
+        if (t !== 'light' && t !== 'dark') t = 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        document.documentElement.style.colorScheme = t;
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <link rel="canonical" href="https://ivarkarm-web.github.io/">
+
+  <!-- OpenGraph / Social Sharing -->
+  <meta property="og:title" content="Ivar Karm – Resonance">
+  <meta property="og:description" content="Street performer, improviser, and handpan artist from eastern Estonia. An interactive acoustic journey — Berlin streets, European roads, Athens stages.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ivarkarm-web.github.io/">
+  <meta property="og:site_name" content="Ivar Karm – Resonance">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://ivarkarm-web.github.io/og-cover.jpg">
+  <meta property="og:image:secure_url" content="https://ivarkarm-web.github.io/og-cover.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Ivar Karm – Resonance: street performer, improviser, and handpan artist">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ivar Karm – Resonance">
+  <meta name="twitter:description" content="Street performer, improviser, and handpan artist from eastern Estonia. An interactive acoustic journey — Berlin streets, European roads, Athens stages.">
+  <meta name="twitter:image" content="https://ivarkarm-web.github.io/og-cover.jpg">
+  <meta name="twitter:image:alt" content="Ivar Karm – Resonance">
+
+  <!-- Schema.org JSON-LD Structured Data for Google Search & Rich Snippets -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://ivarkarm-web.github.io/#person",
+        "name": "Ivar Karm",
+        "url": "https://ivarkarm-web.github.io/",
+        "jobTitle": "Handpan Artist & Street Performer",
+        "description": "Street performer, improviser, and handpan artist from eastern Estonia. An interactive acoustic journey — Berlin streets, European roads, Athens stages.",
+        "sameAs": [
+          "https://github.com/ivarkarm-web"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://ivarkarm-web.github.io/#website",
+        "url": "https://ivarkarm-web.github.io/",
+        "name": "Ivar Karm – Resonance",
+        "description": "The official digital monograph and acoustic experience of Ivar Karm.",
+        "publisher": {
+          "@id": "https://ivarkarm-web.github.io/#person"
+        }
+      },
+      {
+        "@type": "MusicPlaylist",
+        "name": "Ivar Karm – Improvised Handpan Works",
+        "numTracks": 8,
+        "track": [
+          {
+            "@type": "MusicRecording",
+            "name": "Bedroom Session 1",
+            "byArtist": { "@id": "https://ivarkarm-web.github.io/#person" }
+          },
+          {
+            "@type": "MusicRecording",
+            "name": "Bedroom Session 2",
+            "byArtist": { "@id": "https://ivarkarm-web.github.io/#person" }
+          },
+          {
+            "@type": "MusicRecording",
+            "name": "Bedroom Session 3",
+            "byArtist": { "@id": "https://ivarkarm-web.github.io/#person" }
+          },
+          {
+            "@type": "MusicRecording",
+            "name": "Bedroom Session 4",
+            "byArtist": { "@id": "https://ivarkarm-web.github.io/#person" }
+          },
+          {
+            "@type": "MusicRecording",
+            "name": "Bedroom Session 5",
+            "byArtist": { "@id": "https://ivarkarm-web.github.io/#person" }
+          },
+          {
+            "@type": "MusicRecording",
+            "name": "Bedroom Session 7",
+            "byArtist": { "@id": "https://ivarkarm-web.github.io/#person" }
+          },
+          {
+            "@type": "MusicRecording",
+            "name": "Bedroom Session 8",
+            "byArtist": { "@id": "https://ivarkarm-web.github.io/#person" }
+          },
+          {
+            "@type": "MusicRecording",
+            "name": "Bedroom Sessions (Master)",
+            "byArtist": { "@id": "https://ivarkarm-web.github.io/#person" }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340..600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css?v=50">
+  <!-- GSAP & ScrollTrigger for standalone direct-branch hosting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+</head>
+<body class="pre-enter">
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- Welcome / Enter screen -->
+<div id="welcome" class="welcome" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+  <div class="welcome-flower-wrap" aria-hidden="true">
+    <svg class="welcome-flower" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+      <g class="fol-ring fol-ring--outer">
+        <circle cx="300" cy="300" r="270" />
+      </g>
+      <g class="fol-ring fol-ring--mid">
+        <circle cx="300" cy="90"  r="90"/><circle cx="481.9" cy="195" r="90"/><circle cx="481.9" cy="405" r="90"/>
+        <circle cx="300" cy="510" r="90"/><circle cx="118.1" cy="405" r="90"/><circle cx="118.1" cy="195" r="90"/>
+      </g>
+      <g class="fol-ring fol-ring--inner">
+        <circle cx="300" cy="300" r="90"/>
+        <circle cx="300" cy="210" r="90"/><circle cx="377.9" cy="255" r="90"/><circle cx="377.9" cy="345" r="90"/>
+        <circle cx="300" cy="390" r="90"/><circle cx="222.1" cy="345" r="90"/><circle cx="222.1" cy="255" r="90"/>
+      </g>
+      <g class="fol-ring fol-ring--center">
+        <circle cx="300" cy="300" r="18"/>
+      </g>
+    </svg>
+  </div>
+  <div class="welcome-inner">
+    <span class="welcome-eyebrow">Resonance</span>
+    <h1 id="welcomeTitle" class="welcome-title">Ivar Karm</h1>
+    <div class="welcome-hairline"></div>
+    <p class="welcome-sub">street performer · improviser · handpan artist</p>
+    <p class="welcome-quiet" aria-hidden="true">The road is quiet</p>
+    <button type="button" class="welcome-enter" id="welcomeEnter" aria-label="Enter the experience">
+      <span>Enter</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+    <button type="button" class="welcome-monograph" id="welcomeMonographBtn" aria-label="Open monograph">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+      <span>Monograph</span>
+    </button>
+    <p class="welcome-hint">
+      <span class="desktop-ctrl-hint keyboard-prompt-overlay">Arrow keys or A / D to move · Space to jump</span>
+      <span class="mobile-ctrl-hint">Hold the sides to roll</span>
+    </p>
+  </div>
+</div>
+
+
+<button type="button" class="theme-fab-mobile" id="themeFabMobile" aria-label="Switch to light mode" title="Theme">
+  <svg class="icon-theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+    <path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 7 7 0 1 0 21 14.5z"/>
+  </svg>
+  <svg class="icon-theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="display:none;">
+    <circle cx="12" cy="12" r="4"/>
+    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+  </svg>
+</button>
+
+<div id="cursor"></div>
+
+<nav>
+  <div class="logo">Ivar Karm</div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#home">Resonance</a></li>
+    <li><a href="#album">Listen</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#rabbit-hole">Archive</a></li>
+  </ul>
+</nav>
+
+<div class="path-action-bar" id="pathActionBar" role="toolbar" aria-label="Path controls">
+  <button type="button" class="nav-action-btn nav-action-btn--icon" id="audioToggleBtn" aria-label="Toggle sound" title="Mute / unmute (M)">
+      <svg class="icon-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+      </svg>
+      <svg class="icon-sound-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="display:none;">
+        <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+        <line x1="23" y1="9" x2="17" y2="15"/>
+        <line x1="17" y1="9" x2="23" y2="15"/>
+      </svg>
+    </button>
+    <button type="button" class="nav-action-btn nav-action-btn--icon" id="themeToggleBtn" aria-label="Switch to light mode" title="Theme" aria-pressed="false">
+      <svg class="icon-theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 7 7 0 1 0 21 14.5z"/>
+      </svg>
+      <svg class="icon-theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="display:none;">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+      </svg>
+    </button>
+    <button type="button" class="nav-action-btn nav-action-btn--icon" id="tipButton" aria-label="Tip / support" title="Tip via busk.co">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+      </svg>
+    </button>
+    <button type="button" class="nav-action-btn nav-action-btn--icon" id="monographToggleBtn" aria-label="Open monograph" title="Monograph">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+    </button>
+</div>
+
+
+<canvas id="game" role="img" aria-label="Interactive acoustic journey world. Use arrow keys or on-screen controls to explore the landscape and discover resonant stones."></canvas>
+
+<!-- Small glowing clue: pull up the Improv Sessions music player -->
+<button type="button" class="mp-pull-cue" id="mpPullCue" aria-label="Swipe or tap to open Improv Sessions music" aria-hidden="true" tabindex="-1">
+  <span class="mp-cue-arrows" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15l7-7 7 7"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15l7-7 7 7"/></svg>
+  </span>
+  <span class="mp-cue-label">Pull up · Music</span>
+</button>
+
+<div id="sections" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50;">
+  <!-- Home -->
+  <div class="section section--spawn-text" id="s0" role="region" aria-label="Home">
+    <span class="eyebrow type-artifact">Resonance — a wandering handpan</span>
+    <h1 class="type-monumental">Ivar Karm</h1>
+    <div class="hairline"></div>
+    <p class="subtitle type-editorial">street performer · improviser · handpan artist</p>
+  </div>
+
+  <!-- About -->
+  <div class="section with-backdrop path-plate" id="s1" role="region" aria-label="About">
+    <span class="eyebrow">The short version</span>
+    <h2>About</h2>
+    <div class="hairline"></div>
+    <p class="lead">Street performer, improviser, and handpan artist from eastern Estonia.</p>
+    <p>From a one-way ticket out of Tallinn to the streets of Berlin, Tallinn, and Athens — still on the road, still improvising.</p>
+  </div>
+
+  <!-- Story -->
+  <div class="section with-backdrop path-plate" id="s2" role="region" aria-label="Story">
+    <span class="eyebrow type-artifact">The road, not the product</span>
+    <h2 class="type-display">The Story</h2>
+    <div class="hairline"></div>
+    <p class="lead">Eastern Estonia to the open road.</p>
+    <ol class="route-map" aria-label="Places on the road">
+      <li class="route-stop"><span class="route-place">Eastern Estonia</span><span class="route-note">After the collapse · restless start</span></li>
+      <li class="route-stop"><span class="route-place">Barcelona</span><span class="route-note">One-way ticket out</span></li>
+      <li class="route-stop"><span class="route-place">Berlin</span><span class="route-note">€30 djembe · Warschauer Straße</span></li>
+      <li class="route-stop"><span class="route-place">Tallinn</span><span class="route-note">Stolen steel · dog in the case</span></li>
+      <li class="route-stop"><span class="route-place">The Hague</span><span class="route-note">Godan’s gift</span></li>
+      <li class="route-stop"><span class="route-place">Athens</span><span class="route-note">Open stage · still the road</span></li>
+    </ol>
+    <p class="route-foot">The full story lives in the Rabbit Hole.</p>
+    <button type="button" class="path-rh-btn" id="storyEnterRabbitHoleBtn" aria-label="Enter the Rabbit Hole archive">
+      Enter the Rabbit Hole
+    </button>
+  </div>
+
+  <!-- Manifesto -->
+  <div class="section with-backdrop path-plate" id="s3" role="region" aria-label="Manifesto">
+    <span class="eyebrow type-artifact">How I think about this</span>
+    <h2 class="type-display">Manifesto</h2>
+    <div class="hairline"></div>
+    <p class="lead manifesto-lead">For me the music is the journey, not the product.</p>
+    <p class="manifesto-body">The street is my stage because it is real — no tickets, no barriers. I was terrible when I started, so I played where somebody would pay me to leave. Then I got better. No commissioned stage has ever given me what a kid stopping in awe on a corner gives me. If you stop, you are part of it.</p>
+  </div>
+
+  <!-- Improv Sessions -->
+  <div class="section with-backdrop path-plate" id="s4" role="region" aria-label="Improv Sessions">
+    <span class="eyebrow">Acoustic Recordings</span>
+    <h2>Improv Sessions</h2>
+    <div class="hairline"></div>
+    <p class="lead">Raw improvisations recorded in my bedroom.</p>
+    <p class="subtext">No polished album — eight handpan sessions kept as they were. Listen on the road or download from the Rabbit Hole.</p>
+  </div>
+
+  <!-- Partners -->
+  <div class="section with-backdrop path-plate" id="s5" role="region" aria-label="Partners">
+    <span class="eyebrow">Who makes the instrument</span>
+    <h2>Partners</h2>
+    <div class="hairline"></div>
+    <p class="lead">Makers I work with and recommend.</p>
+        <div class="partners-list partners-list--stack" id="partnersList">
+      <a href="https://www.instagram.com/heka.handpans/" target="_blank" rel="noopener noreferrer" class="partner-card partner-card--compact" data-partner="heka">
+        <div class="partner-mark partner-mark--heka">
+          <img class="partner-logo-img" src="assets/partners/heka.jpg" alt="" width="48" height="48" loading="lazy" decoding="async" />
+        </div>
+        <div class="partner-meta">
+          <span class="partner-name">Heka Handpans <span class="partner-loc-inline">(Greece)</span></span>
+        </div>
+      </a>
+      <a href="https://godan.nl/en/godan/" target="_blank" rel="noopener noreferrer" class="partner-card partner-card--compact" data-partner="godan">
+        <div class="partner-mark partner-mark--godan">
+          <img class="partner-logo-img" src="assets/partners/godan.jpg" alt="" width="48" height="48" loading="lazy" decoding="async" />
+        </div>
+        <div class="partner-meta">
+          <span class="partner-name">Godan Handpans <span class="partner-loc-inline">(Netherlands)</span></span>
+        </div>
+      </a>
+      <a href="https://namana-bags.com/" target="_blank" rel="noopener noreferrer" class="partner-card partner-card--compact" data-partner="namana">
+        <div class="partner-mark partner-mark--namana">
+          <img class="partner-logo-img" src="assets/partners/namana.jpg" alt="" width="48" height="48" loading="lazy" decoding="async" />
+        </div>
+        <div class="partner-meta">
+          <span class="partner-name">Namana Bags <span class="partner-loc-inline">(Cases &amp; travel)</span></span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Contact -->
+  <div class="section with-backdrop path-plate" id="s6" role="region" aria-label="Contact">
+    <span class="eyebrow">Get in touch</span>
+    <h2>Let's Create Together</h2>
+    <div class="hairline"></div>
+    <p class="lead">If this resonated with you, reach out.</p>
+    <div class="contact-icons">
+      <a href="mailto:ivar.karm@gmail.com" class="contact-icon" aria-label="Send Email">
+        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        <span class="contact-label">Email</span>
+      </a>
+      <a href="https://www.instagram.com/ivar.karm/" class="contact-icon" target="_blank" rel="noopener noreferrer" aria-label="Follow on Instagram">
+        <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        <span class="contact-label">Instagram</span>
+      </a>
+      <a href="https://www.youtube.com/@IvarKarm" class="contact-icon" target="_blank" rel="noopener noreferrer" aria-label="Subscribe on YouTube">
+        <svg viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816.029-6.185.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+        <span class="contact-label">YouTube</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Section 7: The Rabbit Hole Dedicated Placeholder -->
+  <div class="section with-backdrop path-plate" id="s7" role="region" aria-label="The Rabbit Hole">
+    <span class="eyebrow">Solitary Monograph · Sound Vault</span>
+    <h2>The Rabbit Hole</h2>
+    <div class="hairline"></div>
+    <p class="lead">Where the road ends, listening begins.</p>
+    <p class="subtext" style="max-width: 580px; margin: 0.5rem auto 1.6rem; color: rgba(255,255,255,0.72); font-size: 0.92rem; line-height: 1.65;">
+      Step beyond the public road into the private archive: the full early life, the one-way tickets, the stolen handpan, the makers who stood behind me, the bedroom sessions, and the notes figured out the hard way.
+    </p>
+    <div class="rh-placeholder-actions">
+      <button type="button" class="welcome-enter rh-enter-portal-btn" id="s7EnterRabbitHoleBtn" aria-label="Enter The Rabbit Hole" style="margin: 0 auto; display: inline-flex;">
+        <span>Enter The Rabbit Hole</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="width: 16px; height: 16px;"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- QR Code Popup for Tips -->
+  <div class="qr-popup" id="qrPopup" aria-hidden="true" role="dialog" aria-label="Tip Me">
+    <div class="qr-content" role="document">
+      <button type="button" class="qr-close-x" id="qrCloseBtn" aria-label="Close">&times;</button>
+      <span class="qr-eyebrow">Support the road</span>
+      <h3>Tip Me</h3>
+      <p>Every bit helps keep the music playing on the street.</p>
+      <a href="https://busk.co/84950/tip" target="_blank" rel="noopener noreferrer" class="qr-link" id="qrBuskLink" aria-label="Open busk.co tip page">
+        <svg viewBox="0 0 27 27" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+          <rect width="27" height="27" fill="#ffffff"/>
+          <path d="M1,1H8V8H1zM2,2H7V7H2zM3,3H4V4H3zM5,3H6V4H5zM3,5H4V6H3zM5,5H6V6H5zM19,1H26V8H19zM20,2H25V7H20zM21,3H22V4H21zM23,3H24V4H23zM21,5H22V6H21zM23,5H24V6H23zM1,19H8V26H1zM2,20H7V25H2zM3,21H4V22H3zM5,21H6V22H5zM3,23H4V24H3zM5,23H6V24H5zM10,1H11V2H10zM12,1H13V2H12zM14,1H15V2H14zM10,3H11V4H10zM12,3H13V4H12zM10,5H11V6H10zM13,5H14V6H13zM15,5H16V6H15zM9,7H10V8H9zM11,7H12V8H11zM13,7H14V8H13zM15,7H16V8H15zM17,7H18V8H17zM9,9H10V10H9zM11,9H12V10H11zM14,9H15V10H14zM16,9H17V10H16zM18,9H19V10H18zM10,11H11V12H10zM12,11H13V12H12zM15,11H16V12H15zM17,11H18V12H17zM9,13H10V14H9zM11,13H12V14H11zM13,13H14V14H13zM16,13H17V14H16zM10,15H11V16H10zM12,15H13V16H12zM14,15H15V16H14zM17,15H18V16H17zM19,10H20V11H19zM21,10H22V11H21zM23,10H24V11H23zM25,10H26V11H25zM19,12H20V13H19zM22,12H23V13H22zM24,12H25V13H24zM20,14H21V15H20zM22,14H23V15H22zM25,14H26V15H25zM19,16H20V17H19zM21,16H22V17H21zM23,16H24V17H23zM10,19H11V20H10zM12,19H13V20H12zM14,19H15V20H14zM16,19H17V20H16zM18,19H19V20H18zM10,21H11V22H10zM13,21H14V22H13zM15,21H16V22H15zM17,21H18V22H17zM9,23H10V24H9zM11,23H12V24H11zM14,23H15V24H14zM16,23H17V24H16zM18,23H19V24H18zM10,25H11V26H10zM12,25H13V26H12zM15,25H16V26H15zM17,25H18V26H17z" fill="#000000"/>
+        </svg>
+      </a>
+      <span class="qr-url-hint">busk.co/84950/tip</span>
+      <a href="https://busk.co/84950/tip" target="_blank" rel="noopener noreferrer" class="qr-busk-btn" id="qrBuskBtn">Open busk.co</a>
+      <button type="button" class="qr-close" id="qrCloseTextBtn">Close</button>
+    </div>
+  </div>
+
+  
+<!-- Memory shard — discovery from resonant stones on the road -->
+<div class="memory-shard-hud" id="memoryShardHud" aria-hidden="true" role="dialog" aria-labelledby="memoryShardTitle">
+  <div class="memory-shard-card">
+    <div class="memory-shard-glow" aria-hidden="true"></div>
+    <div class="memory-shard-header">
+      <span class="memory-shard-meta" id="memoryShardMeta">Discovery</span>
+      <button type="button" class="memory-shard-close" id="memoryShardClose" aria-label="Dismiss memory">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <h3 class="memory-shard-title" id="memoryShardTitle">Memory</h3>
+    <p class="memory-shard-text" id="memoryShardText"></p>
+    <p class="memory-shard-prompt">A place on the road · keep rolling</p>
+  </div>
+</div>
+
+<!-- Custom Video Modal -->
+  <div class="video-modal" id="videoModal" aria-hidden="true" role="dialog" aria-label="Video player">
+    <div class="video-modal-backdrop" id="videoModalBackdrop"></div>
+    <div class="video-player-shell">
+      <div class="video-player-header">
+        <span class="video-player-title" id="videoPlayerTitle">Performance</span>
+        <button class="video-player-close" id="videoPlayerClose" aria-label="Close video">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="video-player-frame">
+        <video id="handpanVideo" playsinline preload="metadata" poster=""></video>
+        <iframe id="vimeoFrame" class="vimeo-frame" src="" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="Vimeo video" style="display:none;"></iframe>
+        <button class="video-big-play" id="videoBigPlay" aria-label="Play">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5.14v14l11-7-11-7z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="video-controls" id="videoControls">
+        <button class="vc-btn" id="vcPlay" aria-label="Play / Pause">
+          <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+          <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+        </button>
+        <div class="vc-progress" id="vcProgress">
+          <div class="vc-progress-track">
+            <div class="vc-progress-filled" id="vcProgressFilled"></div>
+            <div class="vc-progress-handle" id="vcProgressHandle"></div>
+          </div>
+        </div>
+        <span class="vc-time" id="vcTime">0:00 / 0:00</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="touch-zones" id="touchZones">
+  <div class="touch-zone left" id="touchLeft" aria-hidden="true"></div>
+  <div class="touch-zone right" id="touchRight" aria-hidden="true"></div>
+</div>
+
+<div class="touch-controls" id="touchControls" aria-hidden="true">
+  <button type="button" class="touch-arrow left" id="touchArrowLeft" aria-label="Roll left">
+    <span class="touch-arrow-stack" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </span>
+  </button>
+  <div class="touch-hint" id="touchHint">
+    <span class="touch-hint-line">Hold sides to roll</span>
+  </div>
+  <button type="button" class="touch-arrow right" id="touchArrowRight" aria-label="Roll right">
+    <span class="touch-arrow-stack" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </span>
+  </button>
+</div>
+
+<!-- Improv Sessions Music Player Drawer Sheet -->
+<aside class="mp-drawer-overlay" id="mpDrawerOverlay" aria-hidden="true" role="dialog" aria-labelledby="mpDrawerHeading">
+  <div class="mp-drawer-backdrop" id="mpDrawerBackdrop"></div>
+  <div class="mp-drawer-sheet" id="mpDrawerSheet">
+    <!-- Tactile Drawer Pull Handle / Dismiss Header -->
+    <div class="mp-drawer-header" id="mpDrawerHeader">
+      <div class="mp-drawer-drag-pill" aria-hidden="true"></div>
+      <div class="mp-drawer-header-row">
+        <div class="mp-drawer-heading-wrap">
+          <span class="mp-drawer-eyebrow">Acoustic Vault</span>
+          <h3 class="mp-drawer-title" id="mpDrawerHeading">Improv Sessions</h3>
+        </div>
+        <button type="button" class="mp-drawer-close-x" id="mpCloseDrawerBtn" aria-label="Close player and return to the game">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Rebuilt Functional Music Player -->
+    <div class="music-player" id="musicPlayer">
+      <div class="mp-now">
+        <div class="mp-meta">
+          <span class="mp-track-num" id="mpTrackNum">01</span>
+          <div class="mp-titles">
+            <span class="mp-title" id="mpTitle">Bedroom Session 1</span>
+            <span class="mp-subtitle" id="mpSubtitle">Handpan · Improvised</span>
+            <span class="mp-field-note" id="mpNote">Raw take. Kept as it was.</span>
+            <span class="mp-field-loc" id="mpLocation">Private room</span>
+          </div>
+        </div>
+        <div class="mp-progress-wrap">
+          <div class="mp-progress" id="mpProgress" role="slider" aria-label="Seek track" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+            <div class="mp-progress-track">
+              <div class="mp-progress-filled" id="mpProgressFilled"></div>
+              <div class="mp-progress-handle" id="mpProgressHandle"></div>
+            </div>
+          </div>
+          <div class="mp-time"><span id="mpCurrentTime">0:00</span><span id="mpDuration">1:25</span></div>
+        </div>
+        <div class="mp-controls">
+          <button class="mp-btn" id="mpPrev" aria-label="Previous track"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+          <button class="mp-btn mp-btn-play" id="mpPlay" aria-label="Play or pause">
+            <svg class="mp-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+            <svg class="mp-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+          </button>
+          <button class="mp-btn" id="mpNext" aria-label="Next track"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg></button>
+        </div>
+      </div>
+      <ul class="mp-tracklist" id="mpTracklist" role="list">
+        <li class="mp-track active" data-index="0" role="button" tabindex="0"><span class="mp-t-num">01</span><span class="mp-t-name">Bedroom Session 1<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:25</span></li>
+        <li class="mp-track" data-index="1" role="button" tabindex="0"><span class="mp-t-num">02</span><span class="mp-t-name">Bedroom Session 2<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:46</span></li>
+        <li class="mp-track" data-index="2" role="button" tabindex="0"><span class="mp-t-num">03</span><span class="mp-t-name">Bedroom Session 3<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:29</span></li>
+        <li class="mp-track" data-index="3" role="button" tabindex="0"><span class="mp-t-num">04</span><span class="mp-t-name">Bedroom Session 4<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:05</span></li>
+        <li class="mp-track" data-index="4" role="button" tabindex="0"><span class="mp-t-num">05</span><span class="mp-t-name">Bedroom Session 5<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:46</span></li>
+        <li class="mp-track" data-index="5" role="button" tabindex="0"><span class="mp-t-num">06</span><span class="mp-t-name">Bedroom Session 7<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:17</span></li>
+        <li class="mp-track" data-index="6" role="button" tabindex="0"><span class="mp-t-num">07</span><span class="mp-t-name">Bedroom Session 8<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">1:08</span></li>
+        <li class="mp-track" data-index="7" role="button" tabindex="0"><span class="mp-t-num">08</span><span class="mp-t-name">Bedroom Sessions (Master)<span class="mp-playing-badge"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span></span><span class="mp-t-dur">2:43</span></li>
+      </ul>
+      <audio id="mpAudio" preload="metadata"></audio>
+    </div>
+  </div>
+</aside>
+
+<!-- Accessible Direct Monograph Reader Modal -->
+<div class="direct-monograph-modal" id="directMonographModal" role="dialog" aria-modal="true" aria-labelledby="dmTitle" aria-hidden="true">
+  <div class="dm-backdrop" id="dmBackdrop"></div>
+  <div class="dm-shell">
+    <header class="dm-header">
+      <div class="dm-header-meta">
+        <span class="dm-eyebrow">Digital Monograph</span>
+        <h2 id="dmTitle" class="dm-title">Ivar Karm — Resonance</h2>
+      </div>
+      <button type="button" class="dm-close" id="dmCloseBtn" aria-label="Close monograph reader">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </header>
+
+    <div class="dm-sitenav" id="dmSiteNav" role="navigation" aria-label="Go to a section of the site">
+      <span class="dm-sitenav-label">Go to</span>
+      <button type="button" class="dm-quicknav-btn dm-sitenav-btn" data-site-target="#home">Home</button>
+      <button type="button" class="dm-quicknav-btn dm-sitenav-btn" data-site-target="#about">About</button>
+      <button type="button" class="dm-quicknav-btn dm-sitenav-btn" data-site-target="#story">Story</button>
+      <button type="button" class="dm-quicknav-btn dm-sitenav-btn" data-site-target="#manifesto">Manifesto</button>
+      <button type="button" class="dm-quicknav-btn dm-sitenav-btn" data-site-target="#album">Improv Sessions</button>
+      <button type="button" class="dm-quicknav-btn dm-sitenav-btn" data-site-target="#partners">Partners</button>
+      <button type="button" class="dm-quicknav-btn dm-sitenav-btn" data-site-target="#contact">Contact</button>
+      <button type="button" class="dm-quicknav-btn dm-sitenav-btn" data-site-target="#rabbit-hole">Rabbit Hole</button>
+    </div>
+
+    <div class="dm-quicknav" id="dmQuickNav" role="navigation" aria-label="Jump to a section of the monograph">
+      <button type="button" class="dm-quicknav-btn" data-dm-target="dmSec0">Principle</button>
+      <button type="button" class="dm-quicknav-btn" data-dm-target="dmSec1">I · Early Life</button>
+      <button type="button" class="dm-quicknav-btn" data-dm-target="dmSec2">II · Way to Music</button>
+      <button type="button" class="dm-quicknav-btn" data-dm-target="dmSec3">III · Street Stories</button>
+      <button type="button" class="dm-quicknav-btn" data-dm-target="dmSec4">IV · Instruments</button>
+      <button type="button" class="dm-quicknav-btn" data-dm-target="dmSec5">V · Makers</button>
+      <button type="button" class="dm-quicknav-btn" data-dm-target="dmSec6">Recordings</button>
+      <button type="button" class="dm-quicknav-btn" data-dm-target="dmSec7">Road Notes</button>
+      <button type="button" class="dm-quicknav-btn dm-quicknav-btn--rh" data-dm-target="dmFooter">Rabbit Hole ↓</button>
+    </div>
+
+    <div class="dm-content dm-content--book" id="dmContent">
+      <section class="dm-section" id="dmSec0">
+        <span class="dm-sec-tag">Foundational Principle</span>
+        <h3>Before sound, there is listening.</h3>
+        <p class="dm-lead">Street performer, improviser, and handpan artist from eastern Estonia. For me the music is the journey, not the product — so you will not find a polished album here.</p>
+      </section>
+
+      <section class="dm-section" id="dmSec1">
+        <span class="dm-sec-tag">Chapter I · Early Life</span>
+        <h3>The Teacher's Weird Kid</h3>
+        <p>Eastern Estonia after the Soviet collapse. Restless childhood, early hitchhiking, and the first glimpse of a handpan on a screen. The full map is in the Rabbit Hole.</p>
+      </section>
+
+      <section class="dm-section" id="dmSec2">
+        <span class="dm-sec-tag">Chapter II · Way to Music</span>
+        <h3>One-way tickets</h3>
+        <p>Left culinary school for Barcelona, then Berlin with a cheap djembe and the street as school. Years of busking shaped the player more than any classroom.</p>
+      </section>
+
+      <section class="dm-section" id="dmSec3">
+        <span class="dm-sec-tag">Chapter III · Street Stories</span>
+        <h3>Loss and gift</h3>
+        <p>A stolen handpan. A crowdfund. A maker who sent a new one free of charge. Tallinn with a dog in the case; Athens still the open stage.</p>
+      </section>
+
+      <section class="dm-section" id="dmSec4">
+        <span class="dm-sec-tag">Chapter IV · Instruments</span>
+        <h3>What I carry</h3>
+        <p>Handpan at the center. Djembe from the early road. Other voices collected along the way — each one earned, not collected for show.</p>
+      </section>
+
+      <section class="dm-section" id="dmSec5">
+        <span class="dm-sec-tag">Chapter V · Makers</span>
+        <h3>People behind the steel</h3>
+        <p>A short list of makers I trust and work with. Names and notes live in the Rabbit Hole archive.</p>
+      </section>
+
+      <section class="dm-section" id="dmSec6">
+        <span class="dm-sec-tag">The Recorded Works</span>
+        <h3>Bedroom Sessions</h3>
+        <p>Eight raw handpan improvisations. No studio polish — listen on the road or download from the Rabbit Hole.</p>
+        <div class="dm-tracks-list">
+          <div class="dm-track-row"><span>01–08</span><strong>Bedroom Sessions</strong><em>Handpan · Improvised</em></div>
+        </div>
+      </section>
+
+      <section class="dm-section" id="dmSec7">
+        <span class="dm-sec-tag">Road Notes</span>
+        <h3>How I think about this</h3>
+        <p>The street is the stage because it is real. I was terrible when I started. Then I got better. If you stop, you are part of it.</p>
+      </section>
+
+      <footer class="dm-footer" id="dmFooter">
+        <p>This monograph is a condensed map of the full story. The deeper archive — makers, downloads, and the unedited road — lives in the Rabbit Hole.</p>
+        <div class="dm-actions">
+          <button type="button" class="dm-cta-btn" id="dmOpenRhBtn">Enter Deep Rabbit Hole</button>
+          <a href="https://busk.co/84950/tip" target="_blank" rel="noopener noreferrer" class="dm-tip-btn">Support Busking (Tip)</a>
+        </div>
+      </footer>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==========================================================================
+     REDESIGNED RABBIT HOLE — Up & Down Scrollable Journey with Bespoke Reveals
+     Each section fades as you scroll past; new sections fade in with unique reveals
+     ========================================================================== -->
+<div class="rabbit-hole-transition-overlay" id="rabbitHoleTransition" aria-hidden="true">
+  <div class="rabbit-hole-particles" id="rabbitHoleParticles"></div>
+</div>
+
+<div id="rabbit-hole" class="rabbit-hole" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="rhTitle">
+  <!-- Ambient Rabbit Hole Gallery Background Artwork System -->
+  <div class="rh-gallery-backdrop" id="rhGalleryBackdrop" aria-hidden="true">
+    <div class="rh-gallery-layer rh-gallery-layer--a" id="rhGalleryLayerA"></div>
+    <div class="rh-gallery-layer rh-gallery-layer--b" id="rhGalleryLayerB"></div>
+    <div class="rh-gallery-vignette-radial"></div>
+    <div class="rh-gallery-vignette-bottom"></div>
+    <div class="rh-gallery-vignette-top"></div>
+  </div>
+  <!-- Ambient sacred geometry background watermark with multi-layer depth parallax -->
+  <div class="rh-backdrop-geometry" aria-hidden="true" id="rhBackdropGeometry">
+    <!-- Ambient Depth Aura -->
+    <div class="rh-parallax-aura" id="rhParallaxAura"></div>
+
+    <!-- Layer 1: Concentric Harmonic Soundwave Rings (Far depth) -->
+    <svg class="rh-geometry-layer rh-geometry-harmonics" id="rhParallaxHarmonics" viewBox="0 0 800 800">
+      <circle cx="400" cy="400" r="380" fill="none" stroke="rgba(212,175,55,0.03)" stroke-width="1" stroke-dasharray="4 8"/>
+      <circle cx="400" cy="400" r="320" fill="none" stroke="rgba(212,175,55,0.04)" stroke-width="1.2"/>
+      <circle cx="400" cy="400" r="260" fill="none" stroke="rgba(212,175,55,0.03)" stroke-width="1" stroke-dasharray="6 12"/>
+      <line x1="400" y1="20" x2="400" y2="780" stroke="rgba(212,175,55,0.02)" stroke-width="1"/>
+      <line x1="20" y1="400" x2="780" y2="400" stroke="rgba(212,175,55,0.02)" stroke-width="1"/>
+      <line x1="131" y1="131" x2="669" y2="669" stroke="rgba(212,175,55,0.02)" stroke-width="1" stroke-dasharray="4 6"/>
+      <line x1="131" y1="669" x2="669" y2="131" stroke="rgba(212,175,55,0.02)" stroke-width="1" stroke-dasharray="4 6"/>
+    </svg>
+
+    <!-- Layer 2: Core Sacred Flower of Life (Mid depth) -->
+    <svg class="rh-geometry-layer rh-flower-bg" id="rhParallaxFlower" viewBox="0 0 600 600">
+      <circle cx="300" cy="300" r="250" fill="none" stroke="rgba(212,175,55,0.08)" stroke-width="1.2"/>
+      <circle cx="300" cy="175" r="125" fill="none" stroke="rgba(212,175,55,0.06)" stroke-width="1"/>
+      <circle cx="300" cy="425" r="125" fill="none" stroke="rgba(212,175,55,0.06)" stroke-width="1"/>
+      <circle cx="192" cy="237" r="125" fill="none" stroke="rgba(212,175,55,0.06)" stroke-width="1"/>
+      <circle cx="408" cy="237" r="125" fill="none" stroke="rgba(212,175,55,0.06)" stroke-width="1"/>
+      <circle cx="192" cy="363" r="125" fill="none" stroke="rgba(212,175,55,0.06)" stroke-width="1"/>
+      <circle cx="408" cy="363" r="125" fill="none" stroke="rgba(212,175,55,0.06)" stroke-width="1"/>
+      <circle cx="300" cy="300" r="125" fill="none" stroke="rgba(212,175,55,0.04)" stroke-width="1"/>
+      <circle cx="300" cy="300" r="25" fill="none" stroke="rgba(212,175,55,0.16)" stroke-width="1.5"/>
+    </svg>
+
+    <!-- Layer 3: Overtone Constellation Nodes (Near depth) -->
+    <svg class="rh-geometry-layer rh-geometry-nodes" id="rhParallaxNodes" viewBox="0 0 600 600">
+      <circle cx="300" cy="50" r="3" fill="rgba(212,175,55,0.2)"/>
+      <circle cx="300" cy="550" r="3" fill="rgba(212,175,55,0.2)"/>
+      <circle cx="50" cy="300" r="3" fill="rgba(212,175,55,0.2)"/>
+      <circle cx="550" cy="300" r="3" fill="rgba(212,175,55,0.2)"/>
+      <circle cx="192" cy="112" r="2" fill="rgba(212,175,55,0.15)"/>
+      <circle cx="408" cy="112" r="2" fill="rgba(212,175,55,0.15)"/>
+      <circle cx="192" cy="488" r="2" fill="rgba(212,175,55,0.15)"/>
+      <circle cx="408" cy="488" r="2" fill="rgba(212,175,55,0.15)"/>
+    </svg>
+  </div>
+
+  <!-- Sticky Top Bar -->
+  <header class="rh-sticky-header">
+    <div class="rh-header-left">
+      <div class="rh-header-brand">
+        <h2 id="rhTitle" class="rh-header-title">The Rabbit Hole</h2>
+        <span class="rh-header-breadcrumb" id="rhBreadcrumb">01 / 07 · Early Life</span>
+        <span class="rh-header-progress-tag" id="rhProgressPercent" aria-hidden="true">0%</span>
+      </div>
+      <button type="button" class="rh-toc-toggle-btn" id="rhTocToggleBtn" aria-label="Open chapter menu" aria-expanded="false" aria-controls="rhTocDrawer" title="Jump to chapter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>
+        <span>Chapters</span>
+      </button>
+    </div>
+
+    <!-- Return to road button -->
+    <button type="button" class="rh-close-btn" id="rabbitHoleBackBtn" aria-label="Return to Contact on the road">
+      <span>Return</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <!-- Visual Dynamic Progress Bar along top scroll edge / header bottom -->
+    <div class="rh-progress-track" role="progressbar" id="rhProgressTrack" aria-label="Rabbit Hole reading progression" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+      <div class="rh-progress-fill" id="rhProgressBar"></div>
+      <div class="rh-progress-glow" id="rhProgressGlow"></div>
+    </div>
+  </header>
+
+  <!-- Floating Side Index Indicator -->
+  <nav class="rh-side-nav" aria-label="Rabbit Hole Section Navigator">
+    <button type="button" class="rh-side-pip active" data-sec-target="0" data-target="#rhSec0" aria-label="Jump to Chapter 1: Early Life">
+      <span class="rh-side-pip-label">01 Early Life</span>
+      <span class="rh-side-pip-dot"></span>
+    </button>
+    <button type="button" class="rh-side-pip" data-sec-target="1" data-target="#rhSec1" aria-label="Jump to Chapter 2: Way to Music">
+      <span class="rh-side-pip-label">02 Way to Music</span>
+      <span class="rh-side-pip-dot"></span>
+    </button>
+    <button type="button" class="rh-side-pip" data-sec-target="2" data-target="#rhSec2" aria-label="Jump to Chapter 3: Street Stories">
+      <span class="rh-side-pip-label">03 Street Stories</span>
+      <span class="rh-side-pip-dot"></span>
+    </button>
+    <button type="button" class="rh-side-pip" data-sec-target="3" data-target="#rhSec3" aria-label="Jump to Chapter 4: The Makers">
+      <span class="rh-side-pip-label">04 Makers</span>
+      <span class="rh-side-pip-dot"></span>
+    </button>
+    <button type="button" class="rh-side-pip" data-sec-target="4" data-target="#rhSec4" aria-label="Jump to Chapter 5: Other Instruments">
+      <span class="rh-side-pip-label">05 Instruments</span>
+      <span class="rh-side-pip-dot"></span>
+    </button>
+    <button type="button" class="rh-side-pip" data-sec-target="5" data-target="#rhSec5" aria-label="Jump to Chapter 6: Tracks to Download">
+      <span class="rh-side-pip-label">06 Audio Vault</span>
+      <span class="rh-side-pip-dot"></span>
+    </button>
+    <button type="button" class="rh-side-pip" data-sec-target="6" data-target="#rhSec6" aria-label="Jump to Chapter 7: Road Notes">
+      <span class="rh-side-pip-label">07 Road Notes</span>
+      <span class="rh-side-pip-dot"></span>
+    </button>
+  </nav>
+
+  <button type="button" class="rh-toc-floating-btn" id="rhTocFloatingBtn" aria-label="Open chapter menu" aria-expanded="false" aria-controls="rhTocDrawer" title="Chapters">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" width="16" height="16"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>
+    <span class="rh-toc-float-label">Chapters</span>
+  </button>
+
+  <div class="rh-toc-backdrop" id="rhTocBackdrop" aria-hidden="true"></div>
+  <aside class="rh-toc-drawer" id="rhTocDrawer" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="rhTocHeading">
+    <div class="rh-toc-header">
+      <div class="rh-toc-title-wrap">
+        <span class="rh-toc-eyebrow">Interactive Monograph</span>
+        <h3 class="rh-toc-heading" id="rhTocHeading">Chapters</h3>
+        <p class="rh-toc-summary">Jump to any chapter.</p>
+      </div>
+      <button type="button" class="rh-toc-close-btn" id="rhTocCloseBtn" aria-label="Close chapter menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="rh-toc-list">
+      <button type="button" class="rh-toc-item active" data-sec-target="0" aria-label="Jump to Chapter 01: Early Life">
+        <span class="rh-toc-item-header"><span class="rh-toc-num">01</span><span class="rh-toc-item-badge rh-toc-item-badge--here">Here</span></span>
+        <span class="rh-toc-item-content">
+          <span class="rh-toc-item-topline"><span class="rh-toc-item-tag">Chapter 01</span><span class="rh-toc-item-divider">·</span><span class="rh-toc-item-era">Early Life</span></span>
+          <span class="rh-toc-item-title">The Teacher's Weird Kid</span>
+          <span class="rh-toc-item-desc">Eastern Estonia after the Soviet collapse.</span>
+        </span>
+        <span class="rh-toc-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="14" height="14"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button type="button" class="rh-toc-item" data-sec-target="1" aria-label="Jump to Chapter 02: Way to Music">
+        <span class="rh-toc-item-header"><span class="rh-toc-num">02</span></span>
+        <span class="rh-toc-item-content">
+          <span class="rh-toc-item-topline"><span class="rh-toc-item-tag">Chapter 02</span><span class="rh-toc-item-divider">·</span><span class="rh-toc-item-era">Way to Music</span></span>
+          <span class="rh-toc-item-title">From a one-way ticket to a €30 drum</span>
+          <span class="rh-toc-item-desc">Barcelona, Berlin, and the street as school.</span>
+        </span>
+        <span class="rh-toc-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="14" height="14"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button type="button" class="rh-toc-item" data-sec-target="2" aria-label="Jump to Chapter 03: Street Stories">
+        <span class="rh-toc-item-header"><span class="rh-toc-num">03</span></span>
+        <span class="rh-toc-item-content">
+          <span class="rh-toc-item-topline"><span class="rh-toc-item-tag">Chapter 03</span><span class="rh-toc-item-divider">·</span><span class="rh-toc-item-era">Street Stories</span></span>
+          <span class="rh-toc-item-title">What actually happened out there</span>
+          <span class="rh-toc-item-desc">Loss, a gift, and the road.</span>
+        </span>
+        <span class="rh-toc-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="14" height="14"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button type="button" class="rh-toc-item" data-sec-target="3" aria-label="Jump to Chapter 04: The Makers">
+        <span class="rh-toc-item-header"><span class="rh-toc-num">04</span></span>
+        <span class="rh-toc-item-content">
+          <span class="rh-toc-item-topline"><span class="rh-toc-item-tag">Chapter 04</span><span class="rh-toc-item-divider">·</span><span class="rh-toc-item-era">The Makers</span></span>
+          <span class="rh-toc-item-title">People and companies I work with</span>
+          <span class="rh-toc-item-desc">Instrument makers I stand behind.</span>
+        </span>
+        <span class="rh-toc-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="14" height="14"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button type="button" class="rh-toc-item" data-sec-target="4" aria-label="Jump to Chapter 05: Instruments">
+        <span class="rh-toc-item-header"><span class="rh-toc-num">05</span></span>
+        <span class="rh-toc-item-content">
+          <span class="rh-toc-item-topline"><span class="rh-toc-item-tag">Chapter 05</span><span class="rh-toc-item-divider">·</span><span class="rh-toc-item-era">Instruments</span></span>
+          <span class="rh-toc-item-title">What's in the bag</span>
+          <span class="rh-toc-item-desc">Handpan, djembe, koto and more.</span>
+        </span>
+        <span class="rh-toc-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="14" height="14"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button type="button" class="rh-toc-item" data-sec-target="5" aria-label="Jump to Chapter 06: Audio Vault">
+        <span class="rh-toc-item-header"><span class="rh-toc-num">06</span></span>
+        <span class="rh-toc-item-content">
+          <span class="rh-toc-item-topline"><span class="rh-toc-item-tag">Chapter 06</span><span class="rh-toc-item-divider">·</span><span class="rh-toc-item-era">Audio Vault</span></span>
+          <span class="rh-toc-item-title">Bedroom sessions to keep</span>
+          <span class="rh-toc-item-desc">Raw improvisations to hear or download.</span>
+        </span>
+        <span class="rh-toc-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="14" height="14"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button type="button" class="rh-toc-item" data-sec-target="6" aria-label="Jump to Chapter 07: Road Notes">
+        <span class="rh-toc-item-header"><span class="rh-toc-num">07</span></span>
+        <span class="rh-toc-item-content">
+          <span class="rh-toc-item-topline"><span class="rh-toc-item-tag">Chapter 07</span><span class="rh-toc-item-divider">·</span><span class="rh-toc-item-era">Road Notes</span></span>
+          <span class="rh-toc-item-title">Things I figured out out here</span>
+          <span class="rh-toc-item-desc">Mostly the hard way.</span>
+        </span>
+        <span class="rh-toc-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="14" height="14"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+    </div>
+    <div class="rh-toc-footer">
+      <div class="rh-toc-overall-progress"><span class="rh-toc-progress-text">Overall progress</span><span class="rh-toc-progress-val" id="rhTocProgressVal">0%</span></div>
+      <div class="rh-toc-mini-bar"><div class="rh-toc-mini-fill" id="rhTocMiniFill"></div></div>
+    </div>
+  </aside>
+
+  <!-- Vertical Scroll Track with Dedicated Sections -->
+  <main class="rh-scroll-track" id="rhScrollTrack">
+
+    <!-- Chapter Progression Strip at top of scroll track -->
+    <div class="rh-track-intro-banner" id="rhTrackIntro">
+      <div class="rh-progression-card">
+        <div class="rh-progression-meta">
+          <div class="rh-progression-title-group">
+            <span class="rh-progression-eyebrow">Interactive Monograph</span>
+            <span class="rh-progression-label">Chapter Progression</span>
+          </div>
+          <div class="rh-progression-stat" id="rhProgressionStat">
+            <span class="rh-stat-highlight">0%</span> Explored · Chapter 1 of 7
+          </div>
+        </div>
+        <div class="rh-chapter-steps-bar" role="navigation" aria-label="Chapter progress markers">
+          <button type="button" class="rh-chapter-step active" data-sec-target="0" title="Jump to Chapter 01: Early Life">
+            <span class="rh-step-num">01</span>
+            <span class="rh-step-name">Roots</span>
+            <span class="rh-step-indicator"></span>
+          </button>
+          <button type="button" class="rh-chapter-step" data-sec-target="1" title="Jump to Chapter 02: Way to Music">
+            <span class="rh-step-num">02</span>
+            <span class="rh-step-name">Discovery</span>
+            <span class="rh-step-indicator"></span>
+          </button>
+          <button type="button" class="rh-chapter-step" data-sec-target="2" title="Jump to Chapter 03: Street Stories">
+            <span class="rh-step-num">03</span>
+            <span class="rh-step-name">Streets</span>
+            <span class="rh-step-indicator"></span>
+          </button>
+          <button type="button" class="rh-chapter-step" data-sec-target="3" title="Jump to Chapter 04: The Makers">
+            <span class="rh-step-num">04</span>
+            <span class="rh-step-name">Makers</span>
+            <span class="rh-step-indicator"></span>
+          </button>
+          <button type="button" class="rh-chapter-step" data-sec-target="4" title="Jump to Chapter 05: Other Instruments">
+            <span class="rh-step-num">05</span>
+            <span class="rh-step-name">Instruments</span>
+            <span class="rh-step-indicator"></span>
+          </button>
+          <button type="button" class="rh-chapter-step" data-sec-target="5" title="Jump to Chapter 06: Audio Vault">
+            <span class="rh-step-num">06</span>
+            <span class="rh-step-name">Vault</span>
+            <span class="rh-step-indicator"></span>
+          </button>
+          <button type="button" class="rh-chapter-step" data-sec-target="6" title="Jump to Chapter 07: Road Notes">
+            <span class="rh-step-num">07</span>
+            <span class="rh-step-name">Epilogue</span>
+            <span class="rh-step-indicator"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: Early Life (Reveal: Luminous Lift) -->
+    <section class="rh-section reveal-luminous pending-below" id="rhSec0" data-section-index="0" data-section-title="Early Life">
+      <div class="rh-section-inner">
+        <div class="rh-sec-header">
+          <div class="rh-sec-meta">
+            <span>Chapter 01</span>
+            <span aria-hidden="true">·</span>
+            <span>Early Life</span>
+          </div>
+          <h3 class="rh-sec-title">The Teacher's Weird Kid</h3>
+          <div class="rh-sec-hairline"></div>
+        </div>
+
+        <div class="rh-stories-grid">
+          <div class="rh-story-card">
+            <span class="rh-story-era">Eastern Estonia, early nineties</span>
+            <p class="rh-story-text">I grew up in eastern Estonia in the early nineties, right after the Soviet Union collapsed and the country had to figure out what it was. My mom taught Estonian to Russian kids, edited the local paper and translated on the side, so she was always busy and my sister and I mostly entertained ourselves. I was a restless kid who couldn't sit still. I pushed my mom's nerves right to the last point, but never over it, and never out of malice. Mostly boredom.</p>
+          </div>
+          <div class="rh-story-card">
+            <span class="rh-story-era">Pots, pans and a harmonica</span>
+            <p class="rh-story-text">Music started like it does for every kid: pots, pans, whatever utensils I could find. Then a harmonica, which I played over a Christmas reggae album we had at home. My mom was not a fan of the harmonica. My parents loved music but neither of them played anything. In Soviet times they listened to Finnish radio and taped over whatever came through, Queen, the Stones. My dad was a huge Queen fan and kept guitars around the house that nobody wanted him to play.</p>
+          </div>
+          <div class="rh-story-card">
+            <span class="rh-story-era">Skipping school</span>
+            <p class="rh-story-text">School and I didn't get along. I skipped it to wander through abandoned Soviet factories, walk the Baltic beach alone and skate. I hitchhiked alone for the first time at ten, and properly from thirteen. I knew I wasn't going to make it on school, so I'd have to find some other way to survive in this world. I had no idea what. I daydreamed about a one-way ticket out of that eastern Estonian slum, to find some kind of meaning out in the wide world.</p>
+          </div>
+          <div class="rh-story-card">
+            <span class="rh-story-era">The weirdo with the djembe</span>
+            <p class="rh-story-text">By my teens I had dreadlocks, a skateboard, a beanie and a small African djembe my aunt got me at a discount from the Viljandi folk festival. The skin was slightly torn, but it held and it played fine. There was nobody like me in town, so I walked around with dreads and a drum, played along to the jocks' speakers and got known as the weirdo son of the Estonian teacher. That meant a lot of fights, because whenever someone got a bad grade I was the one who had to answer for it. I bounced between schools without ever finding a circle of friends.</p>
+            <p class="rh-story-text">In the end I was sent to home schooling instead. I'd finish my homework and browse YouTube, and that's where I found handpan videos. It took me years to get one. But that was the seed.</p>
+          </div>
+          <div class="rh-story-card">
+            <span class="rh-story-era">The guitar I couldn't fix</span>
+            <p class="rh-story-text">At home there was my grandfather's old seven-string guitar. In woodworking class I tried to turn it into a six-string. I'm no carpenter, so I failed miserably, and it ended up lying around the house. Now and then I'd put on guitar music and pretend I knew where the notes were. I had no idea.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll hint -->
+      <div class="rh-scroll-indicator" aria-hidden="true">
+        <span>Scroll down to journey deeper</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+      </div>
+    </section>
+
+    <!-- Chapter Separator 01 -> 02 -->
+    <div class="rh-section-separator" aria-hidden="true" data-separator-index="0">
+      <div class="rh-separator-track">
+        <div class="rh-separator-line"></div>
+        <div class="rh-separator-glow-bar"></div>
+        <div class="rh-separator-node">
+          <span class="rh-separator-pulse"></span>
+          <span class="rh-separator-diamond"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Way to Music (Reveal: Editorial Curtain Split) -->
+    <section class="rh-section reveal-curtain pending-below" id="rhSec1" data-section-index="1" data-section-title="Way to Music">
+      <div class="rh-section-inner">
+        <div class="rh-sec-header">
+          <div class="rh-sec-meta">
+            <span>Chapter 02</span>
+            <span aria-hidden="true">·</span>
+            <span>Way to Music</span>
+          </div>
+          <h3 class="rh-sec-title">From a one-way ticket to a €30 drum</h3>
+          <div class="rh-sec-hairline"></div>
+        </div>
+
+        <div class="rh-stories-grid">
+          <div class="rh-story-card">
+            <span class="rh-story-era">Barcelona, with one word of Spanish</span>
+            <p class="rh-story-text">At 17–18 I was in culinary school in Tallinn, with a full-time job in the old town and my own rented apartment. It was a dull life and I hated the restaurant industry, even though I kept telling myself I liked it because I had bills to pay. After about a year, when I turned 18, I got a passport, took my last month's salary, paid my rent and bought a one-way ticket to Barcelona with no idea what I'd do there. I just knew I couldn't keep going from work to home and back with nothing to look forward to.</p>
+            <p class="rh-story-text">I landed, took the bus to the city center, and the only Spanish word I knew was "okupa." I spent the first night on a hotel terrace and woke up when a waiter was setting the tables. I was a bit ashamed, because it was the first time I'd been homeless. Then I started walking around asking random people "okupa? okupa?" and waving my arms. Believe it or not, half a day later somebody took me to one. The people who opened the door were Estonians.</p>
+          </div>
+          <div class="rh-story-card">
+            <span class="rh-story-era">Eight months, no plan</span>
+            <p class="rh-story-text">They let me in. I was just a kid and it was awkward. We chatted, they told me a bit about their life there and offered me a room that was full of junk. Instead of staying, I met two other travelers, a Bulgarian and a Hungarian, and we drifted around Spain toward Valencia and the villages nearby. We went to demonstrations, slept in abandoned houses, tried to find work picking oranges. It was the time of the Arab Spring and the 15M movement, and in Valencia I took part in the occupation of the town square. Then they both ditched me and I found my way back to Barcelona alone.</p>
+            <p class="rh-story-text">After that I hitchhiked across Europe alone for the first time. It was around seven or eight months in total, April to October. I ended up in Paris, where a city council worker took me in for two weeks, looked after me and put me on a plane home to Estonia.</p>
+          </div>
+          <div class="rh-story-card">
+            <span class="rh-story-era">Polymer: the double life</span>
+            <p class="rh-story-text">I moved into Polymer Culture Factory in Tallinn, an enormous abandoned toy factory that rented rooms to artists. The whole building was a gallery and a pile of art projects: music, drum workshops, a community kitchen, a rooftop garden. I was living a double life. In one, I put on white gloves at a hotel, straightened my back and said "yes sir, no sir." In the other, I was a free-floating creative soul in a factory full of people like me. When I fully embraced the second one, I quit the hotel and flew to Berlin on another one-way ticket.</p>
+          </div>
+          <div class="rh-story-card">
+            <span class="rh-story-era">Berlin and the €30 djembe</span>
+            <p class="rh-story-text">In Berlin I ran into the same Estonians who'd welcomed me in Barcelona, completely by accident. They'd moved on to squatting and taught me how to survive the streets: where to get food, where to get clothes, where to sleep. Eventually I drifted away from them. I didn't fancy sitting around all day drinking beer and asking for money.</p>
+            <p class="rh-story-text">One night I found a broken two-sided wooden drum in the trash and started busking with it. Not much money, but enough for a döner. At Rosenthaler Platz I met two Latvian guys, one on djembe and one on darbuka, and joined their jam. The djembe player was a god to me. Until then percussion was something I did on the side, but watching him play like a virtuoso with crazy technique, I decided to commit to it full time. I sold some clothes in the park to afford a better drum: a €30 djembe from a Kreuzberg thrift shop full of vintage jackets, military boots and used accordions. It sounded earthy and a bit rough, and it changed my life.</p>
+            <p class="rh-story-text">I was terrible at first. So I came up with a system: on weekend mornings I'd go to hostel entrances where people were hungover and play as loud and as badly as I could until someone gave me 10 or 20 euros to go away. I made about 60–70 a weekend. I knew I sucked, but I had to figure out how to get paid for it. The rest of the week I practiced in the underground, six to nine hours in a row, for a year or two.</p>
+          </div>
+          <div class="rh-story-card">
+            <span class="rh-story-era">The handpan</span>
+            <p class="rh-story-text">I went back to Estonia to renew my documents and got pulled into the restaurant rat race again. But by then I'd seen the handpan on YouTube and I knew it was my next step. I'd always liked melody, and a djembe can only go so far. I cleaned tables and hauled restaurant equipment for catering companies, lived on my sister's couch and saved. When I had 1.5k, I ordered my first handpan: a C major pentatonic Spacedrum, the one everybody wanted back then because of Yuki Koshimoto. I played it like I played the djembe, six to nine hours a day when I could.</p>
+            <p class="rh-story-text">At first I kept the catering job and busked in my free time. Then I dropped the catering and committed completely. My coworkers made fun of it, but a few years later some of them were catering events where I was the one performing.</p>
+          </div>
+          <div class="rh-story-card">
+            <span class="rh-story-era">The drummer boy with the dog</span>
+            <p class="rh-story-text">I spent two or three years practicing in Tallinn. I got a small name as "the drummer boy with the dog": Moko, a Jack Russell I'd brought from Berlin, who'd hang out in my handpan case while I busked, wander around the old town and come back every now and then.</p>
+            <p class="rh-story-text">Then I got drafted. I realized fast that I didn't want to be part of the war machine, found a way out, and they kicked me out right after the first snow. I had nowhere to go, so I crashed in a friend's attic in the old town for a month. It was freezing. I left the dog with my sister and took a bus to Berlin, because even a Berlin winter isn't as cold as Tallinn. I lived in a house project there for a bit under half a year, then went on through the Netherlands and Belgium before coming back to Estonia again.</p>
+          </div>
+          <div class="rh-story-card">
+            <span class="rh-story-era">The morning the handpan was gone</span>
+            <p class="rh-story-text">After that trip I had nowhere to live again and was crashing in the same attic, keeping my handpan in the locked staircase. One morning I got up, got dressed to go busking, and my handpan wasn't there. It had been stolen. That was the lowest moment I've had. But I got my shit together, pulled out my djembe and went busking anyway.</p>
+            <p class="rh-story-text">Then I started a crowdfunding campaign to replace my instruments. In The Hague I'd once had a short walk and talk with the maker of Godan, so it came as a total shock when he wrote and said he wanted to sponsor me with a brand new handpan, free of charge. It's the nicest thing anyone has ever done for me, to this day.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter Separator 02 -> 03 -->
+    <div class="rh-section-separator" aria-hidden="true" data-separator-index="1">
+      <div class="rh-separator-track">
+        <div class="rh-separator-line"></div>
+        <div class="rh-separator-glow-bar"></div>
+        <div class="rh-separator-node">
+          <span class="rh-separator-pulse"></span>
+          <span class="rh-separator-diamond"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: Stories from the Streets (Reveal: Cinematic Atmospheric Focus) -->
+    <section class="rh-section reveal-cinematic pending-below" id="rhSec2" data-section-index="2" data-section-title="Street Stories">
+      <div class="rh-section-inner">
+        <div class="rh-sec-header">
+          <div class="rh-sec-meta">
+            <span>Chapter 03</span>
+            <span aria-hidden="true">·</span>
+            <span>Street Stories</span>
+          </div>
+          <h3 class="rh-sec-title">What actually happened out there</h3>
+          <div class="rh-sec-hairline"></div>
+        </div>
+
+        <div class="rh-stories-duo">
+          <div class="rh-story-feature">
+            <div class="rh-quote-mark">“</div>
+            <span class="rh-story-era">Warschauer Straße: the Hulk</span>
+            <p class="rh-story-text">One Friday night I was playing djembe on Warschauer Straße when a man in his underwear ran up and insisted I paint him green like the Hulk, with the spray paint he'd brought. You don't have to ask me twice. I did it. For the rest of the night he roamed the street as the Hulk. I never found out what happened to him. This was the early 2010s, and crazy shit happened on that street.</p>
+          </div>
+          <div class="rh-story-feature">
+            <div class="rh-quote-mark">“</div>
+            <span class="rh-story-era">Poland: pancakes and aliens</span>
+            <p class="rh-story-text">I was stranded on the side of a road in Poland when a truck driver picked me up and took me to his parents' little farm. They fed me, I got loads of vodka, and his father talked to me about aliens and space. In the morning his mother made pancakes, packed them for the road and gave me a bottle of fresh milk. Then her son drove me to the border to Germany.</p>
+          </div>
+        </div>
+
+        <div class="rh-stories-grid">
+          <div class="rh-story-card">
+            <span class="rh-story-era">Paris: two weeks</span>
+            <p class="rh-story-text">I'd hitchhiked across Europe alone for the first time and ended up in Paris with nothing. A city council worker took me in, looked after me for two weeks and put me on a plane home. I never really got to thank him properly.</p>
+          </div>
+          <div class="rh-story-card">
+            <span class="rh-story-era">The notes people leave me</span>
+            <p class="rh-story-text">When artists draw me, or people drop little notes of appreciation in my case, it hits hard. The latest one:</p>
+            <p class="rh-story-text">“I see you very often on Ermou Street and you're my favorite street artist. If you ever need assistance with your dog, you can call me. I'm a freelance dog groomer and trainer, of course free of charge. I also wanted to ask if you teach handpan, I'm interested just for my leisure time. Thanks for making art, keep going.”</p>
+          </div>
+          <div class="rh-story-card">
+            <span class="rh-story-era">Samos, then Athens</span>
+            <p class="rh-story-text">When I was offered the chance to move to Greece, I took it, because I felt trapped in Estonia. It put me somewhere new, where I could start with a fresh mindset.</p>
+            <p class="rh-story-text">On Samos I opened a restaurant with my former employer. We had our differences, and after a bit under a year I left for Athens and picked up my street-artist life again.</p>
+            <p class="rh-story-text">The dogs came too. Three generations, all from Berlin: Moko, who left puppies in Estonia; Chris, the one I kept; and Chris's daughter Bella, born in Samos. Moko passed away a few years ago.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter Separator 03 -> 04 -->
+    <div class="rh-section-separator" aria-hidden="true" data-separator-index="2">
+      <div class="rh-separator-track">
+        <div class="rh-separator-line"></div>
+        <div class="rh-separator-glow-bar"></div>
+        <div class="rh-separator-node">
+          <span class="rh-separator-pulse"></span>
+          <span class="rh-separator-diamond"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: Artisans & Collaborators (Reveal: Constellation Settle) -->
+    <section class="rh-section reveal-constellation pending-below" id="rhSec3" data-section-index="3" data-section-title="Makers">
+      <div class="rh-section-inner">
+        <div class="rh-sec-header">
+          <div class="rh-sec-meta">
+            <span>Chapter 04</span>
+            <span aria-hidden="true">·</span>
+            <span>The Makers</span>
+          </div>
+          <h3 class="rh-sec-title">People and companies I work with</h3>
+          <p class="rh-sec-lead">These are instrument makers and companies I work with and recommend. No codes, no discounts. Just people whose work I stand behind.</p>
+          <div class="rh-sec-hairline"></div>
+        </div>
+
+        <div class="rh-artisans-grid">
+          <div class="rh-artisan-card">
+            <div class="rh-artisan-symbol rh-artisan-logo" aria-hidden="true">
+              <img src="assets/partners/heka.jpg" alt="" width="52" height="52" loading="lazy" decoding="async" />
+            </div>
+            <div class="rh-artisan-info">
+              <span class="rh-artisan-name">Heka Handpans</span>
+              <span class="rh-artisan-loc">Greece</span>
+              <p class="rh-artisan-desc">Instrument makers I work with and recommend.</p>
+              <a href="https://www.instagram.com/heka.handpans/" target="_blank" rel="noopener noreferrer" class="promo-link-btn">
+                <span>Contact Heka Workshop</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+              </a>
+            </div>
+          </div>
+          <div class="rh-artisan-card">
+            <div class="rh-artisan-symbol rh-artisan-logo" aria-hidden="true">
+              <img src="assets/partners/godan.jpg" alt="" width="52" height="52" loading="lazy" decoding="async" />
+            </div>
+            <div class="rh-artisan-info">
+              <span class="rh-artisan-name">Godan Handpans</span>
+              <span class="rh-artisan-loc">The Hague</span>
+              <p class="rh-artisan-desc">The maker I met on a walk and a talk, and who later sent me a brand new handpan for free when I needed one most.</p>
+              <a href="https://godan.nl/en/godan/" target="_blank" rel="noopener noreferrer" class="promo-link-btn">
+                <span>View Godan Handpans</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+              </a>
+            </div>
+          </div>
+          <div class="rh-artisan-card">
+            <div class="rh-artisan-symbol rh-artisan-logo" aria-hidden="true">
+              <img src="assets/partners/namana.jpg" alt="" width="52" height="52" loading="lazy" decoding="async" />
+            </div>
+            <div class="rh-artisan-info">
+              <span class="rh-artisan-name">Namana Bags</span>
+              <span class="rh-artisan-loc">Bags &amp; cases</span>
+              <p class="rh-artisan-desc">Handpan bags and cases I work with and recommend.</p>
+              <a href="https://namana-bags.com/" target="_blank" rel="noopener noreferrer" class="promo-link-btn">
+                <span>Visit Namana Catalog</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter Separator 04 -> 05 -->
+    <div class="rh-section-separator" aria-hidden="true" data-separator-index="3">
+      <div class="rh-separator-track">
+        <div class="rh-separator-line"></div>
+        <div class="rh-separator-glow-bar"></div>
+        <div class="rh-separator-node">
+          <span class="rh-separator-pulse"></span>
+          <span class="rh-separator-diamond"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5: Other Instruments (Reveal: Lateral Acoustic Slide) -->
+    <section class="rh-section reveal-acoustic pending-below" id="rhSec4" data-section-index="4" data-section-title="Instruments">
+      <div class="rh-section-inner">
+        <div class="rh-sec-header">
+          <div class="rh-sec-meta">
+            <span>Chapter 05</span>
+            <span aria-hidden="true">·</span>
+            <span>Instruments</span>
+          </div>
+          <h3 class="rh-sec-title">What's in the bag</h3>
+          <div class="rh-sec-hairline"></div>
+        </div>
+
+        <div class="rh-instruments-grid">
+          <div class="rh-instrument-card rh-instrument-card--cabinet">
+            <div class="rh-instrument-icon" aria-hidden="true"><span class="rh-inst-glyph">◎</span></div>
+            <div class="rh-instrument-details">
+              <span class="rh-inst-meta">Centerpiece · Steel</span>
+              <h4 class="rh-instrument-title">Handpan</h4>
+              <p class="rh-instrument-desc">My centerpiece. My first was a C major pentatonic Spacedrum, the one everybody wanted because of Yuki Koshimoto. Years later I learned it sounded closer to a steelpan than what we call a handpan today. I loved her more than anything anyway.</p>
+            </div>
+          </div>
+          <div class="rh-instrument-card rh-instrument-card--cabinet">
+            <div class="rh-instrument-icon" aria-hidden="true"><span class="rh-inst-glyph">◯</span></div>
+            <div class="rh-instrument-details">
+              <span class="rh-inst-meta">Early road · Skin</span>
+              <h4 class="rh-instrument-title">Djembe</h4>
+              <p class="rh-instrument-desc">The first one was my aunt's torn-skin gift. The one that changed my life cost €30 in a Berlin thrift store full of vintage jackets, military boots and used accordions. It sounded earthy and a bit rough, and it was a huge step up from the soaked, rotten drum I found in the trash.</p>
+            </div>
+          </div>
+          <div class="rh-instrument-card">
+            <div class="rh-instrument-icon" aria-hidden="true">筝</div>
+            <div class="rh-instrument-details">
+              <h4 class="rh-instrument-title">Koto</h4>
+              <p class="rh-instrument-desc">It fell into my lap. A friend needed a new home for his cat, a girl who worked at a bar took it, and when we delivered the cat I saw a koto at her place and asked for it right there. She said no. A year later she was short on cash and sold it to me, and I paid in bitcoin. I didn't look up anything about it. I tried random tunings until I found ones I liked, started busking with it, and played my first paid gig on it a couple of months later.</p>
+            </div>
+          </div>
+          <div class="rh-instrument-card">
+            <div class="rh-instrument-icon" aria-hidden="true">🎶</div>
+            <div class="rh-instrument-details">
+              <h4 class="rh-instrument-title">Harmonica</h4>
+              <p class="rh-instrument-desc">Where it all started, over a Christmas reggae record. My mom hated it.</p>
+            </div>
+          </div>
+          <div class="rh-instrument-card">
+            <div class="rh-instrument-icon" aria-hidden="true">🥁</div>
+            <div class="rh-instrument-details">
+              <h4 class="rh-instrument-title">Everything else</h4>
+              <p class="rh-instrument-desc">Cajón, jaw harps, keyboards, whatever's lying around. I improvise on all of it until I'm happy with the result. I don't really do finished pieces. For me the music is the journey, not the product.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter Separator 05 -> 06 -->
+    <div class="rh-section-separator" aria-hidden="true" data-separator-index="4">
+      <div class="rh-separator-track">
+        <div class="rh-separator-line"></div>
+        <div class="rh-separator-glow-bar"></div>
+        <div class="rh-separator-node">
+          <span class="rh-separator-pulse"></span>
+          <span class="rh-separator-diamond"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 6: Audio Vault / Downloadable Tracks (Reveal: Equalizer Cascade) -->
+    <section class="rh-section reveal-equalizer pending-below" id="rhSec5" data-section-index="5" data-section-title="Audio Vault">
+      <div class="rh-section-inner">
+        <div class="rh-sec-header">
+          <div class="rh-sec-meta">
+            <span>Chapter 06</span>
+            <span aria-hidden="true">·</span>
+            <span>Audio Vault</span>
+          </div>
+          <h3 class="rh-sec-title">Bedroom sessions to keep</h3>
+          <p class="rh-sec-lead">Raw improvisations recorded in my bedroom. No polished album, because that's not what this is about for me. Listen here or download them.</p>
+          <div class="rh-sec-hairline"></div>
+        </div>
+
+        <div class="rh-tracks-list">
+          <div class="rh-track-row">
+            <div class="rh-track-meta">
+              <span class="rh-track-num">01</span>
+              <div class="rh-track-headings">
+                <span class="rh-track-name">Bedroom Session 1</span>
+                <span class="rh-track-sub">Handpan · Improvised · Archive.org</span>
+              </div>
+            </div>
+            <div class="rh-track-actions">
+              <button type="button" class="rh-preview-btn" data-preview-src="https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%201.wav" aria-label="Preview Bedroom Session 1">
+                <svg class="rh-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+                <svg class="rh-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+              </button>
+              <a class="rh-download-btn" href="https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%201.wav" download="Bedroom-Session-1.wav" target="_blank" rel="noopener">Download</a>
+            </div>
+          </div>
+          <div class="rh-track-row">
+            <div class="rh-track-meta">
+              <span class="rh-track-num">02</span>
+              <div class="rh-track-headings">
+                <span class="rh-track-name">Bedroom Session 2</span>
+                <span class="rh-track-sub">Handpan · Improvised · Archive.org</span>
+              </div>
+            </div>
+            <div class="rh-track-actions">
+              <button type="button" class="rh-preview-btn" data-preview-src="https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%202.wav" aria-label="Preview Bedroom Session 2">
+                <svg class="rh-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+                <svg class="rh-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+              </button>
+              <a class="rh-download-btn" href="https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%202.wav" download="Bedroom-Session-2.wav" target="_blank" rel="noopener">Download</a>
+            </div>
+          </div>
+          <div class="rh-track-row">
+            <div class="rh-track-meta">
+              <span class="rh-track-num">03</span>
+              <div class="rh-track-headings">
+                <span class="rh-track-name">Bedroom Session 3</span>
+                <span class="rh-track-sub">Handpan · Improvised · Archive.org</span>
+              </div>
+            </div>
+            <div class="rh-track-actions">
+              <button type="button" class="rh-preview-btn" data-preview-src="https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%203.wav" aria-label="Preview Bedroom Session 3">
+                <svg class="rh-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+                <svg class="rh-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+              </button>
+              <a class="rh-download-btn" href="https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%203.wav" download="Bedroom-Session-3.wav" target="_blank" rel="noopener">Download</a>
+            </div>
+          </div>
+          <div class="rh-track-row">
+            <div class="rh-track-meta">
+              <span class="rh-track-num">04</span>
+              <div class="rh-track-headings">
+                <span class="rh-track-name">Bedroom Session 4</span>
+                <span class="rh-track-sub">Handpan · Improvised · Archive.org</span>
+              </div>
+            </div>
+            <div class="rh-track-actions">
+              <button type="button" class="rh-preview-btn" data-preview-src="https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%204.wav" aria-label="Preview Bedroom Session 4">
+                <svg class="rh-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+                <svg class="rh-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+              </button>
+              <a class="rh-download-btn" href="https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%204.wav" download="Bedroom-Session-4.wav" target="_blank" rel="noopener">Download</a>
+            </div>
+          </div>
+          <div class="rh-track-row">
+            <div class="rh-track-meta">
+              <span class="rh-track-num">05</span>
+              <div class="rh-track-headings">
+                <span class="rh-track-name">Bedroom Session 5</span>
+                <span class="rh-track-sub">Handpan · Improvised · Archive.org</span>
+              </div>
+            </div>
+            <div class="rh-track-actions">
+              <button type="button" class="rh-preview-btn" data-preview-src="https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%205.wav" aria-label="Preview Bedroom Session 5">
+                <svg class="rh-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+                <svg class="rh-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+              </button>
+              <a class="rh-download-btn" href="https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%205.wav" download="Bedroom-Session-5.wav" target="_blank" rel="noopener">Download</a>
+            </div>
+          </div>
+          <div class="rh-track-row">
+            <div class="rh-track-meta">
+              <span class="rh-track-num">06</span>
+              <div class="rh-track-headings">
+                <span class="rh-track-name">Bedroom Session 7</span>
+                <span class="rh-track-sub">Handpan · Improvised · Archive.org</span>
+              </div>
+            </div>
+            <div class="rh-track-actions">
+              <button type="button" class="rh-preview-btn" data-preview-src="https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%207.wav" aria-label="Preview Bedroom Session 7">
+                <svg class="rh-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+                <svg class="rh-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+              </button>
+              <a class="rh-download-btn" href="https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%207.wav" download="Bedroom-Session-7.wav" target="_blank" rel="noopener">Download</a>
+            </div>
+          </div>
+          <div class="rh-track-row">
+            <div class="rh-track-meta">
+              <span class="rh-track-num">07</span>
+              <div class="rh-track-headings">
+                <span class="rh-track-name">Bedroom Session 8</span>
+                <span class="rh-track-sub">Handpan · Improvised · Archive.org</span>
+              </div>
+            </div>
+            <div class="rh-track-actions">
+              <button type="button" class="rh-preview-btn" data-preview-src="https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%208.wav" aria-label="Preview Bedroom Session 8">
+                <svg class="rh-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+                <svg class="rh-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+              </button>
+              <a class="rh-download-btn" href="https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20session%208.wav" download="Bedroom-Session-8.wav" target="_blank" rel="noopener">Download</a>
+            </div>
+          </div>
+          <div class="rh-track-row">
+            <div class="rh-track-meta">
+              <span class="rh-track-num">08</span>
+              <div class="rh-track-headings">
+                <span class="rh-track-name">Bedroom Sessions (Master)</span>
+                <span class="rh-track-sub">Handpan Extended Session · Archive.org</span>
+              </div>
+            </div>
+            <div class="rh-track-actions">
+              <button type="button" class="rh-preview-btn" data-preview-src="https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20sessions%20-%2003.10.2026%2C%2022.29.wav" aria-label="Preview Bedroom Sessions (Master)">
+                <svg class="rh-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+                <svg class="rh-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+              </button>
+              <a class="rh-download-btn" href="https://archive.org/download/bedroom-sessions-03.10.2026-22.29/bedroom%20sessions%20-%2003.10.2026%2C%2022.29.wav" download="Bedroom-Sessions-Master.wav" target="_blank" rel="noopener">Download</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter Separator 06 -> 07 -->
+    <div class="rh-section-separator" aria-hidden="true" data-separator-index="5">
+      <div class="rh-separator-track">
+        <div class="rh-separator-line"></div>
+        <div class="rh-separator-glow-bar"></div>
+        <div class="rh-separator-node">
+          <span class="rh-separator-pulse"></span>
+          <span class="rh-separator-diamond"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 7: Philosophy & Patronage (Reveal: Epilogue Illumination) -->
+    <section class="rh-section reveal-epilogue pending-below" id="rhSec6" data-section-index="6" data-section-title="Road Notes">
+      <div class="rh-section-inner">
+        <div class="rh-sec-header">
+          <div class="rh-sec-meta">
+            <span>Chapter 07</span>
+            <span aria-hidden="true">·</span>
+            <span>Road Notes</span>
+          </div>
+          <h3 class="rh-sec-title">Things I figured out out here</h3>
+          <p class="rh-sec-lead">Mostly the hard way.</p>
+          <div class="rh-sec-hairline"></div>
+        </div>
+
+        <div class="rh-support-grid">
+          <ul class="rh-aphorisms">
+            <li class="rh-aphorism-item">The street performers come and go, and it's your job to appreciate the right ones.</li>
+            <li class="rh-aphorism-item">Most of the people who changed my life never left me a phone number.</li>
+            <li class="rh-aphorism-item">I was terrible when I started, so I played where somebody would pay me to leave. Then I got better.</li>
+            <li class="rh-aphorism-item">No commissioned stage has ever given me what a kid stopping in awe on a street corner gives me.</li>
+            <li class="rh-aphorism-item">A busker can pack up when he wants and take a day off when he wants, as long as he's disciplined enough not to starve.</li>
+            <li class="rh-aphorism-item">For me the music is the journey, not the product. That's why you won't find a polished album.</li>
+            <li class="rh-aphorism-item">The street doesn't pay on time and it doesn't pay the same twice, but nobody tells you when to stop.</li>
+          </ul>
+
+          <div class="rh-patron-card">
+            <a href="https://busk.co/84950/tip" target="_blank" rel="noopener noreferrer" class="rh-qr-frame" aria-label="Open busk.co tip page to support Ivar Karm">
+              <svg viewBox="0 0 27 27" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QR code linking to busk.co/84950">
+                <rect width="27" height="27" fill="#ffffff"/>
+                <path d="M1,1H2V2H1zM2,1H3V2H2zM3,1H4V2H3zM4,1H5V2H4zM5,1H6V2H5zM6,1H7V2H6zM7,1H8V2H7zM10,1H11V2H10zM12,1H13V2H12zM14,1H15V2H14zM17,1H18V2H17zM19,1H20V2H19zM20,1H21V2H20zM21,1H22V2H21zM22,1H23V2H22zM23,1H24V2H23zM24,1H25V2H24zM25,1H26V2H25zM1,2H2V3H1zM7,2H8V3H7zM9,2H10V3H9zM10,2H11V3H10zM11,2H12V3H11zM15,2H16V3H15zM19,2H20V3H19zM25,2H26V3H25zM1,3H2V4H1zM3,3H4V4H3zM4,3H5V4H4zM5,3H6V4H5zM7,3H8V4H7zM9,3H10V4H9zM13,3H14V4H13zM16,3H17V4H16zM19,3H20V4H19zM21,3H22V4H21zM22,3H23V4H22zM23,3H24V4H23zM25,3H26V4H25zM1,4H2V5H1zM3,4H4V5H3zM4,4H5V5H4zM5,4H6V5H5zM7,4H8V5H7zM9,4H10V5H9zM10,4H11V5H10zM14,4H15V5H14zM15,4H16V5H15zM16,4H17V5H16zM19,4H20V5H19zM21,4H22V5H21zM22,4H23V5H22zM23,4H24V5H23zM25,4H26V5H25zM1,5H2V6H1zM3,5H4V6H3zM4,5H5V6H4zM5,5H6V6H5zM7,5H8V6H7zM12,5H13V6H12zM13,5H14V6H13zM14,5H15V6H14zM15,5H16V6H15zM19,5H20V6H19zM21,5H22V6H21zM22,5H23V6H22zM23,5H24V6H23zM25,5H26V6H25zM1,6H2V7H1zM7,6H8V7H7zM10,6H11V7H10zM11,6H12V7H11zM17,6H18V7H17zM19,6H20V7H19zM25,6H26V7H25zM1,7H2V8H1zM2,7H3V8H2zM3,7H4V8H3zM4,7H5V8H4zM5,7H6V8H5zM6,7H7V8H6zM7,7H8V8H7zM9,7H10V8H9zM11,7H12V8H11zM13,7H14V8H13zM15,7H16V8H15zM17,7H18V8H17zM19,7H20V8H19zM20,7H21V8H20zM21,7H22V8H21zM22,7H23V8H22zM23,7H24V8H23zM24,7H25V8H24zM25,7H26V8H25zM9,8H10V9H9zM11,8H12V9H11zM13,8H14V9H13zM15,8H16V9H15zM16,8H17V9H16zM17,8H18V9H17zM1,9H2V10H1zM7,9H8V10H7zM9,9H10V10H9zM12,9H13V10H12zM14,9H15V10H14zM18,9H19V10H18zM19,9H20V10H19zM22,9H23V10H22zM23,9H24V10H23zM24,9H25V10H24zM4,10H5V11H4zM8,10H9V11H8zM11,10H12V11H11zM13,10H14V11H13zM16,10H17V11H16zM17,10H18V11H17zM18,10H19V11H18zM20,10H21V11H20zM21,10H22V11H21zM22,10H23V11H22zM23,10H24V11H23zM24,10H25V11H24zM1,11H2V12H1zM2,11H3V12H2zM3,11H4V12H3zM5,11H6V12H5zM7,11H8V12H7zM10,11H11V12H10zM15,11H16V12H15zM16,11H17V12H16zM17,11H18V12H17zM18,11H19V12H18zM19,11H20V12H19zM21,11H22V12H21zM22,11H23V12H22zM24,11H25V12H24zM25,11H26V12H25zM2,12H3V13H2zM3,12H4V13H3zM5,12H6V13H5zM8,12H9V13H8zM11,12H12V13H11zM13,12H14V13H13zM15,12H16V13H15zM16,12H17V13H16zM17,12H18V13H17zM18,12H19V13H18zM19,12H20V13H19zM22,12H23V13H22zM25,12H26V13H25zM6,13H7V14H6zM7,13H8V14H7zM8,13H9V14H8zM12,13H13V14H12zM13,13H14V14H13zM15,13H16V14H15zM17,13H18V14H17zM19,13H20V14H19zM20,13H21V14H20zM25,13H26V14H25zM1,14H2V15H1zM2,14H3V15H2zM3,14H4V15H3zM4,14H5V15H4zM5,14H6V15H5zM6,14H7V15H6zM15,14H16V15H15zM16,14H17V15H16zM17,14H18V15H17zM18,14H19V15H18zM20,14H21V15H20zM24,14H25V15H24zM1,15H2V16H1zM4,15H5V16H4zM5,15H6V16H5zM6,15H7V16H6zM7,15H8V16H7zM8,15H9V16H8zM12,15H13V16H12zM13,15H14V16H13zM16,15H17V16H16zM17,15H18V16H17zM19,15H20V16H19zM20,15H21V16H20zM21,15H22V16H21zM22,15H23V16H22zM24,15H25V16H24zM25,15H26V16H25zM1,16H2V17H1zM3,16H4V17H3zM4,16H5V17H4zM6,16H7V17H6zM10,16H11V17H10zM11,16H12V17H11zM12,16H13V17H12zM15,16H16V17H15zM16,16H17V17H16zM17,16H18V17H17zM18,16H19V17H18zM20,16H21V17H20zM22,16H23V17H22zM23,16H24V17H23zM25,16H26V17H25zM1,17H2V18H1zM3,17H4V18H3zM4,17H5V18H4zM7,17H8V18H7zM10,17H11V18H10zM11,17H12V18H11zM12,17H13V18H12zM16,17H17V18H16zM17,17H18V18H17zM18,17H19V18H18zM19,17H20V18H19zM20,17H21V18H20zM21,17H22V18H21zM23,17H24V18H23zM9,18H10V19H9zM10,18H11V19H10zM13,18H14V19H13zM14,18H15V19H14zM17,18H18V19H17zM21,18H22V19H21zM1,19H2V20H1zM2,19H3V20H2zM3,19H4V20H3zM4,19H5V20H4zM5,19H6V20H5zM6,19H7V20H6zM7,19H8V20H7zM10,19H11V20H10zM11,19H12V20H11zM12,19H13V20H12zM17,19H18V20H17zM19,19H20V20H19zM21,19H22V20H21zM25,19H26V20H25zM1,20H2V21H1zM7,20H8V21H7zM11,20H12V21H11zM13,20H14V21H13zM14,20H15V21H14zM16,20H17V21H16zM17,20H18V21H17zM21,20H22V21H21zM24,20H25V21H24zM25,20H26V21H25zM1,21H2V22H1zM3,21H4V22H3zM4,21H5V22H4zM5,21H6V22H5zM7,21H8V22H7zM11,21H12V22H11zM13,21H14V22H13zM15,21H16V22H15zM16,21H17V22H16zM17,21H18V22H17zM18,21H19V22H18zM19,21H20V22H19zM20,21H21V22H20zM21,21H22V22H21zM23,21H24V22H23zM24,21H25V22H24zM25,21H26V22H25zM1,22H2V23H1zM3,22H4V23H3zM4,22H5V23H4zM5,22H6V23H5zM7,22H8V23H7zM10,22H11V23H10zM11,22H12V23H11zM15,22H16V23H15zM18,22H19V23H18zM19,22H20V23H19zM24,22H25V23H24zM25,22H26V23H25zM1,23H2V24H1zM3,23H4V24H3zM4,23H5V24H4zM5,23H6V24H5zM7,23H8V24H7zM11,23H12V24H11zM12,23H13V24H12zM13,23H14V24H13zM17,23H18V24H17zM22,23H23V24H22zM23,23H24V24H23zM25,23H26V24H25zM1,24H2V25H1zM7,24H8V25H7zM11,24H12V25H11zM12,24H13V25H12zM15,24H16V25H15zM17,24H18V25H17zM20,24H21V25H20zM21,24H22V25H21zM25,24H26V25H25zM1,25H2V26H1zM2,25H3V26H2zM3,25H4V26H3zM4,25H5V26H4zM5,25H6V26H5zM6,25H7V26H6zM7,25H8V26H7zM9,25H10V26H9zM14,25H15V26H14zM15,25H16V26H15zM16,25H17V26H16zM17,25H18V26H17zM22,25H23V26H22zM25,25H26V26H25zM26,26H27V27H26z" fill="#000000"/>
+              </svg>
+            </a>
+            <p class="rh-tip-message">If this stuff meant something to you, you can tip me at busk.co/84950. It's what keeps me on the street instead of in a kitchen.</p>
+            <a href="https://busk.co/84950/tip" target="_blank" rel="noopener noreferrer" class="rh-tip-link-btn">
+              <span>Tip via busk.co/84950</span>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="./js/utilities.js?v=5" defer></script>
+<script src="./js/core.js?v=28" defer></script>
+<script src="./js/content.js?v=45" defer></script>
+<script src="./js/audio.js?v=30" defer></script>
+<script src="./js/physics.js?v=5" defer></script>
+<script src="./js/scenes-effects.js?v=45" defer></script>
+<script src="./js/scenes.js?v=50" defer></script>
+<script src="./js/ui.js?v=49" defer></script>
+<script src="./js/engine.js?v=5" defer></script>
+<script src="./script.js?v=36" defer></script>
+<script src="./js/analytics.js?v=31" defer></script>
+
+<script>
+// Emergency enter binding — runs immediately, independent of module load order
+(function(){
+  function dismissWelcome(){
+    try {
+      if (typeof startGame === 'function') { startGame(); return; }
+    } catch(e) {}
+    var w = document.getElementById('welcome');
+    if (w) {
+      w.classList.add('hidden');
+      w.style.opacity = '0';
+      w.style.pointerEvents = 'none';
+      w.style.display = 'none';
+    }
+    if (document.body) document.body.classList.remove('pre-enter');
+    try { if (typeof gameStarted !== 'undefined') gameStarted = true; } catch(e) {}
+  }
+  function bind(){
+    var btn = document.getElementById('welcomeEnter');
+    var wel = document.getElementById('welcome');
+    if (btn) {
+      btn.addEventListener('click', dismissWelcome);
+      btn.addEventListener('pointerup', dismissWelcome);
+    }
+    if (wel) {
+      wel.addEventListener('click', function(e){
+        if (e.target && e.target.closest && e.target.closest('a,button,input')) return;
+        dismissWelcome();
+      });
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+  else bind();
+})();
+</script>
+
+
+<script>
+(function initThemeToggle() {
+  var KEY = 'ivar_theme';
+  var btn = document.getElementById('themeToggleBtn');
+  var fab = document.getElementById('themeFabMobile');
+  var metaTheme = document.querySelector('meta[name="theme-color"]');
+  var buttons = [btn, fab].filter(Boolean);
+
+  function current() {
+    var t = document.documentElement.getAttribute('data-theme');
+    return t === 'light' ? 'light' : 'dark';
+  }
+
+  function syncIcons(el, isLight) {
+    if (!el) return;
+    var moon = el.querySelector('.icon-theme-moon');
+    var sun = el.querySelector('.icon-theme-sun');
+    if (moon) moon.style.display = isLight ? 'none' : 'block';
+    if (sun) sun.style.display = isLight ? 'block' : 'none';
+    el.setAttribute('aria-pressed', isLight ? 'true' : 'false');
+    el.setAttribute('aria-label', isLight ? 'Switch to dark mode' : 'Switch to light mode');
+  }
+
+  function apply(theme) {
+    theme = theme === 'light' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    try { document.documentElement.style.colorScheme = theme; } catch (e) {}
+    try { localStorage.setItem(KEY, theme); } catch (e) {}
+    if (metaTheme) metaTheme.setAttribute('content', theme === 'light' ? '#ebe4d4' : '#050505');
+    var isLight = theme === 'light';
+    buttons.forEach(function (b) { syncIcons(b, isLight); });
+    try {
+      if (typeof trackEvent === 'function') trackEvent('theme_toggle', { theme: theme });
+    } catch (e) {}
+  }
+
+  apply(current());
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      apply(current() === 'dark' ? 'light' : 'dark');
+    }, { passive: false });
+  });
+})();
+</script>
+
+</body>
+</html>
