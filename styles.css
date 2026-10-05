@@ -6351,3 +6351,207 @@ canvas#game {
   color: #3f3a32 !important;
   background: rgba(250, 247, 240, 0.85);
 }
+
+
+/* ==========================================================================
+   LIGHT MODE — Rabbit Hole full readability
+   ========================================================================== */
+[data-theme="light"] .rabbit-hole {
+  background: #e8e1d2 !important;
+  color: #1a1712 !important;
+  scrollbar-color: rgba(122, 98, 24, 0.45) transparent;
+}
+[data-theme="light"] .rabbit-hole::-webkit-scrollbar-thumb {
+  background: rgba(122, 98, 24, 0.4);
+}
+
+[data-theme="light"] .rh-sticky-header {
+  background: rgba(232, 225, 210, 0.94) !important;
+  border-bottom: 1px solid rgba(26, 23, 18, 0.12) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+[data-theme="light"] .rh-header-title,
+[data-theme="light"] .rh-header-breadcrumb,
+[data-theme="light"] .rh-header-progress-tag {
+  color: #1a1712 !important;
+}
+[data-theme="light"] .rh-close-btn {
+  color: #1a1712 !important;
+  border-color: rgba(26, 23, 18, 0.2) !important;
+  background: rgba(250, 247, 240, 0.85) !important;
+}
+[data-theme="light"] .rh-close-btn:hover {
+  color: #7a6218 !important;
+  border-color: rgba(122, 98, 24, 0.5) !important;
+}
+[data-theme="light"] .rh-toc-toggle-btn,
+[data-theme="light"] .rh-toc-floating-btn {
+  background: rgba(250, 247, 240, 0.92) !important;
+  border-color: rgba(122, 98, 24, 0.35) !important;
+  color: #7a6218 !important;
+}
+[data-theme="light"] .rh-toc-toggle-btn svg,
+[data-theme="light"] .rh-toc-floating-btn svg {
+  stroke: #7a6218 !important;
+}
+[data-theme="light"] .rh-toc-float-label {
+  color: #1a1712 !important;
+}
+
+[data-theme="light"] .rh-toc-drawer {
+  background: #f3eee3 !important;
+  border-left: 1px solid rgba(26, 23, 18, 0.12) !important;
+  color: #1a1712 !important;
+}
+[data-theme="light"] .rh-toc-backdrop {
+  background: rgba(40, 35, 25, 0.35) !important;
+}
+[data-theme="light"] .rh-toc-eyebrow,
+[data-theme="light"] .rh-toc-item-tag,
+[data-theme="light"] .rh-toc-item-badge {
+  color: #7a6218 !important;
+}
+[data-theme="light"] .rh-toc-heading,
+[data-theme="light"] .rh-toc-item-title,
+[data-theme="light"] .rh-toc-num,
+[data-theme="light"] .rh-toc-summary,
+[data-theme="light"] .rh-toc-item-desc,
+[data-theme="light"] .rh-toc-item-era,
+[data-theme="light"] .rh-toc-item-topline {
+  color: #1a1712 !important;
+}
+[data-theme="light"] .rh-toc-item {
+  background: rgba(250, 247, 240, 0.7) !important;
+  border-color: rgba(26, 23, 18, 0.1) !important;
+}
+[data-theme="light"] .rh-toc-item:hover,
+[data-theme="light"] .rh-toc-item.active {
+  background: rgba(250, 247, 240, 0.95) !important;
+  border-color: rgba(122, 98, 24, 0.4) !important;
+}
+[data-theme="light"] .rh-toc-close-btn {
+  color: #1a1712 !important;
+}
+[data-theme="light"] .rh-toc-item-arrow svg {
+  stroke: #7a6218 !important;
+}
+
+[data-theme="light"] .rh-chapter-follower .rh-progression-card,
+[data-theme="light"] .rh-progression-card {
+  background: rgba(250, 247, 240, 0.95) !important;
+  border: 1px solid rgba(26, 23, 18, 0.14) !important;
+  box-shadow: 0 10px 28px rgba(40, 30, 10, 0.12) !important;
+}
+[data-theme="light"] .rh-progression-eyebrow,
+[data-theme="light"] .rh-stat-highlight {
+  color: #7a6218 !important;
+}
+[data-theme="light"] .rh-progression-label,
+[data-theme="light"] .rh-progression-stat {
+  color: #3f3a32 !important;
+  background: rgba(26, 23, 18, 0.04) !important;
+  border-color: rgba(26, 23, 18, 0.1) !important;
+}
+[data-theme="light"] .rh-chapter-step {
+  background: linear-gradient(180deg, rgba(255, 253, 248, 0.95) 0%, rgba(232, 225, 210, 0.9) 100%) !important;
+  border-color: rgba(26, 23, 18, 0.12) !important;
+}
+[data-theme="light"] .rh-chapter-step:hover {
+  background: rgba(250, 247, 240, 1) !important;
+  border-color: rgba(122, 98, 24, 0.4) !important;
+}
+[data-theme="light"] .rh-chapter-step.active {
+  background: rgba(250, 247, 240, 1) !important;
+  border-color: rgba(122, 98, 24, 0.55) !important;
+  box-shadow: 0 4px 14px rgba(40, 30, 10, 0.1) !important;
+}
+[data-theme="light"] .rh-step-num,
+[data-theme="light"] .rh-step-name {
+  color: #3f3a32 !important;
+}
+[data-theme="light"] .rh-chapter-step.active .rh-step-num,
+[data-theme="light"] .rh-chapter-step.active .rh-step-name {
+  color: #7a6218 !important;
+}
+[data-theme="light"] .rh-step-indicator {
+  background: rgba(26, 23, 18, 0.12) !important;
+}
+
+[data-theme="light"] .rh-sec-meta,
+[data-theme="light"] .rh-sec-lead,
+[data-theme="light"] .rh-story-text,
+[data-theme="light"] .rh-instrument-desc,
+[data-theme="light"] .rh-artisan-desc,
+[data-theme="light"] .rh-track-sub,
+[data-theme="light"] .rh-aphorism-item,
+[data-theme="light"] .rh-patron-card,
+[data-theme="light"] .rh-section-inner {
+  color: #3f3a32 !important;
+}
+[data-theme="light"] .rh-sec-title,
+[data-theme="light"] .rh-instrument-title,
+[data-theme="light"] .rh-artisan-name,
+[data-theme="light"] .rh-track-name,
+[data-theme="light"] .rh-story-card h4,
+[data-theme="light"] .rh-story-feature {
+  color: #1a1712 !important;
+}
+
+[data-theme="light"] .rh-story-card,
+[data-theme="light"] .rh-story-feature,
+[data-theme="light"] .rh-instrument-card,
+[data-theme="light"] .rh-artisan-card,
+[data-theme="light"] .rh-track-row,
+[data-theme="light"] .rh-patron-card,
+[data-theme="light"] .rh-aphorism-item {
+  background: rgba(250, 247, 240, 0.92) !important;
+  border: 1px solid rgba(26, 23, 18, 0.12) !important;
+  color: #1a1712 !important;
+  box-shadow: 0 8px 24px rgba(40, 30, 10, 0.08) !important;
+}
+
+[data-theme="light"] .rh-gallery-backdrop,
+[data-theme="light"] .rh-backdrop-geometry,
+[data-theme="light"] .rh-parallax-aura {
+  opacity: 0.25 !important;
+  filter: none !important;
+}
+[data-theme="light"] .rh-flower-bg,
+[data-theme="light"] .rh-geometry-layer {
+  opacity: 0.15 !important;
+  stroke: rgba(122, 98, 24, 0.25) !important;
+}
+
+[data-theme="light"] .rh-preview-btn,
+[data-theme="light"] .rh-download-btn,
+[data-theme="light"] .rh-tip-link-btn,
+[data-theme="light"] a.rh-artisan-link {
+  color: #7a6218 !important;
+  border-color: rgba(122, 98, 24, 0.4) !important;
+  background: rgba(250, 247, 240, 0.9) !important;
+}
+[data-theme="light"] .rh-side-pip-dot {
+  background: rgba(26, 23, 18, 0.25) !important;
+  border-color: rgba(122, 98, 24, 0.4) !important;
+}
+[data-theme="light"] .rh-side-pip.active .rh-side-pip-dot {
+  background: #7a6218 !important;
+}
+[data-theme="light"] .rh-side-pip-label {
+  color: #1a1712 !important;
+}
+
+[data-theme="light"] .rh-separator-line,
+[data-theme="light"] .rh-separator-glow-bar {
+  background: rgba(122, 98, 24, 0.35) !important;
+}
+[data-theme="light"] .rh-progress-fill {
+  background: linear-gradient(90deg, #7a6218, #b8942a) !important;
+}
+
+[data-theme="light"] .rh-inst-meta,
+[data-theme="light"] .rh-inst-glyph {
+  color: #7a6218 !important;
+  border-color: rgba(122, 98, 24, 0.4) !important;
+}
