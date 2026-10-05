@@ -6951,3 +6951,41 @@ body.rabbit-hole-open .path-action-bar,
 body.qr-open .path-action-bar {
   display: none !important;
 }
+
+
+.path-rh-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem auto 0.25rem;
+  padding: 0.7rem 1.35rem;
+  background: transparent;
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  border-radius: 999px;
+  color: var(--accent-gold, #c9a227);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.path-rh-btn:hover,
+.path-rh-btn:focus-visible {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: var(--accent-gold, #c9a227);
+  color: var(--text-primary, #f0ece4);
+  outline: none;
+  transform: translateY(-1px);
+}
+[data-theme="light"] .path-rh-btn {
+  color: #7a6218;
+  border-color: rgba(122, 98, 24, 0.45);
+}
+[data-theme="light"] .path-rh-btn:hover {
+  color: #1a1712;
+  background: rgba(122, 98, 24, 0.1);
+}

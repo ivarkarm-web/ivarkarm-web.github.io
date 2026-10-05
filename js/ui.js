@@ -2629,6 +2629,14 @@ function playGoldParticleCurtain(options) {
     });
   }
   const enterBtn = document.getElementById('s7EnterRabbitHoleBtn');
+  const storyRhBtn = document.getElementById('storyEnterRabbitHoleBtn');
+  if (storyRhBtn) {
+    storyRhBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openRabbitHoleScreen();
+    });
+  }
   if (enterBtn) {
     enterBtn.addEventListener('click', (e) => {
       e.preventDefault();
