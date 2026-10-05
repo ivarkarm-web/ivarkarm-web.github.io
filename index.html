@@ -397,7 +397,7 @@
   </div>
 
   <!-- Contact -->
-  <div class="section with-backdrop path-plate" id="contact" data-section-id="s6" role="region" aria-label="Invite, book, or collaborate" role="region" aria-label="Invite, book, or collaborate">
+  <div class="section with-backdrop path-plate" id="contact" data-section-id="s6" role="region" aria-label="Invite, book, or collaborate">
     <span class="eyebrow">Invite · Book · Collaborate</span>
     <h2>Bring the music into the room.</h2>
     <div class="hairline"></div>
@@ -432,6 +432,33 @@
         <svg viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816.029-6.185.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
         <span class="contact-label">YouTube</span>
       </a>
+    </div>
+    <div class="contact-book-cta">
+      <button type="button" class="book-me-button" id="bookMeButton" aria-haspopup="dialog" aria-controls="bookingModal"><span>Book me</span><span aria-hidden="true">↗</span></button>
+    </div>
+  </div>
+
+  <div class="booking-modal" id="bookingModal" aria-hidden="true">
+    <div class="booking-modal-backdrop" id="bookingModalBackdrop"></div>
+    <div class="booking-dialog" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
+      <button type="button" class="booking-close" id="bookingClose" aria-label="Close booking form">×</button>
+      <div class="booking-eyebrow">Booking enquiry</div>
+      <h2 id="bookingTitle">Bring the music into the room.</h2>
+      <p class="booking-intro">Tell me a little about the event. I’ll get back to you at the email address you provide.</p>
+      <form id="bookingForm" class="booking-form" action="mailto:ivar.karm@gmail.com" method="post" enctype="text/plain">
+        <div class="booking-grid">
+          <label><span>Your name</span><input name="name" type="text" autocomplete="name" required></label>
+          <label><span>Your email</span><input name="email" type="email" autocomplete="email" required></label>
+          <label><span>Event type</span><select name="event_type" required><option value="" selected disabled>Select one</option><option>Private event</option><option>Festival / concert</option><option>Cultural space</option><option>Film / installation</option><option>Collaboration</option><option>Other</option></select></label>
+          <label><span>Event date</span><input name="event_date" type="date"></label>
+          <label><span>Location</span><input name="location" type="text" placeholder="City / venue"></label>
+          <label><span>Approx. duration</span><select name="duration"><option value="" selected>Not sure yet</option><option>15–30 min</option><option>30–60 min</option><option>60–90 min</option><option>2+ hours</option></select></label>
+        </div>
+        <label><span>Tell me about it</span><textarea name="message" rows="5" placeholder="What are you planning, and what would you like the music to be part of?"></textarea></label>
+        <label class="booking-honeypot" aria-hidden="true">Leave this empty<input name="_gotcha" tabindex="-1" autocomplete="off"></label>
+        <div class="booking-form-footer"><span class="booking-note">No commitment — this is an enquiry.</span><button type="submit" class="booking-submit">Send enquiry <span aria-hidden="true">↗</span></button></div>
+        <p class="booking-status" id="bookingStatus" role="status" aria-live="polite"></p>
+      </form>
     </div>
   </div>
 
