@@ -8,7 +8,19 @@
   <meta name="keywords" content="Ivar Karm, handpan artist, street performer, improviser, Estonian handpan, Athens busker, Berlin street music, European busker, acoustic handpan, handpan resonance, meditation music">
   <meta name="author" content="Ivar Karm">
   <meta name="theme-color" content="#050505">
-  <meta name="color-scheme" content="dark">
+  <meta name="color-scheme" content="dark light">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('ivar_theme');
+        if (t !== 'light' && t !== 'dark') t = 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        document.documentElement.style.colorScheme = t;
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <link rel="canonical" href="https://ivarkarm-web.github.io/">
 
@@ -112,7 +124,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340..600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=32">
+  <link rel="stylesheet" href="./styles.css?v=33">
   <!-- GSAP & ScrollTrigger for standalone direct-branch hosting -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -173,6 +185,15 @@
         <path d="M11 5L6 9H2v6h4l5 4V5z"/>
         <line x1="23" y1="9" x2="17" y2="15"/>
         <line x1="17" y1="9" x2="23" y2="15"/>
+      </svg>
+    </button>
+    <button type="button" class="nav-action-btn nav-action-btn--icon" id="themeToggleBtn" aria-label="Switch to light mode" title="Theme" aria-pressed="false">
+      <svg class="icon-theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 7 7 0 1 0 21 14.5z"/>
+      </svg>
+      <svg class="icon-theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="display:none;">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
       </svg>
     </button>
     <button type="button" class="nav-action-btn nav-action-btn--icon" id="tipButton" aria-label="Tip / support" title="Tip via busk.co">
@@ -1449,6 +1470,48 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
   else bind();
+})();
+</script>
+
+
+<script>
+(function initThemeToggle() {
+  var KEY = 'ivar_theme';
+  var btn = document.getElementById('themeToggleBtn');
+  var metaTheme = document.querySelector('meta[name="theme-color"]');
+
+  function current() {
+    var t = document.documentElement.getAttribute('data-theme');
+    return t === 'light' ? 'light' : 'dark';
+  }
+
+  function apply(theme) {
+    theme = theme === 'light' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    try { document.documentElement.style.colorScheme = theme; } catch (e) {}
+    try { localStorage.setItem(KEY, theme); } catch (e) {}
+    if (metaTheme) metaTheme.setAttribute('content', theme === 'light' ? '#ebe4d4' : '#050505');
+    if (btn) {
+      var isLight = theme === 'light';
+      btn.setAttribute('aria-pressed', isLight ? 'true' : 'false');
+      btn.setAttribute('aria-label', isLight ? 'Switch to dark mode' : 'Switch to light mode');
+      var moon = btn.querySelector('.icon-theme-moon');
+      var sun = btn.querySelector('.icon-theme-sun');
+      // Moon shown in dark mode (click for light); sun shown in light mode (click for dark)
+      if (moon) moon.style.display = isLight ? 'none' : 'block';
+      if (sun) sun.style.display = isLight ? 'block' : 'none';
+    }
+    try {
+      if (typeof trackEvent === 'function') trackEvent('theme_toggle', { theme: theme });
+    } catch (e) {}
+  }
+
+  apply(current());
+  if (btn) {
+    btn.addEventListener('click', function () {
+      apply(current() === 'dark' ? 'light' : 'dark');
+    });
+  }
 })();
 </script>
 
