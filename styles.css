@@ -6100,3 +6100,102 @@ canvas#game {
   height: 18px;
   display: block;
 }
+
+
+/* Mobile: theme toggle always reachable, large touch target */
+@media (max-width: 768px), (pointer: coarse) {
+  nav {
+    padding: 0.85rem 0.85rem 0.85rem 1rem;
+    gap: 0.5rem;
+  }
+  .nav-right-actions {
+    gap: 0.35rem;
+    flex-shrink: 0;
+  }
+  .nav-btn-label {
+    display: none; /* icon-only monograph on small screens */
+  }
+  .nav-action-btn--icon,
+  #themeToggleBtn,
+  #audioToggleBtn,
+  #tipButton {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  #monographToggleBtn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+  #themeToggleBtn {
+    order: -1; /* sit near the leading edge of actions for thumb reach */
+    border-color: rgba(201, 162, 39, 0.4);
+    background: rgba(12, 12, 12, 0.75);
+  }
+  [data-theme="light"] #themeToggleBtn {
+    background: rgba(255, 253, 248, 0.9);
+    border-color: rgba(143, 115, 32, 0.4);
+  }
+  #themeToggleBtn:active {
+    transform: scale(0.96);
+    background: rgba(201, 162, 39, 0.2);
+  }
+  #themeToggleBtn svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Fixed fallback control when welcome is up (nav may be hard to see) */
+.theme-fab-mobile {
+  display: none;
+}
+@media (max-width: 768px), (pointer: coarse) {
+  .theme-fab-mobile {
+    display: flex;
+    position: fixed;
+    top: max(0.75rem, env(safe-area-inset-top));
+    right: max(0.75rem, env(safe-area-inset-right));
+    z-index: 1100;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid rgba(201, 162, 39, 0.4);
+    background: rgba(8, 8, 10, 0.75);
+    color: var(--accent-gold, #c9a227);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  [data-theme="light"] .theme-fab-mobile {
+    background: rgba(255, 253, 248, 0.88);
+    color: var(--accent-gold);
+  }
+  .theme-fab-mobile svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+  }
+  /* Hide FAB when main nav theme btn is usable after enter — keep both wired to same handler */
+  body:not(.pre-enter) .theme-fab-mobile {
+    display: none;
+  }
+  body.pre-enter #themeToggleBtn {
+    /* still show in nav if nav visible over welcome */
+  }
+  body.rabbit-hole-open .theme-fab-mobile,
+  body.qr-open .theme-fab-mobile {
+    display: none !important;
+  }
+}
