@@ -7417,3 +7417,30 @@ body.rabbit-hole-open .welcome {
   z-index: 4551 !important;
   pointer-events: none !important;
 }
+
+/* Partners: only the rounded pill (.partner-card-face) is visible.
+   The outer link must stay a bare, borderless wrapper in every theme — the older
+   [data-theme] .partner-card rules paint a sharp rectangle on it otherwise. */
+:root .partner-card.partner-card--flip,
+:root .partner-card.partner-card--flip:hover,
+:root:not([data-theme="light"]) .partner-card.partner-card--flip,
+:root:not([data-theme="light"]) .partner-card.partner-card--flip:hover,
+[data-theme="dark"] .partner-card.partner-card--flip,
+[data-theme="dark"] .partner-card.partner-card--flip:hover,
+[data-theme="light"] .partner-card.partner-card--flip,
+[data-theme="light"] .partner-card.partner-card--flip:hover {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline-offset: 4px;
+}
+/* Let the pill's own shadow fall naturally (no rectangular clip) and drop the
+   square gradient hover outline that belonged to the old boxed cards. */
+.partner-card.partner-card--flip {
+  overflow: visible !important;
+}
+.partner-card.partner-card--flip::before,
+.partner-card.partner-card--flip .partner-shine {
+  display: none !important;
+}
