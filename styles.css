@@ -7444,3 +7444,82 @@ body.rabbit-hole-open .welcome {
 .partner-card.partner-card--flip .partner-shine {
   display: none !important;
 }
+
+
+/* ==========================================================================
+   CONTACT PATHWAYS — professional enquiry layer
+   ========================================================================== */
+.contact-pathways {
+  width: 100%;
+  max-width: 720px;
+  margin: 1.7rem auto 2rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+  text-align: left;
+}
+.contact-pathway {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: 0.8rem;
+  min-height: 112px;
+  padding: 1rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: transform 0.35s var(--ease-drift), border-color 0.35s ease, background 0.35s ease;
+}
+.contact-pathway:hover,
+.contact-pathway:focus-visible {
+  transform: translateY(-3px);
+  border-color: var(--border-gold);
+  background: rgba(201,162,39,0.055);
+  outline: none;
+}
+.contact-pathway-index {
+  font: 500 0.62rem/1 Inter, sans-serif;
+  letter-spacing: 0.12em;
+  color: var(--accent-gold);
+  padding-top: 0.18rem;
+}
+.contact-pathway strong {
+  display: block;
+  font: 400 0.92rem/1.25 Inter, sans-serif;
+  letter-spacing: 0.01em;
+  margin-bottom: 0.42rem;
+}
+.contact-pathway small {
+  display: block;
+  color: var(--text-muted);
+  font: 300 0.67rem/1.45 Inter, sans-serif;
+}
+.contact-pathway-arrow {
+  color: var(--accent-gold);
+  font: 400 0.9rem/1 Inter, sans-serif;
+  opacity: 0.65;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.contact-pathway:hover .contact-pathway-arrow,
+.contact-pathway:focus-visible .contact-pathway-arrow {
+  opacity: 1;
+  transform: translate(2px, -2px);
+}
+@media (max-width: 760px) {
+  .contact-pathways {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+  }
+  .contact-pathway {
+    min-height: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact-pathway,
+  .contact-pathway-arrow {
+    transition: none;
+  }
+}

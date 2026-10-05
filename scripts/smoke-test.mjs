@@ -73,6 +73,14 @@ else fail('Missing meta description');
 if (html.includes('rel="canonical"')) ok('Canonical URL present');
 else warn('No canonical link');
 
+// Artist identity / navigation
+if (html.includes('id="contact"') && html.includes('Invite')) ok('Stable #contact anchor and professional Invite label present');
+else fail('Contact navigation target or Invite label missing');
+if (html.includes('https://www.instagram.com/ivar.karm/') && html.includes('https://www.youtube.com/@IvarKarm')) ok('Artist social identity links present');
+else fail('Artist social identity links missing');
+if (html.includes('class="contact-pathways"') && html.includes('Live performance') && html.includes('Collaboration')) ok('Professional enquiry pathways present');
+else fail('Professional enquiry pathways missing');
+
 // Analytics
 if (analytics.includes('IvarAnalytics') && analytics.includes('track(')) ok('Analytics API present');
 else fail('Analytics API incomplete');
