@@ -135,6 +135,46 @@ const allText = html + (read('js/ui.js') || '');
 if (/ghp_[A-Za-z0-9]{20,}/.test(allText)) fail('Possible GitHub token in source');
 else ok('No obvious GitHub token in scanned source');
 
+
+// Architecture: music is a bounded subsystem, not part of the monolithic UI controller.
+const musicDataPos = html.indexOf('js/music-data.js');
+const musicPlayerPos = html.indexOf('js/music-player.js');
+const uiPos = html.indexOf('js/ui.js');
+if (musicDataPos >= 0 && musicPlayerPos > musicDataPos && uiPos > musicPlayerPos) ok('Music modules load before UI controller');
+else fail('Music module load order is invalid');
+
+const uiSource = read('js/ui.js') || '';
+const musicPlayerSource = read('js/music-player.js') || '';
+if (!/const\s+MUSIC_TRACKS\s*=/.test(uiSource)) ok('UI controller no longer owns music catalogue');
+else fail('UI controller still declares MUSIC_TRACKS');
+if (/const\s+MUSIC_TRACKS\s*=/.test(musicPlayerSource) && musicPlayerSource.includes('function initMusicPlayer')) ok('Music player owns catalogue binding and initialization');
+else fail('Music player module boundary is incomplete');
+
+// Lightweight syntax validation for every JavaScript source file.
+const jsFiles = [];
+function collectJs(dir) {
+  const abs = path.join(root, dir);
+  if (!fs.existsSync(abs)) return;
+  for (const entry of fs.readdirSync(abs, { withFileTypes: true })) {
+    const rel = path.join(dir, entry.name);
+    if (entry.isDirectory()) collectJs(rel);
+    else if (entry.isFile() && entry.name.endsWith('.js')) jsFiles.push(rel);
+  }
+}
+collectJs('.');
+for (const rel of jsFiles) {
+  const source = fs.readFileSync(path.join(root, rel), 'utf8');
+  // This test intentionally avoids execution; it catches broken refactors without browser globals.
+  try {
+    const { spawnSync } = await import('child_process');
+    const check = spawnSync(process.execPath, ['--check', path.join(root, rel)], { encoding: 'utf8' });
+    if (check.status === 0) ok(`JS syntax: ${rel}`);
+    else fail(`JS syntax: ${rel}${check.stderr ? ' — ' + check.stderr.trim().split('\n')[0] : ''}`);
+  } catch (e) {
+    warn(`Could not syntax-check ${rel}: ${e.message}`);
+  }
+}
+
 console.log('');
 if (errors.length) {
   console.error(`FAILED · ${errors.length} error(s), ${warnings.length} warning(s)`);
