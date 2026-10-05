@@ -124,7 +124,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340..600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=50">
+  <link rel="stylesheet" href="./styles.css?v=51">
   <!-- GSAP & ScrollTrigger for standalone direct-branch hosting -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -314,38 +314,50 @@
   </div>
 
   <!-- Partners -->
-  <div class="section with-backdrop path-plate" id="s5" role="region" aria-label="Partners">
+  <div class="section with-backdrop path-plate path-plate--partners" id="s5" role="region" aria-label="Partners">
     <span class="eyebrow">Who makes the instrument</span>
     <h2>Partners</h2>
     <div class="hairline"></div>
     <p class="lead">Makers I work with and recommend.</p>
-        <div class="partners-list partners-list--stack" id="partnersList">
-      <a href="https://www.instagram.com/heka.handpans/" target="_blank" rel="noopener noreferrer" class="partner-card partner-card--compact" data-partner="heka">
-        <div class="partner-mark partner-mark--heka">
-          <img class="partner-logo-img" src="assets/partners/heka.jpg" alt="Heka Handpans" width="48" height="48" loading="lazy" decoding="async" />
-        </div>
-        <div class="partner-meta">
-          <span class="partner-tag">01 · Craft</span>
-          <span class="partner-name">Heka Handpans <span class="partner-loc-inline">(Greece)</span></span>
-        </div>
+    <div class="partners-list partners-list--flip" id="partnersList">
+      <a href="https://www.instagram.com/heka.handpans/" target="_blank" rel="noopener noreferrer" class="partner-card partner-card--flip" data-partner="heka">
+        <span class="partner-card-face">
+          <span class="partner-mark partner-mark--heka">
+            <img class="partner-logo-img" src="assets/partners/heka.jpg" alt="" width="48" height="48" loading="lazy" decoding="async" />
+          </span>
+          <span class="partner-meta">
+            <span class="partner-tag">01 · Craft</span>
+            <span class="partner-name">Heka Handpans</span>
+            <span class="partner-loc-inline">Greece</span>
+          </span>
+          <span class="partner-card-arrow" aria-hidden="true">→</span>
+        </span>
       </a>
-      <a href="https://godan.nl/en/godan/" target="_blank" rel="noopener noreferrer" class="partner-card partner-card--compact" data-partner="godan">
-        <div class="partner-mark partner-mark--godan">
-          <img class="partner-logo-img" src="assets/partners/godan.jpg" alt="Godan Handpans" width="48" height="48" loading="lazy" decoding="async" />
-        </div>
-        <div class="partner-meta">
-          <span class="partner-tag">02 · Craft</span>
-          <span class="partner-name">Godan Handpans <span class="partner-loc-inline">(Netherlands)</span></span>
-        </div>
+      <a href="https://godan.nl/en/godan/" target="_blank" rel="noopener noreferrer" class="partner-card partner-card--flip" data-partner="godan">
+        <span class="partner-card-face">
+          <span class="partner-mark partner-mark--godan">
+            <img class="partner-logo-img" src="assets/partners/godan.jpg" alt="" width="48" height="48" loading="lazy" decoding="async" />
+          </span>
+          <span class="partner-meta">
+            <span class="partner-tag">02 · Craft</span>
+            <span class="partner-name">Godan Handpans</span>
+            <span class="partner-loc-inline">Netherlands</span>
+          </span>
+          <span class="partner-card-arrow" aria-hidden="true">→</span>
+        </span>
       </a>
-      <a href="https://namana-bags.com/" target="_blank" rel="noopener noreferrer" class="partner-card partner-card--compact" data-partner="namana">
-        <div class="partner-mark partner-mark--namana">
-          <img class="partner-logo-img" src="assets/partners/namana.jpg" alt="Namana Bags" width="48" height="48" loading="lazy" decoding="async" />
-        </div>
-        <div class="partner-meta">
-          <span class="partner-tag">03 · Travel</span>
-          <span class="partner-name">Namana Bags <span class="partner-loc-inline">(Cases &amp; travel)</span></span>
-        </div>
+      <a href="https://namana-bags.com/" target="_blank" rel="noopener noreferrer" class="partner-card partner-card--flip" data-partner="namana">
+        <span class="partner-card-face">
+          <span class="partner-mark partner-mark--namana">
+            <img class="partner-logo-img" src="assets/partners/namana.jpg" alt="" width="48" height="48" loading="lazy" decoding="async" />
+          </span>
+          <span class="partner-meta">
+            <span class="partner-tag">03 · Travel</span>
+            <span class="partner-name">Namana Bags</span>
+            <span class="partner-loc-inline">Cases &amp; travel</span>
+          </span>
+          <span class="partner-card-arrow" aria-hidden="true">→</span>
+        </span>
       </a>
     </div>
   </div>
@@ -1389,7 +1401,7 @@
 <script src="./js/audio.js?v=30" defer></script>
 <script src="./js/physics.js?v=5" defer></script>
 <script src="./js/scenes-effects.js?v=45" defer></script>
-<script src="./js/scenes.js?v=50" defer></script>
+<script src="./js/scenes.js?v=51" defer></script>
 <script src="./js/ui.js?v=49" defer></script>
 <script src="./js/engine.js?v=5" defer></script>
 <script src="./script.js?v=36" defer></script>
