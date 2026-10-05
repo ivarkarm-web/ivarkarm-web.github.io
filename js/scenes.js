@@ -120,7 +120,7 @@ function updateSections() {
   let closestIndex = 0;
   let closestDistance = Infinity;
   sectionPositions.forEach((pos, index) => {
-    const sectionEl = document.getElementById('s' + index);
+    const sectionEl = document.getElementById('s' + index) || document.querySelector('[data-section-id="s' + index + '"]');
     const distance = pos.x - x;
     if (Math.abs(distance) < closestDistance) {
       closestDistance = Math.abs(distance);
@@ -151,6 +151,8 @@ function updateSections() {
       }
       if (index === 6 && !contactIconsAnimated) {
         document.querySelectorAll('.contact-icon').forEach(el => el.classList.add('visible'));
+        const bookButton = document.getElementById('bookMeButton');
+        if (bookButton) window.setTimeout(() => bookButton.classList.add('visible'), 620);
         contactIconsAnimated = true;
       }
     } else {
