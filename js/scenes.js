@@ -1245,14 +1245,14 @@ function updateSections() {
     const terrainY = getGround(pos.x);
     const verticalOffset = (viewH * 0.5 - terrainY) * 0.3;
     sectionEl.style.transform = 'translate(calc(-50% + ' + parallaxX + 'px), calc(-50% + ' + verticalOffset + 'px))';
-    const revealRange = (index === 6) ? 900 : 800;
+    const revealRange = (index === 0) ? 700 : (index === 6) ? 1000 : 1100;
     if (Math.abs(distance) < revealRange) {
       sectionEl.classList.add('visible');
       let opacity = Math.max(0, 1 - (Math.abs(distance) / revealRange));
       if (index === 6 && x > CONTACT_X && endOfRoadState.fading) {
         opacity *= endOfRoadState.fade;
       }
-      sectionEl.style.opacity = opacity;
+      sectionEl.style.opacity = String(Math.min(1, Math.max(0.15, opacity)));
       if (!sectionRevealed.has(index)) {
         sectionRevealed.add(index);
         revealSectionContent(sectionEl);

@@ -6989,3 +6989,52 @@ body.qr-open .path-action-bar {
   color: #1a1712;
   background: rgba(122, 98, 24, 0.1);
 }
+
+
+/* Path sections: always show content when plate is active (avoid stuck GSAP opacity) */
+.section.visible > *,
+.section.visible .route-map,
+.section.visible .path-rh-btn,
+.section.visible .partner-card {
+  visibility: visible;
+}
+.section.visible .path-rh-btn {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  display: inline-flex !important;
+  position: relative;
+  z-index: 5;
+}
+#sections {
+  z-index: 200 !important;
+}
+.section.visible {
+  z-index: 1300;
+}
+/* Compact route so RH button fits on phone */
+@media (max-width: 768px) {
+  #s2.section {
+    max-height: min(82dvh, calc(100dvh - 5.5rem));
+    padding-bottom: 1.5rem;
+  }
+  #s2 .route-map {
+    margin: 0.65rem auto 0.4rem;
+    padding-left: 0.75rem;
+  }
+  #s2 .route-stop {
+    margin-bottom: 0.35rem;
+  }
+  #s2 .route-place {
+    font-size: 0.92rem;
+  }
+  #s2 .route-note {
+    font-size: 0.68rem;
+  }
+  #s2 .path-rh-btn {
+    margin-top: 0.65rem;
+    margin-bottom: 0.5rem;
+  }
+  #s1.section {
+    max-height: min(82dvh, calc(100dvh - 5.5rem));
+  }
+}
