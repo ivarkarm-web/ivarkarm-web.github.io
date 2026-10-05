@@ -39,6 +39,11 @@ const required = [
   'js/scenes-effects.js',
   'js/physics.js',
   'js/utilities.js',
+  'js/easter-egg.js',
+  'js/handpan.js',
+  'easter-egg.css',
+  'handpan.html',
+  'handpan.css',
   'og-cover.jpg',
   'sitemap.xml',
   'robots.txt',
@@ -84,6 +89,26 @@ if (scenes.includes('function showMemoryShard') && !scenes.match(/showMemoryShar
 } else {
   fail('showMemoryShard appears suppressed');
 }
+
+// Hidden Handpan easter egg
+const eggJs = read('js/easter-egg.js') || '';
+const hpJs = read('js/handpan.js') || '';
+const hpHtml = read('handpan.html') || '';
+const hpCss = read('handpan.css') || '';
+if (html.includes('id="eggFound"') && html.includes('Easter egg found!') && html.includes('>Play Me<')) ok('Easter egg notice + Play Me markup present');
+else fail('Easter egg markup missing from index.html');
+if (html.includes('js/easter-egg.js') && html.includes('easter-egg.css')) ok('Easter egg script + stylesheet linked');
+else fail('Easter egg not linked from index.html');
+if (eggJs.includes('freezeMainAudio') && eggJs.includes('suspend()')) ok('Main audio is frozen before entering the Handpan');
+else fail('Easter egg must freeze main audio');
+if (/NOTES\s*=\s*\[/.test(hpJs) && ['E3', 'B3', 'D4', 'E4', 'D5', 'E5', 'G5', 'B5'].every((n) => hpJs.includes("'" + n + "'"))) ok('Handpan scale present (E Kurd, 13 notes)');
+else fail('Handpan scale incomplete');
+if (hpJs.includes('e.repeat') && hpJs.includes('keysDown')) ok('Handpan blocks key-repeat loops');
+else fail('Handpan must block key repeat');
+if (/touch-action:\s*none/.test(hpCss) && hpHtml.includes('maximum-scale=1')) ok('Handpan touch-action / zoom overrides present');
+else fail('Handpan missing touch-action / zoom overrides');
+if (/noindex/.test(hpHtml)) ok('Handpan page is noindex (hidden)');
+else warn('Handpan page should be noindex');
 
 // Critical IDs
 ['welcomeEnter', 'game', 'rabbit-hole', 'directMonographModal', 'qrPopup', 'mpAudio', 'tipButton'].forEach((id) => {

@@ -55,3 +55,17 @@ World coordinates, stones, and vegetation data live in `js/content.js`.
 | `js/scenes.js` | Botanical models, terrain, landmarks, camera, section update, ball drawing |
 
 Load order places `scenes-effects.js` before `scenes.js`.
+
+## Hidden Handpan (easter egg)
+
+| File | Responsibility |
+|------|----------------|
+| `js/easter-egg.js` | Reads `x`, `gameStarted`, `leftSecretState` (read-only). At the left-hill summit shows "Easter egg found!", then a "Play Me" button; on click freezes all main-site audio and teleports to `handpan.html` |
+| `easter-egg.css` | Notice typography, reuse of `.welcome-enter` for the button, iris / ring / spark transition |
+| `handpan.html` | Standalone page (noindex, not in sitemap) |
+| `handpan.css` | Dark atmosphere, tokens mirrored from `styles.css`, `touch-action: none` overrides |
+| `js/handpan.js` | Own `AudioContext` (polyphonic synth: partials + strike noise + procedural reverb), E Kurd 13-note layout, keyboard (no key-repeat) and multi-touch pointers, particle / ripple backdrop |
+
+The main site and the Handpan never share an `AudioContext`. The road suspends its context (and pauses any music / orb / preview audio) before navigating; if the browser restores the road from the back/forward cache it resumes them.
+
+Notes: `q` E3 · `w` B3 · `e` D4 · `r` E4 · `t` F♯4 · `y` G4 · `u` A4 · `i` B4 · `o` D5 · `p` E5 · `a` F♯5 · `s` G5 · `d` B5.

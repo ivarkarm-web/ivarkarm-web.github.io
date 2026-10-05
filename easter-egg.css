@@ -1,0 +1,224 @@
+/* ==========================================================================
+   Easter egg — hidden Handpan page trigger (summit of the left hill)
+   Typography, button and motion language reuse the live site's tokens.
+   The "Play Me" button is a real .welcome-enter, so fonts, border, radius
+   and hover/focus states stay identical to the Enter button.
+   ========================================================================== */
+
+.egg {
+  position: fixed;
+  left: 50%;
+  top: 38%;
+  z-index: 1300;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.15rem;
+  padding: 2.2rem 1.6rem;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.9s var(--ease-reveal, cubic-bezier(0.22, 1, 0.36, 1)), visibility 0s linear 0.9s;
+}
+
+.egg.is-on {
+  visibility: visible;
+  opacity: 1;
+  transition-delay: 0s;
+}
+
+/* soft dark pool behind the words so they read over the summit scenery */
+.egg-glow {
+  position: absolute;
+  inset: -35% -45%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 50% 42% at 50% 50%, rgba(212, 175, 55, 0.1), transparent 70%),
+    radial-gradient(ellipse at 50% 50%, rgba(5, 5, 5, 0.6) 0%, rgba(5, 5, 5, 0) 68%);
+}
+
+.egg-title {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2rem, 6.4vw, 3.5rem);
+  font-weight: 380;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--text-primary);
+  text-shadow: 0 0 42px rgba(212, 175, 55, 0.28);
+  opacity: 0;
+  transform: translateY(12px);
+  filter: blur(6px);
+  transition: opacity 1s var(--ease-reveal, cubic-bezier(0.22, 1, 0.36, 1)),
+              transform 1.1s var(--ease-reveal, cubic-bezier(0.22, 1, 0.36, 1)),
+              filter 1s var(--ease-reveal, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.egg.is-on .egg-title {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition-delay: 0.15s;
+}
+
+.egg-hairline {
+  width: 36px;
+  height: 2px;
+  background: var(--accent-gold);
+  opacity: 0;
+  transform: scaleX(0);
+  transition: opacity 0.8s ease 0.5s, transform 0.9s var(--ease-reveal, cubic-bezier(0.22, 1, 0.36, 1)) 0.5s;
+}
+
+.egg.is-on .egg-hairline {
+  opacity: 0.65;
+  transform: scaleX(1);
+}
+
+/* "Play Me" = .welcome-enter (same border, radius, font, hover). Only the reveal is added here. */
+.egg .egg-play {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.9s var(--ease-reveal, cubic-bezier(0.22, 1, 0.36, 1)),
+              transform 0.9s var(--ease-reveal, cubic-bezier(0.22, 1, 0.36, 1)),
+              background 0.4s, border-color 0.4s, box-shadow 0.4s;
+}
+
+.egg.is-cta .egg-play {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+  animation: eggPlayPulse 3.2s ease-in-out 1s infinite;
+}
+
+.egg.is-cta .egg-play:hover,
+.egg.is-cta .egg-play:focus-visible {
+  animation: none;
+}
+
+@keyframes eggPlayPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(212, 175, 55, 0); }
+  50%      { box-shadow: 0 0 26px rgba(212, 175, 55, 0.2); }
+}
+
+[data-theme="light"] .egg-glow {
+  background:
+    radial-gradient(ellipse 50% 42% at 50% 50%, rgba(160, 125, 20, 0.08), transparent 70%),
+    radial-gradient(ellipse at 50% 50%, rgba(235, 228, 212, 0.7) 0%, rgba(235, 228, 212, 0) 68%);
+}
+
+[data-theme="light"] .egg-title {
+  text-shadow: none;
+}
+
+/* ---- Teleport: dark iris grows from the button, gold ring + sparks ride its edge ---- */
+.egg-warp,
+.egg-ring,
+.egg-burst {
+  position: fixed;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.egg-warp {
+  inset: 0;
+  z-index: 5800;
+  background:
+    radial-gradient(ellipse 70% 55% at var(--egg-x, 50%) var(--egg-y, 50%), rgba(212, 175, 55, 0.16), transparent 62%),
+    #050505;
+  clip-path: circle(0px at var(--egg-x, 50%) var(--egg-y, 50%));
+  transition: clip-path 1.05s cubic-bezier(0.7, 0, 0.2, 1);
+}
+
+.egg-warp.is-on {
+  visibility: visible;
+  pointer-events: auto;      /* swallow clicks while teleporting */
+  clip-path: circle(var(--egg-r, 150vmax) at var(--egg-x, 50%) var(--egg-y, 50%));
+}
+
+.egg-ring {
+  z-index: 5801;
+  left: var(--egg-x, 50%);
+  top: var(--egg-y, 50%);
+  width: 0;
+  height: 0;
+  border: 1px solid rgba(228, 195, 90, 0.75);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 44px rgba(212, 175, 55, 0.5), inset 0 0 44px rgba(212, 175, 55, 0.28);
+  opacity: 0;
+}
+
+.egg-ring.is-on {
+  visibility: visible;
+  animation: eggRing 1.05s cubic-bezier(0.7, 0, 0.2, 1) forwards;
+}
+
+@keyframes eggRing {
+  0%   { width: 0; height: 0; opacity: 0; }
+  10%  { opacity: 1; }
+  100% { width: var(--egg-d, 300vmax); height: var(--egg-d, 300vmax); opacity: 0; }
+}
+
+.egg-burst {
+  inset: 0;
+  z-index: 5802;
+  overflow: hidden;
+}
+
+.egg-burst.is-on {
+  visibility: visible;
+}
+
+.egg-spark {
+  position: absolute;
+  left: var(--egg-x, 50%);
+  top: var(--egg-y, 50%);
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%;
+  background: #f0d68a;
+  box-shadow: 0 0 12px 2px rgba(228, 195, 90, 0.85);
+  opacity: 0;
+}
+
+/* the world leans in as the iris opens */
+body.egg-warping #game {
+  transform: scale(1.07);
+  filter: brightness(0.8) saturate(0.8);
+  transition: transform 1.05s cubic-bezier(0.7, 0, 0.2, 1), filter 1.05s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .egg,
+  .egg-title,
+  .egg-hairline,
+  .egg .egg-play {
+    transition-duration: 0.01s;
+    transition-delay: 0s;
+  }
+
+  .egg.is-cta .egg-play {
+    animation: none;
+  }
+
+  .egg-warp {
+    transition-duration: 0.12s;
+  }
+
+  .egg-ring,
+  .egg-burst {
+    display: none;
+  }
+
+  body.egg-warping #game {
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+}

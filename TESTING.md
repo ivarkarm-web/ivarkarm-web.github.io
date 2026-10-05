@@ -21,12 +21,19 @@ Checks required files, SEO image, analytics API, critical DOM ids, and that memo
 - [ ] Rabbit Hole opens; chapter bar / Chapters menu jumps
 - [ ] Partners logos load; links open
 
+- [ ] Easter egg: roll up and left past the Baltic Edge stone to the summit → "Easter egg found!", then "Play Me" fades in
+- [ ] Rolling back down hides it; returning replays it
+- [ ] Play Me: main music / ambience stop immediately, iris transition, lands on the handpan with sound on first touch/keypress
+- [ ] Handpan: Q W E R T Y U I O P A S D each sound; holding a key does not repeat; 3 keys at once make a chord
+- [ ] Handpan: each strike ripples from that note's position; "The road" / Esc returns to the road
+
 ### Mobile (iOS Safari + Android Chrome)
 - [ ] Enter works on first tap
 - [ ] Side chevrons + hold-sides roll; double-tap jump
 - [ ] Tip Close works with finger
 - [ ] Music drawer drag/close works
 - [ ] Rabbit Hole scroll + chapter jumps
+- [ ] Handpan: 3 fingers at once play a chord; no pinch-zoom, scroll or text selection; landscape layout fits
 - [ ] No stuck full-screen black overlay
 
 ### Analytics (optional debug)
