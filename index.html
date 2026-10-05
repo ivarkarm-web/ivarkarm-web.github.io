@@ -108,7 +108,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340..600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=29">
+  <link rel="stylesheet" href="./styles.css?v=30">
   <!-- GSAP & ScrollTrigger for standalone direct-branch hosting -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -200,6 +200,14 @@
 
 <canvas id="game" role="img" aria-label="Interactive acoustic journey world. Use arrow keys or on-screen controls to explore the landscape and discover resonant stones."></canvas>
 
+<!-- Subtle discovery counter (resonance stones found) -->
+<div class="discovery-counter" id="discoveryCounter" aria-live="polite" hidden>
+  <span class="discovery-label">Found</span>
+  <span class="discovery-value" id="discoveryValue">0</span>
+  <span class="discovery-of">/</span>
+  <span class="discovery-total" id="discoveryTotal">10</span>
+</div>
+
 <!-- Small glowing clue: pull up the Improv Sessions music player -->
 <button type="button" class="mp-pull-cue" id="mpPullCue" aria-label="Pull up to open the Improv Sessions music player" aria-hidden="true" tabindex="-1">
   <span class="mp-cue-arrows" aria-hidden="true">
@@ -229,24 +237,31 @@
 
   <!-- Story -->
   <div class="section with-backdrop" id="s2" role="region" aria-label="Story">
-    <span class="eyebrow">The road, not the product</span>
-    <h2>The Story</h2>
+    <span class="eyebrow type-artifact">The road, not the product</span>
+    <h2 class="type-display">The Story</h2>
     <div class="hairline"></div>
     <p class="lead">Eastern Estonia to the open road.</p>
-    <p>Grew up after the Soviet collapse, left on a one-way ticket to Barcelona, learned the street in Berlin with a €30 djembe, lost a handpan and was given another by Godan, busked Tallinn with a dog in the case, and now plays Athens. The full story lives in the Rabbit Hole.</p>
+    <ol class="route-map" aria-label="Places on the road">
+      <li class="route-stop"><span class="route-place">Eastern Estonia</span><span class="route-note">After the collapse · restless start</span></li>
+      <li class="route-stop"><span class="route-place">Barcelona</span><span class="route-note">One-way ticket out</span></li>
+      <li class="route-stop"><span class="route-place">Berlin</span><span class="route-note">€30 djembe · Warschauer Straße</span></li>
+      <li class="route-stop"><span class="route-place">Tallinn</span><span class="route-note">Stolen steel · dog in the case</span></li>
+      <li class="route-stop"><span class="route-place">The Hague</span><span class="route-note">Godan’s gift</span></li>
+      <li class="route-stop"><span class="route-place">Athens</span><span class="route-note">Open stage · still the road</span></li>
+    </ol>
+    <p class="route-foot">The full story lives in the Rabbit Hole.</p>
   </div>
 
   <!-- Manifesto -->
   <div class="section with-backdrop" id="s3" role="region" aria-label="Manifesto">
-    <span class="eyebrow">How I think about this</span>
-    <h2>Manifesto</h2>
+    <span class="eyebrow type-artifact">How I think about this</span>
+    <h2 class="type-display">Manifesto</h2>
     <div class="hairline"></div>
-    <p class="lead">For me the music is the journey, not the product.</p>
-    <p>The street is my stage because it is real — no tickets, no barriers. I was terrible when I started, so I played where somebody would pay me to leave. Then I got better. No commissioned stage has ever given me what a kid stopping in awe on a corner gives me. If you stop, you are part of it.</p>
+    <p class="lead manifesto-lead">For me the music is the journey, not the product.</p>
+    <p class="manifesto-body">The street is my stage because it is real — no tickets, no barriers. I was terrible when I started, so I played where somebody would pay me to leave. Then I got better. No commissioned stage has ever given me what a kid stopping in awe on a corner gives me. If you stop, you are part of it.</p>
   </div>
 
-  <!-- Improv Sessions Music Player Drawer Sheet -->
-<aside Sessions Section -->
+  <!-- Improv Sessions -->
   <div class="section with-backdrop" id="s4" role="region" aria-label="Improv Sessions">
     <span class="eyebrow">Acoustic Recordings</span>
     <h2>Improv Sessions</h2>
@@ -1371,11 +1386,11 @@
 <script src="./js/utilities.js?v=5" defer></script>
 <script src="./js/core.js?v=28" defer></script>
 <script src="./js/content.js?v=29" defer></script>
-<script src="./js/audio.js?v=29" defer></script>
+<script src="./js/audio.js?v=30" defer></script>
 <script src="./js/physics.js?v=5" defer></script>
-<script src="./js/scenes-effects.js?v=29" defer></script>
-<script src="./js/scenes.js?v=29" defer></script>
-<script src="./js/ui.js?v=29" defer></script>
+<script src="./js/scenes-effects.js?v=30" defer></script>
+<script src="./js/scenes.js?v=30" defer></script>
+<script src="./js/ui.js?v=30" defer></script>
 <script src="./js/engine.js?v=5" defer></script>
 <script src="./script.js?v=28" defer></script>
 <script src="./js/analytics.js?v=5" defer></script>

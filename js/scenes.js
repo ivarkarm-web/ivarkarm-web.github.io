@@ -1371,6 +1371,18 @@ function checkResonantStones() {
     const dist = Math.abs(x - s.x);
     if (dist < ballRadius + 45 && !s.triggered) {
       s.triggered = true;
+      try {
+        const found = resonantStones.filter(st => st.triggered).length;
+        const total = resonantStones.length;
+        const counter = document.getElementById('discoveryCounter');
+        const valEl = document.getElementById('discoveryValue');
+        const totalEl = document.getElementById('discoveryTotal');
+        if (counter && valEl) {
+          counter.hidden = false;
+          valEl.textContent = String(found);
+          if (totalEl) totalEl.textContent = String(total);
+        }
+      } catch (_) {}
       ResonanceAudio.playTone(s.noteIdx, 0.65, { duration: 3.2 });
       spawnSoundRing(s.x, getGround(s.x) - 25);
       // showMemoryShard suppressed
@@ -1588,10 +1600,14 @@ function drawBall(screenX, screenY) {
   ctx.translate(screenX, screenY);
   ctx.rotate(rotation);
 
-  // 2. Outer harmonic acoustic aura
+  // 2. Outer harmonic acoustic aura (strike pulse + live bands)
   const timeSinceNote = (performance.now() - ResonanceAudio.lastNoteTime) / 1000;
   const notePulse = timeSinceNote < 1.5 ? Math.exp(-timeSinceNote * 2.5) : 0;
-  const auraR = r * (1.6 + notePulse * 0.4);
+  let bandAmp = 0;
+  if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.bands) {
+    bandAmp = ResonanceAudio.bands.amplitude * 0.35 + ResonanceAudio.bands.mid * 0.2;
+  }
+  const auraR = r * (1.6 + notePulse * 0.4 + bandAmp * 0.55);
 
   const aura = ctx.createRadialGradient(0, 0, r * 0.7, 0, 0, auraR);
   aura.addColorStop(0, 'rgba(212, 175, 55, ' + (0.16 + notePulse * 0.25) + ')');
