@@ -6923,62 +6923,71 @@ canvas#game {
 }
 
 
-/* Path action buttons sit under "Hold sides to roll" on mobile */
-@media (max-width: 900px), (pointer: coarse) {
-  body:not(.pre-enter):not(.rabbit-hole-open) .touch-hint {
-    bottom: max(4.75rem, calc(env(safe-area-inset-bottom, 0px) + 4.1rem));
-  }
 
-  body:not(.pre-enter):not(.rabbit-hole-open):not(.qr-open) nav .nav-right-actions {
-    position: fixed;
+
+/* Path action bar — bottom of screen for easy thumb reach */
+.path-action-bar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+  z-index: 1200;
+  display: none;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.55rem;
+  background: rgba(8, 8, 10, 0.55);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 999px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+[data-theme="light"] .path-action-bar {
+  background: rgba(250, 247, 240, 0.85);
+  border-color: rgba(26, 23, 18, 0.14);
+}
+
+/* Desktop: top-right near logo area */
+@media (min-width: 901px) and (pointer: fine) {
+  body:not(.pre-enter):not(.rabbit-hole-open) .path-action-bar {
+    display: flex;
+    top: 1.35rem;
+    bottom: auto;
+    left: auto;
+    right: 1.5rem;
+    transform: none;
+  }
+}
+
+/* Mobile / touch: true bottom of the screen */
+@media (max-width: 900px), (pointer: coarse) {
+  body:not(.pre-enter):not(.rabbit-hole-open):not(.qr-open) .path-action-bar {
+    display: flex;
+    top: auto;
+    bottom: max(0.45rem, env(safe-area-inset-bottom, 0px));
     left: 50%;
     right: auto;
-    top: auto;
-    bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
     transform: translateX(-50%);
-    z-index: 1200;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 0.45rem;
-    padding: 0.35rem 0.5rem;
-    margin: 0;
-    pointer-events: auto;
-    background: rgba(8, 8, 10, 0.45);
-    border: 1px solid rgba(212, 175, 55, 0.16);
-    border-radius: 999px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
   }
-
-  body:not(.pre-enter):not(.rabbit-hole-open):not(.qr-open) nav .nav-right-actions .nav-action-btn,
-  body:not(.pre-enter):not(.rabbit-hole-open):not(.qr-open) nav .nav-right-actions .nav-action-btn--icon,
-  body:not(.pre-enter):not(.rabbit-hole-open):not(.qr-open) nav .nav-right-actions #monographToggleBtn {
-    width: 42px;
-    height: 42px;
-    min-width: 42px;
-    min-height: 42px;
+  body:not(.pre-enter):not(.rabbit-hole-open) .touch-hint {
+    bottom: max(4.6rem, calc(env(safe-area-inset-bottom, 0px) + 4rem));
+  }
+  .path-action-bar .nav-action-btn,
+  .path-action-bar .nav-action-btn--icon {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    min-height: 46px;
     padding: 0;
-    margin: 0;
   }
+}
 
-  body:not(.pre-enter):not(.rabbit-hole-open):not(.qr-open) nav .nav-right-actions .hamburger {
-    display: none !important;
-  }
-
-  [data-theme="light"] body:not(.pre-enter) nav .nav-right-actions,
-  body:not(.pre-enter):not(.rabbit-hole-open) [data-theme="light"] nav .nav-right-actions {
-    /* light chrome handled via tokens on buttons */
-  }
-  [data-theme="light"] nav .nav-right-actions {
-    background: rgba(250, 247, 240, 0.72);
-    border-color: rgba(26, 23, 18, 0.12);
-  }
-
-  /* Welcome / rabbit hole: keep actions out of the way (welcome uses its own controls) */
-  body.pre-enter nav .nav-right-actions,
-  body.rabbit-hole-open nav .nav-right-actions {
-    /* existing pre-enter hides whole nav */
-  }
+body.pre-enter .path-action-bar,
+body.rabbit-hole-open .path-action-bar,
+body.qr-open .path-action-bar {
+  display: none !important;
 }
