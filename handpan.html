@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>Handpan – Ivar Karm</title>
-  <meta name="description" content="A hidden handpan to play. E Kurd, thirteen notes.">
+  <meta name="description" content="A hidden handpan to play. Nine scales, thirteen notes each.">
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#050505">
   <meta name="color-scheme" content="dark">
@@ -12,27 +12,41 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340..600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./handpan.css?v=1">
+  <link rel="stylesheet" href="./handpan.css?v=2">
 </head>
 <body class="hp-entering">
 
   <!-- Dark atmosphere (CSS) + particle / ripple / handpan stage (canvas) -->
   <div class="hp-atmosphere" aria-hidden="true"></div>
   <canvas id="hpStage" class="hp-stage" role="application"
-          aria-label="Handpan in E Kurd, thirteen notes. Press Q W E R T Y U I O P A S D, or touch the steel, to play. Several notes can sound at once."></canvas>
+          aria-label="Handpan, thirteen notes. Press Q W E R T Y U I O P A S D, or touch the steel, to play. Several notes can sound at once. Swipe or use arrows to change scale."></canvas>
   <div class="hp-vignette" aria-hidden="true"></div>
 
   <header class="hp-head" id="hpHead">
     <span class="hp-eyebrow">Easter egg</span>
     <h1 class="hp-title">Handpan</h1>
     <span class="hp-hairline" aria-hidden="true"></span>
-    <p class="hp-sub">E Kurd · 13 notes</p>
+    <p class="hp-sub" id="hpSub">D Kurd · 13 notes</p>
   </header>
 
   <a class="hp-back" id="hpBack" href="./index.html" aria-label="Back to the road">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
     <span>The road</span>
   </a>
+
+  <!-- Scale switcher: sits under the instrument, does not touch existing buttons or backdrop -->
+  <nav class="hp-scales" id="hpScales" aria-label="Handpan scales">
+    <button type="button" class="hp-scale-btn hp-scale-prev" id="hpScalePrev" aria-label="Previous scale">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="hp-scale-track" id="hpScaleTrack">
+      <span class="hp-scale-label" id="hpScaleLabel">D Kurd</span>
+      <span class="hp-scale-dots" id="hpScaleDots" aria-hidden="true"></span>
+    </div>
+    <button type="button" class="hp-scale-btn hp-scale-next" id="hpScaleNext" aria-label="Next scale">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </nav>
 
   <footer class="hp-foot" id="hpFoot">
     <p class="hp-chord" id="hpChord" aria-live="off"></p>
@@ -49,6 +63,6 @@
     <p class="hp-noscript">This handpan needs JavaScript to make sound.</p>
   </noscript>
 
-  <script src="./js/handpan.js?v=1" defer></script>
+  <script src="./js/handpan.js?v=2" defer></script>
 </body>
 </html>
