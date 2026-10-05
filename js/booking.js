@@ -1,12 +1,64 @@
-/** Booking enquiry modal. Uses mailto by default; set BOOKING_ENDPOINT to a Formspree endpoint for background submission. */
-const BOOKING_ENDPOINT = '';
+/**
+ * booking.js
+ * Sends the visitor from the road into the dedicated inquiry page.
+ * The road remains the main experience; booking is a separate room.
+ */
 (function(){
- const modal=document.getElementById('bookingModal'),open=document.getElementById('bookMeButton'),close=document.getElementById('bookingClose'),backdrop=document.getElementById('bookingModalBackdrop'),form=document.getElementById('bookingForm'),status=document.getElementById('bookingStatus');
- if(!modal||!open||!close||!form)return; let lastFocused=null;
- function setOpen(value){modal.classList.toggle('open',value);modal.setAttribute('aria-hidden',String(!value));document.body.classList.toggle('booking-open',value);if(value){lastFocused=document.activeElement;setTimeout(()=>form.querySelector('[name="name"]')?.focus(),80)}else{lastFocused?.focus?.()}}
- open.addEventListener('click',()=>setOpen(true));close.addEventListener('click',()=>setOpen(false));backdrop?.addEventListener('click',()=>setOpen(false));
- document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))setOpen(false)});
- form.addEventListener('submit',async e=>{e.preventDefault();if(form.querySelector('[name="_gotcha"]')?.value)return;const data=new FormData(form),v=Object.fromEntries(data.entries());if(BOOKING_ENDPOINT){status.textContent='Sending…';try{const r=await fetch(BOOKING_ENDPOINT,{method:'POST',body:data,headers:{Accept:'application/json'}});if(!r.ok)throw Error();status.textContent='Enquiry sent. Thank you — I’ll get back to you soon.';form.reset();return}catch{status.textContent='Could not send automatically. Opening your email app instead…'}}
- const subject='Booking enquiry — '+(v.event_type||'event');const body=['Name: '+(v.name||''),'Email: '+(v.email||''),'Event type: '+(v.event_type||''),'Date: '+(v.event_date||''),'Location: '+(v.location||''),'Duration: '+(v.duration||''),'','Message:',v.message||''].join('\\n');window.location.href='mailto:ivar.karm@gmail.com?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
- });
+  'use strict';
+  var TARGET = './inquire.html?from=road';
+  var STORAGE_KEY = 'ivar_booking_audio_state';
+
+  function rememberAndFreezeTrack(){
+    try {
+      if (typeof musicPlayer === 'undefined' || !musicPlayer.audio) return;
+      var audio = musicPlayer.audio;
+      var wasPlaying = !audio.paused && !audio.ended;
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+        wasPlaying: wasPlaying,
+        currentTime: Number(audio.currentTime || 0),
+        src: audio.currentSrc || audio.src || ''
+      }));
+      if (wasPlaying) audio.pause();
+    } catch (_) {}
+  }
+
+  function restoreTrack(){
+    try {
+      var raw = sessionStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      sessionStorage.removeItem(STORAGE_KEY);
+      var state = JSON.parse(raw);
+      if (!state || !state.wasPlaying || typeof musicPlayer === 'undefined' || !musicPlayer.audio) return;
+      var audio = musicPlayer.audio;
+
+      if (Number.isFinite(state.currentTime) && state.currentTime >= 0) {
+        try { audio.currentTime = state.currentTime; } catch (_) {}
+      }
+
+      setTimeout(function(){
+        try {
+          var p = audio.play();
+          if (p && p.catch) p.catch(function(){});
+        } catch (_) {}
+      }, 140);
+    } catch (_) {}
+  }
+
+  function openInquiry(e){
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    rememberAndFreezeTrack();
+    try {
+      if (typeof trackEvent === 'function') trackEvent('booking_open', { source: 'invite' });
+    } catch (_) {}
+    window.location.href = TARGET;
+  }
+
+  var button = document.getElementById('bookMeButton');
+  if (button) {
+    button.addEventListener('click', openInquiry);
+    button.setAttribute('aria-haspopup', 'page');
+    button.removeAttribute('aria-controls');
+  }
+
+  window.addEventListener('pageshow', restoreTrack);
 })();
