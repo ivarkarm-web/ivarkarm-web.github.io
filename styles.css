@@ -5259,22 +5259,30 @@ body.mp-drawer-open .touch-controls {
   position: fixed;
   left: 50%;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 1.6rem);
-  transform: translate(-50%, 14px);
-  z-index: 1200;
+  transform: translate(-50%, 18px);
+  z-index: 1250;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.2rem;
-  padding: 0.6rem 1.6rem 0.5rem;
-  background: none;
-  border: 0;
+  gap: 0.15rem;
+  padding: 0.75rem 1.4rem 0.7rem;
+  background: rgba(8, 8, 12, 0.72);
+  border: 1px solid rgba(212, 175, 55, 0.42);
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.08),
+    0 10px 36px rgba(0, 0, 0, 0.45),
+    0 0 28px rgba(212, 175, 55, 0.18);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   color: var(--accent-gold);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.6s;
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.55s, box-shadow 0.4s ease;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  animation: mpCuePulse 2.8s ease-in-out infinite;
 }
 
 .mp-pull-cue.show {
@@ -5285,44 +5293,188 @@ body.mp-drawer-open .touch-controls {
   transition-delay: 0s;
 }
 
+.mp-cue-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 50% 0%, rgba(212, 175, 55, 0.22), transparent 65%);
+  pointer-events: none;
+  opacity: 0.9;
+}
+
 .mp-cue-arrows {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 26px;
+  height: 28px;
+  z-index: 1;
 }
 
 .mp-cue-arrows svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   opacity: 0;
-  filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.9)) drop-shadow(0 0 12px rgba(212, 175, 55, 0.45));
-  animation: mpCueRise 2.2s infinite ease-in-out;
+  filter: drop-shadow(0 0 6px rgba(212, 175, 55, 1)) drop-shadow(0 0 16px rgba(212, 175, 55, 0.55));
+  animation: mpCueRise 1.9s infinite ease-in-out;
 }
 
 .mp-cue-arrows svg + svg {
-  margin-top: -9px;
-  animation-delay: 0.35s;
+  margin-top: -10px;
+  animation-delay: 0.28s;
 }
 
 .mp-cue-label {
+  position: relative;
+  z-index: 1;
   font-family: 'Inter', sans-serif;
-  font-size: 0.58rem;
-  letter-spacing: 0.28em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(212, 175, 55, 0.72);
-  text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
-  animation: mpCueGlow 2.2s infinite ease-in-out;
+  color: rgba(255, 236, 180, 0.95);
+  text-shadow: 0 0 14px rgba(212, 175, 55, 0.65), 0 1px 2px rgba(0, 0, 0, 0.5);
   transition: color 0.3s ease;
+}
+
+.mp-pull-cue:hover,
+.mp-pull-cue:focus-visible {
+  border-color: rgba(228, 195, 90, 0.7);
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.2),
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(212, 175, 55, 0.32);
 }
 
 .mp-pull-cue:hover .mp-cue-label,
 .mp-pull-cue:focus-visible .mp-cue-label {
-  color: var(--accent-gold-bright);
+  color: #fff4d0;
 }
 
 .mp-pull-cue:focus-visible {
   outline: none;
+}
+
+@keyframes mpCuePulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.08), 0 10px 36px rgba(0, 0, 0, 0.45), 0 0 22px rgba(212, 175, 55, 0.16); }
+  50% { box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.18), 0 10px 36px rgba(0, 0, 0, 0.45), 0 0 36px rgba(212, 175, 55, 0.32); }
+}
+
+/* Rabbit Hole roll-forward cue (after Contact) */
+.rh-roll-cue {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 1.6rem);
+  transform: translate(-50%, 18px);
+  z-index: 1250;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 0.55rem;
+  max-width: min(92vw, 320px);
+  padding: 0.7rem 1.25rem 0.65rem;
+  background: rgba(8, 8, 12, 0.72);
+  border: 1px solid rgba(212, 175, 55, 0.38);
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.08),
+    0 10px 36px rgba(0, 0, 0, 0.45),
+    0 0 28px rgba(212, 175, 55, 0.16);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--accent-gold);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.55s;
+  animation: mpCuePulse 2.8s ease-in-out infinite;
+}
+
+.rh-roll-cue.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+  transition-delay: 0s;
+}
+
+.rh-cue-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 50% 50%, rgba(212, 175, 55, 0.18), transparent 70%);
+  pointer-events: none;
+}
+
+.rh-cue-label {
+  position: relative;
+  z-index: 1;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 236, 180, 0.95);
+  text-shadow: 0 0 14px rgba(212, 175, 55, 0.55);
+}
+
+.rh-cue-sub {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(212, 175, 55, 0.75);
+}
+
+.rh-cue-arrows {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 20px;
+}
+
+.rh-cue-arrows svg {
+  width: 18px;
+  height: 18px;
+  opacity: 0;
+  filter: drop-shadow(0 0 6px rgba(212, 175, 55, 1));
+  animation: rhCueSlide 1.9s infinite ease-in-out;
+}
+
+.rh-cue-arrows svg + svg {
+  margin-left: -8px;
+  animation-delay: 0.28s;
+}
+
+@keyframes rhCueSlide {
+  0%   { opacity: 0;   transform: translateX(-6px); }
+  40%  { opacity: 1; }
+  100% { opacity: 0;   transform: translateX(6px); }
+}
+
+[data-theme="light"] .mp-pull-cue,
+[data-theme="light"] .rh-roll-cue {
+  background: rgba(250, 247, 240, 0.88);
+  border-color: rgba(180, 140, 40, 0.45);
+  box-shadow: 0 8px 28px rgba(40, 30, 10, 0.12), 0 0 24px rgba(201, 162, 39, 0.15);
+}
+
+[data-theme="light"] .mp-cue-label,
+[data-theme="light"] .rh-cue-label {
+  color: #3a2e12;
+  text-shadow: none;
+}
+
+[data-theme="light"] .rh-cue-sub {
+  color: rgba(90, 70, 20, 0.75);
 }
 
 @keyframes mpCueRise {
@@ -5337,8 +5489,9 @@ body.mp-drawer-open .touch-controls {
 }
 
 @media (max-width: 768px), (pointer: coarse) {
-  /* keep the cue clear of the on-screen steering controls + roll hint */
-  .mp-pull-cue {
+  /* keep cues clear of on-screen steering + roll hint + path action bar */
+  .mp-pull-cue,
+  .rh-roll-cue {
     bottom: calc(env(safe-area-inset-bottom, 0px) + 8.6rem);
   }
 }
@@ -5406,7 +5559,8 @@ body.mp-drawer-open nav {
 
   .welcome-flower,
   .rabbit-hole-particle,
-  .mp-pull-cue {
+  .mp-pull-cue,
+  .rh-roll-cue {
     animation: none !important;
   }
 }
