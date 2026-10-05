@@ -49,7 +49,7 @@ function revealSectionContent(sectionEl) {
   const hairline = sectionEl.querySelector('.hairline');
   const heading = sectionEl.querySelector('h1, h2');
   const rest = sectionEl.querySelectorAll(
-    '.eyebrow, .lead, .subtitle, .subtext, p:not(.lead), .story-entry, .music-player, .contact-icons'
+    '.eyebrow, .lead, .subtitle, .subtext, p:not(.lead), .story-entry, .music-player'
   );
   const partnerCards = sectionEl.querySelectorAll('.partner-card');
   const all = [hairline, heading, ...rest, ...partnerCards].filter(Boolean);
@@ -115,6 +115,60 @@ function revealSectionContent(sectionEl) {
   }
 }
 
+function revealContactSequence(sectionEl) {
+  if (!sectionEl || typeof gsap === 'undefined') return;
+  const socials = Array.from(sectionEl.querySelectorAll('.contact-icon'));
+  const book = sectionEl.querySelector('.book-me-button');
+  const rules = sectionEl.querySelectorAll('.contact-cta-rule');
+  const sequence = [...socials, ...rules, book].filter(Boolean);
+  if (!sequence.length) return;
+
+  gsap.killTweensOf(sequence);
+  gsap.set(socials, {
+    opacity: 0,
+    x: -34,
+    clipPath: 'inset(0 100% 0 0)',
+    filter: 'blur(7px)'
+  });
+  if (rules.length) gsap.set(rules, { opacity: 0, scaleX: 0, transformOrigin: 'left center' });
+  if (book) gsap.set(book, { opacity: 0, y: 14, scale: 0.96, pointerEvents: 'none' });
+
+  const tl = gsap.timeline();
+  socials.forEach((item, idx) => {
+    tl.to(item, {
+      opacity: 1,
+      x: 0,
+      clipPath: 'inset(0 0% 0 0)',
+      filter: 'blur(0px)',
+      duration: 0.72,
+      ease: 'power3.out',
+      overwrite: true
+    }, idx * 0.24);
+  });
+
+  const bookAt = socials.length * 0.24 + 0.36;
+  if (rules.length) {
+    tl.to(rules, {
+      opacity: 0.45,
+      scaleX: 1,
+      duration: 0.45,
+      ease: 'power2.out',
+      stagger: 0.04
+    }, bookAt);
+  }
+  if (book) {
+    tl.to(book, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      pointerEvents: 'auto',
+      duration: 0.7,
+      ease: 'back.out(1.7)',
+      overwrite: true
+    }, bookAt + 0.12);
+  }
+}
+
 function updateSections() {
   if (!canvas) return;
   let closestIndex = 0;
@@ -150,9 +204,11 @@ function updateSections() {
         revealSectionContent(sectionEl);
       }
       if (index === 6 && !contactIconsAnimated) {
-        document.querySelectorAll('.contact-icon').forEach(el => el.classList.add('visible'));
-        const bookButton = document.getElementById('bookMeButton');
-        if (bookButton) window.setTimeout(() => bookButton.classList.add('visible'), 620);
+        const contact = document.getElementById('contact');
+        if (contact) {
+          // Contact has its own left-to-right reveal: Instagram → Email → YouTube → Book me.
+          revealContactSequence(contact);
+        }
         contactIconsAnimated = true;
       }
     } else {
