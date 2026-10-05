@@ -52,9 +52,9 @@
 
   // Two-ring layout (no overlaps, fills the steel):
   // Inner ring – 8 lower tones, every 45°, zig-zag alternating sides from bottom
-  // Outer rim  – 4 highest tones, every 90°, offset into the gaps of the inner ring
+  // Outer rim  – 4 highest tones on the UPPER half, sitting in the gaps of the inner ring
   var INNER_ANGLES = [180, 225, 135, 270, 90, 315, 45, 0];
-  var OUTER_ANGLES = [202.5, 157.5, 247.5, 112.5];
+  var OUTER_ANGLES = [22.5, 337.5, 67.5, 292.5];
 
   var SHAPE = {
     ding: { dist: 0,    rx: 0.175, ry: 0.175 },
