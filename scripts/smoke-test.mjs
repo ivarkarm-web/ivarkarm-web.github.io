@@ -32,6 +32,7 @@ const required = [
   'script.js',
   'js/analytics.js',
   'js/audio.js',
+  'js/input-controller.js',
   'js/music-data.js',
   'js/music-player.js',
   'js/content.js',
@@ -150,6 +151,16 @@ if (!/const\s+MUSIC_TRACKS\s*=/.test(uiSource)) ok('UI controller no longer owns
 else fail('UI controller still declares MUSIC_TRACKS');
 if (/const\s+MUSIC_TRACKS\s*=/.test(musicPlayerSource) && musicPlayerSource.includes('function initMusicPlayer')) ok('Music player owns catalogue binding and initialization');
 else fail('Music player module boundary is incomplete');
+
+
+const inputPos = html.indexOf('js/input-controller.js');
+if (inputPos >= 0 && inputPos < uiPos) ok('Input controller loads before UI controller');
+else fail('Input controller load order is invalid');
+const inputSource = read('js/input-controller.js') || '';
+if (inputSource.includes('const UnifiedModalitySystem') && inputSource.includes('function handleZoneTouchStart')) ok('Input controller owns modality and touch steering');
+else fail('Input controller boundary is incomplete');
+if (!uiSource.includes('const UnifiedModalitySystem') && !uiSource.includes('function handleZoneTouchStart')) ok('UI controller no longer owns touch input plumbing');
+else fail('Touch input plumbing still lives in ui.js');
 
 const vegetationPos = html.indexOf('js/scene-vegetation.js');
 const scenesPos = html.indexOf('js/scenes.js');
