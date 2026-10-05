@@ -1885,11 +1885,7 @@ body.rabbit-hole-open .touch-zones {
     max-width: 100%;
     font-size: 1.2rem;
   }
-  .discovery-counter {
-    top: max(4.75rem, env(safe-area-inset-top) + 3.75rem);
-    left: 0.65rem;
-    padding: 0.3rem 0.55rem;
-  }
+  
   .memory-shard-hud {
     z-index: 1300;
   }
@@ -5932,46 +5928,13 @@ body.cursor-hover #cursor {
 }
 
 /* Discovery counter */
-.discovery-counter {
-  position: fixed;
-  top: max(5.5rem, env(safe-area-inset-top) + 4.5rem);
-  left: 1.1rem;
-  z-index: 900;
-  display: flex;
-  align-items: baseline;
-  gap: 0.25rem;
-  padding: 0.4rem 0.7rem;
-  background: rgba(8, 8, 10, 0.55);
-  border: 1px solid rgba(201, 162, 39, 0.22);
-  border-radius: 4px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  pointer-events: none;
-  font-family: var(--font-body, 'Inter', sans-serif);
-}
-.discovery-label {
-  font-size: 0.58rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(201, 162, 39, 0.75);
-  margin-right: 0.35rem;
-}
-.discovery-value,
-.discovery-total {
-  font-size: 0.85rem;
-  color: var(--text-primary);
-  font-variant-numeric: tabular-nums;
-}
-.discovery-of {
-  color: var(--text-muted);
-  font-size: 0.75rem;
-}
+
+
+
+
 body.rabbit-hole-open .discovery-counter,
 body.pre-enter .discovery-counter,
-body.qr-open .discovery-counter {
-  opacity: 0;
-  visibility: hidden;
-}
+body.qr-open 
 
 /* Music drawer as field archive */
 .mp-drawer-eyebrow {
@@ -6078,10 +6041,7 @@ nav {
   box-shadow: 0 12px 32px rgba(40, 30, 10, 0.15);
 }
 
-[data-theme="light"] .discovery-counter {
-  background: rgba(255, 253, 248, 0.85);
-  border-color: rgba(143, 115, 32, 0.3);
-}
+[data-theme="light"] 
 
 [data-theme="light"] .route-map {
   border-left-color: rgba(143, 115, 32, 0.4);

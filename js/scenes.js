@@ -1371,18 +1371,7 @@ function checkResonantStones() {
     const dist = Math.abs(x - s.x);
     if (dist < ballRadius + 45 && !s.triggered) {
       s.triggered = true;
-      try {
-        const found = resonantStones.filter(st => st.triggered).length;
-        const total = resonantStones.length;
-        const counter = document.getElementById('discoveryCounter');
-        const valEl = document.getElementById('discoveryValue');
-        const totalEl = document.getElementById('discoveryTotal');
-        if (counter && valEl) {
-          counter.hidden = false;
-          valEl.textContent = String(found);
-          if (totalEl) totalEl.textContent = String(total);
-        }
-      } catch (_) {}
+      /* discovery counter removed — shards still show */
       ResonanceAudio.playTone(s.noteIdx, 0.65, { duration: 3.2 });
       spawnSoundRing(s.x, getGround(s.x) - 25);
       showMemoryShard(s);
