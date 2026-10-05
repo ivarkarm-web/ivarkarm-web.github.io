@@ -2533,22 +2533,22 @@ body.rabbit-hole-open #cursor {
 
 /* Sticky Top Navigation Bar (Follows the user as they scroll) */
 .rh-sticky-header {
-  position: sticky;
-  top: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  z-index: 300;
+  position: sticky !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  z-index: 4550 !important;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 1rem 2rem;
-  background: rgba(5, 5, 5, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.22);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
-  box-sizing: border-box;
+  background: rgba(5, 5, 5, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.7);
+  box-sizing: border-box !important;
   transition: var(--transition-fast);
 }
 
@@ -2649,7 +2649,8 @@ body.rabbit-hole-open #cursor {
   left: 0;
   right: 0;
   height: 3px;
-  background: rgba(255, 255, 255, 0.06);
+  z-index: 4551;
+  background: rgba(255, 255, 255, 0.08);
   overflow: visible;
   pointer-events: none;
 }
@@ -5106,12 +5107,11 @@ body.rabbit-hole-open #cursor {
   z-index: 3 !important;
 }
 
-.rh-sticky-header,
 .rh-side-nav,
 .rh-scroll-track,
 .rh-floating-leave-btn {
   position: relative;
-  z-index: 10 !important;
+  z-index: 10;
 }
 
 /* Acoustic Toggle & Nav Action Enhancements */
@@ -7280,18 +7280,29 @@ body.rabbit-hole-open .welcome {
 }
 
 
-/* RH sticky return always reachable while scrolling chapters */
+/* RH sticky return and progress bar: stays above ALL sections and layers, always follows user */
+.rh-sticky-header,
 .rabbit-hole .rh-sticky-header {
-  position: sticky;
-  top: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  z-index: 300;
-  box-sizing: border-box;
+  position: sticky !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  z-index: 4550 !important;
+  box-sizing: border-box !important;
 }
+.rh-close-btn,
 .rabbit-hole .rh-close-btn {
-  position: relative;
-  z-index: 301;
-  pointer-events: auto;
+  position: relative !important;
+  z-index: 4552 !important;
+  pointer-events: auto !important;
+}
+.rh-progress-track,
+.rabbit-hole .rh-progress-track {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 4551 !important;
+  pointer-events: none !important;
 }
