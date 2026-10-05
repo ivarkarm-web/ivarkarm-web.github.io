@@ -535,6 +535,15 @@ if (dmOpenRhBtn) {
       modal.classList.remove('open');
       modal.setAttribute('aria-hidden', 'true');
     }
+    const welcome = document.getElementById('welcome');
+    if (welcome) {
+      welcome.classList.add('hidden');
+      welcome.style.opacity = '0';
+      welcome.style.pointerEvents = 'none';
+      welcome.style.display = 'none';
+    }
+    if (document.body) document.body.classList.remove('pre-enter');
+    gameStarted = true;
     window.setTimeout(() => {
       openRabbitHoleScreen();
     }, 40);
@@ -549,12 +558,27 @@ if (dmOpenRhBtn) {
     const btn = e.target.closest('[data-site-target]');
     if (!btn) return;
     const hash = btn.getAttribute('data-site-target');
-    const link = document.querySelector('.nav-links a[href="' + hash + '"]');
     const modal = document.getElementById('directMonographModal');
     if (modal) {
       modal.classList.remove('open');
       modal.setAttribute('aria-hidden', 'true');
     }
+    if (hash === '#rabbit-hole' || hash === '#archive') {
+      const welcome = document.getElementById('welcome');
+      if (welcome) {
+        welcome.classList.add('hidden');
+        welcome.style.opacity = '0';
+        welcome.style.pointerEvents = 'none';
+        welcome.style.display = 'none';
+      }
+      if (document.body) document.body.classList.remove('pre-enter');
+      gameStarted = true;
+      window.setTimeout(() => {
+        openRabbitHoleScreen();
+      }, 40);
+      return;
+    }
+    const link = document.querySelector('.nav-links a[href="' + hash + '"]');
     if (link) window.setTimeout(() => link.click(), 40);
   });
 })();
@@ -2466,6 +2490,24 @@ function openRabbitHoleScreen() {
   keys = {};
   vx = 0;
 
+  // Dismiss welcome overlay immediately if opening Rabbit Hole from welcome screen or monograph
+  const welcome = document.getElementById('welcome');
+  if (welcome) {
+    welcome.classList.add('hidden');
+    welcome.style.opacity = '0';
+    welcome.style.pointerEvents = 'none';
+    welcome.style.display = 'none';
+  }
+  if (document.body) {
+    document.body.classList.remove('pre-enter');
+  }
+  if (!gameStarted) {
+    gameStarted = true;
+    if (typeof ResonanceAudio !== 'undefined') {
+      try { ResonanceAudio.init(); } catch (e) {}
+    }
+  }
+
   const el = document.getElementById('rabbit-hole');
   document.body.classList.add('rabbit-hole-open');
 
@@ -2626,18 +2668,34 @@ function playGoldParticleCurtain(options) {
   const enterBtn = document.getElementById('s7EnterRabbitHoleBtn');
   const storyRhBtn = document.getElementById('storyEnterRabbitHoleBtn');
   if (storyRhBtn) {
-    storyRhBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      openRabbitHoleScreen();
-    });
-  }
-  if (enterBtn) {
-    enterBtn.addEventListener('click', (e) => {
-      e.preventDefault();
+    const handleStoryRhClick = (e) => {
+      if (e) {
+        if (e.cancelable) e.preventDefault();
+        if (e.stopPropagation) e.stopPropagation();
+      }
       if (typeof triggerHaptic === 'function') triggerHaptic('medium');
       openRabbitHoleScreen();
+    };
+    storyRhBtn.addEventListener('click', handleStoryRhClick);
+    storyRhBtn.addEventListener('pointerdown', (e) => {
+      if (e && e.stopPropagation) e.stopPropagation();
     });
+    storyRhBtn.addEventListener('touchend', handleStoryRhClick, { passive: false });
+  }
+  if (enterBtn) {
+    const handleEnterBtnClick = (e) => {
+      if (e) {
+        if (e.cancelable) e.preventDefault();
+        if (e.stopPropagation) e.stopPropagation();
+      }
+      if (typeof triggerHaptic === 'function') triggerHaptic('medium');
+      openRabbitHoleScreen();
+    };
+    enterBtn.addEventListener('click', handleEnterBtnClick);
+    enterBtn.addEventListener('pointerdown', (e) => {
+      if (e && e.stopPropagation) e.stopPropagation();
+    });
+    enterBtn.addEventListener('touchend', handleEnterBtnClick, { passive: false });
   }
 })();
 

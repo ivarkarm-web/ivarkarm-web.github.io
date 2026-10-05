@@ -382,7 +382,7 @@ nav {
 .section button,
 .section .btn {
   pointer-events: auto;
-  cursor: none;
+  cursor: pointer;
 }
 
 .section .eyebrow {
@@ -7167,6 +7167,14 @@ body.qr-open .path-action-bar {
   display: none !important;
 }
 
+body.rabbit-hole-open #welcome,
+body.rabbit-hole-open .welcome {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
 
 .path-rh-btn {
   display: inline-flex;
@@ -7218,13 +7226,15 @@ body.qr-open .path-action-bar {
   pointer-events: auto !important;
   display: inline-flex !important;
   position: relative;
-  z-index: 5;
+  z-index: 20;
+  cursor: pointer !important;
 }
 #sections {
-  z-index: 200 !important;
+  z-index: 1100 !important;
 }
 .section.visible {
-  z-index: 1300;
+  z-index: 1200 !important;
+  pointer-events: auto !important;
 }
 /* Compact route so RH button fits on phone */
 @media (max-width: 768px) {

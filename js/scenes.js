@@ -1222,9 +1222,9 @@ function revealSectionContent(sectionEl) {
   if (partnerCards.length) {
     gsap.set(partnerCards, { transformPerspective: 900 });
     tl.fromTo(partnerCards,
-      { opacity: 0, y: 70, rotationX: -75, transformOrigin: '50% 100%' },
-      { opacity: 1, y: 0, rotationX: 0, duration: 1, ease: 'power4.out', stagger: 0.22, overwrite: true },
-      heading ? 0.34 : 0.12
+      { opacity: 0, y: 24, rotationX: -18, transformOrigin: '50% 100%' },
+      { opacity: 1, y: 0, rotationX: 0, duration: 0.5, ease: 'power2.out', stagger: 0.08, overwrite: true },
+      0.08
     );
   }
 }
@@ -1245,10 +1245,11 @@ function updateSections() {
     const terrainY = getGround(pos.x);
     const verticalOffset = (viewH * 0.5 - terrainY) * 0.3;
     sectionEl.style.transform = 'translate(calc(-50% + ' + parallaxX + 'px), calc(-50% + ' + verticalOffset + 'px))';
-    const revealRange = (index === 0) ? 700 : (index === 6) ? 1000 : 1100;
+    const revealRange = (index === 0) ? 700 : (index === 6) ? 1000 : (index === 5) ? 1800 : 1200;
     if (Math.abs(distance) < revealRange) {
       sectionEl.classList.add('visible');
-      let opacity = Math.max(0, 1 - (Math.abs(distance) / revealRange));
+      const normDist = Math.abs(distance) / revealRange;
+      let opacity = Math.max(0, 1 - Math.pow(normDist, 1.8));
       if (index === 6 && x > CONTACT_X && endOfRoadState.fading) {
         opacity *= endOfRoadState.fade;
       }
@@ -1264,7 +1265,7 @@ function updateSections() {
     } else {
       sectionEl.classList.remove('visible');
       sectionEl.style.opacity = 0;
-      if (Math.abs(distance) > 1600) sectionRevealed.delete(index);
+      if (Math.abs(distance) > 2200) sectionRevealed.delete(index);
     }
   });
 

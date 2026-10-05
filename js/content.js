@@ -457,7 +457,7 @@ const sectionPositions = [
   { x: 11000, index: 6, title: "Contact" }
 ];
 
-const NARRATIVE_ZOOM_SECTION_INDICES = [2, 3, 4];
+const NARRATIVE_ZOOM_SECTION_INDICES = [2, 3, 4, 5];
 const NARRATIVE_ZOOM_LEVEL = 0.5;
 const NARRATIVE_ZOOM_RANGE = 1500;
 
