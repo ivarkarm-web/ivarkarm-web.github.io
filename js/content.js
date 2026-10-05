@@ -509,7 +509,7 @@ const BG_FADE_DURATION = 2.5;
 const BG_HOLD_DURATION = 4.0;
 let bgTimer = 0;
 let bgPhase = 'hold';
-const BG_MAX_OPACITY = 0.55;
+const BG_MAX_OPACITY = 0.92;
 
 // Expose slideshow state on window for cross-script resilience
 try {

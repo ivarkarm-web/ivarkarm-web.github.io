@@ -89,9 +89,9 @@ function drawAtmosphereBands(context) {
   const lowFog = context.createLinearGradient(0, oy + eh * 0.48, 0, oy + eh);
   if (light) {
     lowFog.addColorStop(0, 'rgba(200, 190, 170, 0)');
-    lowFog.addColorStop(0.4, 'rgba(190, 178, 155, 0.35)');
-    lowFog.addColorStop(0.75, 'rgba(175, 162, 138, 0.7)');
-    lowFog.addColorStop(1, 'rgba(160, 148, 124, 0.88)');
+    lowFog.addColorStop(0.5, 'rgba(190, 178, 155, 0.12)');
+    lowFog.addColorStop(0.85, 'rgba(175, 162, 138, 0.35)');
+    lowFog.addColorStop(1, 'rgba(160, 148, 124, 0.55)');
   } else {
     lowFog.addColorStop(0, 'rgba(3, 5, 8, 0)');
     lowFog.addColorStop(0.35, 'rgba(3, 5, 8, 0.45)');
@@ -103,7 +103,7 @@ function drawAtmosphereBands(context) {
 
   const maskTop = oy + eh * 0.62;
   const maskH = (oy + eh) - maskTop + ch * 0.15;
-  context.fillStyle = light ? 'rgba(165, 152, 128, 0.75)' : 'rgba(3, 5, 8, 0.92)';
+  context.fillStyle = light ? 'rgba(165, 152, 128, 0.35)' : 'rgba(3, 5, 8, 0.72)';
   context.fillRect(ox - cw * 0.1, maskTop, ew + cw * 0.2, maskH);
 }
 

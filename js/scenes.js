@@ -2318,6 +2318,7 @@ function drawCoverImage(context, img, alpha, yOffset = 0) {
 
 function drawBackgroundVignette(context) {
   if (!context || !getCanvas()) return;
+  const light = typeof isLightTheme === 'function' && isLightTheme();
   const cw = viewW;
   const ch = viewH;
   const z = Math.max(0.3, Math.min(1, zoomLevel || 1));
@@ -2328,12 +2329,19 @@ function drawBackgroundVignette(context) {
   const eh = ch * expand;
   const cx = ox + ew / 2;
   const cy = oy + eh / 2;
-  const innerR = Math.min(ew, eh) * 0.32;
+  const innerR = Math.min(ew, eh) * 0.42;
   const outerR = Math.sqrt(ew * ew + eh * eh) / 2;
   const g = context.createRadialGradient(cx, cy, innerR, cx, cy, outerR);
-  g.addColorStop(0, 'rgba(3, 5, 8, 0)');
-  g.addColorStop(0.55, 'rgba(3, 5, 8, 0.55)');
-  g.addColorStop(1, 'rgba(3, 5, 8, 0.98)');
+  if (light) {
+    // Very light edge only — do not wash out slideshow photos
+    g.addColorStop(0, 'rgba(235, 228, 212, 0)');
+    g.addColorStop(0.7, 'rgba(235, 228, 212, 0.08)');
+    g.addColorStop(1, 'rgba(230, 223, 208, 0.28)');
+  } else {
+    g.addColorStop(0, 'rgba(3, 5, 8, 0)');
+    g.addColorStop(0.65, 'rgba(3, 5, 8, 0.18)');
+    g.addColorStop(1, 'rgba(3, 5, 8, 0.55)');
+  }
   context.save();
   context.fillStyle = g;
   context.fillRect(ox, oy, ew, eh);
@@ -2350,7 +2358,11 @@ function drawBackgroundGalleryImages(context) {
   const nextIdx = (typeof window.bgNextIndex !== 'undefined') ? window.bgNextIndex : (typeof bgNextIndex !== 'undefined' ? bgNextIndex : 1);
   const fade = (typeof window.bgFadeProgress !== 'undefined') ? window.bgFadeProgress : (typeof bgFadeProgress !== 'undefined' ? bgFadeProgress : 0);
   const phase = (typeof window.bgPhase !== 'undefined') ? window.bgPhase : (typeof bgPhase !== 'undefined' ? bgPhase : 'hold');
-  const maxOp = (typeof BG_MAX_OPACITY !== 'undefined') ? BG_MAX_OPACITY : 0.55;
+  let maxOp = (typeof window.BG_MAX_OPACITY === 'number') ? window.BG_MAX_OPACITY
+    : ((typeof BG_MAX_OPACITY !== 'undefined') ? BG_MAX_OPACITY : 0.92);
+  if (typeof isLightTheme === 'function' && isLightTheme()) {
+    maxOp = Math.max(maxOp, 0.95); // full-strength photos in light mode
+  }
 
   const currentImg = images[curIdx];
   const nextImg = images[nextIdx];
