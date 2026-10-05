@@ -3162,72 +3162,142 @@ body.rabbit-hole-open #cursor {
 }
 
 /* Floating Vertical Side Indicator (Right edge) */
-.rh-side-nav {
+/* Bottom chapter progression bar */
+.rh-side-nav,
+.rh-bottom-progress {
   position: fixed;
-  right: 2rem;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 90;
+  left: 50%;
+  right: auto;
+  top: auto;
+  bottom: max(0.55rem, env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 110;
   display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.2rem;
+  max-width: min(96vw, 720px);
+  width: auto;
+  padding: 0.4rem 0.45rem;
+  background: rgba(8, 8, 12, 0.82);
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  border-radius: 999px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.45), 0 0 20px rgba(212, 175, 55, 0.08);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.rh-side-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .rh-side-pip {
-  background: none;
-  border: none;
-  padding: 4px;
+  background: transparent;
+  border: 0;
+  padding: 0.45rem 0.55rem;
+  min-width: 2.6rem;
   cursor: pointer;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  gap: 0.6rem;
+  justify-content: center;
+  gap: 0.15rem;
   position: relative;
+  border-radius: 999px;
+  transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  flex: 0 0 auto;
+}
+
+.rh-side-pip-num {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: rgba(232, 224, 200, 0.55);
+  transition: color 0.25s ease;
 }
 
 .rh-side-pip-label {
   font-family: 'Inter', sans-serif;
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-muted);
-  opacity: 0;
-  transform: translateX(8px);
-  transition: all 0.3s ease;
+  opacity: 0.85;
+  transform: none;
+  transition: color 0.25s ease, opacity 0.25s ease;
   pointer-events: none;
   white-space: nowrap;
+  max-width: 5.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .rh-side-pip-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  display: none;
+}
+
+.rh-side-pip:hover {
+  background: rgba(212, 175, 55, 0.1);
 }
 
 .rh-side-pip:hover .rh-side-pip-label {
   opacity: 1;
-  transform: translateX(0);
   color: var(--text-primary);
 }
 
-.rh-side-pip:hover .rh-side-pip-dot {
-  background: rgba(212, 175, 55, 0.6);
-  transform: scale(1.3);
+.rh-side-pip:hover .rh-side-pip-num {
+  color: rgba(255, 236, 180, 0.9);
 }
 
-.rh-side-pip.active .rh-side-pip-dot {
-  background: var(--accent-gold);
-  height: 20px;
-  border-radius: 4px;
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+.rh-side-pip.active {
+  background: rgba(212, 175, 55, 0.16);
+}
+
+.rh-side-pip.active .rh-side-pip-num {
+  color: var(--accent-gold);
 }
 
 .rh-side-pip.active .rh-side-pip-label {
-  opacity: 0.9;
+  opacity: 1;
   color: var(--accent-gold);
-  transform: translateX(0);
+}
+
+/* Space so last content isn't hidden under bottom bar */
+.rabbit-hole .rh-scroll-track {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Hide legacy side/floating chapter openers */
+.rh-toc-floating-btn,
+.rh-toc-toggle-btn {
+  display: none !important;
+}
+
+[data-theme="light"] .rh-side-nav,
+[data-theme="light"] .rh-bottom-progress {
+  background: rgba(250, 247, 240, 0.92);
+  border-color: rgba(122, 98, 24, 0.28);
+  box-shadow: 0 8px 28px rgba(40, 30, 10, 0.12);
+}
+
+[data-theme="light"] .rh-side-pip-num {
+  color: rgba(58, 46, 18, 0.55);
+}
+
+[data-theme="light"] .rh-side-pip.active {
+  background: rgba(122, 98, 24, 0.12);
+}
+
+[data-theme="light"] .rh-side-pip.active .rh-side-pip-num,
+[data-theme="light"] .rh-side-pip.active .rh-side-pip-label {
+  color: #7a6218;
 }
 
 /* Scroll Track containing full vertical sections */
@@ -4430,7 +4500,18 @@ body.rabbit-hole-open #cursor {
     padding: 1rem 1.5rem;
   }
   .rh-side-nav {
-    display: none;
+    display: flex;
+    max-width: min(98vw, 100%);
+    gap: 0.1rem;
+    padding: 0.35rem 0.35rem;
+  }
+  .rh-side-pip {
+    padding: 0.4rem 0.4rem;
+    min-width: 2.35rem;
+  }
+  .rh-side-pip-label {
+    font-size: 0.48rem;
+    max-width: 4.2rem;
   }
   .rh-track-intro-banner {
     padding: 0 1.5rem;
@@ -7189,4 +7270,19 @@ body.qr-open .path-action-bar {
   #s1.section {
     max-height: min(82dvh, calc(100dvh - 5.5rem));
   }
+}
+
+
+/* RH sticky return always reachable while scrolling chapters */
+.rabbit-hole .rh-sticky-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 130;
+}
+.rabbit-hole .rh-close-btn {
+  position: relative;
+  z-index: 131;
+  pointer-events: auto;
 }
