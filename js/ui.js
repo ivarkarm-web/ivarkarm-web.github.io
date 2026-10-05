@@ -1916,7 +1916,19 @@ const rhScrollManager = {
       item.setAttribute('aria-current', isActive ? 'true' : 'false');
       const badge = item.querySelector('.rh-toc-item-badge');
       if (badge) {
-        badge.textContent = isActive ? 'Active' : (isCompleted ? 'Completed' : 'Pending');
+        if (isActive) {
+          badge.textContent = 'Here';
+          badge.classList.add('rh-toc-item-badge--here');
+          badge.hidden = false;
+        } else if (isCompleted) {
+          badge.textContent = 'Read';
+          badge.classList.remove('rh-toc-item-badge--here');
+          badge.hidden = false;
+        } else {
+          badge.textContent = '';
+          badge.classList.remove('rh-toc-item-badge--here');
+          badge.hidden = true;
+        }
       }
     });
 

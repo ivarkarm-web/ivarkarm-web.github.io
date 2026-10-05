@@ -356,3 +356,20 @@ if (document.readyState === 'loading') {
 
 // ============================================================================
 // UI systems (modality, music, video, rabbit-hole, touch, navigation) moved to js/ui.js
+
+
+/* Cursor resonance expansion on interactive targets */
+(function initCursorResonance() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const interactive = 'a, button, .partner-card, .nav-action-btn, .welcome-enter, .rh-chapter-step, .dm-quicknav-btn';
+  document.addEventListener('mouseover', (e) => {
+    if (e.target && e.target.closest && e.target.closest(interactive)) {
+      document.body.classList.add('cursor-hover');
+    }
+  });
+  document.addEventListener('mouseout', (e) => {
+    if (e.target && e.target.closest && e.target.closest(interactive)) {
+      document.body.classList.remove('cursor-hover');
+    }
+  });
+})();
