@@ -2527,8 +2527,9 @@ if (document.readyState === 'loading') {
 }
 
 // ===== RABBIT HOLE SCREEN OPEN / CLOSE =====
-function openRabbitHoleScreen() {
+function openRabbitHoleScreen(opts) {
   if (endOfRoadState.rabbitHoleShown) return;
+  opts = opts || {};
   if (typeof trackEvent === 'function') trackEvent('rabbit_hole_open');
   triggerHaptic('medium');
   endOfRoadState.archiveShown = true;
@@ -2560,34 +2561,42 @@ function openRabbitHoleScreen() {
   const el = document.getElementById('rabbit-hole');
   document.body.classList.add('rabbit-hole-open');
 
+  const reveal = () => {
+    if (!el) return;
+    el.classList.remove('rabbit-hole-closing');
+    el.setAttribute('aria-hidden', 'false');
+    void el.offsetWidth;
+    el.classList.add('visible');
+    if (typeof rhGalleryManager !== 'undefined') {
+      rhGalleryManager.showImage(0);
+      rhGalleryManager.startSlideshow();
+    }
+    rhScrollManager.reset();
+    try {
+      if (typeof rhScrollManager.initCardReveals === 'function') {
+        rhScrollManager.initCardReveals();
+      }
+    } catch (e) {}
+    rhScrollManager.startParallaxLoop();
+    if (typeof ScrollTrigger !== 'undefined') {
+      ScrollTrigger.refresh();
+    }
+    const closeBtn = document.getElementById('rabbitHoleBackBtn');
+    if (closeBtn) {
+      try { closeBtn.focus(); } catch (e) {}
+    }
+  };
+
+  // Iris teleport (rh-portal) already covered the screen — reveal immediately
+  if (opts.skipCurtain) {
+    reveal();
+    return;
+  }
+
   playGoldParticleCurtain({
     count: 20,
     holdMs: 900,
-    onMid: () => {
-      if (!el) return;
-      el.classList.remove('rabbit-hole-closing');
-      el.setAttribute('aria-hidden', 'false');
-      void el.offsetWidth;
-      el.classList.add('visible');
-      if (typeof rhGalleryManager !== 'undefined') {
-        rhGalleryManager.showImage(0);
-        rhGalleryManager.startSlideshow();
-      }
-      rhScrollManager.reset();
-      try {
-        if (typeof rhScrollManager.initCardReveals === 'function') {
-          rhScrollManager.initCardReveals();
-        }
-      } catch (e) {}
-      rhScrollManager.startParallaxLoop();
-      if (typeof ScrollTrigger !== 'undefined') {
-        ScrollTrigger.refresh();
-      }
-      const closeBtn = document.getElementById('rabbitHoleBackBtn');
-      if (closeBtn) {
-        try { closeBtn.focus(); } catch (e) {}
-      }
-    }
+    onMid: reveal
   });
 }
 
