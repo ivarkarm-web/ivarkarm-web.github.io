@@ -438,7 +438,17 @@
         <div class="booking-grid">
           <label><span>Your name</span><input name="name" type="text" autocomplete="name" required></label>
           <label><span>Your email</span><input name="email" type="email" autocomplete="email" required></label>
-          <label><span>Event type</span><select name="event_type" required><option value="" selected disabled>Select one</option><option>Private event</option><option>Festival / concert</option><option>Cultural space</option><option>Film / installation</option><option>Collaboration</option><option>Other</option></select></label>
+          <fieldset class="booking-event-picker">
+            <legend>What are you planning?</legend>
+            <div class="booking-event-options">
+              <label class="booking-event-option"><input type="radio" name="event_type" value="Private event" required><span>Private event</span><small>Celebration · gathering · home</small></label>
+              <label class="booking-event-option"><input type="radio" name="event_type" value="Festival / concert"><span>Festival / concert</span><small>Stage · outdoor · venue</small></label>
+              <label class="booking-event-option"><input type="radio" name="event_type" value="Cultural space"><span>Cultural space</span><small>Gallery · museum · community</small></label>
+              <label class="booking-event-option"><input type="radio" name="event_type" value="Film / installation"><span>Film / installation</span><small>Sound · image · atmosphere</small></label>
+              <label class="booking-event-option"><input type="radio" name="event_type" value="Collaboration"><span>Collaboration</span><small>Artist · music · creative work</small></label>
+              <label class="booking-event-option"><input type="radio" name="event_type" value="Other"><span>Something else</span><small>Tell me what you have in mind</small></label>
+            </div>
+          </fieldset>
           <label><span>Event date</span><input name="event_date" type="date"></label>
           <label><span>Location</span><input name="location" type="text" placeholder="City / venue"></label>
           <label><span>Approx. duration</span><select name="duration"><option value="" selected>Not sure yet</option><option>15–30 min</option><option>30–60 min</option><option>60–90 min</option><option>2+ hours</option></select></label>
