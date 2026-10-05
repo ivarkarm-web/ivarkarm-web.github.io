@@ -85,6 +85,11 @@
   pointer-events: none;
   white-space: nowrap;
   flex-wrap: nowrap;
+  /* a bit smaller than the main Enter button */
+  padding: 0.72rem 1.55rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  gap: 0.5rem;
   transition: opacity 0.9s var(--ease-reveal, cubic-bezier(0.22, 1, 0.36, 1)),
               transform 0.9s var(--ease-reveal, cubic-bezier(0.22, 1, 0.36, 1)),
               background 0.4s, border-color 0.4s, box-shadow 0.4s;
@@ -94,12 +99,17 @@
   white-space: nowrap;
 }
 
+.egg .egg-play svg {
+  width: 14px;
+  height: 14px;
+}
+
 /* Keep both words on one line on narrow phones (letter-spacing is wide) */
 @media (max-width: 380px) {
   .egg .egg-play {
-    letter-spacing: 0.14em;
-    padding-left: 1.4rem;
-    padding-right: 1.4rem;
+    letter-spacing: 0.12em;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.65rem;
   }
 }
 
