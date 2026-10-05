@@ -100,8 +100,9 @@ const resonantStones = [
 
 // ===== END OF ROAD (after Contact) =====
 const CONTACT_X = 11000;
-const END_FADE_START_X = 11350;
-const WORLD_END_X = 12100;
+// Fade / portal start further past Contact so the ceremony isn't on top of it
+const END_FADE_START_X = 11700;
+const WORLD_END_X = 12500;
 
 let endOfRoadState = {
   fading: false,
