@@ -41,7 +41,10 @@ const required = [
   'js/utilities.js',
   'og-cover.jpg',
   'sitemap.xml',
-  'robots.txt'
+  'robots.txt',
+  'assets/partners/godan.jpg',
+  'assets/partners/heka.jpg',
+  'assets/partners/namana.jpg'
 ];
 required.forEach((f) => {
   if (fs.existsSync(path.join(root, f))) ok(f);
@@ -56,6 +59,10 @@ const scenes = read('js/scenes.js') || '';
 // SEO
 if (html.includes('og-cover.jpg')) ok('OG image points to JPG');
 else fail('og:image should use og-cover.jpg');
+if (html.includes('assets/partners/godan.jpg')) ok('Partner logos self-hosted');
+else warn('Partner logos may still use external host');
+if (html.includes('id="memoryShardHud"')) ok('Memory shard HUD present');
+else fail('Missing memoryShardHud');
 if (html.includes('name="description"')) ok('Meta description present');
 else fail('Missing meta description');
 if (html.includes('rel="canonical"')) ok('Canonical URL present');
