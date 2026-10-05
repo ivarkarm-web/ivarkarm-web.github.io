@@ -492,11 +492,18 @@ const dmCloseBtn = document.getElementById('dmCloseBtn');
 const dmBackdrop = document.getElementById('dmBackdrop');
 const dmOpenRhBtn = document.getElementById('dmOpenRhBtn');
 
-if (welcomeMonographBtn) {
-  welcomeMonographBtn.addEventListener('click', (e) => {
+function openMonographFromWelcome(e) {
+  if (e) {
     e.preventDefault();
     e.stopPropagation();
-    if (typeof openDirectMonographModal === 'function') openDirectMonographModal();
+    if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+  }
+  if (typeof openDirectMonographModal === 'function') openDirectMonographModal();
+}
+if (welcomeMonographBtn) {
+  // Capture phase so welcome's bubble listeners never start the game
+  ['pointerdown', 'pointerup', 'click', 'touchend'].forEach((type) => {
+    welcomeMonographBtn.addEventListener(type, openMonographFromWelcome, true);
   });
 }
 if (monographToggleBtn) {
@@ -656,11 +663,20 @@ function startGame() {
     btn.addEventListener('pointerup', onEnterTrigger);
   }
 
+  function isWelcomeChrome(target) {
+    if (!target || !target.closest) return false;
+    return !!target.closest(
+      '#welcomeMonographBtn, .welcome-monograph, #themeFabMobile, #themeToggleBtn, a, input, select, textarea'
+    );
+  }
+
   if (welcome) {
     welcome.addEventListener('click', (e) => {
+      if (isWelcomeChrome(e.target)) return;
       if (!gameStarted) startGame();
     });
     welcome.addEventListener('pointerdown', (e) => {
+      if (isWelcomeChrome(e.target)) return;
       if (!gameStarted) startGame();
     });
   }
