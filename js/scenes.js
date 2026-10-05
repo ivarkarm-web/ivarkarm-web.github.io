@@ -1574,9 +1574,13 @@ function update(dt) {
     const drag = 0.94 - 0.12 * linear;
     if (vx > 0) vx *= Math.pow(Math.max(0.78, drag), Math.max(0.5, dt * 60));
     endOfRoadState.screenFade = Math.max(0, (eased - 0.35) / 0.65);
-    if (eased >= 0.85) {
+    // Endpoint: stop the handpan and fade it out. Portal CTA is the only way in —
+    // do NOT auto-open the rabbit hole by rolling further.
+    if (eased >= 0.82) {
       endOfRoadState.fade = 0;
-      openRabbitHoleScreen();
+      endOfRoadState.screenFade = 1;
+      x = WORLD_END_X;
+      if (vx > 0) vx = 0;
     }
   } else if (!endOfRoadState.rabbitHoleShown) {
     endOfRoadState.fading = false;
