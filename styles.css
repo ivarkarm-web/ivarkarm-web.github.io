@@ -6758,43 +6758,58 @@ canvas#game {
   background: #7a6218 !important;
 }
 
-/* Partners: sequential flip-in when Partners section is visible */
-#s5 .partner-card {
+/* Partners stack — separate placeholders, sequential flip (Heka → Godan → Namana) */
+.partners-list--stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.85rem;
+  width: 100%;
+  max-width: 440px;
+  margin: 1.15rem auto 0;
+  perspective: 1200px;
+}
+
+#s5 .partner-card--flip {
+  display: flex;
+  width: 100%;
+  max-width: none;
+  flex: none;
   opacity: 0;
-  transform: perspective(900px) rotateY(-28deg) translateX(-12px);
-  transform-origin: left center;
+  transform: perspective(1000px) rotateX(72deg) translateY(28px) scale(0.96);
+  transform-origin: center top;
   transition:
     opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
+  backface-visibility: hidden;
 }
-#s5.visible .partner-card {
-  opacity: 1;
-  transform: perspective(900px) rotateY(0deg) translateX(0);
-}
-#s5.visible .partner-card:nth-child(1) { transition-delay: 0.08s; }
-#s5.visible .partner-card:nth-child(2) { transition-delay: 0.28s; }
-#s5.visible .partner-card:nth-child(3) { transition-delay: 0.48s; }
-#s5.visible .partner-card:nth-child(4) { transition-delay: 0.68s; }
-#s5.visible .partner-card:nth-child(5) { transition-delay: 0.88s; }
 
-/* Leave: reverse stagger slightly */
-#s5:not(.visible) .partner-card {
+#s5.visible .partner-card--flip {
+  opacity: 1;
+  transform: perspective(1000px) rotateX(0deg) translateY(0) scale(1);
+}
+
+/* Stagger: 1 Heka, 2 Godan, 3 Namana */
+#s5.visible .partner-card--flip:nth-child(1) { transition-delay: 0.12s; }
+#s5.visible .partner-card--flip:nth-child(2) { transition-delay: 0.42s; }
+#s5.visible .partner-card--flip:nth-child(3) { transition-delay: 0.72s; }
+
+#s5:not(.visible) .partner-card--flip {
   transition-delay: 0s;
 }
 
-[data-theme="light"] #s5 .partner-card,
-[data-theme="light"] #s5 .partner-card--story {
+[data-theme="light"] #s5 .partner-card--flip {
   background: #e8e1d2 !important;
   border: 1px solid rgba(26, 23, 18, 0.14) !important;
   border-radius: 6px !important;
 }
-[data-theme="light"] #s5 .partner-card:hover {
+[data-theme="light"] #s5 .partner-card--flip:hover {
   background: #f5f0e6 !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #s5 .partner-card {
+  #s5 .partner-card--flip {
     opacity: 1;
     transform: none;
     transition: none;
