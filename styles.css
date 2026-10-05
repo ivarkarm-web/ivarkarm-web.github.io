@@ -6163,7 +6163,7 @@ canvas#game {
     position: fixed;
     top: max(0.75rem, env(safe-area-inset-top));
     right: max(0.75rem, env(safe-area-inset-right));
-    z-index: 1100;
+    z-index: 5100; /* above welcome overlay (5000) */
     width: 44px;
     height: 44px;
     align-items: center;
@@ -6187,9 +6187,13 @@ canvas#game {
     height: 20px;
     stroke: currentColor;
   }
-  /* Hide FAB when main nav theme btn is usable after enter — keep both wired to same handler */
+  /* After enter, nav owns theme; FAB only on welcome */
   body:not(.pre-enter) .theme-fab-mobile {
-    display: none;
+    display: none !important;
+  }
+  body:not(.pre-enter) #themeToggleBtn {
+    pointer-events: auto;
+    visibility: visible;
   }
   body.pre-enter #themeToggleBtn {
     /* still show in nav if nav visible over welcome */
