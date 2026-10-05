@@ -14,8 +14,8 @@
 
   var WARP_MS = 1100;
   var CTA_DELAY = 950;
-  var SHOW_FADE = 0.52;
-  var HIDE_FADE = 0.28;
+  var SHOW_FADE = 0.62;
+  var HIDE_FADE = 0.35;
   var REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   var root, enterBtn, warp, ring, burst;
