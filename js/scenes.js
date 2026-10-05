@@ -1220,11 +1220,11 @@ function revealSectionContent(sectionEl) {
     );
   }
   if (partnerCards.length) {
-    gsap.set(partnerCards, { transformPerspective: 900 });
+    gsap.set(partnerCards, { transformPerspective: 1000 });
     tl.fromTo(partnerCards,
-      { opacity: 0, y: 24, rotationX: -18, transformOrigin: '50% 100%' },
-      { opacity: 1, y: 0, rotationX: 0, duration: 0.5, ease: 'power2.out', stagger: 0.08, overwrite: true },
-      0.08
+      { opacity: 0, scale: 0.65, y: 28, filter: 'blur(5px)' },
+      { opacity: 1, scale: 1, y: 0, filter: 'blur(0px)', duration: 0.75, ease: 'back.out(1.8)', stagger: 0.12, overwrite: true },
+      0.05
     );
   }
 }
@@ -1241,15 +1241,19 @@ function updateSections() {
       closestIndex = index;
     }
     if (!sectionEl) return;
-    const parallaxX = distance * parallaxSpeed;
+    const parallaxX = (index === 5)
+      ? Math.sign(distance) * Math.min(Math.abs(distance) * 0.12, 120)
+      : distance * parallaxSpeed;
     const terrainY = getGround(pos.x);
     const verticalOffset = (viewH * 0.5 - terrainY) * 0.3;
     sectionEl.style.transform = 'translate(calc(-50% + ' + parallaxX + 'px), calc(-50% + ' + verticalOffset + 'px))';
-    const revealRange = (index === 0) ? 700 : (index === 6) ? 1000 : (index === 5) ? 1800 : 1200;
+    const revealRange = (index === 0) ? 700 : (index === 6) ? 1000 : (index === 5) ? 2600 : 1200;
     if (Math.abs(distance) < revealRange) {
       sectionEl.classList.add('visible');
       const normDist = Math.abs(distance) / revealRange;
-      let opacity = Math.max(0, 1 - Math.pow(normDist, 1.8));
+      let opacity = (index === 5)
+        ? Math.min(1, Math.max(0, 1.45 * (1 - normDist)))
+        : Math.max(0, 1 - Math.pow(normDist, 1.8));
       if (index === 6 && x > CONTACT_X && endOfRoadState.fading) {
         opacity *= endOfRoadState.fade;
       }
@@ -1265,7 +1269,7 @@ function updateSections() {
     } else {
       sectionEl.classList.remove('visible');
       sectionEl.style.opacity = 0;
-      if (Math.abs(distance) > 2200) sectionRevealed.delete(index);
+      if (Math.abs(distance) > 3000) sectionRevealed.delete(index);
     }
   });
 

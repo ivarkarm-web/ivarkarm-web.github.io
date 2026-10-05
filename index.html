@@ -238,16 +238,6 @@
 
 <canvas id="game" role="img" aria-label="Interactive acoustic journey world. Use arrow keys or on-screen controls to explore the landscape and discover resonant stones."></canvas>
 
-<!-- Small glowing clue: pull up the Improv Sessions music player -->
-<button type="button" class="mp-pull-cue" id="mpPullCue" aria-label="Swipe or tap to open Improv Sessions music" aria-hidden="true" tabindex="-1">
-  <span class="mp-cue-glow" aria-hidden="true"></span>
-  <span class="mp-cue-arrows" aria-hidden="true">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15l7-7 7 7"/></svg>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15l7-7 7 7"/></svg>
-  </span>
-  <span class="mp-cue-label">Pull up for music</span>
-</button>
-
 <!-- End-of-road hint: keep rolling into the Rabbit Hole (after Contact) -->
 <div class="rh-roll-cue" id="rhRollCue" aria-hidden="true" role="status">
   <span class="rh-cue-glow" aria-hidden="true"></span>
@@ -311,6 +301,17 @@
     <span class="eyebrow">Acoustic Recordings</span>
     <h2>Improv Sessions</h2>
     <div class="hairline"></div>
+
+    <!-- Music Player Reveal Button placed above the Improv Sessions paragraph -->
+    <button type="button" class="mp-pull-cue" id="mpPullCue" aria-label="Pull down or tap to reveal Improv Sessions music" aria-hidden="true">
+      <span class="mp-cue-glow" aria-hidden="true"></span>
+      <span class="mp-cue-arrows" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 9l-7 7-7-7"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 9l-7 7-7-7"/></svg>
+      </span>
+      <span class="mp-cue-label">Pull down to reveal player</span>
+    </button>
+
     <p class="lead">Raw improvisations recorded in my bedroom.</p>
     <p class="subtext">No polished album — eight handpan sessions kept as they were. Listen on the road or download from the Rabbit Hole.</p>
   </div>

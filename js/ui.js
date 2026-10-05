@@ -1081,13 +1081,18 @@ function initMusicDrawerGestures() {
       e.stopPropagation();
       openMusicDrawer();
     });
-    // Swipe up on the cue also pulls the player up
+    // Swipe / pull down on the cue pulls the player open
     let cueStartY = 0;
     openBtn.addEventListener('touchstart', (e) => {
       if (e.touches && e.touches[0]) cueStartY = e.touches[0].clientY;
     }, { passive: true });
+    openBtn.addEventListener('touchmove', (e) => {
+      if (e.touches && e.touches[0] && e.touches[0].clientY - cueStartY > 16) {
+        if (e.cancelable) e.preventDefault();
+      }
+    }, { passive: false });
     openBtn.addEventListener('touchend', (e) => {
-      if (e.changedTouches && e.changedTouches[0] && cueStartY - e.changedTouches[0].clientY > 24) {
+      if (e.changedTouches && e.changedTouches[0] && e.changedTouches[0].clientY - cueStartY > 16) {
         if (e.cancelable) e.preventDefault();
         openMusicDrawer();
       }
