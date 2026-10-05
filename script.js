@@ -127,7 +127,7 @@ function draw(offset) {
   }
 }
 
-// Small glowing "pull up" cue for the Improv Sessions music player
+// Visible "pull up" cue for the Improv Sessions music player
 let improvCueActive = false;
 let improvCueEl = null;
 function updateImprovCue() {
@@ -137,12 +137,32 @@ function updateImprovCue() {
   const drawerOpen = typeof musicPlayer !== 'undefined' && musicPlayer.isDrawerOpen;
   const videoOpen = typeof videoPlayer !== 'undefined' && videoPlayer.isOpen;
   const active = !!pos && gameStarted && !drawerOpen && !videoOpen &&
-    !endOfRoadState.rabbitHoleShown && Math.abs(pos.x - x) < 420;
+    !endOfRoadState.rabbitHoleShown && Math.abs(pos.x - x) < 520;
   if (active === improvCueActive) return;
   improvCueActive = active;
   improvCueEl.classList.toggle('show', active);
   improvCueEl.setAttribute('aria-hidden', active ? 'false' : 'true');
   improvCueEl.tabIndex = active ? 0 : -1;
+}
+
+// End-of-road hint: after Contact, invite the player to keep rolling into the Rabbit Hole
+let rhRollCueActive = false;
+let rhRollCueEl = null;
+function updateRhRollCue() {
+  if (!rhRollCueEl) rhRollCueEl = document.getElementById('rhRollCue');
+  if (!rhRollCueEl) return;
+  const contactX = (typeof CONTACT_X === 'number') ? CONTACT_X : 11000;
+  const fadeStart = (typeof END_FADE_START_X === 'number') ? END_FADE_START_X : 11350;
+  const drawerOpen = typeof musicPlayer !== 'undefined' && musicPlayer.isDrawerOpen;
+  const videoOpen = typeof videoPlayer !== 'undefined' && videoPlayer.isOpen;
+  // Show after contact plate, before the auto-fade fully takes over
+  const pastContact = gameStarted && x > contactX + 180;
+  const beforeDeepFade = x < fadeStart + 180;
+  const active = pastContact && beforeDeepFade && !endOfRoadState.rabbitHoleShown && !drawerOpen && !videoOpen;
+  if (active === rhRollCueActive) return;
+  rhRollCueActive = active;
+  rhRollCueEl.classList.toggle('show', active);
+  rhRollCueEl.setAttribute('aria-hidden', active ? 'false' : 'true');
 }
 
 let lastTime = performance.now();
@@ -167,6 +187,7 @@ function loop(now) {
     if (typeof updateBackgroundSlideshow === 'function') updateBackgroundSlideshow(dt);
     if (typeof update === 'function') update(dt);
     if (typeof updateImprovCue === 'function') updateImprovCue();
+    if (typeof updateRhRollCue === 'function') updateRhRollCue();
     if (typeof updateWorldParticles === 'function') updateWorldParticles(dt);
     if (typeof ResonanceAudio !== 'undefined' && ResonanceAudio.updateBands) {
       ResonanceAudio.updateBands();
