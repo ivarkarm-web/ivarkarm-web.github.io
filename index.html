@@ -717,10 +717,6 @@
         <span class="rh-header-breadcrumb" id="rhBreadcrumb">01 / 07 · Early Life</span>
         <span class="rh-header-progress-tag" id="rhProgressPercent" aria-hidden="true">0%</span>
       </div>
-      <button type="button" class="rh-toc-toggle-btn" id="rhTocToggleBtn" aria-label="Open chapter menu" aria-expanded="false" aria-controls="rhTocDrawer" title="Jump to chapter">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>
-        <span>Chapters</span>
-      </button>
     </div>
 
     <!-- Return to road button -->
@@ -739,41 +735,38 @@
   </header>
 
   <!-- Floating Side Index Indicator -->
-  <nav class="rh-side-nav" aria-label="Rabbit Hole Section Navigator">
+  <!-- Bottom chapter progression (easy thumb access) -->
+  <nav class="rh-side-nav rh-bottom-progress" aria-label="Rabbit Hole chapter progression">
     <button type="button" class="rh-side-pip active" data-sec-target="0" data-target="#rhSec0" aria-label="Jump to Chapter 1: Early Life">
-      <span class="rh-side-pip-label">01 Early Life</span>
-      <span class="rh-side-pip-dot"></span>
+      <span class="rh-side-pip-num">01</span>
+      <span class="rh-side-pip-label">Early Life</span>
     </button>
     <button type="button" class="rh-side-pip" data-sec-target="1" data-target="#rhSec1" aria-label="Jump to Chapter 2: Way to Music">
-      <span class="rh-side-pip-label">02 Way to Music</span>
-      <span class="rh-side-pip-dot"></span>
+      <span class="rh-side-pip-num">02</span>
+      <span class="rh-side-pip-label">Way to Music</span>
     </button>
     <button type="button" class="rh-side-pip" data-sec-target="2" data-target="#rhSec2" aria-label="Jump to Chapter 3: Street Stories">
-      <span class="rh-side-pip-label">03 Street Stories</span>
-      <span class="rh-side-pip-dot"></span>
+      <span class="rh-side-pip-num">03</span>
+      <span class="rh-side-pip-label">Street Stories</span>
     </button>
     <button type="button" class="rh-side-pip" data-sec-target="3" data-target="#rhSec3" aria-label="Jump to Chapter 4: The Makers">
-      <span class="rh-side-pip-label">04 Makers</span>
-      <span class="rh-side-pip-dot"></span>
+      <span class="rh-side-pip-num">04</span>
+      <span class="rh-side-pip-label">Makers</span>
     </button>
     <button type="button" class="rh-side-pip" data-sec-target="4" data-target="#rhSec4" aria-label="Jump to Chapter 5: Other Instruments">
-      <span class="rh-side-pip-label">05 Instruments</span>
-      <span class="rh-side-pip-dot"></span>
+      <span class="rh-side-pip-num">05</span>
+      <span class="rh-side-pip-label">Instruments</span>
     </button>
     <button type="button" class="rh-side-pip" data-sec-target="5" data-target="#rhSec5" aria-label="Jump to Chapter 6: Tracks to Download">
-      <span class="rh-side-pip-label">06 Audio Vault</span>
-      <span class="rh-side-pip-dot"></span>
+      <span class="rh-side-pip-num">06</span>
+      <span class="rh-side-pip-label">Audio Vault</span>
     </button>
     <button type="button" class="rh-side-pip" data-sec-target="6" data-target="#rhSec6" aria-label="Jump to Chapter 7: Road Notes">
-      <span class="rh-side-pip-label">07 Road Notes</span>
-      <span class="rh-side-pip-dot"></span>
+      <span class="rh-side-pip-num">07</span>
+      <span class="rh-side-pip-label">Road Notes</span>
     </button>
   </nav>
 
-  <button type="button" class="rh-toc-floating-btn" id="rhTocFloatingBtn" aria-label="Open chapter menu" aria-expanded="false" aria-controls="rhTocDrawer" title="Chapters">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" width="16" height="16"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>
-    <span class="rh-toc-float-label">Chapters</span>
-  </button>
 
   <div class="rh-toc-backdrop" id="rhTocBackdrop" aria-hidden="true"></div>
   <aside class="rh-toc-drawer" id="rhTocDrawer" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="rhTocHeading">
