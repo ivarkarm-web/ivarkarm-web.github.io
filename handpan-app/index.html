@@ -49,6 +49,11 @@
         <label><span>BARS</span><select id="loopBars" aria-label="Loop length in bars"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label>
       </div>
       <p class="loop-config-note" id="loopConfigNote">1 bar count-in · 4 bars default</p>
+      <div class="loop-config" aria-label="Loop timing">
+        <label><span>BPM</span><input id="loopBpm" type="number" min="40" max="180" step="1" value="80" inputmode="numeric" aria-label="Loop tempo in beats per minute"></label>
+        <label><span>BARS</span><select id="loopBars" aria-label="Loop length in bars"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label>
+      </div>
+      <p class="loop-config-note" id="loopConfigNote">1 bar count-in · 4 bars default</p>
       <div class="loop-actions">
         <button id="loopPlay" type="button" aria-label="Play loop">Play</button>
         <button id="loopPause" type="button" aria-label="Pause loop">Pause</button>
