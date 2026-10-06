@@ -1842,7 +1842,9 @@ function refreshMonographScrollTriggers() {
   window.setTimeout(() => { try { ScrollTrigger.refresh(true); } catch (_) {} }, 700);
 }
 
-/* Monograph chapter reveals — smooth discovery for every image chapter */
+/* Monograph chapter reveals — restrained, reliable discovery.
+   Text is revealed with opacity/translation only; images use a single wipe.
+   The opening Eastern Estonia image stays at natural scale. */
 (function initMonographScrollReveals(){
   const sections=document.querySelectorAll('.dm-scroll-reveal');
   const scroller=document.getElementById('dmContent');
@@ -1855,35 +1857,45 @@ function refreshMonographScrollTriggers() {
     const img=section.querySelector('.dm-origin-bg img');
     const contents=Array.from(section.querySelectorAll('.dm-origin-content'));
     if(!bg||!img||!contents.length)return;
-    if(reduced){gsap.set([bg,img,...contents],{clearProps:'all'});return;}
+    const textEls=contents.flatMap(c=>Array.from(c.querySelectorAll('.dm-sec-tag,h3,p')));
 
-    gsap.set(bg,{clipPath:'inset(0 100% 0 0)',scale:1.025});
-    gsap.set(img,{scale:1.035,xPercent:-1});
-    gsap.set(contents,{autoAlpha:0,y:20});
-    contents.forEach(c=>gsap.set(c.querySelectorAll('.dm-sec-tag,h3,p'),{autoAlpha:0,y:12,filter:'blur(3px)'}));
+    if(reduced){
+      gsap.set([bg,img,...contents,...textEls],{clearProps:'all'});
+      return;
+    }
+
+    const isSharedOpening=section.classList.contains('dm-scroll-reveal--shared-bg');
+    gsap.set(bg,{clipPath:'inset(0 100% 0 0)',scale:1});
+    gsap.set(img,{scale:isSharedOpening?1:1.012,xPercent:0,yPercent:0});
+    gsap.set(contents,{autoAlpha:0,y:18});
+    // Override legacy clip-path/filter rules so text can actually become visible.
+    gsap.set(textEls,{autoAlpha:0,y:14,filter:'none',clipPath:'none'});
 
     const tl=gsap.timeline({paused:true,defaults:{overwrite:'auto'}});
-    tl.to(bg,{clipPath:'inset(0 0% 0 0)',scale:1,duration:1.05,ease:'power2.out'},0)
-      .to(img,{scale:1,xPercent:0,duration:1.35,ease:'power2.out'},0)
-      .to(contents,{autoAlpha:1,y:0,duration:.5,ease:'power2.out'},.28);
+    tl.to(bg,{clipPath:'inset(0 0% 0 0)',duration:.9,ease:'power2.out'},0)
+      .to(img,{scale:1,duration:1.05,ease:'power2.out'},0)
+      .to(contents,{autoAlpha:1,y:0,duration:.45,ease:'power2.out'},.22);
 
     contents.forEach((c,i)=>{
-      const els=c.querySelectorAll('.dm-sec-tag,h3,p');
-      tl.to(els,{autoAlpha:1,y:0,filter:'blur(0px)',duration:.5,ease:'power2.out',stagger:.06},.38+i*.12);
+      const els=Array.from(c.querySelectorAll('.dm-sec-tag,h3,p'));
+      if(!els.length)return;
+      tl.to(els,{autoAlpha:1,y:0,duration:.48,ease:'power2.out',stagger:.07},.30+i*.20);
     });
 
     ScrollTrigger.create({
-      trigger:section,scroller,
-      start:'top 78%',end:'bottom 18%',invalidateOnRefresh:true,
+      trigger:section,scroller,start:'top 78%',end:'bottom 18%',invalidateOnRefresh:true,
       onEnter:()=>tl.play(),onEnterBack:()=>tl.play(),onLeaveBack:()=>tl.reverse()
     });
 
-    gsap.to(img,{
-      yPercent:1.2,ease:'none',
-      scrollTrigger:{trigger:section,scroller,start:'top bottom',end:'bottom top',scrub:2,invalidateOnRefresh:true}
-    });
+    // Keep the shared Eastern Estonia opening still; only later chapters get
+    // an extremely subtle parallax drift.
+    if(!isSharedOpening){
+      gsap.to(img,{
+        yPercent:1,ease:'none',
+        scrollTrigger:{trigger:section,scroller,start:'top bottom',end:'bottom top',scrub:3,invalidateOnRefresh:true}
+      });
+    }
   });
 
   requestAnimationFrame(()=>requestAnimationFrame(()=>ScrollTrigger.refresh(true)));
 })();
-
