@@ -12,7 +12,7 @@ function paintOrbit(){
  state.layers.forEach(function(layer,i){
   var node=document.createElement('button'); node.type='button'; node.className='loop-orbit-node'+(state.paused?' is-paused':'')+(state.mode==='playing'&&!state.paused?' is-playing':'');
   node.style.setProperty('--orbit-i',i);
-  node.setAttribute('aria-label',(state.paused?'Play':'Pause')+' loop layer '+(i+1));
+  node.setAttribute('aria-label',(state.paused?'Play':'Pause')+' loop');
   node.innerHTML='<span></span><b>'+(i+1)+'</b>';
   node.addEventListener('click',function(){ if(state.paused) play(); else pause(); });
   orbit.appendChild(node);
