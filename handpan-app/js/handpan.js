@@ -757,7 +757,7 @@
     try { window.dispatchEvent(new CustomEvent('handpan:note', { detail: { noteIndex: idx, velocity: finalVel, impact: impact || null } })); } catch (err) {}
     if (fields[idx]) {
       fields[idx].glow = 1;
-      addRipple(fields[idx].cx, fields[idx].cy, vel || 0.8);
+      addRipple(fields[idx].cx, fields[idx].cy, finalVel);
       addBurst(fields[idx].cx, fields[idx].cy, finalVel, true);\n      haptic(finalVel > 0.82 ? 'accent' : 'hit');
     }
     document.body.classList.add('hp-played');
