@@ -71,7 +71,7 @@ function startRepeat(){
 function hit(e){
  if(!state.active||state.playingDemo||state.phase!=='repeat')return;
  state.userInteracted=true;
- var targets=lessons[state.lesson].steps[state.next],idx=e.noteIndex;
+ var targets=lessons[state.lesson].steps[state.next],idx=e&&e.detail?e.detail.noteIndex:null;
  if(targets.indexOf(idx)!==-1){
   state.stepHits[idx]=true;
   if(targets.every(function(n){return state.stepHits[n]})){
