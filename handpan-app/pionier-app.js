@@ -114,8 +114,6 @@ const engine = {
     this.sampleBank.load().then(() => {
       const n = this.sampleBank.byMidi.size;
       console.info('[handpan] samples', n);
-      const hint = document.getElementById('hint');
-      if (hint && n) hint.textContent = 'Vector pads · samples live · Q–O';
     }).catch((e) => console.warn(e));
 
     // Tone: low-pass on dry path (0 = dark, 1 = open/bright)
