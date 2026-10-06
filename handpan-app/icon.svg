@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#14151a"/>
+      <stop offset="60%" stop-color="#0a0a0d"/>
+      <stop offset="100%" stop-color="#040405"/>
+    </radialGradient>
+    <radialGradient id="shell" cx="42%" cy="40%" r="52%">
+      <stop offset="0%" stop-color="#34363f"/>
+      <stop offset="35%" stop-color="#212228"/>
+      <stop offset="70%" stop-color="#121317"/>
+      <stop offset="100%" stop-color="#09090b"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5e08c"/>
+      <stop offset="45%" stop-color="#a07d24"/>
+      <stop offset="75%" stop-color="#e8cf79"/>
+      <stop offset="100%" stop-color="#6b5314"/>
+    </linearGradient>
+    <radialGradient id="ding" cx="40%" cy="38%" r="50%">
+      <stop offset="0%" stop-color="#ffec9e"/>
+      <stop offset="50%" stop-color="#bfa23b"/>
+      <stop offset="100%" stop-color="#2a2820"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- Outer glow -->
+  <circle cx="256" cy="256" r="220" fill="none" stroke="url(#rim)" stroke-width="6" opacity="0.85"/>
+  <circle cx="256" cy="256" r="214" fill="url(#shell)"/>
+  <!-- Tonefields ring -->
+  <ellipse cx="256" cy="115" rx="36" ry="28" fill="#18191f" stroke="#c9a227" stroke-width="2.5" opacity="0.9"/>
+  <ellipse cx="355" cy="155" rx="34" ry="26" fill="#18191f" stroke="#c9a227" stroke-width="2.5" opacity="0.9" transform="rotate(35 355 155)"/>
+  <ellipse cx="395" cy="256" rx="34" ry="26" fill="#18191f" stroke="#c9a227" stroke-width="2.5" opacity="0.9" transform="rotate(90 395 256)"/>
+  <ellipse cx="355" cy="355" rx="34" ry="26" fill="#18191f" stroke="#c9a227" stroke-width="2.5" opacity="0.9" transform="rotate(145 355 355)"/>
+  <ellipse cx="256" cy="395" rx="36" ry="28" fill="#18191f" stroke="#c9a227" stroke-width="2.5" opacity="0.9"/>
+  <ellipse cx="155" cy="355" rx="34" ry="26" fill="#18191f" stroke="#c9a227" stroke-width="2.5" opacity="0.9" transform="rotate(-145 155 355)"/>
+  <ellipse cx="115" cy="256" rx="34" ry="26" fill="#18191f" stroke="#c9a227" stroke-width="2.5" opacity="0.9" transform="rotate(-90 115 256)"/>
+  <ellipse cx="155" cy="155" rx="34" ry="26" fill="#18191f" stroke="#c9a227" stroke-width="2.5" opacity="0.9" transform="rotate(-35 155 155)"/>
+  <!-- Central Ding Dome -->
+  <circle cx="256" cy="256" r="54" fill="url(#ding)" stroke="#f5e08c" stroke-width="3"/>
+  <circle cx="256" cy="256" r="22" fill="#e8cf79" opacity="0.65"/>
+</svg>
