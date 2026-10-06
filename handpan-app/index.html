@@ -51,6 +51,17 @@
     </p>
   </footer>
 
+  <div class="loop-controls" id="loopControls" aria-label="Loop recorder">
+    <div class="loop-status" id="loopStatus">EMPTY</div>
+    <div class="loop-buttons">
+      <button id="loopRecord" type="button">Record</button>
+      <button id="loopPlay" type="button">Loop</button>
+      <button id="loopClear" type="button">Clear</button>
+    </div>
+    <input id="loopTempo" type="range" min="50" max="140" value="80" aria-label="Tempo">
+    <div class="loop-events" id="loopEvents">No loop recorded</div>
+  </div>
+
   <div class="app-panel" id="appPanel" aria-live="polite">
     <div class="app-panel-kicker">PLAY MODE</div>
     <div class="app-panel-copy">The original website instrument is now the nucleus of the standalone app.</div>
@@ -58,6 +69,7 @@
 
   <div class="hp-veil" id="hpVeil" aria-hidden="true"></div>
   <script src="./js/handpan.js"></script>
+  <script src="./js/loop.js"></script>
   <script src="./js/app-shell.js"></script>
 </body>
 </html>
