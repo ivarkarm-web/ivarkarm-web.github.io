@@ -36,7 +36,7 @@ function start(mode){
  if(mode==='jungle'){baseNoise('soft',3000,.25,.022);baseNoise('brown',900,.3,.018);bird();}
  if(mode==='forest'){baseNoise('soft',2200,.2,.016);baseNoise('brown',1300,.3,.015);bird();}
 }
-function thunder(){var delay=7000+Math.random()*18000;timers.push(setTimeout(function(){if(ambience!=='storm')return;var o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(70,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(32,ctx.currentTime+2.2);g.gain.setValueAtTime(.0001,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.08,ctx.currentTime+.25);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+2.5);o.connect(g);g.connect(master);o.start();o.stop(ctx.currentTime+2.6);thunder()},delay))}
+function thunder(){var delay=7000+Math.random()*18000;timers.push(setTimeout(function(){if(ambience!=='storm')return;var o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(70,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(32,ctx.currentTime+2.2);g.gain.setValueAtTime(.0001,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.08,ctx.currentTime+.25);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+2.5);o.connect(g);g.connect(master);o.start();o.stop(ctx.currentTime+2.6);thunder()},delay);}
 function fade(v){if(!master)return;var t=ctx.currentTime;master.gain.cancelScheduledValues(t);master.gain.setTargetAtTime(Math.max(0,Math.min(.7,v)),t,.45)}
 var instruments=(window.HandpanGame&&window.HandpanGame.instruments)||[];
 function buildGrid(){
