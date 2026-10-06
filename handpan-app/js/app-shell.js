@@ -45,7 +45,7 @@ buttons.forEach(function(b){
 });
 
 window.HandpanApp={
- version:'0.4.0',
+ version:'0.4.1',
  modes:modes,
  setMode:setMode,
  instrument:window.HandpanGame||null
