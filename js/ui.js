@@ -1826,3 +1826,27 @@ function connectMusicToAnalyser(audioEl) {
     // MediaElementSource can only be created once; ignore repeats
   }
 }
+
+/* Monograph chapter reveals */
+(function initMonographScrollReveals(){
+  const sections=document.querySelectorAll('.dm-scroll-reveal');
+  if(!sections.length)return;
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(typeof gsap!=='undefined'&&typeof ScrollTrigger!=='undefined'){
+    gsap.registerPlugin(ScrollTrigger);
+    sections.forEach(section=>{
+      const bg=section.querySelector('.dm-origin-bg'),content=section.querySelector('.dm-origin-content');
+      const tag=section.querySelector('.dm-sec-tag'),heading=section.querySelector('h3'),copy=section.querySelector('p');
+      if(!bg||!content)return;
+      if(reduced){section.classList.add('dm-scroll-reveal--active');return;}
+      gsap.set(bg,{autoAlpha:0,scale:1.045}); gsap.set(content,{autoAlpha:0,y:28,filter:'blur(5px)'});
+      gsap.set([tag,heading,copy].filter(Boolean),{autoAlpha:0,y:18});
+      gsap.timeline({scrollTrigger:{trigger:section,start:'top 72%',toggleActions:'play none none reset'}})
+        .to(bg,{autoAlpha:1,scale:1,duration:1.25,ease:'power3.out'})
+        .to(content,{autoAlpha:1,y:0,filter:'blur(0px)',duration:.9,ease:'power3.out'},'-.78')
+        .to(tag,{autoAlpha:1,y:0,duration:.55,ease:'power2.out'},'-.48')
+        .to(heading,{autoAlpha:1,y:0,duration:.7,ease:'power3.out'},'-.34')
+        .to(copy,{autoAlpha:1,y:0,duration:.72,ease:'power3.out'},'-.42');
+    });
+  }else sections.forEach(s=>s.classList.add('dm-scroll-reveal--active'));
+})();
