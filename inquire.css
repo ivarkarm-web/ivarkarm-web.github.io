@@ -48,3 +48,22 @@ body.inq-sending{cursor:wait}
 @media(max-width:760px){.inq-main{width:min(100% - 1.4rem,620px);padding-top:5.4rem}.inq-event-grid{gap:.32rem}.inq-header h1{font-size:clamp(2.5rem,12vw,4.1rem)}.inq-road{top:max(.8rem,env(safe-area-inset-top));right:max(.8rem,env(safe-area-inset-right))}.inq-footer{flex-direction:column;gap:.45rem;text-align:center}.inq-fields{grid-template-columns:1fr}.inq-intro-row{align-items:flex-start;flex-direction:column;gap:.25rem}.inq-prompt{font-size:1.15rem}}
 @media(max-width:480px){.inq-event-grid{gap:.28rem}.inq-event{padding:.48rem .62rem!important}.inq-event span{font-size:.55rem}.inq-header{margin-bottom:1.7rem}.inq-header p{font-size:.82rem}.inq-road{font-size:.58rem;padding:.55rem .8rem .55rem 1rem}.inq-road svg{width:14px}.inq-main{padding-bottom:2rem}.inq-submit-row{align-items:flex-end;flex-direction:column-reverse}.inq-submit{width:100%}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important;animation-iteration-count:1!important}}
+
+/* Refined inquiry journey */
+.inq-progress{display:flex;align-items:center;justify-content:center;gap:.7rem;margin:0 auto 2.8rem;color:#5f5b55;font-size:.58rem;letter-spacing:.2em}
+.inq-progress span{transition:color .5s,opacity .5s}.inq-progress span.is-active{color:var(--gold)}.inq-progress span.is-done{color:#a68a38}.inq-progress i{width:42px;height:1px;background:rgba(212,175,55,.18)}
+.inq-step{display:none;opacity:0;transform:translateY(14px)}.inq-step.is-active{display:block;animation:inq-step-in .75s var(--ease) both}
+@keyframes inq-step-in{to{opacity:1;transform:none}}
+.inq-step h2{font-family:Fraunces,Georgia,serif;font-weight:350;font-size:clamp(1.8rem,4vw,3rem);letter-spacing:-.025em;color:#ded6c9;margin:.25rem 0 1.7rem}
+.inq-event-grid{display:grid!important;grid-template-columns:repeat(2,1fr);gap:.65rem;margin:0}
+.inq-event{position:relative!important;min-height:86px!important;padding:1rem 1.05rem!important;border:1px solid rgba(212,175,55,.17)!important;border-radius:2px!important;background:linear-gradient(135deg,rgba(255,255,255,.018),rgba(212,175,55,.012))!important;color:#aaa49a!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;cursor:pointer!important;transition:border-color .4s var(--ease),background .4s var(--ease),color .4s var(--ease),transform .4s var(--ease),box-shadow .4s var(--ease)!important}
+.inq-event:hover{border-color:rgba(212,175,55,.42)!important;transform:translateY(-2px);color:#d8d0c2!important}
+.inq-event:has(input:checked){border-color:var(--gold)!important;background:linear-gradient(135deg,rgba(212,175,55,.11),rgba(212,175,55,.025))!important;color:var(--gold-bright)!important;box-shadow:inset 0 0 24px rgba(212,175,55,.035),0 8px 28px rgba(0,0,0,.2)}
+.inq-event span{font-size:.72rem!important;letter-spacing:.14em;text-transform:uppercase;color:inherit}.inq-event small{margin-top:.38rem;font-size:.67rem;color:#6f6a61;letter-spacing:.02em}.inq-event:has(input:checked) small{color:#9b8750}
+.inq-details{display:none}
+.inq-fields{gap:1.35rem}
+.inq-nav{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:2rem;padding-top:1rem;border-top:1px solid rgba(212,175,55,.12)}
+.inq-continue,.inq-submit{display:inline-flex;align-items:center;gap:.7rem;border:1px solid rgba(212,175,55,.5);border-radius:2px;background:rgba(212,175,55,.035);color:#d8d0c2;padding:.78rem 1.15rem!important;font:500 .62rem/1 Inter,sans-serif;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;transition:all .4s var(--ease)}
+.inq-continue span{color:var(--gold);transition:transform .4s var(--ease)}.inq-continue:hover,.inq-continue:focus-visible,.inq-submit:hover,.inq-submit:focus-visible{background:rgba(212,175,55,.1);border-color:var(--gold);color:var(--gold-bright);box-shadow:0 0 24px rgba(212,175,55,.08);outline:none;transform:translateY(-1px)}.inq-continue:hover span{transform:translateX(3px)}
+.inq-back{border:0;background:none;color:#706b63;padding:.7rem 0;font:500 .6rem/1 Inter,sans-serif;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:color .3s}.inq-back:hover,.inq-back:focus-visible{color:var(--gold);outline:none}
+@media(max-width:600px){.inq-event-grid{grid-template-columns:1fr!important}.inq-event{min-height:74px!important}.inq-progress i{width:25px}.inq-nav{margin-top:1.5rem}.inq-step h2{font-size:2rem}}
