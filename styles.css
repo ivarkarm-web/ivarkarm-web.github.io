@@ -8136,3 +8136,104 @@ body.rabbit-hole-open .welcome {
     transition:none!important;
   }
 }
+
+/* ==========================================================================
+   Monograph — Rabbit Hole-style discovery system
+   Stable image geometry first; card/text reveal second.
+   ========================================================================== */
+
+/* Neutralise the older experimental image clipping system. */
+.dm-scroll-reveal .dm-origin-bg,
+.dm-scroll-reveal .dm-origin-bg img{
+  clip-path:none !important;
+  will-change:auto;
+}
+.dm-scroll-reveal .dm-origin-bg{
+  opacity:1 !important;
+  transform:none !important;
+}
+.dm-scroll-reveal .dm-origin-bg img{
+  opacity:.78;
+  transform:scale(1.012);
+  transition:opacity .7s ease,transform 1s cubic-bezier(.22,.61,.36,1);
+}
+
+/* JS only adds --ready after it has successfully registered the reveal
+   system. Without JS, the content remains completely visible. */
+.dm-rh-reveal-ready .dm-origin-bg img{
+  opacity:.62;
+  transform:scale(1.018);
+}
+.dm-rh-reveal-ready .dm-origin-content{
+  opacity:1;
+}
+.dm-rh-reveal-ready .dm-origin-content .dm-sec-tag,
+.dm-rh-reveal-ready .dm-origin-content h3,
+.dm-rh-reveal-ready .dm-origin-content p{
+  opacity:0;
+  transform:translate3d(0,22px,0);
+  filter:blur(4px);
+}
+.dm-rh-reveal-ready .dm-origin-content::before{
+  transform:scaleX(0);
+  opacity:0;
+}
+
+.dm-rh-reveal-visible .dm-origin-bg img{
+  opacity:.84;
+  transform:scale(1);
+}
+.dm-rh-reveal-visible .dm-origin-content::before{
+  transform:scaleX(1);
+  opacity:1;
+  transition:transform .55s ease,opacity .35s ease;
+}
+.dm-rh-reveal-visible .dm-origin-content .dm-sec-tag,
+.dm-rh-reveal-visible .dm-origin-content h3,
+.dm-rh-reveal-visible .dm-origin-content p{
+  opacity:1;
+  transform:translate3d(0,0,0);
+  filter:blur(0);
+  transition:
+    opacity .55s ease var(--dm-text-delay),
+    transform .65s cubic-bezier(.22,.61,.36,1) var(--dm-text-delay),
+    filter .65s ease var(--dm-text-delay);
+}
+
+/* Opening: Foundational Principle is the first card immediately beneath nav.
+   The Beginning follows as the second card inside the same Eastern Estonia
+   photographic field. */
+.dm-content--book{
+  padding-top:0;
+}
+.dm-content--book > .dm-section:first-child{
+  margin-top:0;
+}
+.dm-section--eastern-origin.dm-scroll-reveal--shared-bg{
+  margin-top:0;
+}
+.dm-section--eastern-origin .dm-origin-content--principle{
+  margin-top:auto;
+}
+.dm-section--eastern-origin .dm-origin-content--beginning{
+  margin-top:0;
+}
+
+@media(max-width:600px){
+  .dm-content--book{
+    padding-top:0;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .dm-rh-reveal-ready .dm-origin-content .dm-sec-tag,
+  .dm-rh-reveal-ready .dm-origin-content h3,
+  .dm-rh-reveal-ready .dm-origin-content p,
+  .dm-rh-reveal-ready .dm-origin-bg img,
+  .dm-rh-reveal-ready .dm-origin-content::before{
+    opacity:1!important;
+    transform:none!important;
+    filter:none!important;
+    transition:none!important;
+  }
+}
