@@ -20,10 +20,10 @@ function renderList(){
   list.appendChild(b);
  });
 }
-function openPicker(){state.phase='picker';state.active=false;clearGuide();if(stage)stage.hidden=true;if(list)list.hidden=false;hideModal();renderList();}
+function openPicker(){state.phase='picker';state.active=false;state.playingDemo=false;if(state.timer)clearTimeout(state.timer);clearGuide();document.body.classList.remove('learn-active');if(stage)stage.hidden=true;if(list)list.hidden=false;hideModal();renderList();}
 function selectLesson(i){
  state.lesson=i;state.phase='demo';state.active=false;state.next=0;state.hits=0;state.misses=0;state.combo=0;state.bestCombo=0;state.stepHits={};
- if(list)list.hidden=true;if(stage)stage.hidden=false;
+ if(list)list.hidden=true;if(stage)stage.hidden=false;document.body.classList.add('learn-active');
  nameEl.textContent=lessons[i].name; statusEl.textContent='Listen first…'; renderStats(); playDemo();
 }
 function renderStats(){if(progressEl)progressEl.textContent=Math.min(state.next,lessons[state.lesson].steps.length)+'/'+lessons[state.lesson].steps.length;if(scoreEl)scoreEl.textContent=state.hits+' hits · '+state.misses+' misses';}
