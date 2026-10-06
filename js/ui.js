@@ -1842,73 +1842,79 @@ function refreshMonographScrollTriggers() {
   window.setTimeout(() => { try { ScrollTrigger.refresh(true); } catch (_) {} }, 700);
 }
 
-/* Monograph chapter reveals — native container observer.
-   The Monograph has its own scroll container, so this deliberately avoids
-   ScrollTrigger for chapter discovery. The image remains a real, loadable
-   element even if animation code is unavailable; JS only adds the discovered
-   state when the chapter enters the reader viewport. */
+/* Monograph reveals — Rabbit Hole-style card discovery.
+   Deliberately does not hide or clip the photographs. The Rabbit Hole's
+   reliable pattern is: keep layout geometry stable, detect the reader's
+   viewport, then add a reveal class. */
 (function initMonographScrollReveals(){
-  const sections=Array.from(document.querySelectorAll('.dm-scroll-reveal'));
   const scroller=document.getElementById('dmContent');
-  if(!sections.length||!scroller)return;
+  if(!scroller)return;
+
+  const sections=Array.from(scroller.querySelectorAll('.dm-scroll-reveal'));
+  if(!sections.length)return;
 
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lastSection=document.getElementById('dmSec7');
 
   sections.forEach(section=>{
-    const bg=section.querySelector('.dm-origin-bg');
-    const img=section.querySelector('.dm-origin-bg img');
+    // The final photograph is intentionally left completely untouched.
+    if(section===lastSection){
+      section.classList.remove('dm-scroll-reveal','dm-rh-reveal-ready','dm-rh-reveal-visible');
+      return;
+    }
+
     const contents=Array.from(section.querySelectorAll('.dm-origin-content'));
-    if(!bg||!img||!contents.length)return;
+    if(!contents.length)return;
 
-    section.classList.add('dm-scroll-reveal--ready');
+    section.classList.add('dm-rh-reveal-ready');
 
-    contents.forEach((content,i)=>{
-      content.style.setProperty('--dm-reveal-delay', (i * 180) + 'ms');
+    contents.forEach((content,index)=>{
+      content.style.setProperty('--dm-card-delay', (index * 160)+'ms');
       content.querySelectorAll('.dm-sec-tag,h3,p').forEach((el,j)=>{
-        el.style.setProperty('--dm-text-delay', (i * 180 + j * 90) + 'ms');
+        el.style.setProperty('--dm-text-delay', (index * 160 + j * 80)+'ms');
       });
     });
-
-    const reveal=()=>{
-      section.classList.add('dm-scroll-reveal--revealed');
-    };
 
     if(reduced){
-      reveal();
-      return;
+      section.classList.add('dm-rh-reveal-visible');
     }
+  });
 
-    if(!('IntersectionObserver' in window)){
-      reveal();
-      return;
-    }
+  if(reduced)return;
 
-    const observer=new IntersectionObserver(entries=>{
-      entries.forEach(entry=>{
-        if(entry.isIntersecting){
-          reveal();
-          observer.unobserve(section);
-        }
-      });
-    },{
-      root:scroller,
-      rootMargin:'0px 0px -22% 0px',
-      threshold:0.02
+  let ticking=false;
+
+  const update=()=>{
+    ticking=false;
+    const root=scroller.getBoundingClientRect();
+    const triggerY=root.top + root.height * 0.72;
+
+    sections.forEach(section=>{
+      if(!section.classList.contains('dm-rh-reveal-ready'))return;
+      if(section.classList.contains('dm-rh-reveal-visible'))return;
+
+      const rect=section.getBoundingClientRect();
+
+      // Same basic geometry as Rabbit Hole card discovery:
+      // reveal once the section enters the reading zone.
+      if(rect.top < triggerY && rect.bottom > root.top + 8){
+        section.classList.add('dm-rh-reveal-visible');
+      }
     });
+  };
 
-    observer.observe(section);
-    section._dmRevealObserver=observer;
-  });
+  const requestUpdate=()=>{
+    if(ticking)return;
+    ticking=true;
+    requestAnimationFrame(update);
+  };
 
-  // Images may have intrinsic dimensions that settle after the Monograph opens.
-  // Refresh only the reader's existing ScrollTrigger systems; discovery itself
-  // does not depend on ScrollTrigger.
-  const refresh=()=>requestAnimationFrame(()=>{
-    if(typeof ScrollTrigger!=='undefined'){
-      try{ ScrollTrigger.refresh(true); }catch(_){}
-    }
-  });
-  refresh();
-  window.setTimeout(refresh,180);
-  window.setTimeout(refresh,700);
+  scroller.addEventListener('scroll',requestUpdate,{passive:true});
+  window.addEventListener('resize',requestUpdate,{passive:true});
+  requestUpdate();
+
+  // The Monograph opens hidden. Re-run after the reader becomes visible.
+  window.setTimeout(requestUpdate,120);
+  window.setTimeout(requestUpdate,500);
+  window.setTimeout(requestUpdate,900);
 })();
