@@ -32,8 +32,8 @@
   .app-brand { left:50%; transform:translateX(-50%); white-space:nowrap; }
 }
 
-.loop-controls{position:fixed;z-index:9;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 4.6rem);transform:translateX(-50%);width:88px;height:88px;display:flex;align-items:center;justify-content:center;pointer-events:none}
-.loop-record{pointer-events:auto;width:72px;height:72px;border:0;border-radius:50%;background:#b3261e;color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.08);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;transition:transform .15s ease,background .2s ease,box-shadow .2s ease}
+.loop-controls{position:fixed;z-index:100;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 4.6rem);transform:translateX(-50%);width:96px;height:96px;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.loop-record{pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;width:76px;height:76px;border:0;border-radius:50%;background:#b3261e;color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.1);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;transition:transform .15s ease,background .2s ease,box-shadow .2s ease;user-select:none}
 .loop-record-dot{width:22px;height:22px;border-radius:50%;background:#fff;display:block;transition:all .2s ease}
 .loop-record-label{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font:600 .48rem Inter,sans-serif;letter-spacing:.14em;color:rgba(240,236,228,.5);white-space:nowrap}
 .loop-record:hover{transform:scale(1.04)}
