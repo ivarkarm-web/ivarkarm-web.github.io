@@ -243,6 +243,30 @@ body.hp-played .hp-hint {
   display: none;
 }
 
+
+/* Full app gateway — keeps the hidden handpan simple while offering the deeper instrument */
+.hp-actions{
+  position:fixed;right:clamp(1.1rem,3vw,3rem);top:clamp(1.1rem,3vw,2rem);z-index:8;
+  display:flex;flex-direction:column;align-items:flex-end;gap:.55rem;
+}
+.hp-actions .hp-back{position:static;right:auto;top:auto;}
+.hp-full-app{
+  display:inline-flex;align-items:center;gap:.55rem;padding:.62rem .82rem .62rem .9rem;
+  border:1px solid rgba(212,175,55,.28);border-radius:999px;
+  background:rgba(8,8,8,.42);color:rgba(245,240,231,.78);
+  font:600 .52rem/1 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;
+  text-decoration:none;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  box-shadow:0 8px 30px rgba(0,0,0,.22),0 0 24px rgba(212,175,55,.05);
+  transition:transform .28s ease,color .28s ease,border-color .28s ease,background .28s ease,box-shadow .28s ease;
+}
+.hp-full-app svg{width:13px;height:13px;transition:transform .28s ease}
+.hp-full-app:hover,.hp-full-app:focus-visible{
+  color:#f5f0e7;border-color:rgba(228,195,90,.62);background:rgba(212,175,55,.1);
+  box-shadow:0 10px 36px rgba(0,0,0,.3),0 0 28px rgba(212,175,55,.12);transform:translateY(-2px);outline:none;
+}
+.hp-full-app:hover svg,.hp-full-app:focus-visible svg{transform:translateX(3px)}
+@media(max-width:700px){.hp-actions{right:.8rem;top:.8rem}.hp-full-app{padding:.55rem .7rem;font-size:.46rem}}
+
 @media (pointer: coarse) {
   .hp-hint-desk {
     display: none;
