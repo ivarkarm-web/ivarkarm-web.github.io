@@ -715,6 +715,13 @@ document.getElementById('btnHelp').onclick = () => {
   );
 };
 
+// If Safari still zooms, try to keep layout stable
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', () => {
+    document.documentElement.style.setProperty('--vvh', window.visualViewport.height + 'px');
+    resize();
+  });
+}
 window.addEventListener('resize', resize);
 rebuildNotes();
 resize();
