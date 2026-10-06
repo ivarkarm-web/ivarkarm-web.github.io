@@ -1004,3 +1004,11 @@ body[data-app-mode="loop"] .nature-section{display:none}
 .loop-config-note{margin:.18rem 0 .55rem;text-align:center;font:400 .38rem/1.25 Inter,sans-serif;letter-spacing:.04em;color:rgba(240,236,228,.42)}
 .loop-orb.is-recording{box-shadow:0 0 32px rgba(212,175,55,.28),inset 0 0 20px rgba(255,220,110,.12)}
 @media(max-width:700px){.loop-config{gap:.35rem}.loop-config label{padding:.5rem}.loop-config input,.loop-config select{font-size:.5rem}}
+
+/* Learn mode progression and timing feedback */
+.lesson-level{margin:1rem 0 .45rem;font:600 .4rem/1 Inter,sans-serif;letter-spacing:.14em;color:rgba(201,162,39,.72)}
+.lesson-card-top{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.lesson-card-top small{font:500 .4rem/1 Inter,sans-serif;letter-spacing:.08em;color:rgba(240,236,228,.38)}
+.lesson-card em{display:block;margin-top:.45rem;font:400 .38rem/1 Inter,sans-serif;color:rgba(240,236,228,.35);font-style:normal}
+.learn-level{margin-bottom:.35rem;font:600 .38rem/1 Inter,sans-serif;letter-spacing:.13em;color:rgba(201,162,39,.68)}
+.learn-timing{min-height:1rem;margin-top:.3rem;text-align:center;font:600 .44rem/1 Inter,sans-serif;letter-spacing:.08em;color:rgba(240,236,228,.62)}
