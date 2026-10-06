@@ -142,3 +142,215 @@ body:not([data-app-mode="learn"]) .learn-panel{display:none}
 .hp-back{display:inline-flex;align-items:center;gap:.5rem;text-decoration:none;}
 .hp-back-arrow{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;font:500 .8rem/1 Inter,sans-serif;transform:rotate(0deg);transition:transform .25s ease;color:inherit;}
 .hp-back:hover .hp-back-arrow,.hp-back:focus-visible .hp-back-arrow{transform:translate(2px,-2px);}
+
+
+/* =========================================================
+   MOBILE / RESPONSIVE REFINEMENT
+   Keep the handpan as the focus; controls form one hierarchy.
+   ========================================================= */
+
+@media (max-width: 700px) {
+  .app-brand { display:none; }
+
+  .app-modebar {
+    left: .6rem;
+    right: .6rem;
+    bottom: calc(env(safe-area-inset-bottom,0px) + .55rem);
+    width:auto;
+    transform:none;
+    justify-content:stretch;
+    padding:.22rem;
+    gap:.12rem;
+    border-radius:16px;
+    background:rgba(6,6,7,.86);
+    box-shadow:0 10px 35px rgba(0,0,0,.42);
+  }
+
+  .app-mode {
+    min-height:38px;
+    flex:1 1 0;
+    padding:.45rem .15rem;
+    font-size:.5rem;
+    letter-spacing:.1em;
+    border-radius:11px;
+  }
+
+  .hp-back {
+    top:calc(var(--safe-top) + .7rem);
+    left:calc(var(--safe-left) + .7rem);
+    right:auto;
+    padding:.52rem .7rem;
+    gap:.35rem;
+    font-size:.52rem;
+    letter-spacing:.13em;
+    border-color:rgba(212,175,55,.3);
+    background:rgba(6,6,7,.58);
+  }
+
+  .hp-head {
+    top:calc(var(--safe-top) + 4.15rem);
+    max-width:72vw;
+  }
+
+  .hp-eyebrow { font-size:.5rem; margin-bottom:.38rem; letter-spacing:.2em; }
+  .hp-title { font-size:1.8rem; margin-bottom:.45rem; }
+  .hp-hairline { width:26px; margin-bottom:.45rem; }
+  .hp-sub { font-size:.56rem; letter-spacing:.08em; }
+
+  /* One compact navigation strip: scale + instruments, horizontally scrollable. */
+  .hp-scales {
+    left:.55rem;
+    right:.55rem;
+    bottom:calc(env(safe-area-inset-bottom,0px) + 4.85rem);
+    width:auto;
+    max-width:none;
+    transform:none;
+    justify-content:flex-start;
+    gap:.25rem;
+    padding:.28rem .3rem;
+    border-radius:15px;
+    overflow:hidden;
+    background:rgba(6,6,7,.82);
+    border-color:rgba(212,175,55,.2);
+  }
+
+  .hp-scale-btn {
+    width:1.85rem;
+    height:1.85rem;
+    font-size:1.2rem;
+  }
+
+  .hp-scale-track {
+    min-width:6.5rem;
+    max-width:6.5rem;
+    padding:.08rem .2rem;
+    gap:.18rem;
+  }
+
+  .hp-scale-label {
+    font-size:.56rem;
+    letter-spacing:.08em;
+  }
+
+  .hp-scale-dots { gap:.2rem; }
+  .hp-scale-dots i { width:4px; height:4px; }
+
+  .hp-nav-divider { height:22px; margin:0 .1rem; }
+
+  .hp-instrument-track {
+    flex:1 1 auto;
+    min-width:0;
+    max-width:none;
+    gap:.25rem;
+    padding:.05rem .1rem;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .instrument-btn {
+    min-height:30px;
+    padding:.28rem .42rem;
+    border-radius:8px;
+    font-size:.36rem;
+    letter-spacing:.025em;
+    white-space:nowrap;
+  }
+
+  .hp-foot {
+    bottom:calc(env(safe-area-inset-bottom,0px) + 9.25rem);
+    padding:0 .8rem;
+    gap:.3rem;
+  }
+
+  .hp-hint { display:none; }
+  .hp-chord { font-size:1rem; }
+
+  /* Sound drawer becomes a true bottom sheet on phones. */
+  .sound-dock {
+    top:auto;
+    right:.55rem;
+    bottom:calc(env(safe-area-inset-bottom,0px) + 4.7rem);
+    width:min(290px,calc(100vw - 1.1rem));
+    max-height:min(62vh,430px);
+    transform:translateY(0);
+    padding:.75rem;
+    border-radius:18px;
+  }
+
+  .sound-dock.is-hidden {
+    transform:translateY(calc(100% + 1rem));
+  }
+
+  .sound-dock-toggle {
+    top:auto;
+    right:.7rem;
+    bottom:calc(env(safe-area-inset-bottom,0px) + 9.55rem);
+    width:42px;
+    height:34px;
+    border:1px solid rgba(212,175,55,.24);
+    border-radius:11px;
+    flex-direction:row;
+    gap:3px;
+  }
+
+  .sound-dock-toggle span { width:7px; }
+  .sound-dock-toggle.is-open {
+    right:.7rem;
+    bottom:calc(env(safe-area-inset-bottom,0px) + 9.55rem);
+    border:1px solid rgba(212,175,55,.3);
+    border-radius:11px;
+  }
+
+  .sound-dock-toggle.is-open span:first-child { transform:translateY(0) rotate(45deg); }
+  .sound-dock-toggle.is-open span:last-child { transform:translateY(0) rotate(-45deg); }
+
+  .dock-section { padding:.2rem 0 .7rem; }
+  .dock-kicker { margin:.05rem 0 .5rem; font-size:.4rem; }
+
+  .loop-orb { width:58px; height:58px; }
+  .loop-actions { gap:.35rem; }
+  .loop-actions button {
+    min-height:34px;
+    font-size:.42rem;
+    padding:.42rem .15rem;
+  }
+
+  /* Learn status lives above the navigation instead of covering it. */
+  .learn-panel {
+    top:calc(var(--safe-top) + 7.15rem);
+    bottom:auto;
+    width:calc(100vw - 1.1rem);
+    padding:.62rem .7rem;
+    border-radius:14px;
+    background:rgba(6,6,7,.72);
+  }
+
+  body[data-app-mode="learn"] .learn-panel {
+    transform:translateX(-50%);
+  }
+
+  .learn-top button { width:30px; height:30px; }
+  .learn-kicker { font-size:.4rem; }
+  .learn-top strong { font-size:.62rem; }
+  .learn-foot { margin-top:.5rem; font-size:.44rem; }
+  .learn-foot button { padding:.42rem .65rem; }
+  .learn-message { margin-top:.42rem; font-size:.48rem; }
+
+  /* Short phones: prioritize the instrument and keep all controls reachable. */
+  @media (max-height: 650px) {
+    .hp-head { display:none; }
+    .hp-scales { bottom:calc(env(safe-area-inset-bottom,0px) + 4.65rem); }
+    .hp-foot { bottom:calc(env(safe-area-inset-bottom,0px) + 8.6rem); }
+    .learn-panel { top:calc(var(--safe-top) + .65rem); }
+  }
+}
+
+@media (max-width: 380px) {
+  .app-mode { font-size:.46rem; }
+  .hp-scales { left:.35rem; right:.35rem; }
+  .hp-scale-track { min-width:5.7rem; max-width:5.7rem; }
+  .hp-scale-label { font-size:.5rem; }
+  .instrument-btn { padding:.25rem .32rem; font-size:.34rem; }
+  .hp-back span:first-child { display:none; }
+  .hp-back { width:34px; height:34px; justify-content:center; padding:0; }
+}
