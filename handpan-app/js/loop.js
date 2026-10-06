@@ -2,8 +2,8 @@
 'use strict';
 
 var transport=window.HandpanTransport;
-var state={recording:false,playing:false,quantize:true,events:[],layers:[],timer:null,recordStart:0};
-var eventsEl=document.getElementById('loopEvents'),statusEl=document.getElementById('loopStatus'),recordBtn=document.getElementById('loopRecord'),playBtn=document.getElementById('loopPlay'),clearBtn=document.getElementById('loopClear'),tempoEl=document.getElementById('loopTempo'),barsEl=document.getElementById('loopBars'),gridEl=document.getElementById('loopGrid'),timelineEl=document.getElementById('loopTimeline'),playheadEl=document.getElementById('loopPlayhead');
+var state={recording:false,playing:false,quantize:true,events:[],layers:[],timer:null,recordTimer:null,recordStart:0,lastPos:0};
+var eventsEl=document.getElementById('loopEvents'),statusEl=document.getElementById('loopStatus'),recordBtn=document.getElementById('loopRecord'),playBtn=document.getElementById('loopPlay'),clearBtn=document.getElementById('loopClear'),tempoEl=document.getElementById('loopTempo'),bpmEl=document.getElementById('loopBpm'),barsEl=document.getElementById('loopBars'),gridEl=document.getElementById('loopGrid'),timelineEl=document.getElementById('loopTimeline'),playheadEl=document.getElementById('loopPlayhead');
 
 function now(){return performance.now()/1000}
 function setStatus(s){if(statusEl)statusEl.textContent=s}
@@ -43,7 +43,7 @@ function playbackTick(payload){
 }
 function finish(){
  if(!state.recording)return;
- state.recording=false;
+ state.recording=false;if(state.recordTimer){clearTimeout(state.recordTimer);state.recordTimer=null}
  if(state.events.length)state.layers.push(state.events.slice());
  state.events=[];
  setStatus(state.layers.length?'LOOP READY':'EMPTY');
@@ -51,7 +51,8 @@ function finish(){
  render()
 }
 function startRecord(){
- transport.stop();state.playing=false;state.events=[];state.lastPos=0;state.recording=true;state.recordStart=now();
+ stop();state.events=[];state.lastPos=0;state.recording=true;state.recordStart=now();
+ state.recordTimer=setTimeout(function(){if(state.recording)finish()},transport.duration()*1000);
  setStatus(state.layers.length?'OVERDUB':'RECORDING');
  if(recordBtn)recordBtn.classList.add('is-on');
  render();
@@ -83,7 +84,7 @@ function clear(){
 recordBtn&&recordBtn.addEventListener('click',function(){state.recording?finish():startRecord()});
 playBtn&&playBtn.addEventListener('click',function(){state.playing?stop():play()});
 clearBtn&&clearBtn.addEventListener('click',clear);
-tempoEl&&tempoEl.addEventListener('input',function(){transport.setBpm(tempoEl.value);render()});
+tempoEl&&tempoEl.addEventListener('input',function(){transport.setBpm(tempoEl.value);if(bpmEl)bpmEl.value=transport.state.bpm;render()});
 barsEl&&barsEl.addEventListener('change',function(){transport.setBars(barsEl.value);clear();render()});
 gridEl&&gridEl.addEventListener('change',function(){state.quantize=gridEl.value!=='off';transport.state.grid=gridEl.value==='8'?8:16;render()});
 window.addEventListener('handpan:note',note);
