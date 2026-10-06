@@ -49,6 +49,8 @@ test('app browser harness is present and targets both required viewports', () =>
   assert.match(config, /1280/);
   assert.match(config, /800/);
   assert.match(spec, /Handpan/);
+  assert.match(read('handpan-app/index.html'), /type="module" src="\.\/js\/loop\.js"/);
+  assert.ok(fs.existsSync(path.join(app, 'js/loop-core.js')));
 });
 
 test('app CI workflow installs Chromium and runs every required gate', () => {
