@@ -518,24 +518,49 @@
   function computeLayout() {
     var topLimit = 8, bottomLimit = H - 8;
     var hr = headEl.getBoundingClientRect();
-    if (hr.height > 0 && getComputedStyle(headEl).display !== 'none') topLimit = Math.max(topLimit, hr.bottom + 10);
-    else topLimit = Math.max(topLimit, 62);
+    if (hr.height > 0 && getComputedStyle(headEl).display !== 'none') {
+      topLimit = Math.max(topLimit, hr.bottom + 10);
+    } else {
+      topLimit = Math.max(topLimit, 54);
+    }
+
     var fr = footEl.getBoundingClientRect();
     var fcs = getComputedStyle(footEl);
     if (fr.height > 0 && fcs.display !== 'none') {
       var hint = document.getElementById('hpHint');
-      var hintHidden = getComputedStyle(hint).display === 'none';
-      if (!hintHidden) bottomLimit = Math.min(bottomLimit, fr.top - 6);
+      var hintHidden = !hint || getComputedStyle(hint).display === 'none';
+      if (!hintHidden) bottomLimit = Math.min(bottomLimit, fr.top - 8);
     }
+
+    // The mobile scale/instrument strip lives at the TOP of the screen.
+    // The old layout always treated it as a bottom constraint, which collapsed
+    // the available canvas to ~160px and made the handpan effectively disappear.
     var scalesEl = document.getElementById('hpScales');
     if (scalesEl) {
       var sr = scalesEl.getBoundingClientRect();
-      if (sr.height > 0) bottomLimit = Math.min(bottomLimit, sr.top - 10);
+      if (sr.height > 0) {
+        if (sr.top < H * 0.5) {
+          topLimit = Math.max(topLimit, sr.bottom + 14);
+        } else {
+          bottomLimit = Math.min(bottomLimit, sr.top - 12);
+        }
+      }
     }
-    var availH = Math.max(160, bottomLimit - topLimit);
-    var S = Math.min(W * 0.96, availH, 900);
-    layout.S = S; layout.R = S / 2 * 0.985;
-    layout.cx = W / 2; layout.cy = topLimit + availH / 2;
+
+    // Keep the instrument clear of the bottom navigation even when the hint is hidden.
+    var modebar = document.querySelector('.app-modebar');
+    if (modebar) {
+      var mr = modebar.getBoundingClientRect();
+      if (mr.height > 0) bottomLimit = Math.min(bottomLimit, mr.top - 12);
+    }
+
+    var availH = Math.max(220, bottomLimit - topLimit);
+    var widthLimit = W < 700 ? W * 0.88 : W * 0.96;
+    var S = Math.min(widthLimit, availH, 900);
+    layout.S = S;
+    layout.R = S / 2 * 0.985;
+    layout.cx = W / 2;
+    layout.cy = topLimit + Math.max(0, (availH - S) / 2) + S / 2;
   }
 
   function buildFields() {
