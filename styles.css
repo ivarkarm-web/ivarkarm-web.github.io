@@ -7796,7 +7796,7 @@ body.rabbit-hole-open .welcome {
     rgba(212,175,55,0) 66%,
     transparent 100%
   );
-  transform:translateX(-115%);
+  transform:translateX(var(--dm-reveal-sweep-x, -115%));
   opacity:0;
   mix-blend-mode:screen;
   filter:blur(1px);
@@ -7827,11 +7827,11 @@ body.rabbit-hole-open .welcome {
   top:-1.05rem;
   width:min(210px,42%);
   height:1px;
-  transform:scaleX(0);
+  transform:scaleX(var(--dm-reveal-line-scale, 0));
   transform-origin:left center;
   background:linear-gradient(90deg,rgba(212,175,55,.92),rgba(212,175,55,.12),transparent);
   box-shadow:0 0 12px rgba(212,175,55,.22);
-  opacity:0;
+  opacity:var(--dm-reveal-sweep-opacity, 0);
   will-change:transform,opacity;
 }
 .dm-scroll-reveal .dm-sec-tag,
