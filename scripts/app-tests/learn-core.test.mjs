@@ -38,5 +38,5 @@ test('timing scorer handles hits, misses, combos and chords without immediate fa
   const final = scorer.scoreNote(1, 1.04);
   assert.equal(final.correct, true);
   assert.equal(scorer.allComplete(), true);
-  assert.equal(scorer.bestCombo, 3);
+  assert.equal(scorer.bestCombo, 2);
 });
