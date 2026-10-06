@@ -667,6 +667,7 @@
   function strikeNote(idx, vel) {
     if (idx < 0 || idx >= NOTES.length) return;
     engine.strike(idx, vel);
+    try { window.dispatchEvent(new CustomEvent('handpan:note', { detail: { noteIndex: idx, velocity: vel || 0.8 } })); } catch (err) {}
     if (fields[idx]) {
       fields[idx].glow = 1;
       addRipple(fields[idx].cx, fields[idx].cy, vel || 0.8);
