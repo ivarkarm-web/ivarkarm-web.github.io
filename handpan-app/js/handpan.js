@@ -380,8 +380,11 @@
   }
 
   function addRipple(x, y, strength) {
-    if (ripples.length >= MAX_RIPPLES) ripples.shift();
-    ripples.push({ x: x, y: y, r: 6, speed: 430 + 160 * strength, strength: strength, life: 1 });
+    var count = REDUCED ? 2 : 4;
+    for (var k = 0; k < count; k++) {
+      if (ripples.length >= MAX_RIPPLES) ripples.shift();
+      ripples.push({ x: x, y: y, r: 10 + k * 18, speed: 300 + 95 * strength - k * 12, strength: strength * (1 - k * 0.12), life: 1, width: k === 0 ? 2.2 : 1.15 });
+    }
   }
 
   function addBurst(x, y, strength, gold) {
@@ -470,10 +473,14 @@
       var rp = ripples[r];
       var ra = Math.max(0, rp.life) * 0.34 * rp.strength;
       if (ra < 0.01) continue;
-      c.strokeStyle = 'rgba(228,195,90,' + ra + ')';
+      c.lineWidth = rp.width || 1.2;
+      c.shadowColor = 'rgba(228,195,90,' + (ra * 0.9) + ')';
+      c.shadowBlur = 16 + rp.width * 5;
+      c.strokeStyle = 'rgba(238,211,119,' + ra + ')';
       c.beginPath(); c.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2); c.stroke();
-      c.strokeStyle = 'rgba(228,195,90,' + (ra * 0.4) + ')';
-      c.beginPath(); c.arc(rp.x, rp.y, rp.r * 0.82, 0, Math.PI * 2); c.stroke();
+      c.shadowBlur = 0;
+      c.strokeStyle = 'rgba(228,195,90,' + (ra * 0.28) + ')';
+      c.beginPath(); c.arc(rp.x, rp.y, rp.r * 0.72, 0, Math.PI * 2); c.stroke();
     }
     c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
   }
