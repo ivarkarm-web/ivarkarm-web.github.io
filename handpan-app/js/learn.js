@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 var game=window.HandpanGame;
-var state={lesson:0,phase:'picker',active:false,playingDemo:false,next:0,hits:0,misses:0,combo:0,bestCombo:0,stepHits:{},timer:null,window:.42};
+var state={lesson:0,phase:'picker',active:false,playingDemo:false,next:0,hits:0,misses:0,combo:0,bestCombo:0,stepHits:{},timer:null,window:.42,userInteracted:false,demoRun:0};
 var lessons=[
  {name:'First Steps',description:'A gentle four-note introduction.',speed:72,steps:[[0],[1],[2],[1],[0],[3],[2],[1]]},
  {name:'Descending',description:'Learn to move naturally down and back.',speed:82,steps:[[4],[3],[2],[1],[0],[1],[2],[3]]},
@@ -20,9 +20,9 @@ function renderList(){
   list.appendChild(b);
  });
 }
-function openPicker(){state.phase='picker';state.active=false;state.playingDemo=false;if(state.timer)clearTimeout(state.timer);clearGuide();document.body.classList.remove('learn-active');if(stage)stage.hidden=true;if(list)list.hidden=false;hideModal();renderList();}
+function openPicker(){state.phase='picker';state.active=false;state.playingDemo=false;state.userInteracted=false;state.demoRun++;if(state.timer)clearTimeout(state.timer);clearGuide();document.body.classList.remove('learn-active');if(stage)stage.hidden=true;if(list)list.hidden=false;hideModal();renderList();}
 function selectLesson(i){
- state.lesson=i;state.phase='demo';state.active=false;state.next=0;state.hits=0;state.misses=0;state.combo=0;state.bestCombo=0;state.stepHits={};
+ state.lesson=i;state.phase='demo';state.active=false;state.userInteracted=false;state.next=0;state.hits=0;state.misses=0;state.combo=0;state.bestCombo=0;state.stepHits={};state.demoRun++;
  if(list)list.hidden=true;if(stage)stage.hidden=false;document.body.classList.add('learn-active');
  nameEl.textContent=lessons[i].name; statusEl.textContent='Listen first…'; renderStats(); playDemo();
 }
@@ -30,14 +30,15 @@ function renderStats(){if(progressEl)progressEl.textContent=Math.min(state.next,
 function guide(indices){if(game&&game.setGuideTargets)game.setGuideTargets(indices)}
 function clearGuide(){if(game&&game.clearGuideTargets)game.clearGuideTargets()}
 function playDemo(){
- var l=lessons[state.lesson],beat=60000/l.speed;
+ var l=lessons[state.lesson],beat=60000/l.speed,run=state.demoRun;
  clearGuide(); state.playingDemo=true; state.phase='demo'; state.next=0;
  statusEl.textContent='Listen to the melody…';
  var i=0;
  function next(){
-  if(i>=l.steps.length){state.playingDemo=false;state.phase='repeat';state.active=true;state.next=0;state.stepHits={};statusEl.textContent='Your turn — repeat what you heard.';guide(l.steps[0]);renderStats();return;}
+  if(run!==state.demoRun)return;
+  if(i>=l.steps.length){state.playingDemo=false;state.phase='repeat';state.active=true;state.userInteracted=false;state.next=0;state.stepHits={};statusEl.textContent='Your turn — repeat what you heard.';guide(l.steps[0]);renderStats();return;}
   var notes=l.steps[i];guide(notes);
-  notes.forEach(function(n,j){setTimeout(function(){if(game&&game.strike)game.strike(n,.72)},j*45)});
+  notes.forEach(function(n,j){setTimeout(function(){if(run===state.demoRun&&state.playingDemo&&game&&game.strike)game.strike(n,.72)},j*45)});
   i++;state.next=i;renderStats();state.timer=setTimeout(next,beat);
  }
  next();
@@ -69,6 +70,7 @@ function startRepeat(){
 }
 function hit(e){
  if(!state.active||state.playingDemo||state.phase!=='repeat')return;
+ state.userInteracted=true;
  var targets=lessons[state.lesson].steps[state.next],idx=e.noteIndex;
  if(targets.indexOf(idx)!==-1){
   state.stepHits[idx]=true;
