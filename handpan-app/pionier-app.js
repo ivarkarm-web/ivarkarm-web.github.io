@@ -472,57 +472,93 @@ function draw() {
   });
 }
 
-/** Thin center slit / dimple on each tone field */
+/** Thin center slit / dimple on each tone field — with layered glow */
 function drawSlit(f, isDing, glow) {
   const rot = f.rot || 0;
   // Slit length along the long axis; width is a thin opening
   const len = isDing ? f.rx * 0.42 : f.rx * 0.55;
   const halfW = isDing ? Math.max(1.2, f.rx * 0.06) : Math.max(1.0, f.ry * 0.11);
-  const pulse = glow > 0.01 ? (0.85 + 0.15 * Math.sin(performance.now() * 0.012)) : 1;
+  const pulse = glow > 0.01 ? (0.82 + 0.18 * Math.sin(performance.now() * 0.014)) : 1;
+  const a = Math.min(1, glow * 1.25) * pulse;
 
   ctx2.save();
   ctx2.translate(f.x, f.y);
   ctx2.rotate(rot);
 
+  // Ambient outer glow (subtle when idle, strong when played)
+  ctx2.globalCompositeOperation = 'lighter';
+  const ambA = 0.06 + a * 0.55;
+  const amb = ctx2.createRadialGradient(0, 0, 0, 0, 0, len * 1.8);
+  amb.addColorStop(0, `rgba(255,220,120,${ambA * 0.5})`);
+  amb.addColorStop(0.35, `rgba(201,162,39,${ambA * 0.28})`);
+  amb.addColorStop(0.7, `rgba(201,162,39,${ambA * 0.08})`);
+  amb.addColorStop(1, 'rgba(201,162,39,0)');
+  ctx2.fillStyle = amb;
+  ctx2.beginPath();
+  ctx2.ellipse(0, 0, len * 1.55, halfW * (4.5 + a * 3), 0, 0, Math.PI * 2);
+  ctx2.fill();
+
+  // Mid glow layer along the slit axis
+  if (a > 0.02) {
+    const mid = ctx2.createRadialGradient(0, 0, 0, 0, 0, len * 1.15);
+    mid.addColorStop(0, `rgba(255,235,160,${a * 0.55})`);
+    mid.addColorStop(0.4, `rgba(228,195,90,${a * 0.28})`);
+    mid.addColorStop(1, 'rgba(201,162,39,0)');
+    ctx2.fillStyle = mid;
+    ctx2.beginPath();
+    ctx2.ellipse(0, 0, len * 1.15, halfW * (2.8 + a * 2), 0, 0, Math.PI * 2);
+    ctx2.fill();
+  }
+
+  ctx2.globalCompositeOperation = 'source-over';
+
   // Recessed dark slit body
   ctx2.beginPath();
   ctx2.ellipse(0, 0, len, halfW, 0, 0, Math.PI * 2);
   const recess = ctx2.createRadialGradient(0, 0, 0, 0, 0, len);
-  recess.addColorStop(0, 'rgba(0,0,0,0.72)');
-  recess.addColorStop(0.65, 'rgba(0,0,0,0.45)');
-  recess.addColorStop(1, 'rgba(0,0,0,0.15)');
+  recess.addColorStop(0, 'rgba(0,0,0,0.78)');
+  recess.addColorStop(0.6, 'rgba(0,0,0,0.5)');
+  recess.addColorStop(1, 'rgba(0,0,0,0.18)');
   ctx2.fillStyle = recess;
   ctx2.fill();
 
   // Soft rim around the slit
-  ctx2.strokeStyle = glow > 0.05
-    ? `rgba(228,195,90,${0.25 + glow * 0.55})`
-    : 'rgba(255,255,255,0.08)';
-  ctx2.lineWidth = Math.max(0.8, halfW * 0.55);
+  ctx2.strokeStyle = a > 0.05
+    ? `rgba(255,230,140,${0.35 + a * 0.6})`
+    : 'rgba(255,255,255,0.1)';
+  ctx2.lineWidth = Math.max(0.9, halfW * 0.65);
   ctx2.stroke();
 
-  // Lit core when played
-  if (glow > 0.02) {
+  // Bright lit core when played
+  if (a > 0.02) {
     ctx2.globalCompositeOperation = 'lighter';
-    const a = Math.min(1, glow * 1.15) * pulse;
-    // Bright filament down the slit
+
+    // Hot filament down the center of the slit
     ctx2.beginPath();
-    ctx2.ellipse(0, 0, len * 0.92, halfW * 0.55, 0, 0, Math.PI * 2);
+    ctx2.ellipse(0, 0, len * 0.94, halfW * 0.62, 0, 0, Math.PI * 2);
     const core = ctx2.createLinearGradient(-len, 0, len, 0);
-    core.addColorStop(0, `rgba(201,162,39,${a * 0.15})`);
-    core.addColorStop(0.5, `rgba(255,230,140,${a * 0.95})`);
-    core.addColorStop(1, `rgba(201,162,39,${a * 0.15})`);
+    core.addColorStop(0, `rgba(201,162,39,${a * 0.2})`);
+    core.addColorStop(0.35, `rgba(255,240,170,${a * 0.95})`);
+    core.addColorStop(0.5, `rgba(255,250,220,${a})`);
+    core.addColorStop(0.65, `rgba(255,240,170,${a * 0.95})`);
+    core.addColorStop(1, `rgba(201,162,39,${a * 0.2})`);
     ctx2.fillStyle = core;
     ctx2.fill();
 
-    // Soft glow halo from the slit
-    const halo = ctx2.createRadialGradient(0, 0, 0, 0, 0, len * 1.35);
-    halo.addColorStop(0, `rgba(255,220,120,${a * 0.35})`);
-    halo.addColorStop(0.45, `rgba(201,162,39,${a * 0.12})`);
-    halo.addColorStop(1, 'rgba(201,162,39,0)');
-    ctx2.fillStyle = halo;
+    // Inner spark line
     ctx2.beginPath();
-    ctx2.ellipse(0, 0, len * 1.2, halfW * 3.2, 0, 0, Math.PI * 2);
+    ctx2.ellipse(0, 0, len * 0.7, halfW * 0.28, 0, 0, Math.PI * 2);
+    ctx2.fillStyle = `rgba(255,252,235,${a * 0.85})`;
+    ctx2.fill();
+
+    // Wide soft bloom around the slit
+    const bloom = ctx2.createRadialGradient(0, 0, 0, 0, 0, len * 1.6);
+    bloom.addColorStop(0, `rgba(255,230,140,${a * 0.4})`);
+    bloom.addColorStop(0.4, `rgba(228,195,90,${a * 0.18})`);
+    bloom.addColorStop(1, 'rgba(201,162,39,0)');
+    ctx2.fillStyle = bloom;
+    ctx2.beginPath();
+    ctx2.ellipse(0, 0, len * 1.4, halfW * (3.8 + a * 2.5), 0, 0, Math.PI * 2);
     ctx2.fill();
   }
 
