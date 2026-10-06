@@ -25,7 +25,18 @@
   <button class="sound-dock-toggle" id="soundDockToggle" type="button" aria-controls="soundDock" aria-expanded="false" aria-label="Open sound controls"><span></span><span></span><span></span></button>
   <div class="loop-orbit" id="loopOrbit" aria-label="Recorded loops"></div>
   <div class="sound-dock" id="soundDock" aria-label="Sound controls">
-    <div class="dock-section">
+    <div class="dock-section backing-section">
+      <span class="dock-kicker">BACKING MUSIC</span>
+      <select id="backingSelect" aria-label="Backing music">
+        <option value="off">Silence</option>
+        <option value="drone">Warm Drone</option>
+        <option value="pulse">Slow Pulse</option>
+        <option value="arp">Golden Arpeggio</option>
+        <option value="pad">Deep Pad</option>
+      </select>
+      <input id="backingVolume" type="range" min="0" max="0.7" step="0.01" value="0.22" aria-label="Backing music volume">
+    </div>
+    <div class="dock-section loop-section">
       <span class="dock-kicker">LOOP</span>
       <div class="loop-orb-wrap">
         <button class="loop-orb" id="loopRecord" type="button" aria-label="Record a loop">
