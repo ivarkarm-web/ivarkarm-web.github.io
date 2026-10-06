@@ -1,6 +1,7 @@
 import { getAudioContext, getAudioMaster, resumeAudio, suspendAudio, closeAudio } from './audio-core.js';
 import { VOICE_PRESETS, resolveVoiceIndex } from './voice-presets.js';
 import { SampleBank } from './sample-bank.js';
+import { loadAppState, saveSettings } from './storage.js';
 
 /**
  * handpan.js — hidden Handpan instrument (Ivar Karm – Resonance)
@@ -153,6 +154,8 @@ import { SampleBank } from './sample-bank.js';
     if (typeof buildFields === 'function') buildFields();
     if (typeof renderPan === 'function') renderPan();
     if (window.HandpanGame) window.HandpanGame.notes = NOTES;
+    window.dispatchEvent(new CustomEvent('handpan:scale', { detail: { index: scaleIndex, label: scale.label } }));
+    saveSettings({ scale: scaleIndex });
   }
 
   NOTES = buildNotesFromScale(SCALES[0]);
@@ -357,6 +360,7 @@ import { SampleBank } from './sample-bank.js';
   };
 
   var engine = new HandpanEngine();
+  var persistedAppState = loadAppState();
 
   var canvas = document.getElementById('hpStage');
   var ctx2 = canvas.getContext('2d');
@@ -1126,4 +1130,6 @@ import { SampleBank } from './sample-bank.js';
       fields.forEach(function (f) { f.guideTarget = 0; });
     }
   };
+  if (persistedAppState.settings && Number.isInteger(persistedAppState.settings.scale)) applyScale(persistedAppState.settings.scale);
+  if (persistedAppState.settings && persistedAppState.settings.voice != null) engine.setInstrument(persistedAppState.settings.voice);
 })();
