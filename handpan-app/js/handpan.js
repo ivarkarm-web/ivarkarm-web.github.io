@@ -258,7 +258,7 @@ import { loadAppState, saveSettings } from './storage.js';
 
   var EXPERIMENTS = VOICE_PRESETS;
   var instrumentIndex=0;
-  HandpanEngine.prototype.setInstrument=function(i){instrumentIndex=resolveVoiceIndex(i);return EXPERIMENTS[instrumentIndex];};
+  HandpanEngine.prototype.setInstrument=function(i){instrumentIndex=resolveVoiceIndex(i);var preset=EXPERIMENTS[instrumentIndex];saveSettings({voice:preset.id});window.dispatchEvent(new CustomEvent('handpan:voice',{detail:{id:preset.id,index:instrumentIndex,name:preset.name}}));return preset;};
   HandpanEngine.prototype.instrument=function(){return EXPERIMENTS[instrumentIndex];};
   HandpanEngine.prototype.instruments=EXPERIMENTS;
 
