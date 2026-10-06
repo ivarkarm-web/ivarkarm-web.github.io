@@ -361,25 +361,25 @@ function resize() {
 }
 
 function layoutFields() {
-  // Very round rectangles (stadium / soft capsule) — thumb-friendly
+  // Full stadium pads: elongated rectangles with fully rounded ends
   state.fields = state.notes.map((n) => {
     if (n.kind === 'ding') {
-      const hw = R * 0.20;
-      const hh = R * 0.20;
-      return { i: n.index, x: CX, y: CY, rx: hw, ry: hh, radius: Math.min(hw, hh) * 0.88 };
+      const hw = R * 0.195;
+      const hh = R * 0.195;
+      return { i: n.index, x: CX, y: CY, rx: hw, ry: hh, radius: hh }; // circle-like soft ding
     }
     const a = (n.angle * Math.PI) / 180;
-    const d = R * 0.62;
-    // Wider than tall → clear rectangular silhouette with fully rounded ends
-    const hw = R * 0.20;
-    const hh = R * 0.135;
+    const d = R * 0.625;
+    // Strongly elongated + radius = half-height → true capsule / stadium
+    const hw = R * 0.215;
+    const hh = R * 0.118;
     return {
       i: n.index,
       x: CX + Math.sin(a) * d,
       y: CY - Math.cos(a) * d,
       rx: hw,
       ry: hh,
-      radius: Math.min(hw, hh) * 0.95 // nearly pill-shaped corners
+      radius: hh // maximum round ends
     };
   });
 }
