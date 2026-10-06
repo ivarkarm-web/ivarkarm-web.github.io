@@ -3,7 +3,7 @@
 
 var transport=window.HandpanTransport;
 var game=window.HandpanGame;
-var state={lesson:0,active:false,started:false,hits:0,misses:0,sequence:[],next:0,armedAt:0,off:null};
+var state={lesson:0,active:false,started:false,hits:0,misses:0,sequence:[],next:0,armedAt:0,off:null,dueBeat:0,window:.38};
 var lessons=[
  {name:'First Steps',speed:72,notes:[0,1,2,1,0,3,2,1]},
  {name:'Descending',speed:82,notes:[4,3,2,1,0,1,2,3]},
@@ -22,15 +22,15 @@ function load(){
  state.sequence=l.notes.slice();state.next=0;state.hits=0;state.misses=0;state.started=false;render();setMessage('Press Start, then play the highlighted note.')
 }
 function start(){
- var l=lesson();transport.stop();transport.setBpm(l.speed);state.active=true;state.started=true;state.next=0;state.hits=0;state.misses=0;state.armedAt=performance.now()/1000;
+ var l=lesson();transport.stop();transport.setBpm(l.speed);state.active=true;state.started=true;state.next=0;state.hits=0;state.misses=0;state.armedAt=performance.now()/1000;state.dueBeat=0;
  transport.start(0);if(startBtn)startBtn.textContent='Restart';setMessage('Follow the highlighted notes.');render()
 }
 function stop(){state.active=false;transport.stop();if(startBtn)startBtn.textContent='Start';setMessage('Lesson paused.')}
 function hit(e){
  if(!state.active)return;
- var l=lesson(),target=l.notes[state.next],index=e.noteIndex;
- if(index===target){state.hits++;state.next++;setMessage(state.next>=l.notes.length?'Phrase complete.':'Good. Next note.');render();if(state.next>=l.notes.length){state.active=false;transport.stop();if(startBtn)startBtn.textContent='Replay';}}
- else {state.misses++;setMessage('Listen for the highlighted note.');render()}
+ var l=lesson(),target=l.notes[state.next],index=e.noteIndex,nowBeat=transport.beatPosition(),delta=Math.abs(nowBeat-state.dueBeat);
+ if(index===target && delta<=state.window/transport.beatDuration()){state.hits++;state.next++;state.dueBeat+=1;setMessage(state.next>=l.notes.length?'Phrase complete.':'Good. Next note.');render();if(state.next>=l.notes.length){state.active=false;transport.stop();if(startBtn)startBtn.textContent='Replay';}}
+ else {state.misses++;setMessage(index===target?'Good note — try hitting it closer to the beat.':'Listen for the highlighted note.');render()}
 }
 function change(delta){state.lesson=(state.lesson+delta+lessons.length)%lessons.length;stop();load()}
 startBtn&&startBtn.addEventListener('click',function(){state.active?start():start()});
