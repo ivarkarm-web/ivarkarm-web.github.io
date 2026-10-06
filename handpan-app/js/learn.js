@@ -62,6 +62,10 @@ function showModal(kind){
 }
 function addAction(label,fn){var b=document.createElement('button');b.type='button';b.textContent=label;b.className='learn-modal-btn'+(label==='Next lesson'?' is-primary':'');b.addEventListener('click',fn);modalActions.appendChild(b);}
 function hideModal(){if(modal)modal.hidden=true;}
+function feedback(kind){
+ if(!navigator.vibrate||!(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches))return;
+ try{navigator.vibrate(kind==='success'?[10,24,10]:kind==='fail'?[28,18,28]:6)}catch(e){}
+}
 function finish(success){
  state.active=false;clearGuide();if(success){state.phase='complete';showModal('success');}else{state.phase='failed';showModal('fail');}
 }
@@ -76,10 +80,10 @@ function hit(e){
   state.stepHits[idx]=true;
   if(targets.every(function(n){return state.stepHits[n]})){
    state.hits++;state.combo++;state.bestCombo=Math.max(state.bestCombo,state.combo);state.next++;state.stepHits={};
-   if(state.next>=lessons[state.lesson].steps.length){renderStats();finish(true);return;}
+   if(state.next>=lessons[state.lesson].steps.length){renderStats();feedback('success');finish(true);return;}
    guide(lessons[state.lesson].steps[state.next]);renderStats();
   }
- }else{state.misses++;state.combo=0;renderStats();finish(false);}
+ }else{state.misses++;state.combo=0;renderStats();feedback('fail');finish(false);}
 }
 function init(){
  renderList();
