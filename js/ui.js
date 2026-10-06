@@ -48,6 +48,7 @@ function openDirectMonographModal() {
     onMid: () => {
       modal.classList.add('open');
       modal.setAttribute('aria-hidden', 'false');
+      refreshMonographScrollTriggers();
       try {
         if (typeof ResonanceAudio !== 'undefined') {
           ResonanceAudio.resume();
@@ -102,6 +103,7 @@ function openMonographFromWelcome(e) {
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
     modal.style.zIndex = '5200';
+    refreshMonographScrollTriggers();
   }
   if (typeof trackEvent === 'function') trackEvent('monograph_open', { from: 'welcome' });
   try {
@@ -1827,6 +1829,19 @@ function connectMusicToAnalyser(audioEl) {
   }
 }
 
+function refreshMonographScrollTriggers() {
+  if (typeof ScrollTrigger === 'undefined') return;
+  const content = document.getElementById('dmContent');
+  if (!content) return;
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      try { ScrollTrigger.refresh(true); } catch (_) {}
+    });
+  });
+  window.setTimeout(() => { try { ScrollTrigger.refresh(true); } catch (_) {} }, 180);
+  window.setTimeout(() => { try { ScrollTrigger.refresh(true); } catch (_) {} }, 700);
+}
+
 /* Monograph chapter reveals — discovered, not simply faded in */
 (function initMonographScrollReveals(){
   const sections=document.querySelectorAll('.dm-scroll-reveal');
@@ -1849,6 +1864,11 @@ function connectMusicToAnalyser(audioEl) {
     const heading=section.querySelector('h3');
     const copy=section.querySelector('p');
     if(!bg||!img||!content)return;
+
+    if (!img.complete) {
+      img.addEventListener('load', refreshMonographScrollTriggers, { once: true });
+      img.addEventListener('error', refreshMonographScrollTriggers, { once: true });
+    }
 
     if(reduced){
       gsap.set([bg,img,content,tag,heading,copy].filter(Boolean),{
