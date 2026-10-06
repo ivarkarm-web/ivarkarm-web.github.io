@@ -500,3 +500,234 @@ body:not([data-app-mode="loop"]) .sound-dock-toggle {
     font-size:1.1rem;
   }
 }
+
+
+/* =========================================================
+   Mobile instrument layer — v0.4
+   The handpan remains the primary interface.
+   Controls orbit it rather than covering it.
+   ========================================================= */
+
+:root{
+  --hp-safe-top: env(safe-area-inset-top, 0px);
+  --hp-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.hp-stage{
+  touch-action:none;
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.app-modebar{
+  z-index:120;
+  min-height:58px;
+  padding:.35rem;
+  gap:.15rem;
+  border:1px solid rgba(212,175,55,.14);
+  background:rgba(7,7,9,.72);
+  box-shadow:0 12px 50px rgba(0,0,0,.28);
+  backdrop-filter:blur(22px) saturate(.78);
+  -webkit-backdrop-filter:blur(22px) saturate(.78);
+}
+
+.app-mode{
+  position:relative;
+  min-width:82px;
+  min-height:48px;
+  border-radius:16px;
+  transition:
+    transform .18s cubic-bezier(.2,.8,.2,1),
+    color .2s ease,
+    background .2s ease,
+    border-color .2s ease;
+}
+
+.app-mode:active{
+  transform:scale(.94);
+}
+
+.app-mode.is-active{
+  color:#f0d47c;
+  background:rgba(212,175,55,.09);
+  border-color:rgba(212,175,55,.16);
+}
+
+.app-mode.is-active::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:5px;
+  width:18px;
+  height:2px;
+  border-radius:999px;
+  background:rgba(232,199,106,.72);
+  transform:translateX(-50%);
+  box-shadow:0 0 14px rgba(232,199,106,.45);
+}
+
+.hp-scales{
+  z-index:115;
+  transition:
+    transform .28s cubic-bezier(.2,.8,.2,1),
+    opacity .2s ease;
+}
+
+@media (max-width:700px){
+  .app-modebar{
+    left:10px;
+    right:10px;
+    bottom:max(10px, var(--hp-safe-bottom));
+    width:auto;
+    height:66px;
+    min-height:66px;
+    padding:.3rem;
+    border-radius:22px;
+    grid-template-columns:repeat(4,1fr);
+  }
+
+  .app-mode{
+    min-width:0;
+    min-height:58px;
+    padding:0 .2rem;
+    border-radius:18px;
+    font-size:.58rem;
+    letter-spacing:.08em;
+  }
+
+  .hp-back{
+    top:calc(var(--hp-safe-top) + 12px);
+    left:14px;
+    min-height:40px;
+    padding:.6rem .78rem;
+    border-radius:14px;
+    background:rgba(7,7,9,.52);
+    border:1px solid rgba(255,255,255,.07);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+  }
+
+  .hp-head{
+    top:calc(var(--hp-safe-top) + 14px);
+    pointer-events:none;
+  }
+
+  .hp-head .hp-eyebrow{
+    font-size:.42rem;
+    letter-spacing:.2em;
+  }
+
+  .hp-title{
+    font-size:1.15rem;
+  }
+
+  .hp-sub{
+    font-size:.47rem;
+  }
+
+  .hp-scales{
+    top:calc(var(--hp-safe-top) + 68px);
+    left:50%;
+    right:auto;
+    width:calc(100vw - 28px);
+    transform:translateX(-50%);
+    border-radius:18px;
+    padding:.28rem;
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+
+  .hp-scales::-webkit-scrollbar{
+    display:none;
+  }
+
+  .hp-scale-track{
+    flex:0 0 auto;
+  }
+
+  .hp-scale-label{
+    white-space:nowrap;
+  }
+
+  .hp-instrument-track{
+    flex:0 0 auto;
+  }
+
+  .hp-foot{
+    bottom:calc(88px + var(--hp-safe-bottom));
+    pointer-events:none;
+  }
+
+  .hp-hint{
+    opacity:.52;
+    font-size:.44rem;
+  }
+
+  .sound-dock-toggle{
+    z-index:130;
+    bottom:calc(86px + var(--hp-safe-bottom));
+    right:14px;
+    width:44px;
+    height:44px;
+    border-radius:15px;
+    background:rgba(8,8,10,.72);
+    border:1px solid rgba(212,175,55,.16);
+    box-shadow:0 10px 32px rgba(0,0,0,.3);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+  }
+
+  .sound-dock{
+    z-index:125;
+    left:10px;
+    right:10px;
+    bottom:calc(86px + var(--hp-safe-bottom));
+    width:auto;
+    max-height:min(55vh,430px);
+    border-radius:24px;
+    transform:translateY(0);
+    box-shadow:0 24px 90px rgba(0,0,0,.5);
+  }
+
+  .sound-dock.is-hidden{
+    display:none !important;
+  }
+
+  .learn-panel{
+    padding-bottom:calc(90px + var(--hp-safe-bottom));
+  }
+
+  .learn-stage{
+    padding-bottom:1rem;
+  }
+
+  .learn-status{
+    font-size:.6rem;
+  }
+
+  .learn-modal{
+    padding:
+      calc(var(--hp-safe-top) + 16px)
+      16px
+      calc(var(--hp-safe-bottom) + 90px);
+  }
+
+  .learn-modal-card{
+    border-radius:24px;
+  }
+}
+
+@media (min-width:701px){
+  .app-modebar{
+    border-radius:999px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .app-mode,
+  .hp-scales,
+  .sound-dock-toggle{
+    transition:none !important;
+  }
+}
