@@ -868,5 +868,15 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 
-  window.HandpanGame = { notes: NOTES, scales: SCALES, scaleIndex: function () { return scaleIndex; }, setScale: applyScale, engine: engine, strike: strikeNote, fields: function () { return fields; } };
+  window.HandpanGame = {
+    notes: NOTES,
+    scales: SCALES,
+    scaleIndex: function () { return scaleIndex; },
+    setScale: applyScale,
+    engine: engine,
+    strike: strikeNote,
+    release: releaseNote,
+    fields: function () { return fields; },
+    keyMap: function () { return KEY_TO_IDX; }
+  };
 })();
