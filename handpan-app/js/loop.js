@@ -33,7 +33,13 @@ function tick(){
  if(!state.loopDuration||state.paused)return;
  var pos=((now()-state.loopStart)%state.loopDuration+state.loopDuration)%state.loopDuration,last=state.lastPos,wrapped=pos<last;
  state.layers.forEach(function(layer){layer.forEach(function(e){var hit=(!wrapped&&e.t>=last&&e.t<pos)||(wrapped&&(e.t>=last||e.t<pos));if(hit)playEvent(e)})});
- state.lastPos=pos;state.raf=requestAnimationFrame(tick);
+ state.lastPos=pos;
+ var progress=pos/state.loopDuration;
+ if(orbit){
+  var nodes=orbit.querySelectorAll('.loop-orbit-node');
+  for(var ni=0;ni<nodes.length;ni++) nodes[ni].style.setProperty('--loop-progress',progress);
+ }
+ state.raf=requestAnimationFrame(tick);
 }
 function startClock(reset){stopClock();if(reset)state.loopStart=now();state.lastPos=0;state.paused=false;state.raf=requestAnimationFrame(tick);paint()}
 function beginRecord(){stopClock();state.mode='recording';state.current=[];state.recordStart=now();state.paused=false;paint()}
