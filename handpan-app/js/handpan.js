@@ -510,7 +510,7 @@
       return {
         i: i, cx: layout.cx + ux * sh.dist * R, cy: layout.cy + uy * sh.dist * R,
         ux: ux, uy: uy, rx: sh.rx * R, ry: sh.ry * R,
-        rot: Math.atan2(uy, ux), glow: 0, held: 0, hover: 0
+        rot: Math.atan2(uy, ux), glow: 0, held: 0, hover: 0, guide: 0, guideTarget: 0
       };
     });
   }
@@ -613,6 +613,42 @@
     panCache = off;
   }
 
+  function drawGuideFields(c, time, scale) {
+    c.save();
+    c.globalCompositeOperation = 'lighter';
+    for (var i = 0; i < fields.length; i++) {
+      var f = fields[i];
+      if (f.guide < 0.01) continue;
+      var pulse = 0.72 + 0.28 * Math.sin(time * 3.2 + i * 0.35);
+      var a = Math.min(0.82, f.guide * pulse);
+      var rx = f.rx * (1.05 + f.guide * 0.22);
+      var ry = f.ry * (1.05 + f.guide * 0.22);
+      var g = c.createRadialGradient(f.cx - f.rx * 0.18, f.cy - f.ry * 0.2, 0, f.cx, f.cy, Math.max(rx, ry) * 1.45);
+      g.addColorStop(0, 'rgba(255,226,112,' + (a * 0.9) + ')');
+      g.addColorStop(0.32, 'rgba(230,191,65,' + (a * 0.42) + ')');
+      g.addColorStop(0.72, 'rgba(212,175,55,' + (a * 0.12) + ')');
+      g.addColorStop(1, 'rgba(212,175,55,0)');
+      c.fillStyle = g;
+      c.save();
+      c.translate(f.cx, f.cy);
+      c.rotate(f.rot);
+      c.scale(1, f.ry / f.rx);
+      c.beginPath();
+      c.arc(0, 0, rx * 1.38, 0, Math.PI * 2);
+      c.fill();
+      c.restore();
+      c.globalAlpha = Math.min(1, f.guide * 0.95);
+      c.strokeStyle = 'rgba(255,221,112,' + (0.35 + f.guide * 0.45) + ')';
+      c.lineWidth = Math.max(1.4, f.rx * 0.025);
+      c.beginPath();
+      c.ellipse(f.cx, f.cy, rx, ry, f.rot, 0, Math.PI * 2);
+      c.stroke();
+    }
+    c.globalAlpha = 1;
+    c.globalCompositeOperation = 'source-over';
+    c.restore();
+  }
+
   function drawPan(time, level, intro) {
     if (!panCache) return;
     var c = ctx2;
@@ -642,6 +678,7 @@
     }
     c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
     c.restore();
+    drawGuideFields(c, time, scale);
   }
 
   function resize() {
@@ -817,6 +854,9 @@
     for (var i = 0; i < fields.length; i++) {
       fields[i].glow *= Math.pow(0.16, dt);
       if (fields[i].glow < 0.004) fields[i].glow = 0;
+      var guideRate = fields[i].guideTarget > fields[i].guide ? 1.15 : 3.2;
+      fields[i].guide += (fields[i].guideTarget - fields[i].guide) * Math.min(1, dt * guideRate);
+      if (Math.abs(fields[i].guide - fields[i].guideTarget) < 0.002) fields[i].guide = fields[i].guideTarget;
     }
     updateAtmosphere(dt, time);
     ctx2.clearRect(0, 0, W, H);
@@ -878,6 +918,14 @@
     strike: strikeNote,
     release: releaseNote,
     fields: function () { return fields; },
-    keyMap: function () { return KEY_TO_IDX; }
+    keyMap: function () { return KEY_TO_IDX; },
+    setGuideTargets: function (indices) {
+      var map = {};
+      (indices || []).forEach(function (idx) { map[idx] = true; });
+      fields.forEach(function (f) { f.guideTarget = map[f.i] ? 1 : 0; });
+    },
+    clearGuideTargets: function () {
+      fields.forEach(function (f) { f.guideTarget = 0; });
+    }
   };
 })();
