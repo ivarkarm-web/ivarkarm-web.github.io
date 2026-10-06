@@ -326,7 +326,18 @@
     return voice;
   };
 
-  HandpanEngine.prototype.damp = function (idx, amount) {\n    var voice = this.active.get(idx);\n    if (!voice || !this.ctx) return;\n    var t = this.ctx.currentTime;\n    var tc = Math.max(0.012, 0.018 + (1 - Math.max(0, Math.min(1, amount || 0.9))) * 0.08);\n    try {\n      voice.out.gain.cancelScheduledValues(t);\n      voice.out.gain.setTargetAtTime(0.0001, t, tc);\n    } catch (e) {}\n  };\n\n  HandpanEngine.prototype.shutdown = function () {
+  HandpanEngine.prototype.damp = function (idx, amount) {
+    var voice = this.active.get(idx);
+    if (!voice || !this.ctx) return;
+    var t = this.ctx.currentTime;
+    var tc = Math.max(0.012, 0.018 + (1 - Math.max(0, Math.min(1, amount || 0.9))) * 0.08);
+    try {
+      voice.out.gain.cancelScheduledValues(t);
+      voice.out.gain.setTargetAtTime(0.0001, t, tc);
+    } catch (e) {}
+  };
+
+  HandpanEngine.prototype.shutdown = function () {
     if (!this.ctx) return;
     try { this.ctx.close(); } catch (e) {}
   };
@@ -721,6 +732,8 @@
 
   var heldKeys = new Set();
   var pointerMap = new Map();
+  var lastPointerDown = {time: 0, noteIndex: -1};
+  var TWO_FINGER_WINDOW = 110;
 
   function haptic(kind) {
     if (!COARSE || !navigator.vibrate || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
@@ -753,12 +766,15 @@
 
   function strikeNote(idx, vel, impact) {
     if (idx < 0 || idx >= NOTES.length) return;
-    var finalVel = vel || 0.8;\n    if (impact && impact.center !== undefined) finalVel *= (0.72 + impact.center * 0.28);\n    engine.strike(idx, finalVel);
+    var finalVel = vel || 0.8;
+    if (impact && impact.center !== undefined) finalVel *= (0.72 + impact.center * 0.28);
+    engine.strike(idx, finalVel);
     try { window.dispatchEvent(new CustomEvent('handpan:note', { detail: { noteIndex: idx, velocity: finalVel, impact: impact || null } })); } catch (err) {}
     if (fields[idx]) {
       fields[idx].glow = 1;
       addRipple(fields[idx].cx, fields[idx].cy, finalVel);
-      addBurst(fields[idx].cx, fields[idx].cy, finalVel, true);\n      haptic(finalVel > 0.82 ? 'accent' : 'hit');
+      addBurst(fields[idx].cx, fields[idx].cy, finalVel, true);
+      haptic(finalVel > 0.82 ? 'accent' : 'hit');
     }
     document.body.classList.add('hp-played');
     updateChord();
@@ -833,7 +849,10 @@
     };
     pointerMap.set(e.pointerId, state);
     if (fields[idx]) fields[idx].held = 1;
-    strikeNote(idx, state.velocity, impact);
+    var wasTwoFinger = (now - lastPointerDown.time <= TWO_FINGER_WINDOW && lastPointerDown.noteIndex >= 0 && lastPointerDown.noteIndex !== idx);
+    strikeNote(idx, wasTwoFinger ? Math.min(1, state.velocity + 0.12) : state.velocity, impact);
+    if (wasTwoFinger) haptic('accent');
+    lastPointerDown = {time: now, noteIndex: idx};
     state.dampingTimer = setTimeout(function () {
       if (!pointerMap.has(e.pointerId) || state.noteIndex !== idx) return;
       state.dampingStarted = true;
@@ -879,11 +898,11 @@
   canvas.addEventListener('pointermove', pointerMove, { passive: false });
   canvas.addEventListener('pointerup', pointerUp, { passive: false });
   canvas.addEventListener('pointercancel', pointerUp, { passive: false });
-  canvas.addEventListener('pointerleave', function (e) {
-    if (pointerMap.has(e.pointerId)) pointerUp(e);
-  });
+  // Pointer capture keeps a swipe/glissando alive even when the finger crosses
+  // the canvas edge; release is owned by pointerup/pointercancel instead.
 
-  canvas.style.touchAction = 'none';\n  canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  canvas.style.touchAction = 'none';
+  canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
   canvas.addEventListener('dblclick', function (e) { e.preventDefault(); });
   document.addEventListener('wheel', function (e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
 
