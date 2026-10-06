@@ -23,7 +23,11 @@ const SCALES = [
   { id: 'major-sabye', label: 'Major / Sabye', intervals: [0, 7, 11, 12, 14, 16, 17, 19, 23] }
 ];
 
+// Fixed seats around the shell (0 = bottom, clockwise)
 const RING_ANGLES = [180, 225, 270, 315, 0, 45, 90, 135];
+// Handpan zigzag: scale degrees alternate left/right as they rise
+// (not sequential clockwise). Slot index → angle seat.
+const ZIGZAG_SLOTS = [0, 1, 7, 2, 6, 3, 5, 4];
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
 const NOTE_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
 const ROOTS = NOTE_NAMES.slice();
@@ -63,7 +67,7 @@ function rebuildNotes() {
       name: midiName(midi),
       freq: mtof(midi),
       kind: isDing ? 'ding' : 'ring',
-      angle: isDing ? 0 : RING_ANGLES[i - 1],
+      angle: isDing ? 0 : RING_ANGLES[ZIGZAG_SLOTS[i - 1]],
       key: KEYS[i]
     };
   });
