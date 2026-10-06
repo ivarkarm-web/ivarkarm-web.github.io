@@ -21,49 +21,52 @@
 }
 .app-panel{display:none!important}
 
-/* One-button looper: red = armed/playing, green pulse = recording. */
-.loop-controls{
- position:fixed;z-index:40;left:50%;
- bottom:calc(env(safe-area-inset-bottom,0px) + 7.05rem);
- transform:translateX(-50%);width:106px;height:106px;
- display:flex;align-items:center;justify-content:center;pointer-events:none;
- transition:opacity .35s ease,transform .35s ease
+/* Dedicated right-side sound dock */
+.sound-dock{
+ position:fixed;z-index:40;right:clamp(.7rem,2vw,1.5rem);top:50%;transform:translateY(-50%);
+ width:170px;max-height:min(78vh,720px);overflow:auto;padding:.85rem .8rem;
+ border:1px solid rgba(212,175,55,.18);border-radius:20px;
+ background:rgba(7,7,8,.62);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+ box-shadow:0 20px 60px rgba(0,0,0,.38);font-family:Inter,sans-serif;
+ scrollbar-width:none
 }
-.loop-record{
- pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
- position:relative;width:78px;height:78px;border:1px solid rgba(255,255,255,.16);
- border-radius:50%;background:radial-gradient(circle at 50% 43%,#d43c33 0,#b3261e 56%,#7e1713 100%);
- box-shadow:0 12px 34px rgba(0,0,0,.48),0 0 0 6px rgba(179,38,30,.08),inset 0 1px rgba(255,255,255,.22);
- cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;
- transition:transform .18s ease,box-shadow .25s ease,background .25s ease
+.sound-dock::-webkit-scrollbar{display:none}
+.dock-section{padding:.15rem 0 .85rem;border-bottom:1px solid rgba(255,255,255,.07)}
+.dock-section:last-child{border-bottom:0;padding-bottom:.15rem}
+.dock-kicker{display:block;margin:.15rem 0 .6rem;color:rgba(240,236,228,.38);font:600 .43rem/1 Inter,sans-serif;letter-spacing:.16em}
+.loop-orb-wrap{display:flex;flex-direction:column;align-items:center}
+.loop-orb{
+ position:relative;width:66px;height:66px;border-radius:50%;border:1px solid rgba(228,195,90,.32);
+ background:radial-gradient(circle at 42% 38%,rgba(255,226,120,.26),rgba(212,175,55,.07) 48%,rgba(5,5,5,.2) 72%);
+ box-shadow:0 0 0 1px rgba(212,175,55,.04),0 0 34px rgba(212,175,55,.13),inset 0 0 22px rgba(212,175,55,.08);
+ cursor:pointer;color:#f5f0e7;display:flex;align-items:center;justify-content:center;
+ transition:.25s ease;touch-action:manipulation
 }
-.loop-record:hover{transform:scale(1.045)}
-.loop-record:active{transform:scale(.95)}
-.loop-record-core{
- width:21px;height:21px;border-radius:50%;background:#fff;
- box-shadow:0 0 20px rgba(255,255,255,.42);transition:all .2s ease
+.loop-orb:hover{transform:scale(1.05);box-shadow:0 0 0 1px rgba(228,195,90,.15),0 0 42px rgba(212,175,55,.23),inset 0 0 24px rgba(212,175,55,.12)}
+.loop-orb-core{width:15px;height:15px;border-radius:50%;background:#e8cf79;box-shadow:0 0 18px rgba(228,195,90,.75)}
+.loop-orb-count{position:absolute;bottom:7px;font:500 .39rem/1 Inter,sans-serif;letter-spacing:.08em;color:rgba(255,255,255,.5)}
+.loop-orb-label{margin-top:.42rem;color:rgba(240,236,228,.5);font:600 .42rem/1 Inter,sans-serif;letter-spacing:.14em}
+.loop-orb.is-recording{animation:orbPulse 1.15s ease-in-out infinite;background:radial-gradient(circle,rgba(255,112,88,.38),rgba(130,30,20,.12) 62%,transparent 75%);box-shadow:0 0 44px rgba(255,86,62,.3)}
+.loop-orb.is-recording .loop-orb-core{background:#ff735e;box-shadow:0 0 22px rgba(255,100,80,.9)}
+.loop-orb.is-playing{box-shadow:0 0 46px rgba(212,175,55,.34),inset 0 0 26px rgba(212,175,55,.12)}
+@keyframes orbPulse{50%{transform:scale(1.08)}}
+.loop-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.3rem;margin-top:.7rem}
+.loop-actions button,.nature-section select{
+ border:1px solid rgba(240,236,228,.1);border-radius:7px;background:rgba(255,255,255,.035);
+ color:rgba(240,236,228,.7);padding:.42rem .18rem;font:500 .43rem/1 Inter,sans-serif;cursor:pointer
 }
-.loop-record-label{
- position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);
- font:600 .47rem/1 Inter,sans-serif;letter-spacing:.18em;color:rgba(240,236,228,.55);
- white-space:nowrap
+.loop-actions button:hover{background:rgba(212,175,55,.09);color:#fff}
+.instrument-grid{display:grid;grid-template-columns:1fr 1fr;gap:.3rem}
+.instrument-btn{
+ min-height:38px;padding:.35rem .25rem;border:1px solid rgba(255,255,255,.07);border-radius:8px;
+ background:rgba(255,255,255,.025);color:rgba(240,236,228,.48);font:500 .39rem/1.15 Inter,sans-serif;
+ letter-spacing:.04em;cursor:pointer;transition:.2s ease
 }
-.loop-record-count{
- position:absolute;top:-18px;left:50%;transform:translateX(-50%);
- font:500 .42rem/1 Inter,sans-serif;letter-spacing:.13em;color:rgba(240,236,228,.42);
- white-space:nowrap
-}
-.loop-record.is-recording{
- background:radial-gradient(circle at 50% 43%,#51cf73 0,#2f9e55 56%,#1c6636 100%);
- box-shadow:0 12px 34px rgba(0,0,0,.48),0 0 0 7px rgba(47,158,85,.09),0 0 36px rgba(47,158,85,.4),inset 0 1px rgba(255,255,255,.22);
- animation:loopRecordPulse 1.15s ease-in-out infinite
-}
-.loop-record.is-recording .loop-record-core{width:18px;height:18px;box-shadow:0 0 25px rgba(255,255,255,.62)}
-.loop-record.is-disabled{opacity:.3;cursor:default}
-@keyframes loopRecordPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.075)}}
-body:not(.loop-mode) .loop-controls{opacity:0;transform:translate(-50%,10px);pointer-events:none}
-
-/* Learn mode is a small bottom instrument overlay. The handpan itself remains the lesson surface. */
+.instrument-btn.is-active{color:#f6edcf;border-color:rgba(212,175,55,.35);background:rgba(212,175,55,.09);box-shadow:0 0 16px rgba(212,175,55,.08)}
+.nature-section select{width:100%;appearance:none;padding:.5rem .45rem;margin-bottom:.55rem}
+#natureVolume{width:100%;accent-color:#c9a227;height:16px}
+body.loop-mode .sound-dock{border-color:rgba(212,175,55,.28)}
+/* Learn mode is a small bottom instrument overlay. The handpan itself remains the lesson surface. *//* Learn mode is a small bottom instrument overlay. The handpan itself remains the lesson surface. */
 .learn-panel{
  position:fixed;z-index:35;left:50%;
  bottom:calc(env(safe-area-inset-bottom,0px) + 7.05rem);
