@@ -18,10 +18,15 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 html, body {
-  margin: 0; height: 100%;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
   background: var(--bg); color: var(--text);
   font-family: Inter, system-ui, sans-serif;
   overflow: hidden;
+  position: fixed;
+  inset: 0;
   -webkit-user-select: none; user-select: none;
   -webkit-touch-callout: none;
   -webkit-text-size-adjust: 100%;
@@ -29,12 +34,17 @@ html, body {
   touch-action: none;
   overscroll-behavior: none;
 }
-.app, .stage, #pan, .sidebar, .topbar, .knob, .step, button {
+.app {
   touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
-/* Buttons: manipulation kills double-tap zoom without blocking clicks */
-button, .step, .icon-btn, .pill, .rail-btn {
+.stage, #pan, .sidebar, .topbar, .knob, .step, .knob-wrap, canvas {
+  touch-action: none !important;
+}
+button, .step, .icon-btn, .pill {
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .app {

@@ -520,6 +520,12 @@ function estimateVelocity(e, idx) {
   return v;
 }
 
+
+// Hard-block browser zoom gestures on the instrument surface
+;['touchstart', 'touchmove', 'touchend'].forEach((type) => {
+  canvas.addEventListener(type, (e) => { e.preventDefault(); }, { passive: false });
+});
+
 canvas.addEventListener('pointerdown', (e) => {
   e.preventDefault();
   canvas.setPointerCapture(e.pointerId);

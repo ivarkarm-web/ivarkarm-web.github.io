@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=4" />
+  <link rel="stylesheet" href="./pionier.css?v=5" />
   <script>
     // Drop stale PWA caches that still show old "Tap the steel" UI
     if ('serviceWorker' in navigator) {
@@ -112,25 +112,53 @@
     </aside>
   </div>
 
-  <script type="module" src="./pionier-app.js?v=4"></script>
+  <script type="module" src="./pionier-app.js?v=5"></script>
 
   <script>
-    // Block pinch / double-tap zoom (iOS Safari still zooms despite viewport meta)
     (function () {
-      const block = (e) => { e.preventDefault(); };
-      document.addEventListener('gesturestart', block, { passive: false });
-      document.addEventListener('gesturechange', block, { passive: false });
-      document.addEventListener('gestureend', block, { passive: false });
-      let lastTouchEnd = 0;
-      document.addEventListener('touchend', (e) => {
-        const now = Date.now();
-        if (now - lastTouchEnd < 350) e.preventDefault();
-        lastTouchEnd = now;
-      }, { passive: false });
-      document.addEventListener('touchmove', (e) => {
+      function block(e) { e.preventDefault(); }
+      // iOS pinch gestures
+      ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (type) {
+        document.addEventListener(type, block, { passive: false, capture: true });
+      });
+      // Multi-touch pinch
+      document.addEventListener('touchmove', function (e) {
         if (e.touches && e.touches.length > 1) e.preventDefault();
-      }, { passive: false });
+        if (typeof e.scale === 'number' && e.scale !== 1) e.preventDefault();
+      }, { passive: false, capture: true });
+      // Double-tap zoom
+      var lastTouchEnd = 0;
+      document.addEventListener('touchend', function (e) {
+        var now = Date.now();
+        if (now - lastTouchEnd < 400) e.preventDefault();
+        lastTouchEnd = now;
+      }, { passive: false, capture: true });
+      document.addEventListener('dblclick', block, { capture: true });
+      // If Safari still scales the visual viewport, counter-scale the app shell
+      function lockScale() {
+        var vv = window.visualViewport;
+        if (!vv) return;
+        var s = vv.scale || 1;
+        var app = document.getElementById('app');
+        if (!app) return;
+        if (Math.abs(s - 1) > 0.01) {
+          app.style.transform = 'scale(' + (1 / s) + ')';
+          app.style.transformOrigin = '0 0';
+          app.style.width = (s * 100) + 'vw';
+          app.style.height = (s * 100) + 'vh';
+        } else {
+          app.style.transform = '';
+          app.style.width = '';
+          app.style.height = '';
+        }
+      }
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', lockScale);
+        window.visualViewport.addEventListener('scroll', lockScale);
+      }
+      window.addEventListener('pageshow', lockScale);
     })();
   </script>
+
 </body>
 </html>
