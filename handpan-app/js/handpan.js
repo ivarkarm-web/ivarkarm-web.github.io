@@ -547,7 +547,7 @@
       return {
         i: i, cx: layout.cx + ux * sh.dist * R, cy: layout.cy + uy * sh.dist * R,
         ux: ux, uy: uy, rx: sh.rx * R, ry: sh.ry * R,
-        rot: Math.atan2(uy, ux), glow: 0, held: 0, hover: 0, guide: 0, guideTarget: 0
+        rot: Math.atan2(uy, ux), glow: 0, held: 0, hover: 0, guide: 0, guideTarget: 0, guideSuccess: 0
       };
     });
   }
@@ -658,6 +658,7 @@
       if (f.guide < 0.01) continue;
       var pulse = 0.72 + 0.28 * Math.sin(time * 3.2 + i * 0.35);
       var a = Math.min(0.82, f.guide * pulse);
+      f.guideSuccess = Math.max(0, f.guideSuccess - 0.035);
       var rx = f.rx * (1.05 + f.guide * 0.22);
       var ry = f.ry * (1.05 + f.guide * 0.22);
       var g = c.createRadialGradient(f.cx - f.rx * 0.18, f.cy - f.ry * 0.2, 0, f.cx, f.cy, Math.max(rx, ry) * 1.45);
@@ -674,6 +675,17 @@
       c.arc(0, 0, rx * 1.38, 0, Math.PI * 2);
       c.fill();
       c.restore();
+      if (f.guideSuccess > 0.01) {
+        c.save();
+        c.globalCompositeOperation = 'lighter';
+        c.globalAlpha = f.guideSuccess * 0.72;
+        c.strokeStyle = 'rgba(255,245,188,0.95)';
+        c.lineWidth = Math.max(2, f.rx * 0.032);
+        c.beginPath();
+        c.ellipse(f.cx, f.cy, rx * (1.12 + (1 - f.guideSuccess) * 0.18), ry * (1.12 + (1 - f.guideSuccess) * 0.18), f.rot, 0, Math.PI * 2);
+        c.stroke();
+        c.restore();
+      }
       c.globalAlpha = Math.min(1, f.guide * 0.95);
       c.strokeStyle = 'rgba(255,221,112,' + (0.35 + f.guide * 0.45) + ')';
       c.lineWidth = Math.max(1.4, f.rx * 0.025);
@@ -777,6 +789,7 @@
     try { window.dispatchEvent(new CustomEvent('handpan:note', { detail: { noteIndex: idx, velocity: finalVel, impact: impact || null } })); } catch (err) {}
     if (fields[idx]) {
       fields[idx].glow = 1;
+      if (fields[idx].guideTarget > 0.5) fields[idx].guideSuccess = 1;
       addRipple(fields[idx].cx, fields[idx].cy, finalVel);
       addBurst(fields[idx].cx, fields[idx].cy, finalVel, true);
       haptic(finalVel > 0.82 ? 'accent' : 'hit');
