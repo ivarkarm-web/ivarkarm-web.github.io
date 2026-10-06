@@ -16,7 +16,8 @@
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
         wasPlaying: wasPlaying,
         currentTime: Number(audio.currentTime || 0),
-        src: audio.currentSrc || audio.src || ''
+        src: audio.currentSrc || audio.src || '',
+        index: Number.isInteger(musicPlayer.index) ? musicPlayer.index : 0
       }));
       if (wasPlaying) audio.pause();
     } catch (_) {}
@@ -31,8 +32,14 @@
       if (!state || !state.wasPlaying || typeof musicPlayer === 'undefined' || !musicPlayer.audio) return;
       var audio = musicPlayer.audio;
 
+      if (Number.isInteger(state.index) && state.index > 0 && typeof mpSelectAndPlayTrack === 'function') {
+        try { mpSelectAndPlayTrack(state.index); } catch (_) {}
+      }
+
       if (Number.isFinite(state.currentTime) && state.currentTime >= 0) {
-        try { audio.currentTime = state.currentTime; } catch (_) {}
+        setTimeout(function(){
+          try { audio.currentTime = state.currentTime; } catch (_) {}
+        }, 60);
       }
 
       setTimeout(function(){
