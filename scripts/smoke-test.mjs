@@ -117,9 +117,9 @@ if (html.includes('js/easter-egg.js') && html.includes('easter-egg.css')) ok('Ea
 else fail('Easter egg not linked from index.html');
 if (eggJs.includes('freezeMainAudio') && eggJs.includes('suspend()')) ok('Main audio is frozen before entering the Handpan');
 else fail('Easter egg must freeze main audio');
-if (/NOTES\s*=\s*\[/.test(hpJs) && ['E3', 'B3', 'D4', 'E4', 'D5', 'E5', 'G5', 'B5'].every((n) => hpJs.includes("'" + n + "'"))) ok('Handpan scale present (E Kurd, 13 notes)');
+if (hpJs.includes("var SCALES = [") && ['D3', 'A3', 'Bb3', 'C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5'].every((n) => hpJs.includes("'" + n + "'"))) ok('Handpan D Kurd scale present (13 notes)');
 else fail('Handpan scale incomplete');
-if (hpJs.includes('e.repeat') && hpJs.includes('keysDown')) ok('Handpan blocks key-repeat loops');
+if (hpJs.includes('e.repeat') && hpJs.includes('heldKeys')) ok('Handpan blocks key-repeat loops');
 else fail('Handpan must block key repeat');
 if (/touch-action:\s*none/.test(hpCss) && hpHtml.includes('maximum-scale=1')) ok('Handpan touch-action / zoom overrides present');
 else fail('Handpan missing touch-action / zoom overrides');
