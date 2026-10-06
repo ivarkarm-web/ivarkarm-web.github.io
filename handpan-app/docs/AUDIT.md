@@ -1,129 +1,127 @@
 # Handpan App Audit — Phase 0
 
 **Date:** 2026-10-06  
-**Repo:** `ivarkarm-web/ivarkarm-web.github.io` @ `main` (`7f977d4`)  
-**Branch for work:** `handpan-app-v1`  
-**Auditor method:** full source read of `handpan-app/` + main-site `:root` tokens; static analysis of gain staging, event paths, CSS tokens and layout; theoretical level calculation from code constants. Offline spectral renders and Playwright viewport captures deferred to measurement harness in Phase 1 (no browser audio context available in this audit environment for full offlineAudioContext runs).
-
----
-
-## Findings table
-
-| ID | Severity | Status | Evidence | Fix |
-|----|----------|--------|----------|-----|
-| **A1** | P0 | **CONFIRMED** | `js/ambient.js`: `natureGain = 0.24`, rain layers `0.026` and `0.010`, stream `0.045`/`0.014`, storm `0.038`/`0.014`, forest `0.012`, birds `0.018`, thunder peak `0.07`. Product at bus ≈ 0.002–0.011 linear. Backing tones `0.055` × bus `0.22` ≈ 0.012. Master chain then compresses at −14 dB. Theoretical peak roughly **−39 to −54 dBFS** before master; RMS lower still. Inaudible on phone speakers. | Rebuild gain staging; target ambience beds −26…−20 dBFS RMS (Phase 4). |
-| **A2** | P0 | **CONFIRMED** | `makeNoise` produces 2 s looped pink/brown noise; rain = LPF pink; stream = LPF brown; birds = 0.11 s sine chirps at random 900–2600 Hz; storm = brown + sine sweep 70→28 Hz. No droplets, no stereo movement, no granular texture, audible loop seam on 2 s buffer. | Procedural layered soundscapes (Phase 4). |
-| **A3** | P0 | **CONFIRMED** | `app-shell.js` `setMode`: `if (mode !== 'ambient') { HandpanAtmosphere.backing('off'); HandpanAtmosphere.set('off'); }`. Dropdowns (`#natureSelect`, `#backingSelect`) are never reset. Re-selecting the same value does not fire `change`. Dock only shown in loop/ambient. Play mode has no ambience controls. | Persist ambience across modes; global mixer sheet; UI always reflects audio state (Phase 4 + 6). |
-| **A4** | P1 | **CONFIRMED** | Backing uses `setInterval(musicTick, 420|620|900)`. Nature chirps/thunder use `setTimeout`. Not tied to `AudioContext.currentTime`. | Single lookahead scheduler on audio clock (Phase 1). |
-| **A5** | P0 | **CONFIRMED** | `voice-presets.js`: 5 presets, each 5 partials of sine/triangle + short noise burst. Shared structure; differ mainly in decay and ratios. No modal doublets (beating), no body resonance, no per-partial decay curve matching real handpan (fund + 2× + 3× dominant), no articulation model beyond velocity→gain. `sounds/manifest.json` has `"samples": {}` — sample path never used. | Modal-synthesis handpan voice (Phase 2). |
-| **A6** | P1 | **CONFIRMED** | Single convolution reverb: `makeImpulse(ctx, 2.8, 3.2)`, fixed send `0.34`. No delay, no per-instrument FX chain, no tempo sync. | FX engine: delay + multi-IR reverb + macros (Phase 3). |
-| **L1** | P0 | **CONFIRMED** | `loop.js` `playEvent` calls `HandpanGame.strike(n, v, { source: 'loop' })`. `strikeNote(idx, vel, impact)` treats 3rd arg as impact geometry, not options. Event always dispatched without `source`. `noteHandler` records every `handpan:note` in overdub with no source filter. Overdub records its own playback. | Source-tagged events; never record `source === 'loop'` (Phase 5). |
-| **L2** | P0 | **CONFIRMED** | Clock: `performance.now()` + `requestAnimationFrame`. No lookahead, no `AudioContext.currentTime`, no latency compensation. ~16 ms frame jitter; throttled in background. | Audio-clock scheduler with latency compensation (Phase 1 + 5). |
-| **L3** | P1 | **CONFIRMED** | Count-in exists (visual only, no audible click). No start-on-first-note, no undo/redo, no per-layer mute/solo/volume/delete, tempo/bars locked until Clear, no save/export, no loop FX. `transport.js` is a second unused rAF clock. | Rebuild looper from scratch (Phase 5). |
-| **U1** | P0 | **CONFIRMED** | Site tokens: `--accent-gold #c9a227`, `--metal #c4a35a`, editorial ~6 px radii, hairline `rgba(255,255,255,0.07)`, Fraunces + Inter, motion family (`--ease-resonance`, `--dur-impact 0.22s`, etc.). App hard-codes `rgba(212,175,55,…)`, `border-radius: 999px` / `20px` / `16px` / `18px`, own timings. No light theme (`data-theme` present but unused). | `tokens.css` mirroring site; replace hard-coded golds and radii (Phase 6). |
-| **U2** | P0 | **CONFIRMED** | Bottom mode bar + separate back pill + top scale dropdown + right dock toggle (loop/ambient only) + Learn panel + Learn modal + hidden `#appPanel`. Magic bottoms: `+9.25rem`, `+7.05rem`, `+4.85rem`. | Single shell: top bar + canvas + bottom tabs + bottom-sheet system (Phase 6). |
-| **U3** | P0 | **CONFIRMED** | Labels at `0.34–0.56rem` (~5.5–9 px). Controls `min-height: 27–38 px` (below 44 px). Viewport: `maximum-scale=1, user-scalable=no`. Heights use `100vh` / fixed offsets that break under iOS dynamic toolbars. | Min 12 px type, 44 px targets, `dvh`/`svh`, remove zoom lock (Phase 6). |
-| **U4** | P1 | **CONFIRMED** | (1) `goBack` falls back to `./index.html` (the app), not `../`. (2) Learn is opened on mode enter but never stopped on mode leave; close path incomplete. (3) `app-shell.js` is a classic script; `window.HandpanApp.instrument = window.HandpanGame || null` runs before the module loads → always `null`. | Fix URL, mode enter/exit lifecycle, convert to ES modules (Phase 6). |
-| **U5** | P1 | **CONFIRMED** | No `localStorage` / IndexedDB usage anywhere in `handpan-app/`. No web manifest, no service worker, no app icons. Fonts hotlinked from Google Fonts. | Persistence module + manifest + SW + self-hosted fonts (Phase 6). |
-| **U6** | P1 | **CONFIRMED** | `app.css` ~1000 lines, repeated media queries, dead rules. Modules communicate via `window.*` globals and custom events. `handpan.js` is a drifted fork of root `js/handpan.js`. CI: app tests on PRs only; deploy runs smoke only. | Split CSS, explicit imports, strengthen CI (Phase 6). |
-| **U7** | P2 | **CONFIRMED** | Portfolio easter egg opens root `handpan.html`, not `handpan-app/`. No public nav link to the app. | Propose link in final report; do not edit main site in this work. |
-
-### Additional findings (not in original hypothesis list)
-
-| ID | Severity | Status | Evidence | Fix |
-|----|----------|--------|----------|-----|
-| **X1** | P0 | **CONFIRMED** | `HandpanGame.strike` signature is `(idx, vel, impact)`. Loop passes `{ source: 'loop' }` as the third argument; it is interpreted as impact geometry (`impact.center`), corrupting velocity. | Unify strike API with explicit `options` object including `source` (Phase 1/5). |
-| **X2** | P1 | **CONFIRMED** | Dual master chains: `audio-core.js` builds master+compressor; `HandpanEngine._build` builds its own bus→comp→master→`getAudioMaster()`. Two compressors in series, no shared analyser for ambience/backing. | Single mixer graph (Phase 1). |
-| **X3** | P2 | **CONFIRMED** | Instrument grid in ambient.js builds from `VOICE_PRESETS` (5 items) while scale sheet is separate; UI presents “instruments” as the 5 synth voices, not the 9 handpan scales. Confusing dual browser. | One instrument library: 9 handpans + 9 synths (Phase 3). |
+**Repo:** `ivarkarm-web/ivarkarm-web.github.io` @ `main`  
+**App path:** `handpan-app/`  
+**Version under audit:** 0.4.1  
+**Auditor method:** Full source read of every file under `handpan-app/`; comparison against main-site `:root` tokens in `styles.css`; static gain-graph level estimates; existing unit-test baseline (`npm run test:app`); structural analysis of timing, event contracts, and CSS layout. Offline spectral renders require a Web Audio implementation in Node or Playwright OfflineAudioContext and are scheduled for the measurement harness in Phase 1; theoretical levels are reported here with explicit method.
 
 ---
 
 ## Baseline metrics
 
-### Audio levels (theoretical, from code constants)
+| Metric | Value | How measured |
+|--------|-------|--------------|
+| Unit tests (`npm run test:app`) | **17/17 pass** | `node --test scripts/app-tests/*.test.mjs` |
+| Playwright / full `check:app` | Not run in this sandbox (Chromium install + serve required) | Deferred to CI / Phase 1 |
+| `sounds/manifest.json` samples | **0** (`status: "fallback-synth"`) | File read |
+| Lines of code (app JS+CSS+HTML) | ~3,934 | `wc -l` |
+| `handpan.js` | 1,129 lines | Engine + canvas fork |
+| `app.css` | 1,014 lines | Many repeated media queries |
+| Modes | Play / Learn / Loop / Ambient | `app-shell.js` |
+| Voice presets | 5 (Steel, Warm, Bell, Soft, Deep) | `voice-presets.js` |
+| Scales | 9 (D Kurd … E Integral Extended) | `handpan.js` SCALES |
+| Loop max layers | 7 | `loop-core.js` |
+| Transport module | Present, **unused by looper** | `transport.js` vs `loop.js` |
 
-Computed as linear product of source gain × bus gain, expressed as peak dBFS assuming full-scale source. RMS will be lower (noise ~−10 dB relative to peak; short tones lower still). Master gain 0.9 and compressor (−14 dB threshold) apply after.
+### What is already good (must not regress)
 
-| Source | Source gain | Bus | Product | Peak dBFS (approx) | Audible? |
-|--------|-------------|-----|---------|--------------------|----------|
-| Rain bed (pink) | 0.026 | 0.24 | 0.0062 | −44 | No |
-| Rain texture | 0.010 | 0.24 | 0.0024 | −52 | No |
-| Stream | 0.045 | 0.24 | 0.0108 | −39 | Marginal |
-| Storm bed | 0.038 | 0.24 | 0.0091 | −41 | Marginal |
-| Forest bed | 0.012 | 0.24 | 0.0029 | −51 | No |
-| Bird chirp | 0.018 | 0.24 | 0.0043 | −47 | Barely |
-| Thunder | 0.07 | 0.24 | 0.0168 | −36 | Quiet |
-| Backing drone/pulse | 0.055 | 0.22 | 0.0121 | −38 | Quiet |
-| Handpan voice (nominal) | ~0.2–0.5 peak partial | 1.0 → eng master 0.85 → audio master 0.9 | ~0.15–0.4 | −16…−8 | Yes |
-
-Full offline spectra will be written to `docs/audio-baseline.json` once the Phase 1 harness runs.
-
-### Code / structure
-
-| Metric | Value |
-|--------|-------|
-| `handpan.js` | ~1,125 lines (engine + canvas + input) |
-| `app.css` | ~1,000 lines |
-| Voice presets | 5 (Steel, Warm, Bell, Soft, Deep) |
-| Scales | 9 (D Kurd … E Integral Extended) |
-| Sample coverage | 0 (empty manifest) |
-| Persistence | None |
-| Tests | Unit (`node --test`) + Playwright `handpan.spec.mjs` + smoke |
-| Version | 0.4.1 |
-
-### Performance (static estimate)
-
-- Canvas + particle system runs every frame; DPR capped (good).
-- No measured load time / long-task data in this environment; to be captured with Playwright in Phase 1.
+- Canvas instrument look: steel plate, note fields, glow, ripples, particle bursts.
+- Multi-touch and keyboard (QWERTY map) input paths.
+- Haptics on coarse pointers (`navigator.vibrate`).
+- DPR / resolution cap awareness in the canvas path.
+- Safe-area insets used in several places (`env(safe-area-inset-*)`).
+- SampleBank graceful fallback when manifest is empty.
+- Loop-core pure functions (quantize, phase wrap, eventsBetween) are tested and sound.
+- Shared `audio-core` single context + master + compressor topology.
+- Learn curriculum: 16 lessons, TimingScorer grades, four levels.
+- Static hosting, ES modules, no runtime framework dependency for the app itself.
 
 ---
 
-## What is already good (do not regress)
+## Findings table
 
-1. **Canvas instrument look** — steel disc, note fields, glow, ripples, sparks; visually coherent and satisfying.
-2. **Multi-touch** — pointer map, multi-note chords, velocity from movement speed.
-3. **Haptics** — short vibration on strike (coarse pointer).
-4. **DPR cap** — sensible devicePixelRatio limit for mid-range phones.
-5. **Safe-area usage** — `env(safe-area-inset-*)` already present on several fixed elements.
-6. **9 real scales** with correct note layouts and ding-centred geometry.
-7. **SampleBank scaffold** — velocity buckets, detune, graceful fallback already sketched.
-8. **Learn core** — TimingScorer and 16 lessons exist and should be preserved/adapted.
-9. **Keyboard map** — QWERTY path works.
-10. **Isolation** — app lives under `handpan-app/` and does not touch the main site.
+| ID | Severity | Status | Evidence | Fix (phase) |
+|----|----------|--------|----------|-------------|
+| **A1** | P0 | **CONFIRMED** | `ambient.js`: `natureGain=.24`, layer gains rain `.026`/`.010`, stream `.045`/`.014`, storm `.038`/`.014`, forest `.012`, birds `.018`, thunder `.07`. Backing tones `.055` (or lower) × `backingGain=.22`. Effective linear ≈ nature 0.002–0.011, backing ~0.012. Estimated RMS at bus before master: roughly **−39 to −54 dBFS** for beds, chirps quieter. Master 0.9 + compressor (−14 dB thresh) does not lift noise floor into phone-speaker audibility. | Phase 4: recalibrate beds to −26…−20 dBFS RMS at default; separate faders; ducking |
+| **A2** | P0 | **CONFIRMED** | Rain = 2 s looped pink noise LPF 6800/1800 Hz; stream = brown + pink LPF; storm = brown + pink + sine sweep 70→28 Hz; birds = 0.11 s sine blips at random 900–2600 Hz. No droplet events, no stereo width/movement, no distance model, audible 2 s loop period. | Phase 4: layered procedural stereo soundscapes, long/crossfaded buffers |
+| **A3** | P0 | **CONFIRMED** | `app-shell.js` `setMode()`: `if(mode!=='ambient' && window.HandpanAtmosphere){ backing('off'); set('off'); }` — always kills nature/backing when leaving Ambient. Selects keep previous `value`; re-selecting same option does not fire `change`. Dock only allowed in loop/ambient; Play has no ambience UI. Ambient mode has no dedicated panel (only shared dock). | Phase 4 + 6: persist ambience across modes; mixer always reachable; UI mirrors playing state |
+| **A4** | P1 | **CONFIRMED** | Backing uses `setInterval(musicTick, 420|620|900)`; nature chirps/thunder use `setTimeout`. Not tied to `AudioContext.currentTime`. Loop uses `requestAnimationFrame` + `performance.now()`. | Phase 1: single lookahead scheduler on audio clock |
+| **A5** | P0 | **CONFIRMED** | `voice-presets.js`: five presets, same structure (5 partials sine/triangle + noise burst). Partials are simple ratio lists, not tuned modal doublets with per-partial T60 and body resonance. `manifest.json` samples empty → sample path never used in production. | Phase 2: modal synthesis with doublets, strike transient, body, velocity/position response; finish sample pipeline |
+| **A6** | P1 | **CONFIRMED** | Single generated impulse `makeImpulse(ctx, 2.8, 3.2)`, fixed wet send ~0.34. No delay, no chorus, no per-instrument FX chain. | Phase 3: FX engine (reverb variants, tempo-synced delay, macros) |
+| **L1** | P0 | **CONFIRMED** | `loop.js` `playEvent` → `HandpanGame.strike(n, v, { source: 'loop' })`. `strikeNote(idx, vel, impact)` treats 3rd arg as impact and **always** dispatches `handpan:note` with no `source` field. `noteHandler` records every event in overdub with no source filter. | Phase 5: event `source` field; ignore non-user sources when recording |
+| **L2** | P0 | **CONFIRMED** | Playback driven by `requestAnimationFrame` / `performance.now()`; ~16 ms frame quantisation, background-tab throttling, no lookahead, no latency compensation on record. | Phase 5 + 1: audio-clock schedule + input timestamp map |
+| **L3** | P1 | **CONFIRMED** | Count-in is visual only (no click). No start-on-first-note, no undo/redo, no per-layer mute/solo/volume/delete, tempo/bars locked until Clear, no save/export, no loop FX. `transport.js` is a second rAF clock unused by the looper. | Phase 5: full rebuild |
+| **U1** | P0 | **CONFIRMED** | Site tokens: `--accent-gold: #c9a227`, `--metal: #c4a35a`, `--border-color: rgba(255,255,255,0.07)`, motion family `--ease-resonance` etc., Fraunces + Inter. App hard-codes `rgba(212,175,55,…)`, pill radii `999px`, many `20px`/`16px` cards, own timings; no light theme hook beyond `data-theme="dark"` on html. | Phase 6: `tokens.css` mirroring site; theme support |
+| **U2** | P0 | **CONFIRMED** | Bottom mode bar + separate back pill + top scale menu + right-edge dock toggle (2 modes only) + Learn panel/modal + hidden `#appPanel`. Magic bottoms: `+9.55rem`, `+7.05rem`, `+4.85rem`. | Phase 6: single bottom-sheet system + hash router + CSS variables for chrome |
+| **U3** | P0 | **CONFIRMED** | Labels at `0.39rem`–`0.52rem` (~6–8 px); many controls 28–38 px; viewport `maximum-scale=1, user-scalable=no`; Learn panel uses `100vh`. | Phase 6: ≥12 px type, ≥44 px targets, `dvh`/`svh`, allow zoom, touch-action only on canvas |
+| **U4** | P1 | **CONFIRMED** | `goBack()` fallback `location.href = './index.html'` (app itself); anchor href is `../`. Learn not stopped on mode change; close path incomplete. `app-shell.js` is classic IIFE capturing `window.HandpanGame` at load time → `HandpanApp.instrument` stays null (modules load after). | Phase 6: resolve site URL once; mode enter/exit lifecycle; ES modules |
+| **U5** | P1 | **CONFIRMED** | No `localStorage` / IndexedDB in handpan-app; no manifest, SW, or icons; Google Fonts hotlink. | Phase 6: versioned storage, web manifest, SW, self-host fonts |
+| **U6** | P1 | **CONFIRMED** | Globals + window events; handpan.js is a drifted fork of root engine; CI app tests on PRs only; deploy runs smoke only. | Phase 1–6: module graph; extend CI |
+| **U7** | P2 | **CONFIRMED** | Portfolio easter egg opens root `handpan.html`, not `handpan-app/`. | Propose link in final report only (no root edits) |
 
----
+### Additional findings (not in original hypothesis list)
 
-## Ranked plan (evidence-driven order)
-
-The original phase order is validated by the audit. One reordering note:
-
-1. **Phase 0** — this audit (done).
-2. **Phase 1 — Audio foundation** (mandatory first): single clock, single mixer, gain contract. Unblocks every subsequent audio claim.
-3. **Phase 2 — Handpan sound engine** (P0 A5): the product’s reason for existing.
-4. **Phase 4 — Ambience & backing** (P0 A1–A3): gain staging is the loudest user complaint; can share the new mixer from Phase 1. *Consider running Level calibration of ambience immediately after Phase 1 before full procedural rebuild.*
-5. **Phase 5 — Looper rebuild** (P0 L1–L2): depends on audio clock.
-6. **Phase 3 — Instrument library + FX**: depends on solid voice engine; can proceed in parallel with Phase 4 once Phase 2 voice API is stable.
-7. **Phase 6 — UI cohesion**: last, so it wraps the new surfaces rather than being torn up again.
-
-**Rationale for not swapping Phase 3 and 4:** ambience silence (A1) is the most embarrassing live bug; FX can wait until voices exist.
-
----
-
-## Measurement backlog (Phase 1 harness)
-
-- Offline render of every nature mode and backing mode → peak/RMS dBFS, spectrum, duration, seam detector.
-- Offline render of each of 5 current voices × 3 notes (low/mid/high) × 2 velocities → partial ratios, T60, centroid.
-- Loop playback jitter vs `AudioContext.currentTime` over 60 s.
-- Playwright screenshots at 390×844, 360×740, 844×390, 768×1024, 1440×900 for every mode + open dock/sheet.
-
-Until those numbers exist, no claim of “sounds right” or “audible” will be made beyond the theoretical levels above.
+| ID | Severity | Status | Evidence | Fix |
+|----|----------|--------|----------|-----|
+| **X1** | P1 | CONFIRMED | `HandpanGame.strike` signature is `(idx, vel, impact)`; loop’s `{source:'loop'}` is misinterpreted as impact geometry. | Align public API with `{ source, impact }` options object |
+| **X2** | P2 | CONFIRMED | Visibility handler suspends audio on hidden but never auto-resumes with UI affordance (“tap to resume”). | Phase 1 lifecycle |
+| **X3** | P2 | CONFIRMED | No analyser-driven visuals for ambience; atmosphere layer is decorative. | Phase 4 |
+| **X4** | P1 | CONFIRMED | Learn demo/practice timers use `setTimeout`/`setInterval` + `performance.now()`, not audio clock — same class of timing issue as A4/L2. | Phase 1 + Learn adapt in Phase 6 |
 
 ---
 
-## Baseline test status
+## Audio baseline (theoretical gain-graph)
 
-Existing suite (`npm run check:app`) was not executed in this audit environment (Playwright + full node deps not installed here). Contract tests assert HTML surface and script order; they should still pass. Full green run is a Phase 1 exit criterion.
+Method: product of source gain × bus gain × master (0.9), ignoring compressor makeup. Converted as `20·log10(linear)`. Offline buffer renders with spectra will replace these in `docs/audio-baseline.json` once the harness lands (Phase 1).
+
+| Source | Source gain | Bus | Bus gain | Approx linear @ master | Est. peak dBFS |
+|--------|-------------|-----|----------|------------------------|----------------|
+| Rain layer high | 0.026 | nature | 0.24 | ~0.0056 | **≈ −45** |
+| Rain layer low | 0.010 | nature | 0.24 | ~0.0022 | **≈ −53** |
+| Stream primary | 0.045 | nature | 0.24 | ~0.0097 | **≈ −40** |
+| Storm primary | 0.038 | nature | 0.24 | ~0.0082 | **≈ −42** |
+| Forest bed | 0.012 | nature | 0.24 | ~0.0026 | **≈ −52** |
+| Bird chirp | 0.018 | nature | 0.24 | ~0.0039 | **≈ −48** |
+| Thunder peak | 0.07 | nature | 0.24 | ~0.015 | **≈ −36** |
+| Backing tone | 0.055 | backing | 0.22 | ~0.011 | **≈ −39** |
+| Handpan voice (nominal) | ~0.2–0.5 envelope | instrument bus | ~1 | higher | sits above beds |
+
+**Conclusion:** Ambience and backing are effectively silent on phone speakers relative to the instrument. Target for Phase 4: beds −26…−20 dBFS RMS, peaks < −6 dBFS; backing −24…−18 dBFS RMS; instrument always above.
 
 ---
 
-*End of Phase 0 audit. Next commit after this file: Phase 1 audio foundation.*
+## Screenshots
+
+Playwright mobile/desktop captures at the five required viewports will be stored under `docs/screens/` after the local serve + Playwright pass in Phase 1. Static structure confirms: mode bar bottom, back top-left, scale menu top, dock right (loop/ambient only), loop orb bottom-right with magic offsets.
+
+---
+
+## Ranked plan (evidence-driven)
+
+Evidence supports the original phase order with one emphasis change:
+
+1. **Phase 0** — this audit (done).  
+2. **Phase 1 — Audio foundation** — mandatory before any audible work: one clock, one mixer, documented gain staging, lifecycle. Fixes A4, L2 root, X2, X4 class.  
+3. **Phase 2 — Handpan sound engine** — A5 is P0 product quality; do modal voice before library expansion.  
+4. **Phase 4 — Ambience & backing** — A1/A2/A3 are P0 “feature is broken”; fix levels and state *before* or tightly with Phase 3 so FX has something audible to process. *Slight reorder option:* run Phase 4 level calibration immediately after Phase 1 mixer exists, then Phase 3 FX, then polish ambience layers. Documented choice: keep Phase 3 then 4 as specified unless mixer lands early enough to parallelize level work.  
+5. **Phase 3 — Instrument library + FX** — A6; needs stable engine + mixer.  
+6. **Phase 5 — Looper rebuild** — L1/L2/L3; depends on Phase 1 clock and event `source`.  
+7. **Phase 6 — UI cohesion** — U1–U7; can start token extraction in parallel once Phase 1 is stable.
+
+No finding justified skipping Phase 1.
+
+---
+
+## Measurement harness (next)
+
+- `scripts/analyze-voice.mjs` + OfflineAudioContext (Playwright or `node-web-audio-api`) for peak/RMS/spectrum/T60.  
+- Seam-click / autocorrelation test for ambience loops.  
+- Loop jitter harness against `AudioContext.currentTime`.  
+- Replace theoretical rows in `audio-baseline.json` with measured values before claiming Phase 4 exit.
+
+---
+
+## Commit note
+
+This file is the first commit on branch `handpan-app-v1`. No production code changed yet.

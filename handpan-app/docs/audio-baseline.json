@@ -1,107 +1,86 @@
 {
-  "generated": "2026-10-06",
-  "method": "theoretical from source constants (offline spectral harness pending Phase 1)",
-  "notes": "Peak dBFS estimates assume full-scale source. Real RMS will be lower. Master gain 0.9 and dual compressors apply after bus product.",
-  "master": {
-    "audioCoreMasterGain": 0.9,
-    "engineMasterGain": 0.85,
-    "compressorThresholdDb": -14,
-    "reverbSend": 0.34,
-    "reverbImpulseSeconds": 2.8
+  "version": 1,
+  "appVersion": "0.4.1",
+  "measuredAt": "2026-10-06",
+  "method": "theoretical-gain-graph",
+  "methodDetail": "Product of documented source gain × bus gain × master (0.9). No OfflineAudioContext render in Phase 0. Values are estimates in dBFS peak-equivalent; replace with offline RMS/peak/spectrum in Phase 1 harness.",
+  "masterGain": 0.9,
+  "compressor": {
+    "thresholdDb": -14,
+    "knee": 18,
+    "ratio": 3,
+    "attack": 0.004,
+    "release": 0.2
+  },
+  "buses": {
+    "nature": { "defaultGain": 0.24 },
+    "backing": { "defaultGain": 0.22 },
+    "instrument": { "defaultGain": 1.0 }
   },
   "ambience": {
-    "busGain": 0.24,
-    "presets": {
-      "rain": {
-        "layers": [
-          { "type": "pink-noise-lpf", "cutoffHz": 6800, "gain": 0.026, "busProduct": 0.00624, "peakDbFS_estimate": -44.1 },
-          { "type": "pink-noise-lpf", "cutoffHz": 1800, "gain": 0.01, "busProduct": 0.0024, "peakDbFS_estimate": -52.4 }
-        ],
-        "rmsDbFS_estimate": -50,
-        "loopBufferSeconds": 2,
-        "seamRisk": "high"
-      },
-      "stream": {
-        "layers": [
-          { "type": "brown-noise-lpf", "cutoffHz": 2600, "gain": 0.045, "busProduct": 0.0108, "peakDbFS_estimate": -39.3 },
-          { "type": "pink-noise-lpf", "cutoffHz": 5200, "gain": 0.014, "busProduct": 0.00336, "peakDbFS_estimate": -49.5 }
-        ],
-        "rmsDbFS_estimate": -46,
-        "loopBufferSeconds": 2,
-        "seamRisk": "high"
-      },
-      "storm": {
-        "layers": [
-          { "type": "brown-noise-lpf", "cutoffHz": 1200, "gain": 0.038, "busProduct": 0.00912, "peakDbFS_estimate": -40.8 },
-          { "type": "pink-noise-lpf", "cutoffHz": 3600, "gain": 0.014, "busProduct": 0.00336, "peakDbFS_estimate": -49.5 },
-          { "type": "sine-sweep-thunder", "gain": 0.07, "busProduct": 0.0168, "peakDbFS_estimate": -35.5 }
-        ],
-        "rmsDbFS_estimate": -44,
-        "loopBufferSeconds": 2,
-        "seamRisk": "high"
-      },
-      "forest": {
-        "layers": [
-          { "type": "pink-noise-lpf", "cutoffHz": 2400, "gain": 0.012, "busProduct": 0.00288, "peakDbFS_estimate": -50.8 },
-          { "type": "sine-chirp", "gain": 0.018, "durationSec": 0.11, "busProduct": 0.00432, "peakDbFS_estimate": -47.3 }
-        ],
-        "rmsDbFS_estimate": -52,
-        "loopBufferSeconds": 2,
-        "seamRisk": "high"
-      },
-      "birds": {
-        "layers": [
-          { "type": "sine-chirp", "gain": 0.018, "durationSec": 0.11, "busProduct": 0.00432, "peakDbFS_estimate": -47.3 }
-        ],
-        "rmsDbFS_estimate": -55,
-        "loopBufferSeconds": null,
-        "seamRisk": "n/a"
-      },
-      "jungle": {
-        "layers": [
-          { "type": "pink-noise-lpf", "cutoffHz": 3000, "gain": 0.018, "busProduct": 0.00432, "peakDbFS_estimate": -47.3 },
-          { "type": "brown-noise-lpf", "cutoffHz": 900, "gain": 0.014, "busProduct": 0.00336, "peakDbFS_estimate": -49.5 },
-          { "type": "sine-chirp", "gain": 0.018, "durationSec": 0.11, "busProduct": 0.00432, "peakDbFS_estimate": -47.3 }
-        ],
-        "rmsDbFS_estimate": -50,
-        "loopBufferSeconds": 2,
-        "seamRisk": "high"
-      }
+    "rain": {
+      "layers": [
+        { "kind": "pink-lpf", "cutHz": 6800, "gain": 0.026, "estPeakDbFs": -45 },
+        { "kind": "pink-lpf", "cutHz": 1800, "gain": 0.010, "estPeakDbFs": -53 }
+      ],
+      "bufferSeconds": 2,
+      "loopSeamRisk": "high",
+      "stereo": false,
+      "notes": "Reads as hiss/wind; inaudible on phone speaker at default"
     },
-    "targetAfterFix": {
-      "bedRmsDbFS": [-26, -20],
-      "peakDbFS": [-6, null]
+    "stream": {
+      "layers": [
+        { "kind": "brown-lpf", "cutHz": 2600, "gain": 0.045, "estPeakDbFs": -40 },
+        { "kind": "pink-lpf", "cutHz": 5200, "gain": 0.014, "estPeakDbFs": -50 }
+      ],
+      "bufferSeconds": 2,
+      "loopSeamRisk": "high",
+      "stereo": false
+    },
+    "storm": {
+      "layers": [
+        { "kind": "brown-lpf", "cutHz": 1200, "gain": 0.038, "estPeakDbFs": -42 },
+        { "kind": "pink-lpf", "cutHz": 3600, "gain": 0.014, "estPeakDbFs": -50 }
+      ],
+      "thunder": { "kind": "sine-sweep", "peakGain": 0.07, "estPeakDbFs": -36 },
+      "bufferSeconds": 2,
+      "loopSeamRisk": "high",
+      "stereo": false
+    },
+    "forest": {
+      "layers": [{ "kind": "pink-lpf", "cutHz": 2400, "gain": 0.012, "estPeakDbFs": -52 }],
+      "chirps": { "gain": 0.018, "durationS": 0.11, "estPeakDbFs": -48 },
+      "stereo": false
+    },
+    "birds": {
+      "chirps": { "gain": 0.018, "durationS": 0.11, "estPeakDbFs": -48, "type": "sine-blip" },
+      "stereo": false
+    },
+    "jungle": {
+      "layers": [
+        { "kind": "pink-lpf", "cutHz": 3000, "gain": 0.018, "estPeakDbFs": -48 },
+        { "kind": "brown-lpf", "cutHz": 900, "gain": 0.014, "estPeakDbFs": -50 }
+      ],
+      "chirps": { "gain": 0.018, "durationS": 0.11 },
+      "stereo": false
     }
   },
   "backing": {
-    "busGain": 0.22,
-    "presets": {
-      "drone": { "toneGain": 0.055, "busProduct": 0.0121, "peakDbFS_estimate": -38.3 },
-      "pulse": { "toneGain": 0.055, "busProduct": 0.0121, "peakDbFS_estimate": -38.3 },
-      "arp": { "toneGain": 0.045, "busProduct": 0.0099, "peakDbFS_estimate": -40.1 },
-      "pad": { "toneGain": 0.045, "busProduct": 0.0099, "peakDbFS_estimate": -40.1 }
-    },
-    "scheduler": "setInterval",
-    "targetAfterFix": {
-      "rmsDbFS": [-24, -18]
-    }
+    "drone": { "toneGain": 0.055, "busGain": 0.22, "estPeakDbFs": -39, "scheduler": "setInterval-900ms" },
+    "pulse": { "toneGain": 0.055, "busGain": 0.22, "estPeakDbFs": -39, "scheduler": "setInterval-620ms" },
+    "arp": { "toneGain": 0.045, "busGain": 0.22, "estPeakDbFs": -40, "scheduler": "setInterval-420ms" },
+    "pad": { "toneGain": 0.045, "busGain": 0.22, "estPeakDbFs": -40, "scheduler": "setInterval-900ms" }
   },
   "voices": {
     "presets": ["steel", "warm", "bell", "soft", "deep"],
-    "structure": "5 partials sine/triangle + noise burst",
-    "partialRatios": {
-      "steel": [1, 2.01, 3.99, 5.99, 8.02],
-      "warm": [1, 1.01, 2.01, 3.02, 4.98],
-      "bell": [1, 2.02, 4.01, 6.08, 9.12],
-      "soft": [1, 1.005, 2.005, 3.01, 5.01],
-      "deep": [0.5, 1, 2, 3, 4]
-    },
-    "notes": "No modal doublets, no body resonance, no measured T60 yet. Sample path empty."
+    "structure": "5 partials + noise burst",
+    "samplesInManifest": 0,
+    "note": "Spectral measurements deferred to scripts/analyze-voice.mjs in Phase 2"
   },
-  "loop": {
-    "clock": "performance.now + requestAnimationFrame",
-    "jitterEstimateMs": 16,
-    "overdubRecordsSelf": true,
-    "sourceTagPropagated": false
+  "targetsPhase4": {
+    "ambienceBedRmsDbFs": [-26, -20],
+    "ambiencePeakDbFsMax": -6,
+    "backingRmsDbFs": [-24, -18],
+    "instrumentAboveBeds": true
   }
 }
