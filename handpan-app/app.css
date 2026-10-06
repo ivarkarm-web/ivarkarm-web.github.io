@@ -1,0 +1,33 @@
+/* Standalone app shell — intentionally separate from the website. */
+.app-shell { background:#050505; }
+.app-modebar {
+  position:fixed; z-index:10; top:calc(env(safe-area-inset-top,0px) + 1rem); left:50%;
+  transform:translateX(-50%); display:flex; gap:.2rem; padding:.25rem;
+  border:1px solid rgba(212,175,55,.22); border-radius:999px;
+  background:rgba(7,7,8,.62); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+}
+.app-mode {
+  border:0; background:transparent; color:rgba(240,236,228,.5); padding:.48rem .72rem;
+  border-radius:999px; font:500 .62rem Inter,sans-serif; letter-spacing:.13em;
+  text-transform:uppercase; cursor:pointer;
+}
+.app-mode.is-active { color:#f0ece4; background:rgba(212,175,55,.13); }
+.app-brand {
+  position:fixed; z-index:7; left:1.2rem; bottom:1.1rem; pointer-events:none;
+  color:rgba(240,236,228,.32); font:500 .56rem Inter,sans-serif; letter-spacing:.18em;
+}
+.app-panel {
+  position:fixed; z-index:7; left:1.2rem; top:50%; transform:translateY(-50%);
+  width:min(250px,calc(100vw - 2.4rem)); padding:1rem 1.1rem;
+  border-left:1px solid rgba(212,175,55,.35); background:rgba(5,5,5,.24);
+  backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px); pointer-events:none;
+  opacity:0; transition:opacity .6s ease;
+}
+.app-panel-kicker { color:#c9a227; font:500 .58rem Inter,sans-serif; letter-spacing:.18em; }
+.app-panel-copy { margin-top:.45rem; color:rgba(240,236,228,.62); font:300 .78rem/1.45 Inter,sans-serif; }
+@media(max-width:700px) {
+  .app-modebar { width:calc(100vw - 1.5rem); justify-content:center; }
+  .app-mode { flex:1; padding:.48rem .25rem; font-size:.55rem; }
+  .app-panel { display:none; }
+  .app-brand { left:50%; transform:translateX(-50%); white-space:nowrap; }
+}
