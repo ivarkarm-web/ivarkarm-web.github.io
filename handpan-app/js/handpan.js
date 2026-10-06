@@ -808,7 +808,10 @@
 
   function releaseEverything() {
     heldKeys.clear();
-    pointerMap.forEach(function (state) { releaseNote(state.noteIndex !== undefined ? state.noteIndex : state); });
+    pointerMap.forEach(function (state) {
+      if (state && state.dampingTimer) clearInterval(state.dampingTimer);
+      releaseNote(state.noteIndex !== undefined ? state.noteIndex : state);
+    });
     pointerMap.clear();
     for (var i = 0; i < fields.length; i++) fields[i].held = 0;
     updateChord();
