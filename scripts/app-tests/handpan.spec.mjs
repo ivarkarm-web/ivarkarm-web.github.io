@@ -105,3 +105,54 @@ test('learn mode exposes the four-level sixteen-lesson curriculum', async ({ pag
   await expect(page.locator('#learnLevel')).toContainText('LEVEL 1');
   await expect(page.locator('#learnTiming')).toBeVisible();
 });
+
+
+test('non-user note events cannot create loop overdubs or Learn scores', async ({ page }) => {
+  await page.locator('.app-mode[data-mode="loop"]').click();
+  await page.evaluate(() => {
+    window.HandpanGame.strike(0, 0.7, null, 'loop');
+    window.dispatchEvent(new CustomEvent('handpan:note', { detail: { noteIndex: 1, velocity: 0.8, source: 'loop' } }));
+  });
+  await expect(page.locator('#loopLayerCount')).toHaveText('0/7');
+
+  await page.locator('.app-mode[data-mode="learn"]').click();
+  await page.locator('.lesson-card').first().click();
+  await page.waitForTimeout(100);
+  const before = await page.evaluate(() => window.HandpanLearn.state.scorer?.hits ?? 0);
+  await page.evaluate(() => {
+    window.dispatchEvent(new CustomEvent('handpan:note', { detail: { noteIndex: 0, velocity: 0.8, source: 'lesson-demo' } }));
+  });
+  const after = await page.evaluate(() => window.HandpanLearn.state.scorer?.hits ?? 0);
+  expect(after).toBe(before);
+});
+
+test('switching away from Learn closes its lifecycle and clears guide targets', async ({ page }) => {
+  await page.locator('.app-mode[data-mode="learn"]').click();
+  await page.locator('.lesson-card').first().click();
+  await expect(page.locator('#learnStage')).toBeVisible();
+  await page.locator('.app-mode[data-mode="play"]').click();
+  await expect(page.locator('#learnPanel')).not.toHaveClass(/is-open/);
+  const phase = await page.evaluate(() => window.HandpanLearn.state.phase);
+  expect(phase).toBe('picker');
+});
+
+test('switching modes does not disable active backing or ambience', async ({ page }) => {
+  await page.locator('.app-mode[data-mode="ambient"]').click();
+  await page.locator('#backingSelect').selectOption('drone');
+  await page.locator('#natureSelect').selectOption('stream');
+  await page.locator('.app-mode[data-mode="play"]').click();
+  const state = await page.evaluate(() => ({
+    backing: document.querySelector('#backingSelect').value,
+    nature: document.querySelector('#natureSelect').value
+  }));
+  expect(state.backing).toBe('drone');
+  expect(state.nature).toBe('stream');
+});
+
+test('back to site never falls back to the app index', async ({ page }) => {
+  const href = await page.locator('#hpBack').getAttribute('href');
+  expect(href).toBe('../');
+  const resolved = await page.locator('#hpBack').evaluate((el) => el.href);
+  expect(resolved).toContain('/ivarkarm-web.github.io/');
+  expect(resolved).not.toContain('/handpan-app/index.html');
+});
