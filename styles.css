@@ -7512,12 +7512,10 @@ body.rabbit-hole-open .welcome {
   background: linear-gradient(
     90deg,
     transparent,
-    color-mix(in srgb, var(--dm-nav-line-glow) 45%, transparent),
     var(--dm-nav-line-glow),
-    color-mix(in srgb, var(--dm-nav-line-glow) 45%, transparent),
     transparent
   );
-  box-shadow: 0 0 8px color-mix(in srgb, var(--dm-nav-line-glow) 55%, transparent);
+  box-shadow: 0 0 8px var(--dm-nav-line-glow);
   animation: dmNavLineSweep 5.8s ease-in-out infinite;
 }
 .dm-sitenav--has-more .dm-sitenav-flow-line {
