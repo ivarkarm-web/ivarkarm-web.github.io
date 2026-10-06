@@ -17,6 +17,7 @@ function renderTimeline(){
  if(!timelineEl)return;
  timelineEl.innerHTML='';
  var steps=transport.state.bars*transport.state.grid;
+ timelineEl.style.gridTemplateColumns='repeat('+steps+',1fr)';
  for(var i=0;i<steps;i++){
    var cell=document.createElement('span');cell.className='loop-cell'+(i%transport.state.grid===0?' bar':'')+(i%4===0?' beat':'');timelineEl.appendChild(cell)
  }
@@ -72,7 +73,7 @@ function play(){
  transport.start(0)
 }
 function stop(){
- state.playing=false;transport.stop();
+ state.playing=false;transport.stop();if(state.recordTimer){clearTimeout(state.recordTimer);state.recordTimer=null}
  if(playheadEl)playheadEl.style.left='0%';
  if(playBtn)playBtn.classList.remove('is-on');
  if(!state.recording)setStatus(state.layers.length?'LOOP READY':'EMPTY')
