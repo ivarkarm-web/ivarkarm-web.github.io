@@ -389,7 +389,7 @@ function draw() {
   ctx2.arc(CX, CY, R, 0, Math.PI * 2);
   ctx2.fill();
 
-  ctx2.strokeStyle = 'rgba(232,93,4,0.14)';
+  ctx2.strokeStyle = 'rgba(201,162,39,0.14)';
   ctx2.lineWidth = Math.max(1.5, R * 0.01);
   ctx2.beginPath();
   ctx2.arc(CX, CY, R * 0.93, 0, Math.PI * 2);
@@ -418,7 +418,7 @@ function draw() {
     ctx2.stroke();
 
     ctx2.strokeStyle = glow > 0.04
-      ? `rgba(232,93,4,${0.3 + glow * 0.55})`
+      ? `rgba(201,162,39,${0.3 + glow * 0.55})`
       : 'rgba(255,255,255,0.12)';
     ctx2.lineWidth = isDing ? 2 : 1.4;
     ctx2.beginPath();
@@ -431,9 +431,9 @@ function draw() {
       // Radial zone flash: edge strikes push glow outward
       const gr = f.rx * (0.9 + radial * 0.45);
       const hg = ctx2.createRadialGradient(f.x, f.y, 0, f.x, f.y, gr);
-      hg.addColorStop(0, `rgba(232,93,4,${glow * (0.25 + (1 - radial) * 0.2)})`);
-      hg.addColorStop(0.55, `rgba(232,140,40,${glow * radial * 0.25})`);
-      hg.addColorStop(1, 'rgba(232,93,4,0)');
+      hg.addColorStop(0, `rgba(201,162,39,${glow * (0.25 + (1 - radial) * 0.2)})`);
+      hg.addColorStop(0.55, `rgba(228,195,90,${glow * radial * 0.25})`);
+      hg.addColorStop(1, 'rgba(201,162,39,0)');
       ctx2.fillStyle = hg;
       ctx2.beginPath();
       ctx2.ellipse(f.x, f.y, gr * 1.15, f.ry * (1.15 + radial * 0.2), 0, 0, Math.PI * 2);
@@ -604,12 +604,12 @@ function drawKnob(name) {
   if (!canvas) return;
   const v = state.fx[name];
   const dpr = Math.min(2, window.devicePixelRatio || 1);
-  const size = 88;
+  const size = 100;
   canvas.width = size * dpr;
   canvas.height = size * dpr;
   const c = canvas.getContext('2d');
   c.setTransform(dpr, 0, 0, dpr, 0, 0);
-  const cx = size / 2, cy = size / 2, r = 34;
+  const cx = size / 2, cy = size / 2, r = 38;
   const start = Math.PI * 0.75;
   const span = Math.PI * 1.5;
   // track
@@ -622,7 +622,7 @@ function drawKnob(name) {
   // value arc
   c.beginPath();
   c.arc(cx, cy, r, start, start + span * v);
-  c.strokeStyle = '#e85d04';
+  c.strokeStyle = '#c9a227';
   c.lineWidth = 5;
   c.lineCap = 'round';
   c.stroke();
