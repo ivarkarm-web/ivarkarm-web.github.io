@@ -39,3 +39,31 @@ test('touch-sized layout keeps primary controls inside the viewport', async ({ p
   expect(rect.width).toBeGreaterThanOrEqual(viewport.width);
   expect(rect.height).toBeGreaterThanOrEqual(viewport.height);
 });
+
+
+test('loop uses a count-in and locks tempo and bars after the first layer', async ({ page }) => {
+  await page.locator('.app-mode[data-mode="loop"]').click();
+  const bpm = page.locator('#loopBpm');
+  const bars = page.locator('#loopBars');
+  await bpm.fill('180');
+  await bars.selectOption('1');
+  await bpm.dispatchEvent('change');
+  await bars.dispatchEvent('change');
+
+  await page.locator('#loopRecord').click();
+  await expect(page.locator('#loopOrbLabel')).toContainText('COUNT-IN');
+  await page.waitForTimeout(1500);
+  await expect(page.locator('#loopOrbLabel')).toContainText('RECORDING');
+
+  await page.evaluate(() => {
+    window.dispatchEvent(new CustomEvent('handpan:note', {
+      detail: { noteIndex: 0, velocity: 0.8 }
+    }));
+  });
+
+  await page.waitForTimeout(1700);
+  await expect(page.locator('#loopLayerCount')).toHaveText('1/7');
+  await expect(bpm).toBeDisabled();
+  await expect(bars).toBeDisabled();
+  await expect(page.locator('#loopConfigNote')).toHaveText('Tempo and bars locked until Clear.');
+});
