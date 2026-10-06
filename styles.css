@@ -7711,3 +7711,21 @@ body.rabbit-hole-open .welcome {
     transform: none;
   }
 }
+
+
+/* Club Toilets — integrated Monograph background */
+.dm-section--origin {
+  position: relative; isolation: isolate; overflow: hidden;
+  min-height: clamp(360px, 58vh, 640px); display: flex; align-items: flex-end;
+  margin-inline: -2.5rem; padding: clamp(3.5rem, 8vw, 6rem) clamp(2.5rem, 7vw, 5rem);
+  box-sizing: border-box; border-bottom: 1px solid var(--border);
+}
+.dm-origin-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.dm-origin-bg img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; opacity: .38; filter: saturate(.72) contrast(1.05) brightness(.72); transform: scale(1.025); }
+.dm-origin-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg,rgba(5,6,9,.08) 0%,rgba(5,6,9,.24) 42%,rgba(5,6,9,.88) 100%),linear-gradient(90deg,rgba(5,6,9,.48) 0%,rgba(5,6,9,.10) 52%,rgba(5,6,9,.32) 100%); }
+.dm-origin-content { position: relative; z-index: 1; width: min(720px,100%); }
+[data-theme="light"] .dm-section--origin { border-bottom-color: rgba(118,91,28,.18); }
+[data-theme="light"] .dm-origin-bg img { opacity: .30; filter: saturate(.68) contrast(1.02) brightness(.92); }
+[data-theme="light"] .dm-origin-bg::after { background: linear-gradient(180deg,rgba(246,242,234,.06) 0%,rgba(246,242,234,.18) 42%,rgba(246,242,234,.78) 100%),linear-gradient(90deg,rgba(246,242,234,.34) 0%,rgba(246,242,234,.06) 52%,rgba(246,242,234,.20) 100%); }
+@media (max-width:600px) { .dm-section--origin { min-height: clamp(330px,54vh,520px); margin-inline:-1.25rem; padding:clamp(3rem,12vw,4.5rem) 1.25rem; } .dm-origin-bg img { object-position:center center; opacity:.34; } [data-theme="light"] .dm-origin-bg img { opacity:.27; } }
+@media (prefers-reduced-motion:reduce) { .dm-origin-bg img { transform:none; } }
