@@ -815,12 +815,12 @@ import { SampleBank } from './sample-bank.js';
     return Math.max(0.22, Math.min(1, 0.30 + speed * 0.68));
   }
 
-  function strikeNote(idx, vel, impact) {
+  function strikeNote(idx, vel, impact, source) {
     if (idx < 0 || idx >= NOTES.length) return;
     var finalVel = vel || 0.8;
     if (impact && impact.center !== undefined) finalVel *= (0.72 + impact.center * 0.28);
     engine.strike(idx, finalVel);
-    try { window.dispatchEvent(new CustomEvent('handpan:note', { detail: { noteIndex: idx, velocity: finalVel, impact: impact || null } })); } catch (err) {}
+    try { window.dispatchEvent(new CustomEvent('handpan:note', { detail: { noteIndex: idx, velocity: finalVel, impact: source === 'user' || !source ? (impact || null) : null, source: source || 'user' } })); } catch (err) {}
     if (fields[idx]) {
       fields[idx].glow = 1;
       if (fields[idx].guideTarget > 0.5) fields[idx].guideSuccess = 1;
@@ -1065,15 +1065,16 @@ import { SampleBank } from './sample-bank.js';
     if (leaving) return;
     leaving = true;
     document.body.classList.add('hp-leaving');
+    var siteHref = document.getElementById('hpBack')?.href || new URL('../', location.href).href;
     var cameFromRoad = false;
     try {
       cameFromRoad = !!document.referrer && new URL(document.referrer).origin === location.origin && history.length > 1;
     } catch (err) { cameFromRoad = false; }
     setTimeout(function () {
       if (cameFromRoad) history.back();
-      else location.href = './index.html';
+      else location.href = siteHref;
     }, REDUCED ? 30 : 380);
-    setTimeout(function () { if (document.visibilityState === 'visible') location.href = './index.html'; }, 1800);
+    setTimeout(function () { if (document.visibilityState === 'visible') location.href = siteHref; }, 1800);
   }
   document.getElementById('hpBack').addEventListener('click', goBack);
 
