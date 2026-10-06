@@ -13,9 +13,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=7" />
+  <link rel="stylesheet" href="./pionier.css?v=8" />
   <script>
-    // Drop stale PWA caches that still show old "Tap the steel" UI
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
         regs.forEach((r) => r.unregister());
@@ -28,7 +27,6 @@
 </head>
 <body>
   <div id="app" class="app">
-    <!-- Top bar -->
     <header class="topbar">
       <button type="button" class="pill play-pill" id="modePlay" title="Play mode">
         <span class="dot"></span> play
@@ -44,7 +42,6 @@
       </div>
     </header>
 
-    <!-- Left controls -->
     <aside class="sidebar left">
       <div class="control-block control-scale">
         <label class="control-label">Scale</label>
@@ -75,21 +72,19 @@
       </div>
     </aside>
 
-    <!-- Center instrument -->
     <main class="stage">
       <canvas id="pan" width="800" height="800" aria-label="Handpan instrument"></canvas>
     </main>
 
-    <!-- Sound knobs (right / bottom on mobile) -->
     <aside class="sidebar right knobs-panel" aria-label="Sound knobs">
-      <div class="knob-wrap" data-param="tone">
-        <div class="knob" id="knobTone" role="slider" tabindex="0"
-             aria-label="Tone" aria-valuemin="0" aria-valuemax="100" aria-valuenow="70"
-             aria-valuetext="Tone 70 percent">
+      <div class="knob-wrap" data-param="compress">
+        <div class="knob" id="knobCompress" role="slider" tabindex="0"
+             aria-label="Compressor" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40"
+             aria-valuetext="Compressor 40 percent">
           <canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas>
-          <span class="knob-value" id="valTone">70</span>
+          <span class="knob-value" id="valCompress">40</span>
         </div>
-        <span class="knob-name">Tone</span>
+        <span class="knob-name">Comp</span>
       </div>
       <div class="knob-wrap" data-param="delay">
         <div class="knob" id="knobDelay" role="slider" tabindex="0"
@@ -123,7 +118,6 @@
     </aside>
   </div>
 
-  <!-- Effects type panel (slides in from right) -->
   <div class="fx-panel-backdrop" id="fxBackdrop" hidden></div>
   <aside class="fx-panel" id="fxPanel" aria-label="Effects settings" hidden>
     <header class="fx-panel-head">
@@ -153,24 +147,43 @@
       <p class="fx-type-desc" id="reverbDesc">Small intimate space. Use Room knob for wet amount.</p>
     </section>
 
-    <p class="fx-panel-hint">Tweak amount with the <strong>Ambiance</strong> and <strong>Room</strong> knobs.</p>
+    <section class="fx-section">
+      <h3 class="fx-section-label">Compressor</h3>
+      <div class="fx-type-grid" id="compTypes" role="listbox" aria-label="Compressor type">
+        <button type="button" class="fx-type-btn is-active" data-comp="soft" role="option" aria-selected="true">Soft</button>
+        <button type="button" class="fx-type-btn" data-comp="punch" role="option" aria-selected="false">Punch</button>
+        <button type="button" class="fx-type-btn" data-comp="glue" role="option" aria-selected="false">Glue</button>
+        <button type="button" class="fx-type-btn" data-comp="limit" role="option" aria-selected="false">Limit</button>
+      </div>
+      <p class="fx-type-desc" id="compDesc">Gentle leveling — smooth and musical. Use Comp knob for amount.</p>
+    </section>
+
+    <section class="fx-section fx-master-section">
+      <h3 class="fx-section-label">Master volume</h3>
+      <div class="fx-master-row">
+        <input type="range" id="masterVol" class="fx-master-slider"
+               min="0" max="150" value="100" step="1"
+               aria-label="Master volume" aria-valuemin="0" aria-valuemax="150" aria-valuenow="100">
+        <span class="fx-master-val" id="masterVolVal">100%</span>
+      </div>
+      <p class="fx-type-desc">Boost up to 150% for more presence.</p>
+    </section>
+
+    <p class="fx-panel-hint">Tweak amount with the <strong>Comp</strong>, <strong>Ambiance</strong>, and <strong>Room</strong> knobs.</p>
   </aside>
 
-  <script type="module" src="./pionier-app.js?v=14"></script>
+  <script type="module" src="./pionier-app.js?v=15"></script>
 
   <script>
     (function () {
       function block(e) { e.preventDefault(); }
-      // iOS pinch gestures
       ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (type) {
         document.addEventListener(type, block, { passive: false, capture: true });
       });
-      // Multi-touch pinch
       document.addEventListener('touchmove', function (e) {
         if (e.touches && e.touches.length > 1) e.preventDefault();
         if (typeof e.scale === 'number' && e.scale !== 1) e.preventDefault();
       }, { passive: false, capture: true });
-      // Double-tap zoom
       var lastTouchEnd = 0;
       document.addEventListener('touchend', function (e) {
         var now = Date.now();
@@ -178,7 +191,6 @@
         lastTouchEnd = now;
       }, { passive: false, capture: true });
       document.addEventListener('dblclick', block, { capture: true });
-      // If Safari still scales the visual viewport, counter-scale the app shell
       function lockScale() {
         var vv = window.visualViewport;
         if (!vv) return;
