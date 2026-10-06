@@ -1857,65 +1857,112 @@ function refreshMonographScrollTriggers() {
     const img=section.querySelector('.dm-origin-bg img');
     const contents=Array.from(section.querySelectorAll('.dm-origin-content'));
     if(!bg||!img||!contents.length)return;
-    const textEls=contents.flatMap(c=>Array.from(c.querySelectorAll('.dm-sec-tag,h3,p')));
+
+    const isSharedOpening=section.classList.contains('dm-scroll-reveal--shared-bg');
 
     if(reduced){
-      gsap.set([bg,img,...contents,...textEls],{clearProps:'all'});
+      gsap.set([bg,img,...contents],{clearProps:'all'});
+      contents.forEach(c=>{
+        gsap.set(c.querySelectorAll('.dm-sec-tag,h3,p'),{clearProps:'all'});
+        gsap.set(c,{'--dm-reveal-line-scale':1,'--dm-reveal-line-opacity':1});
+      });
       return;
     }
 
-    const isSharedOpening=section.classList.contains('dm-scroll-reveal--shared-bg');
+    // The photograph is discovered once for each chapter. The shared Eastern
+    // Estonia image stays at natural scale and is not parallaxed.
     gsap.set(bg,{clipPath:'inset(0 100% 0 0)',scale:1});
     gsap.set(img,{scale:isSharedOpening?1:1.012,xPercent:0,yPercent:0});
-    gsap.set(contents,{autoAlpha:1,y:0});
-    // Start each text element just below its invisible typographic guide.
-    // No clip-path: this keeps the animation smooth and reliable.
-    textEls.forEach(el=>{
-      const tag=el.matches('.dm-sec-tag');
-      const heading=el.matches('h3');
-      gsap.set(el,{
+
+    const imageTl=gsap.timeline({paused:true,defaults:{overwrite:'auto'}});
+    imageTl
+      .to(bg,{clipPath:'inset(0 0% 0 0)',duration:.9,ease:'power2.out'},0)
+      .to(img,{scale:1,duration:1.05,ease:'power2.out'},0);
+
+    ScrollTrigger.create({
+      trigger:section,
+      scroller,
+      start:'top 78%',
+      end:'bottom 18%',
+      invalidateOnRefresh:true,
+      onEnter:()=>imageTl.play(),
+      onEnterBack:()=>imageTl.play(),
+      onLeaveBack:()=>imageTl.reverse()
+    });
+
+    // Each text block gets its own trigger. This is important for the shared
+    // opening: Foundational Principle and The Beginning are separate moments
+    // in the same long image, so both must animate when their own text reaches
+    // the reading position rather than relying on the section's first trigger.
+    contents.forEach((content,i)=>{
+      const tag=content.querySelector('.dm-sec-tag');
+      const heading=content.querySelector('h3');
+      const paragraph=content.querySelector('p');
+      const textEls=[tag,heading,paragraph].filter(Boolean);
+
+      gsap.set(content,{autoAlpha:1,y:0});
+      gsap.set(textEls,{
         autoAlpha:0,
-        y:heading?30:(tag?18:24),
+        y:el=>el.matches('h3')?30:(el.matches('.dm-sec-tag')?18:24),
         filter:'blur(4px)',
         clipPath:'none'
       });
-    });
-    contents.forEach(c=>gsap.set(c,{ '--dm-reveal-line-scale':0, '--dm-reveal-line-opacity':0 }));
+      gsap.set(content,{'--dm-reveal-line-scale':0,'--dm-reveal-line-opacity':0});
 
-    const tl=gsap.timeline({paused:true,defaults:{overwrite:'auto'}});
-    tl.to(bg,{clipPath:'inset(0 0% 0 0)',duration:.9,ease:'power2.out'},0)
-      .to(img,{scale:1,duration:1.05,ease:'power2.out'},0);
+      const textTl=gsap.timeline({paused:true,defaults:{overwrite:'auto'}});
+      const lineStart=0;
+      const textStart=.12;
 
-    contents.forEach((c,i)=>{
-      const tag=c.querySelector('.dm-sec-tag');
-      const heading=c.querySelector('h3');
-      const paragraph=c.querySelector('p');
-      const start=.18+i*.22;
-
-      // The thin line acts like a typographic placeholder being uncovered.
-      tl.to(c,{
+      textTl.to(content,{
         '--dm-reveal-line-scale':1,
         '--dm-reveal-line-opacity':1,
         duration:.55,
         ease:'power2.out'
-      },start);
+      },lineStart);
 
-      if(tag) tl.to(tag,{autoAlpha:1,y:0,filter:'blur(0px)',duration:.5,ease:'power2.out'},start+.10);
-      if(heading) tl.to(heading,{autoAlpha:1,y:0,filter:'blur(0px)',duration:.62,ease:'power2.out'},start+.18);
-      if(paragraph) tl.to(paragraph,{autoAlpha:1,y:0,filter:'blur(0px)',duration:.68,ease:'power2.out'},start+.28);
+      if(tag){
+        textTl.to(tag,{
+          autoAlpha:1,y:0,filter:'blur(0px)',
+          duration:.5,ease:'power2.out'
+        },textStart);
+      }
+      if(heading){
+        textTl.to(heading,{
+          autoAlpha:1,y:0,filter:'blur(0px)',
+          duration:.62,ease:'power2.out'
+        },textStart+.10);
+      }
+      if(paragraph){
+        textTl.to(paragraph,{
+          autoAlpha:1,y:0,filter:'blur(0px)',
+          duration:.68,ease:'power2.out'
+        },textStart+.20);
+      }
+
+      ScrollTrigger.create({
+        trigger:content,
+        scroller,
+        start:'top 76%',
+        end:'bottom 30%',
+        invalidateOnRefresh:true,
+        onEnter:()=>textTl.play(),
+        onEnterBack:()=>textTl.play(),
+        onLeaveBack:()=>textTl.reverse()
+      });
     });
 
-    ScrollTrigger.create({
-      trigger:section,scroller,start:'top 78%',end:'bottom 18%',invalidateOnRefresh:true,
-      onEnter:()=>tl.play(),onEnterBack:()=>tl.play(),onLeaveBack:()=>tl.reverse()
-    });
-
-    // Keep the shared Eastern Estonia opening still; only later chapters get
-    // an extremely subtle parallax drift.
     if(!isSharedOpening){
       gsap.to(img,{
-        yPercent:1,ease:'none',
-        scrollTrigger:{trigger:section,scroller,start:'top bottom',end:'bottom top',scrub:3,invalidateOnRefresh:true}
+        yPercent:1,
+        ease:'none',
+        scrollTrigger:{
+          trigger:section,
+          scroller,
+          start:'top bottom',
+          end:'bottom top',
+          scrub:3,
+          invalidateOnRefresh:true
+        }
       });
     }
   });
