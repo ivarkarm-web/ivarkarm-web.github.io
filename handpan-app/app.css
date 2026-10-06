@@ -107,3 +107,11 @@ body:not([data-app-mode="learn"]) .learn-panel{display:none}
  .loop-controls{bottom:calc(env(safe-area-inset-bottom,0px) + 7rem)}
  .learn-panel{bottom:calc(env(safe-area-inset-bottom,0px) + 7rem);width:calc(100vw - 1rem)}
 }
+@media(max-width:700px){
+ .sound-dock{right:.45rem;width:132px;padding:.65rem .58rem;border-radius:16px;max-height:72vh}
+ .instrument-grid{grid-template-columns:1fr}
+ .instrument-btn{min-height:31px;font-size:.36rem}
+ .loop-orb{width:58px;height:58px}
+ .loop-actions button{font-size:.38rem;padding:.38rem .1rem}
+ .dock-kicker{font-size:.39rem}
+}
