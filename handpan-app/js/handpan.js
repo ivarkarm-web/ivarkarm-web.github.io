@@ -154,7 +154,7 @@
   NOTES = buildNotesFromScale(SCALES[0]);
   reindexKeys();
 
-  var MAX_VOICES = 40;
+  var MAX_VOICES = COARSE ? 24 : 40;
 
   function makeImpulse(ctx, seconds, decay) {
     var rate = ctx.sampleRate;
@@ -326,7 +326,7 @@
     return voice;
   };
 
-  HandpanEngine.prototype.shutdown = function () {
+  HandpanEngine.prototype.damp = function (idx, amount) {\n    var voice = this.active.get(idx);\n    if (!voice || !this.ctx) return;\n    var t = this.ctx.currentTime;\n    var tc = Math.max(0.012, 0.018 + (1 - Math.max(0, Math.min(1, amount || 0.9))) * 0.08);\n    try {\n      voice.out.gain.cancelScheduledValues(t);\n      voice.out.gain.setTargetAtTime(0.0001, t, tc);\n    } catch (e) {}\n  };\n\n  HandpanEngine.prototype.shutdown = function () {
     if (!this.ctx) return;
     try { this.ctx.close(); } catch (e) {}
   };
@@ -722,14 +722,43 @@
   var heldKeys = new Set();
   var pointerMap = new Map();
 
-  function strikeNote(idx, vel) {
+  function haptic(kind) {
+    if (!COARSE || !navigator.vibrate || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+    try {
+      navigator.vibrate(kind === 'accent' ? [4, 8, 4] : 5);
+    } catch (e) {}
+  }
+
+  function getImpact(px, py, field) {
+    var dx = px - field.cx, dy = py - field.cy;
+    var along = dx * field.ux + dy * field.uy;
+    var across = dx * (-field.uy) + dy * field.ux;
+    var nx = along / Math.max(1, field.rx);
+    var ny = across / Math.max(1, field.ry);
+    var d = Math.sqrt(nx * nx + ny * ny);
+    return {
+      x: nx,
+      y: ny,
+      distance: Math.min(1, d),
+      center: Math.max(0, Math.min(1, 1 - d))
+    };
+  }
+
+  function touchVelocity(state, px, py, now) {
+    var dx = px - state.lastX, dy = py - state.lastY;
+    var dt = Math.max(4, now - state.lastTime);
+    var speed = Math.sqrt(dx * dx + dy * dy) / dt;
+    return Math.max(0.22, Math.min(1, 0.30 + speed * 0.68));
+  }
+
+  function strikeNote(idx, vel, impact) {
     if (idx < 0 || idx >= NOTES.length) return;
-    engine.strike(idx, vel);
-    try { window.dispatchEvent(new CustomEvent('handpan:note', { detail: { noteIndex: idx, velocity: vel || 0.8 } })); } catch (err) {}
+    var finalVel = vel || 0.8;\n    if (impact && impact.center !== undefined) finalVel *= (0.72 + impact.center * 0.28);\n    engine.strike(idx, finalVel);
+    try { window.dispatchEvent(new CustomEvent('handpan:note', { detail: { noteIndex: idx, velocity: finalVel, impact: impact || null } })); } catch (err) {}
     if (fields[idx]) {
       fields[idx].glow = 1;
       addRipple(fields[idx].cx, fields[idx].cy, vel || 0.8);
-      addBurst(fields[idx].cx, fields[idx].cy, vel || 0.8, true);
+      addBurst(fields[idx].cx, fields[idx].cy, finalVel, true);\n      haptic(finalVel > 0.82 ? 'accent' : 'hit');
     }
     document.body.classList.add('hp-played');
     updateChord();
@@ -758,7 +787,7 @@
 
   function releaseEverything() {
     heldKeys.clear();
-    pointerMap.forEach(function (idx) { releaseNote(idx); });
+    pointerMap.forEach(function (state) { releaseNote(state.noteIndex !== undefined ? state.noteIndex : state); });
     pointerMap.clear();
     for (var i = 0; i < fields.length; i++) fields[i].held = 0;
     updateChord();
@@ -784,33 +813,77 @@
 
   function pointerDown(e) {
     if (e.button && e.button !== 0) return;
+    e.preventDefault();
     engine.ensure();
     var rect = canvas.getBoundingClientRect();
     var px = e.clientX - rect.left, py = e.clientY - rect.top;
     var idx = hitTest(px, py, e.pointerType || 'mouse');
     if (idx < 0) return;
-    e.preventDefault();
-    pointerMap.set(e.pointerId, idx);
+    var now = performance.now();
+    var impact = getImpact(px, py, fields[idx]);
+    var state = {
+      pointerId: e.pointerId,
+      noteIndex: idx,
+      startX: px, startY: py,
+      lastX: px, lastY: py,
+      startTime: now, lastTime: now,
+      velocity: e.pointerType === 'touch' ? 0.72 : 0.68,
+      dampingTimer: null,
+      dampingStarted: false
+    };
+    pointerMap.set(e.pointerId, state);
     if (fields[idx]) fields[idx].held = 1;
-    strikeNote(idx, e.pointerType === 'touch' ? 0.9 : 0.75);
+    strikeNote(idx, state.velocity, impact);
+    state.dampingTimer = setTimeout(function () {
+      if (!pointerMap.has(e.pointerId) || state.noteIndex !== idx) return;
+      state.dampingStarted = true;
+      if (engine.damp) engine.damp(idx, 0.9);
+    }, 120);
     try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
   }
 
-  function pointerUp(e) {
-    var idx = pointerMap.get(e.pointerId);
-    if (idx === undefined) return;
-    pointerMap.delete(e.pointerId);
-    releaseNote(idx);
+  function pointerMove(e) {
+    var state = pointerMap.get(e.pointerId);
+    if (!state) return;
+    e.preventDefault();
+    var rect = canvas.getBoundingClientRect();
+    var px = e.clientX - rect.left, py = e.clientY - rect.top;
+    var now = performance.now();
+    var velocity = touchVelocity(state, px, py, now);
+    var next = hitTest(px, py, e.pointerType || 'touch');
+    state.lastX = px; state.lastY = py; state.lastTime = now;
+    state.velocity = velocity;
+    if (next < 0 || next === state.noteIndex) return;
+    clearTimeout(state.dampingTimer);
+    var previous = state.noteIndex;
+    releaseNote(previous);
+    state.noteIndex = next;
+    if (fields[next]) fields[next].held = 1;
+    strikeNote(next, velocity, getImpact(px, py, fields[next]));
+    state.dampingTimer = setTimeout(function () {
+      if (!pointerMap.has(e.pointerId) || state.noteIndex !== next) return;
+      state.dampingStarted = true;
+      if (engine.damp) engine.damp(next, 0.9);
+    }, 120);
   }
 
-  canvas.addEventListener('pointerdown', pointerDown);
-  canvas.addEventListener('pointerup', pointerUp);
-  canvas.addEventListener('pointercancel', pointerUp);
+  function pointerUp(e) {
+    var state = pointerMap.get(e.pointerId);
+    if (!state) return;
+    clearTimeout(state.dampingTimer);
+    pointerMap.delete(e.pointerId);
+    releaseNote(state.noteIndex);
+  }
+
+  canvas.addEventListener('pointerdown', pointerDown, { passive: false });
+  canvas.addEventListener('pointermove', pointerMove, { passive: false });
+  canvas.addEventListener('pointerup', pointerUp, { passive: false });
+  canvas.addEventListener('pointercancel', pointerUp, { passive: false });
   canvas.addEventListener('pointerleave', function (e) {
     if (pointerMap.has(e.pointerId)) pointerUp(e);
   });
 
-  canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  canvas.style.touchAction = 'none';\n  canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
   canvas.addEventListener('dblclick', function (e) { e.preventDefault(); });
   document.addEventListener('wheel', function (e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
 
