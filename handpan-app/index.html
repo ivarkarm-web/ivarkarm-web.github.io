@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no" />
+  <title>Handpan — Ivar Karm</title>
+  <meta name="description" content="Playable virtual handpan — 9-note radial instrument with interval scales and dynamic transposition." />
+  <meta name="theme-color" content="#0a0a0b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./pionier.css?v=7" />
+  <script>
+    // Drop stale PWA caches that still show old "Tap the steel" UI
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        regs.forEach((r) => r.unregister());
+      });
+    }
+    if (window.caches && caches.keys) {
+      caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+    }
+  </script>
+</head>
+<body>
+  <div id="app" class="app">
+    <!-- Top bar -->
+    <header class="topbar">
+      <button type="button" class="pill play-pill" id="modePlay" title="Play mode">
+        <span class="dot"></span> play
+      </button>
+      <div class="instrument-nav">
+        <button type="button" class="icon-btn" id="voicePrev" aria-label="Previous voice">‹</button>
+        <span class="instrument-name" id="voiceName">Steel</span>
+        <button type="button" class="icon-btn" id="voiceNext" aria-label="Next voice">›</button>
+      </div>
+      <div class="top-actions">
+        <button type="button" class="icon-btn" id="btnHelp" aria-label="Help" title="Help">?</button>
+        <button type="button" class="icon-btn exit-btn" id="btnExit" aria-label="Exit" title="Exit">×</button>
+      </div>
+    </header>
+
+    <!-- Left controls -->
+    <aside class="sidebar left">
+      <div class="control-block control-scale">
+        <label class="control-label">Scale</label>
+        <div class="stepper scale-stepper">
+          <button type="button" class="step" id="scalePrev" aria-label="Previous scale">‹</button>
+          <span class="step-value scale-name" id="scaleLabel">Celtic Minor</span>
+          <button type="button" class="step" id="scaleNext" aria-label="Next scale">›</button>
+        </div>
+      </div>
+
+      <div class="control-row">
+        <div class="control-block control-half">
+          <label class="control-label">Base Note</label>
+          <div class="stepper">
+            <button type="button" class="step" id="rootDown" aria-label="Lower root">−</button>
+            <span class="step-value" id="rootLabel">D</span>
+            <button type="button" class="step" id="rootUp" aria-label="Raise root">+</button>
+          </div>
+        </div>
+        <div class="control-block control-half">
+          <label class="control-label">Octave</label>
+          <div class="stepper">
+            <button type="button" class="step" id="octDown" aria-label="Octave down">−</button>
+            <span class="step-value" id="octLabel">0</span>
+            <button type="button" class="step" id="octUp" aria-label="Octave up">+</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center instrument -->
+    <main class="stage">
+      <canvas id="pan" width="800" height="800" aria-label="Handpan instrument"></canvas>
+    </main>
+
+    <!-- Sound knobs (right / bottom on mobile) -->
+    <aside class="sidebar right knobs-panel" aria-label="Sound knobs">
+      <div class="knob-wrap" data-param="tone">
+        <div class="knob" id="knobTone" role="slider" tabindex="0"
+             aria-label="Tone" aria-valuemin="0" aria-valuemax="100" aria-valuenow="70"
+             aria-valuetext="Tone 70 percent">
+          <canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas>
+          <span class="knob-value" id="valTone">70</span>
+        </div>
+        <span class="knob-name">Tone</span>
+      </div>
+      <div class="knob-wrap" data-param="delay">
+        <div class="knob" id="knobDelay" role="slider" tabindex="0"
+             aria-label="Ambiance" aria-valuemin="0" aria-valuemax="100" aria-valuenow="15"
+             aria-valuetext="Ambiance 15 percent">
+          <canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas>
+          <span class="knob-value" id="valDelay">15</span>
+        </div>
+        <span class="knob-name">Ambiance</span>
+      </div>
+      <div class="knob-wrap" data-param="reverb">
+        <div class="knob" id="knobReverb" role="slider" tabindex="0"
+             aria-label="Room" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25"
+             aria-valuetext="Room 25 percent">
+          <canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas>
+          <span class="knob-value" id="valReverb">25</span>
+        </div>
+        <span class="knob-name">Room</span>
+      </div>
+      <div class="knob-wrap fx-settings-wrap">
+        <button type="button" class="fx-settings-btn" id="btnFxSettings"
+                aria-label="Effects settings" aria-expanded="false" aria-controls="fxPanel"
+                title="Effects settings">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 8h10M18 8h2M14 8a2 2 0 1 0-4 0 2 2 0 0 0 4 0ZM4 16h2M10 16h10M8 16a2 2 0 1 0-4 0 2 2 0 0 0 4 0Z"
+                  stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <span class="knob-name">FX</span>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Effects type panel (slides in from right) -->
+  <div class="fx-panel-backdrop" id="fxBackdrop" hidden></div>
+  <aside class="fx-panel" id="fxPanel" aria-label="Effects settings" hidden>
+    <header class="fx-panel-head">
+      <h2>Effects</h2>
+      <button type="button" class="fx-panel-close" id="fxPanelClose" aria-label="Close effects">×</button>
+    </header>
+
+    <section class="fx-section">
+      <h3 class="fx-section-label">Delay</h3>
+      <div class="fx-type-grid" id="delayTypes" role="listbox" aria-label="Delay type">
+        <button type="button" class="fx-type-btn is-active" data-delay="echo" role="option" aria-selected="true">Echo</button>
+        <button type="button" class="fx-type-btn" data-delay="slap" role="option" aria-selected="false">Slap</button>
+        <button type="button" class="fx-type-btn" data-delay="ping" role="option" aria-selected="false">Ping</button>
+        <button type="button" class="fx-type-btn" data-delay="ambient" role="option" aria-selected="false">Ambient</button>
+      </div>
+      <p class="fx-type-desc" id="delayDesc">Classic repeating echo. Use Ambiance to set mix & length.</p>
+    </section>
+
+    <section class="fx-section">
+      <h3 class="fx-section-label">Reverb</h3>
+      <div class="fx-type-grid" id="reverbTypes" role="listbox" aria-label="Reverb type">
+        <button type="button" class="fx-type-btn is-active" data-reverb="room" role="option" aria-selected="true">Room</button>
+        <button type="button" class="fx-type-btn" data-reverb="hall" role="option" aria-selected="false">Hall</button>
+        <button type="button" class="fx-type-btn" data-reverb="plate" role="option" aria-selected="false">Plate</button>
+        <button type="button" class="fx-type-btn" data-reverb="cave" role="option" aria-selected="false">Cave</button>
+      </div>
+      <p class="fx-type-desc" id="reverbDesc">Small intimate space. Use Room knob for wet amount.</p>
+    </section>
+
+    <p class="fx-panel-hint">Tweak amount with the <strong>Ambiance</strong> and <strong>Room</strong> knobs.</p>
+  </aside>
+
+  <script type="module" src="./pionier-app.js?v=14"></script>
+
+  <script>
+    (function () {
+      function block(e) { e.preventDefault(); }
+      // iOS pinch gestures
+      ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (type) {
+        document.addEventListener(type, block, { passive: false, capture: true });
+      });
+      // Multi-touch pinch
+      document.addEventListener('touchmove', function (e) {
+        if (e.touches && e.touches.length > 1) e.preventDefault();
+        if (typeof e.scale === 'number' && e.scale !== 1) e.preventDefault();
+      }, { passive: false, capture: true });
+      // Double-tap zoom
+      var lastTouchEnd = 0;
+      document.addEventListener('touchend', function (e) {
+        var now = Date.now();
+        if (now - lastTouchEnd < 400) e.preventDefault();
+        lastTouchEnd = now;
+      }, { passive: false, capture: true });
+      document.addEventListener('dblclick', block, { capture: true });
+      // If Safari still scales the visual viewport, counter-scale the app shell
+      function lockScale() {
+        var vv = window.visualViewport;
+        if (!vv) return;
+        var s = vv.scale || 1;
+        var app = document.getElementById('app');
+        if (!app) return;
+        if (Math.abs(s - 1) > 0.01) {
+          app.style.transform = 'scale(' + (1 / s) + ')';
+          app.style.transformOrigin = '0 0';
+          app.style.width = (s * 100) + 'vw';
+          app.style.height = (s * 100) + 'vh';
+        } else {
+          app.style.transform = '';
+          app.style.width = '';
+          app.style.height = '';
+        }
+      }
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', lockScale);
+        window.visualViewport.addEventListener('scroll', lockScale);
+      }
+      window.addEventListener('pageshow', lockScale);
+    })();
+  </script>
+
+</body>
+</html>
