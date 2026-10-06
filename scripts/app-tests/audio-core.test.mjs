@@ -5,6 +5,11 @@ class FakeNode {
   constructor() {
     this.connections = [];
     this.gain = { value: 1 };
+    this.threshold = { value: 0 };
+    this.knee = { value: 0 };
+    this.ratio = { value: 0 };
+    this.attack = { value: 0 };
+    this.release = { value: 0 };
   }
   connect(node) { this.connections.push(node); return node; }
 }
