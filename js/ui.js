@@ -223,14 +223,14 @@ if (dmOpenRhBtn) {
 // Monograph reader quick-jump bar
 (function initMonographSiteNavScrollCue() {
   const nav = document.getElementById('dmSiteNav');
-  const cue = document.getElementById('dmSitenavScrollCue');
-  if (!nav || !cue) return;
+  if (!nav) return;
 
   const updateCue = () => {
-    const maxScroll = nav.scrollWidth - nav.clientWidth;
+    const maxScroll = Math.max(0, nav.scrollWidth - nav.clientWidth);
     const hasMore = maxScroll > 6;
-    const atEnd = nav.scrollLeft >= maxScroll - 8;
-    cue.classList.toggle('is-hidden', !hasMore || atEnd);
+    const atEnd = hasMore && nav.scrollLeft >= maxScroll - 8;
+    nav.classList.toggle('dm-sitenav--has-more', hasMore);
+    nav.classList.toggle('dm-sitenav--at-end', atEnd);
   };
 
   nav.addEventListener('scroll', updateCue, { passive: true });
