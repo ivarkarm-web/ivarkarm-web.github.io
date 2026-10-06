@@ -702,15 +702,16 @@ function bindKnob(name) {
 });
 
 
-document.getElementById('btnExit').onclick = () => {
-  try {
-    if (document.referrer && new URL(document.referrer).origin === location.origin && history.length > 1) {
-      history.back();
-      return;
-    }
-  } catch (_) {}
-  location.href = '../index.html';
-};
+const btnExit = document.getElementById('btnExit');
+if (btnExit) {
+  btnExit.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Always return to the main site home (not history.back — can fail / loop)
+    const home = new URL('../index.html', window.location.href).href;
+    window.location.assign(home);
+  });
+}
 document.getElementById('btnHelp').onclick = () => {
   alert(
     'Handpan — vector pads\\n\\n' +
