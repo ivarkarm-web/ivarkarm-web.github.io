@@ -1830,7 +1830,8 @@ function connectMusicToAnalyser(audioEl) {
 /* Monograph chapter reveals — discovered, not simply faded in */
 (function initMonographScrollReveals(){
   const sections=document.querySelectorAll('.dm-scroll-reveal');
-  if(!sections.length)return;
+  const scroller=document.getElementById('dmContent');
+  if(!sections.length||!scroller)return;
 
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(typeof gsap==='undefined'||typeof ScrollTrigger==='undefined'){
@@ -1936,6 +1937,7 @@ function connectMusicToAnalyser(audioEl) {
 
     ScrollTrigger.create({
       trigger:section,
+      scroller:scroller,
       start:'top 74%',
       end:'bottom 24%',
       onEnter:()=>tl.play(),
@@ -1953,6 +1955,7 @@ function connectMusicToAnalyser(audioEl) {
       ease:'none',
       scrollTrigger:{
         trigger:section,
+        scroller:scroller,
         start:'top bottom',
         end:'bottom top',
         scrub:1.2,
@@ -1961,6 +1964,9 @@ function connectMusicToAnalyser(audioEl) {
     });
   });
 
-  requestAnimationFrame(()=>ScrollTrigger.refresh());
+  requestAnimationFrame(()=>{
+    ScrollTrigger.refresh();
+    window.setTimeout(()=>ScrollTrigger.refresh(),250);
+  });
 })();
 
