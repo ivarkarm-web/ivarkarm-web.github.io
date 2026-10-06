@@ -2,6 +2,8 @@ import {
   MAX_LAYERS, DEFAULT_BPM, DEFAULT_BARS, clampBpm, clampBars,
   loopDuration, countInDuration, quantizeTime, normalizeLayer, phaseAt, eventsBetween
 } from './loop-core.js';
+import { loadAppState, saveLoop } from './storage.js';
+import { exportLoopWav } from './wav-export.js';
 
 const button = document.getElementById('loopRecord');
 const label = document.getElementById('loopOrbLabel');
@@ -9,17 +11,19 @@ const countEl = document.getElementById('loopLayerCount');
 const playBtn = document.getElementById('loopPlay');
 const pauseBtn = document.getElementById('loopPause');
 const clearBtn = document.getElementById('loopClear');
+const exportBtn = document.getElementById('loopExport');
 const orbit = document.getElementById('loopOrbit');
 const bpmInput = document.getElementById('loopBpm');
 const barsInput = document.getElementById('loopBars');
 const configNote = document.getElementById('loopConfigNote');
 
+const persistedLoop = loadAppState().loop;
 const state = {
-  mode: 'empty',
-  layers: [],
+  mode: persistedLoop.layers?.length ? 'playing' : 'empty',
+  layers: Array.isArray(persistedLoop.layers) ? persistedLoop.layers : [],
   current: [],
-  bpm: DEFAULT_BPM,
-  bars: DEFAULT_BARS,
+  bpm: clampBpm(persistedLoop.bpm || DEFAULT_BPM),
+  bars: clampBars(persistedLoop.bars || DEFAULT_BARS),
   countInStart: 0,
   recordStart: 0,
   loopStart: 0,
@@ -29,6 +33,8 @@ const state = {
   raf: null,
   countInBeat: 0
 };
+state.paused = state.layers.length > 0;
+state.loopDuration = loopDuration(state.bpm, state.bars);
 
 function now() { return performance.now() / 1000; }
 function stopClock() {
@@ -39,6 +45,7 @@ function refreshDuration() {
   state.loopDuration = loopDuration(state.bpm, state.bars);
 }
 function configLocked() { return state.layers.length > 0; }
+function persistLoop() { saveLoop({ bpm: state.bpm, bars: state.bars, layers: state.layers }); }
 
 function setConfig() {
   if (configLocked() || state.mode !== 'empty') return;
@@ -84,6 +91,7 @@ function paint() {
     state.layers.length ? 'Record another layer' : 'Record a loop');
   if (bpmInput) bpmInput.disabled = configLocked() || state.mode !== 'empty';
   if (barsInput) barsInput.disabled = configLocked() || state.mode !== 'empty';
+  if (exportBtn) exportBtn.disabled = state.layers.length === 0;
   if (configNote) configNote.textContent = configLocked()
     ? 'Tempo and bars locked until Clear.'
     : '1 bar count-in · 4 bars default';
@@ -174,6 +182,7 @@ function commitPrimary() {
   }
   state.layers = [layer];
   state.current = [];
+  persistLoop();
   state.mode = 'playing';
   startClock(state.recordStart);
 }
@@ -182,6 +191,7 @@ function commitOverdub() {
   const layer = normalizeLayer(state.current, state.loopDuration, state.bpm);
   state.current = [];
   if (layer.length) state.layers.push(layer);
+  persistLoop();
   state.mode = 'playing';
   paint();
   if (!state.raf) state.raf = requestAnimationFrame(tick);
@@ -227,7 +237,29 @@ function clear() {
   state.paused = false;
   state.countInBeat = 0;
   refreshDuration();
+  persistLoop();
   paint();
+}
+
+async function exportCurrent() {
+  if (!state.layers.length || !exportBtn) return;
+  const original = exportBtn.textContent;
+  exportBtn.disabled = true;
+  exportBtn.textContent = '…';
+  try {
+    await exportLoopWav({
+      layers: state.layers,
+      duration: state.loopDuration,
+      notes: window.HandpanGame?.notes || [],
+      voiceIndex: window.HandpanGame?.instrumentIndex?.() || 0,
+      fileName: 'ivar-karm-handpan-loop.wav'
+    });
+  } catch (error) {
+    console.warn('WAV export unavailable', error);
+  } finally {
+    exportBtn.textContent = original;
+    exportBtn.disabled = state.layers.length === 0;
+  }
 }
 
 function noteHandler(event) {
@@ -250,6 +282,7 @@ button?.addEventListener('click', clickOrb);
 playBtn?.addEventListener('click', play);
 pauseBtn?.addEventListener('click', pause);
 clearBtn?.addEventListener('click', clear);
+exportBtn?.addEventListener('click', exportCurrent);
 window.addEventListener('handpan:note', noteHandler);
 
 window.HandpanLooper = {
