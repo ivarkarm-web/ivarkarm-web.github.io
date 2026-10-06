@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Booking Inquiry – Ivar Karm</title>
+  <meta name="description" content="Booking inquiry for Ivar Karm — handpan performance, private events, festivals, cultural spaces and collaborations.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#050505">
+  <link rel="canonical" href="https://ivarkarm-web.github.io/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340..600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./inquire.css?v=1">
+</head>
+<body>
+  <div class="inq-atmosphere" aria-hidden="true"></div>
+  <div class="inq-grain" aria-hidden="true"></div>
+  <div class="inq-vignette" aria-hidden="true"></div>
+
+  <a class="inq-road" id="inqRoad" href="./index.html" aria-label="Return to the road">
+    <span>The road</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <path d="M5 12h14M13 6l6 6-6 6"/>
+    </svg>
+  </a>
+
+  <main class="inq-main">
+    <header class="inq-header">
+      <span class="inq-eyebrow">Invite · Book · Collaborate</span>
+      <h1>Bring the music<br><em>into the room.</em></h1>
+      <span class="inq-hairline" aria-hidden="true"></span>
+      <p>A real person. A real instrument. A real room.<br>Tell me where the music belongs.</p>
+    </header>
+
+    <form class="inq-form" id="inquiryForm" novalidate>
+      <section class="inq-step is-active" data-step="1">
+        <div class="inq-step-meta"><span>01</span><span>What is the occasion?</span></div>
+        <fieldset>
+          <legend>Choose the kind of invitation</legend>
+          <div class="inq-event-grid">
+            <label class="inq-event">
+              <input type="radio" name="event_type" value="Private event" required>
+              <span class="inq-event-number">01</span>
+              <span class="inq-event-name">Private event</span>
+              <small>Celebration · gathering · home</small>
+            </label>
+            <label class="inq-event">
+              <input type="radio" name="event_type" value="Festival / concert">
+              <span class="inq-event-number">02</span>
+              <span class="inq-event-name">Festival / concert</span>
+              <small>Stage · outdoor · venue</small>
+            </label>
+            <label class="inq-event">
+              <input type="radio" name="event_type" value="Cultural space">
+              <span class="inq-event-number">03</span>
+              <span class="inq-event-name">Cultural space</span>
+              <small>Gallery · museum · community</small>
+            </label>
+            <label class="inq-event">
+              <input type="radio" name="event_type" value="Film / installation">
+              <span class="inq-event-number">04</span>
+              <span class="inq-event-name">Film / installation</span>
+              <small>Sound · image · atmosphere</small>
+            </label>
+            <label class="inq-event">
+              <input type="radio" name="event_type" value="Collaboration">
+              <span class="inq-event-number">05</span>
+              <span class="inq-event-name">Collaboration</span>
+              <small>Artist · music · creative work</small>
+            </label>
+            <label class="inq-event">
+              <input type="radio" name="event_type" value="Something else">
+              <span class="inq-event-number">06</span>
+              <span class="inq-event-name">Something else</span>
+              <small>Tell me what you have in mind</small>
+            </label>
+          </div>
+        </fieldset>
+        <button type="button" class="inq-next" data-next>Continue</button>
+      </section>
+
+      <section class="inq-step" data-step="2" aria-hidden="true">
+        <div class="inq-step-meta"><span>02</span><span>When &amp; where?</span></div>
+        <div class="inq-fields">
+          <label class="inq-field">
+            <span>Date</span>
+            <input name="event_date" type="date">
+          </label>
+          <label class="inq-field">
+            <span>Location</span>
+            <input name="location" type="text" autocomplete="address-level2" placeholder="City / venue">
+          </label>
+          <label class="inq-field">
+            <span>Approx. duration</span>
+            <select name="duration">
+              <option value="">Not sure yet</option>
+              <option>15–30 min</option>
+              <option>30–60 min</option>
+              <option>60–90 min</option>
+              <option>2+ hours</option>
+            </select>
+          </label>
+        </div>
+        <div class="inq-step-actions">
+          <button type="button" class="inq-back-step" data-back>Back</button>
+          <button type="button" class="inq-next" data-next>Continue</button>
+        </div>
+      </section>
+
+      <section class="inq-step" data-step="3" aria-hidden="true">
+        <div class="inq-step-meta"><span>03</span><span>Who is inviting me?</span></div>
+        <div class="inq-fields inq-fields--two">
+          <label class="inq-field">
+            <span>Your name</span>
+            <input name="name" type="text" autocomplete="name" required placeholder="Your name">
+          </label>
+          <label class="inq-field">
+            <span>Your email</span>
+            <input name="email" type="email" autocomplete="email" required placeholder="you@example.com">
+          </label>
+        </div>
+        <label class="inq-field inq-message-field">
+          <span>Tell me about it</span>
+          <textarea name="message" rows="5" placeholder="What are you planning, and what would you like the music to be part of?"></textarea>
+        </label>
+        <label class="inq-honeypot" aria-hidden="true">Leave this empty<input name="_gotcha" tabindex="-1" autocomplete="off"></label>
+        <div class="inq-step-actions">
+          <button type="button" class="inq-back-step" data-back>Back</button>
+          <button type="submit" class="inq-submit">Send enquiry</button>
+        </div>
+        <p class="inq-status" id="inquiryStatus" role="status" aria-live="polite"></p>
+      </section>
+    </form>
+
+    <footer class="inq-footer">
+      <span>No commitment — just an enquiry.</span>
+      <span>ivar.karm@gmail.com</span>
+    </footer>
+  </main>
+
+  <div class="inq-success" id="inquirySuccess" aria-hidden="true">
+    <span class="inq-eyebrow">Enquiry prepared</span>
+    <h2>The road has<br><em>your message.</em></h2>
+    <span class="inq-hairline" aria-hidden="true"></span>
+    <p>Your email app should open with the details filled in.<br>Send it when you're ready.</p>
+    <button type="button" class="inq-return" id="inquiryReturn">Back to the road</button>
+  </div>
+
+  <script src="./js/inquire.js?v=1" defer></script>
+</body>
+</html>

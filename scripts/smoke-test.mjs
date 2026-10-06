@@ -34,6 +34,9 @@ const required = [
   'js/audio.js',
   'js/input-controller.js',
   'js/booking.js',
+  'inquire.html',
+  'inquire.css',
+  'js/inquire.js',
   'js/music-data.js',
   'js/music-player.js',
   'js/content.js',
@@ -83,8 +86,8 @@ if (html.includes('id="contact"') && html.includes('Invite')) ok('Stable #contac
 else fail('Contact navigation target or Invite label missing');
 if (html.includes('https://www.instagram.com/ivar.karm/') && html.includes('https://www.youtube.com/@IvarKarm')) ok('Artist social identity links present');
 else fail('Artist social identity links missing');
-if (html.includes('class="contact-pathways"') && html.includes('Live performance') && html.includes('Collaboration')) ok('Professional enquiry pathways present');
-else fail('Professional enquiry pathways missing');
+if (html.includes('class="contact-icons"') && html.includes('Instagram') && html.includes('YouTube') && html.includes('id="bookMeButton"')) ok('Invite contact sequence present');
+else fail('Invite contact sequence missing');
 
 // Analytics
 if (analytics.includes('IvarAnalytics') && analytics.includes('track(')) ok('Analytics API present');
@@ -197,8 +200,13 @@ for (const rel of jsFiles) {
 }
 
 if (html.includes('id="contact"') && html.includes('data-section-id="s6"')) ok('Contact section has stable semantic and world anchors'); else fail('Contact anchors missing');
-if (html.includes('id="bookMeButton"') && html.includes('id="bookingModal"') && html.includes('id="bookingForm"')) ok('Booking CTA and modal form present'); else fail('Booking experience missing');
-if (html.includes('mailto:ivar.karm@gmail.com') && html.includes('name="email"') && html.includes('name="event_type"')) ok('Booking form has email fallback and core enquiry fields'); else fail('Booking form fields/fallback missing');
+const inquiry = read('inquire.html') || '';
+const inquiryCss = read('inquire.css') || '';
+const inquiryJs = read('js/inquire.js') || '';
+if (html.includes('id="bookMeButton"') && !html.includes('id="bookingModal"')) ok('Book Me routes to a dedicated inquiry page'); else fail('Booking CTA still uses the old modal');
+if (inquiry.includes('id="inquiryForm"') && inquiry.includes('id="inqRoad"') && inquiry.includes('name="event_type"') && inquiry.includes('name="email"')) ok('Dedicated inquiry page has form, event choices, and road exit'); else fail('Dedicated inquiry page structure incomplete');
+if (inquiryCss.includes('.inq-road') && inquiryCss.includes('.inq-event-grid') && inquiryCss.includes('.inq-step')) ok('Inquiry page visual system and progressive form styles present'); else fail('Inquiry page styles incomplete');
+if (inquiryJs.includes('mailto:ivar.karm@gmail.com') && inquiryJs.includes('data-next') && inquiryJs.includes('data-back')) ok('Inquiry page has functional progressive form and email fallback'); else fail('Inquiry form logic incomplete');
 
 console.log('');
 if (errors.length) {
