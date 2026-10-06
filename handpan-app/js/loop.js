@@ -34,7 +34,7 @@ function commit(){
 function clickOrb(){if(state.mode==='empty'){beginRecord();return}if(state.mode==='recording'||state.mode==='overdub'){commit();return}if(state.mode==='playing'){beginOverdub()}}
 function play(){if(!state.layers.length)return;state.mode='playing';state.paused=false;startClock(true)}
 function pause(){if(!state.layers.length)return;state.paused=true;stopClock();paint()}
-function clear(){stopClock();state={mode:'empty',layers:[],current:[],recordStart:0,loopStart:0,loopDuration:0,lastPos:0,raf:null,paused:false};paint()}
+function clear(){stopClock();state.mode='empty';state.layers=[];state.current=[];state.recordStart=0;state.loopStart=0;state.loopDuration=0;state.lastPos=0;state.paused=false;paint()}
 function noteHandler(ev){if(state.mode!=='recording'&&state.mode!=='overdub')return;var t=now()-state.recordStart;if(state.mode==='overdub')t=t%state.loopDuration;state.current.push({t:t,n:ev.detail.noteIndex,v:ev.detail.velocity||.8})}
 button&&button.addEventListener('click',clickOrb);playBtn&&playBtn.addEventListener('click',play);pauseBtn&&pauseBtn.addEventListener('click',pause);clearBtn&&clearBtn.addEventListener('click',clear);
 window.addEventListener('handpan:note',noteHandler);
