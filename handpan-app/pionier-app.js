@@ -562,15 +562,18 @@ function shiftOct(d) {
   rebuildNotes();
 }
 function setScale(i) {
-  state.scaleIndex = i;
+  const n = SCALES.length;
+  state.scaleIndex = ((i % n) + n) % n;
   rebuildNotes();
-  closeScaleMenu();
 }
 
+document.getElementById('scalePrev').onclick = () => setScale(state.scaleIndex - 1);
+document.getElementById('scaleNext').onclick = () => setScale(state.scaleIndex + 1);
 document.getElementById('rootDown').onclick = () => shiftRoot(-1);
 document.getElementById('rootUp').onclick = () => shiftRoot(1);
 document.getElementById('octDown').onclick = () => shiftOct(-1);
 document.getElementById('octUp').onclick = () => shiftOct(1);
+
 document.getElementById('voicePrev').onclick = () => {
   state.voiceIndex = (state.voiceIndex - 1 + VOICE_PRESETS.length) % VOICE_PRESETS.length;
   updateLabels();
@@ -579,27 +582,6 @@ document.getElementById('voiceNext').onclick = () => {
   state.voiceIndex = (state.voiceIndex + 1) % VOICE_PRESETS.length;
   updateLabels();
 };
-
-const scaleMenu = document.getElementById('scaleMenu');
-const scaleBtn = document.getElementById('scaleBtn');
-function openScaleMenu() {
-  scaleMenu.hidden = false;
-  scaleMenu.innerHTML = '';
-  SCALES.forEach((s, i) => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.textContent = s.label;
-    if (i === state.scaleIndex) b.classList.add('is-active');
-    b.onclick = () => setScale(i);
-    scaleMenu.appendChild(b);
-  });
-  scaleBtn.closest('.control-block').style.position = 'relative';
-}
-function closeScaleMenu() { scaleMenu.hidden = true; }
-scaleBtn.onclick = () => { if (scaleMenu.hidden) openScaleMenu(); else closeScaleMenu(); };
-document.addEventListener('click', (e) => {
-  if (!scaleMenu.hidden && !scaleBtn.contains(e.target) && !scaleMenu.contains(e.target)) closeScaleMenu();
-});
 
 const FX_HELP = {
   tone: 'Tone: dark ↔ bright filter on the steel voice',

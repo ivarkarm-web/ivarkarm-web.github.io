@@ -35,13 +35,13 @@
 
     <!-- Left controls -->
     <aside class="sidebar left">
-      <div class="control-block">
+      <div class="control-block control-scale">
         <label class="control-label">Scale</label>
-        <button type="button" class="control-main" id="scaleBtn">
-          <span id="scaleLabel">Celtic Minor</span>
-          <span class="chevron">▴</span>
-        </button>
-        <div class="scale-menu" id="scaleMenu" hidden></div>
+        <div class="stepper scale-stepper">
+          <button type="button" class="step" id="scalePrev" aria-label="Previous scale">‹</button>
+          <span class="step-value scale-name" id="scaleLabel">Celtic Minor</span>
+          <button type="button" class="step" id="scaleNext" aria-label="Next scale">›</button>
+        </div>
       </div>
 
       <div class="control-block">

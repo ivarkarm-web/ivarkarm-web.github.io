@@ -84,6 +84,30 @@ html, body {
   padding: 12px 8px;
 }
 .sidebar.left { grid-area: left; justify-content: center; }
+
+.sidebar.left {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 16px;
+  min-width: 0;
+}
+.control-scale .scale-stepper {
+  width: 100%;
+}
+.scale-name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px !important;
+  font-weight: 500;
+  padding: 0 4px;
+}
+.control-main { display: none; } /* legacy */
+.scale-menu { display: none !important; }
+
 .sidebar.right {
   grid-area: right; align-items: center; justify-content: center; gap: 16px;
 }
@@ -242,10 +266,11 @@ html, body {
       "right";
   }
   .sidebar.left {
-    flex-direction: row; flex-wrap: wrap; justify-content: center;
-    gap: 12px; padding: 4px;
+    flex-direction: column; flex-wrap: nowrap; align-items: stretch;
+    gap: 12px; padding: 4px 12px;
+    max-width: 320px; margin: 0 auto;
   }
-  .control-block { min-width: 110px; flex: 1; }
+  .control-block { min-width: 0; width: 100%; }
   .sidebar.right {
     flex-direction: row; justify-content: center; padding: 4px;
   }
