@@ -56,6 +56,7 @@ test('app browser harness is present and targets both required viewports', () =>
   assert.ok(fs.existsSync(path.join(app, 'js/sample-bank.js')));
   assert.ok(fs.existsSync(path.join(app, 'SOUNDS.md')));
   assert.ok(fs.existsSync(path.join(app, 'sounds/manifest.json')));
+  assert.match(read('.gitignore'), /handpan-app\/sounds\/fixtures\//);
 });
 
 test('app runtime uses one module loading strategy', () => {
