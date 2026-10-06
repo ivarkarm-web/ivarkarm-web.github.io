@@ -1,10 +1,5 @@
 /**
- * pionier-app.js — canvas instrument surface (no Flutter / RN / generic UI kits)
- *
- * - Continuous X/Y multi-zone vector mapping per pad
- * - Non-linear velocity + layered sample interpolation
- * - Large elliptical tone fields
- * - Web Audio path; native CoreAudio/AAudio via optional bridge (native/audio-bridge.md)
+ * pionier-app.js — canvas instrument surface
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './js/audio-core.js';
 import { VOICE_PRESETS } from './js/voice-presets.js';
@@ -43,6 +38,13 @@ const REVERB_TYPES = {
   cave: { id: 'cave', label: 'Cave', desc: 'Dark cavernous space with long wash.', taps: [0.055, 0.088, 0.125, 0.17], tapGains: [0.28, 0.24, 0.2, 0.16], fb: 0.48, filters: [2800, 2200, 1700, 1300], wetScale: 0.58 }
 };
 
+const COMPRESSOR_TYPES = {
+  soft: { id: 'soft', label: 'Soft', desc: 'Gentle leveling — smooth and musical. Use Comp knob for amount.', threshold: -18, knee: 24, ratio: 2.2, attack: 0.012, release: 0.28, makeup: 1.05 },
+  punch: { id: 'punch', label: 'Punch', desc: 'Fast attack for transient snap and presence.', threshold: -14, knee: 8, ratio: 4, attack: 0.002, release: 0.12, makeup: 1.12 },
+  glue: { id: 'glue', label: 'Glue', desc: 'Bus-style glue that tightens the whole pan.', threshold: -20, knee: 16, ratio: 3.2, attack: 0.02, release: 0.35, makeup: 1.08 },
+  limit: { id: 'limit', label: 'Limit', desc: 'Hard limiter — loud and controlled, less dynamics.', threshold: -8, knee: 2, ratio: 12, attack: 0.001, release: 0.08, makeup: 1.15 }
+};
+
 function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
 function midiName(m) {
   const n = Math.round(m);
@@ -53,17 +55,13 @@ function rootToMidi(rootIndex, octaveOffset) {
 }
 
 const state = {
-  scaleIndex: 0,
-  rootIndex: 2,
-  octaveOffset: 0,
-  voiceIndex: 0,
-  notes: [],
-  fields: [],
+  scaleIndex: 0, rootIndex: 2, octaveOffset: 0, voiceIndex: 0,
+  notes: [], fields: [],
   glow: new Float32Array(9),
   zoneFlash: new Float32Array(9),
   pointers: new Map(),
   lastStrikeAt: new Map(),
-  fx: { tone: 0.7, delay: 0.15, reverb: 0.25, delayType: 'echo', reverbType: 'room' }
+  fx: { compress: 0.4, delay: 0.15, reverb: 0.25, master: 1.0, delayType: 'echo', reverbType: 'room', compressType: 'soft' }
 };
 
 function rebuildNotes() {
@@ -102,8 +100,12 @@ const engine = {
     this.bus = this.ctx.createGain();
     this.bus.gain.value = 0.95;
     this.comp = this.ctx.createDynamicsCompressor();
-    this.comp.threshold.value = -16; this.comp.knee.value = 20; this.comp.ratio.value = 2.8;
-    this.comp.attack.value = 0.003; this.comp.release.value = 0.25;
+    this.comp.threshold.value = -16;
+    this.comp.knee.value = 20;
+    this.comp.ratio.value = 2.8;
+    this.comp.attack.value = 0.003;
+    this.comp.release.value = 0.25;
+
     const nlen = Math.floor(this.ctx.sampleRate * 0.1);
     this.noise = this.ctx.createBuffer(1, nlen, this.ctx.sampleRate);
     const d = this.noise.getChannelData(0);
@@ -113,10 +115,9 @@ const engine = {
       console.info('[handpan] samples', this.sampleBank.byMidi.size);
     }).catch((e) => console.warn(e));
 
-    this.toneFilter = this.ctx.createBiquadFilter();
-    this.toneFilter.type = 'lowpass';
-    this.toneFilter.Q.value = 0.7;
-    this.bus.connect(this.toneFilter);
+    this.dryGain = this.ctx.createGain();
+    this.dryGain.gain.value = 1;
+    this.bus.connect(this.dryGain);
 
     this.delay = this.ctx.createDelay(1.5);
     this.delay.delayTime.value = 0.28;
@@ -124,7 +125,7 @@ const engine = {
     this.delayFeedback.gain.value = 0.25;
     this.delayWet = this.ctx.createGain();
     this.delayWet.gain.value = 0;
-    this.toneFilter.connect(this.delay);
+    this.bus.connect(this.delay);
     this.delay.connect(this.delayFeedback);
     this.delayFeedback.connect(this.delay);
     this.delay.connect(this.delayWet);
@@ -149,12 +150,15 @@ const engine = {
       g.connect(fb); fb.connect(dd);
       this._reverbTaps.push({ d: dd, g, f, fb });
     });
-    this.toneFilter.connect(this.reverbInput);
+    this.bus.connect(this.reverbInput);
 
-    this.toneFilter.connect(this.comp);
+    this.masterGain = this.ctx.createGain();
+    this.masterGain.gain.value = 1;
+    this.dryGain.connect(this.comp);
     this.delayWet.connect(this.comp);
     this.reverbWet.connect(this.comp);
-    this.comp.connect(getAudioMaster());
+    this.comp.connect(this.masterGain);
+    this.masterGain.connect(getAudioMaster());
 
     this.applyFx();
     resumeAudio();
@@ -164,17 +168,32 @@ const engine = {
   applyFx() {
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
-    const tone = state.fx.tone;
     const del = state.fx.delay;
     const rev = state.fx.reverb;
+    const amt = state.fx.compress;
     const dType = DELAY_TYPES[state.fx.delayType] || DELAY_TYPES.echo;
     const rType = REVERB_TYPES[state.fx.reverbType] || REVERB_TYPES.room;
+    const cType = COMPRESSOR_TYPES[state.fx.compressType] || COMPRESSOR_TYPES.soft;
 
-    if (this.toneFilter) {
-      const hz = 800 * Math.pow(15, tone);
-      this.toneFilter.frequency.cancelScheduledValues(t);
-      this.toneFilter.frequency.setTargetAtTime(hz, t, 0.05);
+    if (this.comp) {
+      const thr = -3 + (cType.threshold + 3) * amt;
+      const ratio = 1.2 + (cType.ratio - 1.2) * amt;
+      this.comp.threshold.setTargetAtTime(thr, t, 0.05);
+      this.comp.ratio.setTargetAtTime(ratio, t, 0.05);
+      this.comp.knee.setTargetAtTime(cType.knee, t, 0.05);
+      this.comp.attack.setTargetAtTime(cType.attack, t, 0.05);
+      this.comp.release.setTargetAtTime(cType.release, t, 0.05);
+      if (this.dryGain) {
+        const mu = 1 + (cType.makeup - 1) * amt;
+        this.dryGain.gain.setTargetAtTime(mu, t, 0.08);
+      }
     }
+
+    if (this.masterGain) {
+      const vol = Math.max(0, Math.min(1.5, state.fx.master ?? 1));
+      this.masterGain.gain.setTargetAtTime(vol, t, 0.04);
+    }
+
     if (this.delayWet && this.delay && this.delayFeedback) {
       const time = dType.timeMin + del * (dType.timeMax - dType.timeMin);
       const fb = dType.fbMin + del * (dType.fbMax - dType.fbMin);
@@ -182,6 +201,7 @@ const engine = {
       this.delayFeedback.gain.setTargetAtTime(fb, t, 0.06);
       this.delay.delayTime.setTargetAtTime(time, t, 0.08);
     }
+
     if (this.reverbWet && this.reverbInput) {
       this.reverbWet.gain.setTargetAtTime(rev * rType.wetScale, t, 0.08);
       this.reverbInput.gain.setTargetAtTime(0.35 + rev * 0.65, t, 0.08);
@@ -279,33 +299,6 @@ const engine = {
     if (!v || !this.ctx) return;
     if (v.stop) v.stop(this.ctx.currentTime, 0.07);
     else this.releaseVoice(v, this.ctx.currentTime, 0.07);
-  },
-
-  setDrone(on) {
-    if (!this.ensure()) return;
-    if (!on) {
-      if (this.droneNodes) {
-        const t = this.ctx.currentTime;
-        try { this.droneNodes.gain.gain.setTargetAtTime(0, t, 0.15); } catch (_) {}
-        setTimeout(() => {
-          try { this.droneNodes.osc.stop(); this.droneNodes.gain.disconnect(); } catch (_) {}
-          this.droneNodes = null;
-        }, 600);
-      }
-      return;
-    }
-    if (this.droneNodes) return;
-    const note = state.notes[0];
-    if (!note) return;
-    const osc = this.ctx.createOscillator();
-    osc.type = 'sine';
-    osc.frequency.value = note.freq * 0.5;
-    const g = this.ctx.createGain();
-    g.gain.value = 0.0001;
-    g.gain.setTargetAtTime(0.05, this.ctx.currentTime, 0.3);
-    osc.connect(g); g.connect(this.bus);
-    osc.start();
-    this.droneNodes = { osc, gain: g };
   }
 };
 
@@ -546,7 +539,7 @@ wire('voicePrev', () => { state.voiceIndex = (state.voiceIndex - 1 + VOICE_PRESE
 wire('voiceNext', () => { state.voiceIndex = (state.voiceIndex + 1) % VOICE_PRESETS.length; updateLabels(); });
 wire('btnExit', () => { window.location.href = '../'; });
 wire('btnHelp', () => {
-  alert('Play the handpan: tap the tone fields or use Q W E R T Y U I O. Drag Tone / Ambiance / Room knobs. Open FX for delay & reverb types.');
+  alert('Play the handpan: tap the tone fields or use Q W E R T Y U I O. Drag Comp / Ambiance / Room knobs. Open FX for delay, reverb, compressor types & master volume.');
 });
 
 function setupKnob(id, key, initial) {
@@ -585,7 +578,7 @@ function setupKnob(id, key, initial) {
   });
 }
 
-setupKnob('knobTone', 'tone', 0.7);
+setupKnob('knobCompress', 'compress', 0.4);
 setupKnob('knobDelay', 'delay', 0.15);
 setupKnob('knobReverb', 'reverb', 0.25);
 
@@ -634,6 +627,19 @@ function selectReverbType(id) {
   engine.applyFx();
 }
 
+function selectCompressType(id) {
+  if (!COMPRESSOR_TYPES[id]) return;
+  state.fx.compressType = id;
+  document.querySelectorAll('#compTypes .fx-type-btn').forEach((b) => {
+    const on = b.getAttribute('data-comp') === id;
+    b.classList.toggle('is-active', on);
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  const desc = document.getElementById('compDesc');
+  if (desc) desc.textContent = COMPRESSOR_TYPES[id].desc;
+  engine.applyFx();
+}
+
 const btnFx = document.getElementById('btnFxSettings');
 if (btnFx) btnFx.addEventListener('click', () => setFxPanelOpen(!btnFx.classList.contains('is-open')));
 const fxClose = document.getElementById('fxPanelClose');
@@ -648,8 +654,27 @@ document.getElementById('reverbTypes')?.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-reverb]');
   if (btn) selectReverbType(btn.getAttribute('data-reverb'));
 });
-window.addEventListener('keydown', (e) => { if (e.key === 'Escape') setFxPanelOpen(false); });
+document.getElementById('compTypes')?.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-comp]');
+  if (btn) selectCompressType(btn.getAttribute('data-comp'));
+});
 
+const masterEl = document.getElementById('masterVol');
+const masterVal = document.getElementById('masterVolVal');
+if (masterEl) {
+  const setMaster = (v) => {
+    const n = Math.max(0, Math.min(150, Number(v) || 0));
+    state.fx.master = n / 100;
+    masterEl.value = String(n);
+    masterEl.setAttribute('aria-valuenow', String(n));
+    if (masterVal) masterVal.textContent = n + '%';
+    engine.applyFx();
+  };
+  masterEl.addEventListener('input', () => setMaster(masterEl.value));
+  setMaster(masterEl.value || 100);
+}
+
+window.addEventListener('keydown', (e) => { if (e.key === 'Escape') setFxPanelOpen(false); });
 window.addEventListener('resize', resize);
 rebuildNotes();
 resize();
