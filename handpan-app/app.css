@@ -779,3 +779,62 @@ body:not([data-app-mode="loop"]) .sound-dock-toggle {
     to{transform:none;opacity:1}
   }
 }
+
+
+/* Persistent loop layer orbit — kept beside the instrument, never over its notes. */
+.loop-orbit{
+  position:fixed;
+  z-index:108;
+  right:clamp(1.1rem,5vw,4rem);
+  top:50%;
+  width:72px;
+  height:min(46vh,360px);
+  transform:translateY(-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:.65rem;
+  pointer-events:none;
+}
+.loop-orbit-node{
+  --orbit-i:0;
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  border:1px solid rgba(212,175,55,.34);
+  background:radial-gradient(circle,rgba(212,175,55,.16),rgba(8,8,10,.74) 62%);
+  box-shadow:0 0 22px rgba(212,175,55,.16),inset 0 0 18px rgba(255,220,110,.06);
+  color:#e9d18a;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  pointer-events:auto;
+  animation:loopOrbitIn .42s cubic-bezier(.2,.8,.2,1) both;
+  animation-delay:calc(var(--orbit-i) * 35ms);
+}
+.loop-orbit-node span{
+  position:absolute;width:9px;height:9px;border-radius:50%;
+  background:rgba(235,200,95,.8);box-shadow:0 0 14px rgba(235,200,95,.72);
+}
+.loop-orbit-node b{
+  position:absolute;bottom:5px;right:7px;font:600 .42rem/1 Inter,sans-serif;
+  opacity:.72;
+}
+.loop-orbit-node:hover{transform:scale(1.08);border-color:rgba(235,200,95,.7)}
+.loop-orbit-node.is-paused{opacity:.45}
+@keyframes loopOrbitIn{from{opacity:0;transform:scale(.55) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@media(max-width:700px){
+  .loop-orbit{
+    right:10px;
+    top:calc(50% - 8px);
+    width:50px;
+    height:min(38vh,250px);
+    gap:.45rem;
+  }
+  .loop-orbit-node{width:38px;height:38px}
+  .loop-orbit-node b{font-size:.36rem;bottom:4px;right:5px}
+}
+@media(prefers-reduced-motion:reduce){
+  .loop-orbit-node{animation:none}
+}
