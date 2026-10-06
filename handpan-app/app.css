@@ -799,6 +799,9 @@ body:not([data-app-mode="loop"]) .sound-dock-toggle {
 }
 .loop-orbit-node{
   --orbit-i:0;
+  --loop-progress:0;
+  position:relative;
+  isolation:isolate;
   width:46px;
   height:46px;
   border-radius:50%;
@@ -812,6 +815,18 @@ body:not([data-app-mode="loop"]) .sound-dock-toggle {
   pointer-events:auto;
   animation:loopOrbitIn .42s cubic-bezier(.2,.8,.2,1) both;
   animation-delay:calc(var(--orbit-i) * 35ms);
+}
+.loop-orbit-node::before{
+  content:"";
+  position:absolute;
+  inset:-3px;
+  z-index:-1;
+  border-radius:50%;
+  background:conic-gradient(rgba(235,200,95,.72) calc(var(--loop-progress) * 1turn), rgba(235,200,95,.08) 0);
+  -webkit-mask:radial-gradient(circle,transparent 0 67%,#000 69%);
+  mask:radial-gradient(circle,transparent 0 67%,#000 69%);
+  opacity:.72;
+  transition:opacity .2s ease;
 }
 .loop-orbit-node span{
   position:absolute;width:9px;height:9px;border-radius:50%;
