@@ -4,6 +4,7 @@
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './js/audio-core.js';
 import { VOICE_PRESETS, resolveVoiceIndex } from './js/voice-presets.js';
+import { NoteSampleBank } from './js/note-sample-bank.js';
 
 const SCALES = [
   { id: 'celtic-minor', label: 'Celtic Minor', intervals: [0, 7, 8, 10, 12, 14, 15, 17, 19] },
@@ -85,6 +86,8 @@ const engine = {
   noise: null,
   droneNodes: null,
 
+  sampleBank: null,
+
   ensure() {
     if (this.ctx) { resumeAudio(); return true; }
     this.ctx = getAudioContext();
@@ -100,6 +103,13 @@ const engine = {
     this.noise = this.ctx.createBuffer(1, nlen, this.ctx.sampleRate);
     const d = this.noise.getChannelData(0);
     for (let i = 0; i < nlen; i++) d[i] = Math.random() * 2 - 1;
+    this.sampleBank = new NoteSampleBank(this.ctx, './sounds/notes/');
+    this.sampleBank.load().then(() => {
+      const n = this.sampleBank.byMidi.size;
+      console.info('[handpan] loaded', n, 'dry one-shot samples');
+      const hint = document.getElementById('hint');
+      if (hint && n) hint.textContent = 'Samples loaded · tap steel · Q–O';
+    }).catch((e) => console.warn('[handpan] sample load', e));
     resumeAudio();
     return true;
   },
@@ -114,6 +124,18 @@ const engine = {
 
     const prev = this.voices.get(idx);
     if (prev) this.releaseVoice(prev, t, 0.03);
+
+    // Prefer dry one-shot samples (Haganenote) when available
+    if (this.sampleBank && this.sampleBank.ready) {
+      const played = this.sampleBank.play(note.midi, this.bus, t, vel);
+      if (played) {
+        const voice = { idx, out: played.gain, oscs: [], source: played.source, released: false };
+        played.source.onended = () => { this.voices.delete(idx); try { played.gain.disconnect(); } catch (_) {} };
+        this.voices.set(idx, voice);
+        state.glow[idx] = 1;
+        return;
+      }
+    }
 
     const preset = VOICE_PRESETS[state.voiceIndex] || VOICE_PRESETS[0];
     const f = note.freq;

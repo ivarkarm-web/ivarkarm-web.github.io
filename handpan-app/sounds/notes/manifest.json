@@ -1,0 +1,223 @@
+{
+  "description": "Dry one-shot handpan hits from Haganenote recordings. Not loops. Mapped by MIDI pitch.",
+  "license_note": "Samples recorded by Haganenote; used for virtual instrument playback. See https://github.com/haganenote/virtual-handpan",
+  "samples": [
+    {
+      "file": "C3.mp3",
+      "midi": 48,
+      "pitch": "C3",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "Cs3.mp3",
+      "midi": 49,
+      "pitch": "C\u266f3",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "D3.mp3",
+      "midi": 50,
+      "pitch": "D3",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "Eb3.mp3",
+      "midi": 51,
+      "pitch": "E\u266d3",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "E3.mp3",
+      "midi": 52,
+      "pitch": "E3",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "F3.mp3",
+      "midi": 53,
+      "pitch": "F3",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "Fs3.mp3",
+      "midi": 54,
+      "pitch": "F\u266f3",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "G3.mp3",
+      "midi": 55,
+      "pitch": "G3",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "Gs3.mp3",
+      "midi": 56,
+      "pitch": "G\u266f3",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "A3.mp3",
+      "midi": 57,
+      "pitch": "A3",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "Bb3.mp3",
+      "midi": 58,
+      "pitch": "B\u266d3",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "B3.mp3",
+      "midi": 59,
+      "pitch": "B3",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "C4.mp3",
+      "midi": 60,
+      "pitch": "C4",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "Cs4.mp3",
+      "midi": 61,
+      "pitch": "C\u266f4",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "D4.mp3",
+      "midi": 62,
+      "pitch": "D4",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "Ds4.mp3",
+      "midi": 63,
+      "pitch": "D\u266f4",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "E4.mp3",
+      "midi": 64,
+      "pitch": "E4",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "F4.mp3",
+      "midi": 65,
+      "pitch": "F4",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "Fs4.mp3",
+      "midi": 66,
+      "pitch": "F\u266f4",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "G4.mp3",
+      "midi": 67,
+      "pitch": "G4",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "Gs4.mp3",
+      "midi": 68,
+      "pitch": "G\u266f4",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "A4.mp3",
+      "midi": 69,
+      "pitch": "A4",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "Bb4.mp3",
+      "midi": 70,
+      "pitch": "B\u266d4",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "B4.mp3",
+      "midi": 71,
+      "pitch": "B4",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "C5.mp3",
+      "midi": 72,
+      "pitch": "C5",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "Db5.mp3",
+      "midi": 73,
+      "pitch": "D\u266d5",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "D5.mp3",
+      "midi": 74,
+      "pitch": "D5",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "Eb5.mp3",
+      "midi": 75,
+      "pitch": "E\u266d5",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "E5.mp3",
+      "midi": 76,
+      "pitch": "E5",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "F5.mp3",
+      "midi": 77,
+      "pitch": "F5",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    },
+    {
+      "file": "Fs5.mp3",
+      "midi": 78,
+      "pitch": "F\u266f5",
+      "source": "haganenote/virtual-handpan (www.haganenote.com/vst)",
+      "type": "one-shot"
+    }
+  ]
+}
