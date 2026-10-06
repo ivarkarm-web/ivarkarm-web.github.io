@@ -36,6 +36,7 @@ function setMode(mode){
  document.body.dataset.appMode=mode;
  document.body.classList.toggle('loop-mode',mode==='loop');
  if(mode!=='learn')document.body.classList.remove('learn-active');
+ if(mode!=='ambient' && window.HandpanAtmosphere){ window.HandpanAtmosphere.backing('off'); window.HandpanAtmosphere.set('off'); }
  setDock(mode==='loop'||mode==='ambient');
  if(mode==='learn'&&window.HandpanLearn)window.HandpanLearn.open();
 }
