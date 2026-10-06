@@ -154,7 +154,7 @@
   NOTES = buildNotesFromScale(SCALES[0]);
   reindexKeys();
 
-  var MAX_VOICES = 40;
+  var MAX_VOICES = COARSE ? 24 : 40;
 
   function makeImpulse(ctx, seconds, decay) {
     var rate = ctx.sampleRate;
@@ -324,6 +324,22 @@
     this.voices.push(voice);
     this.active.set(idx, voice);
     return voice;
+  };
+
+  HandpanEngine.prototype.damp = function (idx, amount) {
+    var voice = this.active.get(idx);
+    if (!voice || !this.ctx) return;
+    var t = this.ctx.currentTime;
+    amount = Math.max(0, Math.min(1, amount == null ? 0.9 : amount));
+    var tc = Math.max(0.014, 0.018 + (1 - amount) * 0.07);
+    // Touch damping leaves a little living resonance rather than hard-cutting
+    // the voice. Repeated calls while a finger remains down create a natural
+    // palm/finger mute curve.
+    var target = 0.0001 + 0.055 * (1 - amount);
+    try {
+      voice.out.gain.cancelScheduledValues(t);
+      voice.out.gain.setTargetAtTime(target, t, tc);
+    } catch (e) {}
   };
 
   HandpanEngine.prototype.shutdown = function () {
@@ -531,7 +547,7 @@
       return {
         i: i, cx: layout.cx + ux * sh.dist * R, cy: layout.cy + uy * sh.dist * R,
         ux: ux, uy: uy, rx: sh.rx * R, ry: sh.ry * R,
-        rot: Math.atan2(uy, ux), glow: 0, held: 0, hover: 0, guide: 0, guideTarget: 0
+        rot: Math.atan2(uy, ux), glow: 0, held: 0, hover: 0, guide: 0, guideTarget: 0, guideSuccess: 0
       };
     });
   }
@@ -642,6 +658,7 @@
       if (f.guide < 0.01) continue;
       var pulse = 0.72 + 0.28 * Math.sin(time * 3.2 + i * 0.35);
       var a = Math.min(0.82, f.guide * pulse);
+      f.guideSuccess = Math.max(0, f.guideSuccess - 0.035);
       var rx = f.rx * (1.05 + f.guide * 0.22);
       var ry = f.ry * (1.05 + f.guide * 0.22);
       var g = c.createRadialGradient(f.cx - f.rx * 0.18, f.cy - f.ry * 0.2, 0, f.cx, f.cy, Math.max(rx, ry) * 1.45);
@@ -658,6 +675,17 @@
       c.arc(0, 0, rx * 1.38, 0, Math.PI * 2);
       c.fill();
       c.restore();
+      if (f.guideSuccess > 0.01) {
+        c.save();
+        c.globalCompositeOperation = 'lighter';
+        c.globalAlpha = f.guideSuccess * 0.72;
+        c.strokeStyle = 'rgba(255,245,188,0.95)';
+        c.lineWidth = Math.max(2, f.rx * 0.032);
+        c.beginPath();
+        c.ellipse(f.cx, f.cy, rx * (1.12 + (1 - f.guideSuccess) * 0.18), ry * (1.12 + (1 - f.guideSuccess) * 0.18), f.rot, 0, Math.PI * 2);
+        c.stroke();
+        c.restore();
+      }
       c.globalAlpha = Math.min(1, f.guide * 0.95);
       c.strokeStyle = 'rgba(255,221,112,' + (0.35 + f.guide * 0.45) + ')';
       c.lineWidth = Math.max(1.4, f.rx * 0.025);
@@ -721,15 +749,50 @@
 
   var heldKeys = new Set();
   var pointerMap = new Map();
+  var lastPointerDown = {time: 0, noteIndex: -1};
+  var TWO_FINGER_WINDOW = 110;
 
-  function strikeNote(idx, vel) {
+  function haptic(kind) {
+    if (!COARSE || !navigator.vibrate || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+    try {
+      navigator.vibrate(kind === 'accent' ? [4, 8, 4] : 5);
+    } catch (e) {}
+  }
+
+  function getImpact(px, py, field) {
+    var dx = px - field.cx, dy = py - field.cy;
+    var along = dx * field.ux + dy * field.uy;
+    var across = dx * (-field.uy) + dy * field.ux;
+    var nx = along / Math.max(1, field.rx);
+    var ny = across / Math.max(1, field.ry);
+    var d = Math.sqrt(nx * nx + ny * ny);
+    return {
+      x: nx,
+      y: ny,
+      distance: Math.min(1, d),
+      center: Math.max(0, Math.min(1, 1 - d))
+    };
+  }
+
+  function touchVelocity(state, px, py, now) {
+    var dx = px - state.lastX, dy = py - state.lastY;
+    var dt = Math.max(4, now - state.lastTime);
+    var speed = Math.sqrt(dx * dx + dy * dy) / dt;
+    return Math.max(0.22, Math.min(1, 0.30 + speed * 0.68));
+  }
+
+  function strikeNote(idx, vel, impact) {
     if (idx < 0 || idx >= NOTES.length) return;
-    engine.strike(idx, vel);
-    try { window.dispatchEvent(new CustomEvent('handpan:note', { detail: { noteIndex: idx, velocity: vel || 0.8 } })); } catch (err) {}
+    var finalVel = vel || 0.8;
+    if (impact && impact.center !== undefined) finalVel *= (0.72 + impact.center * 0.28);
+    engine.strike(idx, finalVel);
+    try { window.dispatchEvent(new CustomEvent('handpan:note', { detail: { noteIndex: idx, velocity: finalVel, impact: impact || null } })); } catch (err) {}
     if (fields[idx]) {
       fields[idx].glow = 1;
-      addRipple(fields[idx].cx, fields[idx].cy, vel || 0.8);
-      addBurst(fields[idx].cx, fields[idx].cy, vel || 0.8, true);
+      if (fields[idx].guideTarget > 0.5) fields[idx].guideSuccess = 1;
+      addRipple(fields[idx].cx, fields[idx].cy, finalVel);
+      addBurst(fields[idx].cx, fields[idx].cy, finalVel, true);
+      haptic(finalVel > 0.82 ? 'accent' : 'hit');
     }
     document.body.classList.add('hp-played');
     updateChord();
@@ -758,7 +821,10 @@
 
   function releaseEverything() {
     heldKeys.clear();
-    pointerMap.forEach(function (idx) { releaseNote(idx); });
+    pointerMap.forEach(function (state) {
+      if (state && state.dampingTimer) clearInterval(state.dampingTimer);
+      releaseNote(state.noteIndex !== undefined ? state.noteIndex : state);
+    });
     pointerMap.clear();
     for (var i = 0; i < fields.length; i++) fields[i].held = 0;
     updateChord();
@@ -784,32 +850,89 @@
 
   function pointerDown(e) {
     if (e.button && e.button !== 0) return;
+    e.preventDefault();
     engine.ensure();
     var rect = canvas.getBoundingClientRect();
     var px = e.clientX - rect.left, py = e.clientY - rect.top;
     var idx = hitTest(px, py, e.pointerType || 'mouse');
     if (idx < 0) return;
-    e.preventDefault();
-    pointerMap.set(e.pointerId, idx);
+    var now = performance.now();
+    var impact = getImpact(px, py, fields[idx]);
+    var state = {
+      pointerId: e.pointerId,
+      noteIndex: idx,
+      startX: px, startY: py,
+      lastX: px, lastY: py,
+      startTime: now, lastTime: now,
+      velocity: e.pointerType === 'touch' ? 0.72 : 0.68,
+      dampingTimer: null,
+      dampingStarted: false
+    };
+    pointerMap.set(e.pointerId, state);
     if (fields[idx]) fields[idx].held = 1;
-    strikeNote(idx, e.pointerType === 'touch' ? 0.9 : 0.75);
+    var wasTwoFinger = pointerMap.size > 0 &&
+      (now - lastPointerDown.time <= TWO_FINGER_WINDOW) &&
+      lastPointerDown.noteIndex >= 0 &&
+      lastPointerDown.noteIndex !== idx;
+    strikeNote(idx, wasTwoFinger ? Math.min(1, state.velocity + 0.12) : state.velocity, impact);
+    if (wasTwoFinger) haptic('accent');
+    lastPointerDown = {time: now, noteIndex: idx};
+    state.dampingTimer = setInterval(function () {
+      if (!pointerMap.has(e.pointerId) || state.noteIndex !== idx) {
+        clearInterval(state.dampingTimer);
+        return;
+      }
+      state.dampingStarted = true;
+      if (engine.damp) engine.damp(idx, 0.9);
+    }, 105);
     try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
   }
 
-  function pointerUp(e) {
-    var idx = pointerMap.get(e.pointerId);
-    if (idx === undefined) return;
-    pointerMap.delete(e.pointerId);
-    releaseNote(idx);
+  function pointerMove(e) {
+    var state = pointerMap.get(e.pointerId);
+    if (!state) return;
+    e.preventDefault();
+    var rect = canvas.getBoundingClientRect();
+    var px = e.clientX - rect.left, py = e.clientY - rect.top;
+    var now = performance.now();
+    var velocity = touchVelocity(state, px, py, now);
+    var next = hitTest(px, py, e.pointerType || 'touch');
+    state.lastX = px; state.lastY = py; state.lastTime = now;
+    state.velocity = velocity;
+    if (next < 0 || next === state.noteIndex) return;
+    clearInterval(state.dampingTimer);
+    var previous = state.noteIndex;
+    releaseNote(previous);
+    state.noteIndex = next;
+    if (fields[next]) fields[next].held = 1;
+    strikeNote(next, velocity, getImpact(px, py, fields[next]));
+    state.dampingTimer = setInterval(function () {
+      if (!pointerMap.has(e.pointerId) || state.noteIndex !== next) {
+        clearInterval(state.dampingTimer);
+        return;
+      }
+      state.dampingStarted = true;
+      if (engine.damp) engine.damp(next, 0.9);
+    }, 105);
   }
 
-  canvas.addEventListener('pointerdown', pointerDown);
-  canvas.addEventListener('pointerup', pointerUp);
-  canvas.addEventListener('pointercancel', pointerUp);
-  canvas.addEventListener('pointerleave', function (e) {
-    if (pointerMap.has(e.pointerId)) pointerUp(e);
-  });
+  function pointerUp(e) {
+    var state = pointerMap.get(e.pointerId);
+    if (!state) return;
+    clearInterval(state.dampingTimer);
+    pointerMap.delete(e.pointerId);
+    releaseNote(state.noteIndex);
+    try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
+  }
 
+  canvas.addEventListener('pointerdown', pointerDown, { passive: false });
+  canvas.addEventListener('pointermove', pointerMove, { passive: false });
+  canvas.addEventListener('pointerup', pointerUp, { passive: false });
+  canvas.addEventListener('pointercancel', pointerUp, { passive: false });
+  // Pointer capture keeps a swipe/glissando alive even when the finger crosses
+  // the canvas edge; release is owned by pointerup/pointercancel instead.
+
+  canvas.style.touchAction = 'none';
   canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
   canvas.addEventListener('dblclick', function (e) { e.preventDefault(); });
   document.addEventListener('wheel', function (e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });

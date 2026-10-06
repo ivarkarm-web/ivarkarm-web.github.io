@@ -3,9 +3,21 @@
 var MAX_LAYERS=7;
 var state={mode:'empty',layers:[],current:[],recordStart:0,loopStart:0,loopDuration:0,lastPos:0,raf:null,paused:false};
 var button=document.getElementById('loopRecord'),label=document.getElementById('loopOrbLabel'),countEl=document.getElementById('loopLayerCount');
-var playBtn=document.getElementById('loopPlay'),pauseBtn=document.getElementById('loopPause'),clearBtn=document.getElementById('loopClear');
+var playBtn=document.getElementById('loopPlay'),pauseBtn=document.getElementById('loopPause'),clearBtn=document.getElementById('loopClear'),orbit=document.getElementById('loopOrbit');
 function now(){return performance.now()/1000}
 function stopClock(){if(state.raf){cancelAnimationFrame(state.raf);state.raf=null}}
+function paintOrbit(){
+ if(!orbit)return;
+ orbit.innerHTML='';
+ state.layers.forEach(function(layer,i){
+  var node=document.createElement('button'); node.type='button'; node.className='loop-orbit-node'+(state.paused?' is-paused':'')+(state.mode==='playing'&&!state.paused?' is-playing':'');
+  node.style.setProperty('--orbit-i',i);
+  node.setAttribute('aria-label',(state.paused?'Play':'Pause')+' loop');
+  node.innerHTML='<span></span><b>'+(i+1)+'</b>';
+  node.addEventListener('click',function(){ if(state.paused) play(); else pause(); });
+  orbit.appendChild(node);
+ });
+}
 function paint(){
  if(!button)return;
  var rec=state.mode==='recording'||state.mode==='overdub';
@@ -14,13 +26,20 @@ function paint(){
  if(label)label.textContent=rec?'RECORDING':state.layers.length?'LOOP READY':'RECORD';
  button.setAttribute('aria-label',rec?'Finish recording layer':state.layers.length?'Record another layer':'Record a loop');
  if(playBtn)playBtn.textContent=state.paused?'Play':'Play';
+ paintOrbit();
 }
 function playEvent(e){if(window.HandpanGame&&window.HandpanGame.strike)try{window.HandpanGame.strike(e.n,e.v)}catch(x){}}
 function tick(){
  if(!state.loopDuration||state.paused)return;
  var pos=((now()-state.loopStart)%state.loopDuration+state.loopDuration)%state.loopDuration,last=state.lastPos,wrapped=pos<last;
  state.layers.forEach(function(layer){layer.forEach(function(e){var hit=(!wrapped&&e.t>=last&&e.t<pos)||(wrapped&&(e.t>=last||e.t<pos));if(hit)playEvent(e)})});
- state.lastPos=pos;state.raf=requestAnimationFrame(tick);
+ state.lastPos=pos;
+ var progress=pos/state.loopDuration;
+ if(orbit){
+  var nodes=orbit.querySelectorAll('.loop-orbit-node');
+  for(var ni=0;ni<nodes.length;ni++) nodes[ni].style.setProperty('--loop-progress',progress);
+ }
+ state.raf=requestAnimationFrame(tick);
 }
 function startClock(reset){stopClock();if(reset)state.loopStart=now();state.lastPos=0;state.paused=false;state.raf=requestAnimationFrame(tick);paint()}
 function beginRecord(){stopClock();state.mode='recording';state.current=[];state.recordStart=now();state.paused=false;paint()}
@@ -32,7 +51,7 @@ function commit(){
  state.mode='playing';startClock(true);paint();
 }
 function clickOrb(){if(state.mode==='empty'){beginRecord();return}if(state.mode==='recording'||state.mode==='overdub'){commit();return}if(state.mode==='playing'){beginOverdub()}}
-function play(){if(!state.layers.length)return;state.mode='playing';state.paused=false;startClock(true)}
+function play(){if(!state.layers.length)return;state.mode='playing';if(state.paused){state.loopStart=now()-state.lastPos;state.paused=false;state.raf=requestAnimationFrame(tick);paint();return}state.paused=false;startClock(true)}
 function pause(){if(!state.layers.length)return;state.paused=true;stopClock();paint()}
 function clear(){stopClock();state.mode='empty';state.layers=[];state.current=[];state.recordStart=0;state.loopStart=0;state.loopDuration=0;state.lastPos=0;state.paused=false;paint()}
 function noteHandler(ev){if(state.mode!=='recording'&&state.mode!=='overdub')return;var t=now()-state.recordStart;if(state.mode==='overdub')t=t%state.loopDuration;state.current.push({t:t,n:ev.detail.noteIndex,v:ev.detail.velocity||.8})}

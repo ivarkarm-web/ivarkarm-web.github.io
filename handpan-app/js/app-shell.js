@@ -8,6 +8,7 @@ var modes={
 };
 var buttons=document.querySelectorAll('.app-mode'),panel=document.getElementById('appPanel');
 var dock=document.getElementById('soundDock'),dockToggle=document.getElementById('soundDockToggle');
+function uiHaptic(){if(navigator.vibrate&&window.matchMedia&&window.matchMedia('(pointer: coarse)').matches){try{navigator.vibrate(4)}catch(e){}}}
 
 function setDock(open){
  if(!dock||!dockToggle)return;
@@ -40,11 +41,11 @@ function setMode(mode){
 }
 
 buttons.forEach(function(b){
- b.addEventListener('click',function(){setMode(b.dataset.mode);});
+ b.addEventListener('click',function(){uiHaptic();setMode(b.dataset.mode);});
 });
 
 window.HandpanApp={
- version:'0.3.1',
+ version:'0.4.0',
  modes:modes,
  setMode:setMode,
  instrument:window.HandpanGame||null

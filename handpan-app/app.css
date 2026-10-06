@@ -500,3 +500,378 @@ body:not([data-app-mode="loop"]) .sound-dock-toggle {
     font-size:1.1rem;
   }
 }
+
+
+/* =========================================================
+   Mobile instrument layer — v0.4
+   The handpan remains the primary interface.
+   Controls orbit it rather than covering it.
+   ========================================================= */
+
+:root{
+  --hp-safe-top: env(safe-area-inset-top, 0px);
+  --hp-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.hp-stage{
+  touch-action:none;
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.app-modebar{
+  z-index:120;
+  min-height:58px;
+  padding:.35rem;
+  gap:.15rem;
+  border:1px solid rgba(212,175,55,.14);
+  background:rgba(7,7,9,.72);
+  box-shadow:0 12px 50px rgba(0,0,0,.28);
+  backdrop-filter:blur(22px) saturate(.78);
+  -webkit-backdrop-filter:blur(22px) saturate(.78);
+}
+
+.app-mode{
+  position:relative;
+  min-width:82px;
+  min-height:48px;
+  border-radius:16px;
+  transition:
+    transform .18s cubic-bezier(.2,.8,.2,1),
+    color .2s ease,
+    background .2s ease,
+    border-color .2s ease;
+}
+
+.app-mode:active{
+  transform:scale(.94);
+}
+
+.app-mode.is-active{
+  color:#f0d47c;
+  background:rgba(212,175,55,.09);
+  border-color:rgba(212,175,55,.16);
+}
+
+.app-mode.is-active::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:5px;
+  width:18px;
+  height:2px;
+  border-radius:999px;
+  background:rgba(232,199,106,.72);
+  transform:translateX(-50%);
+  box-shadow:0 0 14px rgba(232,199,106,.45);
+}
+
+.hp-scales{
+  z-index:115;
+  transition:
+    transform .28s cubic-bezier(.2,.8,.2,1),
+    opacity .2s ease;
+}
+
+@media (max-width:700px){
+  .app-modebar{
+    left:10px;
+    right:10px;
+    bottom:max(10px, var(--hp-safe-bottom));
+    width:auto;
+    height:66px;
+    min-height:66px;
+    padding:.3rem;
+    border-radius:22px;
+    grid-template-columns:repeat(4,1fr);
+  }
+
+  .app-mode{
+    min-width:0;
+    min-height:58px;
+    padding:0 .2rem;
+    border-radius:18px;
+    font-size:.58rem;
+    letter-spacing:.08em;
+  }
+
+  .hp-back{
+    top:calc(var(--hp-safe-top) + 12px);
+    left:14px;
+    min-height:40px;
+    padding:.6rem .78rem;
+    border-radius:14px;
+    background:rgba(7,7,9,.52);
+    border:1px solid rgba(255,255,255,.07);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+  }
+
+  .hp-head{
+    top:calc(var(--hp-safe-top) + 14px);
+    pointer-events:none;
+  }
+
+  .hp-head .hp-eyebrow{
+    font-size:.42rem;
+    letter-spacing:.2em;
+  }
+
+  .hp-title{
+    font-size:1.15rem;
+  }
+
+  .hp-sub{
+    font-size:.47rem;
+  }
+
+  .hp-scales{
+    top:calc(var(--hp-safe-top) + 68px);
+    left:50%;
+    right:auto;
+    width:calc(100vw - 28px);
+    transform:translateX(-50%);
+    border-radius:18px;
+    padding:.28rem;
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+
+  .hp-scales::-webkit-scrollbar{
+    display:none;
+  }
+
+  .hp-scale-track{
+    flex:0 0 auto;
+  }
+
+  .hp-scale-label{
+    white-space:nowrap;
+  }
+
+  .hp-instrument-track{
+    flex:0 0 auto;
+  }
+
+  .hp-foot{
+    bottom:calc(88px + var(--hp-safe-bottom));
+    pointer-events:none;
+  }
+
+  .hp-hint{
+    opacity:.52;
+    font-size:.44rem;
+  }
+
+  .sound-dock-toggle{
+    z-index:130;
+    bottom:calc(86px + var(--hp-safe-bottom));
+    right:14px;
+    width:44px;
+    height:44px;
+    border-radius:15px;
+    background:rgba(8,8,10,.72);
+    border:1px solid rgba(212,175,55,.16);
+    box-shadow:0 10px 32px rgba(0,0,0,.3);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+  }
+
+  .sound-dock{
+    z-index:125;
+    left:10px;
+    right:10px;
+    bottom:calc(86px + var(--hp-safe-bottom));
+    width:auto;
+    max-height:min(55vh,430px);
+    border-radius:24px;
+    transform:translateY(0);
+    box-shadow:0 24px 90px rgba(0,0,0,.5);
+  }
+
+  .sound-dock.is-hidden{
+    display:none !important;
+  }
+
+  body[data-app-mode="learn"]:not(.learn-active) .learn-panel{
+    top:auto;
+    bottom:0;
+    left:0;
+    right:0;
+    width:100%;
+    max-height:min(72vh,620px);
+    padding:
+      1.1rem
+      1rem
+      calc(88px + var(--hp-safe-bottom));
+    border:1px solid rgba(212,175,55,.16);
+    border-bottom:0;
+    border-radius:28px 28px 0 0;
+    background:
+      linear-gradient(180deg,rgba(13,13,15,.96),rgba(7,7,9,.98));
+    box-shadow:0 -30px 90px rgba(0,0,0,.48);
+    backdrop-filter:blur(26px) saturate(.8);
+    -webkit-backdrop-filter:blur(26px) saturate(.8);
+    animation:hpSheetIn .42s cubic-bezier(.2,.8,.2,1) both;
+  }
+
+  body[data-app-mode="learn"]:not(.learn-active) .learn-panel::after{
+    content:"";
+    display:block;
+    position:absolute;
+    top:8px;
+    left:50%;
+    width:42px;
+    height:4px;
+    border-radius:999px;
+    background:rgba(255,255,255,.16);
+    transform:translateX(-50%);
+  }
+
+  .learn-panel{
+    padding-bottom:calc(90px + var(--hp-safe-bottom));
+  }
+
+  .learn-stage{
+    padding-bottom:1rem;
+  }
+
+  .learn-status{
+    font-size:.6rem;
+  }
+
+  .learn-modal{
+    padding:
+      calc(var(--hp-safe-top) + 16px)
+      16px
+      calc(var(--hp-safe-bottom) + 90px);
+  }
+
+  .learn-modal-card{
+    border-radius:24px;
+  }
+}
+
+@media (min-width:701px){
+  .app-modebar{
+    border-radius:999px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .app-mode,
+  .hp-scales,
+  .sound-dock-toggle{
+    transition:none !important;
+  }
+}
+
+
+@keyframes hpSheetIn{
+  from{transform:translateY(18px);opacity:.2}
+  to{transform:translateY(0);opacity:1}
+}
+
+@media (prefers-reduced-motion:reduce){
+  @keyframes hpSheetIn{
+    from{transform:none;opacity:1}
+    to{transform:none;opacity:1}
+  }
+}
+
+
+/* Persistent loop layer orbit — kept beside the instrument, never over its notes. */
+.loop-orbit{
+  position:fixed;
+  z-index:108;
+  right:clamp(1.1rem,5vw,4rem);
+  top:50%;
+  width:72px;
+  height:min(46vh,360px);
+  transform:translateY(-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:.65rem;
+  pointer-events:none;
+}
+.loop-orbit-node{
+  --orbit-i:0;
+  --loop-progress:0;
+  position:relative;
+  isolation:isolate;
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  border:1px solid rgba(212,175,55,.34);
+  background:radial-gradient(circle,rgba(212,175,55,.16),rgba(8,8,10,.74) 62%);
+  box-shadow:0 0 22px rgba(212,175,55,.16),inset 0 0 18px rgba(255,220,110,.06);
+  color:#e9d18a;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  pointer-events:auto;
+  animation:loopOrbitIn .42s cubic-bezier(.2,.8,.2,1) both;
+  animation-delay:calc(var(--orbit-i) * 35ms);
+}
+.loop-orbit-node::before{
+  content:"";
+  position:absolute;
+  inset:-3px;
+  z-index:-1;
+  border-radius:50%;
+  background:conic-gradient(rgba(235,200,95,.72) calc(var(--loop-progress) * 1turn), rgba(235,200,95,.08) 0);
+  -webkit-mask:radial-gradient(circle,transparent 0 67%,#000 69%);
+  mask:radial-gradient(circle,transparent 0 67%,#000 69%);
+  opacity:.72;
+  transition:opacity .2s ease;
+}
+.loop-orbit-node span{
+  position:absolute;width:9px;height:9px;border-radius:50%;
+  background:rgba(235,200,95,.8);box-shadow:0 0 14px rgba(235,200,95,.72);
+}
+.loop-orbit-node b{
+  position:absolute;bottom:5px;right:7px;font:600 .42rem/1 Inter,sans-serif;
+  opacity:.72;
+}
+.loop-orbit-node:hover{transform:scale(1.08);border-color:rgba(235,200,95,.7)}
+.loop-orbit-node.is-paused{opacity:.45}
+@keyframes loopOrbitIn{from{opacity:0;transform:scale(.55) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@media(max-width:700px){
+  .loop-orbit{
+    right:10px;
+    top:calc(50% - 8px);
+    width:50px;
+    height:min(38vh,250px);
+    gap:.45rem;
+  }
+  .loop-orbit-node{width:38px;height:38px}
+  .loop-orbit-node b{font-size:.36rem;bottom:4px;right:5px}
+}
+@media(prefers-reduced-motion:reduce){
+  .loop-orbit-node{animation:none}
+}
+
+
+.loop-orbit-node.is-playing{
+  border-color:rgba(235,200,95,.62);
+  box-shadow:0 0 28px rgba(212,175,55,.28),inset 0 0 18px rgba(255,220,110,.1);
+  animation:loopOrbitIn .42s cubic-bezier(.2,.8,.2,1) both,loopOrbitPulse 1.8s ease-in-out infinite;
+}
+.loop-orbit-node.is-playing span{
+  animation:loopOrbitDot 1.15s ease-in-out infinite;
+}
+@keyframes loopOrbitPulse{
+  0%,100%{filter:brightness(.9);transform:scale(1)}
+  50%{filter:brightness(1.18);transform:scale(1.035)}
+}
+@keyframes loopOrbitDot{
+  0%,100%{opacity:.65;box-shadow:0 0 10px rgba(235,200,95,.45)}
+  50%{opacity:1;box-shadow:0 0 20px rgba(235,200,95,.9)}
+}
+@media(prefers-reduced-motion:reduce){
+  .loop-orbit-node.is-playing{animation:none}
+  .loop-orbit-node.is-playing span{animation:none}
+}
