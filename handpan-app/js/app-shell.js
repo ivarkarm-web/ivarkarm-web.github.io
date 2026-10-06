@@ -1,3 +1,8 @@
+import './handpan.js';
+import './learn.js';
+import './ambient.js';
+
+'use strict';
 (function(){
 'use strict';
 var modes={
@@ -35,21 +40,22 @@ function setMode(mode){
  }
  document.body.dataset.appMode=mode;
  document.body.classList.toggle('loop-mode',mode==='loop');
- if(mode!=='learn')document.body.classList.remove('learn-active');
- if(mode!=='ambient' && window.HandpanAtmosphere){ window.HandpanAtmosphere.backing('off'); window.HandpanAtmosphere.set('off'); }
- setDock(mode==='loop'||mode==='ambient');
- if(mode==='learn'&&window.HandpanLearn)window.HandpanLearn.open();
+ if (mode !== 'learn') {
+  document.body.classList.remove('learn-active');
+  window.HandpanLearn?.close?.();
+}
+setDock(mode === 'loop' || mode === 'ambient');
+if (mode === 'learn') window.HandpanLearn?.open?.();
 }
 
 buttons.forEach(function(b){
  b.addEventListener('click',function(){uiHaptic();setMode(b.dataset.mode);});
 });
 
-window.HandpanApp={
- version:'0.4.1',
- modes:modes,
- setMode:setMode,
- instrument:window.HandpanGame||null
+window.HandpanApp = {
+ version: '0.4.1',
+ modes,
+ setMode,
+ instrument: window.HandpanGame || null
 };
 setMode('play');
-})();
