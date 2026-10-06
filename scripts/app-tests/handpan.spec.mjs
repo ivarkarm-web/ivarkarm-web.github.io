@@ -94,3 +94,14 @@ test('voice browser surface exposes the five production presets and sample fallb
   expect(info.voices).toEqual(['Steel', 'Warm', 'Bell', 'Soft', 'Deep']);
   expect(info.sampleStatus).toBe('fallback-synth');
 });
+
+
+test('learn mode exposes the four-level sixteen-lesson curriculum', async ({ page }) => {
+  await page.locator('.app-mode[data-mode="learn"]').click();
+  await expect(page.locator('.lesson-card')).toHaveCount(16);
+  await expect(page.locator('.lesson-level')).toHaveCount(4);
+  await page.locator('.lesson-card').first().click();
+  await expect(page.locator('#learnStage')).toBeVisible();
+  await expect(page.locator('#learnLevel')).toContainText('LEVEL 1');
+  await expect(page.locator('#learnTiming')).toBeVisible();
+});
