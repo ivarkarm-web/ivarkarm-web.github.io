@@ -67,3 +67,90 @@ body.inq-sending{cursor:wait}
 .inq-continue span{color:var(--gold);transition:transform .4s var(--ease)}.inq-continue:hover,.inq-continue:focus-visible,.inq-submit:hover,.inq-submit:focus-visible{background:rgba(212,175,55,.1);border-color:var(--gold);color:var(--gold-bright);box-shadow:0 0 24px rgba(212,175,55,.08);outline:none;transform:translateY(-1px)}.inq-continue:hover span{transform:translateX(3px)}
 .inq-back{border:0;background:none;color:#706b63;padding:.7rem 0;font:500 .6rem/1 Inter,sans-serif;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:color .3s}.inq-back:hover,.inq-back:focus-visible{color:var(--gold);outline:none}
 @media(max-width:600px){.inq-event-grid{grid-template-columns:1fr!important}.inq-event{min-height:74px!important}.inq-progress i{width:25px}.inq-nav{margin-top:1.5rem}.inq-step h2{font-size:2rem}}
+
+
+/* Event choice cards — match the main road/monograph language, not browser fieldset defaults */
+.inq-event-grid{
+  border:0;
+  padding:0;
+  min-inline-size:0;
+  width:100%;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:.75rem;
+  margin:0;
+}
+
+.inq-event{
+  box-sizing:border-box!important;
+  width:100%;
+  min-height:108px!important;
+  padding:1.15rem 1.2rem!important;
+  border:1px solid rgba(212,175,55,.22)!important;
+  border-radius:10px!important;
+  background:rgba(255,255,255,.025)!important;
+  color:#b9b1a4!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  gap:0!important;
+  cursor:pointer!important;
+  transition:
+    border-color .35s var(--ease),
+    background .35s var(--ease),
+    color .35s var(--ease),
+    transform .35s var(--ease),
+    box-shadow .35s var(--ease)!important;
+}
+
+.inq-event:hover{
+  border-color:rgba(212,175,55,.55)!important;
+  background:rgba(212,175,55,.055)!important;
+  color:#e1d9cc!important;
+  transform:translateY(-2px);
+}
+
+.inq-event:focus-within{
+  border-color:var(--gold)!important;
+  box-shadow:0 0 0 1px rgba(212,175,55,.22),0 10px 30px rgba(0,0,0,.18)!important;
+}
+
+.inq-event:has(input:checked){
+  border-color:var(--gold)!important;
+  background:linear-gradient(135deg,rgba(212,175,55,.13),rgba(212,175,55,.035))!important;
+  color:var(--gold-bright)!important;
+  box-shadow:inset 0 0 28px rgba(212,175,55,.035),0 10px 32px rgba(0,0,0,.22)!important;
+}
+
+.inq-event span{
+  position:relative;
+  z-index:1;
+  font-family:Inter,sans-serif!important;
+  font-size:.76rem!important;
+  font-weight:500!important;
+  letter-spacing:.12em!important;
+  line-height:1.35!important;
+  text-transform:uppercase;
+  color:inherit;
+}
+
+.inq-event small{
+  position:relative;
+  z-index:1;
+  margin-top:.5rem!important;
+  font-size:.68rem!important;
+  line-height:1.45!important;
+  letter-spacing:.02em!important;
+  color:#716b62!important;
+}
+
+.inq-event:has(input:checked) small{
+  color:#a89359!important;
+}
+
+@media(max-width:600px){
+  .inq-event-grid{grid-template-columns:1fr!important;gap:.65rem}
+  .inq-event{min-height:92px!important;padding:1rem 1.05rem!important}
+  .inq-event span{font-size:.72rem!important}
+}
