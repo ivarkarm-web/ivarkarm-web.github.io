@@ -936,7 +936,8 @@ body:not([data-app-mode="loop"]) .sound-dock-toggle {
     z-index:130;
     bottom:calc(82px + var(--hp-safe-bottom));
   }
-  body[data-app-mode="ambient"] .sound-dock .dock-section:first-child{display:none}
+  body[data-app-mode="ambient"] .sound-dock .loop-section{display:none}
+  body[data-app-mode="loop"] .sound-dock .backing-section,
   body[data-app-mode="loop"] .sound-dock .nature-section{display:none}
   body[data-app-mode="ambient"] .sound-dock{display:flex}
   body[data-app-mode="ambient"] .sound-dock-toggle{display:flex}
