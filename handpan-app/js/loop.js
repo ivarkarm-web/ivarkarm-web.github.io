@@ -51,7 +51,7 @@ function commit(){
  state.mode='playing';startClock(true);paint();
 }
 function clickOrb(){if(state.mode==='empty'){beginRecord();return}if(state.mode==='recording'||state.mode==='overdub'){commit();return}if(state.mode==='playing'){beginOverdub()}}
-function play(){if(!state.layers.length)return;state.mode='playing';state.paused=false;startClock(true)}
+function play(){if(!state.layers.length)return;state.mode='playing';if(state.paused){state.loopStart=now()-state.lastPos;state.paused=false;state.raf=requestAnimationFrame(tick);paint();return}state.paused=false;startClock(true)}
 function pause(){if(!state.layers.length)return;state.paused=true;stopClock();paint()}
 function clear(){stopClock();state.mode='empty';state.layers=[];state.current=[];state.recordStart=0;state.loopStart=0;state.loopDuration=0;state.lastPos=0;state.paused=false;paint()}
 function noteHandler(ev){if(state.mode!=='recording'&&state.mode!=='overdub')return;var t=now()-state.recordStart;if(state.mode==='overdub')t=t%state.loopDuration;state.current.push({t:t,n:ev.detail.noteIndex,v:ev.detail.velocity||.8})}
