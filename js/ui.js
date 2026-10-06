@@ -1842,14 +1842,16 @@ function refreshMonographScrollTriggers() {
   window.setTimeout(() => { try { ScrollTrigger.refresh(true); } catch (_) {} }, 700);
 }
 
-/* Monograph chapter reveals — restrained, reliable discovery.
-   Text is revealed with opacity/translation only; images use a single wipe.
-   The opening Eastern Estonia image stays at natural scale. */
+/* Monograph chapter reveals — native container observer.
+   The Monograph has its own scroll container, so this deliberately avoids
+   ScrollTrigger for chapter discovery. The image remains a real, loadable
+   element even if animation code is unavailable; JS only adds the discovered
+   state when the chapter enters the reader viewport. */
 (function initMonographScrollReveals(){
-  const sections=document.querySelectorAll('.dm-scroll-reveal');
+  const sections=Array.from(document.querySelectorAll('.dm-scroll-reveal'));
   const scroller=document.getElementById('dmContent');
-  if(!sections.length||!scroller||typeof gsap==='undefined'||typeof ScrollTrigger==='undefined')return;
-  gsap.registerPlugin(ScrollTrigger);
+  if(!sections.length||!scroller)return;
+
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   sections.forEach(section=>{
@@ -1858,81 +1860,55 @@ function refreshMonographScrollTriggers() {
     const contents=Array.from(section.querySelectorAll('.dm-origin-content'));
     if(!bg||!img||!contents.length)return;
 
-    const isSharedOpening=section.classList.contains('dm-scroll-reveal--shared-bg');
+    section.classList.add('dm-scroll-reveal--ready');
+
+    contents.forEach((content,i)=>{
+      content.style.setProperty('--dm-reveal-delay', (i * 180) + 'ms');
+      content.querySelectorAll('.dm-sec-tag,h3,p').forEach((el,j)=>{
+        el.style.setProperty('--dm-text-delay', (i * 180 + j * 90) + 'ms');
+      });
+    });
+
+    const reveal=()=>{
+      section.classList.add('dm-scroll-reveal--revealed');
+    };
 
     if(reduced){
-      gsap.set([bg,img,...contents],{clearProps:'all'});
-      contents.forEach(c=>{
-        gsap.set(c.querySelectorAll('.dm-sec-tag,h3,p'),{clearProps:'all'});
-        gsap.set(c,{'--dm-reveal-line-scale':1,'--dm-reveal-line-opacity':1});
-      });
+      reveal();
       return;
     }
 
-    gsap.set(bg,{clipPath:'inset(0 100% 0 0)',scale:1});
-    gsap.set(img,{scale:isSharedOpening?1:1.012,xPercent:0,yPercent:0});
+    if(!('IntersectionObserver' in window)){
+      reveal();
+      return;
+    }
 
-    // Keep the shared Eastern Estonia image as one continuous discovery.
-    // Its two text blocks are sequenced inside the same timeline so their
-    // geometry cannot fight over ScrollTrigger state.
-    const tl=gsap.timeline({paused:true,defaults:{overwrite:'auto'}});
-    tl.to(bg,{clipPath:'inset(0 0% 0 0)',duration:.9,ease:'power2.out'},0)
-      .to(img,{scale:1,duration:1.05,ease:'power2.out'},0);
-
-    contents.forEach((content,i)=>{
-      const tag=content.querySelector('.dm-sec-tag');
-      const heading=content.querySelector('h3');
-      const paragraph=content.querySelector('p');
-      const textEls=[tag,heading,paragraph].filter(Boolean);
-      const startAt=isSharedOpening ? (i===0 ? .22 : 1.25) : .18;
-
-      gsap.set(content,{autoAlpha:1,y:0});
-      gsap.set(textEls,{
-        autoAlpha:0,
-        y:el=>el.matches('h3')?30:(el.matches('.dm-sec-tag')?18:24),
-        filter:'blur(4px)',
-        clipPath:'none'
-      });
-      gsap.set(content,{'--dm-reveal-line-scale':0,'--dm-reveal-line-opacity':0});
-
-      tl.to(content,{
-        '--dm-reveal-line-scale':1,
-        '--dm-reveal-line-opacity':1,
-        duration:.55,
-        ease:'power2.out'
-      },startAt);
-
-      if(tag) tl.to(tag,{autoAlpha:1,y:0,filter:'blur(0px)',duration:.5,ease:'power2.out'},startAt+.10);
-      if(heading) tl.to(heading,{autoAlpha:1,y:0,filter:'blur(0px)',duration:.62,ease:'power2.out'},startAt+.18);
-      if(paragraph) tl.to(paragraph,{autoAlpha:1,y:0,filter:'blur(0px)',duration:.68,ease:'power2.out'},startAt+.28);
-    });
-
-    ScrollTrigger.create({
-      trigger:section,
-      scroller,
-      start:'top 78%',
-      end:'bottom 18%',
-      invalidateOnRefresh:true,
-      onEnter:()=>tl.play(),
-      onEnterBack:()=>tl.play(),
-      onLeaveBack:()=>tl.reverse()
-    });
-
-    if(!isSharedOpening){
-      gsap.to(img,{
-        yPercent:1,
-        ease:'none',
-        scrollTrigger:{
-          trigger:section,
-          scroller,
-          start:'top bottom',
-          end:'bottom top',
-          scrub:3,
-          invalidateOnRefresh:true
+    const observer=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          reveal();
+          observer.unobserve(section);
         }
       });
-    }
+    },{
+      root:scroller,
+      rootMargin:'0px 0px -22% 0px',
+      threshold:0.02
+    });
+
+    observer.observe(section);
+    section._dmRevealObserver=observer;
   });
 
-  requestAnimationFrame(()=>requestAnimationFrame(()=>ScrollTrigger.refresh(true)));
+  // Images may have intrinsic dimensions that settle after the Monograph opens.
+  // Refresh only the reader's existing ScrollTrigger systems; discovery itself
+  // does not depend on ScrollTrigger.
+  const refresh=()=>requestAnimationFrame(()=>{
+    if(typeof ScrollTrigger!=='undefined'){
+      try{ ScrollTrigger.refresh(true); }catch(_){}
+    }
+  });
+  refresh();
+  window.setTimeout(refresh,180);
+  window.setTimeout(refresh,700);
 })();
