@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Handpan mark</title>
+  <desc id="desc">An original minimal handpan-inspired circular steel form with a central tone field.</desc>
+  <rect width="512" height="512" rx="112" fill="#080807"/>
+  <ellipse cx="256" cy="276" rx="168" ry="108" fill="#151513" stroke="#b99542" stroke-width="5"/>
+  <ellipse cx="256" cy="253" rx="150" ry="91" fill="#25231d" stroke="#d1b05a" stroke-opacity=".65" stroke-width="3"/>
+  <ellipse cx="256" cy="245" rx="116" ry="69" fill="none" stroke="#8b723c" stroke-opacity=".55" stroke-width="2"/>
+  <circle cx="256" cy="245" r="30" fill="#0d0d0b" stroke="#d6b65e" stroke-width="4"/>
+  <circle cx="256" cy="245" r="9" fill="#d6b65e"/>
+  <g fill="none" stroke="#b99542" stroke-opacity=".58" stroke-width="3">
+    <ellipse cx="177" cy="229" rx="28" ry="17" transform="rotate(-18 177 229)"/>
+    <ellipse cx="213" cy="190" rx="25" ry="15" transform="rotate(-8 213 190)"/>
+    <ellipse cx="299" cy="190" rx="25" ry="15" transform="rotate(8 299 190)"/>
+    <ellipse cx="335" cy="229" rx="28" ry="17" transform="rotate(18 335 229)"/>
+    <ellipse cx="191" cy="284" rx="28" ry="17" transform="rotate(18 191 284)"/>
+    <ellipse cx="321" cy="284" rx="28" ry="17" transform="rotate(-18 321 284)"/>
+  </g>
+</svg>
