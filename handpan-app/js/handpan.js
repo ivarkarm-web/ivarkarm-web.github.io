@@ -1,3 +1,5 @@
+import { getAudioContext, getAudioMaster, resumeAudio, suspendAudio, closeAudio } from './audio-core.js';
+
 /**
  * handpan.js — hidden Handpan instrument (Ivar Karm – Resonance)
  *
@@ -184,16 +186,11 @@
 
   HandpanEngine.prototype.ensure = function () {
     if (!this.ctx) {
-      var AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return false;
-      try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
-      try { this.ctx = new AC({ latencyHint: 'interactive' }); } catch (e) { this.ctx = new AC(); }
+      this.ctx = getAudioContext();
+      if (!this.ctx) return false;
       this._build();
     }
-    if (this.ctx.state === 'suspended') {
-      var p = this.ctx.resume();
-      if (p && p.catch) p.catch(function () {});
-    }
+    resumeAudio();
     return true;
   };
 
@@ -213,7 +210,7 @@
     this.analyser = ctx.createAnalyser();
     this.analyser.fftSize = 256; this.analyser.smoothingTimeConstant = 0.82;
     this.analyserData = new Uint8Array(this.analyser.fftSize);
-    this.master.connect(this.analyser); this.master.connect(ctx.destination);
+    this.master.connect(this.analyser); this.master.connect(getAudioMaster());
     var nlen = Math.floor(ctx.sampleRate * 0.12);
     this.noise = ctx.createBuffer(1, nlen, ctx.sampleRate);
     var nd = this.noise.getChannelData(0);
@@ -344,7 +341,8 @@
 
   HandpanEngine.prototype.shutdown = function () {
     if (!this.ctx) return;
-    try { this.ctx.close(); } catch (e) {}
+    try { closeAudio(); } catch (e) {}
+    this.ctx = null;
   };
 
   var engine = new HandpanEngine();
@@ -1078,7 +1076,7 @@
   window.addEventListener('pagehide', function (e) {
     releaseEverything();
     if (!e.persisted) engine.shutdown();
-    else if (engine.ctx && engine.ctx.state === 'running') { try { engine.ctx.suspend(); } catch (err) {} }
+    else if (engine.ctx && engine.ctx.state === 'running') { suspendAudio(); }
   });
 
   function boot() {

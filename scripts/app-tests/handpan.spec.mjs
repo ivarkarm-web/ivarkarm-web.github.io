@@ -67,3 +67,16 @@ test('loop uses a count-in and locks tempo and bars after the first layer', asyn
   await expect(bars).toBeDisabled();
   await expect(page.locator('#loopConfigNote')).toHaveText('Tempo and bars locked until Clear.');
 });
+
+
+test('handpan and ambience share one AudioContext', async ({ page }) => {
+  await page.evaluate(() => window.HandpanGame.strike(0, 0.7));
+  await page.locator('.app-mode[data-mode="ambient"]').click();
+  await page.locator('#natureSelect').selectOption('stream');
+  const shared = await page.evaluate(() => ({
+    sameContext: window.HandpanGame.engine.ctx === window.HandpanAudio.getAudioContext(),
+    state: window.HandpanAudio.audioState()
+  }));
+  expect(shared.sameContext).toBe(true);
+  expect(['running', 'suspended', 'interrupted']).toContain(shared.state);
+});

@@ -1,3 +1,5 @@
+import { getAudioContext, createBus, resumeAudio } from './audio-core.js';
+
 (function(){
 'use strict';
 
@@ -12,16 +14,14 @@ var backingMode='off', natureMode='off', natureNodes=[], natureTimers=[], musicT
 
 function ensure(){
   if(ctx) return true;
-  var AC=window.AudioContext||window.webkitAudioContext;
-  if(!AC) return false;
-  try{ctx=new AC({latencyHint:'interactive'});}catch(e){ctx=new AC();}
-  backingBus=ctx.createGain(); natureBus=ctx.createGain();
-  backingBus.gain.value=0; natureBus.gain.value=0;
-  backingBus.connect(ctx.destination); natureBus.connect(ctx.destination);
-  return true;
+  ctx=getAudioContext();
+  if(!ctx) return false;
+  backingBus=createBus('backing',0);
+  natureBus=createBus('nature',0);
+  return !!backingBus&&!!natureBus;
 }
 function resume(){
-  if(ctx && ctx.state==='suspended'){var p=ctx.resume();if(p&&p.catch)p.catch(function(){});}
+  resumeAudio();
 }
 function ramp(gain,value,time){
   if(!gain||!ctx)return;

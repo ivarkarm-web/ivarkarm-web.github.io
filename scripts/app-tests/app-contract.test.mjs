@@ -51,6 +51,12 @@ test('app browser harness is present and targets both required viewports', () =>
   assert.match(spec, /Handpan/);
   assert.match(read('handpan-app/index.html'), /type="module" src="\.\/js\/loop\.js"/);
   assert.ok(fs.existsSync(path.join(app, 'js/loop-core.js')));
+  assert.ok(fs.existsSync(path.join(app, 'js/audio-core.js')));
+});
+
+test('app runtime uses one module loading strategy', () => {
+  const html = read('handpan-app/index.html');
+  for (const script of ['handpan.js','transport.js','loop.js','learn.js','ambient.js','app-shell.js']) assert.match(html, new RegExp('type="module" src="\\.\\/js\\/' + script.replace('.', '\\.') + '"'));
 });
 
 test('app CI workflow installs Chromium and runs every required gate', () => {
