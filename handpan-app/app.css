@@ -838,3 +838,25 @@ body:not([data-app-mode="loop"]) .sound-dock-toggle {
 @media(prefers-reduced-motion:reduce){
   .loop-orbit-node{animation:none}
 }
+
+
+.loop-orbit-node.is-playing{
+  border-color:rgba(235,200,95,.62);
+  box-shadow:0 0 28px rgba(212,175,55,.28),inset 0 0 18px rgba(255,220,110,.1);
+  animation:loopOrbitIn .42s cubic-bezier(.2,.8,.2,1) both,loopOrbitPulse 1.8s ease-in-out infinite;
+}
+.loop-orbit-node.is-playing span{
+  animation:loopOrbitDot 1.15s ease-in-out infinite;
+}
+@keyframes loopOrbitPulse{
+  0%,100%{filter:brightness(.9);transform:scale(1)}
+  50%{filter:brightness(1.18);transform:scale(1.035)}
+}
+@keyframes loopOrbitDot{
+  0%,100%{opacity:.65;box-shadow:0 0 10px rgba(235,200,95,.45)}
+  50%{opacity:1;box-shadow:0 0 20px rgba(235,200,95,.9)}
+}
+@media(prefers-reduced-motion:reduce){
+  .loop-orbit-node.is-playing{animation:none}
+  .loop-orbit-node.is-playing span{animation:none}
+}
