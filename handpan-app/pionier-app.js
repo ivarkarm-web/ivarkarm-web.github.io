@@ -361,18 +361,29 @@ function resize() {
 }
 
 function layoutFields() {
-  // Handpan-style tone fields: ovals with long axis pointing toward the ding
+  // Handpan-style tone fields: ovals with long axis pointing toward the ding.
+  // Size scales with pitch — highest note keeps the base size, lowest is largest.
+  const midis = state.notes.map((n) => n.midi);
+  const midiMin = Math.min.apply(null, midis);
+  const midiMax = Math.max.apply(null, midis);
+  const midiSpan = Math.max(1, midiMax - midiMin);
+
   state.fields = state.notes.map((n) => {
+    // 0 = highest pitch, 1 = lowest pitch
+    const lowAmount = (midiMax - n.midi) / midiSpan;
+    // Highest keeps base size (1.0); lowest grows to ~1.42×
+    const size = 1 + lowAmount * 0.42;
+
     if (n.kind === 'ding') {
-      const rr = R * 0.185;
+      const rr = R * 0.185 * size;
       return { i: n.index, x: CX, y: CY, rx: rr, ry: rr, rot: 0 };
     }
     const a = (n.angle * Math.PI) / 180;
     // Slightly closer to the ding for a tighter classic handpan ring
     const d = R * 0.58;
     // Radial half-axis (toward ding) longer; tangential shorter
-    const radial = R * 0.155;
-    const tangential = R * 0.112;
+    const radial = R * 0.155 * size;
+    const tangential = R * 0.112 * size;
     // Unit vector from ding toward this note (screen: sin/cos with y-up inverted)
     const ux = Math.sin(a);
     const uy = -Math.cos(a);
@@ -468,7 +479,8 @@ function draw() {
       display = m[1] + [...m[2]].map((d) => subs[+d]).join('');
     }
     ctx2.fillStyle = glow > 0.15 ? '#f5f1ea' : 'rgba(210,205,196,0.85)';
-    ctx2.font = `600 ${Math.max(13, R * (isDing ? 0.072 : 0.052))}px Inter, system-ui, sans-serif`;
+    const labelScale = isDing ? (f.rx / (R * 0.185)) : (f.rx / (R * 0.155));
+    ctx2.font = `600 ${Math.max(12, R * (isDing ? 0.072 : 0.052) * labelScale)}px Inter, system-ui, sans-serif`;
     ctx2.textAlign = 'center';
     ctx2.textBaseline = 'middle';
     ctx2.fillText(display, f.x, f.y);
