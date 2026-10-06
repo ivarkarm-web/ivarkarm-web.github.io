@@ -14,6 +14,7 @@ var state={
 };
 var button=document.getElementById('loopRecord');
 var label=button&&button.querySelector('.loop-record-label');
+var countEl=document.getElementById('loopLayerCount');
 
 function now(){return performance.now()/1000}
 function stopClock(){if(state.raf){cancelAnimationFrame(state.raf);state.raf=null}}
@@ -23,7 +24,8 @@ function paint(){
   var recording=state.mode==='recording'||state.mode==='overdub';
   button.classList.toggle('is-recording',recording);
   button.classList.toggle('is-disabled',state.mode==='playing'&&state.layers.length>=MAX_LAYERS);
-  if(label)label.textContent=recording?'REC':state.layers.length>=MAX_LAYERS?'7 LAYERS':'LOOP';
+  if(label)label.textContent=recording?'REC':state.layers.length>=MAX_LAYERS?'FULL':'LOOP';
+ if(countEl)countEl.textContent=state.layers.length+' / '+MAX_LAYERS;
   button.setAttribute('aria-label',recording?'Stop recording layer':'Record or overdub loop');
 }
 
