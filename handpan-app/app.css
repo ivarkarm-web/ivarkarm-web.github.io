@@ -137,3 +137,8 @@ body:not([data-app-mode="learn"]) .learn-panel{display:none}
 .hp-scales{z-index:20}
 .hp-nav-divider{width:1px;height:18px;background:rgba(212,175,55,.18);flex:0 0 auto;margin:0 .15rem}
 @media(max-width:700px){.hp-nav-divider{height:14px}.hp-instrument-track{max-width:32vw}.sound-dock.is-hidden{transform:translate(calc(100% + .9rem),-50%)}}
+
+/* Refined site return control */
+.hp-back{display:inline-flex;align-items:center;gap:.5rem;text-decoration:none;}
+.hp-back-arrow{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;font:500 .8rem/1 Inter,sans-serif;transform:rotate(0deg);transition:transform .25s ease;color:inherit;}
+.hp-back:hover .hp-back-arrow,.hp-back:focus-visible .hp-back-arrow{transform:translate(2px,-2px);}
