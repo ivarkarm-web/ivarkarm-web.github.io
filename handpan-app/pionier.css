@@ -60,7 +60,6 @@ button, .step, .icon-btn, .pill {
   gap: 8px;
 }
 
-/* —— Top bar —— */
 .topbar {
   grid-area: top;
   display: flex; align-items: center; justify-content: space-between;
@@ -101,13 +100,11 @@ button, .step, .icon-btn, .pill {
 .exit-btn { font-size: 22px; font-weight: 300; }
 .top-actions { display: flex; gap: 8px; }
 
-/* —— Sidebars —— */
 .sidebar {
   display: flex; flex-direction: column; gap: 20px;
   padding: 12px 8px;
 }
 .sidebar.left { grid-area: left; justify-content: center; }
-
 .sidebar.left {
   flex-direction: column;
   align-items: stretch;
@@ -117,9 +114,7 @@ button, .step, .icon-btn, .pill {
   width: 100%;
   max-width: 200px;
 }
-.control-scale {
-  width: 100%;
-}
+.control-scale { width: 100%; }
 .control-scale .scale-stepper {
   width: 100%;
   min-height: 44px;
@@ -148,9 +143,7 @@ button, .step, .icon-btn, .pill {
   flex: 1 1 0;
   min-width: 0;
 }
-.control-half .stepper {
-  width: 100%;
-}
+.control-half .stepper { width: 100%; }
 .control-main { display: none; }
 .scale-menu { display: none !important; }
 
@@ -163,18 +156,6 @@ button, .step, .icon-btn, .pill {
   font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
   text-transform: none; color: var(--muted);
 }
-.control-main {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 8px; width: 100%;
-  padding: 12px 14px; border-radius: 14px;
-  border: 1px solid var(--stroke);
-  background: rgba(255,255,255,0.03);
-  color: var(--text); font-size: 14px; font-weight: 500;
-  cursor: pointer; text-align: left;
-}
-.control-main .chevron { color: var(--accent); font-size: 10px; }
-.control-main:hover { border-color: rgba(255,255,255,0.16); }
-
 .stepper {
   display: flex; align-items: center; justify-content: space-between;
   border: 1px solid var(--stroke); border-radius: 14px;
@@ -190,22 +171,6 @@ button, .step, .icon-btn, .pill {
   color: var(--text);
 }
 
-.scale-menu {
-  position: absolute; z-index: 20;
-  margin-top: 4px; max-height: 280px; overflow: auto;
-  width: min(220px, 70vw);
-  border: 1px solid var(--stroke); border-radius: 12px;
-  background: #161618; box-shadow: 0 16px 40px rgba(0,0,0,0.5);
-}
-.scale-menu button {
-  display: block; width: 100%; text-align: left;
-  padding: 10px 14px; border: 0; background: transparent;
-  color: var(--text); font-size: 13px; cursor: pointer;
-}
-.scale-menu button:hover { background: rgba(255,255,255,0.05); }
-.scale-menu button.is-active { color: var(--accent); }
-
-/* —— Sound knobs —— */
 .knobs-panel {
   display: flex;
   flex-direction: column;
@@ -257,15 +222,7 @@ button, .step, .icon-btn, .pill {
 .knob-wrap:has(.is-active) .knob-name {
   color: var(--accent);
 }
-.fx-caption {
-  margin: 4px 0 0;
-  padding: 0 6px;
-  font-size: 10px;
-  color: var(--muted);
-  text-align: center;
-  line-height: 1.35;
-  max-width: 100px;
-}
+
 @media (max-width: 720px) {
   .knobs-panel {
     flex-direction: row;
@@ -274,15 +231,9 @@ button, .step, .icon-btn, .pill {
     gap: 16px 20px;
     padding: 6px 8px 10px;
   }
-  .fx-caption {
-    flex: 1 1 100%;
-    max-width: none;
-    margin-top: 0;
-  }
   .knob, .knob-canvas { width: 68px; height: 68px; }
 }
 
-/* —— FX settings button (4th control beside Room) —— */
 .fx-settings-wrap {
   display: flex;
   flex-direction: column;
@@ -316,7 +267,6 @@ button, .step, .icon-btn, .pill {
   box-shadow: 0 0 22px var(--accent-glow);
 }
 
-/* —— FX panel (slides from right) —— */
 .fx-panel-backdrop {
   position: fixed;
   inset: 0;
@@ -327,9 +277,7 @@ button, .step, .icon-btn, .pill {
   opacity: 0;
   transition: opacity .3s ease;
 }
-.fx-panel-backdrop.is-open {
-  opacity: 1;
-}
+.fx-panel-backdrop.is-open { opacity: 1; }
 .fx-panel {
   position: fixed;
   z-index: 61;
@@ -348,9 +296,7 @@ button, .step, .icon-btn, .pill {
   flex-direction: column;
   gap: 22px;
 }
-.fx-panel.is-open {
-  transform: translateX(0);
-}
+.fx-panel.is-open { transform: translateX(0); }
 .fx-panel-head {
   display: flex;
   align-items: center;
@@ -413,9 +359,7 @@ button, .step, .icon-btn, .pill {
   transition: border-color .2s, background .2s, color .2s, box-shadow .2s;
   touch-action: manipulation;
 }
-.fx-type-btn:hover {
-  border-color: rgba(255,255,255,0.16);
-}
+.fx-type-btn:hover { border-color: rgba(255,255,255,0.16); }
 .fx-type-btn.is-active {
   color: var(--accent-bright);
   border-color: var(--accent-soft);
@@ -441,6 +385,51 @@ button, .step, .icon-btn, .pill {
   font-weight: 500;
 }
 
+.fx-master-section { gap: 12px; }
+.fx-master-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.fx-master-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.1);
+  outline: none;
+  cursor: pointer;
+}
+.fx-master-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+  cursor: pointer;
+  border: 0;
+}
+.fx-master-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+  cursor: pointer;
+  border: 0;
+}
+.fx-master-val {
+  min-width: 3.2em;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-bright);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 @media (max-width: 720px) {
   .fx-settings-btn {
     width: 68px;
@@ -451,7 +440,6 @@ button, .step, .icon-btn, .pill {
   }
 }
 
-/* —— Stage —— */
 .stage {
   grid-area: stage;
   position: relative;
@@ -465,7 +453,6 @@ button, .step, .icon-btn, .pill {
   touch-action: none; cursor: pointer;
 }
 
-/* —— Mobile —— */
 @media (max-width: 720px) {
   .app {
     grid-template-columns: 1fr;
