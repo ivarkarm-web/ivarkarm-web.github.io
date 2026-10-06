@@ -114,8 +114,46 @@ const engine = {
       const hint = document.getElementById('hint');
       if (hint && n) hint.textContent = 'Vector pads · samples live · Q–O';
     }).catch((e) => console.warn(e));
+    // Pulse: slow gain LFO on the bus
+    this.pulseLfo = this.ctx.createOscillator();
+    this.pulseLfo.type = 'sine';
+    this.pulseLfo.frequency.value = 1.4;
+    this.pulseDepth = this.ctx.createGain();
+    this.pulseDepth.gain.value = 0; // off until enabled
+    this.pulseLfo.connect(this.pulseDepth);
+    this.pulseDepth.connect(this.bus.gain);
+    this.pulseLfo.start();
+    // Space: short feedback delay (room tail)
+    this.delay = this.ctx.createDelay(1.2);
+    this.delay.delayTime.value = 0.22;
+    this.delayFeedback = this.ctx.createGain();
+    this.delayFeedback.gain.value = 0;
+    this.delayWet = this.ctx.createGain();
+    this.delayWet.gain.value = 0;
+    this.bus.connect(this.delay);
+    this.delay.connect(this.delayFeedback);
+    this.delayFeedback.connect(this.delay);
+    this.delay.connect(this.delayWet);
+    this.delayWet.connect(getAudioMaster());
     resumeAudio();
     return true;
+  },
+
+  setPulse(on) {
+    if (!this.ensure() || !this.pulseDepth) return;
+    const t = this.ctx.currentTime;
+    // Depth modulates bus.gain around ~0.95; keep subtle
+    this.pulseDepth.gain.cancelScheduledValues(t);
+    this.pulseDepth.gain.setTargetAtTime(on ? 0.12 : 0, t, 0.15);
+  },
+
+  setSpace(on) {
+    if (!this.ensure() || !this.delayWet) return;
+    const t = this.ctx.currentTime;
+    this.delayWet.gain.cancelScheduledValues(t);
+    this.delayFeedback.gain.cancelScheduledValues(t);
+    this.delayWet.gain.setTargetAtTime(on ? 0.28 : 0, t, 0.2);
+    this.delayFeedback.gain.setTargetAtTime(on ? 0.35 : 0, t, 0.2);
   },
 
   /**
@@ -524,14 +562,38 @@ document.addEventListener('click', (e) => {
   if (!scaleMenu.hidden && !scaleBtn.contains(e.target) && !scaleMenu.contains(e.target)) closeScaleMenu();
 });
 
+const FX_HELP = {
+  tone: 'Tone: core handpan voice (always on)',
+  pulse: 'Pulse: gentle rhythmic swell on the volume — like the instrument breathing',
+  drone: 'Drone: sustained low undertone under the Ding root',
+  space: 'Space: longer room echo / ambient tail after each strike'
+};
+
+function updateFxCaption(fx) {
+  const el = document.getElementById('fxCaption');
+  if (!el) return;
+  if (fx === 'tone') {
+    el.textContent = FX_HELP.tone;
+    return;
+  }
+  const on = state.fx[fx];
+  el.textContent = (on ? 'On — ' : 'Off — ') + FX_HELP[fx];
+}
+
 document.querySelectorAll('.rail-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
     const fx = btn.dataset.fx;
-    if (fx === 'tone') return;
+    if (fx === 'tone') {
+      updateFxCaption('tone');
+      return;
+    }
     state.fx[fx] = !state.fx[fx];
     btn.classList.toggle('is-on', state.fx[fx]);
     btn.setAttribute('aria-pressed', String(state.fx[fx]));
     if (fx === 'drone') engine.setDrone(state.fx.drone);
+    if (fx === 'pulse') engine.setPulse(state.fx.pulse);
+    if (fx === 'space') engine.setSpace(state.fx.space);
+    updateFxCaption(fx);
   });
 });
 

@@ -69,20 +69,29 @@
       <p class="hint" id="hint">Tap the steel · Q–O keys</p>
     </main>
 
-    <!-- Right rail -->
-    <aside class="sidebar right">
-      <button type="button" class="rail-btn is-on" data-fx="tone" title="Tone" aria-pressed="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12c3-6 6-6 9 0s6 6 9 0"/><path d="M3 18c3-6 6-6 9 0s6 6 9 0"/></svg>
+    <!-- Right rail / bottom on mobile -->
+    <aside class="sidebar right" aria-label="Sound modes">
+      <button type="button" class="rail-btn is-on" data-fx="tone" title="Tone — core handpan voice (always on)" aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 12c3-6 6-6 9 0s6 6 9 0"/><path d="M3 18c3-6 6-6 9 0s6 6 9 0"/></svg>
+        <span class="rail-label">Tone</span>
+        <span class="rail-desc">Core voice</span>
       </button>
-      <button type="button" class="rail-btn" data-fx="pulse" title="Pulse" aria-pressed="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12h3l2-6 3 12 2-8 2 4h8"/></svg>
+      <button type="button" class="rail-btn" data-fx="pulse" title="Pulse — gentle rhythmic breathing on the volume" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 12h3l2-6 3 12 2-8 2 4h8"/></svg>
+        <span class="rail-label">Pulse</span>
+        <span class="rail-desc">Soft beat swell</span>
       </button>
-      <button type="button" class="rail-btn" data-fx="drone" title="Drone" aria-pressed="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="10"/></svg>
+      <button type="button" class="rail-btn" data-fx="drone" title="Drone — sustained low undertone under the Ding" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="10"/></svg>
+        <span class="rail-label">Drone</span>
+        <span class="rail-desc">Low sustain</span>
       </button>
-      <button type="button" class="rail-btn" data-fx="space" title="Space" aria-pressed="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 18 L12 6 L20 18"/></svg>
+      <button type="button" class="rail-btn" data-fx="space" title="Space — longer ambient tail / room echo" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 18 L12 6 L20 18"/></svg>
+        <span class="rail-label">Space</span>
+        <span class="rail-desc">Room / echo</span>
       </button>
+      <p class="fx-caption" id="fxCaption" role="status">Tone: core handpan voice</p>
     </aside>
   </div>
 
