@@ -251,6 +251,22 @@
     if (voice.pan) { try { voice.pan.disconnect(); } catch (e) {} }
   };
 
+  var EXPERIMENTS = [
+    {name:'Glass Bloom',type:'glass',partials:[1,1.01,2.01,3.01,4.98],decay:5.8,release:0.7,spread:0.012},
+    {name:'Soft Bells',type:'bell',partials:[1,2.01,3.98,6.01,8.02],decay:4.8,release:0.55,spread:0.006},
+    {name:'Moon Pluck',type:'pluck',partials:[1,1,2,3,5],decay:3.8,release:0.42,spread:0.004},
+    {name:'Shimmer',type:'shimmer',partials:[1,2,4.01,8.03,12.1],decay:6.8,release:1.0,spread:0.02},
+    {name:'Soft Pulse',type:'pulse',partials:[1,2,3,4],decay:4.6,release:0.8,spread:0.018},
+    {name:'Air Choir',type:'air',partials:[1,1.005,1.5,2.005,3],decay:7.2,release:1.2,spread:0.025},
+    {name:'Glass Pluck',type:'glasspluck',partials:[1,2.5,4.2,6.8],decay:3.2,release:0.35,spread:0.009},
+    {name:'Deep Resonator',type:'deep',partials:[0.5,1,2,3,4],decay:8.5,release:1.4,spread:0.008},
+    {name:'Drift Arp',type:'arp',partials:[1,2,3,5,7],decay:5.5,release:1.0,spread:0.018}
+  ];
+  var instrumentIndex=0;
+  HandpanEngine.prototype.setInstrument=function(i){instrumentIndex=Math.max(0,Math.min(EXPERIMENTS.length-1,i|0));return EXPERIMENTS[instrumentIndex];};
+  HandpanEngine.prototype.instrument=function(){return EXPERIMENTS[instrumentIndex];};
+  HandpanEngine.prototype.instruments=EXPERIMENTS;
+
   HandpanEngine.prototype.strike = function (idx, vel) {
     if (!this.ensure() || !this.ready) return null;
     var ctx = this.ctx;
@@ -275,13 +291,11 @@
     var T0 = Math.max(1.8, 6.2 - 1.1 * Math.log(f / 164.81) / Math.LN2);
     var base = 0.2 + 0.14 * vel;
     var oscs = [];
-    var partials = [
-      { r: 1.0, g: 0.5, dec: T0, det: 0.0009 },
-      { r: 1.0, g: 0.5, dec: T0 * 0.98, det: -0.0009 },
-      { r: 2.0, g: 0.34, dec: T0 * 0.62, det: 0.0004 },
-      { r: 2.997, g: 0.16, dec: T0 * 0.36, det: 0 },
-      { r: 4.02, g: 0.045, dec: T0 * 0.2, det: 0 }
-    ];
+    var preset = EXPERIMENTS[instrumentIndex];
+    var partials = preset.partials.map(function(ratio,i){
+      var gains = [0.5,0.32,0.18,0.095,0.045];
+      return {r:ratio,g:gains[i]||0.03,dec:T0*(preset.decay/6.2)*(1-i*0.07),det:(i%2?-1:1)*preset.spread*(i>1?0.65:1)};
+    });
     for (var i = 0; i < partials.length; i++) {
       var p = partials[i];
       var osc = ctx.createOscillator(); osc.type = 'sine';
@@ -922,6 +936,9 @@
     scaleIndex: function () { return scaleIndex; },
     setScale: applyScale,
     engine: engine,
+    instruments: EXPERIMENTS,
+    setInstrument: function(i){ return engine.setInstrument(i); },
+    instrumentIndex: function(){ return instrumentIndex; },
     strike: strikeNote,
     release: releaseNote,
     fields: function () { return fields; },
