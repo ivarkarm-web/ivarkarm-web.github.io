@@ -1,6 +1,6 @@
 import { LESSONS } from './lessons.js';
 import { TimingScorer } from './learn-core.js';
-import { markLessonComplete } from './storage.js';
+import { loadAppState, markLessonComplete } from './storage.js';
 
 const game = window.HandpanGame;
 const panel = document.getElementById('learnPanel');
@@ -17,6 +17,7 @@ const modalTitle = document.getElementById('learnModalTitle');
 const modalText = document.getElementById('learnModalText');
 const modalActions = document.getElementById('learnModalActions');
 
+const persistedLearn = loadAppState().learn;
 const state = { lesson:null, phase:'picker', scorer:null, practiceStart:0, demoStart:0, timer:null, lastStep:-1, lastFeedback:'', demoTimers:[] };
 const LEVELS = [[1,'First Notes'],[2,'Rhythms'],[3,'Phrases & Chords'],[4,'Short Pieces']];
 
@@ -27,8 +28,8 @@ function renderList(){
   LEVELS.forEach(([level,name])=>{
     const heading=document.createElement('div'); heading.className='lesson-level'; heading.textContent='LEVEL '+level+' · '+name; list.appendChild(heading);
     LESSONS.filter((lesson)=>lesson.level===level).forEach((lesson)=>{
-      const button=document.createElement('button'); button.type='button'; button.className='lesson-card';
-      button.innerHTML='<span class="lesson-card-top"><b>'+lesson.name+'</b><small>'+lesson.bpm+' BPM</small></span><span>'+lesson.description+'</span><em>'+lesson.steps.length+' steps</em>';
+      const button=document.createElement('button'); button.type='button'; button.className='lesson-card' + (persistedLearn.completed[lesson.id] ? ' is-complete' : '');
+      button.innerHTML='<span class="lesson-card-top"><b>'+lesson.name+'</b><small>'+lesson.bpm+' BPM</small></span><span>'+lesson.description+'</span><em>'+lesson.steps.length+' steps'+(persistedLearn.completed[lesson.id] ? ' · Complete' : '')+'</em>';
       button.addEventListener('click',()=>beginLesson(lesson)); list.appendChild(button);
     });
   });
