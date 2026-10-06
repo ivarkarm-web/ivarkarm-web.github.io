@@ -7831,7 +7831,7 @@ body.rabbit-hole-open .welcome {
   transform-origin:left center;
   background:linear-gradient(90deg,rgba(212,175,55,.92),rgba(212,175,55,.12),transparent);
   box-shadow:0 0 12px rgba(212,175,55,.22);
-  opacity:var(--dm-reveal-sweep-opacity, 0);
+  opacity:var(--dm-reveal-line-opacity, 0);
   will-change:transform,opacity;
 }
 .dm-scroll-reveal .dm-sec-tag,
@@ -7866,6 +7866,58 @@ body.rabbit-hole-open .welcome {
     width:min(170px,58%);
   }
 }
+/* Final Monograph chapter — image fills the chapter and blends into the lower edge */
+.dm-section--how-i-think{
+  min-height:clamp(520px,72vh,780px);
+  align-items:flex-end;
+}
+.dm-section--how-i-think .dm-origin-bg{
+  inset:0;
+}
+.dm-section--how-i-think .dm-origin-bg img{
+  object-position:center center;
+  opacity:.80;
+  filter:saturate(.94) contrast(1.04) brightness(1.04);
+}
+.dm-section--how-i-think .dm-origin-bg::after{
+  background:
+    linear-gradient(180deg,
+      rgba(5,6,9,.04) 0%,
+      rgba(5,6,9,.08) 34%,
+      rgba(5,6,9,.28) 62%,
+      rgba(5,6,9,.78) 84%,
+      rgba(5,6,9,.98) 100%),
+    linear-gradient(90deg,
+      rgba(5,6,9,.22) 0%,
+      rgba(5,6,9,.03) 52%,
+      rgba(5,6,9,.22) 100%);
+}
+[data-theme="light"] .dm-section--how-i-think .dm-origin-bg img{
+  opacity:.74;
+  filter:saturate(.88) contrast(1.02) brightness(1.06);
+}
+[data-theme="light"] .dm-section--how-i-think .dm-origin-bg::after{
+  background:
+    linear-gradient(180deg,
+      rgba(246,242,234,.03) 0%,
+      rgba(246,242,234,.06) 34%,
+      rgba(246,242,234,.18) 62%,
+      rgba(246,242,234,.58) 84%,
+      rgba(246,242,234,.90) 100%),
+    linear-gradient(90deg,
+      rgba(246,242,234,.18) 0%,
+      rgba(246,242,234,.02) 52%,
+      rgba(246,242,234,.16) 100%);
+}
+@media (max-width:600px){
+  .dm-section--how-i-think{
+    min-height:clamp(460px,68vh,680px);
+  }
+  .dm-section--how-i-think .dm-origin-bg img{
+    object-position:center center;
+  }
+}
+
 @media (prefers-reduced-motion:reduce){
   .dm-scroll-reveal .dm-origin-bg,
   .dm-scroll-reveal .dm-origin-bg img,
