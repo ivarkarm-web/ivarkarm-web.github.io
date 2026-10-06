@@ -1844,7 +1844,6 @@ function connectMusicToAnalyser(audioEl) {
     const bg=section.querySelector('.dm-origin-bg');
     const img=section.querySelector('.dm-origin-bg img');
     const content=section.querySelector('.dm-origin-content');
-    const line=content?.querySelector(':scope::before');
     const tag=section.querySelector('.dm-sec-tag');
     const heading=section.querySelector('h3');
     const copy=section.querySelector('p');
