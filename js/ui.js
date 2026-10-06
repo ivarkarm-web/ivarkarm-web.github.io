@@ -1867,19 +1867,42 @@ function refreshMonographScrollTriggers() {
     const isSharedOpening=section.classList.contains('dm-scroll-reveal--shared-bg');
     gsap.set(bg,{clipPath:'inset(0 100% 0 0)',scale:1});
     gsap.set(img,{scale:isSharedOpening?1:1.012,xPercent:0,yPercent:0});
-    gsap.set(contents,{autoAlpha:0,y:18});
-    // Override legacy clip-path/filter rules so text can actually become visible.
-    gsap.set(textEls,{autoAlpha:0,y:14,filter:'none',clipPath:'none'});
+    gsap.set(contents,{autoAlpha:1,y:0});
+    // Start each text element just below its invisible typographic guide.
+    // No clip-path: this keeps the animation smooth and reliable.
+    textEls.forEach(el=>{
+      const tag=el.matches('.dm-sec-tag');
+      const heading=el.matches('h3');
+      gsap.set(el,{
+        autoAlpha:0,
+        y:heading?30:(tag?18:24),
+        filter:'blur(4px)',
+        clipPath:'none'
+      });
+    });
+    contents.forEach(c=>gsap.set(c,{ '--dm-reveal-line-scale':0, '--dm-reveal-line-opacity':0 }));
 
     const tl=gsap.timeline({paused:true,defaults:{overwrite:'auto'}});
     tl.to(bg,{clipPath:'inset(0 0% 0 0)',duration:.9,ease:'power2.out'},0)
-      .to(img,{scale:1,duration:1.05,ease:'power2.out'},0)
-      .to(contents,{autoAlpha:1,y:0,duration:.45,ease:'power2.out'},.22);
+      .to(img,{scale:1,duration:1.05,ease:'power2.out'},0);
 
     contents.forEach((c,i)=>{
-      const els=Array.from(c.querySelectorAll('.dm-sec-tag,h3,p'));
-      if(!els.length)return;
-      tl.to(els,{autoAlpha:1,y:0,duration:.48,ease:'power2.out',stagger:.07},.30+i*.20);
+      const tag=c.querySelector('.dm-sec-tag');
+      const heading=c.querySelector('h3');
+      const paragraph=c.querySelector('p');
+      const start=.18+i*.22;
+
+      // The thin line acts like a typographic placeholder being uncovered.
+      tl.to(c,{
+        '--dm-reveal-line-scale':1,
+        '--dm-reveal-line-opacity':1,
+        duration:.55,
+        ease:'power2.out'
+      },start);
+
+      if(tag) tl.to(tag,{autoAlpha:1,y:0,filter:'blur(0px)',duration:.5,ease:'power2.out'},start+.10);
+      if(heading) tl.to(heading,{autoAlpha:1,y:0,filter:'blur(0px)',duration:.62,ease:'power2.out'},start+.18);
+      if(paragraph) tl.to(paragraph,{autoAlpha:1,y:0,filter:'blur(0px)',duration:.68,ease:'power2.out'},start+.28);
     });
 
     ScrollTrigger.create({
