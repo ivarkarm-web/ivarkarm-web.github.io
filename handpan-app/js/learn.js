@@ -20,7 +20,7 @@ function clearGuide(){if(game&&game.clearGuideTargets)game.clearGuideTargets()}
 function render(){
  var l=lesson();
  if(nameEl)nameEl.textContent=l.name;
- if(progressEl)progressEl.textContent=(Math.min(state.next,l.steps.length)+'/'+l.notes.length);
+ if(progressEl)progressEl.textContent=(Math.min(state.next,l.steps.length)+'/'+l.steps.length);
  if(scoreEl)scoreEl.textContent=state.hits+' hits · '+state.misses+' misses · '+state.combo+'×';
  if(lane){
    lane.innerHTML='';
@@ -51,7 +51,7 @@ function load(){
 }
 function start(){
  var l=lesson();transport.stop();transport.setBpm(l.speed);state.active=true;state.started=true;state.next=0;state.hits=0;state.misses=0;state.combo=0;state.bestCombo=0;state.feedback='';
- transport.start(0);guide();if(startBtn)startBtn.textContent='Restart';setMessage('Follow the notes to the hit line.');render()
+ transport.start(0);guide();if(startBtn)startBtn.textContent='Restart';setMessage('Play the softly glowing note on the handpan.');render()
 }
 function stop(){state.active=false;transport.stop();clearGuide();if(startBtn)startBtn.textContent='Start';setMessage('Lesson paused.')}
 function grade(text){state.feedback=text;state.feedbackUntil=performance.now()+700;setMessage(text+' · '+state.combo+'×')}
@@ -81,7 +81,7 @@ function hit(e){
 function tick(){
  if(!state.active)return;
  var l=lesson(),now=transport.beatPosition(),due=state.leadBeats+state.next;
- if(state.next<l.steps.length && now>due+state.window){state.misses++;state.combo=0;grade('MISS');state.next++;render();if(state.next>=l.steps.length){state.active=false;transport.stop();if(startBtn)startBtn.textContent='Replay';setMessage('LESSON COMPLETE · BEST '+state.bestCombo+'×')}}
+ if(state.next<l.steps.length && now>due+state.window){state.misses++;state.combo=0;grade('MISS');state.next++;render();if(state.next>=l.steps.length){state.active=false;transport.stop();clearGuide();if(startBtn)startBtn.textContent='Replay';setMessage('LESSON COMPLETE · BEST '+state.bestCombo+'×')} else { guide(); }}
  if(state.feedbackUntil&&performance.now()>state.feedbackUntil)state.feedback='';
  render();
 }
