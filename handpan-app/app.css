@@ -354,3 +354,35 @@ body:not([data-app-mode="learn"]) .learn-panel{display:none}
   .hp-back span:first-child { display:none; }
   .hp-back { width:34px; height:34px; justify-content:center; padding:0; }
 }
+
+
+/* Lesson picker + focused practice dialogs */
+.learn-panel{z-index:45;max-height:min(70vh,620px);overflow:auto}
+.lesson-list{display:flex;flex-direction:column;gap:.45rem;margin-top:.75rem}
+.lesson-card{display:grid;grid-template-columns:32px 1fr 20px;align-items:center;gap:.6rem;width:100%;padding:.7rem .65rem;text-align:left;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.025);color:#eee;cursor:pointer;transition:.22s ease}
+.lesson-card:hover,.lesson-card:focus-visible{border-color:rgba(212,175,55,.38);background:rgba(212,175,55,.07);transform:translateY(-1px);outline:none}
+.lesson-index{font:500 .55rem/1 Inter,sans-serif;letter-spacing:.08em;color:rgba(212,175,55,.7)}
+.lesson-copy{display:flex;flex-direction:column;gap:.22rem}
+.lesson-copy strong{font:500 .68rem/1.2 Inter,sans-serif}
+.lesson-copy small{font:400 .48rem/1.35 Inter,sans-serif;color:rgba(240,236,228,.42)}
+.lesson-arrow{font:400 .9rem/1 Inter,sans-serif;color:rgba(240,236,228,.38)}
+.learn-stage-head{display:flex;align-items:center;justify-content:space-between;margin-top:.7rem}
+.learn-stage-head button{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.035);color:#ddd;border-radius:8px;padding:.4rem .6rem;font:500 .48rem Inter,sans-serif;cursor:pointer}
+.learn-stage-head span{font:500 .62rem Inter,sans-serif}
+.learn-status{margin-top:.85rem;text-align:center;color:#d9c77f;font:500 .58rem/1.4 Inter,sans-serif;letter-spacing:.04em}
+.learn-modal{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:1rem;background:rgba(0,0,0,.48);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.learn-modal[hidden]{display:none}
+.learn-modal-card{width:min(360px,calc(100vw - 2rem));padding:1.3rem;border:1px solid rgba(212,175,55,.25);border-radius:20px;background:rgba(10,10,11,.94);box-shadow:0 24px 80px rgba(0,0,0,.5);text-align:center}
+.learn-modal-kicker{font:600 .42rem Inter,sans-serif;letter-spacing:.18em;color:#c9a227}
+.learn-modal-card h2{margin:.45rem 0 .45rem;font:400 1.55rem/1.1 Fraunces,serif;color:#f5f0e7}
+.learn-modal-card p{margin:0 auto 1rem;max-width:28em;color:rgba(240,236,228,.55);font:400 .58rem/1.5 Inter,sans-serif}
+.learn-modal-actions{display:flex;gap:.5rem;justify-content:center}
+.learn-modal-btn{flex:1;min-height:40px;border:1px solid rgba(255,255,255,.1);border-radius:9px;background:rgba(255,255,255,.035);color:#ddd;font:600 .48rem Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.learn-modal-btn.is-primary{border-color:rgba(212,175,55,.34);background:rgba(212,175,55,.1);color:#f4e6b1}
+@media(max-width:700px){
+ .learn-panel{top:calc(var(--safe-top) + 4.35rem);bottom:auto;max-height:calc(100vh - var(--safe-top) - 10.2rem);width:calc(100vw - 1rem);padding:.7rem}
+ .lesson-card{min-height:58px;padding:.65rem .55rem}
+ .learn-modal-card{padding:1.15rem}
+ .learn-modal-actions{flex-direction:column}
+ .learn-modal-btn{min-height:44px}
+}
