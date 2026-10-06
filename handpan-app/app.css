@@ -386,3 +386,117 @@ body:not([data-app-mode="learn"]) .learn-panel{display:none}
  .learn-modal-actions{flex-direction:column}
  .learn-modal-btn{min-height:44px}
 }
+
+
+/* =========================================================
+   Mode-scoped controls
+   Loop controls exist only while Loop mode is active.
+   Learn mode gets a full-screen library backdrop, then clears
+   completely once a lesson begins so the handpan is unobstructed.
+   ========================================================= */
+
+.sound-dock,
+.sound-dock-toggle {
+  display:none;
+}
+
+body[data-app-mode="loop"] .sound-dock,
+body[data-app-mode="loop"] .sound-dock-toggle {
+  display:flex;
+}
+
+body[data-app-mode="loop"] .sound-dock {
+  flex-direction:column;
+}
+
+body[data-app-mode="ambient"] .sound-dock,
+body[data-app-mode="ambient"] .sound-dock-toggle {
+  display:none;
+}
+
+/* The lesson library is a true entry screen, not a floating HUD. */
+body[data-app-mode="learn"]:not(.learn-active) .learn-panel {
+  display:block;
+  position:fixed;
+  inset:0;
+  z-index:70;
+  width:100%;
+  max-width:none;
+  max-height:none;
+  overflow:auto;
+  padding:clamp(5rem,12vh,8rem) 1rem 6rem;
+  border:0;
+  border-radius:0;
+  transform:none;
+  background:rgba(2,2,3,.46);
+  box-shadow:none;
+  backdrop-filter:blur(18px) saturate(.82);
+  -webkit-backdrop-filter:blur(18px) saturate(.82);
+  opacity:1;
+  pointer-events:auto;
+}
+
+body[data-app-mode="learn"]:not(.learn-active) .learn-panel::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 50% 42%,rgba(212,175,55,.07),transparent 32%),
+    linear-gradient(180deg,rgba(3,3,4,.22),rgba(3,3,4,.7));
+  pointer-events:none;
+}
+
+body[data-app-mode="learn"]:not(.learn-active) .learn-top,
+body[data-app-mode="learn"]:not(.learn-active) .lesson-list {
+  position:relative;
+  z-index:1;
+  width:min(500px,100%);
+  margin-left:auto;
+  margin-right:auto;
+}
+
+body[data-app-mode="learn"]:not(.learn-active) .learn-top {
+  margin-bottom:.8rem;
+}
+
+body[data-app-mode="learn"]:not(.learn-active) .learn-top div {
+  align-items:flex-start;
+}
+
+body[data-app-mode="learn"]:not(.learn-active) .learn-top strong {
+  font-family:Fraunces,serif;
+  font-size:1.35rem;
+  font-weight:400;
+}
+
+body[data-app-mode="learn"]:not(.learn-active) .lesson-list {
+  gap:.55rem;
+}
+
+body.learn-active .learn-panel {
+  display:none !important;
+}
+
+body.learn-active .app-modebar {
+  opacity:.62;
+}
+
+body.learn-active .hp-scales {
+  opacity:.92;
+}
+
+/* The loop page is the only place where loop controls can intercept input. */
+body:not([data-app-mode="loop"]) .sound-dock,
+body:not([data-app-mode="loop"]) .sound-dock-toggle {
+  pointer-events:none !important;
+}
+
+/* Mobile library stays centered and readable. */
+@media(max-width:700px){
+  body[data-app-mode="learn"]:not(.learn-active) .learn-panel {
+    padding:calc(var(--safe-top) + 4.5rem) .7rem calc(var(--safe-bottom) + 5.5rem);
+  }
+  body[data-app-mode="learn"]:not(.learn-active) .learn-top strong {
+    font-size:1.1rem;
+  }
+}
