@@ -1,63 +1,148 @@
 (function(){
 'use strict';
-var state={mode:'empty',events:[],layers:[],recordStart:0,loopStart:0,loopDuration:0,lastPos:0,raf:null,maxLayers:7};
-var mainBtn=document.getElementById('loopRecord');
+
+var MAX_LAYERS=7;
+var state={
+  mode:'empty',
+  layers:[],
+  current:[],
+  recordStart:0,
+  loopStart:0,
+  loopDuration:0,
+  lastPos:0,
+  raf:null
+};
+var button=document.getElementById('loopRecord');
+var label=button&&button.querySelector('.loop-record-label');
 
 function now(){return performance.now()/1000}
-function stopRAF(){if(state.raf){cancelAnimationFrame(state.raf);state.raf=null}}
-function updateButton(){
- if(!mainBtn)return;
- mainBtn.classList.toggle('is-recording',state.mode==='recording'||state.mode==='overdub');
- mainBtn.classList.toggle('is-disabled',state.layers.length>=state.maxLayers&&state.mode==='playing');
- mainBtn.querySelector('.loop-record-label').textContent=state.mode==='recording'||state.mode==='overdub'?'RECORDING':state.layers.length>=state.maxLayers?'7 LAYERS':'LOOP';
+function stopClock(){if(state.raf){cancelAnimationFrame(state.raf);state.raf=null}}
+
+function paint(){
+  if(!button)return;
+  var recording=state.mode==='recording'||state.mode==='overdub';
+  button.classList.toggle('is-recording',recording);
+  button.classList.toggle('is-disabled',state.mode==='playing'&&state.layers.length>=MAX_LAYERS);
+  if(label)label.textContent=recording?'REC':state.layers.length>=MAX_LAYERS?'7 LAYERS':'LOOP';
+  button.setAttribute('aria-label',recording?'Stop recording layer':'Record or overdub loop');
 }
-function trigger(e){try{if(window.HandpanGame&&window.HandpanGame.strike)window.HandpanGame.strike(e.n,e.v)}catch(err){}}
-function playbackFrame(){
- if(state.mode!=='playing'&&state.mode!=='overdub')return;
- var t=now()-state.loopStart;
- var pos=((t%state.loopDuration)+state.loopDuration)%state.loopDuration;
- var last=state.lastPos;
- var wrapped=pos<last;
- state.layers.forEach(function(layer){
-   layer.forEach(function(e){
-     if((!wrapped&&e.t>=last&&e.t<pos)||(wrapped&&(e.t>=last||e.t<pos)))trigger(e);
-   });
- });
- state.lastPos=pos;
- state.raf=requestAnimationFrame(playbackFrame);
+
+function playEvent(e){
+  if(window.HandpanGame&&window.HandpanGame.strike){
+    try{window.HandpanGame.strike(e.n,e.v)}catch(err){}
+  }
 }
-function startPlayback(){
- state.mode='playing';state.loopStart=now();state.lastPos=0;
- updateButton();stopRAF();state.raf=requestAnimationFrame(playbackFrame);
+
+function tick(){
+  if(!state.loopDuration)return;
+  var pos=((now()-state.loopStart)%state.loopDuration+state.loopDuration)%state.loopDuration;
+  var last=state.lastPos;
+  var wrapped=pos<last;
+
+  state.layers.forEach(function(layer){
+    layer.forEach(function(e){
+      var hit=(!wrapped&&e.t>=last&&e.t<pos)||(wrapped&&(e.t>=last||e.t<pos));
+      if(hit)playEvent(e);
+    });
+  });
+
+  state.lastPos=pos;
+  state.raf=requestAnimationFrame(tick);
 }
-function startRecording(){
- stopRAF();state.mode=state.layers.length?'overdub':'recording';state.events=[];state.recordStart=now();updateButton();
+
+function startClock(reset){
+  stopClock();
+  if(reset)state.loopStart=now();
+  state.lastPos=0;
+  state.raf=requestAnimationFrame(tick);
 }
-function finishRecording(){
- var duration=now()-state.recordStart;
- if(duration<0.35)return;
- var events=state.events.map(function(e){return {t:Math.min(e.t,duration-0.001),n:e.n,v:e.v,scale:e.scale}});
- if(state.mode==='recording'){
-   if(events.length)state.layers=[events];
-   state.loopDuration=Math.max(.5,duration);
- }else{
-   if(events.length&&state.layers.length<state.maxLayers)state.layers.push(events.map(function(e){return {t:((e.t%state.loopDuration)+state.loopDuration)%state.loopDuration,n:e.n,v:e.v,scale:e.scale}}));
- }
- startPlayback();
+
+function beginFirstRecording(){
+  stopClock();
+  state.mode='recording';
+  state.current=[];
+  state.recordStart=now();
+  paint();
 }
-function note(e){
- if(state.mode!=='recording'&&state.mode!=='overdub')return;
- var raw=now()-state.recordStart;
- var t=state.mode==='overdub'?raw%state.loopDuration:raw;
- state.events.push({t:t,n:e.noteIndex,v:e.velocity||.8,scale:window.HandpanGame&&window.HandpanGame.scaleIndex?window.HandpanGame.scaleIndex():0});
+
+function beginOverdub(){
+  if(state.layers.length>=MAX_LAYERS)return;
+  state.mode='overdub';
+  state.current=[];
+  state.recordStart=now();
+  // Keep the existing loop playing while the new layer is recorded.
+  paint();
 }
-function mainAction(){
- if(state.mode==='empty')startRecording();
- else if(state.mode==='recording'||state.mode==='overdub')finishRecording();
- else if(state.mode==='playing'&&state.layers.length<state.maxLayers)startRecording();
+
+function commitRecording(){
+  var duration=now()-state.recordStart;
+  if(duration<0.25)return;
+
+  if(state.mode==='recording'){
+    state.loopDuration=Math.max(0.5,duration);
+    state.layers=[state.current.map(function(e){
+      return {t:Math.min(e.t,state.loopDuration-0.001),n:e.n,v:e.v}
+    })];
+  }else if(state.mode==='overdub'){
+    if(state.layers.length>=MAX_LAYERS)return;
+    state.layers.push(state.current.map(function(e){
+      return {
+        t:((e.t%state.loopDuration)+state.loopDuration)%state.loopDuration,
+        n:e.n,v:e.v
+      };
+    }));
+  }
+
+  state.mode='playing';
+  startClock(true);
+  paint();
 }
-mainBtn&&mainBtn.addEventListener('click',mainAction);
-window.addEventListener('handpan:note',note);
-window.HandpanLooper={state:state,record:startRecording,stop:function(){stopRAF();state.mode='empty';state.events=[];state.layers=[];state.loopDuration=0;updateButton()},play:startPlayback,clear:function(){stopRAF();state.mode='empty';state.events=[];state.layers=[];state.loopDuration=0;updateButton()}};
-updateButton();
+
+function noteHandler(ev){
+  if(state.mode!=='recording'&&state.mode!=='overdub')return;
+  var t=now()-state.recordStart;
+  if(state.mode==='overdub')t=t%state.loopDuration;
+  state.current.push({
+    t:t,
+    n:ev.detail.noteIndex,
+    v:ev.detail.velocity||0.8
+  });
+}
+
+function click(){
+  if(state.mode==='empty'){
+    beginFirstRecording();
+    return;
+  }
+  if(state.mode==='recording'||state.mode==='overdub'){
+    commitRecording();
+    return;
+  }
+  if(state.mode==='playing'){
+    beginOverdub();
+  }
+}
+
+function clear(){
+  stopClock();
+  state.mode='empty';
+  state.layers=[];
+  state.current=[];
+  state.loopDuration=0;
+  state.lastPos=0;
+  paint();
+}
+
+button&&button.addEventListener('click',click);
+window.addEventListener('handpan:note',noteHandler);
+
+window.HandpanLooper={
+  state:state,
+  record:function(){if(state.mode==='empty')beginFirstRecording();else if(state.mode==='playing')beginOverdub()},
+  stop:clear,
+  play:function(){if(state.layers.length){state.mode='playing';startClock(true);paint()}},
+  clear:clear
+};
+
+paint();
 })();
