@@ -12,7 +12,7 @@ function uiHaptic(){if(navigator.vibrate&&window.matchMedia&&window.matchMedia('
 
 function setDock(open){
  if(!dock||!dockToggle)return;
- var allowed=document.body.dataset.appMode==='loop';
+ var allowed=document.body.dataset.appMode==='loop'||document.body.dataset.appMode==='ambient';
  dock.classList.toggle('is-hidden',!open||!allowed);
  dockToggle.classList.toggle('is-open',open&&allowed);
  dockToggle.setAttribute('aria-expanded',String(open&&allowed));
@@ -20,7 +20,7 @@ function setDock(open){
 
 if(dockToggle){
  dockToggle.addEventListener('click',function(){
-  if(document.body.dataset.appMode!=='loop')return;
+  if(document.body.dataset.appMode!=='loop'&&document.body.dataset.appMode!=='ambient')return;
   var open=!dock.classList.contains('is-hidden');
   setDock(!open);
  });
@@ -36,7 +36,7 @@ function setMode(mode){
  document.body.dataset.appMode=mode;
  document.body.classList.toggle('loop-mode',mode==='loop');
  if(mode!=='learn')document.body.classList.remove('learn-active');
- setDock(mode==='loop');
+ setDock(mode==='loop'||mode==='ambient');
  if(mode==='learn'&&window.HandpanLearn)window.HandpanLearn.open();
 }
 
