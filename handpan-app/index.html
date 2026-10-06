@@ -2,13 +2,10 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050505">
-  <meta name="color-scheme" content="dark">
+  <meta name="color-scheme" content="dark"><meta name="description" content="Handpan instrument, lessons, loops and ambient practice by Ivar Karm."><link rel="manifest" href="./manifest.json"><link rel="icon" href="./icons/handpan-mark.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="./icons/icon-180.png">
   <title>Handpan — Ivar Karm · v0.4.1</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340..600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./handpan.css">
   <link rel="stylesheet" href="./app.css">
 </head>
@@ -17,7 +14,7 @@
     <button class="app-mode is-active" data-mode="play" type="button">Play</button><button class="app-mode" data-mode="learn" type="button">Learn</button><button class="app-mode" data-mode="loop" type="button">Loop</button><button class="app-mode" data-mode="ambient" type="button">Ambient</button>
   </div>
   <div class="app-brand" aria-hidden="true">IVAR KARM / HANDPAN</div>
-  <a class="hp-back" id="hpBack" href="../" aria-label="Back to Ivar Karm website"><span>Back to site</span><span class="hp-back-arrow" aria-hidden="true">↗</span></a>
+  <div class="app-top-actions"><button class="app-about-button" id="aboutOpen" type="button">About</button><a class="hp-back" id="hpBack" href="../" aria-label="Back to Ivar Karm website"><span>Back to site</span><span class="hp-back-arrow" aria-hidden="true">↗</span></a></div>
   <div class="hp-atmosphere" aria-hidden="true"></div><canvas id="hpStage" class="hp-stage" role="application" aria-label="Handpan instrument. Touch or use Q W E R T Y U I O P A S D to play."></canvas><div class="hp-vignette" aria-hidden="true"></div>
   <header class="hp-head" id="hpHead"><span class="hp-eyebrow">Instrument</span><h1 class="hp-title">Handpan</h1><span class="hp-hairline" aria-hidden="true"></span><p class="hp-sub" id="hpSub">D Kurd · 13 notes</p></header>
   <nav class="hp-scales" id="hpScales" aria-label="Handpan scales and sounds"><button class="hp-scale-menu-trigger" id="hpScaleMenuToggle" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="hp-scale-menu-kicker">SCALE</span><span class="hp-scale-menu-value" id="hpScaleLabel">D Kurd</span><span class="hp-scale-menu-chevron">⌄</span></button><span class="hp-nav-divider" aria-hidden="true"></span><div class="hp-instrument-track" id="instrumentGrid" aria-label="Instrument tones"></div></nav><div class="hp-scale-sheet" id="hpScaleSheet" hidden><button class="hp-scale-sheet-backdrop" id="hpScaleSheetBackdrop" type="button" aria-label="Close scales"></button><section class="hp-scale-sheet-card" role="dialog" aria-modal="true" aria-labelledby="hpScaleSheetTitle"><div class="hp-scale-sheet-head"><div><span class="hp-scale-sheet-kicker">HANDPAN</span><h2 id="hpScaleSheetTitle">Choose a scale</h2></div><button class="hp-scale-sheet-close" id="hpScaleSheetClose" type="button" aria-label="Close scales">×</button></div><div class="hp-scale-list" id="hpScaleList"></div></section></div>
@@ -52,7 +49,7 @@
       <div class="loop-actions">
         <button id="loopPlay" type="button" aria-label="Play loop">Play</button>
         <button id="loopPause" type="button" aria-label="Pause loop">Pause</button>
-        <button id="loopClear" type="button" aria-label="Clear loop">Clear</button>
+        <button id="loopClear" type="button" aria-label="Clear loop">Clear</button><button id="loopExport" type="button" aria-label="Export loop as WAV" disabled>WAV</button>
       </div>
     </div>
     <div class="dock-section nature-section">
@@ -70,6 +67,24 @@
     </div>
   </div>
   <div class="learn-panel" id="learnPanel" aria-live="polite"><div class="learn-top"><div><span class="learn-kicker">LEARN</span><strong>Choose a lesson</strong></div><button id="learnClose" type="button" aria-label="Close lessons">×</button></div><div class="lesson-list" id="lessonList"></div><div class="learn-stage" id="learnStage" hidden><div class="learn-stage-head"><button id="learnBack" type="button">Lessons</button><span id="learnStageName"></span></div><div class="learn-level" id="learnLevel">LEVEL 1 · First Notes</div><div class="learn-status" id="learnStatus">Listen first…</div><div class="learn-timing" id="learnTiming"></div><div class="learn-foot"><span id="learnProgress">0/0</span><span id="learnScore">0 hits · 0 misses</span></div></div></div><div class="learn-modal" id="learnModal" hidden><div class="learn-modal-card"><span class="learn-modal-kicker" id="learnModalKicker">LESSON</span><h2 id="learnModalTitle">Great job</h2><p id="learnModalText"></p><div class="learn-modal-actions" id="learnModalActions"></div></div></div>
-  <div class="app-panel" id="appPanel" aria-live="polite"><div class="app-panel-kicker">PLAY MODE</div><div class="app-panel-copy">The original website instrument is now the nucleus of the standalone app.</div></div><div class="hp-veil" id="hpVeil" aria-hidden="true"></div>
+  <div class="app-panel" id="appPanel" aria-live="polite"><div class="app-panel-kicker">PLAY MODE</div><div class="app-panel-copy">The original website instrument is now the nucleus of the standalone app.</div></div>
+  <section class="first-run" id="firstRun" hidden aria-labelledby="firstRunTitle">
+    <div class="first-run-card">
+      <span class="first-run-kicker">IVAR KARM</span>
+      <h2 id="firstRunTitle">Handpan</h2>
+      <p>Play, learn, loop and drift through a quiet instrument built for the browser.</p>
+      <div class="first-run-actions"><button id="firstRunEnter" type="button">Enter</button><button id="firstRunAbout" type="button">About</button><button id="installApp" type="button" hidden>Install app</button></div>
+    </div>
+  </section>
+  <section class="about-panel" id="aboutPanel" hidden role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+    <div class="about-card">
+      <div class="about-head"><div><span class="about-kicker">ABOUT</span><h2 id="aboutTitle">Handpan</h2></div><button id="aboutClose" type="button" aria-label="Close about">×</button></div>
+      <p><strong>Ivar Karm</strong> · street performer, improviser and handpan artist.</p>
+      <p>This standalone instrument is designed around touch, listening, practice and repetition. It works independently from the main website while keeping the path back to it.</p>
+      <dl><div><dt>Typography</dt><dd>Fraunces + Inter · SIL Open Font License 1.1</dd></div><div><dt>Audio</dt><dd>One shared Web Audio graph with synthesized fallback voices and a real-sample path.</dd></div><div><dt>Data</dt><dd>Settings, loop layers and lesson progress stay in this browser.</dd></div></dl>
+      <p class="about-note">No account is required. Real handpan recordings can be added later using the recording guide in SOUNDS.md.</p>
+    </div>
+  </section>
+  <div class="hp-veil" id="hpVeil" aria-hidden="true"></div>
   <script type="module" src="./js/handpan.js"></script><script type="module" src="./js/transport.js"></script><script type="module" src="./js/loop.js"></script><script type="module" src="./js/learn.js"></script><script type="module" src="./js/ambient.js"></script><script type="module" src="./js/app-shell.js"></script>
 </body></html>
