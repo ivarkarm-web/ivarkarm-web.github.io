@@ -1,4 +1,6 @@
 import { getAudioContext, getAudioMaster, resumeAudio, suspendAudio, closeAudio } from './audio-core.js';
+import { VOICE_PRESETS, resolveVoiceIndex } from './voice-presets.js';
+import { SampleBank } from './sample-bank.js';
 
 /**
  * handpan.js — hidden Handpan instrument (Ivar Karm – Resonance)
@@ -211,6 +213,8 @@ import { getAudioContext, getAudioMaster, resumeAudio, suspendAudio, closeAudio 
     this.analyser.fftSize = 256; this.analyser.smoothingTimeConstant = 0.82;
     this.analyserData = new Uint8Array(this.analyser.fftSize);
     this.master.connect(this.analyser); this.master.connect(getAudioMaster());
+    this.sampleBank = new SampleBank(ctx, this.bus);
+    this.sampleBank.loadManifest();
     var nlen = Math.floor(ctx.sampleRate * 0.12);
     this.noise = ctx.createBuffer(1, nlen, ctx.sampleRate);
     var nd = this.noise.getChannelData(0);
@@ -233,7 +237,8 @@ import { getAudioContext, getAudioMaster, resumeAudio, suspendAudio, closeAudio 
     voice.released = true;
     try { voice.out.gain.cancelScheduledValues(t); voice.out.gain.setTargetAtTime(0, t, tc); } catch (e) {}
     var stopAt = t + tc * 8 + 0.02;
-    voice.oscs.forEach(function (o) { try { o.stop(stopAt); } catch (e) {} });
+    (voice.oscs || []).forEach(function (o) { try { o.stop(stopAt); } catch (e) {} });
+    if (voice.source) { try { voice.source.stop(stopAt); } catch (e) {} }
   };
 
   HandpanEngine.prototype._detach = function (voice) {
@@ -248,19 +253,9 @@ import { getAudioContext, getAudioMaster, resumeAudio, suspendAudio, closeAudio 
     if (voice.pan) { try { voice.pan.disconnect(); } catch (e) {} }
   };
 
-  var EXPERIMENTS = [
-    {name:'Glass Bloom',type:'glass',partials:[1,1.01,2.01,3.01,4.98],decay:5.8,release:0.7,spread:0.012},
-    {name:'Soft Bells',type:'bell',partials:[1,2.01,3.98,6.01,8.02],decay:4.8,release:0.55,spread:0.006},
-    {name:'Moon Pluck',type:'pluck',partials:[1,1,2,3,5],decay:3.8,release:0.42,spread:0.004},
-    {name:'Shimmer',type:'shimmer',partials:[1,2,4.01,8.03,12.1],decay:6.8,release:1.0,spread:0.02},
-    {name:'Soft Pulse',type:'pulse',partials:[1,2,3,4],decay:4.6,release:0.8,spread:0.018},
-    {name:'Air Choir',type:'air',partials:[1,1.005,1.5,2.005,3],decay:7.2,release:1.2,spread:0.025},
-    {name:'Glass Pluck',type:'glasspluck',partials:[1,2.5,4.2,6.8],decay:3.2,release:0.35,spread:0.009},
-    {name:'Deep Resonator',type:'deep',partials:[0.5,1,2,3,4],decay:8.5,release:1.4,spread:0.008},
-    {name:'Drift Arp',type:'arp',partials:[1,2,3,5,7],decay:5.5,release:1.0,spread:0.018}
-  ];
+  var EXPERIMENTS = VOICE_PRESETS;
   var instrumentIndex=0;
-  HandpanEngine.prototype.setInstrument=function(i){instrumentIndex=Math.max(0,Math.min(EXPERIMENTS.length-1,i|0));return EXPERIMENTS[instrumentIndex];};
+  HandpanEngine.prototype.setInstrument=function(i){instrumentIndex=resolveVoiceIndex(i);return EXPERIMENTS[instrumentIndex];};
   HandpanEngine.prototype.instrument=function(){return EXPERIMENTS[instrumentIndex];};
   HandpanEngine.prototype.instruments=EXPERIMENTS;
 
@@ -289,13 +284,29 @@ import { getAudioContext, getAudioMaster, resumeAudio, suspendAudio, closeAudio 
     var base = 0.2 + 0.14 * vel;
     var oscs = [];
     var preset = EXPERIMENTS[instrumentIndex];
+    var sampleKey = preset.id + ':' + note.name;
+    if (this.sampleBank) {
+      if (this.sampleBank.has(sampleKey, vel)) {
+        var sampled = this.sampleBank.play(sampleKey, t, vel);
+        if (sampled) {
+          var sampleVoice = { idx: idx, out: sampled.gain, source: sampled.source, pan: null, oscs: [], released: false, born: ctx.currentTime, ringUntil: ctx.currentTime + Math.min(sampled.source.buffer.duration, 3.2) };
+          var sampleSelf = this;
+          sampled.source.onended = function () { sampleSelf._cleanup(sampleVoice); };
+          this.voices.push(sampleVoice);
+          this.active.set(idx, sampleVoice);
+          return sampleVoice;
+        }
+      } else {
+        this.sampleBank.load(sampleKey, vel).catch(function () {});
+      }
+    }
     var partials = preset.partials.map(function(ratio,i){
       var gains = [0.5,0.32,0.18,0.095,0.045];
       return {r:ratio,g:gains[i]||0.03,dec:T0*(preset.decay/6.2)*(1-i*0.07),det:(i%2?-1:1)*preset.spread*(i>1?0.65:1)};
     });
     for (var i = 0; i < partials.length; i++) {
       var p = partials[i];
-      var osc = ctx.createOscillator(); osc.type = 'sine';
+      var osc = ctx.createOscillator(); osc.type = preset.wave || 'sine';
       osc.frequency.value = f * p.r * (1 + p.det);
       var g = ctx.createGain();
       var peak = base * p.g * (i >= 2 ? (0.75 + 0.25 * vel) : 1);
@@ -308,13 +319,13 @@ import { getAudioContext, getAudioMaster, resumeAudio, suspendAudio, closeAudio 
     }
     var src = ctx.createBufferSource(); src.buffer = this.noise;
     var bp = ctx.createBiquadFilter(); bp.type = 'bandpass';
-    bp.frequency.value = Math.min(f * 3.6, 6200); bp.Q.value = 1.1;
+    bp.frequency.value = Math.min(f * preset.noiseRatio, 6200); bp.Q.value = preset.noiseQ;
     var ng = ctx.createGain();
     ng.gain.setValueAtTime(0.0001, t);
-    ng.gain.linearRampToValueAtTime(0.2 * vel, t + 0.0015);
-    ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+    ng.gain.linearRampToValueAtTime(preset.noiseLevel * vel, t + 0.0015);
+    ng.gain.exponentialRampToValueAtTime(0.0001, t + preset.noiseDecay);
     src.connect(bp); bp.connect(ng); ng.connect(out);
-    src.start(t); src.stop(t + 0.07);
+    src.start(t); src.stop(t + preset.noiseDecay + 0.02);
     var voice = { idx: idx, out: out, pan: panNode, oscs: oscs, released: false, born: ctx.currentTime, ringUntil: ctx.currentTime + Math.min(T0, 3.2) };
     var self = this;
     oscs[0].onended = function () { self._cleanup(voice); };

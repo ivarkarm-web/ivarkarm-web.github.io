@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "status": "fallback-synth",
+  "format": "wav",
+  "sampleRate": 48000,
+  "channels": 1,
+  "notes": "Real handpan recordings will be added later. Empty sample map intentionally keeps the production app on its synthesized fallback voice.",
+  "samples": {}
+}
