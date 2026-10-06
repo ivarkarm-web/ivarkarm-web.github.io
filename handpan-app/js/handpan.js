@@ -672,7 +672,7 @@ import { SampleBank } from './sample-bank.js';
       var fs = Math.max(8, R * (note.kind === 'ding' ? 0.072 : (small ? 0.044 : 0.058)));
       c.textAlign = 'center'; c.textBaseline = 'middle';
       c.font = '500 ' + fs + 'px Inter, system-ui, sans-serif';
-      c.fillStyle = 'rgba(235,228,212,0.42)';
+      c.fillStyle = 'rgba(240,236,228,0.88)';
       var showKey = !COARSE;
       c.fillText(note.name, fx, fy - (showKey ? fs * 0.38 : 0));
       if (showKey) {
