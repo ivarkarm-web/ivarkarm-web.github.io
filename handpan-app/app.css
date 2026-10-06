@@ -21,15 +21,29 @@
 }
 .app-panel{display:none!important}
 
-/* Dedicated right-side sound dock */
+/* Slide-in right-side sound dock */
 .sound-dock{
- position:fixed;z-index:40;right:clamp(.7rem,2vw,1.5rem);top:50%;transform:translateY(-50%);
+ position:fixed;z-index:40;right:clamp(.7rem,2vw,1.5rem);top:50%;transform:translate(0,-50%);
  width:170px;max-height:min(78vh,720px);overflow:auto;padding:.85rem .8rem;
  border:1px solid rgba(212,175,55,.18);border-radius:20px;
  background:rgba(7,7,8,.62);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
  box-shadow:0 20px 60px rgba(0,0,0,.38);font-family:Inter,sans-serif;
  scrollbar-width:none
 }
+.sound-dock.is-hidden{transform:translate(calc(100% + 1.25rem),-50%);pointer-events:none}
+.sound-dock-toggle{
+ position:fixed;z-index:41;right:clamp(.7rem,2vw,1.5rem);top:50%;transform:translateY(-50%);
+ width:30px;height:68px;border:1px solid rgba(212,175,55,.24);border-right:0;border-radius:12px 0 0 12px;
+ background:rgba(7,7,8,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;
+ box-shadow:0 12px 38px rgba(0,0,0,.35);transition:right .35s ease,background .25s ease,border-color .25s ease
+}
+.sound-dock-toggle span{width:10px;height:1px;background:rgba(240,236,228,.62);transition:transform .3s ease,opacity .2s ease}
+.sound-dock-toggle:hover{background:rgba(212,175,55,.11);border-color:rgba(228,195,90,.48)}
+.sound-dock-toggle.is-open{right:calc(clamp(.7rem,2vw,1.5rem) + 170px);border-right:1px solid rgba(212,175,55,.24);border-left:0;border-radius:0 12px 12px 0}
+.sound-dock-toggle.is-open span:first-child{transform:translateY(5px) rotate(45deg)}
+.sound-dock-toggle.is-open span:nth-child(2){opacity:0}
+.sound-dock-toggle.is-open span:last-child{transform:translateY(-5px) rotate(-45deg)}
 .sound-dock::-webkit-scrollbar{display:none}
 .dock-section{padding:.15rem 0 .85rem;border-bottom:1px solid rgba(255,255,255,.07)}
 .dock-section:last-child{border-bottom:0;padding-bottom:.15rem}
@@ -56,9 +70,10 @@
  color:rgba(240,236,228,.7);padding:.42rem .18rem;font:500 .43rem/1 Inter,sans-serif;cursor:pointer
 }
 .loop-actions button:hover{background:rgba(212,175,55,.09);color:#fff}
-.instrument-grid{display:grid;grid-template-columns:1fr 1fr;gap:.3rem}
+.hp-instrument-track{display:flex;align-items:center;gap:.34rem;max-width:min(46vw,520px);overflow-x:auto;scrollbar-width:none;padding:.12rem .2rem}
+.hp-instrument-track::-webkit-scrollbar{display:none}
 .instrument-btn{
- min-height:38px;padding:.35rem .25rem;border:1px solid rgba(255,255,255,.07);border-radius:8px;
+ flex:0 0 auto;min-height:30px;padding:.35rem .25rem;border:1px solid rgba(255,255,255,.07);border-radius:8px;
  background:rgba(255,255,255,.025);color:rgba(240,236,228,.48);font:500 .39rem/1.15 Inter,sans-serif;
  letter-spacing:.04em;cursor:pointer;transition:.2s ease
 }
@@ -109,9 +124,16 @@ body:not([data-app-mode="learn"]) .learn-panel{display:none}
 }
 @media(max-width:700px){
  .sound-dock{right:.45rem;width:132px;padding:.65rem .58rem;border-radius:16px;max-height:72vh}
- .instrument-grid{grid-template-columns:1fr}
- .instrument-btn{min-height:31px;font-size:.36rem}
+ .sound-dock-toggle{right:.45rem;width:27px;height:58px}
+ .sound-dock-toggle.is-open{right:calc(.45rem + 132px)}
+ .hp-instrument-track{max-width:38vw}
+ .instrument-btn{min-height:27px;font-size:.36rem}
  .loop-orb{width:58px;height:58px}
  .loop-actions button{font-size:.38rem;padding:.38rem .1rem}
  .dock-kicker{font-size:.39rem}
 }
+
+/* Keep the shared scale/sound navigation readable beside the handpan. */
+.hp-scales{z-index:20}
+.hp-nav-divider{width:1px;height:18px;background:rgba(212,175,55,.18);flex:0 0 auto;margin:0 .15rem}
+@media(max-width:700px){.hp-nav-divider{height:14px}.hp-instrument-track{max-width:32vw}.sound-dock.is-hidden{transform:translate(calc(100% + .9rem),-50%)}}
