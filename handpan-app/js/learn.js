@@ -68,7 +68,7 @@ function hit(e){
      state.hits++;state.combo++;state.bestCombo=Math.max(state.bestCombo,state.combo);
      state.next++;state._stepHits={};grade(targets.length>1?'CHORD · '+g:g);render();
      if(state.next>=l.steps.length){
-       state.active=false;transport.stop();clearGuide();if(startBtn)startBtn.textContent='Replay';setMessage('LESSON COMPLETE · BEST '+state.bestCombo+'×');
+       state.active=false;transport.stop();clearGuide();if(startBtn)startBtn.textContent='Replay';setMessage('GOOD JOB! · LESSON COMPLETE · BEST '+state.bestCombo+'×');
      } else { guide(); }
    } else {
      grade(targets.length>1?'CHORD · '+Object.keys(state._stepHits).length+'/'+targets.length:'GOOD');
@@ -81,7 +81,7 @@ function hit(e){
 function tick(){
  if(!state.active)return;
  var l=lesson(),now=transport.beatPosition(),due=state.leadBeats+state.next;
- if(state.next<l.steps.length && now>due+state.window){state.misses++;state.combo=0;grade('MISS');state.next++;render();if(state.next>=l.steps.length){state.active=false;transport.stop();clearGuide();if(startBtn)startBtn.textContent='Replay';setMessage('LESSON COMPLETE · BEST '+state.bestCombo+'×')} else { guide(); }}
+ if(state.next<l.steps.length && now>due+state.window){state.misses++;state.combo=0;grade('MISS');state.next++;render();if(state.next>=l.steps.length){state.active=false;transport.stop();clearGuide();if(startBtn)startBtn.textContent='Replay';setMessage('GOOD JOB! · LESSON COMPLETE · BEST '+state.bestCombo+'×')} else { guide(); }}
  if(state.feedbackUntil&&performance.now()>state.feedbackUntil)state.feedback='';
  render();
 }
