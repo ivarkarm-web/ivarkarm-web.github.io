@@ -69,29 +69,36 @@
       <p class="hint" id="hint">Tap the steel · Q–O keys</p>
     </main>
 
-    <!-- Right rail / bottom on mobile -->
-    <aside class="sidebar right" aria-label="Sound modes">
-      <button type="button" class="rail-btn is-on" data-fx="tone" title="Tone — core handpan voice (always on)" aria-pressed="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 12c3-6 6-6 9 0s6 6 9 0"/><path d="M3 18c3-6 6-6 9 0s6 6 9 0"/></svg>
-        <span class="rail-label">Tone</span>
-        <span class="rail-desc">Core voice</span>
-      </button>
-      <button type="button" class="rail-btn" data-fx="pulse" title="Pulse — gentle rhythmic breathing on the volume" aria-pressed="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 12h3l2-6 3 12 2-8 2 4h8"/></svg>
-        <span class="rail-label">Pulse</span>
-        <span class="rail-desc">Soft beat swell</span>
-      </button>
-      <button type="button" class="rail-btn" data-fx="drone" title="Drone — sustained low undertone under the Ding" aria-pressed="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="10"/></svg>
-        <span class="rail-label">Drone</span>
-        <span class="rail-desc">Low sustain</span>
-      </button>
-      <button type="button" class="rail-btn" data-fx="space" title="Space — longer ambient tail / room echo" aria-pressed="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 18 L12 6 L20 18"/></svg>
-        <span class="rail-label">Space</span>
-        <span class="rail-desc">Room / echo</span>
-      </button>
-      <p class="fx-caption" id="fxCaption" role="status">Tone: core handpan voice</p>
+    <!-- Sound knobs (right / bottom on mobile) -->
+    <aside class="sidebar right knobs-panel" aria-label="Sound knobs">
+      <div class="knob-wrap" data-param="tone">
+        <div class="knob" id="knobTone" role="slider" tabindex="0"
+             aria-label="Tone" aria-valuemin="0" aria-valuemax="100" aria-valuenow="70"
+             aria-valuetext="Tone 70 percent">
+          <canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas>
+          <span class="knob-value" id="valTone">70</span>
+        </div>
+        <span class="knob-name">Tone</span>
+      </div>
+      <div class="knob-wrap" data-param="delay">
+        <div class="knob" id="knobDelay" role="slider" tabindex="0"
+             aria-label="Delay" aria-valuemin="0" aria-valuemax="100" aria-valuenow="15"
+             aria-valuetext="Delay 15 percent">
+          <canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas>
+          <span class="knob-value" id="valDelay">15</span>
+        </div>
+        <span class="knob-name">Delay</span>
+      </div>
+      <div class="knob-wrap" data-param="reverb">
+        <div class="knob" id="knobReverb" role="slider" tabindex="0"
+             aria-label="Reverb" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25"
+             aria-valuetext="Reverb 25 percent">
+          <canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas>
+          <span class="knob-value" id="valReverb">25</span>
+        </div>
+        <span class="knob-name">Reverb</span>
+      </div>
+      <p class="fx-caption" id="fxCaption" role="status">Drag knobs · Tone / Delay / Reverb</p>
     </aside>
   </div>
 
