@@ -53,7 +53,7 @@ function beginLesson(lesson){
 }
 function runDemo(){
   const beat=60/state.lesson.bpm,lead=beat*1.5; state.demoStart=performance.now()/1000+lead;
-  state.lesson.steps.forEach((step)=>state.demoTimers.push(setTimeout(()=>step.targets.forEach((note)=>game?.strike(note,.72)),Math.max(0,(step.at*beat+lead)*1000))));
+  state.lesson.steps.forEach((step)=>state.demoTimers.push(setTimeout(()=>step.targets.forEach((note)=>game?.strike(note,.72,null,'lesson-demo')),Math.max(0,(step.at*beat+lead)*1000))));
   const end=(Math.max(...state.lesson.steps.map((step)=>step.at))+1.5)*beat+lead; state.demoTimers.push(setTimeout(startPractice,end*1000));
 }
 function startPractice(){

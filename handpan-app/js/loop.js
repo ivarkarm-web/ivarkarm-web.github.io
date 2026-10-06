@@ -92,7 +92,7 @@ function paint() {
 
 function playEvent(event) {
   if (window.HandpanGame?.strike) {
-    try { window.HandpanGame.strike(event.n, event.v, { source: 'loop' }); } catch (error) {}
+    try { window.HandpanGame.strike(event.n, event.v, null, 'loop'); } catch (error) {}
   }
 }
 
@@ -233,6 +233,7 @@ function clear() {
 function noteHandler(event) {
   if (state.mode !== 'recording' && state.mode !== 'overdub') return;
   const detail = event.detail || {};
+  if (detail.source && detail.source !== 'user') return;
   if (!Number.isInteger(detail.noteIndex)) return;
   const raw = state.mode === 'recording'
     ? now() - state.recordStart
