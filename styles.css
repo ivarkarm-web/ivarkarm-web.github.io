@@ -7506,15 +7506,12 @@ body.rabbit-hole-open .welcome {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  margin-left: -2.2rem;
-  padding: 0.35rem 0.45rem 0.35rem 0.65rem;
+  gap: 0;
+  margin-left: -1.55rem;
+  padding: 0.35rem 0.45rem 0.35rem 0.45rem;
   border-left: 1px solid rgba(212, 175, 55, 0.28);
   background: linear-gradient(90deg, rgba(10, 13, 18, 0.2), rgba(10, 13, 18, 0.96) 28%);
   color: rgba(212, 175, 55, 0.78);
-  font: 500 0.55rem/1 'Inter', sans-serif;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   pointer-events: none;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
@@ -7527,7 +7524,7 @@ body.rabbit-hole-open .welcome {
 .dm-sitenav-scroll-cue::before {
   content: '';
   position: absolute;
-  left: -1.5rem;
+  left: -1.25rem;
   top: 50%;
   width: 2.2rem;
   height: 2.2rem;
@@ -7555,6 +7552,42 @@ body.rabbit-hole-open .welcome {
 @media (max-width: 600px) {
   .dm-sitenav-scroll-cue {
     right: 0.25rem;
-    margin-left: -2rem;
+    margin-left: -1.55rem;
+  }
+}
+
+/* Monograph navigation discovery: a restrained light pulse travels across the
+   section buttons from left to right, revealing that the bar contains more destinations. */
+.dm-sitenav .dm-sitenav-btn {
+  animation: dmNavButtonFlow 7.2s ease-in-out infinite;
+}
+
+.dm-sitenav .dm-sitenav-btn:nth-of-type(1) { animation-delay: 0s; }
+.dm-sitenav .dm-sitenav-btn:nth-of-type(2) { animation-delay: 0.8s; }
+.dm-sitenav .dm-sitenav-btn:nth-of-type(3) { animation-delay: 1.6s; }
+.dm-sitenav .dm-sitenav-btn:nth-of-type(4) { animation-delay: 2.4s; }
+.dm-sitenav .dm-sitenav-btn:nth-of-type(5) { animation-delay: 3.2s; }
+.dm-sitenav .dm-sitenav-btn:nth-of-type(6) { animation-delay: 4s; }
+.dm-sitenav .dm-sitenav-btn:nth-of-type(7) { animation-delay: 4.8s; }
+.dm-sitenav .dm-sitenav-btn:nth-of-type(8) { animation-delay: 5.6s; }
+
+@keyframes dmNavButtonFlow {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(212, 175, 55, 0);
+    text-shadow: none;
+  }
+  8% {
+    box-shadow: 0 0 16px rgba(212, 175, 55, 0.16), inset 0 0 12px rgba(212, 175, 55, 0.045);
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.28);
+  }
+  16% {
+    box-shadow: 0 0 0 rgba(212, 175, 55, 0);
+    text-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dm-sitenav .dm-sitenav-btn {
+    animation: none;
   }
 }
