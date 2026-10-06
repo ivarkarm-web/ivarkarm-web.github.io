@@ -23,7 +23,7 @@ function load(){
 }
 function start(){
  var l=lesson();transport.stop();transport.setBpm(l.speed);state.active=true;state.started=true;state.next=0;state.hits=0;state.misses=0;state.combo=0;state.bestCombo=0;state.armedAt=performance.now()/1000;state.dueBeat=0;
- transport.start(0);if(startBtn)startBtn.textContent='Restart';setMessage('Follow the highlighted notes.');render()
+ transport.start(0);state.dueBeat=0;if(startBtn)startBtn.textContent='Restart';setMessage('Follow the highlighted notes.');render()
 }
 function stop(){state.active=false;transport.stop();if(startBtn)startBtn.textContent='Start';setMessage('Lesson paused.')}
 function hit(e){
