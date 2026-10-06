@@ -1,4 +1,4 @@
-import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js';
+import { getAudioContext, getAudioMaster, resumeAudio, suspendAudio, closeAudio } from './audio-core.js';
 
 /**
  * handpan.js — hidden Handpan instrument (Ivar Karm – Resonance)
@@ -341,7 +341,8 @@ import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js';
 
   HandpanEngine.prototype.shutdown = function () {
     if (!this.ctx) return;
-    try { this.ctx.close(); } catch (e) {}
+    try { closeAudio(); } catch (e) {}
+    this.ctx = null;
   };
 
   var engine = new HandpanEngine();
@@ -1075,7 +1076,7 @@ import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js';
   window.addEventListener('pagehide', function (e) {
     releaseEverything();
     if (!e.persisted) engine.shutdown();
-    else if (engine.ctx && engine.ctx.state === 'running') { try { engine.ctx.suspend(); } catch (err) {} }
+    else if (engine.ctx && engine.ctx.state === 'running') { suspendAudio(); }
   });
 
   function boot() {
