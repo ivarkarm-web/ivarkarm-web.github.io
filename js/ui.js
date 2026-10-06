@@ -1863,6 +1863,7 @@ function connectMusicToAnalyser(audioEl) {
     gsap.set([tag,heading,copy].filter(Boolean),{
       clipPath:'inset(0 0 100% 0)',
       y:18,
+      filter:'blur(7px)',
       autoAlpha:1
     });
 
@@ -1914,18 +1915,21 @@ function connectMusicToAnalyser(audioEl) {
     .to(tag,{
       clipPath:'inset(0 0 0% 0)',
       y:0,
+      filter:'blur(0px)',
       duration:.58,
       ease:'power3.out'
     },.72)
     .to(heading,{
       clipPath:'inset(0 0 0% 0)',
       y:0,
+      filter:'blur(0px)',
       duration:.72,
       ease:'power4.out'
     },.82)
     .to(copy,{
       clipPath:'inset(0 0 0% 0)',
       y:0,
+      filter:'blur(0px)',
       duration:.68,
       ease:'power3.out'
     },1.00);
