@@ -80,3 +80,16 @@ test('handpan and ambience share one AudioContext', async ({ page }) => {
   expect(shared.sameContext).toBe(true);
   expect(['running', 'suspended', 'interrupted']).toContain(shared.state);
 });
+
+
+test('voice browser surface exposes the five production presets and sample fallback', async ({ page }) => {
+  const info = await page.evaluate(async () => {
+    await window.HandpanGame.engine.sampleBank.loadManifest();
+    return {
+      voices: window.HandpanGame.instruments.map((voice) => voice.name),
+      sampleStatus: window.HandpanGame.engine.sampleBank.manifest.status
+    };
+  });
+  expect(info.voices).toEqual(['Steel', 'Warm', 'Bell', 'Soft', 'Deep']);
+  expect(info.sampleStatus).toBe('fallback-synth');
+});
