@@ -31,3 +31,6 @@ tsconfig.json
 
 # Coverage
 coverage/
+
+# Synthetic audio fixtures (never production assets)
+handpan-app/sounds/fixtures/
