@@ -361,21 +361,46 @@ function resize() {
 }
 
 function layoutFields() {
-  // Natural handpan proportions (golden ring radius, soft gaps ~0.1 R between tones)
+  // Rounded-square tone fields — larger thumb targets, soft gaps
   state.fields = state.notes.map((n) => {
     if (n.kind === 'ding') {
-      return { i: n.index, x: CX, y: CY, rx: R * 0.205, ry: R * 0.205 };
+      const s = R * 0.22; // half-size
+      return { i: n.index, x: CX, y: CY, rx: s, ry: s, radius: s * 0.42 };
     }
     const a = (n.angle * Math.PI) / 180;
-    const d = R * 0.618; // φ⁻¹ — balanced distance from ding
+    const d = R * 0.62;
+    const hw = R * 0.175; // half-width — room for a thumb
+    const hh = R * 0.175;
     return {
       i: n.index,
       x: CX + Math.sin(a) * d,
       y: CY - Math.cos(a) * d,
-      rx: R * 0.188,
-      ry: R * 0.168
+      rx: hw,
+      ry: hh,
+      radius: Math.min(hw, hh) * 0.38
     };
   });
+}
+
+/** Rounded rect path helper (center x,y + half extents) */
+function pathPad(f) {
+  const x = f.x - f.rx;
+  const y = f.y - f.ry;
+  const w = f.rx * 2;
+  const h = f.ry * 2;
+  const r = Math.min(f.radius || f.rx * 0.38, f.rx, f.ry);
+  ctx2.beginPath();
+  if (typeof ctx2.roundRect === 'function') {
+    ctx2.roundRect(x, y, w, h, r);
+  } else {
+    // Fallback for older browsers
+    ctx2.moveTo(x + r, y);
+    ctx2.arcTo(x + w, y, x + w, y + h, r);
+    ctx2.arcTo(x + w, y + h, x, y + h, r);
+    ctx2.arcTo(x, y + h, x, y, r);
+    ctx2.arcTo(x, y, x + w, y, r);
+    ctx2.closePath();
+  }
 }
 
 function draw() {
@@ -401,42 +426,38 @@ function draw() {
     const radial = state.zoneFlash[i] || 0;
     const isDing = note.kind === 'ding';
 
-    const pad = ctx2.createRadialGradient(f.x - f.rx * 0.25, f.y - f.ry * 0.3, 0, f.x, f.y, f.rx);
-    pad.addColorStop(0, `rgba(78,80,88,${0.95})`);
-    pad.addColorStop(0.55, `rgba(40,42,48,0.95)`);
-    pad.addColorStop(1, `rgba(22,23,27,0.98)`);
+    const pad = ctx2.createRadialGradient(f.x - f.rx * 0.25, f.y - f.ry * 0.3, 0, f.x, f.y, Math.max(f.rx, f.ry));
+    pad.addColorStop(0, 'rgba(78,80,88,0.95)');
+    pad.addColorStop(0.55, 'rgba(40,42,48,0.95)');
+    pad.addColorStop(1, 'rgba(22,23,27,0.98)');
     ctx2.fillStyle = pad;
-    ctx2.beginPath();
-    ctx2.ellipse(f.x, f.y, f.rx, f.ry, 0, 0, Math.PI * 2);
+    pathPad(f);
     ctx2.fill();
 
-    // Zone rings (center / mid / edge) — subtle guide
+    // Soft inner zone guide
     ctx2.strokeStyle = 'rgba(255,255,255,0.06)';
     ctx2.lineWidth = 1;
-    ctx2.beginPath();
-    ctx2.ellipse(f.x, f.y, f.rx * 0.45, f.ry * 0.45, 0, 0, Math.PI * 2);
+    const inner = { x: f.x, y: f.y, rx: f.rx * 0.48, ry: f.ry * 0.48, radius: (f.radius || 0) * 0.5 };
+    pathPad(inner);
     ctx2.stroke();
 
     ctx2.strokeStyle = glow > 0.04
       ? `rgba(201,162,39,${0.3 + glow * 0.55})`
       : 'rgba(255,255,255,0.12)';
-    ctx2.lineWidth = isDing ? 2 : 1.4;
-    ctx2.beginPath();
-    ctx2.ellipse(f.x, f.y, f.rx, f.ry, 0, 0, Math.PI * 2);
+    ctx2.lineWidth = isDing ? 2.2 : 1.5;
+    pathPad(f);
     ctx2.stroke();
 
     if (glow > 0.02) {
       ctx2.save();
       ctx2.globalCompositeOperation = 'lighter';
-      // Radial zone flash: edge strikes push glow outward
-      const gr = f.rx * (0.9 + radial * 0.45);
+      const gr = Math.max(f.rx, f.ry) * (0.95 + radial * 0.4);
       const hg = ctx2.createRadialGradient(f.x, f.y, 0, f.x, f.y, gr);
       hg.addColorStop(0, `rgba(201,162,39,${glow * (0.25 + (1 - radial) * 0.2)})`);
-      hg.addColorStop(0.55, `rgba(228,195,90,${glow * radial * 0.25})`);
+      hg.addColorStop(0.55, `rgba(228,195,90,${glow * radial * 0.22})`);
       hg.addColorStop(1, 'rgba(201,162,39,0)');
       ctx2.fillStyle = hg;
-      ctx2.beginPath();
-      ctx2.ellipse(f.x, f.y, gr * 1.15, f.ry * (1.15 + radial * 0.2), 0, 0, Math.PI * 2);
+      pathPad({ x: f.x, y: f.y, rx: f.rx * 1.12, ry: f.ry * 1.12, radius: (f.radius || f.rx * 0.4) * 1.1 });
       ctx2.fill();
       ctx2.restore();
     }
@@ -447,8 +468,8 @@ function draw() {
       const subs = '₀₁₂₃₄₅₆₇₈₉';
       display = m[1] + [...m[2]].map((d) => subs[+d]).join('');
     }
-    ctx2.fillStyle = glow > 0.15 ? '#f5f1ea' : 'rgba(210,205,196,0.82)';
-    ctx2.font = `600 ${Math.max(13, R * (isDing ? 0.078 : 0.055))}px Inter, system-ui, sans-serif`;
+    ctx2.fillStyle = glow > 0.15 ? '#f5f1ea' : 'rgba(210,205,196,0.85)';
+    ctx2.font = `600 ${Math.max(13, R * (isDing ? 0.072 : 0.052))}px Inter, system-ui, sans-serif`;
     ctx2.textAlign = 'center';
     ctx2.textBaseline = 'middle';
     ctx2.fillText(display, f.x, f.y);
@@ -475,15 +496,17 @@ function hitVector(cx, cy) {
   let best = null;
   let bestD = Infinity;
   for (const f of state.fields) {
-    const dx = (cx - f.x) / f.rx;
-    const dy = (cy - f.y) / f.ry;
-    const d = Math.sqrt(dx * dx + dy * dy);
-    // Generous hit radius so fields are hard to miss
-    if (d <= 1.35 && d < bestD) {
+    // Normalized distance in rounded-rect space (0 = center, 1 = edge)
+    const dx = Math.abs(cx - f.x) / f.rx;
+    const dy = Math.abs(cy - f.y) / f.ry;
+    // Chebyshev-ish with a little corner softness
+    const d = Math.max(dx, dy) * 0.72 + Math.hypot(dx, dy) * 0.28;
+    // Generous thumb-friendly hit area
+    if (d <= 1.28 && d < bestD) {
       bestD = d;
       best = {
         idx: f.i,
-        radial: d, // 0 center → 1 edge of ellipse → >1 outside but still claimed
+        radial: d,
         angleRad: Math.atan2(cy - f.y, cx - f.x)
       };
     }
