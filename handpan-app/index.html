@@ -58,7 +58,9 @@
       <button id="loopPlay" type="button">Loop</button>
       <button id="loopClear" type="button">Clear</button>
     </div>
-    <input id="loopTempo" type="range" min="50" max="140" value="80" aria-label="Tempo">
+    <div class="loop-meta"><label>BPM <output id="loopBpm">80</output></label><label>Bars <select id="loopBars"><option>1</option><option>2</option><option selected>4</option><option>8</option></select></label><label>Grid <select id="loopGrid"><option value="16" selected>1/16</option><option value="8">1/8</option><option value="off">Free</option></select></label></div>
+    <input id="loopTempo" type="range" min="40" max="180" value="80" aria-label="Tempo">
+    <div class="loop-timeline" id="loopTimeline"><div class="loop-playhead" id="loopPlayhead"></div></div>
     <div class="loop-events" id="loopEvents">No loop recorded</div>
   </div>
 
