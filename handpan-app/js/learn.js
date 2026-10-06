@@ -35,7 +35,7 @@ function playDemo(){
  statusEl.textContent='Listen to the melody…';
  var i=0;
  function next(){
-  if(i>=l.steps.length){state.playingDemo=false;state.phase='repeat';state.next=0;state.stepHits={};statusEl.textContent='Your turn — repeat what you heard.';guide(l.steps[0]);renderStats();return;}
+  if(i>=l.steps.length){state.playingDemo=false;state.phase='repeat';state.active=true;state.next=0;state.stepHits={};statusEl.textContent='Your turn — repeat what you heard.';guide(l.steps[0]);renderStats();return;}
   var notes=l.steps[i];guide(notes);
   notes.forEach(function(n,j){setTimeout(function(){if(game&&game.strike)game.strike(n,.72)},j*45)});
   i++;state.next=i;renderStats();state.timer=setTimeout(next,beat);
