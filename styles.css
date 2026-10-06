@@ -7933,3 +7933,34 @@ body.rabbit-hole-open .welcome {
     transition:none!important;
   }
 }
+
+/* Shared Eastern Estonia opening: one continuous image across Principle + Beginning */
+.dm-section--eastern-origin.dm-scroll-reveal--shared-bg{
+  min-height:clamp(680px,92vh,980px);
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  gap:clamp(3rem,7vh,6rem);
+}
+.dm-section--eastern-origin .dm-origin-bg{position:absolute;inset:0}
+.dm-section--eastern-origin .dm-origin-bg img{object-position:center center}
+.dm-section--eastern-origin .dm-origin-content{position:relative;z-index:1;width:min(720px,100%)}
+.dm-origin-content--principle{margin-top:auto;padding-top:clamp(8rem,18vh,12rem)}
+.dm-origin-content--beginning{padding-bottom:clamp(2rem,5vh,4rem)}
+@media(max-width:600px){
+  .dm-section--eastern-origin.dm-scroll-reveal--shared-bg{min-height:clamp(680px,96vh,900px);gap:3.5rem}
+}
+.dm-section--origin.dm-scroll-reveal .dm-origin-bg{
+  overflow:hidden;
+  clip-path:inset(0 100% 0 0);
+  transform:translateZ(0) scale(1.025);
+  will-change:clip-path,transform;
+}
+.dm-section--origin.dm-scroll-reveal .dm-origin-bg img{
+  transform:scale(1.035) translate3d(-1%,0,0);
+  will-change:transform;
+}
+@media(prefers-reduced-motion:reduce){
+  .dm-section--origin.dm-scroll-reveal .dm-origin-bg{clip-path:none!important;transform:none!important}
+  .dm-section--origin.dm-scroll-reveal .dm-origin-bg img{transform:none!important}
+}
