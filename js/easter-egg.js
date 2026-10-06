@@ -13,7 +13,7 @@
 (function () {
   'use strict';
 
-  var TARGET = './handpan.html';
+  var TARGET = './handpan-app/';
   var CTA_DELAY_MS = 1500;       // "Easter egg found!" lands first, then the button
   var WARP_MS = 1100;            // matches the CSS iris duration
   var PEAK_PAST_TOP = 30;        // px beyond the hilltop stone, so it never fires on the climb
