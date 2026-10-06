@@ -964,40 +964,57 @@
 
   function goScale(delta) { applyScale(scaleIndex + delta, delta); }
 
-  (function initScaleSwitcher() {
-    var prevBtn = document.getElementById('hpScalePrev');
-    var nextBtn = document.getElementById('hpScaleNext');
-    var track = document.getElementById('hpScaleTrack');
-    if (prevBtn) prevBtn.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); goScale(-1); });
-    if (nextBtn) nextBtn.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); goScale(1); });
+  (function initScalePicker() {
+    var trigger = document.getElementById('hpScaleMenuToggle');
+    var sheet = document.getElementById('hpScaleSheet');
+    var closeBtn = document.getElementById('hpScaleSheetClose');
+    var backdrop = document.getElementById('hpScaleSheetBackdrop');
+    var list = document.getElementById('hpScaleList');
 
-    var startX = 0, dragging = false;
-    function onDown(e) {
-      var t = e.touches ? e.touches[0] : e;
-      startX = t.clientX; dragging = true;
+    function closePicker(){
+      if(!sheet) return;
+      sheet.hidden = true;
+      if(trigger) trigger.setAttribute('aria-expanded','false');
     }
-    function onUp(e) {
-      if (!dragging) return;
-      dragging = false;
-      var t = (e.changedTouches && e.changedTouches[0]) || e;
-      var dx = t.clientX - startX;
-      if (Math.abs(dx) > 42) goScale(dx < 0 ? 1 : -1);
+    function openPicker(){
+      if(!sheet) return;
+      sheet.hidden = false;
+      if(trigger) trigger.setAttribute('aria-expanded','true');
+      var active = sheet.querySelector('.hp-scale-option.is-active');
+      if(active && active.scrollIntoView) active.scrollIntoView({block:'nearest'});
     }
-    if (track) {
-      track.addEventListener('pointerdown', onDown);
-      window.addEventListener('pointerup', onUp);
-      track.addEventListener('touchstart', function (e) { e.stopPropagation(); }, { passive: true });
+    function refreshList(){
+      if(!list) return;
+      list.innerHTML = '';
+      SCALES.forEach(function(scale,i){
+        var b=document.createElement('button');
+        b.type='button';
+        b.className='hp-scale-option'+(i===scaleIndex?' is-active':'');
+        b.setAttribute('aria-pressed',String(i===scaleIndex));
+        var title=document.createElement('strong');
+        title.textContent=scale.label;
+        var meta=document.createElement('small');
+        meta.textContent='Ding '+scale.ding+' · 13 notes';
+        b.appendChild(title); b.appendChild(meta);
+        b.addEventListener('click',function(){
+          applyScale(i, i===scaleIndex ? 0 : (i>scaleIndex ? 1 : -1));
+          refreshList();
+          closePicker();
+        });
+        list.appendChild(b);
+      });
     }
-
-    window.addEventListener('keydown', function (e) {
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-      var ae = document.activeElement;
-      if (ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
-      if (e.key === 'ArrowLeft') { e.preventDefault(); goScale(-1); }
-      else if (e.key === 'ArrowRight') { e.preventDefault(); goScale(1); }
+    if(trigger) trigger.addEventListener('click',function(e){
+      e.preventDefault(); e.stopPropagation();
+      if(sheet && !sheet.hidden) closePicker(); else openPicker();
     });
-
-    applyScale(0, 0);
+    if(closeBtn) closeBtn.addEventListener('click',closePicker);
+    if(backdrop) backdrop.addEventListener('click',closePicker);
+    document.addEventListener('keydown',function(e){
+      if(e.key==='Escape') closePicker();
+    });
+    refreshList();
+    applyScale(0,0);
   })();
 
   var last = performance.now();
