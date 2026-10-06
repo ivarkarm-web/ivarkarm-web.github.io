@@ -330,10 +330,15 @@
     var voice = this.active.get(idx);
     if (!voice || !this.ctx) return;
     var t = this.ctx.currentTime;
-    var tc = Math.max(0.012, 0.018 + (1 - Math.max(0, Math.min(1, amount || 0.9))) * 0.08);
+    amount = Math.max(0, Math.min(1, amount == null ? 0.9 : amount));
+    var tc = Math.max(0.014, 0.018 + (1 - amount) * 0.07);
+    // Touch damping leaves a little living resonance rather than hard-cutting
+    // the voice. Repeated calls while a finger remains down create a natural
+    // palm/finger mute curve.
+    var target = 0.0001 + 0.055 * (1 - amount);
     try {
       voice.out.gain.cancelScheduledValues(t);
-      voice.out.gain.setTargetAtTime(0.0001, t, tc);
+      voice.out.gain.setTargetAtTime(target, t, tc);
     } catch (e) {}
   };
 
@@ -849,15 +854,21 @@
     };
     pointerMap.set(e.pointerId, state);
     if (fields[idx]) fields[idx].held = 1;
-    var wasTwoFinger = (now - lastPointerDown.time <= TWO_FINGER_WINDOW && lastPointerDown.noteIndex >= 0 && lastPointerDown.noteIndex !== idx);
+    var wasTwoFinger = pointerMap.size > 0 &&
+      (now - lastPointerDown.time <= TWO_FINGER_WINDOW) &&
+      lastPointerDown.noteIndex >= 0 &&
+      lastPointerDown.noteIndex !== idx;
     strikeNote(idx, wasTwoFinger ? Math.min(1, state.velocity + 0.12) : state.velocity, impact);
     if (wasTwoFinger) haptic('accent');
     lastPointerDown = {time: now, noteIndex: idx};
-    state.dampingTimer = setTimeout(function () {
-      if (!pointerMap.has(e.pointerId) || state.noteIndex !== idx) return;
+    state.dampingTimer = setInterval(function () {
+      if (!pointerMap.has(e.pointerId) || state.noteIndex !== idx) {
+        clearInterval(state.dampingTimer);
+        return;
+      }
       state.dampingStarted = true;
       if (engine.damp) engine.damp(idx, 0.9);
-    }, 120);
+    }, 105);
     try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
   }
 
@@ -873,25 +884,29 @@
     state.lastX = px; state.lastY = py; state.lastTime = now;
     state.velocity = velocity;
     if (next < 0 || next === state.noteIndex) return;
-    clearTimeout(state.dampingTimer);
+    clearInterval(state.dampingTimer);
     var previous = state.noteIndex;
     releaseNote(previous);
     state.noteIndex = next;
     if (fields[next]) fields[next].held = 1;
     strikeNote(next, velocity, getImpact(px, py, fields[next]));
-    state.dampingTimer = setTimeout(function () {
-      if (!pointerMap.has(e.pointerId) || state.noteIndex !== next) return;
+    state.dampingTimer = setInterval(function () {
+      if (!pointerMap.has(e.pointerId) || state.noteIndex !== next) {
+        clearInterval(state.dampingTimer);
+        return;
+      }
       state.dampingStarted = true;
       if (engine.damp) engine.damp(next, 0.9);
-    }, 120);
+    }, 105);
   }
 
   function pointerUp(e) {
     var state = pointerMap.get(e.pointerId);
     if (!state) return;
-    clearTimeout(state.dampingTimer);
+    clearInterval(state.dampingTimer);
     pointerMap.delete(e.pointerId);
     releaseNote(state.noteIndex);
+    try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
   }
 
   canvas.addEventListener('pointerdown', pointerDown, { passive: false });
