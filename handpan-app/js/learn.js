@@ -1,5 +1,6 @@
 import { LESSONS } from './lessons.js';
 import { TimingScorer } from './learn-core.js';
+import { markLessonComplete } from './storage.js';
 
 const game = window.HandpanGame;
 const panel = document.getElementById('learnPanel');
