@@ -10,7 +10,12 @@ function setStatus(message){
 }
 
 form.addEventListener('change',function(e){
-  if(e.target&&e.target.name==='event_type')setStatus('');
+  if(e.target&&e.target.name==='event_type'){
+    setStatus('');
+    form.classList.add('has-selection');
+    var firstField=form.elements.name;
+    setTimeout(function(){if(firstField)firstField.focus({preventScroll:true});},420);
+  }
 });
 
 form.addEventListener('submit',function(e){
