@@ -122,14 +122,28 @@ if (monographToggleBtn) {
 }
 if (dmCloseBtn) dmCloseBtn.addEventListener('click', closeDirectMonographModal);
 if (dmBackdrop) dmBackdrop.addEventListener('click', closeDirectMonographModal);
+let _deepRabbitHoleTransitioning = false;
 if (dmOpenRhBtn) {
-  dmOpenRhBtn.addEventListener('click', () => {
+  const enterDeepRabbitHole = (e) => {
+    if (e) {
+      if (e.cancelable) e.preventDefault();
+      e.stopPropagation();
+      if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+    }
+
+    // Prevent the same physical interaction from being handled twice.
+    if (_deepRabbitHoleTransitioning || (typeof endOfRoadState !== 'undefined' && endOfRoadState.rabbitHoleShown)) return;
+    _deepRabbitHoleTransitioning = true;
+    dmOpenRhBtn.setAttribute('aria-disabled', 'true');
+
     const modal = document.getElementById('directMonographModal');
-    // Close monograph quietly, then run the full Rabbit Hole enter rain
     if (modal) {
       modal.classList.remove('open');
       modal.setAttribute('aria-hidden', 'true');
+      // Do not let the closing modal sit above the Rabbit Hole during its reveal.
+      modal.style.display = 'none';
     }
+
     const welcome = document.getElementById('welcome');
     if (welcome) {
       welcome.classList.add('hidden');
@@ -137,12 +151,25 @@ if (dmOpenRhBtn) {
       welcome.style.pointerEvents = 'none';
       welcome.style.display = 'none';
     }
+
     if (document.body) document.body.classList.remove('pre-enter');
     gameStarted = true;
+
+    // Let the Rabbit Hole own the transition curtain. This removes the old
+    // 40ms race between closing the monograph and opening the archive.
+    openRabbitHoleScreen();
+
     window.setTimeout(() => {
-      openRabbitHoleScreen();
-    }, 40);
+      _deepRabbitHoleTransitioning = false;
+      dmOpenRhBtn.removeAttribute('aria-disabled');
+    }, 1200);
+  };
+
+  dmOpenRhBtn.addEventListener('click', enterDeepRabbitHole);
+  dmOpenRhBtn.addEventListener('pointerdown', (e) => {
+    e.stopPropagation();
   });
+  dmOpenRhBtn.addEventListener('touchend', enterDeepRabbitHole, { passive: false });
 }
 
 // Monograph reader: site navigation (Home, About, ... Rabbit Hole)
