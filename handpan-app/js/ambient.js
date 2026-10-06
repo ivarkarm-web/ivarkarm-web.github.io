@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-var select=document.getElementById('natureSelect'),vol=document.getElementById('natureVolume'),grid=document.getElementById('instrumentGrid');
+var select=document.getElementById('natureSelect'),vol=document.getElementById('natureVolume'),grid=document.getElementById('instrumentGrid'),dock=document.getElementById('soundDock'),toggle=document.getElementById('soundDockToggle');
 var ctx=null,master=null,nodes=[],timers=[],ambience='off',gainValue=.24;
 function ensure(){
  if(ctx)return true;
@@ -45,7 +45,9 @@ function buildGrid(){
  instruments.forEach(function(item,i){var b=document.createElement('button');b.className='instrument-btn'+(i===0?' is-active':'');b.type='button';b.textContent=item.name;b.addEventListener('click',function(){if(window.HandpanGame)window.HandpanGame.setInstrument(i);grid.querySelectorAll('.instrument-btn').forEach(function(x){x.classList.remove('is-active')});b.classList.add('is-active')});grid.appendChild(b)});
 }
 if(select)select.addEventListener('change',function(){start(this.value)});
+if(toggle&&dock){toggle.addEventListener('click',function(){var open=!dock.classList.contains('is-hidden');dock.classList.toggle('is-hidden',open);toggle.classList.toggle('is-open',open);toggle.setAttribute('aria-expanded',String(!open));toggle.setAttribute('aria-label',open?'Open sound controls':'Close sound controls')});}
 if(vol)vol.addEventListener('input',function(){gainValue=parseFloat(this.value)||0;if(ambience!=='off')fade(gainValue)});
 buildGrid();
+if(dock&&toggle){dock.classList.add('is-hidden');}
 window.HandpanAtmosphere={set:start,volume:function(v){gainValue=v;fade(v)}};
 })();
