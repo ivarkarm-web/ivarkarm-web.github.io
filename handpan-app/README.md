@@ -21,6 +21,30 @@ The future app combines:
 - touch, mouse and keyboard input
 - eventually saved compositions / presets
 
+
+## Scale system (9-note dynamic)
+
+The instrument uses **interval-based scales** rather than hardcoded note names:
+
+- Exactly **9 physical pads**: 1 central Ding + 8 surrounding notes in a fluid radial circle
+- **10 world scales** defined as semitone intervals relative to the Ding
+- **Dynamic transposition**: `baseMidi` (chromatic root) + `octaveOffset` (−1 / 0 / +1)
+- Final MIDI: `baseMidi + scale.intervals[i] + (octaveOffset * 12)`
+- Changing root or octave remaps all pads instantly without interrupting active voices or loops
+
+### Transposition UI element IDs
+
+Wire these controls in the shell (buttons optional — API is always available on `HandpanGame`):
+
+| Element ID | Action |
+|------------|--------|
+| `hpRootDown` / `hpRootUp` | Chromatic Ding −1 / +1 |
+| `hpOctaveDown` / `hpOctaveUp` | Octave −1 / +1 |
+| `hpRootNote` | Displays current root name |
+| `hpOctaveLabel` | Displays octave offset |
+
+API: `HandpanGame.shiftRoot(delta)`, `HandpanGame.shiftOctave(delta)`, `HandpanGame.currentRootName()`
+
 ## Existing prototype nucleus
 
 The current website instrument already provides a strong base:

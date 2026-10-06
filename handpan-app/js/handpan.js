@@ -1,22 +1,22 @@
 /**
- * handpan.js — temporary restore loader
- *
- * Loads the last known-good engine blob from git history so the instrument
- * keeps working while the 9-note interval/transposition refactor is applied.
- *
- * New scale system lives in ./scales.js (already on main):
- *   - 10 interval-based 9-note scales
- *   - baseMidi + octaveOffset transposition
- *   - buildNotes() / shiftRoot() / shiftOctave()
- *
- * Integration of scales.js into this engine is the next step.
+ * handpan.js — 9-note interval-based engine (modular chunked source)
  */
-const ENGINE_URL =
-  'https://raw.githubusercontent.com/ivarkarm-web/ivarkarm-web.github.io/eee19589bc8fb4a68386ebe094cc86a43ba02dc3/handpan-app/js/handpan.js';
+import c0 from './handpan-src-0.js';
+import c1 from './handpan-src-1.js';
+import c2 from './handpan-src-2.js';
+import c3 from './handpan-src-3.js';
+import c4 from './handpan-src-4.js';
+import c5 from './handpan-src-5.js';
+import c6 from './handpan-src-6.js';
+import c7 from './handpan-src-7.js';
+import c8 from './handpan-src-8.js';
+import c9 from './handpan-src-9.js';
+import c10 from './handpan-src-10.js';
+import c11 from './handpan-src-11.js';
+import c12 from './handpan-src-12.js';
+import c13 from './handpan-src-13.js';
 
-const res = await fetch(ENGINE_URL);
-if (!res.ok) throw new Error('Failed to load handpan engine: ' + res.status);
-const code = await res.text();
+const code = c0 + c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10 + c11 + c12 + c13;
 const blob = new Blob([code], { type: 'text/javascript' });
 const url = URL.createObjectURL(blob);
 await import(url);
