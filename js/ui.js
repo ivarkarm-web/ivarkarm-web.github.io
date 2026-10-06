@@ -1884,7 +1884,7 @@ function refreshMonographScrollTriggers() {
       const heading=content.querySelector('h3');
       const paragraph=content.querySelector('p');
       const textEls=[tag,heading,paragraph].filter(Boolean);
-      const startAt=isSharedOpening ? (i===0?.22:1.25) : .18;
+      const startAt=isSharedOpening ? (i===0 ? .22 : 1.25) : .18;
 
       gsap.set(content,{autoAlpha:1,y:0});
       gsap.set(textEls,{
