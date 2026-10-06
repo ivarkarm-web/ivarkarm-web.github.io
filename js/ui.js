@@ -221,6 +221,23 @@ if (dmOpenRhBtn) {
 })();
 
 // Monograph reader quick-jump bar
+(function initMonographSiteNavScrollCue() {
+  const nav = document.getElementById('dmSiteNav');
+  const cue = document.getElementById('dmSitenavScrollCue');
+  if (!nav || !cue) return;
+
+  const updateCue = () => {
+    const maxScroll = nav.scrollWidth - nav.clientWidth;
+    const hasMore = maxScroll > 6;
+    const atEnd = nav.scrollLeft >= maxScroll - 8;
+    cue.classList.toggle('is-hidden', !hasMore || atEnd);
+  };
+
+  nav.addEventListener('scroll', updateCue, { passive: true });
+  window.addEventListener('resize', updateCue, { passive: true });
+  requestAnimationFrame(updateCue);
+})();
+
 (function initMonographQuickNav() {
   const nav = document.getElementById('dmQuickNav');
   const content = document.getElementById('dmContent');

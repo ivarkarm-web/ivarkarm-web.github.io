@@ -7482,3 +7482,79 @@ body.rabbit-hole-open .welcome {
 @media(prefers-reduced-motion:reduce){
   .contact-section .contact-icon,.book-me-button,.booking-modal,.booking-dialog,.booking-event-option,.booking-submit{transition:none}
 }
+
+/* Monograph section-navigation cue: makes the horizontally scrollable destinations discoverable
+   without changing the existing button design. */
+.dm-sitenav {
+  position: relative;
+  box-shadow: inset -34px 0 28px -28px rgba(212, 175, 55, 0.5);
+}
+.dm-sitenav::after {
+  content: '';
+  position: sticky;
+  right: 0;
+  flex: 0 0 34px;
+  align-self: stretch;
+  margin-left: -34px;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(10, 13, 18, 0), rgba(10, 13, 18, 0.96));
+}
+.dm-sitenav-scroll-cue {
+  position: sticky;
+  right: 0.55rem;
+  z-index: 2;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: -2.2rem;
+  padding: 0.35rem 0.45rem 0.35rem 0.65rem;
+  border-left: 1px solid rgba(212, 175, 55, 0.28);
+  background: linear-gradient(90deg, rgba(10, 13, 18, 0.2), rgba(10, 13, 18, 0.96) 28%);
+  color: rgba(212, 175, 55, 0.78);
+  font: 500 0.55rem/1 'Inter', sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.dm-sitenav-scroll-cue b {
+  display: inline-block;
+  font-size: 0.9rem;
+  font-weight: 400;
+  animation: dmNavCueNudge 1.8s ease-in-out infinite;
+}
+.dm-sitenav-scroll-cue::before {
+  content: '';
+  position: absolute;
+  left: -1.5rem;
+  top: 50%;
+  width: 2.2rem;
+  height: 2.2rem;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.13) 0, rgba(212, 175, 55, 0) 68%);
+  animation: dmNavCueGlow 2.4s ease-in-out infinite;
+}
+.dm-sitenav-scroll-cue.is-hidden {
+  opacity: 0;
+  transform: translateX(0.4rem);
+}
+@keyframes dmNavCueNudge {
+  0%, 100% { transform: translateX(0); opacity: 0.65; }
+  50% { transform: translateX(0.35rem); opacity: 1; }
+}
+@keyframes dmNavCueGlow {
+  0%, 100% { opacity: 0.25; transform: translateY(-50%) scale(0.75); }
+  50% { opacity: 1; transform: translateY(-50%) scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dm-sitenav-scroll-cue b,
+  .dm-sitenav-scroll-cue::before { animation: none; }
+}
+@media (max-width: 600px) {
+  .dm-sitenav-scroll-cue {
+    right: 0.25rem;
+    margin-left: -2rem;
+  }
+}
