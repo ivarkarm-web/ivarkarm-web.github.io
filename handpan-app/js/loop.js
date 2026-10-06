@@ -1,95 +1,86 @@
 (function(){
 'use strict';
-
-var transport=window.HandpanTransport;
-var state={recording:false,playing:false,quantize:true,events:[],layers:[],timer:null,recordTimer:null,recordStart:0,lastPos:0};
-var eventsEl=document.getElementById('loopEvents'),statusEl=document.getElementById('loopStatus'),recordBtn=document.getElementById('loopRecord'),playBtn=document.getElementById('loopPlay'),clearBtn=document.getElementById('loopClear'),tempoEl=document.getElementById('loopTempo'),bpmEl=document.getElementById('loopBpm'),barsEl=document.getElementById('loopBars'),gridEl=document.getElementById('loopGrid'),timelineEl=document.getElementById('loopTimeline'),playheadEl=document.getElementById('loopPlayhead');
+var state={mode:'empty',events:[],layers:[],recordStart:0,loopStart:0,loopDuration:0,lastPos:0,raf:null};
+var statusEl=document.getElementById('loopStatus'),mainBtn=document.getElementById('loopRecord'),clearBtn=document.getElementById('loopClear'),eventsEl=document.getElementById('loopEvents');
 
 function now(){return performance.now()/1000}
-function setStatus(s){if(statusEl)statusEl.textContent=s}
-function scale(){return window.HandpanGame&&window.HandpanGame.scaleIndex?window.HandpanGame.scaleIndex():0}
 function totalNotes(){return state.layers.reduce(function(n,l){return n+l.length},0)}
+function setStatus(s){if(statusEl)statusEl.textContent=s}
 function render(){
- if(eventsEl)eventsEl.textContent=state.layers.length?state.layers.length+' layer'+(state.layers.length>1?'s':'')+' · '+totalNotes()+' notes · '+transport.state.bars+' bar'+(transport.state.bars>1?'s':''):'No loop recorded';
- renderTimeline()
-}
-function renderTimeline(){
- if(!timelineEl)return;
- timelineEl.innerHTML='';
- var steps=transport.state.bars*transport.state.grid;
- timelineEl.style.gridTemplateColumns='repeat('+steps+',1fr)';
- for(var i=0;i<steps;i++){
-   var cell=document.createElement('span');cell.className='loop-cell'+(i%transport.state.grid===0?' bar':'')+(i%4===0?' beat':'');timelineEl.appendChild(cell)
- }
- state.layers.forEach(function(layer,li){
-   layer.forEach(function(e){
-     var dot=document.createElement('i');dot.className='loop-note';dot.dataset.layer=li;
-     dot.style.left=(Math.max(0,Math.min(1,e.t/transport.duration()))*100)+'%';
-     dot.title='Note '+(e.n+1);
-     timelineEl.appendChild(dot)
-   })
- })
+ if(!eventsEl)return;
+ if(state.mode==='recording') eventsEl.textContent='Play freely · press LOOP to close the loop';
+ else if(state.mode==='playing') eventsEl.textContent=state.layers.length+' layer'+(state.layers.length>1?'s':'')+' · '+totalNotes()+' notes · press LOOP to overdub';
+ else if(state.mode==='overdub') eventsEl.textContent='Overdub ready · press LOOP to add your layer';
+ else eventsEl.textContent=state.layers.length?'Loop saved · '+totalNotes()+' notes':'Press LOOP to record';
 }
 function trigger(e){try{if(window.HandpanGame&&window.HandpanGame.strike)window.HandpanGame.strike(e.n,e.v)}catch(err){}}
-function playbackTick(payload){
- if(!state.playing)return;
- if(playheadEl)playheadEl.style.left=(payload.seconds/transport.duration()*100)+'%';
+function stopRAF(){if(state.raf){cancelAnimationFrame(state.raf);state.raf=null}}
+function playbackFrame(){
+ if(state.mode!=='playing'&&state.mode!=='overdub')return;
+ var t=now()-state.loopStart;
+ var pos=((t%state.loopDuration)+state.loopDuration)%state.loopDuration;
+ var last=state.lastPos;
+ var wrapped=pos<last;
  state.layers.forEach(function(layer){
    layer.forEach(function(e){
-     var last=state.lastPos||0,pos=payload.seconds,dur=transport.duration(),wrapped=pos<last;
      if((!wrapped&&e.t>=last&&e.t<pos)||(wrapped&&(e.t>=last||e.t<pos)))trigger(e);
-   })
+   });
  });
- state.lastPos=payload.seconds
+ state.lastPos=pos;
+ state.raf=requestAnimationFrame(playbackFrame);
 }
-function finish(){
- if(!state.recording)return;
- state.recording=false;if(state.recordTimer){clearTimeout(state.recordTimer);state.recordTimer=null}
- if(state.events.length)state.layers.push(state.events.slice());
- state.events=[];
- setStatus(state.layers.length?'LOOP READY':'EMPTY');
- if(recordBtn)recordBtn.classList.remove('is-on');
- render()
+function startPlayback(){
+ state.mode='playing';state.loopStart=now();state.lastPos=0;setStatus('LOOPING');
+ if(mainBtn){mainBtn.classList.add('is-on');mainBtn.textContent='OVERDUB';}
+ render();stopRAF();state.raf=requestAnimationFrame(playbackFrame);
 }
-function startRecord(){
- stop();state.events=[];state.lastPos=0;state.recording=true;state.recordStart=now();
- state.recordTimer=setTimeout(function(){if(state.recording)finish()},transport.duration()*1000);
- setStatus(state.layers.length?'OVERDUB':'RECORDING');
- if(recordBtn)recordBtn.classList.add('is-on');
+function startRecording(){
+ stopRAF();state.mode='recording';state.events=[];state.recordStart=now();setStatus('RECORDING');
+ if(mainBtn){mainBtn.classList.add('is-on');mainBtn.textContent='STOP & LOOP';}
  render();
+}
+function finishRecording(){
+ var duration=now()-state.recordStart;
+ if(duration<0.35)return;
+ var events=state.events.map(function(e){return {t:Math.min(e.t,duration-0.001),n:e.n,v:e.v,scale:e.scale}});
+ if(events.length)state.layers=[events];
+ state.loopDuration=Math.max(.5,duration);
+ state.mode='playing';state.loopStart=now();state.lastPos=0;setStatus('LOOPING');
+ if(mainBtn){mainBtn.classList.add('is-on');mainBtn.textContent='OVERDUB';}
+ render();stopRAF();state.raf=requestAnimationFrame(playbackFrame);
+}
+function startOverdub(){
+ state.mode='overdub';state.events=[];state.recordStart=now();setStatus('OVERDUB');
+ if(mainBtn){mainBtn.classList.add('is-on');mainBtn.textContent='ADD LAYER';}
+ render();
+}
+function finishOverdub(){
+ var events=state.events.map(function(e){return {t:((e.t%state.loopDuration)+state.loopDuration)%state.loopDuration,n:e.n,v:e.v,scale:e.scale}});
+ if(events.length)state.layers.push(events);
+ state.mode='playing';state.loopStart=now();state.lastPos=0;setStatus('LOOPING');
+ if(mainBtn){mainBtn.classList.add('is-on');mainBtn.textContent='OVERDUB';}
+ render();stopRAF();state.raf=requestAnimationFrame(playbackFrame);
 }
 function note(e){
- if(!state.recording)return;
+ if(state.mode!=='recording'&&state.mode!=='overdub')return;
  var raw=now()-state.recordStart;
- var t=state.quantize?transport.quantize(raw):raw;
- if(t>=transport.duration())t=transport.duration()-0.001;
- state.events.push({t:t,n:e.noteIndex,v:e.velocity||.8,scale:scale()});
- render();
+ var t=state.mode==='overdub'?raw%state.loopDuration:raw;
+ state.events.push({t:t,n:e.noteIndex,v:e.velocity||.8,scale:window.HandpanGame&&window.HandpanGame.scaleIndex?window.HandpanGame.scaleIndex():0});
 }
-function play(){
- if(state.recording)finish();
- if(!state.layers.length){setStatus('PLAY SOMETHING FIRST');return}
- state.playing=true;state.lastPos=0;setStatus('LOOPING');
- transport.start(0)
-}
-function stop(){
- state.playing=false;transport.stop();if(state.recordTimer){clearTimeout(state.recordTimer);state.recordTimer=null}
- if(playheadEl)playheadEl.style.left='0%';
- if(playBtn)playBtn.classList.remove('is-on');
- if(!state.recording)setStatus(state.layers.length?'LOOP READY':'EMPTY')
+function mainAction(){
+ if(state.mode==='empty')startRecording();
+ else if(state.mode==='recording')finishRecording();
+ else if(state.mode==='playing')startOverdub();
+ else if(state.mode==='overdub')finishOverdub();
 }
 function clear(){
- stop();state.recording=false;state.events=[];state.layers=[];setStatus('EMPTY');
- if(recordBtn)recordBtn.classList.remove('is-on');render()
+ stopRAF();state.mode='empty';state.events=[];state.layers=[];state.loopDuration=0;setStatus('READY');
+ if(mainBtn){mainBtn.classList.remove('is-on');mainBtn.textContent='LOOP'}
+ render();
 }
-recordBtn&&recordBtn.addEventListener('click',function(){state.recording?finish():startRecord()});
-playBtn&&playBtn.addEventListener('click',function(){state.playing?stop():play()});
+mainBtn&&mainBtn.addEventListener('click',mainAction);
 clearBtn&&clearBtn.addEventListener('click',clear);
-tempoEl&&tempoEl.addEventListener('input',function(){transport.setBpm(tempoEl.value);if(bpmEl)bpmEl.value=transport.state.bpm;render()});
-barsEl&&barsEl.addEventListener('change',function(){transport.setBars(barsEl.value);clear();render()});
-gridEl&&gridEl.addEventListener('change',function(){state.quantize=gridEl.value!=='off';transport.state.grid=gridEl.value==='8'?8:16;render()});
 window.addEventListener('handpan:note',note);
-transport.onTick(playbackTick);
-window.HandpanLooper={state:state,record:startRecord,stop:finish,play:play,clear:clear};
-render()
+window.HandpanLooper={state:state,record:startRecording,stop:clear,play:startPlayback,clear:clear};
+render();
 })();
