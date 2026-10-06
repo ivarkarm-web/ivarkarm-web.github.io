@@ -44,6 +44,11 @@
         </button>
         <span class="loop-orb-label" id="loopOrbLabel">RECORD</span>
       </div>
+      <div class="loop-config" aria-label="Loop timing">
+        <label><span>BPM</span><input id="loopBpm" type="number" min="40" max="180" step="1" value="80" inputmode="numeric" aria-label="Loop tempo in beats per minute"></label>
+        <label><span>BARS</span><select id="loopBars" aria-label="Loop length in bars"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label>
+      </div>
+      <p class="loop-config-note" id="loopConfigNote">1 bar count-in · 4 bars default</p>
       <div class="loop-actions">
         <button id="loopPlay" type="button" aria-label="Play loop">Play</button>
         <button id="loopPause" type="button" aria-label="Pause loop">Pause</button>
@@ -66,5 +71,5 @@
   </div>
   <div class="learn-panel" id="learnPanel" aria-live="polite"><div class="learn-top"><div><span class="learn-kicker">LEARN</span><strong>Choose a lesson</strong></div><button id="learnClose" type="button" aria-label="Close lessons">×</button></div><div class="lesson-list" id="lessonList"></div><div class="learn-stage" id="learnStage" hidden><div class="learn-stage-head"><button id="learnBack" type="button">Lessons</button><span id="learnStageName"></span></div><div class="learn-status" id="learnStatus">Listen first…</div><div class="learn-foot"><span id="learnProgress">0/0</span><span id="learnScore">0 hits · 0 misses</span></div></div></div><div class="learn-modal" id="learnModal" hidden><div class="learn-modal-card"><span class="learn-modal-kicker" id="learnModalKicker">LESSON</span><h2 id="learnModalTitle">Great job</h2><p id="learnModalText"></p><div class="learn-modal-actions" id="learnModalActions"></div></div></div>
   <div class="app-panel" id="appPanel" aria-live="polite"><div class="app-panel-kicker">PLAY MODE</div><div class="app-panel-copy">The original website instrument is now the nucleus of the standalone app.</div></div><div class="hp-veil" id="hpVeil" aria-hidden="true"></div>
-  <script src="./js/handpan.js"></script><script src="./js/transport.js"></script><script src="./js/loop.js"></script><script src="./js/learn.js"></script><script src="./js/ambient.js"></script><script src="./js/app-shell.js"></script>
+  <script src="./js/handpan.js"></script><script src="./js/transport.js"></script><script type="module" src="./js/loop.js"></script><script src="./js/learn.js"></script><script src="./js/ambient.js"></script><script src="./js/app-shell.js"></script>
 </body></html>
