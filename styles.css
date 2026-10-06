@@ -7964,3 +7964,19 @@ body.rabbit-hole-open .welcome {
   .dm-section--origin.dm-scroll-reveal .dm-origin-bg{clip-path:none!important;transform:none!important}
   .dm-section--origin.dm-scroll-reveal .dm-origin-bg img{transform:none!important}
 }
+
+/* Monograph reveal corrections — remove legacy text clipping and keep the
+   Eastern Estonia opening at natural scale. */
+.dm-scroll-reveal .dm-origin-content,
+.dm-scroll-reveal .dm-origin-content .dm-sec-tag,
+.dm-scroll-reveal .dm-origin-content h3,
+.dm-scroll-reveal .dm-origin-content p{
+  clip-path:none !important;
+}
+.dm-scroll-reveal--shared-bg .dm-origin-bg,
+.dm-scroll-reveal--shared-bg .dm-origin-bg img{
+  transform:none !important;
+}
+.dm-scroll-reveal--shared-bg .dm-origin-bg img{
+  object-position:center center;
+}
