@@ -3,9 +3,21 @@
 var MAX_LAYERS=7;
 var state={mode:'empty',layers:[],current:[],recordStart:0,loopStart:0,loopDuration:0,lastPos:0,raf:null,paused:false};
 var button=document.getElementById('loopRecord'),label=document.getElementById('loopOrbLabel'),countEl=document.getElementById('loopLayerCount');
-var playBtn=document.getElementById('loopPlay'),pauseBtn=document.getElementById('loopPause'),clearBtn=document.getElementById('loopClear');
+var playBtn=document.getElementById('loopPlay'),pauseBtn=document.getElementById('loopPause'),clearBtn=document.getElementById('loopClear'),orbit=document.getElementById('loopOrbit');
 function now(){return performance.now()/1000}
 function stopClock(){if(state.raf){cancelAnimationFrame(state.raf);state.raf=null}}
+function paintOrbit(){
+ if(!orbit)return;
+ orbit.innerHTML='';
+ state.layers.forEach(function(layer,i){
+  var node=document.createElement('button'); node.type='button'; node.className='loop-orbit-node'+(state.paused?' is-paused':'');
+  node.style.setProperty('--orbit-i',i);
+  node.setAttribute('aria-label','Loop layer '+(i+1));
+  node.innerHTML='<span></span><b>'+(i+1)+'</b>';
+  node.addEventListener('click',function(){ if(state.paused) play(); else pause(); });
+  orbit.appendChild(node);
+ });
+}
 function paint(){
  if(!button)return;
  var rec=state.mode==='recording'||state.mode==='overdub';
@@ -14,6 +26,7 @@ function paint(){
  if(label)label.textContent=rec?'RECORDING':state.layers.length?'LOOP READY':'RECORD';
  button.setAttribute('aria-label',rec?'Finish recording layer':state.layers.length?'Record another layer':'Record a loop');
  if(playBtn)playBtn.textContent=state.paused?'Play':'Play';
+ paintOrbit();
 }
 function playEvent(e){if(window.HandpanGame&&window.HandpanGame.strike)try{window.HandpanGame.strike(e.n,e.v)}catch(x){}}
 function tick(){
