@@ -1,96 +1,98 @@
-(function(){
-'use strict';
-var game=window.HandpanGame;
-var state={lesson:0,phase:'picker',active:false,playingDemo:false,next:0,hits:0,misses:0,combo:0,bestCombo:0,stepHits:{},timer:null,window:.42,userInteracted:false,demoRun:0};
-var lessons=[
- {name:'First Steps',description:'A gentle four-note introduction.',speed:72,steps:[[0],[1],[2],[1],[0],[3],[2],[1]]},
- {name:'Descending',description:'Learn to move naturally down and back.',speed:82,steps:[[4],[3],[2],[1],[0],[1],[2],[3]]},
- {name:'Open Phrase',description:'Your first flowing phrase, including chords.',speed:90,steps:[[0],[2],[4],[3],[1,3],[3],[5],[4,2],[0]]}
-];
-var panel=document.getElementById('learnPanel'),list=document.getElementById('lessonList'),stage=document.getElementById('learnStage'),nameEl=document.getElementById('learnStageName'),progressEl=document.getElementById('learnProgress'),scoreEl=document.getElementById('learnScore'),statusEl=document.getElementById('learnStatus'),modal=document.getElementById('learnModal'),modalTitle=document.getElementById('learnModalTitle'),modalText=document.getElementById('learnModalText'),modalActions=document.getElementById('learnModalActions');
+import { LESSONS } from './lessons.js';
+import { TimingScorer } from './learn-core.js';
 
-function noteName(i){return game&&game.notes&&game.notes[i]?game.notes[i].name:'•'}
+const game = window.HandpanGame;
+const panel = document.getElementById('learnPanel');
+const list = document.getElementById('lessonList');
+const stage = document.getElementById('learnStage');
+const stageName = document.getElementById('learnStageName');
+const levelEl = document.getElementById('learnLevel');
+const progressEl = document.getElementById('learnProgress');
+const scoreEl = document.getElementById('learnScore');
+const statusEl = document.getElementById('learnStatus');
+const timingEl = document.getElementById('learnTiming');
+const modal = document.getElementById('learnModal');
+const modalTitle = document.getElementById('learnModalTitle');
+const modalText = document.getElementById('learnModalText');
+const modalActions = document.getElementById('learnModalActions');
+
+const state = { lesson:null, phase:'picker', scorer:null, practiceStart:0, demoStart:0, timer:null, lastStep:-1, lastFeedback:'', demoTimers:[] };
+const LEVELS = [[1,'First Notes'],[2,'Rhythms'],[3,'Phrases & Chords'],[4,'Short Pieces']];
+
+function clearTimers(){ if(state.timer) clearInterval(state.timer); state.timer=null; state.demoTimers.forEach((timer)=>clearTimeout(timer)); state.demoTimers=[]; }
 function renderList(){
- if(!list)return;
- list.innerHTML='';
- lessons.forEach(function(l,i){
-  var b=document.createElement('button');b.type='button';b.className='lesson-card';
-  b.innerHTML='<span class="lesson-index">0'+(i+1)+'</span><span class="lesson-copy"><strong>'+l.name+'</strong><small>'+l.description+'</small></span><span class="lesson-arrow">→</span>';
-  b.addEventListener('click',function(){selectLesson(i)});
-  list.appendChild(b);
- });
+  if(!list)return;
+  list.innerHTML='';
+  LEVELS.forEach(([level,name])=>{
+    const heading=document.createElement('div'); heading.className='lesson-level'; heading.textContent='LEVEL '+level+' · '+name; list.appendChild(heading);
+    LESSONS.filter((lesson)=>lesson.level===level).forEach((lesson)=>{
+      const button=document.createElement('button'); button.type='button'; button.className='lesson-card';
+      button.innerHTML='<span class="lesson-card-top"><b>'+lesson.name+'</b><small>'+lesson.bpm+' BPM</small></span><span>'+lesson.description+'</span><em>'+lesson.steps.length+' steps</em>';
+      button.addEventListener('click',()=>beginLesson(lesson)); list.appendChild(button);
+    });
+  });
 }
-function openPicker(){state.phase='picker';state.active=false;state.playingDemo=false;state.userInteracted=false;state.demoRun++;if(state.timer)clearTimeout(state.timer);clearGuide();document.body.classList.remove('learn-active');if(stage)stage.hidden=true;if(list)list.hidden=false;hideModal();renderList();}
-function selectLesson(i){
- state.lesson=i;state.phase='demo';state.active=false;state.userInteracted=false;state.next=0;state.hits=0;state.misses=0;state.combo=0;state.bestCombo=0;state.stepHits={};state.demoRun++;
- if(list)list.hidden=true;if(stage)stage.hidden=false;document.body.classList.add('learn-active');
- nameEl.textContent=lessons[i].name; statusEl.textContent='Listen first…'; renderStats(); playDemo();
+function currentStepIndex(){ return state.scorer ? state.scorer.steps.findIndex((_,index)=>!state.scorer.stepComplete(index)) : -1; }
+function setGuide(){
+  if(!game?.setGuideTargets||!state.scorer)return;
+  const index=currentStepIndex(); game.setGuideTargets(index>=0 ? state.scorer.steps[index].targets : []);
 }
-function renderStats(){if(progressEl)progressEl.textContent=Math.min(state.next,lessons[state.lesson].steps.length)+'/'+lessons[state.lesson].steps.length;if(scoreEl)scoreEl.textContent=state.hits+' hits · '+state.misses+' misses';}
-function guide(indices){if(game&&game.setGuideTargets)game.setGuideTargets(indices)}
-function clearGuide(){if(game&&game.clearGuideTargets)game.clearGuideTargets()}
-function playDemo(){
- var l=lessons[state.lesson],beat=60000/l.speed,run=state.demoRun;
- clearGuide(); state.playingDemo=true; state.phase='demo'; state.next=0;
- statusEl.textContent='Listen to the melody…';
- var i=0;
- function next(){
-  if(run!==state.demoRun)return;
-  if(i>=l.steps.length){state.playingDemo=false;state.phase='repeat';state.active=true;state.userInteracted=false;state.next=0;state.stepHits={};statusEl.textContent='Your turn — repeat what you heard.';guide(l.steps[0]);renderStats();return;}
-  var notes=l.steps[i];guide(notes);
-  notes.forEach(function(n,j){setTimeout(function(){if(run===state.demoRun&&state.playingDemo&&game&&game.strike)game.strike(n,.72)},j*45)});
-  i++;state.next=i;renderStats();state.timer=setTimeout(next,beat);
- }
- next();
+function renderStats(){
+  if(!state.scorer)return;
+  const progress=state.scorer.steps.filter((_,index)=>state.scorer.stepComplete(index)).length;
+  if(progressEl)progressEl.textContent=progress+'/'+state.scorer.steps.length;
+  if(scoreEl)scoreEl.textContent=state.scorer.score+' pts · '+Math.round(state.scorer.accuracy()*100)+'% · '+state.scorer.bestCombo+' best';
+  if(levelEl&&state.lesson)levelEl.textContent='LEVEL '+state.lesson.level+' · '+state.lesson.levelName;
+  const current=currentStepIndex();
+  if(current!==state.lastStep){state.lastStep=current;setGuide();}
 }
-function showModal(kind){
- if(!modal)return;
- modal.hidden=false;
- if(kind==='fail'){
-  modalTitle.textContent='Try again';
-  modalText.textContent='That phrase broke. Listen once more, then play it back on the handpan.';
-  modalActions.innerHTML='';
-  addAction('Try again',function(){hideModal();playDemo();});
-  addAction('Close',function(){hideModal();openPicker();});
- }else{
-  modalTitle.textContent='Great job';
-  modalText.textContent='You completed '+lessons[state.lesson].name+'.';
-  modalActions.innerHTML='';
-  if(state.lesson<lessons.length-1)addAction('Next lesson',function(){hideModal();selectLesson(state.lesson+1);});
-  addAction('Back',function(){hideModal();openPicker();});
- }
+function setFeedback(text,detail=''){if(statusEl)statusEl.textContent=text;if(timingEl)timingEl.textContent=detail;}
+function beginLesson(lesson){
+  clearTimers(); state.lesson=lesson; state.scorer=new TimingScorer(lesson.steps,lesson.level===4?.36:lesson.level===3?.42:lesson.level===2?.48:.55); state.phase='demo'; state.lastStep=-1; state.lastFeedback='';
+  if(stage)stage.hidden=false; if(list)list.hidden=true; if(stageName)stageName.textContent=lesson.name; setFeedback('Listen first…',lesson.description); renderStats(); runDemo();
 }
-function addAction(label,fn){var b=document.createElement('button');b.type='button';b.textContent=label;b.className='learn-modal-btn'+(label==='Next lesson'?' is-primary':'');b.addEventListener('click',fn);modalActions.appendChild(b);}
-function hideModal(){if(modal)modal.hidden=true;}
-function feedback(kind){
- if(!navigator.vibrate||!(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches))return;
- try{navigator.vibrate(kind==='success'?[10,24,10]:kind==='fail'?[28,18,28]:6)}catch(e){}
+function runDemo(){
+  const beat=60/state.lesson.bpm,lead=beat*1.5; state.demoStart=performance.now()/1000+lead;
+  state.lesson.steps.forEach((step)=>state.demoTimers.push(setTimeout(()=>step.targets.forEach((note)=>game?.strike(note,.72)),Math.max(0,(step.at*beat+lead)*1000))));
+  const end=(Math.max(...state.lesson.steps.map((step)=>step.at))+1.5)*beat+lead; state.demoTimers.push(setTimeout(startPractice,end*1000));
 }
-function finish(success){
- state.active=false;clearGuide();if(success){state.phase='complete';showModal('success');}else{state.phase='failed';showModal('fail');}
+function startPractice(){
+  if(!state.lesson)return;
+  state.demoTimers=[]; state.phase='practice'; const beat=60/state.lesson.bpm; state.practiceStart=performance.now()/1000+beat; state.lastStep=-1; setFeedback('Get ready…','Play with the pulse'); renderStats(); state.timer=setInterval(tick,40);
 }
-function startRepeat(){
- var l=lessons[state.lesson];state.phase='repeat';state.active=true;state.next=0;state.stepHits={};state.hits=0;state.misses=0;state.combo=0;statusEl.textContent='Your turn — repeat the melody.';guide(l.steps[0]);renderStats();
-}
-function hit(e){
- if(!state.active||state.playingDemo||state.phase!=='repeat')return;
- state.userInteracted=true;
- var targets=lessons[state.lesson].steps[state.next],idx=e&&e.detail?e.detail.noteIndex:null;
- if(targets.indexOf(idx)!==-1){
-  state.stepHits[idx]=true;
-  if(targets.every(function(n){return state.stepHits[n]})){
-   state.hits++;state.combo++;state.bestCombo=Math.max(state.bestCombo,state.combo);state.next++;state.stepHits={};
-   if(state.next>=lessons[state.lesson].steps.length){renderStats();feedback('success');finish(true);return;}
-   guide(lessons[state.lesson].steps[state.next]);renderStats();
+function tick(){
+  if(state.phase!=='practice'||!state.lesson||!state.scorer)return;
+  const elapsed=performance.now()/1000-state.practiceStart;
+  if(elapsed<0){setFeedback('Get ready…',Math.max(0,Math.ceil(-elapsed*10)/10)+'');return;}
+  const index=currentStepIndex();
+  if(index<0){finishLesson();return;}
+  const step=state.lesson.steps[index];
+  if(elapsed>step.at+state.scorer.window){
+    const missing=step.targets.length-state.scorer.stepHits[index].size;
+    for(let i=0;i<missing;i++){state.scorer.misses+=1;state.scorer.combo=0;}
+    state.scorer.lastFeedback='MISSED STEP'; setFeedback('Keep going','Next phrase'); state.lastStep=-1; renderStats();
   }
- }else{state.misses++;state.combo=0;renderStats();feedback('fail');finish(false);}
 }
-function init(){
- renderList();
- document.getElementById('learnClose').addEventListener('click',openPicker);
- document.getElementById('learnBack').addEventListener('click',openPicker);
- window.addEventListener('handpan:note',hit);
+function noteHandler(event){
+  if(state.phase!=='practice'||!state.scorer||!state.lesson)return;
+  const elapsed=performance.now()/1000-state.practiceStart; if(elapsed<-state.scorer.window)return;
+  const result=state.scorer.scoreNote(event.detail?.noteIndex,elapsed);
+  if(result.correct){const timing=result.delta==null?'':(result.delta>=0?'+':'')+Math.round(result.delta*1000)+' ms';setFeedback(result.feedback,timing);if(navigator.vibrate)navigator.vibrate(result.feedback==='PERFECT'?10:6);}
+  else setFeedback('MISS','Stay with the pulse');
+  renderStats(); if(state.scorer.allComplete())finishLesson();
 }
-window.HandpanLearn={lessons:lessons,open:openPicker,select:selectLesson};
-init();
-})();
+function finishLesson(){
+  if(state.phase==='complete')return;
+  clearTimers(); state.phase='complete'; game?.clearGuideTargets?.(); renderStats();
+  openModal('Lesson complete',state.lesson.name+' · '+state.scorer.score+' points · '+Math.round(state.scorer.accuracy()*100)+'% accuracy · '+state.scorer.bestCombo+' best combo.');
+}
+function openModal(title,text){
+  if(!modal)return; modal.hidden=false; if(modalTitle)modalTitle.textContent=title;if(modalText)modalText.textContent=text;
+  if(modalActions){modalActions.innerHTML='';const retry=document.createElement('button');retry.type='button';retry.textContent='Again';retry.addEventListener('click',()=>{modal.hidden=true;beginLesson(state.lesson);});const back=document.createElement('button');back.type='button';back.textContent='Lessons';back.addEventListener('click',closeLesson);modalActions.append(retry,back);}
+}
+function closeLesson(){clearTimers();state.phase='picker';state.lesson=null;state.scorer=null;game?.clearGuideTargets?.();if(modal)modal.hidden=true;if(stage)stage.hidden=true;if(list)list.hidden=false;}
+document.getElementById('learnClose')?.addEventListener('click',closeLesson);
+document.getElementById('learnBack')?.addEventListener('click',closeLesson);
+window.addEventListener('handpan:note',noteHandler);
+window.HandpanLearn={open:()=>{panel?.classList.add('is-open');renderList();},close:closeLesson,lessons:LESSONS,state};
+renderList();
