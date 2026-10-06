@@ -361,23 +361,25 @@ function resize() {
 }
 
 function layoutFields() {
-  // Rounded-square tone fields — larger thumb targets, soft gaps
+  // Very round rectangles (stadium / soft capsule) — thumb-friendly
   state.fields = state.notes.map((n) => {
     if (n.kind === 'ding') {
-      const s = R * 0.22; // half-size
-      return { i: n.index, x: CX, y: CY, rx: s, ry: s, radius: s * 0.42 };
+      const hw = R * 0.20;
+      const hh = R * 0.20;
+      return { i: n.index, x: CX, y: CY, rx: hw, ry: hh, radius: Math.min(hw, hh) * 0.88 };
     }
     const a = (n.angle * Math.PI) / 180;
     const d = R * 0.62;
-    const hw = R * 0.175; // half-width — room for a thumb
-    const hh = R * 0.175;
+    // Wider than tall → clear rectangular silhouette with fully rounded ends
+    const hw = R * 0.20;
+    const hh = R * 0.135;
     return {
       i: n.index,
       x: CX + Math.sin(a) * d,
       y: CY - Math.cos(a) * d,
       rx: hw,
       ry: hh,
-      radius: Math.min(hw, hh) * 0.38
+      radius: Math.min(hw, hh) * 0.95 // nearly pill-shaped corners
     };
   });
 }
