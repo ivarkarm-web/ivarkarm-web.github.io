@@ -223,12 +223,20 @@ if (dmOpenRhBtn) {
 // Monograph reader quick-jump bar
 (function initMonographSiteNavScrollCue() {
   const nav = document.getElementById('dmSiteNav');
-  if (!nav) return;
+  const line = nav?.querySelector('.dm-sitenav-flow-line');
+  if (!nav || !line) return;
 
   const updateCue = () => {
     const maxScroll = Math.max(0, nav.scrollWidth - nav.clientWidth);
     const hasMore = maxScroll > 6;
     const atEnd = hasMore && nav.scrollLeft >= maxScroll - 8;
+    const inset = window.matchMedia('(max-width: 600px)').matches ? 19.2 : 35.2;
+
+    // Keep the line attached to the full scrollable navigation content,
+    // not just the initially visible viewport (so it continues beneath Rabbit Hole).
+    const lineWidth = Math.max(nav.clientWidth - inset, nav.scrollWidth - inset);
+    line.style.setProperty('--dm-nav-flow-width', `${lineWidth}px`);
+
     nav.classList.toggle('dm-sitenav--has-more', hasMore);
     nav.classList.toggle('dm-sitenav--at-end', atEnd);
   };

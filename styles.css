@@ -7493,7 +7493,8 @@ body.rabbit-hole-open .welcome {
 .dm-sitenav-flow-line {
   position: absolute;
   left: 2.2rem;
-  right: 2.2rem;
+  right: auto;
+  width: var(--dm-nav-flow-width, calc(100% - 4.4rem));
   bottom: 0.08rem;
   height: 1px;
   overflow: hidden;
@@ -7542,7 +7543,8 @@ body.rabbit-hole-open .welcome {
 @media (max-width: 600px) {
   .dm-sitenav-flow-line {
     left: 1.2rem;
-    right: 1.2rem;
+    right: auto;
+    width: var(--dm-nav-flow-width, calc(100% - 2.4rem));
   }
 }
 
