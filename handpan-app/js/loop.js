@@ -54,6 +54,7 @@ function setConfig() {
   if (bpmInput) bpmInput.value = String(state.bpm);
   if (barsInput) barsInput.value = String(state.bars);
   refreshDuration();
+  persistLoop();
   paint();
 }
 
