@@ -875,3 +875,73 @@ body:not([data-app-mode="loop"]) .sound-dock-toggle {
   .loop-orbit-node.is-playing{animation:none}
   .loop-orbit-node.is-playing span{animation:none}
 }
+
+/* =========================================================
+   FINAL MOBILE HIERARCHY
+   One instrument surface, one top instrument strip, one bottom
+   mode navigator. Mode-specific controls never float randomly.
+   ========================================================= */
+@media (max-width:700px){
+  .hp-stage{z-index:1}
+  .hp-head{z-index:5}
+  .hp-back{z-index:121}
+  .hp-scales{
+    z-index:116;
+    top:calc(var(--hp-safe-top) + 70px);
+    bottom:auto;
+    left:12px;
+    right:12px;
+    width:auto;
+    height:44px;
+    min-height:44px;
+    max-height:44px;
+    display:flex;
+    align-items:center;
+    overflow:hidden;
+    transform:none;
+    border-radius:14px;
+  }
+  .hp-scale-btn{flex:0 0 30px;width:30px;height:30px}
+  .hp-scale-track{flex:0 0 92px;min-width:92px;max-width:92px}
+  .hp-instrument-track{
+    flex:1 1 auto;
+    min-width:0;
+    max-width:none;
+    overflow-x:auto;
+    overflow-y:hidden;
+  }
+  .instrument-btn{min-height:28px;padding:.28rem .45rem;font-size:.39rem}
+  .hp-foot{
+    z-index:6;
+    bottom:calc(82px + var(--hp-safe-bottom));
+  }
+  .app-modebar{
+    z-index:120;
+    left:10px;
+    right:10px;
+    bottom:max(10px,var(--hp-safe-bottom));
+    height:62px;
+    min-height:62px;
+  }
+  .app-mode{min-height:54px}
+  .sound-dock{
+    z-index:125;
+    left:10px;
+    right:10px;
+    bottom:calc(82px + var(--hp-safe-bottom));
+    width:auto;
+    max-height:min(52vh,390px);
+  }
+  .sound-dock-toggle{
+    z-index:130;
+    bottom:calc(82px + var(--hp-safe-bottom));
+  }
+  body[data-app-mode="ambient"] .sound-dock .dock-section:first-child{display:none}
+  body[data-app-mode="loop"] .sound-dock .nature-section{display:none}
+  body[data-app-mode="ambient"] .sound-dock{display:flex}
+  body[data-app-mode="ambient"] .sound-dock-toggle{display:flex}
+}
+@media (min-width:701px){
+  body[data-app-mode="ambient"] .sound-dock .dock-section:first-child{display:none}
+  body[data-app-mode="loop"] .sound-dock .nature-section{display:none}
+}
