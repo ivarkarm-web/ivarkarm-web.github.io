@@ -1827,26 +1827,137 @@ function connectMusicToAnalyser(audioEl) {
   }
 }
 
-/* Monograph chapter reveals */
+/* Monograph chapter reveals — discovered, not simply faded in */
 (function initMonographScrollReveals(){
   const sections=document.querySelectorAll('.dm-scroll-reveal');
   if(!sections.length)return;
+
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(typeof gsap!=='undefined'&&typeof ScrollTrigger!=='undefined'){
-    gsap.registerPlugin(ScrollTrigger);
-    sections.forEach(section=>{
-      const bg=section.querySelector('.dm-origin-bg'),content=section.querySelector('.dm-origin-content');
-      const tag=section.querySelector('.dm-sec-tag'),heading=section.querySelector('h3'),copy=section.querySelector('p');
-      if(!bg||!content)return;
-      if(reduced){section.classList.add('dm-scroll-reveal--active');return;}
-      gsap.set(bg,{autoAlpha:0,scale:1.045}); gsap.set(content,{autoAlpha:0,y:28,filter:'blur(5px)'});
-      gsap.set([tag,heading,copy].filter(Boolean),{autoAlpha:0,y:18});
-      gsap.timeline({scrollTrigger:{trigger:section,start:'top 72%',toggleActions:'play none none reset'}})
-        .to(bg,{autoAlpha:1,scale:1,duration:1.25,ease:'power3.out'})
-        .to(content,{autoAlpha:1,y:0,filter:'blur(0px)',duration:.9,ease:'power3.out'},'-.78')
-        .to(tag,{autoAlpha:1,y:0,duration:.55,ease:'power2.out'},'-.48')
-        .to(heading,{autoAlpha:1,y:0,duration:.7,ease:'power3.out'},'-.34')
-        .to(copy,{autoAlpha:1,y:0,duration:.72,ease:'power3.out'},'-.42');
+  if(typeof gsap==='undefined'||typeof ScrollTrigger==='undefined'){
+    sections.forEach(section=>section.classList.add('dm-scroll-reveal--active'));
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  sections.forEach(section=>{
+    const bg=section.querySelector('.dm-origin-bg');
+    const img=section.querySelector('.dm-origin-bg img');
+    const content=section.querySelector('.dm-origin-content');
+    const line=content?.querySelector(':scope::before');
+    const tag=section.querySelector('.dm-sec-tag');
+    const heading=section.querySelector('h3');
+    const copy=section.querySelector('p');
+    if(!bg||!img||!content)return;
+
+    if(reduced){
+      gsap.set([bg,img,content,tag,heading,copy].filter(Boolean),{
+        clearProps:'all'
+      });
+      section.classList.add('dm-scroll-reveal--active');
+      return;
+    }
+
+    gsap.set(bg,{clipPath:'inset(0 100% 0 0)',scale:1.035,autoAlpha:1});
+    gsap.set(img,{scale:1.025,xPercent:-1.5,yPercent:0});
+    gsap.set(content,{autoAlpha:1,y:0});
+    gsap.set([tag,heading,copy].filter(Boolean),{
+      clipPath:'inset(0 0 100% 0)',
+      y:18,
+      autoAlpha:1
     });
-  }else sections.forEach(s=>s.classList.add('dm-scroll-reveal--active'));
+
+    /*
+     * The pseudo-elements are animated through CSS custom properties.
+     * This keeps the DOM clean while giving each chapter its own
+     * editorial "placeholder line" and light sweep.
+     */
+    section.style.setProperty('--dm-reveal-line-scale','0');
+    section.style.setProperty('--dm-reveal-line-opacity','0');
+    section.style.setProperty('--dm-reveal-sweep-x','-115%');
+    section.style.setProperty('--dm-reveal-sweep-opacity','0');
+
+    const tl=gsap.timeline({
+      paused:true,
+      defaults:{overwrite:'auto'},
+      onStart:()=>section.classList.add('dm-scroll-reveal--active')
+    });
+
+    tl.to(section,{
+      '--dm-reveal-line-scale':1,
+      '--dm-reveal-line-opacity':1,
+      duration:.55,
+      ease:'power2.out'
+    },0)
+    .to(bg,{
+      clipPath:'inset(0 0% 0 0)',
+      scale:1,
+      duration:1.35,
+      ease:'power4.out'
+    },.08)
+    .to(img,{
+      scale:1,
+      xPercent:0,
+      duration:2.1,
+      ease:'power3.out'
+    },.08)
+    .to(section,{
+      '--dm-reveal-sweep-x':'115%',
+      '--dm-reveal-sweep-opacity':1,
+      duration:1.45,
+      ease:'power2.inOut'
+    },.32)
+    .to(section,{
+      '--dm-reveal-sweep-opacity':0,
+      duration:.55,
+      ease:'power2.out'
+    },1.28)
+    .to(tag,{
+      clipPath:'inset(0 0 0% 0)',
+      y:0,
+      duration:.58,
+      ease:'power3.out'
+    },.72)
+    .to(heading,{
+      clipPath:'inset(0 0 0% 0)',
+      y:0,
+      duration:.72,
+      ease:'power4.out'
+    },.82)
+    .to(copy,{
+      clipPath:'inset(0 0 0% 0)',
+      y:0,
+      duration:.68,
+      ease:'power3.out'
+    },1.00);
+
+    ScrollTrigger.create({
+      trigger:section,
+      start:'top 74%',
+      end:'bottom 24%',
+      onEnter:()=>tl.play(),
+      onEnterBack:()=>tl.play(),
+      onLeaveBack:()=>tl.reverse(),
+      invalidateOnRefresh:true
+    });
+
+    /*
+     * Very small scroll-linked drift while the chapter is in view.
+     * It is intentionally subtle: the image moves, the content does not.
+     */
+    gsap.to(img,{
+      yPercent:2.2,
+      ease:'none',
+      scrollTrigger:{
+        trigger:section,
+        start:'top bottom',
+        end:'bottom top',
+        scrub:1.2,
+        invalidateOnRefresh:true
+      }
+    });
+  });
+
+  requestAnimationFrame(()=>ScrollTrigger.refresh());
 })();
+
