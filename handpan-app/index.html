@@ -22,14 +22,40 @@
   <header class="hp-head" id="hpHead"><span class="hp-eyebrow">Instrument</span><h1 class="hp-title">Handpan</h1><span class="hp-hairline" aria-hidden="true"></span><p class="hp-sub" id="hpSub">D Kurd · 13 notes</p></header>
   <nav class="hp-scales" id="hpScales" aria-label="Handpan scales"><button type="button" class="hp-scale-btn hp-scale-prev" id="hpScalePrev" aria-label="Previous scale">‹</button><div class="hp-scale-track" id="hpScaleTrack"><span class="hp-scale-label" id="hpScaleLabel">D Kurd</span><span class="hp-scale-dots" id="hpScaleDots" aria-hidden="true"></span></div><button type="button" class="hp-scale-btn hp-scale-next" id="hpScaleNext" aria-label="Next scale">›</button></nav>
   <footer class="hp-foot" id="hpFoot"><p class="hp-chord" id="hpChord" aria-live="off"></p><p class="hp-hint" id="hpHint"><span class="hp-hint-desk">Q W E R T Y U I O P A S D · play several at once</span><span class="hp-hint-touch">Touch the steel · use several fingers for chords</span></p></footer>
-  <div class="loop-controls" id="loopControls" aria-label="Loop recorder">
-    <button class="loop-record" id="loopRecord" type="button" aria-label="Start recording a loop">
-      <span class="loop-record-core" aria-hidden="true"></span>
-      <span class="loop-record-label">LOOP</span>
-      <span class="loop-record-count" id="loopLayerCount" aria-live="polite">0 / 7</span>
-    </button>
+  <div class="sound-dock" id="soundDock" aria-label="Sound controls">
+    <div class="dock-section">
+      <span class="dock-kicker">LOOP</span>
+      <div class="loop-orb-wrap">
+        <button class="loop-orb" id="loopRecord" type="button" aria-label="Record a loop">
+          <span class="loop-orb-core"></span><span class="loop-orb-count" id="loopLayerCount">0/7</span>
+        </button>
+        <span class="loop-orb-label" id="loopOrbLabel">RECORD</span>
+      </div>
+      <div class="loop-actions">
+        <button id="loopPlay" type="button" aria-label="Play loop">Play</button>
+        <button id="loopPause" type="button" aria-label="Pause loop">Pause</button>
+        <button id="loopClear" type="button" aria-label="Clear loop">Clear</button>
+      </div>
+    </div>
+    <div class="dock-section instrument-section">
+      <span class="dock-kicker">ELECTRONIC TONES</span>
+      <div class="instrument-grid" id="instrumentGrid"></div>
+    </div>
+    <div class="dock-section nature-section">
+      <span class="dock-kicker">AMBIENCE</span>
+      <select id="natureSelect" aria-label="Nature ambience">
+        <option value="off">Silence</option>
+        <option value="birds">Morning Birds</option>
+        <option value="stream">Quiet Stream</option>
+        <option value="rain">Soft Rain</option>
+        <option value="storm">Distant Storm</option>
+        <option value="jungle">Night Jungle</option>
+        <option value="forest">Deep Forest</option>
+      </select>
+      <input id="natureVolume" type="range" min="0" max="0.7" step="0.01" value="0.24" aria-label="Ambience volume">
+    </div>
   </div>
   <div class="learn-panel" id="learnPanel" aria-live="polite"><div class="learn-top"><button id="learnPrev" type="button">‹</button><div><span class="learn-kicker">GUIDED LESSON</span><strong id="learnName">First Steps</strong></div><button id="learnNext" type="button">›</button></div><div class="learn-lane-wrap"><div class="learn-hitline" aria-hidden="true"><span>PLAY</span></div><div class="learn-lane" id="learnLane"></div></div><div class="learn-foot"><span id="learnProgress">0/0</span><span id="learnScore">0 hits · 0 misses · 0×</span><button id="learnStart" type="button">Start</button></div><div class="learn-message" id="learnMessage">Press Start. The next note will slowly glow on the handpan.</div></div>
   <div class="app-panel" id="appPanel" aria-live="polite"><div class="app-panel-kicker">PLAY MODE</div><div class="app-panel-copy">The original website instrument is now the nucleus of the standalone app.</div></div><div class="hp-veil" id="hpVeil" aria-hidden="true"></div>
-  <script src="./js/handpan.js"></script><script src="./js/transport.js"></script><script src="./js/loop.js"></script><script src="./js/learn.js"></script><script src="./js/app-shell.js"></script>
+  <script src="./js/handpan.js"></script><script src="./js/transport.js"></script><script src="./js/loop.js"></script><script src="./js/learn.js"></script><script src="./js/ambient.js"></script><script src="./js/app-shell.js"></script>
 </body></html>
