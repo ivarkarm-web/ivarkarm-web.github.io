@@ -583,11 +583,7 @@ document.getElementById('voiceNext').onclick = () => {
   updateLabels();
 };
 
-const FX_HELP = {
-  tone: 'Tone: dark ↔ bright filter on the steel voice',
-  delay: 'Delay: echo repeats after each strike',
-  reverb: 'Reverb: room wash / ambient space'
-};
+const FX_LABELS = { tone: 'Tone', delay: 'Ambiance', reverb: 'Room' };
 
 function setFxParam(name, value01) {
   state.fx[name] = Math.max(0, Math.min(1, value01));
@@ -597,12 +593,10 @@ function setFxParam(name, value01) {
   const knob = document.getElementById('knob' + name[0].toUpperCase() + name.slice(1));
   if (knob) {
     knob.setAttribute('aria-valuenow', String(pct));
-    knob.setAttribute('aria-valuetext', name + ' ' + pct + ' percent');
+    knob.setAttribute('aria-valuetext', (FX_LABELS[name] || name) + ' ' + pct + ' percent');
   }
   engine.applyFx();
   drawKnob(name);
-  const cap = document.getElementById('fxCaption');
-  if (cap) cap.textContent = FX_HELP[name] + ' · ' + pct + '%';
 }
 
 function drawKnob(name) {
