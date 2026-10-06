@@ -30,7 +30,8 @@ function render(){
      d.className='learn-note'+(i<state.next?' done':'')+(i===state.next?' current':'');
      d.textContent=noteName(n);d.dataset.index=i;
      d.style.setProperty('--note-progress',Math.max(0,Math.min(1,1-distance/state.leadBeats)));
-     var progress=Math.max(0,Math.min(1,1-distance/state.leadBeats));\n     d.style.left=(10+progress*90)+'%';
+     var progress=Math.max(0,Math.min(1,1-distance/state.leadBeats));
+     d.style.left=(10+progress*90)+'%';
      lane.appendChild(d);
    });
  }
