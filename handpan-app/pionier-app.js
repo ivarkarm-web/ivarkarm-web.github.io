@@ -361,32 +361,40 @@ function resize() {
 }
 
 function layoutFields() {
-  // True oval (elliptical) tone fields — soft organic pads, not stadiums
+  // Handpan-style tone fields: ovals with long axis pointing toward the ding
   state.fields = state.notes.map((n) => {
     if (n.kind === 'ding') {
-      const hw = R * 0.195;
-      const hh = R * 0.195;
-      return { i: n.index, x: CX, y: CY, rx: hw, ry: hh }; // circular ding
+      const rr = R * 0.185;
+      return { i: n.index, x: CX, y: CY, rx: rr, ry: rr, rot: 0 };
     }
     const a = (n.angle * Math.PI) / 180;
-    const d = R * 0.625;
-    // Elongated oval (wider than tall) for ring notes
-    const hw = R * 0.215;
-    const hh = R * 0.118;
+    // Slightly closer to the ding for a tighter classic handpan ring
+    const d = R * 0.58;
+    // Radial half-axis (toward ding) longer; tangential shorter
+    const radial = R * 0.155;
+    const tangential = R * 0.112;
+    // Unit vector from ding toward this note (screen: sin/cos with y-up inverted)
+    const ux = Math.sin(a);
+    const uy = -Math.cos(a);
+    // Ellipse rotation: major axis along radial direction
+    const rot = Math.atan2(uy, ux);
     return {
       i: n.index,
-      x: CX + Math.sin(a) * d,
-      y: CY - Math.cos(a) * d,
-      rx: hw,
-      ry: hh
+      x: CX + ux * d,
+      y: CY + uy * d,
+      rx: radial,
+      ry: tangential,
+      rot,
+      ux,
+      uy
     };
   });
 }
 
-/** Ellipse path helper (center x,y + half extents rx/ry) */
+/** Ellipse path helper — rotated so long axis points toward the ding */
 function pathPad(f) {
   ctx2.beginPath();
-  ctx2.ellipse(f.x, f.y, f.rx, f.ry, 0, 0, Math.PI * 2);
+  ctx2.ellipse(f.x, f.y, f.rx, f.ry, f.rot || 0, 0, Math.PI * 2);
 }
 
 function draw() {
@@ -412,7 +420,12 @@ function draw() {
     const radial = state.zoneFlash[i] || 0;
     const isDing = note.kind === 'ding';
 
-    const pad = ctx2.createRadialGradient(f.x - f.rx * 0.25, f.y - f.ry * 0.3, 0, f.x, f.y, Math.max(f.rx, f.ry));
+    const hlx = f.ux != null ? f.ux : -0.35;
+    const hly = f.uy != null ? f.uy : -0.45;
+    const pad = ctx2.createRadialGradient(
+      f.x + hlx * f.rx * 0.35, f.y + hly * f.ry * 0.35, 0,
+      f.x, f.y, Math.max(f.rx, f.ry)
+    );
     pad.addColorStop(0, 'rgba(78,80,88,0.95)');
     pad.addColorStop(0.55, 'rgba(40,42,48,0.95)');
     pad.addColorStop(1, 'rgba(22,23,27,0.98)');
@@ -423,7 +436,7 @@ function draw() {
     // Soft inner zone guide
     ctx2.strokeStyle = 'rgba(255,255,255,0.06)';
     ctx2.lineWidth = 1;
-    const inner = { x: f.x, y: f.y, rx: f.rx * 0.48, ry: f.ry * 0.48 };
+    const inner = { x: f.x, y: f.y, rx: f.rx * 0.48, ry: f.ry * 0.48, rot: f.rot };
     pathPad(inner);
     ctx2.stroke();
 
@@ -443,7 +456,7 @@ function draw() {
       hg.addColorStop(0.55, `rgba(228,195,90,${glow * radial * 0.22})`);
       hg.addColorStop(1, 'rgba(201,162,39,0)');
       ctx2.fillStyle = hg;
-      pathPad({ x: f.x, y: f.y, rx: f.rx * 1.12, ry: f.ry * 1.12 });
+      pathPad({ x: f.x, y: f.y, rx: f.rx * 1.12, ry: f.ry * 1.12, rot: f.rot });
       ctx2.fill();
       ctx2.restore();
     }
@@ -482,17 +495,23 @@ function hitVector(cx, cy) {
   let best = null;
   let bestD = Infinity;
   for (const f of state.fields) {
-    // True elliptical distance (0 = center, 1 = edge of oval)
-    const dx = (cx - f.x) / f.rx;
-    const dy = (cy - f.y) / f.ry;
-    const d = Math.hypot(dx, dy);
+    // Point relative to field center, then into the ellipse's local (rotated) frame
+    const dx = cx - f.x;
+    const dy = cy - f.y;
+    const rot = f.rot || 0;
+    const cos = Math.cos(-rot);
+    const sin = Math.sin(-rot);
+    const lx = dx * cos - dy * sin;
+    const ly = dx * sin + dy * cos;
+    // Elliptical distance in local space (0 = center, 1 = edge)
+    const d = Math.hypot(lx / f.rx, ly / f.ry);
     // Generous thumb-friendly hit area
     if (d <= 1.28 && d < bestD) {
       bestD = d;
       best = {
         idx: f.i,
         radial: d,
-        angleRad: Math.atan2(cy - f.y, cx - f.x)
+        angleRad: Math.atan2(dy, dx)
       };
     }
   }
@@ -584,7 +603,7 @@ wire('voicePrev', () => { state.voiceIndex = (state.voiceIndex - 1 + VOICE_PRESE
 wire('voiceNext', () => { state.voiceIndex = (state.voiceIndex + 1) % VOICE_PRESETS.length; updateLabels(); });
 wire('btnExit', () => { window.location.href = '../'; });
 wire('btnHelp', () => {
-  alert('Play the handpan: tap the ovals or use Q W E R T Y U I O. Drag Tone / Ambiance / Room knobs. Switch scale, root, and octave on the left.');
+  alert('Play the handpan: tap the tone fields or use Q W E R T Y U I O. Drag Tone / Ambiance / Room knobs. Switch scale, root, and octave on the left.');
 });
 
 // Knobs
