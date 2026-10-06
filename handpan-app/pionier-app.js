@@ -284,19 +284,19 @@ function resize() {
 }
 
 function layoutFields() {
-  // Larger pads: ding ~24% of radius, ring ellipses ~22% × 19%, ring distance 0.55
+  // Spaced pads: clear gap between ding and ring, and between neighboring tones
   state.fields = state.notes.map((n) => {
     if (n.kind === 'ding') {
-      return { i: n.index, x: CX, y: CY, rx: R * 0.24, ry: R * 0.24 };
+      return { i: n.index, x: CX, y: CY, rx: R * 0.21, ry: R * 0.21 };
     }
     const a = (n.angle * Math.PI) / 180;
-    const d = R * 0.55;
+    const d = R * 0.64; // farther from center → visible spacing
     return {
       i: n.index,
       x: CX + Math.sin(a) * d,
       y: CY - Math.cos(a) * d,
-      rx: R * 0.22,
-      ry: R * 0.19
+      rx: R * 0.195,
+      ry: R * 0.17
     };
   });
 }
