@@ -34,103 +34,37 @@
     </header>
 
     <form class="inq-form" id="inquiryForm" novalidate>
-      <section class="inq-step is-active" data-step="1">
-        <div class="inq-step-meta"><span>01</span><span>What is the occasion?</span></div>
-        <fieldset>
-          <legend>Choose the kind of invitation</legend>
-          <div class="inq-event-grid">
-            <label class="inq-event">
-              <input type="radio" name="event_type" value="Private event" required>
-              <span class="inq-event-number">01</span>
-              <span class="inq-event-name">Private event</span>
-              <small>Celebration · gathering · home</small>
-            </label>
-            <label class="inq-event">
-              <input type="radio" name="event_type" value="Festival / concert">
-              <span class="inq-event-number">02</span>
-              <span class="inq-event-name">Festival / concert</span>
-              <small>Stage · outdoor · venue</small>
-            </label>
-            <label class="inq-event">
-              <input type="radio" name="event_type" value="Cultural space">
-              <span class="inq-event-number">03</span>
-              <span class="inq-event-name">Cultural space</span>
-              <small>Gallery · museum · community</small>
-            </label>
-            <label class="inq-event">
-              <input type="radio" name="event_type" value="Film / installation">
-              <span class="inq-event-number">04</span>
-              <span class="inq-event-name">Film / installation</span>
-              <small>Sound · image · atmosphere</small>
-            </label>
-            <label class="inq-event">
-              <input type="radio" name="event_type" value="Collaboration">
-              <span class="inq-event-number">05</span>
-              <span class="inq-event-name">Collaboration</span>
-              <small>Artist · music · creative work</small>
-            </label>
-            <label class="inq-event">
-              <input type="radio" name="event_type" value="Something else">
-              <span class="inq-event-number">06</span>
-              <span class="inq-event-name">Something else</span>
-              <small>Tell me what you have in mind</small>
-            </label>
-          </div>
-        </fieldset>
-        <button type="button" class="inq-next" data-next>Continue</button>
-      </section>
+      <div class="inq-intro-row">
+        <div class="inq-step-meta"><span>01</span><span>The invitation</span></div>
+        <p class="inq-prompt">What are you inviting me into?</p>
+      </div>
 
-      <section class="inq-step" data-step="2" aria-hidden="true">
-        <div class="inq-step-meta"><span>02</span><span>When &amp; where?</span></div>
+      <fieldset class="inq-event-grid">
+        <legend>Choose the kind of invitation</legend>
+        <label class="inq-event dm-quicknav-btn"><input type="radio" name="event_type" value="Private event" required><span>01 · Private event</span></label>
+        <label class="inq-event dm-quicknav-btn"><input type="radio" name="event_type" value="Festival / concert"><span>02 · Festival / concert</span></label>
+        <label class="inq-event dm-quicknav-btn"><input type="radio" name="event_type" value="Cultural space"><span>03 · Cultural space</span></label>
+        <label class="inq-event dm-quicknav-btn"><input type="radio" name="event_type" value="Film / installation"><span>04 · Film / installation</span></label>
+        <label class="inq-event dm-quicknav-btn"><input type="radio" name="event_type" value="Collaboration"><span>05 · Collaboration</span></label>
+        <label class="inq-event dm-quicknav-btn"><input type="radio" name="event_type" value="Something else"><span>06 · Something else</span></label>
+      </fieldset>
+
+      <div class="inq-details">
+        <div class="inq-step-meta"><span>02</span><span>The practical details</span></div>
         <div class="inq-fields">
-          <label class="inq-field">
-            <span>Date</span>
-            <input name="event_date" type="date">
-          </label>
-          <label class="inq-field">
-            <span>Location</span>
-            <input name="location" type="text" autocomplete="address-level2" placeholder="City / venue">
-          </label>
-          <label class="inq-field">
-            <span>Approx. duration</span>
-            <select name="duration">
-              <option value="">Not sure yet</option>
-              <option>15–30 min</option>
-              <option>30–60 min</option>
-              <option>60–90 min</option>
-              <option>2+ hours</option>
-            </select>
-          </label>
+          <label class="inq-field"><span>Your name</span><input name="name" type="text" autocomplete="name" required placeholder="Your name"></label>
+          <label class="inq-field"><span>Your email</span><input name="email" type="email" autocomplete="email" required placeholder="you@example.com"></label>
+          <label class="inq-field"><span>Date</span><input name="event_date" type="date"></label>
+          <label class="inq-field"><span>Location</span><input name="location" type="text" autocomplete="address-level2" placeholder="City / venue"></label>
+          <label class="inq-field"><span>Approx. duration</span><select name="duration"><option value="">Not sure yet</option><option>15–30 min</option><option>30–60 min</option><option>60–90 min</option><option>2+ hours</option></select></label>
         </div>
-        <div class="inq-step-actions">
-          <button type="button" class="inq-back-step" data-back>Back</button>
-          <button type="button" class="inq-next" data-next>Continue</button>
-        </div>
-      </section>
-
-      <section class="inq-step" data-step="3" aria-hidden="true">
-        <div class="inq-step-meta"><span>03</span><span>Who is inviting me?</span></div>
-        <div class="inq-fields inq-fields--two">
-          <label class="inq-field">
-            <span>Your name</span>
-            <input name="name" type="text" autocomplete="name" required placeholder="Your name">
-          </label>
-          <label class="inq-field">
-            <span>Your email</span>
-            <input name="email" type="email" autocomplete="email" required placeholder="you@example.com">
-          </label>
-        </div>
-        <label class="inq-field inq-message-field">
-          <span>Tell me about it</span>
-          <textarea name="message" rows="5" placeholder="What are you planning, and what would you like the music to be part of?"></textarea>
-        </label>
+        <label class="inq-field inq-message-field"><span>Tell me about it</span><textarea name="message" rows="5" placeholder="What are you planning, and what would you like the music to be part of?"></textarea></label>
         <label class="inq-honeypot" aria-hidden="true">Leave this empty<input name="_gotcha" tabindex="-1" autocomplete="off"></label>
-        <div class="inq-step-actions">
-          <button type="button" class="inq-back-step" data-back>Back</button>
+        <div class="inq-submit-row">
+          <p class="inq-status" id="inquiryStatus" role="status" aria-live="polite"></p>
           <button type="submit" class="inq-submit">Send enquiry</button>
         </div>
-        <p class="inq-status" id="inquiryStatus" role="status" aria-live="polite"></p>
-      </section>
+      </div>
     </form>
 
     <footer class="inq-footer">
