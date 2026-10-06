@@ -13,7 +13,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css" />
+  <link rel="stylesheet" href="./pionier.css?v=2" />
+  <script>
+    // Drop stale PWA caches that still show old "Tap the steel" UI
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        regs.forEach((r) => r.unregister());
+      });
+    }
+    if (window.caches && caches.keys) {
+      caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+    }
+  </script>
 </head>
 <body>
   <div id="app" class="app">
@@ -101,6 +112,6 @@
     </aside>
   </div>
 
-  <script type="module" src="./pionier-app.js"></script>
+  <script type="module" src="./pionier-app.js?v=2"></script>
 </body>
 </html>
