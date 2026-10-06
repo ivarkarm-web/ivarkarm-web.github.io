@@ -7729,3 +7729,46 @@ body.rabbit-hole-open .welcome {
 [data-theme="light"] .dm-origin-bg::after { background: linear-gradient(180deg,rgba(246,242,234,.06) 0%,rgba(246,242,234,.18) 42%,rgba(246,242,234,.78) 100%),linear-gradient(90deg,rgba(246,242,234,.34) 0%,rgba(246,242,234,.06) 52%,rgba(246,242,234,.20) 100%); }
 @media (max-width:600px) { .dm-section--origin { min-height: clamp(330px,54vh,520px); margin-inline:-1.25rem; padding:clamp(3rem,12vw,4.5rem) 1.25rem; } .dm-origin-bg img { object-position:center center; opacity:.34; } [data-theme="light"] .dm-origin-bg img { opacity:.27; } }
 @media (prefers-reduced-motion:reduce) { .dm-origin-bg img { transform:none; } }
+
+/* Eastern Estonia — brighter hero directly beneath Monograph navigation */
+.dm-section--eastern-origin {
+  min-height: clamp(300px, 48vh, 540px);
+  margin-top: 0;
+}
+
+.dm-section--eastern-origin .dm-origin-bg img {
+  opacity: 0.54;
+  filter: saturate(0.82) contrast(1.03) brightness(0.92);
+}
+
+.dm-section--eastern-origin .dm-origin-bg::after {
+  background:
+    linear-gradient(180deg, rgba(5, 6, 9, 0.02) 0%, rgba(5, 6, 9, 0.12) 48%, rgba(5, 6, 9, 0.72) 100%),
+    linear-gradient(90deg, rgba(5, 6, 9, 0.28) 0%, rgba(5, 6, 9, 0.04) 55%, rgba(5, 6, 9, 0.20) 100%);
+}
+
+[data-theme="light"] .dm-section--eastern-origin .dm-origin-bg img {
+  opacity: 0.48;
+  filter: saturate(0.78) contrast(1.02) brightness(1.02);
+}
+
+[data-theme="light"] .dm-section--eastern-origin .dm-origin-bg::after {
+  background:
+    linear-gradient(180deg, rgba(246, 242, 234, 0.02) 0%, rgba(246, 242, 234, 0.10) 48%, rgba(246, 242, 234, 0.62) 100%),
+    linear-gradient(90deg, rgba(246, 242, 234, 0.20) 0%, rgba(246, 242, 234, 0.03) 55%, rgba(246, 242, 234, 0.14) 100%);
+}
+
+@media (max-width: 600px) {
+  .dm-section--eastern-origin {
+    min-height: clamp(280px, 46vh, 460px);
+  }
+
+  .dm-section--eastern-origin .dm-origin-bg img {
+    opacity: 0.50;
+    object-position: center center;
+  }
+
+  [data-theme="light"] .dm-section--eastern-origin .dm-origin-bg img {
+    opacity: 0.44;
+  }
+}
