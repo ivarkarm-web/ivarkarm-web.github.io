@@ -4,14 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ivar Karm – Resonance</title>
+  <meta name="theme-color" content="#050608" />
   <script>
-    // Emergency restore: pull the last known-good main page and inject local enhancements
     (async function () {
       try {
         var res = await fetch('https://cdn.jsdelivr.net/gh/ivarkarm-web/ivarkarm-web.github.io@b009ac11/index.html');
         var html = await res.text();
+
         // Strip monograph background images
         html = html.replace(/\s*<div class="dm-origin-bg"[\s\S]*?<\/div>\s*/g, '\n');
+
         // Inject spawn left hint before canvas
         if (html.indexOf('spawnLeftHint') === -1) {
           html = html.replace(
@@ -22,12 +24,32 @@
             '</div>\n  <canvas id="game"'
           );
         }
-        // Prefer local easter-egg css v4 + scenes bootstrap
-        html = html.replace(/easter-egg\.css\?v=\d+/g, 'easter-egg.css?v=4');
+
+        // Local CSS / scenes with correct versions
+        html = html.replace(/easter-egg\.css\?v=\d+/g, 'easter-egg.css?v=5');
         html = html.replace(/js\/scenes\.js\?v=\d+/g, 'js/scenes.js?v=55');
+
+        // Ensure easter-egg.js loads without defer (document.write + defer is unreliable)
+        html = html.replace(
+          /<script([^>]*?)src="(\.\/js\/easter-egg\.js[^"]*)"([^>]*)><\/script>/g,
+          '<script src="./js/easter-egg.js?v=3"></script>'
+        );
+
         document.open();
         document.write(html);
         document.close();
+
+        // Belt-and-suspenders: if egg markup exists but script didn't boot, inject once
+        setTimeout(function () {
+          if (!document.getElementById('eggFound')) return;
+          if (window.__eggBooted) return;
+          var already = document.querySelector('script[src*="easter-egg.js"]');
+          if (!already) {
+            var s = document.createElement('script');
+            s.src = './js/easter-egg.js?v=3';
+            document.body.appendChild(s);
+          }
+        }, 400);
       } catch (e) {
         document.body.innerHTML = '<p style="font-family:system-ui;padding:2rem;color:#ccc">Failed to load site. Please hard-refresh.</p>';
         console.error(e);
