@@ -30,9 +30,11 @@
         html = html.replace(/js\/scenes\.js\?v=\d+/g, 'js/scenes.js?v=55');
 
         // Load easter-egg without defer (document.write + defer is unreliable)
+        // NOTE: never write the literal characters < / script > inside this file's script block
+        var eggTag = '<script src="./js/easter-egg.js?v=3"><\/script>';
         html = html.replace(
           /<script[^>]*src="\.\/js\/easter-egg\.js[^"]*"[^>]*><\/script>/g,
-          '<script src="./js/easter-egg.js?v=3"></script>'
+          eggTag
         );
 
         document.open();
