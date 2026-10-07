@@ -17,11 +17,11 @@ export function getAudioContext() {
   catch { context = new AC(); }
 
   master = context.createGain();
-  master.gain.value = 0.9;
+  master.gain.value = 1.35;
   compressor = context.createDynamicsCompressor();
-  compressor.threshold.value = -14;
+  compressor.threshold.value = -10;
   compressor.knee.value = 18;
-  compressor.ratio.value = 3;
+  compressor.ratio.value = 2.2;
   compressor.attack.value = 0.004;
   compressor.release.value = 0.2;
   master.connect(compressor);

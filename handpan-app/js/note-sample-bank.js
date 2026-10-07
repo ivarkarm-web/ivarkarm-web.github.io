@@ -88,7 +88,6 @@ export class NoteSampleBank {
    */
   static zoneWeights(radial = 0.4, angleRad = 0) {
     const r = Math.max(0, Math.min(1.25, radial));
-    // Acoustic handpan: center → more fundamental body; edge → brighter partials
     const center = Math.exp(-r * r * 3.2);
     const mid = Math.exp(-Math.pow(r - 0.45, 2) * 8);
     const edge = Math.max(0, (r - 0.25) / 0.9);
@@ -126,37 +125,37 @@ export class NoteSampleBank {
 
     const nodes = [];
 
-    // Layer A — body / fundamental (LP)
+    // Layer A — body / fundamental (LP) — boosted
     const a = this._layer(hit, when + startSkew, {
       rate: hit.rate * detuneA,
       filterType: 'lowpass',
       filterFreq: 420 + z.fundamental * 900 + vel * 400,
       filterQ: 0.7,
-      peak: 0.55 * z.body * (0.35 + 0.65 * vel),
+      peak: 1.05 * z.body * (0.4 + 0.6 * vel),
       attack: 0.004 + (1 - vel) * 0.012
     });
     a.gain.connect(bus);
     nodes.push(a.source, a.gain, a.filter);
 
-    // Layer B — partials / mid (BP)
+    // Layer B — partials / mid (BP) — boosted
     const b = this._layer(hit, when + startSkew + 0.0012, {
       rate: hit.rate * detuneB * (1 + z.partials * 0.002),
       filterType: 'bandpass',
       filterFreq: 900 + z.partials * 2200 + vel * 800,
       filterQ: 0.9 + z.brightness * 0.6,
-      peak: 0.42 * z.partials * (0.25 + 0.75 * vel),
+      peak: 0.8 * z.partials * (0.3 + 0.7 * vel),
       attack: 0.003
     });
     b.gain.connect(bus);
     nodes.push(b.source, b.gain, b.filter);
 
-    // Layer C — edge brightness (HP)
+    // Layer C — edge brightness (HP) — boosted
     const c = this._layer(hit, when + startSkew + 0.002, {
       rate: hit.rate * (1 + ((rr % 7) - 3) * 0.0015),
       filterType: 'highpass',
       filterFreq: 1800 + z.brightness * 3200,
       filterQ: 0.55,
-      peak: 0.28 * z.brightness * (0.2 + 0.8 * vel),
+      peak: 0.55 * z.brightness * (0.25 + 0.75 * vel),
       attack: 0.002
     });
     c.gain.connect(bus);
