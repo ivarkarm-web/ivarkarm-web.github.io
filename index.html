@@ -1,4 +1,41 @@
 <!DOCTYPE html>
-<!-- See repo: full index with spawnLeftHint, no monograph bg images, scenes v=55 -->
-<html lang="en"><head><meta charset="UTF-8"><title>Reload required</title></head>
-<body><p>Index push incomplete — use local artifacts.</p></body></html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ivar Karm – Resonance</title>
+  <script>
+    // Emergency restore: pull the last known-good main page and inject local enhancements
+    (async function () {
+      try {
+        var res = await fetch('https://cdn.jsdelivr.net/gh/ivarkarm-web/ivarkarm-web.github.io@b009ac11/index.html');
+        var html = await res.text();
+        // Strip monograph background images
+        html = html.replace(/\s*<div class="dm-origin-bg"[\s\S]*?<\/div>\s*/g, '\n');
+        // Inject spawn left hint before canvas
+        if (html.indexOf('spawnLeftHint') === -1) {
+          html = html.replace(
+            '<canvas id="game"',
+            '<div class="spawn-left-hint" id="spawnLeftHint" aria-hidden="true">' +
+              '<span class="spawn-left-hint__arrow" aria-hidden="true">←</span>' +
+              '<span class="spawn-left-hint__text">There might be something there</span>' +
+            '</div>\n  <canvas id="game"'
+          );
+        }
+        // Prefer local easter-egg css v4 + scenes bootstrap
+        html = html.replace(/easter-egg\.css\?v=\d+/g, 'easter-egg.css?v=4');
+        html = html.replace(/js\/scenes\.js\?v=\d+/g, 'js/scenes.js?v=55');
+        document.open();
+        document.write(html);
+        document.close();
+      } catch (e) {
+        document.body.innerHTML = '<p style="font-family:system-ui;padding:2rem;color:#ccc">Failed to load site. Please hard-refresh.</p>';
+        console.error(e);
+      }
+    })();
+  </script>
+</head>
+<body style="background:#050608;color:#e8e4dc;font-family:system-ui,sans-serif;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center">
+  <p style="opacity:.6;letter-spacing:.08em;font-size:.8rem">Loading…</p>
+</body>
+</html>
