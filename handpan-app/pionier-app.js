@@ -152,12 +152,15 @@ const engine = {
     });
     this.bus.connect(this.reverbInput);
 
+    this.makeupGain = this.ctx.createGain();
+    this.makeupGain.gain.value = 1;
     this.masterGain = this.ctx.createGain();
     this.masterGain.gain.value = 1;
     this.dryGain.connect(this.comp);
     this.delayWet.connect(this.comp);
     this.reverbWet.connect(this.comp);
-    this.comp.connect(this.masterGain);
+    this.comp.connect(this.makeupGain);
+    this.makeupGain.connect(this.masterGain);
     this.masterGain.connect(getAudioMaster());
 
     this.applyFx();
@@ -176,16 +179,20 @@ const engine = {
     const cType = COMPRESSOR_TYPES[state.fx.compressType] || COMPRESSOR_TYPES.soft;
 
     if (this.comp) {
-      const thr = -3 + (cType.threshold + 3) * amt;
-      const ratio = 1.2 + (cType.ratio - 1.2) * amt;
-      this.comp.threshold.setTargetAtTime(thr, t, 0.05);
-      this.comp.ratio.setTargetAtTime(ratio, t, 0.05);
-      this.comp.knee.setTargetAtTime(cType.knee, t, 0.05);
-      this.comp.attack.setTargetAtTime(cType.attack, t, 0.05);
-      this.comp.release.setTargetAtTime(cType.release, t, 0.05);
+      // amt 0 = nearly bypass; amt 1 = full type settings (clearly audible)
+      const thr = -2 + (cType.threshold + 2) * Math.pow(amt, 0.75);
+      const ratio = 1.05 + (cType.ratio - 1.05) * amt;
+      this.comp.threshold.setTargetAtTime(thr, t, 0.04);
+      this.comp.ratio.setTargetAtTime(ratio, t, 0.04);
+      this.comp.knee.setTargetAtTime(0.5 + cType.knee * amt, t, 0.04);
+      this.comp.attack.setTargetAtTime(cType.attack, t, 0.04);
+      this.comp.release.setTargetAtTime(cType.release, t, 0.04);
+      if (this.makeupGain) {
+        const mu = 1 + (cType.makeup - 1) * amt * 1.4;
+        this.makeupGain.gain.setTargetAtTime(mu, t, 0.06);
+      }
       if (this.dryGain) {
-        const mu = 1 + (cType.makeup - 1) * amt;
-        this.dryGain.gain.setTargetAtTime(mu, t, 0.08);
+        this.dryGain.gain.setTargetAtTime(1, t, 0.06);
       }
     }
 
@@ -271,18 +278,7 @@ const engine = {
       osc.start(t); osc.stop(t + T0 + 0.12);
       oscs.push(osc);
     });
-    const src = ctx.createBufferSource();
-    src.buffer = this.noise;
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass';
-    bp.frequency.value = Math.min(f * (2.5 + z.brightness * 3), 7000);
-    bp.Q.value = 1;
-    const ng = ctx.createGain();
-    ng.gain.setValueAtTime(0.0001, t);
-    ng.gain.linearRampToValueAtTime(z.noise * vel * 0.4, t + 0.001);
-    ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
-    src.connect(bp); bp.connect(ng); ng.connect(out);
-    src.start(t); src.stop(t + 0.07);
+    // No transient noise — clean tone only
     const voice = { idx, out, oscs, released: false, stop: (tt, tc) => this.releaseVoice(voice, tt, tc) };
     oscs[0].onended = () => { this.voices.delete(idx); try { out.disconnect(); } catch (_) {} };
     this.voices.set(idx, voice);
@@ -565,7 +561,9 @@ function setupKnob(id, key, initial) {
     state.fx[key] = value;
     if (valEl) valEl.textContent = Math.round(value * 100);
     el.setAttribute('aria-valuenow', Math.round(value * 100));
-    paint(); engine.applyFx();
+    paint();
+    if (!engine.ctx) engine.ensure();
+    else engine.applyFx();
   }
   setVal(initial);
   el.addEventListener('pointerdown', (e) => { dragging = true; lastY = e.clientY; el.setPointerCapture(e.pointerId); el.classList.add('is-active'); });
