@@ -61,7 +61,7 @@ const state = {
   zoneFlash: new Float32Array(9),
   pointers: new Map(),
   lastStrikeAt: new Map(),
-  fx: { compress: 0.4, delay: 0.15, reverb: 0.25, master: 1.0, delayType: 'echo', reverbType: 'room', compressType: 'soft' }
+  fx: { compress: 0.4, delay: 0.15, reverb: 0.25, master: 1.25, delayType: 'echo', reverbType: 'room', compressType: 'soft' }
 };
 
 function rebuildNotes() {
@@ -98,7 +98,7 @@ const engine = {
     this.ctx = getAudioContext();
     if (!this.ctx) return false;
     this.bus = this.ctx.createGain();
-    this.bus.gain.value = 0.95;
+    this.bus.gain.value = 1.45;
     this.comp = this.ctx.createDynamicsCompressor();
     this.comp.threshold.value = -16;
     this.comp.knee.value = 20;
@@ -155,7 +155,7 @@ const engine = {
     this.makeupGain = this.ctx.createGain();
     this.makeupGain.gain.value = 1;
     this.masterGain = this.ctx.createGain();
-    this.masterGain.gain.value = 1;
+    this.masterGain.gain.value = 1.25;
     this.dryGain.connect(this.comp);
     this.delayWet.connect(this.comp);
     this.reverbWet.connect(this.comp);
@@ -179,7 +179,6 @@ const engine = {
     const cType = COMPRESSOR_TYPES[state.fx.compressType] || COMPRESSOR_TYPES.soft;
 
     if (this.comp) {
-      // amt 0 = nearly bypass; amt 1 = full type settings (clearly audible)
       const thr = -2 + (cType.threshold + 2) * Math.pow(amt, 0.75);
       const ratio = 1.05 + (cType.ratio - 1.05) * amt;
       this.comp.threshold.setTargetAtTime(thr, t, 0.04);
@@ -197,7 +196,7 @@ const engine = {
     }
 
     if (this.masterGain) {
-      const vol = Math.max(0, Math.min(1.5, state.fx.master ?? 1));
+      const vol = Math.max(0, Math.min(1.5, state.fx.master ?? 1.25));
       this.masterGain.gain.setTargetAtTime(vol, t, 0.04);
     }
 
@@ -270,7 +269,7 @@ const engine = {
       osc.type = preset.wave || 'sine';
       osc.frequency.value = f * ratio * (1 + ((i % 2) ? -1 : 1) * (preset.spread || 0.005));
       const g = ctx.createGain();
-      const peak = (0.16 + 0.14 * vel) * (gains[i] || 0.03);
+      const peak = (0.32 + 0.28 * vel) * (gains[i] || 0.06);
       g.gain.setValueAtTime(0.0001, t);
       g.gain.linearRampToValueAtTime(peak, t + 0.004 + (1 - vel) * 0.01);
       g.gain.exponentialRampToValueAtTime(0.0001, t + T0 * (preset.decay / 6.2) * (1 - i * 0.07));
@@ -278,7 +277,6 @@ const engine = {
       osc.start(t); osc.stop(t + T0 + 0.12);
       oscs.push(osc);
     });
-    // No transient noise — clean tone only
     const voice = { idx, out, oscs, released: false, stop: (tt, tc) => this.releaseVoice(voice, tt, tc) };
     oscs[0].onended = () => { this.voices.delete(idx); try { out.disconnect(); } catch (_) {} };
     this.voices.set(idx, voice);
@@ -669,7 +667,7 @@ if (masterEl) {
     engine.applyFx();
   };
   masterEl.addEventListener('input', () => setMaster(masterEl.value));
-  setMaster(masterEl.value || 100);
+  setMaster(masterEl.value || 125);
 }
 
 window.addEventListener('keydown', (e) => { if (e.key === 'Escape') setFxPanelOpen(false); });
