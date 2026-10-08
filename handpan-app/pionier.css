@@ -527,11 +527,27 @@ button, .step, .icon-btn, .pill {
 
   .topbar > .play-pill {
     flex: 0 0 auto;
-    padding: 7px 10px;
+    padding: 6px 7px;
+    font-size: 10px;
   }
 
   .instrument-nav {
-    gap: 6px;
+    gap: 4px;
+  }
+
+  .instrument-nav .icon-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+  }
+
+  .top-actions {
+    gap: 4px;
+  }
+
+  .top-actions .icon-btn {
+    width: 30px;
+    height: 30px;
   }
 
   .instrument-name {
@@ -539,7 +555,12 @@ button, .step, .icon-btn, .pill {
   }
 
   #instrumentSelect {
-    max-width: min(48vw, 220px);
+    max-width: min(34vw, 124px);
+  }
+
+  #instrumentSelect .instrument-pill {
+    padding: 4px 5px;
+    font-size: 9px;
   }
 
   .sidebar.left {
