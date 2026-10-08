@@ -176,15 +176,16 @@ export function createSurface(canvas) {
 
       drawSlit(f, glow, playable);
 
-      // Soft zone labels (Kitchen/Bird only) — restrained, playable pads only
+      // Soft zone labels (Kitchen/Bird only) — inside pad, slightly below center
       if (playable && f.zoneLabel) {
-        const fontSize = Math.max(10, Math.min(14, R * 0.032));
+        const fontSize = Math.max(10, Math.min(13, R * 0.03));
         ctx2.save();
         ctx2.font = `500 ${fontSize}px Inter, system-ui, sans-serif`;
         ctx2.textAlign = 'center';
         ctx2.textBaseline = 'middle';
-        const ly = f.y + (isDing ? f.ry * 0.78 : Math.max(f.rx, f.ry) * 0.92);
-        const la = 0.55 + (glow > 0.1 ? glow * 0.3 : 0);
+        // Keep label inside the ellipse (below geometric center)
+        const ly = f.y + Math.min(f.rx, f.ry) * (isDing ? 0.42 : 0.38);
+        const la = 0.58 + (glow > 0.1 ? glow * 0.28 : 0);
         ctx2.fillStyle = `rgba(228,195,90,${la})`;
         ctx2.fillText(f.zoneLabel, f.x, ly);
         ctx2.restore();
