@@ -126,4 +126,175 @@ export function createSurface(canvas) {
     g.addColorStop(1, '#0a0a0c');
     ctx2.fillStyle = g;
     ctx2.beginPath();
-    ctx2.arc(CX, CY, R, 0, Math cont.
+    ctx2.arc(CX, CY, R, 0, Math.PI * 2);
+    ctx2.fill();
+    ctx2.strokeStyle = 'rgba(201,162,39,0.14)';
+    ctx2.lineWidth = Math.max(1.5, R * 0.01);
+    ctx2.beginPath();
+    ctx2.arc(CX, CY, R * 0.93, 0, Math.PI * 2);
+    ctx2.stroke();
+
+    if (catchActive) ctx2.globalAlpha = 0.78;
+
+    fields.forEach((f) => {
+      const glow = inst.glow?.[f.index] || 0;
+      const radial = inst.zoneFlash?.[f.index] || 0;
+      const isDing = f.kind === 'ding';
+      const playable = f.playable !== false;
+      const dim = playable ? 1 : 0.26;
+      const hlx = f.ux != null ? f.ux : -0.35;
+      const hly = f.uy != null ? f.uy : -0.45;
+      const wp = waveTargets?.get?.(f.index);
+      let approach = 0;
+      if (wp != null && playable) {
+        approach = Math.max(0, 1 - Math.abs(wp - 0.92) * 2.8);
+        approach = Math.min(1, approach * (0.35 + Math.min(1, wp) * 0.65));
+      }
+
+      const pad = ctx2.createRadialGradient(
+        f.x + hlx * f.rx * 0.35, f.y + hly * f.ry * 0.35, 0,
+        f.x, f.y, Math.max(f.rx, f.ry)
+      );
+      pad.addColorStop(0, `rgba(78,80,88,${0.95 * dim})`);
+      pad.addColorStop(0.55, `rgba(40,42,48,${0.95 * dim})`);
+      pad.addColorStop(1, `rgba(22,23,27,${0.98 * dim})`);
+      ctx2.fillStyle = pad;
+      pathPad(f);
+      ctx2.fill();
+
+      const strokeGold = Math.max(
+        glow > 0.04 && playable ? 0.28 + glow * 0.45 : 0,
+        approach * 0.75
+      );
+      ctx2.strokeStyle =
+        strokeGold > 0.04
+          ? `rgba(201,162,39,${strokeGold})`
+          : `rgba(255,255,255,${0.08 * dim})`;
+      ctx2.lineWidth = isDing ? 1.8 : 1.2;
+      pathPad(f);
+      ctx2.stroke();
+
+      if ((glow > 0.02 || approach > 0.08) && playable) {
+        ctx2.save();
+        ctx2.globalCompositeOperation = 'lighter';
+        const gAmt = Math.max(glow, approach * 0.85);
+        const gr = Math.max(f.rx, f.ry) * (0.95 + radial * 0.45 + approach * 0.2);
+        const hg = ctx2.createRadialGradient(f.x, f.y, 0, f.x, f.y, gr);
+        hg.addColorStop(0, `rgba(201,162,39,${gAmt * (0.26 + (1 - radial) * 0.18)})`);
+        hg.addColorStop(0.5, `rgba(228,195,90,${gAmt * (radial * 0.2 + approach * 0.15)})`);
+        hg.addColorStop(1, 'rgba(201,162,39,0)');
+        ctx2.fillStyle = hg;
+        pathPad({ x: f.x, y: f.y, rx: f.rx * 1.12, ry: f.ry * 1.12, rot: f.rot });
+        ctx2.fill();
+        ctx2.restore();
+      }
+
+      drawSlit(f, Math.max(glow, approach * 0.9), playable);
+
+      if (playable && f.zoneLabel) {
+        const fontSize = Math.max(10, Math.min(13, R * 0.03));
+        ctx2.save();
+        ctx2.font = `500 ${fontSize}px Inter, system-ui, sans-serif`;
+        ctx2.textAlign = 'center';
+        ctx2.textBaseline = 'middle';
+        const ly = f.y + Math.min(f.rx, f.ry) * (isDing ? 0.42 : 0.38);
+        const la = 0.58 + (glow > 0.1 ? glow * 0.28 : 0);
+        ctx2.fillStyle = `rgba(228,195,90,${la})`;
+        ctx2.fillText(f.zoneLabel, f.x, ly);
+        ctx2.restore();
+      }
+    });
+
+    ctx2.globalAlpha = 1;
+  }
+
+  function drawCatchWaves(waves) {
+    for (const w of waves) {
+      const target =
+        fields.find((f) => f.index === w.targetIndex) || fields[w.targetIndex];
+      if (!target) continue;
+      const p = Math.min(1.2, w.progress);
+      const x = CX + (target.x - CX) * p;
+      const y = CY + (target.y - CY) * p;
+      const rr = R * 0.07 + p * Math.max(target.rx, target.ry) * 1.15;
+      const alpha = Math.max(0, 0.72 * (1 - Math.abs(p - 0.92) * 2.2));
+      ctx2.save();
+      ctx2.globalCompositeOperation = 'lighter';
+      const ring = ctx2.createRadialGradient(x, y, rr * 0.15, x, y, rr);
+      ring.addColorStop(0, `rgba(255,230,160,${alpha * 0.65})`);
+      ring.addColorStop(0.45, `rgba(228,195,90,${alpha * 0.45})`);
+      ring.addColorStop(1, 'rgba(201,162,39,0)');
+      ctx2.fillStyle = ring;
+      ctx2.beginPath();
+      ctx2.arc(x, y, rr, 0, Math.PI * 2);
+      ctx2.fill();
+      ctx2.strokeStyle = `rgba(255,240,180,${alpha * 0.9})`;
+      ctx2.lineWidth = Math.max(2, R * 0.01);
+      ctx2.beginPath();
+      ctx2.arc(x, y, rr * 0.82, 0, Math.PI * 2);
+      ctx2.stroke();
+      ctx2.restore();
+    }
+  }
+
+  function hitVector(cx, cy) {
+    let best = null;
+    let bestD = Infinity;
+    for (const f of fields) {
+      if (f.playable === false) continue;
+      const dx = cx - f.x;
+      const dy = cy - f.y;
+      const rot = f.rot || 0;
+      const cos = Math.cos(-rot);
+      const sin = Math.sin(-rot);
+      const lx = dx * cos - dy * sin;
+      const ly = dx * sin + dy * cos;
+      const d = Math.hypot(lx / f.rx, ly / f.ry);
+      if (d <= 1.28 && d < bestD) {
+        bestD = d;
+        best = {
+          idx: f.index,
+          index: f.index,
+          radial: d,
+          angleRad: Math.atan2(dy, dx),
+          nx: 0.5 + (f.x - CX) / (R * 2),
+          ny: 0.5 + (f.y - CY) / (R * 2),
+          x: cx,
+          y: cy
+        };
+      }
+    }
+    return best;
+  }
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.min(2.5, window.devicePixelRatio || 1);
+    W = Math.max(1, Math.round(rect.width * dpr));
+    H = Math.max(1, Math.round(rect.height * dpr));
+    canvas.width = W;
+    canvas.height = H;
+    CX = W / 2;
+    CY = H / 2;
+    R = Math.min(W, H) * 0.48;
+  }
+
+  function canvasCoords(e) {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = W / rect.width;
+    return { x: (e.clientX - rect.left) * dpr, y: (e.clientY - rect.top) * dpr };
+  }
+
+  return {
+    resize,
+    layoutHandpanFields,
+    drawBody,
+    drawCatchWaves,
+    hitVector,
+    canvasCoords,
+    get fields() { return fields; },
+    set fields(v) { fields = v; },
+    setSlitPhase(t) { slitPhase = t; },
+    get metrics() { return { W, H, R, CX, CY }; }
+  };
+}
