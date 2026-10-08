@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=15" />
+  <link rel="stylesheet" href="./pionier.css?v=16" />
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
@@ -107,8 +107,11 @@
       <div class="knob-wrap fx-settings-wrap">
         <div class="scape-panel" id="scapePanel" aria-label="Soundscapes">
           <span class="scape-kicker">Scape</span>
-          <label class="scape-row">
-            <span class="scape-label">Back</span>
+          <div class="scape-row">
+            <div class="scape-head">
+              <span class="scape-label">Back</span>
+              <button type="button" class="scape-solo" id="scapeBackingSolo" aria-pressed="false" title="Solo Back">S</button>
+            </div>
             <select id="scapeBacking" class="scape-select" aria-label="Backing landscape">
               <option value="off">Off</option>
               <option value="drone">Drone</option>
@@ -117,9 +120,12 @@
             </select>
             <input type="range" id="scapeBackingVol" class="scape-vol" min="0" max="0.7" step="0.01" value="0.22"
                    aria-label="Backing level" />
-          </label>
-          <label class="scape-row">
-            <span class="scape-label">Pad</span>
+          </div>
+          <div class="scape-row">
+            <div class="scape-head">
+              <span class="scape-label">Pad</span>
+              <button type="button" class="scape-solo" id="scapePadSolo" aria-pressed="false" title="Solo Pad">S</button>
+            </div>
             <select id="scapePad" class="scape-select" aria-label="Pad landscape">
               <option value="off">Off</option>
               <option value="soft">Soft</option>
@@ -128,9 +134,12 @@
             </select>
             <input type="range" id="scapePadVol" class="scape-vol" min="0" max="0.7" step="0.01" value="0.2"
                    aria-label="Pad level" />
-          </label>
-          <label class="scape-row">
-            <span class="scape-label">Nature</span>
+          </div>
+          <div class="scape-row">
+            <div class="scape-head">
+              <span class="scape-label">Nature</span>
+              <button type="button" class="scape-solo" id="scapeNatureSolo" aria-pressed="false" title="Solo Nature">S</button>
+            </div>
             <select id="scapeNature" class="scape-select" aria-label="Nature texture">
               <option value="off">Off</option>
               <option value="rain">Rain</option>
@@ -142,7 +151,7 @@
             </select>
             <input type="range" id="scapeNatureVol" class="scape-vol" min="0" max="0.7" step="0.01" value="0.24"
                    aria-label="Nature level" />
-          </label>
+          </div>
         </div>
 
       <button type="button" class="fx-settings-btn" id="btnFxSettings"
@@ -212,7 +221,7 @@
     <p class="fx-panel-hint">Tweak amount with the <strong>Comp</strong>, <strong>Ambiance</strong>, and <strong>Room</strong> knobs.</p>
   </aside>
 
-  <script type="module" src="./pionier-app.js?v=29"></script>
+  <script type="module" src="./pionier-app.js?v=30"></script>
 
   <script>
     (function () {
