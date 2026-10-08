@@ -84,6 +84,7 @@ export class CatchMode {
       this.onStatus('No notes');
       return;
     }
+    // Ascending then descending (skip top note on the way down to avoid double)
     const ascending = notes.map((n) => n.index);
     const descending = notes.slice().reverse().map((n) => n.index).slice(1);
     this.sequence = [...ascending, ...descending];
@@ -101,12 +102,13 @@ export class CatchMode {
 
   _spawnNextWave() {
     if (this.seqIndex >= this.sequence.length) {
-      this._setPhase('complete');
-      this.onStatus(`Caught ${this.hits} · ${this.score} pts`);
+      this._finish();
       return;
     }
     const targetIndex = this.sequence[this.seqIndex];
-    const travelMs = this.reducedMotion ? 1800 : 2200;
+    // Slightly slower first waves so the approach cue is readable
+    const base = this.reducedMotion ? 1800 : 2200;
+    const travelMs = this.seqIndex < 2 ? base + 280 : base;
     this.waves.push({
       id: `${this.seqIndex}-${targetIndex}-${Date.now()}`,
       targetIndex,
@@ -118,6 +120,20 @@ export class CatchMode {
     });
   }
 
+  _finish() {
+    this._setPhase('complete');
+    const total = this.hits + this.misses;
+    const line =
+      total > 0
+        ? `Caught ${this.hits}/${total} · ${this.score} pts`
+        : `Caught ${this.hits} · ${this.score} pts`;
+    this.onStatus(line);
+    // Hold result, then clear so the surface returns to free play
+    this._later(3200, () => {
+      if (this.phase === 'complete') this.reset();
+    });
+  }
+
   onStrike(zoneIndex, when = performance.now()) {
     if (!['ascending', 'descending', 'catch-intro'].includes(this.phase)) return null;
     const active = this.waves.find(
@@ -125,6 +141,7 @@ export class CatchMode {
     );
     if (!active) {
       this.misses += 1;
+      this.onStatus('MISS');
       return { result: 'miss' };
     }
     const progress = (when - active.born) / active.travelMs;
@@ -145,6 +162,7 @@ export class CatchMode {
     this.hits += 1;
     this.score += pts;
     this.seqIndex += 1;
+    // Midpoint of sequence = start of descent
     if (this.seqIndex === Math.ceil(this.sequence.length / 2)) {
       this._setPhase('descending');
     }
@@ -161,6 +179,7 @@ export class CatchMode {
         w.missed = true;
         this.misses += 1;
         this.seqIndex += 1;
+        this.onStatus('MISS');
         this._spawnNextWave();
       }
     }
