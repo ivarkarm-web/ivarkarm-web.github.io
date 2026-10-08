@@ -5,6 +5,9 @@
  *   Back  — drone / pulse / arp (rhythmic harmonic support)
  *   Pad   — soft / warm / deep (sustained atmospheric pad)
  *   Nature — rain / stream / forest / birds / storm / jungle
+ *
+ * Each layer has its own mode, level, and solo. Solo is exclusive:
+ * when any solo is on, only soloed layers are audible.
  */
 import { getAudioContext, createBus, resumeAudio } from './audio-core.js';
 
@@ -26,6 +29,10 @@ export function createSoundscapes(opts = {}) {
   let backingGain = 0.22;
   let padGain = 0.2;
   let natureGain = 0.24;
+
+  let soloBacking = false;
+  let soloPad = false;
+  let soloNature = false;
 
   let musicTimer = null;
   let musicStep = 0;
@@ -54,6 +61,29 @@ export function createSoundscapes(opts = {}) {
     const t = c.currentTime;
     gainNode.gain.cancelScheduledValues(t);
     gainNode.gain.setTargetAtTime(Math.max(0, Math.min(0.7, value)), t, time);
+  }
+
+  function anySolo() {
+    return soloBacking || soloPad || soloNature;
+  }
+
+  /** Effective bus gain respecting solo matrix. Mode 'off' always silent. */
+  function effective(layer) {
+    const mode =
+      layer === 'backing' ? backingMode : layer === 'pad' ? padMode : natureMode;
+    if (mode === 'off') return 0;
+    const gain =
+      layer === 'backing' ? backingGain : layer === 'pad' ? padGain : natureGain;
+    const soloed =
+      layer === 'backing' ? soloBacking : layer === 'pad' ? soloPad : soloNature;
+    if (anySolo() && !soloed) return 0;
+    return gain;
+  }
+
+  function applyGains(time = 0.15) {
+    if (backingBus) ramp(backingBus, effective('backing'), time);
+    if (padBus) ramp(padBus, effective('pad'), time);
+    if (natureBus) ramp(natureBus, effective('nature'), time);
   }
 
   function clearNature() {
@@ -185,7 +215,7 @@ export function createSoundscapes(opts = {}) {
     }
     if (!ensureBuses()) return;
     resumeAudio();
-    ramp(backingBus, backingGain, 0.35);
+    applyGains(0.35);
     musicTick();
     const interval = next === 'arp' ? 420 : next === 'pulse' ? 620 : 900;
     musicTimer = setInterval(musicTick, interval);
@@ -199,7 +229,6 @@ export function createSoundscapes(opts = {}) {
     const root = f[0];
     const now = ctx().currentTime;
 
-    // Re-trigger long tones every ~16 steps so they evolve with scale changes
     if (padStep % 16 !== 0) {
       padStep += 1;
       return;
@@ -230,7 +259,7 @@ export function createSoundscapes(opts = {}) {
     }
     if (!ensureBuses()) return;
     resumeAudio();
-    ramp(padBus, padGain, 0.4);
+    applyGains(0.4);
     padTick();
     padTimer = setInterval(padTick, 900);
   }
@@ -276,7 +305,7 @@ export function createSoundscapes(opts = {}) {
     }
     if (!ensureBuses()) return;
     resumeAudio();
-    ramp(natureBus, natureGain, 0.4);
+    applyGains(0.4);
 
     if (next === 'rain') {
       noiseLayer(natureBus, 'pink', 6800, 0.12, 0.026);
@@ -302,17 +331,39 @@ export function createSoundscapes(opts = {}) {
 
   function setBackingLevel(v) {
     backingGain = Math.max(0, Math.min(0.7, Number(v) || 0));
-    if (backingMode !== 'off' && backingBus) ramp(backingBus, backingGain, 0.12);
+    if (backingBus) ramp(backingBus, effective('backing'), 0.12);
   }
 
   function setPadLevel(v) {
     padGain = Math.max(0, Math.min(0.7, Number(v) || 0));
-    if (padMode !== 'off' && padBus) ramp(padBus, padGain, 0.12);
+    if (padBus) ramp(padBus, effective('pad'), 0.12);
   }
 
   function setNatureLevel(v) {
     natureGain = Math.max(0, Math.min(0.7, Number(v) || 0));
-    if (natureMode !== 'off' && natureBus) ramp(natureBus, natureGain, 0.12);
+    if (natureBus) ramp(natureBus, effective('nature'), 0.12);
+  }
+
+  /**
+   * Solo a layer. When any solo is active, non-soloed layers are muted.
+   * Modes keep running so unsolo restores sound immediately.
+   * @param {'backing'|'pad'|'nature'} layer
+   * @param {boolean} on
+   */
+  function setSolo(layer, on) {
+    const v = !!on;
+    if (layer === 'backing') soloBacking = v;
+    else if (layer === 'pad') soloPad = v;
+    else if (layer === 'nature') soloNature = v;
+    else return;
+    if (!ensureBuses()) return;
+    resumeAudio();
+    applyGains(0.12);
+  }
+
+  function clearSolos() {
+    soloBacking = soloPad = soloNature = false;
+    applyGains(0.12);
   }
 
   /** Call when scale / root / octave changes so layers stay in tune. */
@@ -324,6 +375,7 @@ export function createSoundscapes(opts = {}) {
     setBacking('off');
     setPad('off');
     setNature('off');
+    clearSolos();
   }
 
   return {
@@ -333,6 +385,8 @@ export function createSoundscapes(opts = {}) {
     setBackingLevel,
     setPadLevel,
     setNatureLevel,
+    setSolo,
+    clearSolos,
     syncScale,
     stopAll,
     get state() {
@@ -342,7 +396,10 @@ export function createSoundscapes(opts = {}) {
         nature: natureMode,
         backingGain,
         padGain,
-        natureGain
+        natureGain,
+        soloBacking,
+        soloPad,
+        soloNature
       };
     }
   };
