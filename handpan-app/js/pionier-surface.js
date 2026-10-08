@@ -147,8 +147,9 @@ export function createSurface(canvas) {
       const wp = waveTargets?.get?.(f.index);
       let approach = 0;
       if (wp != null && playable) {
-        approach = Math.max(0, 1 - Math.abs(wp - 0.92) * 2.8);
-        approach = Math.min(1, approach * (0.35 + Math.min(1, wp) * 0.65));
+        // Light up from ~0.55 progress, peak at perfect window (~0.92)
+        approach = Math.max(0, 1 - Math.abs(wp - 0.92) * 2.4);
+        approach = Math.min(1, approach * (0.25 + Math.min(1, wp) * 0.8));
       }
 
       const pad = ctx2.createRadialGradient(
@@ -210,29 +211,45 @@ export function createSurface(canvas) {
 
   function drawCatchWaves(waves) {
     for (const w of waves) {
+      // Resolve by field index (not array position) for safety
       const target =
         fields.find((f) => f.index === w.targetIndex) || fields[w.targetIndex];
       if (!target) continue;
       const p = Math.min(1.2, w.progress);
       const x = CX + (target.x - CX) * p;
       const y = CY + (target.y - CY) * p;
-      const rr = R * 0.07 + p * Math.max(target.rx, target.ry) * 1.15;
-      const alpha = Math.max(0, 0.72 * (1 - Math.abs(p - 0.92) * 2.2));
+      const padR = Math.max(target.rx, target.ry);
+      const rr = R * 0.065 + p * padR * 1.22;
+      // Peak visibility in the catch window (~0.82–1.0)
+      const windowDist = Math.abs(p - 0.92);
+      const alpha = Math.max(0, 0.88 * (1 - windowDist * 2.0));
+      if (alpha < 0.04) continue;
       ctx2.save();
       ctx2.globalCompositeOperation = 'lighter';
-      const ring = ctx2.createRadialGradient(x, y, rr * 0.15, x, y, rr);
-      ring.addColorStop(0, `rgba(255,230,160,${alpha * 0.65})`);
-      ring.addColorStop(0.45, `rgba(228,195,90,${alpha * 0.45})`);
-      ring.addColorStop(1, 'rgba(201,162,39,0)');
-      ctx2.fillStyle = ring;
+      // Soft outer bloom
+      const bloom = ctx2.createRadialGradient(x, y, rr * 0.2, x, y, rr * 1.35);
+      bloom.addColorStop(0, `rgba(255,230,160,${alpha * 0.55})`);
+      bloom.addColorStop(0.4, `rgba(228,195,90,${alpha * 0.28})`);
+      bloom.addColorStop(1, 'rgba(201,162,39,0)');
+      ctx2.fillStyle = bloom;
       ctx2.beginPath();
-      ctx2.arc(x, y, rr, 0, Math.PI * 2);
+      ctx2.arc(x, y, rr * 1.35, 0, Math.PI * 2);
       ctx2.fill();
-      ctx2.strokeStyle = `rgba(255,240,180,${alpha * 0.9})`;
-      ctx2.lineWidth = Math.max(2, R * 0.01);
+      // Crisp primary ring
+      ctx2.strokeStyle = `rgba(255,242,190,${alpha * 0.95})`;
+      ctx2.lineWidth = Math.max(2.2, R * 0.011);
       ctx2.beginPath();
-      ctx2.arc(x, y, rr * 0.82, 0, Math.PI * 2);
+      ctx2.arc(x, y, rr * 0.78, 0, Math.PI * 2);
       ctx2.stroke();
+      // Thin outer accent near perfect window
+      if (windowDist < 0.2) {
+        const a2 = alpha * (1 - windowDist / 0.2) * 0.55;
+        ctx2.strokeStyle = `rgba(255,250,220,${a2})`;
+        ctx2.lineWidth = Math.max(1.2, R * 0.006);
+        ctx2.beginPath();
+        ctx2.arc(x, y, rr * 1.02, 0, Math.PI * 2);
+        ctx2.stroke();
+      }
       ctx2.restore();
     }
   }
