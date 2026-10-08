@@ -13,7 +13,7 @@ import { BirdInstrument } from './js/instruments/bird.js';
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
-import { createSurface, WORLD_ZONE_INDICES } from './js/pionier-surface.js';
+import { createSurface, WORLD_ZONE_INDICES } from './js/pionier-surface.js?v=20';
 
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
 
