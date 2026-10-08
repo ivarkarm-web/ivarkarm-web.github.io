@@ -11,9 +11,9 @@ import { HandpanInstrument } from './js/instruments/handpan.js';
 import { KitchenInstrument } from './js/instruments/kitchen.js';
 import { BirdInstrument } from './js/instruments/bird.js';
 import { FxChain } from './js/fx.js';
-import { CatchMode } from './js/catch-mode.js?v=2';
+import { CatchMode } from './js/catch-mode.js?v=3';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
-import { createSurface, WORLD_ZONE_INDICES } from './js/pionier-surface.js?v=22';
+import { createSurface, WORLD_ZONE_INDICES } from './js/pionier-surface.js?v=25';
 
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
 
@@ -98,7 +98,14 @@ app.catchMode = new CatchMode({
   getInstrument: () => activeInstrument(),
   onStatus: (msg) => {
     const el = document.getElementById('catchStatus');
-    if (el) el.textContent = msg || '';
+    if (!el) return;
+    el.textContent = msg || '';
+    // Brief scale flash on grades / miss so timing feedback is readable
+    if (msg && /PERFECT|GREAT|GOOD|LATE|MISS|DESCEND|Caught/.test(msg)) {
+      el.classList.remove('is-flash');
+      void el.offsetWidth;
+      el.classList.add('is-flash');
+    }
   },
   onPhase: (phase) => {
     document.body.dataset.catchPhase = phase;
@@ -159,8 +166,12 @@ function layoutFields() {
 
 function draw() {
   const catchActive = document.getElementById('app')?.classList.contains('catch-active');
-  surface.drawBody(activeInstrument(), catchActive);
-  if (app.catchMode?.isActive) surface.drawCatchWaves(app.catchMode.getActiveWaves());
+  const waves = app.catchMode?.isActive ? app.catchMode.getActiveWaves() : [];
+  const waveTargets = waves.length
+    ? new Map(waves.map((w) => [w.targetIndex, w.progress]))
+    : null;
+  surface.drawBody(activeInstrument(), catchActive, waveTargets);
+  if (waves.length) surface.drawCatchWaves(waves);
 }
 
 function resize() {
