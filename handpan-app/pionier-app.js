@@ -1,304 +1,117 @@
 /**
- * pionier-app.js — canvas instrument surface
+ * pionier-app.js — integrated instrument surface
+ * Pointer → Gesture → Active Instrument → Bus → FxChain → Master → Output
  */
-import { getAudioContext, getAudioMaster, resumeAudio } from './js/audio-core.js';
+import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js';
 import { VOICE_PRESETS } from './js/voice-presets.js';
-import { NoteSampleBank } from './js/note-sample-bank.js';
+import { InstrumentRegistry } from './js/instrument.js';
+import { GestureTracker, gestureFromPointer } from './js/gesture.js';
+import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js';
+import { KitchenInstrument } from './js/instruments/kitchen.js';
+import { BirdInstrument } from './js/instruments/bird.js';
+import { FxChain } from './js/fx.js';
+import { CatchMode } from './js/catch-mode.js';
+import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
 
-const SCALES = [
-  { id: 'celtic-minor', label: 'Celtic Minor', intervals: [0, 7, 8, 10, 12, 14, 15, 17, 19] },
-  { id: 'kurdan-integral', label: 'Kurdan / Integral', intervals: [0, 7, 8, 10, 12, 14, 15, 17, 19] },
-  { id: 'hijaz', label: 'Hijaz', intervals: [0, 7, 8, 11, 12, 14, 15, 17, 19] },
-  { id: 'pygmy', label: 'Pygmy', intervals: [0, 5, 7, 8, 12, 15, 17, 19, 24] },
-  { id: 'amara', label: 'Amara', intervals: [0, 7, 10, 12, 14, 15, 17, 19, 22] },
-  { id: 'akebono', label: 'AkeBono', intervals: [0, 7, 8, 12, 13, 17, 19, 20, 24] },
-  { id: 'equinox', label: 'Equinox', intervals: [0, 5, 8, 12, 14, 15, 17, 19, 24] },
-  { id: 'mixolydian', label: 'Mixolydian', intervals: [0, 7, 10, 12, 14, 16, 17, 19, 22] },
-  { id: 'aeolian', label: 'Aeolian', intervals: [0, 7, 8, 10, 12, 13, 15, 17, 19] },
-  { id: 'major-sabye', label: 'Major / Sabye', intervals: [0, 7, 11, 12, 14, 16, 17, 19, 23] }
-];
-
-const RING_ANGLES = [180, 225, 270, 315, 0, 45, 90, 135];
-const ZIGZAG_SLOTS = [0, 1, 7, 2, 6, 3, 5, 4];
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
-const NOTE_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
-const ROOTS = NOTE_NAMES.slice();
 
-const DELAY_TYPES = {
-  echo: { id: 'echo', label: 'Echo', desc: 'Classic repeating echo. Use Ambiance to set mix & length.', timeMin: 0.22, timeMax: 0.48, fbMin: 0.22, fbMax: 0.55, wetScale: 0.55 },
-  slap: { id: 'slap', label: 'Slap', desc: 'Short slapback for rhythmic thickness.', timeMin: 0.055, timeMax: 0.12, fbMin: 0.05, fbMax: 0.18, wetScale: 0.45 },
-  ping: { id: 'ping', label: 'Ping', desc: 'Bouncy longer repeats with more feedback.', timeMin: 0.28, timeMax: 0.55, fbMin: 0.35, fbMax: 0.68, wetScale: 0.5 },
-  ambient: { id: 'ambient', label: 'Ambient', desc: 'Long washed repeats — spacious trails.', timeMin: 0.4, timeMax: 0.72, fbMin: 0.28, fbMax: 0.52, wetScale: 0.6 }
-};
+const handpan = new HandpanInstrument();
+const kitchen = new KitchenInstrument();
+const bird = new BirdInstrument();
+InstrumentRegistry.register(handpan);
+InstrumentRegistry.register(kitchen);
+InstrumentRegistry.register(bird);
 
-const REVERB_TYPES = {
-  room: { id: 'room', label: 'Room', desc: 'Small intimate space. Use Room knob for wet amount.', taps: [0.022, 0.035, 0.048, 0.062], tapGains: [0.32, 0.26, 0.2, 0.14], fb: 0.28, filters: [5200, 4600, 4000, 3400], wetScale: 0.5 },
-  hall: { id: 'hall', label: 'Hall', desc: 'Large concert hall with long decay.', taps: [0.038, 0.061, 0.089, 0.12], tapGains: [0.3, 0.25, 0.2, 0.16], fb: 0.42, filters: [4200, 3600, 3000, 2400], wetScale: 0.55 },
-  plate: { id: 'plate', label: 'Plate', desc: 'Bright dense plate — studio sheen.', taps: [0.018, 0.029, 0.041, 0.055], tapGains: [0.34, 0.28, 0.22, 0.17], fb: 0.36, filters: [7000, 6200, 5400, 4600], wetScale: 0.52 },
-  cave: { id: 'cave', label: 'Cave', desc: 'Dark cavernous space with long wash.', taps: [0.055, 0.088, 0.125, 0.17], tapGains: [0.28, 0.24, 0.2, 0.16], fb: 0.48, filters: [2800, 2200, 1700, 1300], wetScale: 0.58 }
-};
-
-const COMPRESSOR_TYPES = {
-  soft: { id: 'soft', label: 'Soft', desc: 'Gentle leveling — smooth and musical. Use Comp knob for amount.', threshold: -18, knee: 24, ratio: 2.2, attack: 0.012, release: 0.28, makeup: 1.05 },
-  punch: { id: 'punch', label: 'Punch', desc: 'Fast attack for transient snap and presence.', threshold: -14, knee: 8, ratio: 4, attack: 0.002, release: 0.12, makeup: 1.12 },
-  glue: { id: 'glue', label: 'Glue', desc: 'Bus-style glue that tightens the whole pan.', threshold: -20, knee: 16, ratio: 3.2, attack: 0.02, release: 0.35, makeup: 1.08 },
-  limit: { id: 'limit', label: 'Limit', desc: 'Hard limiter — loud and controlled, less dynamics.', threshold: -8, knee: 2, ratio: 12, attack: 0.001, release: 0.08, makeup: 1.15 }
-};
-
-function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
-function midiName(m) {
-  const n = Math.round(m);
-  return NOTE_NAMES[((n % 12) + 12) % 12] + (Math.floor(n / 12) - 1);
-}
-function rootToMidi(rootIndex, octaveOffset) {
-  return 48 + rootIndex + octaveOffset * 12;
-}
-
-const state = {
-  scaleIndex: 0, rootIndex: 2, octaveOffset: 0, voiceIndex: 0,
-  notes: [], fields: [],
-  glow: new Float32Array(9),
-  zoneFlash: new Float32Array(9),
+const app = {
+  fxChain: null,
+  instrumentBus: null,
+  gestureTracker: new GestureTracker(),
   pointers: new Map(),
-  lastStrikeAt: new Map(),
-  fx: { compress: 0.4, delay: 0.15, reverb: 0.25, master: 1.25, delayType: 'echo', reverbType: 'room', compressType: 'soft' }
+  catchMode: null,
+  lastVelocity: 0.75,
+  fps: 0,
+  _fpsFrames: 0,
+  _fpsLast: performance.now(),
+  reducedMotion: false
 };
+try { app.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) {}
 
-function rebuildNotes() {
-  const scale = SCALES[state.scaleIndex];
-  const base = rootToMidi(state.rootIndex, state.octaveOffset);
-  state.notes = scale.intervals.map((iv, i) => {
-    const midi = base + iv;
-    const isDing = i === 0;
-    return {
-      index: i, midi, name: midiName(midi), freq: mtof(midi),
-      kind: isDing ? 'ding' : 'ring',
-      angle: isDing ? 0 : RING_ANGLES[ZIGZAG_SLOTS[i - 1]],
-      key: KEYS[i]
-    };
-  });
-  updateLabels();
+function ensureAudio() {
+  const ctx = getAudioContext();
+  if (!ctx) return false;
+  if (!app.instrumentBus) {
+    app.instrumentBus = ctx.createGain();
+    app.instrumentBus.gain.value = 1.45;
+    app.fxChain = new FxChain(ctx, getAudioMaster());
+    app.fxChain.seedDefaults();
+    app.instrumentBus.connect(app.fxChain.input);
+  }
+  resumeAudio();
+  return true;
+}
+
+async function setInstrument(id) {
+  ensureAudio();
+  const ctx = getAudioContext();
+  const prev = InstrumentRegistry.active;
+  if (prev) prev.dampAll();
+  await InstrumentRegistry.setActive(id, ctx, app.instrumentBus);
+  updateInstrumentUI();
   layoutFields();
   draw();
 }
 
+function activeInstrument() { return InstrumentRegistry.active || handpan; }
+
+app.catchMode = new CatchMode({
+  getInstrument: () => activeInstrument(),
+  onStatus: (msg) => { const el = document.getElementById('catchStatus'); if (el) el.textContent = msg || ''; },
+  onPhase: (phase) => {
+    document.body.dataset.catchPhase = phase;
+    const appEl = document.getElementById('app');
+    if (!appEl) return;
+    appEl.classList.toggle('catch-darken', ['darken','focus-knobs','focus-fx','focus-scale'].includes(phase));
+    appEl.classList.toggle('catch-focus-knobs', phase === 'focus-knobs');
+    appEl.classList.toggle('catch-focus-fx', phase === 'focus-fx');
+    appEl.classList.toggle('catch-focus-scale', phase === 'focus-scale');
+    appEl.classList.toggle('catch-active', ['ascending','descending','catch-intro'].includes(phase));
+    if (['idle','complete','ready'].includes(phase)) {
+      appEl.classList.remove('catch-darken','catch-focus-knobs','catch-focus-fx','catch-focus-scale');
+    }
+  }
+});
+app.catchMode.reducedMotion = app.reducedMotion;
+
 function updateLabels() {
-  document.getElementById('scaleLabel').textContent = SCALES[state.scaleIndex].label;
-  document.getElementById('rootLabel').textContent = ROOTS[state.rootIndex];
-  const o = state.octaveOffset;
-  document.getElementById('octLabel').textContent = o === 0 ? '0' : (o > 0 ? '+' + o : String(o));
-  document.getElementById('voiceName').textContent = VOICE_PRESETS[state.voiceIndex]?.name || 'Steel';
+  const inst = activeInstrument();
+  if (inst.id === 'handpan') {
+    const scaleEl = document.getElementById('scaleLabel');
+    const rootEl = document.getElementById('rootLabel');
+    const octEl = document.getElementById('octLabel');
+    const voiceEl = document.getElementById('voiceName');
+    if (scaleEl) scaleEl.textContent = inst.scaleLabel;
+    if (rootEl) rootEl.textContent = inst.rootLabel;
+    if (octEl) { const o = inst.octaveOffset; octEl.textContent = o === 0 ? '0' : (o > 0 ? '+' + o : String(o)); }
+    if (voiceEl) voiceEl.textContent = inst.voiceName;
+  } else {
+    const voiceEl = document.getElementById('voiceName');
+    if (voiceEl) voiceEl.textContent = inst.name;
+  }
 }
 
-const engine = {
-  ctx: null, bus: null, voices: new Map(), noise: null, droneNodes: null, sampleBank: null,
-
-  ensure() {
-    if (this.ctx) { resumeAudio(); return true; }
-    this.ctx = getAudioContext();
-    if (!this.ctx) return false;
-    this.bus = this.ctx.createGain();
-    this.bus.gain.value = 1.45;
-    this.comp = this.ctx.createDynamicsCompressor();
-    this.comp.threshold.value = -16;
-    this.comp.knee.value = 20;
-    this.comp.ratio.value = 2.8;
-    this.comp.attack.value = 0.003;
-    this.comp.release.value = 0.25;
-
-    const nlen = Math.floor(this.ctx.sampleRate * 0.1);
-    this.noise = this.ctx.createBuffer(1, nlen, this.ctx.sampleRate);
-    const d = this.noise.getChannelData(0);
-    for (let i = 0; i < nlen; i++) d[i] = Math.random() * 2 - 1;
-    this.sampleBank = new NoteSampleBank(this.ctx, './sounds/notes/');
-    this.sampleBank.load().then(() => {
-      console.info('[handpan] samples', this.sampleBank.byMidi.size);
-    }).catch((e) => console.warn(e));
-
-    this.dryGain = this.ctx.createGain();
-    this.dryGain.gain.value = 1;
-    this.bus.connect(this.dryGain);
-
-    this.delay = this.ctx.createDelay(1.5);
-    this.delay.delayTime.value = 0.28;
-    this.delayFeedback = this.ctx.createGain();
-    this.delayFeedback.gain.value = 0.25;
-    this.delayWet = this.ctx.createGain();
-    this.delayWet.gain.value = 0;
-    this.bus.connect(this.delay);
-    this.delay.connect(this.delayFeedback);
-    this.delayFeedback.connect(this.delay);
-    this.delay.connect(this.delayWet);
-
-    this.reverbWet = this.ctx.createGain();
-    this.reverbWet.gain.value = 0;
-    this.reverbInput = this.ctx.createGain();
-    const delays = [0.031, 0.053, 0.073, 0.097];
-    this._reverbTaps = [];
-    delays.forEach((dt, i) => {
-      const dd = this.ctx.createDelay(0.2);
-      dd.delayTime.value = dt;
-      const g = this.ctx.createGain();
-      g.gain.value = 0.28 - i * 0.04;
-      const f = this.ctx.createBiquadFilter();
-      f.type = 'lowpass';
-      f.frequency.value = 4200 - i * 400;
-      this.reverbInput.connect(dd);
-      dd.connect(f); f.connect(g); g.connect(this.reverbWet);
-      const fb = this.ctx.createGain();
-      fb.gain.value = 0.35;
-      g.connect(fb); fb.connect(dd);
-      this._reverbTaps.push({ d: dd, g, f, fb });
-    });
-    this.bus.connect(this.reverbInput);
-
-    this.makeupGain = this.ctx.createGain();
-    this.makeupGain.gain.value = 1;
-    this.masterGain = this.ctx.createGain();
-    this.masterGain.gain.value = 1.25;
-    this.dryGain.connect(this.comp);
-    this.delayWet.connect(this.comp);
-    this.reverbWet.connect(this.comp);
-    this.comp.connect(this.makeupGain);
-    this.makeupGain.connect(this.masterGain);
-    this.masterGain.connect(getAudioMaster());
-
-    this.applyFx();
-    resumeAudio();
-    return true;
-  },
-
-  applyFx() {
-    if (!this.ctx) return;
-    const t = this.ctx.currentTime;
-    const del = state.fx.delay;
-    const rev = state.fx.reverb;
-    const amt = state.fx.compress;
-    const dType = DELAY_TYPES[state.fx.delayType] || DELAY_TYPES.echo;
-    const rType = REVERB_TYPES[state.fx.reverbType] || REVERB_TYPES.room;
-    const cType = COMPRESSOR_TYPES[state.fx.compressType] || COMPRESSOR_TYPES.soft;
-
-    if (this.comp) {
-      const thr = -2 + (cType.threshold + 2) * Math.pow(amt, 0.75);
-      const ratio = 1.05 + (cType.ratio - 1.05) * amt;
-      this.comp.threshold.setTargetAtTime(thr, t, 0.04);
-      this.comp.ratio.setTargetAtTime(ratio, t, 0.04);
-      this.comp.knee.setTargetAtTime(0.5 + cType.knee * amt, t, 0.04);
-      this.comp.attack.setTargetAtTime(cType.attack, t, 0.04);
-      this.comp.release.setTargetAtTime(cType.release, t, 0.04);
-      if (this.makeupGain) {
-        const mu = 1 + (cType.makeup - 1) * amt * 1.4;
-        this.makeupGain.gain.setTargetAtTime(mu, t, 0.06);
-      }
-      if (this.dryGain) {
-        this.dryGain.gain.setTargetAtTime(1, t, 0.06);
-      }
-    }
-
-    if (this.masterGain) {
-      const vol = Math.max(0, Math.min(1.5, state.fx.master ?? 1.25));
-      this.masterGain.gain.setTargetAtTime(vol, t, 0.04);
-    }
-
-    if (this.delayWet && this.delay && this.delayFeedback) {
-      const time = dType.timeMin + del * (dType.timeMax - dType.timeMin);
-      const fb = dType.fbMin + del * (dType.fbMax - dType.fbMin);
-      this.delayWet.gain.setTargetAtTime(del * dType.wetScale, t, 0.06);
-      this.delayFeedback.gain.setTargetAtTime(fb, t, 0.06);
-      this.delay.delayTime.setTargetAtTime(time, t, 0.08);
-    }
-
-    if (this.reverbWet && this.reverbInput) {
-      this.reverbWet.gain.setTargetAtTime(rev * rType.wetScale, t, 0.08);
-      this.reverbInput.gain.setTargetAtTime(0.35 + rev * 0.65, t, 0.08);
-      if (this._reverbTaps && this._reverbTaps.length) {
-        this._reverbTaps.forEach((tap, i) => {
-          const dt = rType.taps[i] != null ? rType.taps[i] : rType.taps[rType.taps.length - 1];
-          const g = rType.tapGains[i] != null ? rType.tapGains[i] : 0.15;
-          const hz = rType.filters[i] != null ? rType.filters[i] : 3000;
-          try {
-            tap.d.delayTime.setTargetAtTime(dt, t, 0.1);
-            tap.g.gain.setTargetAtTime(g, t, 0.08);
-            tap.f.frequency.setTargetAtTime(hz, t, 0.1);
-            if (tap.fb) tap.fb.gain.setTargetAtTime(rType.fb, t, 0.1);
-          } catch (_) {}
-        });
-      }
-    }
-  },
-
-  strike(idx, touch = {}) {
-    if (!this.ensure()) return;
-    const note = state.notes[idx];
-    if (!note) return;
-    const ctx = this.ctx;
-    const t = ctx.currentTime + 0.001;
-    const vel = Math.max(0.12, Math.min(1, touch.vel ?? 0.75));
-    const radial = Math.max(0, Math.min(1.2, touch.radial ?? 0.4));
-    const angleRad = touch.angleRad ?? 0;
-    const prev = this.voices.get(idx);
-    if (prev) {
-      if (prev.stop) prev.stop(t, 0.04);
-      else this.releaseVoice(prev, t, 0.04);
-    }
-    state.glow[idx] = Math.min(1, 0.55 + vel * 0.45);
-    state.zoneFlash[idx] = radial;
-    if (this.sampleBank && this.sampleBank.ready) {
-      const played = this.sampleBank.play(note.midi, this.bus, t, { vel, radial, angleRad });
-      if (played) {
-        this.voices.set(idx, { idx, stop: played.stop, released: false });
-        return;
-      }
-    }
-    this._strikeSynth(note, idx, t, vel, radial);
-  },
-
-  _strikeSynth(note, idx, t, vel, radial) {
-    const ctx = this.ctx;
-    const preset = VOICE_PRESETS[state.voiceIndex] || VOICE_PRESETS[0];
-    const f = note.freq;
-    const z = NoteSampleBank.zoneWeights(radial);
-    const out = ctx.createGain();
-    out.gain.value = 1;
-    out.connect(this.bus);
-    const T0 = Math.max(1.5, 5.5 - Math.log(f / 165) / Math.LN2);
-    const oscs = [];
-    const gains = [0.55 * z.fundamental, 0.32 * z.partials, 0.18 * z.partials, 0.1 * z.brightness, 0.05 * z.brightness];
-    preset.partials.forEach((ratio, i) => {
-      const osc = ctx.createOscillator();
-      osc.type = preset.wave || 'sine';
-      osc.frequency.value = f * ratio * (1 + ((i % 2) ? -1 : 1) * (preset.spread || 0.005));
-      const g = ctx.createGain();
-      const peak = (0.32 + 0.28 * vel) * (gains[i] || 0.06);
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.linearRampToValueAtTime(peak, t + 0.004 + (1 - vel) * 0.01);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + T0 * (preset.decay / 6.2) * (1 - i * 0.07));
-      osc.connect(g); g.connect(out);
-      osc.start(t); osc.stop(t + T0 + 0.12);
-      oscs.push(osc);
-    });
-    const voice = { idx, out, oscs, released: false, stop: (tt, tc) => this.releaseVoice(voice, tt, tc) };
-    oscs[0].onended = () => { this.voices.delete(idx); try { out.disconnect(); } catch (_) {} };
-    this.voices.set(idx, voice);
-  },
-
-  releaseVoice(voice, t, tc) {
-    if (!voice || voice.released) return;
-    voice.released = true;
-    try { if (voice.out) { voice.out.gain.cancelScheduledValues(t); voice.out.gain.setTargetAtTime(0, t, tc); } } catch (_) {}
-  },
-
-  damp(idx) {
-    const v = this.voices.get(idx);
-    if (!v || !this.ctx) return;
-    if (v.stop) v.stop(this.ctx.currentTime, 0.07);
-    else this.releaseVoice(v, this.ctx.currentTime, 0.07);
-  }
-};
+function updateInstrumentUI() {
+  updateLabels();
+  document.querySelectorAll('[data-instrument]').forEach((btn) => {
+    btn.classList.toggle('is-active', btn.getAttribute('data-instrument') === activeInstrument().id);
+  });
+  const left = document.querySelector('.sidebar.left');
+  if (left) left.style.visibility = activeInstrument().id === 'handpan' ? '' : 'hidden';
+}
 
 const canvas = document.getElementById('pan');
 const ctx2 = canvas.getContext('2d');
 let W = 800, H = 800, R = 0, CX = 0, CY = 0;
+let fields = [];
 
 function resize() {
   const rect = canvas.getBoundingClientRect();
@@ -312,154 +125,141 @@ function resize() {
 }
 
 function layoutFields() {
-  const midis = state.notes.map((n) => n.midi);
-  const midiMin = Math.min.apply(null, midis);
-  const midiMax = Math.max.apply(null, midis);
+  const inst = activeInstrument();
+  if (inst.id === 'handpan') layoutHandpanFields(inst);
+  else if (inst.id === 'kitchen') layoutObjectFields(inst.objects || [], 0.38);
+  else if (inst.id === 'bird') layoutObjectFields(inst.calls || [], 0.36);
+  else fields = [];
+  inst.setZones(fields);
+}
+
+function layoutHandpanFields(inst) {
+  if (!inst.getNotes().length) inst.rebuildNotes?.();
+  const list = inst.getNotes();
+  const midis = list.map((n) => n.midi);
+  const midiMin = Math.min(...midis), midiMax = Math.max(...midis);
   const midiSpan = Math.max(1, midiMax - midiMin);
-  state.fields = state.notes.map((n) => {
+  fields = list.map((n) => {
     const lowAmount = (midiMax - n.midi) / midiSpan;
     const size = 1 + lowAmount * 0.42;
     if (n.kind === 'ding') {
       const rr = R * 0.185 * size;
-      return { i: n.index, x: CX, y: CY, rx: rr, ry: rr, rot: 0 };
+      return { i: n.index, index: n.index, x: CX, y: CY, rx: rr, ry: rr, rot: 0, label: n.name };
     }
     const a = (n.angle * Math.PI) / 180;
     const d = R * 0.58;
     const radial = R * 0.155 * size;
     const tangential = R * 0.112 * size;
-    const ux = Math.sin(a);
-    const uy = -Math.cos(a);
-    const rot = Math.atan2(uy, ux);
-    return { i: n.index, x: CX + ux * d, y: CY + uy * d, rx: radial, ry: tangential, rot, ux, uy };
+    const ux = Math.sin(a), uy = -Math.cos(a);
+    return { i: n.index, index: n.index, x: CX + ux * d, y: CY + uy * d, rx: radial, ry: tangential, rot: Math.atan2(uy, ux), ux, uy, label: n.name };
   });
 }
 
-function pathPad(f) {
-  ctx2.beginPath();
-  ctx2.ellipse(f.x, f.y, f.rx, f.ry, f.rot || 0, 0, Math.PI * 2);
+function layoutObjectFields(items, radiusScale) {
+  const n = items.length;
+  const ringR = R * radiusScale;
+  fields = items.map((obj, i) => {
+    const a = -Math.PI / 2 + (i / n) * Math.PI * 2;
+    const x = CX + Math.cos(a) * ringR;
+    const y = CY + Math.sin(a) * ringR;
+    const rr = R * 0.14;
+    return { i, index: i, x, y, rx: rr, ry: rr * 0.85, rot: 0, label: obj.name || obj.id, nx: 0.5 + Math.cos(a) * 0.5, ny: 0.5 + Math.sin(a) * 0.5 };
+  });
 }
+
+function pathPad(f) { ctx2.beginPath(); ctx2.ellipse(f.x, f.y, f.rx, f.ry, f.rot || 0, 0, Math.PI * 2); }
 
 function draw() {
   ctx2.clearRect(0, 0, W, H);
+  const inst = activeInstrument();
+  if (inst.id === 'handpan') drawHandpanBody(inst);
+  else drawWorldBody(inst);
+  if (app.catchMode?.isActive) drawCatchWaves();
+}
+
+function drawHandpanBody(inst) {
   const g = ctx2.createRadialGradient(CX - R * 0.2, CY - R * 0.28, R * 0.04, CX, CY, R);
   g.addColorStop(0, '#2c2d32'); g.addColorStop(0.5, '#16171b'); g.addColorStop(1, '#0a0a0c');
-  ctx2.fillStyle = g;
-  ctx2.beginPath(); ctx2.arc(CX, CY, R, 0, Math.PI * 2); ctx2.fill();
-  ctx2.strokeStyle = 'rgba(201,162,39,0.14)';
-  ctx2.lineWidth = Math.max(1.5, R * 0.01);
+  ctx2.fillStyle = g; ctx2.beginPath(); ctx2.arc(CX, CY, R, 0, Math.PI * 2); ctx2.fill();
+  ctx2.strokeStyle = 'rgba(201,162,39,0.14)'; ctx2.lineWidth = Math.max(1.5, R * 0.01);
   ctx2.beginPath(); ctx2.arc(CX, CY, R * 0.93, 0, Math.PI * 2); ctx2.stroke();
-
-  state.fields.forEach((f, i) => {
-    const note = state.notes[i];
-    const glow = state.glow[i] || 0;
-    const radial = state.zoneFlash[i] || 0;
-    const isDing = note.kind === 'ding';
-    const hlx = f.ux != null ? f.ux : -0.35;
-    const hly = f.uy != null ? f.uy : -0.45;
+  const translucent = document.getElementById('app')?.classList.contains('catch-active');
+  if (translucent) ctx2.globalAlpha = 0.72;
+  fields.forEach((f, i) => {
+    const glow = inst.glow?.[i] || 0;
+    const radial = inst.zoneFlash?.[i] || 0;
+    const isDing = inst.notes?.[i]?.kind === 'ding';
+    const hlx = f.ux != null ? f.ux : -0.35, hly = f.uy != null ? f.uy : -0.45;
     const pad = ctx2.createRadialGradient(f.x + hlx * f.rx * 0.35, f.y + hly * f.ry * 0.35, 0, f.x, f.y, Math.max(f.rx, f.ry));
-    pad.addColorStop(0, 'rgba(78,80,88,0.95)');
-    pad.addColorStop(0.55, 'rgba(40,42,48,0.95)');
-    pad.addColorStop(1, 'rgba(22,23,27,0.98)');
+    pad.addColorStop(0, 'rgba(78,80,88,0.95)'); pad.addColorStop(0.55, 'rgba(40,42,48,0.95)'); pad.addColorStop(1, 'rgba(22,23,27,0.98)');
     ctx2.fillStyle = pad; pathPad(f); ctx2.fill();
     ctx2.strokeStyle = glow > 0.04 ? `rgba(201,162,39,${0.3 + glow * 0.55})` : 'rgba(255,255,255,0.12)';
-    ctx2.lineWidth = isDing ? 2.2 : 1.5;
-    pathPad(f); ctx2.stroke();
+    ctx2.lineWidth = isDing ? 2.2 : 1.5; pathPad(f); ctx2.stroke();
     if (glow > 0.02) {
-      ctx2.save();
-      ctx2.globalCompositeOperation = 'lighter';
+      ctx2.save(); ctx2.globalCompositeOperation = 'lighter';
       const gr = Math.max(f.rx, f.ry) * (0.95 + radial * 0.4);
       const hg = ctx2.createRadialGradient(f.x, f.y, 0, f.x, f.y, gr);
       hg.addColorStop(0, `rgba(201,162,39,${glow * (0.25 + (1 - radial) * 0.2)})`);
       hg.addColorStop(0.55, `rgba(228,195,90,${glow * radial * 0.22})`);
       hg.addColorStop(1, 'rgba(201,162,39,0)');
-      ctx2.fillStyle = hg;
-      pathPad({ x: f.x, y: f.y, rx: f.rx * 1.12, ry: f.ry * 1.12, rot: f.rot });
-      ctx2.fill(); ctx2.restore();
+      ctx2.fillStyle = hg; pathPad({ x: f.x, y: f.y, rx: f.rx * 1.12, ry: f.ry * 1.12, rot: f.rot }); ctx2.fill(); ctx2.restore();
     }
-    drawSlit(f, isDing, glow);
+  });
+  ctx2.globalAlpha = 1;
+}
+
+function drawWorldBody(inst) {
+  const g = ctx2.createRadialGradient(CX, CY, R * 0.1, CX, CY, R);
+  g.addColorStop(0, 'rgba(28,30,36,0.9)'); g.addColorStop(1, 'rgba(10,10,12,0.4)');
+  ctx2.fillStyle = g; ctx2.beginPath(); ctx2.arc(CX, CY, R * 0.92, 0, Math.PI * 2); ctx2.fill();
+  fields.forEach((f) => {
+    const pad = ctx2.createRadialGradient(f.x - f.rx * 0.3, f.y - f.ry * 0.3, 0, f.x, f.y, Math.max(f.rx, f.ry));
+    if (inst.id === 'kitchen') {
+      pad.addColorStop(0, 'rgba(90,88,82,0.95)'); pad.addColorStop(0.6, 'rgba(48,46,42,0.95)'); pad.addColorStop(1, 'rgba(24,22,20,0.98)');
+    } else {
+      pad.addColorStop(0, 'rgba(70,85,95,0.95)'); pad.addColorStop(0.6, 'rgba(35,45,52,0.95)'); pad.addColorStop(1, 'rgba(18,22,26,0.98)');
+    }
+    ctx2.fillStyle = pad; pathPad(f); ctx2.fill();
+    ctx2.strokeStyle = 'rgba(201,162,39,0.22)'; ctx2.lineWidth = 1.4; pathPad(f); ctx2.stroke();
+    ctx2.fillStyle = 'rgba(232,228,216,0.75)';
+    ctx2.font = `${Math.max(11, R * 0.035)}px Inter, system-ui, sans-serif`;
+    ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+    ctx2.fillText(f.label || '', f.x, f.y);
   });
 }
 
-function drawSlit(f, isDing, glow) {
-  const rot = f.rot || 0;
-  const len = isDing ? f.rx * 0.42 : f.rx * 0.55;
-  const halfW = isDing ? Math.max(1.2, f.rx * 0.06) : Math.max(1.0, f.ry * 0.11);
-  const pulse = glow > 0.01 ? (0.82 + 0.18 * Math.sin(performance.now() * 0.014)) : 1;
-  const a = Math.min(1, glow * 1.25) * pulse;
-  ctx2.save();
-  ctx2.translate(f.x, f.y);
-  ctx2.rotate(rot);
-  ctx2.globalCompositeOperation = 'lighter';
-  const ambA = 0.06 + a * 0.55;
-  const amb = ctx2.createRadialGradient(0, 0, 0, 0, 0, len * 1.8);
-  amb.addColorStop(0, `rgba(255,220,120,${ambA * 0.5})`);
-  amb.addColorStop(0.35, `rgba(201,162,39,${ambA * 0.28})`);
-  amb.addColorStop(0.7, `rgba(201,162,39,${ambA * 0.08})`);
-  amb.addColorStop(1, 'rgba(201,162,39,0)');
-  ctx2.fillStyle = amb;
-  ctx2.beginPath(); ctx2.ellipse(0, 0, len * 1.55, halfW * (4.5 + a * 3), 0, 0, Math.PI * 2); ctx2.fill();
-  if (a > 0.02) {
-    const mid = ctx2.createRadialGradient(0, 0, 0, 0, 0, len * 1.15);
-    mid.addColorStop(0, `rgba(255,235,160,${a * 0.55})`);
-    mid.addColorStop(0.4, `rgba(228,195,90,${a * 0.28})`);
-    mid.addColorStop(1, 'rgba(201,162,39,0)');
-    ctx2.fillStyle = mid;
-    ctx2.beginPath(); ctx2.ellipse(0, 0, len * 1.15, halfW * (2.8 + a * 2), 0, 0, Math.PI * 2); ctx2.fill();
+function drawCatchWaves() {
+  for (const w of app.catchMode.getActiveWaves()) {
+    const target = fields[w.targetIndex];
+    if (!target) continue;
+    const p = Math.min(1.15, w.progress);
+    const x = CX + (target.x - CX) * p;
+    const y = CY + (target.y - CY) * p;
+    const rr = R * 0.08 + p * Math.max(target.rx, target.ry) * 1.1;
+    const alpha = Math.max(0, 0.55 * (1 - Math.abs(p - 0.92) * 2.5));
+    ctx2.save(); ctx2.globalCompositeOperation = 'lighter';
+    const ring = ctx2.createRadialGradient(x, y, rr * 0.2, x, y, rr);
+    ring.addColorStop(0, `rgba(255,220,120,${alpha * 0.5})`);
+    ring.addColorStop(0.55, `rgba(201,162,39,${alpha * 0.35})`);
+    ring.addColorStop(1, 'rgba(201,162,39,0)');
+    ctx2.fillStyle = ring; ctx2.beginPath(); ctx2.arc(x, y, rr, 0, Math.PI * 2); ctx2.fill();
+    ctx2.strokeStyle = `rgba(255,230,150,${alpha * 0.8})`; ctx2.lineWidth = Math.max(1.5, R * 0.008);
+    ctx2.beginPath(); ctx2.arc(x, y, rr * 0.85, 0, Math.PI * 2); ctx2.stroke();
+    ctx2.restore();
   }
-  ctx2.globalCompositeOperation = 'source-over';
-  ctx2.beginPath(); ctx2.ellipse(0, 0, len, halfW, 0, 0, Math.PI * 2);
-  const recess = ctx2.createRadialGradient(0, 0, 0, 0, 0, len);
-  recess.addColorStop(0, 'rgba(0,0,0,0.78)');
-  recess.addColorStop(0.6, 'rgba(0,0,0,0.5)');
-  recess.addColorStop(1, 'rgba(0,0,0,0.18)');
-  ctx2.fillStyle = recess; ctx2.fill();
-  ctx2.strokeStyle = a > 0.05 ? `rgba(255,230,140,${0.35 + a * 0.6})` : 'rgba(255,255,255,0.1)';
-  ctx2.lineWidth = Math.max(0.9, halfW * 0.65);
-  ctx2.stroke();
-  if (a > 0.02) {
-    ctx2.globalCompositeOperation = 'lighter';
-    ctx2.beginPath(); ctx2.ellipse(0, 0, len * 0.94, halfW * 0.62, 0, 0, Math.PI * 2);
-    const core = ctx2.createLinearGradient(-len, 0, len, 0);
-    core.addColorStop(0, `rgba(201,162,39,${a * 0.2})`);
-    core.addColorStop(0.35, `rgba(255,240,170,${a * 0.95})`);
-    core.addColorStop(0.5, `rgba(255,250,220,${a})`);
-    core.addColorStop(0.65, `rgba(255,240,170,${a * 0.95})`);
-    core.addColorStop(1, `rgba(201,162,39,${a * 0.2})`);
-    ctx2.fillStyle = core; ctx2.fill();
-    ctx2.beginPath(); ctx2.ellipse(0, 0, len * 0.7, halfW * 0.28, 0, 0, Math.PI * 2);
-    ctx2.fillStyle = `rgba(255,252,235,${a * 0.85})`; ctx2.fill();
-    const bloom = ctx2.createRadialGradient(0, 0, 0, 0, 0, len * 1.6);
-    bloom.addColorStop(0, `rgba(255,230,140,${a * 0.4})`);
-    bloom.addColorStop(0.4, `rgba(228,195,90,${a * 0.18})`);
-    bloom.addColorStop(1, 'rgba(201,162,39,0)');
-    ctx2.fillStyle = bloom;
-    ctx2.beginPath(); ctx2.ellipse(0, 0, len * 1.4, halfW * (3.8 + a * 2.5), 0, 0, Math.PI * 2); ctx2.fill();
-  }
-  ctx2.restore();
-}
-
-function tick() {
-  let any = false;
-  for (let i = 0; i < 9; i++) {
-    if (state.glow[i] > 0.001) { state.glow[i] *= 0.9; any = true; }
-    else state.glow[i] = 0;
-  }
-  if (any) draw();
-  requestAnimationFrame(tick);
 }
 
 function hitVector(cx, cy) {
   let best = null, bestD = Infinity;
-  for (const f of state.fields) {
+  for (const f of fields) {
     const dx = cx - f.x, dy = cy - f.y;
     const rot = f.rot || 0;
     const cos = Math.cos(-rot), sin = Math.sin(-rot);
-    const lx = dx * cos - dy * sin;
-    const ly = dx * sin + dy * cos;
+    const lx = dx * cos - dy * sin, ly = dx * sin + dy * cos;
     const d = Math.hypot(lx / f.rx, ly / f.ry);
     if (d <= 1.28 && d < bestD) {
       bestD = d;
-      best = { idx: f.i, radial: d, angleRad: Math.atan2(dy, dx) };
+      best = { idx: f.index, index: f.index, radial: d, angleRad: Math.atan2(dy, dx), nx: f.nx ?? (0.5 + (f.x - CX) / (R * 2)), ny: f.ny ?? (0.5 + (f.y - CY) / (R * 2)), x: cx, y: cy };
     }
   }
   return best;
@@ -471,97 +271,98 @@ function canvasCoords(e) {
   return { x: (e.clientX - rect.left) * dpr, y: (e.clientY - rect.top) * dpr };
 }
 
-function estimateVelocity(e, idx) {
-  let v = 0.65;
-  if (typeof e.pressure === 'number' && e.pressure > 0) v = 0.25 + e.pressure * 0.75;
-  if (typeof e.force === 'number' && e.force > 0) v = Math.max(v, Math.min(1, e.force));
-  const now = performance.now();
-  const last = state.lastStrikeAt.get(idx) || 0;
-  const dt = now - last;
-  state.lastStrikeAt.set(idx, now);
-  if (dt > 0 && dt < 90) v = Math.min(1, v * (0.85 + (90 - dt) / 200));
-  return v;
-}
-
-;['touchstart', 'touchmove', 'touchend'].forEach((type) => {
+;['touchstart','touchmove','touchend'].forEach((type) => {
   canvas.addEventListener(type, (e) => { e.preventDefault(); }, { passive: false });
 });
 
 canvas.addEventListener('pointerdown', (e) => {
   e.preventDefault();
+  ensureAudio();
   canvas.setPointerCapture(e.pointerId);
   const { x, y } = canvasCoords(e);
   const hit = hitVector(x, y);
   if (!hit) return;
-  const vel = estimateVelocity(e, hit.idx);
-  state.pointers.set(e.pointerId, hit.idx);
-  engine.strike(hit.idx, { vel, radial: hit.radial, angleRad: hit.angleRad });
+  const inst = activeInstrument();
+  const gesture = gestureFromPointer(e, hit, app.gestureTracker.activeCount + 1, inst.lastStrikeAt);
+  app.gestureTracker.down(gesture);
+  app.pointers.set(e.pointerId, hit.index);
+  app.lastVelocity = gesture.velocity;
+  inst.noteOn(gesture, hit);
+  if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);
   draw();
 });
 canvas.addEventListener('pointerup', (e) => {
-  const idx = state.pointers.get(e.pointerId);
-  state.pointers.delete(e.pointerId);
-  if (idx != null) engine.damp(idx);
+  const idx = app.pointers.get(e.pointerId);
+  app.pointers.delete(e.pointerId);
+  app.gestureTracker.up(e.pointerId);
+  if (idx != null) activeInstrument().noteOff(idx);
 });
-canvas.addEventListener('pointercancel', (e) => { state.pointers.delete(e.pointerId); });
+canvas.addEventListener('pointercancel', (e) => {
+  const idx = app.pointers.get(e.pointerId);
+  app.pointers.delete(e.pointerId);
+  app.gestureTracker.up(e.pointerId);
+  if (idx != null) activeInstrument().noteOff(idx);
+});
 
 const keyMap = Object.fromEntries(KEYS.map((k, i) => [k, i]));
 window.addEventListener('keydown', (e) => {
   if (e.repeat) return;
   const idx = keyMap[e.key.toLowerCase()];
-  if (idx == null) return;
-  e.preventDefault();
-  engine.strike(idx, { vel: 0.8, radial: 0.35, angleRad: 0 });
+  if (idx == null || activeInstrument().id !== 'handpan') return;
+  e.preventDefault(); ensureAudio();
+  const gesture = gestureFromPointer({ pointerId: -1, pressure: 0.8, force: 0, type: 'keydown', clientX: 0, clientY: 0 }, { idx, index: idx, radial: 0.35, angleRad: 0 }, 1, handpan.lastStrikeAt);
+  handpan.noteOn(gesture, { index: idx, radial: 0.35, angleRad: 0 });
+  if (app.catchMode?.isActive) app.catchMode.onStrike(idx);
   draw();
 });
 window.addEventListener('keyup', (e) => {
   const idx = keyMap[e.key.toLowerCase()];
-  if (idx != null) engine.damp(idx);
+  if (idx != null && activeInstrument().id === 'handpan') handpan.noteOff(idx);
 });
 
-function wire(id, fn) {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('click', fn);
-}
-wire('scalePrev', () => { state.scaleIndex = (state.scaleIndex - 1 + SCALES.length) % SCALES.length; rebuildNotes(); });
-wire('scaleNext', () => { state.scaleIndex = (state.scaleIndex + 1) % SCALES.length; rebuildNotes(); });
-wire('rootDown', () => { state.rootIndex = (state.rootIndex - 1 + 12) % 12; rebuildNotes(); });
-wire('rootUp', () => { state.rootIndex = (state.rootIndex + 1) % 12; rebuildNotes(); });
-wire('octDown', () => { state.octaveOffset = Math.max(-1, state.octaveOffset - 1); rebuildNotes(); });
-wire('octUp', () => { state.octaveOffset = Math.min(1, state.octaveOffset + 1); rebuildNotes(); });
-wire('voicePrev', () => { state.voiceIndex = (state.voiceIndex - 1 + VOICE_PRESETS.length) % VOICE_PRESETS.length; updateLabels(); });
-wire('voiceNext', () => { state.voiceIndex = (state.voiceIndex + 1) % VOICE_PRESETS.length; updateLabels(); });
+function wire(id, fn) { const el = document.getElementById(id); if (el) el.addEventListener('click', fn); }
+wire('scalePrev', () => { if (activeInstrument().id !== 'handpan') return; handpan.setScaleIndex(handpan.scaleIndex - 1); layoutFields(); updateLabels(); draw(); if (app.catchMode?.phase === 'focus-scale') app.catchMode.advanceFromUI(); });
+wire('scaleNext', () => { if (activeInstrument().id !== 'handpan') return; handpan.setScaleIndex(handpan.scaleIndex + 1); layoutFields(); updateLabels(); draw(); if (app.catchMode?.phase === 'focus-scale') app.catchMode.advanceFromUI(); });
+wire('rootDown', () => { if (activeInstrument().id !== 'handpan') return; handpan.setRootIndex(handpan.rootIndex - 1); layoutFields(); updateLabels(); draw(); if (app.catchMode?.phase === 'focus-scale') app.catchMode.advanceFromUI(); });
+wire('rootUp', () => { if (activeInstrument().id !== 'handpan') return; handpan.setRootIndex(handpan.rootIndex + 1); layoutFields(); updateLabels(); draw(); if (app.catchMode?.phase === 'focus-scale') app.catchMode.advanceFromUI(); });
+wire('octDown', () => { if (activeInstrument().id !== 'handpan') return; handpan.setOctaveOffset(handpan.octaveOffset - 1); layoutFields(); updateLabels(); draw(); if (app.catchMode?.phase === 'focus-scale') app.catchMode.advanceFromUI(); });
+wire('octUp', () => { if (activeInstrument().id !== 'handpan') return; handpan.setOctaveOffset(handpan.octaveOffset + 1); layoutFields(); updateLabels(); draw(); if (app.catchMode?.phase === 'focus-scale') app.catchMode.advanceFromUI(); });
+wire('voicePrev', () => { if (activeInstrument().id === 'handpan') { handpan.setVoiceIndex(handpan.voiceIndex - 1); updateLabels(); } else cycleInstrument(-1); });
+wire('voiceNext', () => { if (activeInstrument().id === 'handpan') { handpan.setVoiceIndex(handpan.voiceIndex + 1); updateLabels(); } else cycleInstrument(1); });
 wire('btnExit', () => { window.location.href = '../'; });
-wire('btnHelp', () => {
-  alert('Play the handpan: tap the tone fields or use Q W E R T Y U I O. Drag Comp / Ambiance / Room knobs. Open FX for delay, reverb, compressor types & master volume.');
-});
+wire('btnHelp', () => { alert('Play: tap fields or Q–O (handpan). Switch instruments via selector. Knobs: Comp / Ambiance / Room. Catch: ?catch=1 or debug panel.'); });
 
-function setupKnob(id, key, initial) {
+function cycleInstrument(dir) {
+  const ids = InstrumentRegistry.list().map((x) => x.id);
+  const cur = ids.indexOf(activeInstrument().id);
+  setInstrument(ids[(cur + dir + ids.length) % ids.length]);
+}
+
+function setupKnob(id, fxId, initial) {
   const el = document.getElementById(id);
   if (!el) return;
   const cnv = el.querySelector('.knob-canvas');
-  const valEl = document.getElementById('val' + key.charAt(0).toUpperCase() + key.slice(1));
+  const valMap = { compress: 'valCompress', delay: 'valDelay', reverb: 'valReverb' };
+  const valEl = document.getElementById(valMap[fxId]);
+  const chainId = fxId === 'compress' ? 'compressor' : fxId;
   let value = initial, dragging = false, lastY = 0;
   function paint() {
     if (!cnv) return;
-    const c = cnv.getContext('2d');
-    const s = cnv.width;
+    const c = cnv.getContext('2d'); const s = cnv.width;
     c.clearRect(0, 0, s, s);
     const cx = s / 2, cy = s / 2, r = s * 0.38;
     c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2);
     c.strokeStyle = 'rgba(255,255,255,0.08)'; c.lineWidth = 6; c.stroke();
-    const start = Math.PI * 0.75;
-    c.beginPath(); c.arc(cx, cy, r, start, start + Math.PI * 1.5 * value);
+    c.beginPath(); c.arc(cx, cy, r, Math.PI * 0.75, Math.PI * 0.75 + Math.PI * 1.5 * value);
     c.strokeStyle = '#c9a227'; c.lineWidth = 6; c.lineCap = 'round'; c.stroke();
   }
   function setVal(v) {
     value = Math.max(0, Math.min(1, v));
-    state.fx[key] = value;
     if (valEl) valEl.textContent = Math.round(value * 100);
     el.setAttribute('aria-valuenow', Math.round(value * 100));
-    paint();
-    if (!engine.ctx) engine.ensure();
-    else engine.applyFx();
+    paint(); ensureAudio();
+    if (app.fxChain) app.fxChain.setValue(chainId, value);
+    if (app.catchMode?.phase === 'focus-knobs' && Math.abs(value - initial) > 0.08) app.catchMode.advanceFromUI();
   }
   setVal(initial);
   el.addEventListener('pointerdown', (e) => { dragging = true; lastY = e.clientY; el.setPointerCapture(e.pointerId); el.classList.add('is-active'); });
@@ -573,7 +374,6 @@ function setupKnob(id, key, initial) {
     if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') { e.preventDefault(); setVal(value - 0.05); }
   });
 }
-
 setupKnob('knobCompress', 'compress', 0.4);
 setupKnob('knobDelay', 'delay', 0.15);
 setupKnob('knobReverb', 'reverb', 0.25);
@@ -584,75 +384,41 @@ function setFxPanelOpen(open) {
   const btn = document.getElementById('btnFxSettings');
   if (!panel || !backdrop || !btn) return;
   if (open) {
-    panel.hidden = false; backdrop.hidden = false;
-    void panel.offsetWidth;
+    panel.hidden = false; backdrop.hidden = false; void panel.offsetWidth;
     panel.classList.add('is-open'); backdrop.classList.add('is-open');
     btn.classList.add('is-open'); btn.setAttribute('aria-expanded', 'true');
+    if (app.catchMode?.phase === 'focus-fx') app.catchMode.advanceFromUI();
   } else {
     panel.classList.remove('is-open'); backdrop.classList.remove('is-open');
     btn.classList.remove('is-open'); btn.setAttribute('aria-expanded', 'false');
     const hide = () => { if (!panel.classList.contains('is-open')) { panel.hidden = true; backdrop.hidden = true; } };
-    panel.addEventListener('transitionend', hide, { once: true });
-    setTimeout(hide, 360);
+    panel.addEventListener('transitionend', hide, { once: true }); setTimeout(hide, 360);
   }
 }
+document.getElementById('btnFxSettings')?.addEventListener('click', () => {
+  const btn = document.getElementById('btnFxSettings');
+  setFxPanelOpen(!btn?.classList.contains('is-open'));
+});
+document.getElementById('fxPanelClose')?.addEventListener('click', () => setFxPanelOpen(false));
+document.getElementById('fxBackdrop')?.addEventListener('click', () => setFxPanelOpen(false));
 
-function selectDelayType(id) {
-  if (!DELAY_TYPES[id]) return;
-  state.fx.delayType = id;
-  document.querySelectorAll('#delayTypes .fx-type-btn').forEach((b) => {
-    const on = b.getAttribute('data-delay') === id;
-    b.classList.toggle('is-active', on);
-    b.setAttribute('aria-selected', on ? 'true' : 'false');
-  });
-  const desc = document.getElementById('delayDesc');
-  if (desc) desc.textContent = DELAY_TYPES[id].desc;
-  engine.applyFx();
-}
-
-function selectReverbType(id) {
-  if (!REVERB_TYPES[id]) return;
-  state.fx.reverbType = id;
-  document.querySelectorAll('#reverbTypes .fx-type-btn').forEach((b) => {
-    const on = b.getAttribute('data-reverb') === id;
-    b.classList.toggle('is-active', on);
-    b.setAttribute('aria-selected', on ? 'true' : 'false');
-  });
-  const desc = document.getElementById('reverbDesc');
-  if (desc) desc.textContent = REVERB_TYPES[id].desc;
-  engine.applyFx();
-}
-
-function selectCompressType(id) {
-  if (!COMPRESSOR_TYPES[id]) return;
-  state.fx.compressType = id;
-  document.querySelectorAll('#compTypes .fx-type-btn').forEach((b) => {
-    const on = b.getAttribute('data-comp') === id;
-    b.classList.toggle('is-active', on);
-    b.setAttribute('aria-selected', on ? 'true' : 'false');
-  });
-  const desc = document.getElementById('compDesc');
-  if (desc) desc.textContent = COMPRESSOR_TYPES[id].desc;
-  engine.applyFx();
-}
-
-const btnFx = document.getElementById('btnFxSettings');
-if (btnFx) btnFx.addEventListener('click', () => setFxPanelOpen(!btnFx.classList.contains('is-open')));
-const fxClose = document.getElementById('fxPanelClose');
-if (fxClose) fxClose.addEventListener('click', () => setFxPanelOpen(false));
-const fxBackdrop = document.getElementById('fxBackdrop');
-if (fxBackdrop) fxBackdrop.addEventListener('click', () => setFxPanelOpen(false));
 document.getElementById('delayTypes')?.addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-delay]');
-  if (btn) selectDelayType(btn.getAttribute('data-delay'));
+  const btn = e.target.closest('[data-delay]'); if (!btn || !app.fxChain) return;
+  const mod = app.fxChain.modules.find((m) => m.id === 'delay');
+  if (mod) { mod.type = btn.getAttribute('data-delay'); mod._apply(getAudioContext()); }
+  document.querySelectorAll('#delayTypes .fx-type-btn').forEach((b) => { const on = b === btn; b.classList.toggle('is-active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
 });
 document.getElementById('reverbTypes')?.addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-reverb]');
-  if (btn) selectReverbType(btn.getAttribute('data-reverb'));
+  const btn = e.target.closest('[data-reverb]'); if (!btn || !app.fxChain) return;
+  const mod = app.fxChain.modules.find((m) => m.id === 'reverb');
+  if (mod) { mod.type = btn.getAttribute('data-reverb'); mod._apply(getAudioContext()); }
+  document.querySelectorAll('#reverbTypes .fx-type-btn').forEach((b) => { const on = b === btn; b.classList.toggle('is-active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
 });
 document.getElementById('compTypes')?.addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-comp]');
-  if (btn) selectCompressType(btn.getAttribute('data-comp'));
+  const btn = e.target.closest('[data-comp]'); if (!btn || !app.fxChain) return;
+  const mod = app.fxChain.modules.find((m) => m.id === 'compressor');
+  if (mod) { mod.type = btn.getAttribute('data-comp'); mod._apply(getAudioContext()); }
+  document.querySelectorAll('#compTypes .fx-type-btn').forEach((b) => { const on = b === btn; b.classList.toggle('is-active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
 });
 
 const masterEl = document.getElementById('masterVol');
@@ -660,11 +426,9 @@ const masterVal = document.getElementById('masterVolVal');
 if (masterEl) {
   const setMaster = (v) => {
     const n = Math.max(0, Math.min(150, Number(v) || 0));
-    state.fx.master = n / 100;
-    masterEl.value = String(n);
-    masterEl.setAttribute('aria-valuenow', String(n));
+    masterEl.value = String(n); masterEl.setAttribute('aria-valuenow', String(n));
     if (masterVal) masterVal.textContent = n + '%';
-    engine.applyFx();
+    ensureAudio(); if (app.fxChain) app.fxChain.setMaster(n / 100);
   };
   masterEl.addEventListener('input', () => setMaster(masterEl.value));
   setMaster(masterEl.value || 125);
@@ -672,12 +436,83 @@ if (masterEl) {
 
 window.addEventListener('keydown', (e) => { if (e.key === 'Escape') setFxPanelOpen(false); });
 window.addEventListener('resize', resize);
-rebuildNotes();
-resize();
-requestAnimationFrame(tick);
 
-function unlock() {
-  engine.ensure();
-  window.removeEventListener('pointerdown', unlock);
+function injectInstrumentSelector() {
+  const nav = document.querySelector('.instrument-nav');
+  if (!nav || document.getElementById('instrumentSelect')) return;
+  const wrap = document.createElement('div');
+  wrap.id = 'instrumentSelect';
+  wrap.setAttribute('role', 'tablist');
+  wrap.setAttribute('aria-label', 'Instrument');
+  wrap.style.cssText = 'display:flex;gap:4px;align-items:center;margin:0 6px';
+  for (const inst of InstrumentRegistry.list()) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'pill instrument-pill';
+    btn.setAttribute('data-instrument', inst.id);
+    btn.setAttribute('role', 'tab');
+    btn.textContent = inst.name;
+    btn.style.cssText = 'font-size:11px;padding:4px 10px;border-radius:999px;border:1px solid rgba(201,162,39,0.25);background:transparent;color:inherit;cursor:pointer';
+    btn.addEventListener('click', () => setInstrument(inst.id));
+    wrap.appendChild(btn);
+  }
+  nav.parentNode.insertBefore(wrap, nav.nextSibling);
 }
+
+function injectCatchStatus() {
+  if (document.getElementById('catchStatus')) return;
+  const el = document.createElement('div');
+  el.id = 'catchStatus';
+  el.setAttribute('aria-live', 'polite');
+  el.style.cssText = 'position:fixed;top:12%;left:50%;transform:translateX(-50%);z-index:50;color:#c9a227;font:600 18px/1.2 Inter,system-ui,sans-serif;letter-spacing:0.12em;pointer-events:none;text-shadow:0 2px 12px rgba(0,0,0,0.6)';
+  document.body.appendChild(el);
+}
+
+function tick(now) {
+  app._fpsFrames++;
+  if (now - app._fpsLast >= 1000) { app.fps = app._fpsFrames; app._fpsFrames = 0; app._fpsLast = now; }
+  const inst = activeInstrument();
+  let dirty = false;
+  if (inst.id === 'handpan' && inst.tickGlow?.()) dirty = true;
+  if (app.catchMode?.isActive) { app.catchMode.tick(now); dirty = true; }
+  if (dirty) draw();
+  requestAnimationFrame(tick);
+}
+
+async function boot() {
+  injectInstrumentSelector();
+  injectCatchStatus();
+  await setInstrument('handpan');
+  resize();
+  requestAnimationFrame(tick);
+  try {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('catch') === '1') app.catchMode.startOnboarding();
+  } catch (_) {}
+  if (isDebugEnabled()) {
+    mountDebugPanel({
+      setInstrument: (id) => setInstrument(id),
+      startCatch: () => {
+        if (activeInstrument().id !== 'handpan') setInstrument('handpan').then(() => app.catchMode.startCatchSequence());
+        else app.catchMode.startCatchSequence();
+      },
+      resetCatch: () => app.catchMode.reset(),
+      resetOnboarding: () => app.catchMode.startOnboarding(),
+      getStats: () => ({
+        instrument: activeInstrument().id,
+        voices: activeInstrument().activeVoices?.size ?? 0,
+        touches: app.gestureTracker.activeCount,
+        velocity: app.lastVelocity,
+        audioState: audioState(),
+        fps: app.fps,
+        dpr: window.devicePixelRatio || 1,
+        tier: (navigator.deviceMemory && navigator.deviceMemory <= 4) ? 'low' : 'high',
+        catchPhase: app.catchMode?.phase
+      })
+    });
+  }
+}
+
+function unlock() { ensureAudio(); window.removeEventListener('pointerdown', unlock); }
 window.addEventListener('pointerdown', unlock);
+boot();
