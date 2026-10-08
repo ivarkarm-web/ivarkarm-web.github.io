@@ -10,6 +10,8 @@ export function createSurface(canvas) {
   let fields = [];
   let slitPhase = 0;
   let reducedMotion = false;
+  let particles = [];
+  let particleSeeded = false;
   try {
     reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   } catch (_) {}
@@ -20,34 +22,53 @@ export function createSurface(canvas) {
   }
 
   /** Premium tonefield slit — precision recess + restrained luminous core. */
+  function seedParticles() {
+    if (particleSeeded) return;
+    particleSeeded = true;
+    let seed = 7919;
+    particles = Array.from({ length: 34 }, (_, i) => {
+      seed = (seed * 16807) % 2147483647;
+      return { x:(seed%10000)/10000, y:((seed/10000)%10000)/10000, r:0.5+(seed%9)*0.08, a:0.025+(i%5)*0.009, s:0.08+(i%7)*0.012, p:(i*1.73)%6.28 };
+    });
+  }
+  function drawBackgroundParticles(phase) {
+    if (reducedMotion) return;
+    seedParticles();
+    ctx2.save();
+    ctx2.globalCompositeOperation = 'lighter';
+    for (const p of particles) {
+      const x=(p.x*W+Math.sin(phase*p.s+p.p)*W*0.012+W)%W;
+      const y=(p.y*H+Math.cos(phase*p.s*0.8+p.p)*H*0.009+H)%H;
+      const pulse=0.65+Math.sin(phase*0.7+p.p)*0.35;
+      ctx2.fillStyle=`rgba(180,210,225,${p.a*pulse})`;
+      ctx2.beginPath(); ctx2.arc(x,y,p.r,0,Math.PI*2); ctx2.fill();
+    }
+    ctx2.restore();
+  }
+
   function drawHoldLines(f, phase) {
     if (f.playable === false) return;
-    const isDing = f.kind === 'ding';
-    const baseR = Math.max(f.rx, f.ry);
     const pulse = reducedMotion ? 0.5 : Math.sin(phase * 1.8 + f.index * 0.9) * 0.5 + 0.5;
     const alpha = 0.055 + pulse * 0.045;
-    const count = isDing ? 2 : 1;
-
+    const rx = Math.max(2, f.rx * 0.82);
+    const ry = Math.max(2, f.ry * 0.82);
+    const travel = reducedMotion ? 0.5 : (Math.sin(phase * 1.05 + f.index * 0.6) * 0.5 + 0.5);
+    const gap = 0.16 - travel * 0.13;
     ctx2.save();
     ctx2.translate(f.x, f.y);
     ctx2.rotate(f.rot || 0);
     ctx2.globalCompositeOperation = 'lighter';
     ctx2.lineCap = 'round';
-
-    for (let i = 0; i < count; i++) {
-      const inset = baseR * (0.22 + i * 0.09);
-      const sweep = (phase * 0.55 + f.index * 0.8 + i * 2.1) % (Math.PI * 2);
-      const rx = Math.max(2, f.rx - inset);
-      const ry = Math.max(2, f.ry - inset * 0.72);
-      ctx2.strokeStyle = `rgba(150,220,255,${alpha * (i ? 0.72 : 1)})`;
-      ctx2.lineWidth = Math.max(0.7, R * 0.0018);
-      ctx2.beginPath();
-      ctx2.ellipse(0, 0, rx, ry, 0, sweep - 0.72, sweep + 0.72);
-      ctx2.stroke();
-    }
+    ctx2.strokeStyle = `rgba(150,220,255,${alpha})`;
+    ctx2.lineWidth = Math.max(0.7, R * 0.0018);
+    ctx2.beginPath();
+    ctx2.ellipse(0, 0, rx, ry, -Math.PI * 0.5 - gap, -Math.PI * 0.5 - 0.82);
+    ctx2.stroke();
+    ctx2.beginPath();
+    ctx2.ellipse(0, 0, rx, ry, -Math.PI * 0.5 + gap, -Math.PI * 0.5 + 0.82);
+    ctx2.stroke();
     ctx2.restore();
   }
-
   function drawSlit(f, glow, playable) {
     const isDing = f.kind === 'ding';
     const slitLen = isDing ? Math.min(f.rx, f.ry) * 0.42 : Math.min(f.rx, f.ry) * 0.55;
@@ -147,6 +168,7 @@ export function createSurface(canvas) {
    */
   function drawBody(inst, catchActive, waveTargets = null) {
     ctx2.clearRect(0, 0, W, H);
+    drawBackgroundParticles(slitPhase);
 
     const g = ctx2.createRadialGradient(CX - R * 0.2, CY - R * 0.28, R * 0.04, CX, CY, R);
     g.addColorStop(0, '#2c2d32');
