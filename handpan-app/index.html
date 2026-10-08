@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=16" />
+  <link rel="stylesheet" href="./pionier.css?v=17" />
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
@@ -221,7 +221,7 @@
     <p class="fx-panel-hint">Tweak amount with the <strong>Comp</strong>, <strong>Ambiance</strong>, and <strong>Room</strong> knobs.</p>
   </aside>
 
-  <script type="module" src="./pionier-app.js?v=30"></script>
+  <script type="module" src="./pionier-app.js?v=31"></script>
 
   <script>
     (function () {
@@ -240,28 +240,8 @@
         lastTouchEnd = now;
       }, { passive: false, capture: true });
       document.addEventListener('dblclick', block, { capture: true });
-      function lockScale() {
-        var vv = window.visualViewport;
-        if (!vv) return;
-        var s = vv.scale || 1;
-        var app = document.getElementById('app');
-        if (!app) return;
-        if (Math.abs(s - 1) > 0.01) {
-          app.style.transform = 'scale(' + (1 / s) + ')';
-          app.style.transformOrigin = '0 0';
-          app.style.width = (s * 100) + 'vw';
-          app.style.height = (s * 100) + 'vh';
-        } else {
-          app.style.transform = '';
-          app.style.width = '';
-          app.style.height = '';
-        }
-      }
-      if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', lockScale);
-        window.visualViewport.addEventListener('scroll', lockScale);
-      }
-      window.addEventListener('pageshow', lockScale);
+      // CSS owns the viewport coordinate system.
+      // Do not scale or resize the application from visualViewport.zoom.
     })();
   </script>
 
