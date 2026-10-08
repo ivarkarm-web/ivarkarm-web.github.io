@@ -175,6 +175,19 @@ export function createSurface(canvas) {
       }
 
       drawSlit(f, glow, playable);
+
+      // Soft zone labels (Kitchen/Bird only) — restrained, playable pads only
+      if (playable && f.zoneLabel) {
+        const fontSize = Math.max(9, Math.min(13, R * 0.028));
+        ctx2.save();
+        ctx2.font = `500 ${fontSize}px Inter, system-ui, sans-serif`;
+        ctx2.textAlign = 'center';
+        ctx2.textBaseline = 'middle';
+        const ly = f.y + (isDing ? f.ry * 0.72 : Math.max(f.rx, f.ry) * 0.78);
+        ctx2.fillStyle = `rgba(201,162,39,${0.42 + (glow > 0.1 ? glow * 0.25 : 0)})`;
+        ctx2.fillText(f.zoneLabel, f.x, ly);
+        ctx2.restore();
+      }
     });
 
     ctx2.globalAlpha = 1;
