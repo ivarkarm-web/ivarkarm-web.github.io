@@ -14,6 +14,7 @@
   --safe-b: env(safe-area-inset-bottom, 0px);
   --safe-l: env(safe-area-inset-left, 0px);
   --safe-r: env(safe-area-inset-right, 0px);
+  --side-w: minmax(120px, 160px);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -51,7 +52,7 @@ button, .step, .icon-btn, .pill {
   position: relative;
   width: 100%; height: 100%;
   display: grid;
-  grid-template-columns: minmax(140px, 180px) 1fr minmax(88px, 100px);
+  grid-template-columns: var(--side-w) 1fr var(--side-w);
   grid-template-rows: auto 1fr;
   grid-template-areas:
     "top top top"
@@ -65,6 +66,7 @@ button, .step, .icon-btn, .pill {
   display: flex; align-items: center; justify-content: space-between;
   padding: 4px 8px 8px;
   min-height: 48px;
+  gap: 12px;
 }
 .pill {
   display: inline-flex; align-items: center; gap: 8px;
@@ -73,6 +75,7 @@ button, .step, .icon-btn, .pill {
   background: rgba(255,255,255,0.03);
   color: var(--muted); font-size: 12px; font-weight: 500;
   letter-spacing: 0.04em; cursor: pointer;
+  flex-shrink: 0;
 }
 .play-pill .dot {
   width: 8px; height: 8px; border-radius: 50%;
@@ -81,6 +84,7 @@ button, .step, .icon-btn, .pill {
 .play-pill.is-on { color: var(--text); border-color: var(--accent-soft); }
 .instrument-nav {
   display: flex; align-items: center; gap: 12px;
+  flex-shrink: 0;
 }
 .instrument-name {
   font-size: 15px; font-weight: 500; color: var(--text);
@@ -98,21 +102,69 @@ button, .step, .icon-btn, .pill {
   color: var(--text); border-color: rgba(255,255,255,0.2); outline: none;
 }
 .exit-btn { font-size: 22px; font-weight: 300; }
-.top-actions { display: flex; gap: 8px; }
+.top-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.instrument-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.instrument-sel-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: 500 12px/1 Inter, system-ui, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 4px;
+  cursor: pointer;
+  transition: color .2s;
+  white-space: nowrap;
+}
+.instrument-sel-btn:hover,
+.instrument-sel-btn:focus-visible {
+  color: var(--text);
+  outline: none;
+}
+.instrument-sel-btn.is-active {
+  color: var(--accent-bright);
+}
+.instrument-sep {
+  color: rgba(255,255,255,0.18);
+  font-size: 12px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.catch-status {
+  position: fixed;
+  top: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  color: #c9a227;
+  font: 600 18px/1.2 Inter, system-ui, sans-serif;
+  letter-spacing: 0.12em;
+  pointer-events: none;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+}
 
 .sidebar {
   display: flex; flex-direction: column; gap: 20px;
   padding: 12px 8px;
 }
-.sidebar.left { grid-area: left; justify-content: center; }
 .sidebar.left {
+  grid-area: left;
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
   gap: 14px;
-  min-width: 168px;
+  min-width: 0;
   width: 100%;
-  max-width: 200px;
 }
 .control-scale { width: 100%; }
 .control-scale .scale-stepper {
@@ -443,14 +495,22 @@ button, .step, .icon-btn, .pill {
 .stage {
   grid-area: stage;
   position: relative;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   min-height: 0;
+  min-width: 0;
 }
 #pan {
   width: min(100%, 82vh, 640px);
-  height: auto; aspect-ratio: 1;
+  height: auto;
+  aspect-ratio: 1;
   max-height: min(82vh, 640px);
-  touch-action: none; cursor: pointer;
+  touch-action: none;
+  cursor: pointer;
+  display: block;
+  margin: 0 auto;
 }
 
 @media (max-width: 720px) {
@@ -475,5 +535,7 @@ button, .step, .icon-btn, .pill {
     flex-direction: row; justify-content: center; padding: 4px;
   }
   .instrument-name { font-size: 14px; }
+  .instrument-selector { gap: 4px; }
+  .instrument-sel-btn { font-size: 11px; letter-spacing: 0.06em; }
   #pan { width: min(100%, 94vw); max-height: 58vh; }
 }
