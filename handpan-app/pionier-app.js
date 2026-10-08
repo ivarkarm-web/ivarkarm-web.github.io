@@ -14,7 +14,7 @@ import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
 import { createSurface, WORLD_ZONE_INDICES } from './js/pionier-surface.js?v=25';
-import { createSoundscapes } from './js/soundscapes.js?v=2';
+import { createSoundscapes } from './js/soundscapes.js?v=3';
 
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
 
@@ -500,15 +500,24 @@ function tick(now) {
   requestAnimationFrame(tick);
 }
 
+
 function wireSoundscapes() {
   const back = document.getElementById('scapeBacking');
+  const pad = document.getElementById('scapePad');
   const nat = document.getElementById('scapeNature');
   const backVol = document.getElementById('scapeBackingVol');
+  const padVol = document.getElementById('scapePadVol');
   const natVol = document.getElementById('scapeNatureVol');
   if (back) {
     back.addEventListener('change', () => {
       ensureAudio();
       soundscapes.setBacking(back.value);
+    });
+  }
+  if (pad) {
+    pad.addEventListener('change', () => {
+      ensureAudio();
+      soundscapes.setPad(pad.value);
     });
   }
   if (nat) {
@@ -521,6 +530,12 @@ function wireSoundscapes() {
     backVol.addEventListener('input', () => {
       ensureAudio();
       soundscapes.setBackingLevel(Number(backVol.value));
+    });
+  }
+  if (padVol) {
+    padVol.addEventListener('input', () => {
+      ensureAudio();
+      soundscapes.setPadLevel(Number(padVol.value));
     });
   }
   if (natVol) {
@@ -556,18 +571,21 @@ async function boot() {
       },
       resetCatch: () => app.catchMode.reset(),
       resetOnboarding: () => app.catchMode.startOnboarding(),
-      getState: () => ({
-        instrument: activeInstrument()?.id,
-        catchPhase: app.catchMode?.phase,
+      getStats: () => ({
+        instrument: activeInstrument().id,
+        voices: activeInstrument().activeVoices?.size ?? 0,
+        touches: app.gestureTracker.activeCount,
+        velocity: app.lastVelocity,
+        audioState: audioState(),
         fps: app.fps,
-        audio: audioState(),
-        soundscapes: soundscapes.state
+        dpr: window.devicePixelRatio || 1,
+        tier: navigator.deviceMemory && navigator.deviceMemory <= 4 ? 'low' : 'high',
+        catchPhase: app.catchMode?.phase
       })
     });
   }
 }
 
-// Unlock audio on first user gesture
 function unlock() {
   ensureAudio();
   window.removeEventListener('pointerdown', unlock);
