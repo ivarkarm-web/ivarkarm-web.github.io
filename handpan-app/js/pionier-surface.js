@@ -19,15 +19,16 @@ export function createSurface(canvas) {
     ctx2.ellipse(f.x, f.y, f.rx, f.ry, f.rot || 0, 0, Math.PI * 2);
   }
 
+  /** Premium tonefield slit — precision recess + restrained luminous core. */
   function drawSlit(f, glow, playable) {
     const isDing = f.kind === 'ding';
     const slitLen = isDing ? Math.min(f.rx, f.ry) * 0.42 : Math.min(f.rx, f.ry) * 0.55;
     const slitW = Math.max(1.2, R * 0.0065);
     const rot = f.rot || 0;
-    const idleAlpha = playable ? 0.55 : 0.18;
+    const idleAlpha = playable ? 0.55 : 0.10;
     const g = Math.max(0, Math.min(1, glow || 0));
     const pulse = reducedMotion ? 0 : Math.sin(slitPhase + f.index * 0.7) * 0.5 + 0.5;
-    const coreAlpha = (0.35 + g * 0.55 + pulse * 0.08 * (1 - g)) * (playable ? 1 : 0.25);
+    const coreAlpha = (0.35 + g * 0.55 + pulse * 0.08 * (1 - g)) * (playable ? 1 : 0.12);
     const halfL = slitLen * 0.5;
 
     ctx2.save();
@@ -64,13 +65,13 @@ export function createSurface(canvas) {
     ctx2.fill();
 
     if (g > 0.04 && playable) {
-      const bloom = ctx2.createRadialGradient(0, 0, 0, 0, 0, halfL * 0.9);
-      bloom.addColorStop(0, `rgba(255,230,160,${g * 0.22})`);
-      bloom.addColorStop(0.5, `rgba(201,162,39,${g * 0.1})`);
+      const bloom = ctx2.createRadialGradient(0, 0, 0, 0, 0, halfL * 1.05);
+      bloom.addColorStop(0, `rgba(255,230,160,${g * 0.28})`);
+      bloom.addColorStop(0.45, `rgba(201,162,39,${g * 0.14})`);
       bloom.addColorStop(1, 'rgba(201,162,39,0)');
       ctx2.fillStyle = bloom;
       ctx2.beginPath();
-      ctx2.ellipse(0, 0, halfL * 1.1, slitW * 4, 0, 0, Math.PI * 2);
+      ctx2.ellipse(0, 0, halfL * 1.15, slitW * 4.5, 0, 0, Math.PI * 2);
       ctx2.fill();
     }
     ctx2.restore();
@@ -135,7 +136,8 @@ export function createSurface(canvas) {
       const radial = inst.zoneFlash?.[f.index] || 0;
       const isDing = f.kind === 'ding';
       const playable = f.playable !== false;
-      const dim = playable ? 1 : 0.42;
+      // Inactive Kitchen/Bird pads recede clearly; playable stay full contrast
+      const dim = playable ? 1 : 0.26;
       const hlx = f.ux != null ? f.ux : -0.35;
       const hly = f.uy != null ? f.uy : -0.45;
 
@@ -152,8 +154,8 @@ export function createSurface(canvas) {
 
       ctx2.strokeStyle =
         glow > 0.04 && playable
-          ? `rgba(201,162,39,${(0.22 + glow * 0.4) * dim})`
-          : `rgba(255,255,255,${0.1 * dim})`;
+          ? `rgba(201,162,39,${(0.28 + glow * 0.45)})`
+          : `rgba(255,255,255,${0.08 * dim})`;
       ctx2.lineWidth = isDing ? 1.8 : 1.2;
       pathPad(f);
       ctx2.stroke();
@@ -161,13 +163,13 @@ export function createSurface(canvas) {
       if (glow > 0.02 && playable) {
         ctx2.save();
         ctx2.globalCompositeOperation = 'lighter';
-        const gr = Math.max(f.rx, f.ry) * (0.95 + radial * 0.4);
+        const gr = Math.max(f.rx, f.ry) * (0.95 + radial * 0.45);
         const hg = ctx2.createRadialGradient(f.x, f.y, 0, f.x, f.y, gr);
-        hg.addColorStop(0, `rgba(201,162,39,${glow * (0.2 + (1 - radial) * 0.15)})`);
-        hg.addColorStop(0.55, `rgba(228,195,90,${glow * radial * 0.16})`);
+        hg.addColorStop(0, `rgba(201,162,39,${glow * (0.26 + (1 - radial) * 0.18)})`);
+        hg.addColorStop(0.5, `rgba(228,195,90,${glow * radial * 0.2})`);
         hg.addColorStop(1, 'rgba(201,162,39,0)');
         ctx2.fillStyle = hg;
-        pathPad({ x: f.x, y: f.y, rx: f.rx * 1.1, ry: f.ry * 1.1, rot: f.rot });
+        pathPad({ x: f.x, y: f.y, rx: f.rx * 1.12, ry: f.ry * 1.12, rot: f.rot });
         ctx2.fill();
         ctx2.restore();
       }

@@ -78,51 +78,40 @@
 
     <aside class="sidebar right knobs-panel" aria-label="Sound knobs">
       <div class="knob-wrap" data-param="compress">
+        <canvas class="knob-canvas" width="56" height="56"></canvas>
         <div class="knob" id="knobCompress" role="slider" tabindex="0"
-             aria-label="Compressor" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40"
-             aria-valuetext="Compressor 40 percent">
-          <canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas>
-          <span class="knob-value" id="valCompress">40</span>
+             aria-label="Compressor" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40">
+          <span class="knob-val" id="valCompress">40</span>
         </div>
-        <span class="knob-name">Comp</span>
+        <span class="knob-label">Comp</span>
       </div>
       <div class="knob-wrap" data-param="delay">
+        <canvas class="knob-canvas" width="56" height="56"></canvas>
         <div class="knob" id="knobDelay" role="slider" tabindex="0"
-             aria-label="Ambiance" aria-valuemin="0" aria-valuemax="100" aria-valuenow="15"
-             aria-valuetext="Ambiance 15 percent">
-          <canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas>
-          <span class="knob-value" id="valDelay">15</span>
+             aria-label="Ambiance" aria-valuemin="0" aria-valuemax="100" aria-valuenow="15">
+          <span class="knob-val" id="valDelay">15</span>
         </div>
-        <span class="knob-name">Ambiance</span>
+        <span class="knob-label">Ambiance</span>
       </div>
       <div class="knob-wrap" data-param="reverb">
+        <canvas class="knob-canvas" width="56" height="56"></canvas>
         <div class="knob" id="knobReverb" role="slider" tabindex="0"
-             aria-label="Room" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25"
-             aria-valuetext="Room 25 percent">
-          <canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas>
-          <span class="knob-value" id="valReverb">25</span>
+             aria-label="Room" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25">
+          <span class="knob-val" id="valReverb">25</span>
         </div>
-        <span class="knob-name">Room</span>
+        <span class="knob-label">Room</span>
       </div>
-      <div class="knob-wrap fx-settings-wrap">
-        <button type="button" class="fx-settings-btn" id="btnFxSettings"
-                aria-label="Effects settings" aria-expanded="false" aria-controls="fxPanel"
-                title="Effects settings">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M4 8h10M18 8h2M14 8a2 2 0 1 0-4 0 2 2 0 0 0 4 0ZM4 16h2M10 16h10M8 16a2 2 0 1 0-4 0 2 2 0 0 0 4 0Z"
-                  stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-          </svg>
-        </button>
-        <span class="knob-name">FX</span>
-      </div>
+      <button type="button" class="fx-settings-btn" id="btnFxSettings" aria-label="FX settings" aria-expanded="false">
+        <span class="fx-gear">⚙</span>
+      </button>
     </aside>
   </div>
 
-  <div class="fx-panel-backdrop" id="fxBackdrop" hidden></div>
-  <aside class="fx-panel" id="fxPanel" aria-label="Effects settings" hidden>
-    <header class="fx-panel-head">
-      <h2>Effects</h2>
-      <button type="button" class="fx-panel-close" id="fxPanelClose" aria-label="Close effects">×</button>
+  <div class="fx-backdrop" id="fxBackdrop" hidden></div>
+  <aside class="fx-panel" id="fxPanel" hidden aria-label="FX settings">
+    <header class="fx-panel-header">
+      <h2 class="fx-panel-title">FX</h2>
+      <button type="button" class="fx-panel-close" id="fxPanelClose" aria-label="Close">×</button>
     </header>
 
     <section class="fx-section">
@@ -131,9 +120,9 @@
         <button type="button" class="fx-type-btn is-active" data-delay="echo" role="option" aria-selected="true">Echo</button>
         <button type="button" class="fx-type-btn" data-delay="slap" role="option" aria-selected="false">Slap</button>
         <button type="button" class="fx-type-btn" data-delay="ping" role="option" aria-selected="false">Ping</button>
-        <button type="button" class="fx-type-btn" data-delay="ambient" role="option" aria-selected="false">Ambient</button>
+        <button type="button" class="fx-type-btn" data-delay="dub" role="option" aria-selected="false">Dub</button>
       </div>
-      <p class="fx-type-desc" id="delayDesc">Classic repeating echo. Use Ambiance to set mix & length.</p>
+      <p class="fx-type-desc" id="delayDesc">Classic repeating echoes. Use Ambiance knob for wet amount.</p>
     </section>
 
     <section class="fx-section">
@@ -172,7 +161,7 @@
     <p class="fx-panel-hint">Tweak amount with the <strong>Comp</strong>, <strong>Ambiance</strong>, and <strong>Room</strong> knobs.</p>
   </aside>
 
-  <script type="module" src="./pionier-app.js?v=18"></script>
+  <script type="module" src="./pionier-app.js?v=19"></script>
 
   <script>
     (function () {
