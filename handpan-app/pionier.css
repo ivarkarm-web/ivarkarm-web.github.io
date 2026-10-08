@@ -1,14 +1,12 @@
 /* Pionier-inspired handpan shell */
 :root {
-  color-scheme: dark;
   --bg: #0a0a0b;
+  --panel: #121214;
+  --stroke: rgba(255,255,255,0.08);
+  --muted: rgba(232,230,227,0.55);
   --fg: #e8e6e3;
-  --muted: rgba(232, 230, 227, 0.55);
   --gold: #c9a227;
-  --gold-soft: rgba(201, 162, 39, 0.35);
-  --panel: rgba(18, 18, 20, 0.92);
-  --border: rgba(255, 255, 255, 0.08);
-  /* Symmetric side columns so the stage (and handpan) is truly centered */
+  --gold-soft: rgba(201,162,39,0.35);
   --side-w: minmax(120px, 160px);
 }
 
@@ -25,7 +23,7 @@ html, body {
   user-select: none;
   -webkit-user-select: none;
 }
-button, input { font-family: inherit; }
+button, input, select { font-family: inherit; }
 
 .stage, #pan, .sidebar, .topbar, .knob, .step, .knob-wrap, canvas {
   touch-action: none;
@@ -36,7 +34,6 @@ button, input { font-family: inherit; }
   height: 100vh;
   height: 100dvh;
   display: grid;
-  /* Symmetric columns → handpan centered in the stage */
   grid-template-columns: var(--side-w) 1fr var(--side-w);
   grid-template-rows: auto 1fr;
   grid-template-areas:
@@ -57,7 +54,7 @@ button, input { font-family: inherit; }
 }
 .play-pill {
   display: inline-flex; align-items: center; gap: 8px;
-  background: transparent; border: 1px solid var(--border);
+  background: transparent; border: 1px solid var(--stroke);
   color: var(--muted); border-radius: 999px;
   padding: 6px 12px; font-size: 12px; letter-spacing: 0.04em;
   cursor: pointer;
@@ -86,7 +83,7 @@ button, input { font-family: inherit; }
 .instrument-sep { color: rgba(255,255,255,0.2); }
 .icon-btn {
   width: 32px; height: 32px; border-radius: 50%;
-  border: 1px solid var(--border); background: transparent;
+  border: 1px solid var(--stroke); background: transparent;
   color: var(--muted); cursor: pointer; font-size: 16px;
   display: inline-flex; align-items: center; justify-content: center;
 }
@@ -114,10 +111,7 @@ button, input { font-family: inherit; }
   100% { transform: translateX(-50%) scale(1); opacity: 1; }
 }
 
-/* Catch onboarding focus cues — restrained, no layout shift */
-#app.catch-darken .stage {
-  opacity: 0.92;
-}
+#app.catch-darken .stage { opacity: 0.92; }
 #app.catch-focus-knobs .knobs-panel {
   outline: 1px solid rgba(201, 162, 39, 0.35);
   outline-offset: 6px;
@@ -131,9 +125,7 @@ button, input { font-family: inherit; }
   outline-offset: 6px;
   border-radius: 12px;
 }
-#app.catch-active .catch-status {
-  letter-spacing: 0.2em;
-}
+#app.catch-active .catch-status { letter-spacing: 0.2em; }
 
 .sidebar {
   display: flex; flex-direction: column; gap: 20px;
@@ -173,7 +165,7 @@ button, input { font-family: inherit; }
 .stepper {
   display: flex; align-items: center; gap: 4px;
   background: var(--panel);
-  border: 1px solid var(--border);
+  border: 1px solid var(--stroke);
   border-radius: 10px;
   padding: 4px;
   min-height: 40px;
@@ -190,9 +182,7 @@ button, input { font-family: inherit; }
   font-size: 13px; font-weight: 500;
   color: var(--fg);
 }
-.control-row {
-  display: flex; gap: 8px;
-}
+.control-row { display: flex; gap: 8px; }
 .control-half { flex: 1; min-width: 0; }
 
 .sidebar.right {
@@ -214,17 +204,17 @@ button, input { font-family: inherit; }
   cursor: ns-resize;
   position: relative; z-index: 1;
 }
-.knob-val {
+.knob-value, .knob-val {
   font-size: 12px; font-weight: 600; color: var(--fg);
   pointer-events: none;
 }
-.knob-label {
+.knob-name, .knob-label {
   font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--muted);
 }
 .fx-settings-btn {
   width: 40px; height: 40px; border-radius: 50%;
-  border: 1px solid var(--border); background: transparent;
+  border: 1px solid var(--stroke); background: transparent;
   color: var(--muted); cursor: pointer; font-size: 16px;
   display: flex; align-items: center; justify-content: center;
   margin-top: 8px;
@@ -232,17 +222,17 @@ button, input { font-family: inherit; }
 .fx-settings-btn.is-open,
 .fx-settings-btn:hover { color: var(--gold); border-color: var(--gold-soft); }
 
-.fx-backdrop {
+.fx-panel-backdrop, .fx-backdrop {
   position: fixed; inset: 0; background: rgba(0,0,0,0.45);
   z-index: 40; opacity: 0; transition: opacity 0.28s ease;
   pointer-events: none;
 }
-.fx-backdrop.is-open { opacity: 1; pointer-events: auto; }
+.fx-panel-backdrop.is-open, .fx-backdrop.is-open { opacity: 1; pointer-events: auto; }
 .fx-panel {
   position: fixed; top: 0; right: 0; bottom: 0;
   width: min(340px, 92vw);
   background: #121214;
-  border-left: 1px solid var(--border);
+  border-left: 1px solid var(--stroke);
   z-index: 45;
   padding: 20px 18px;
   transform: translateX(100%);
@@ -251,7 +241,7 @@ button, input { font-family: inherit; }
   display: flex; flex-direction: column; gap: 18px;
 }
 .fx-panel.is-open { transform: translateX(0); }
-.fx-panel-header {
+.fx-panel-head, .fx-panel-header {
   display: flex; align-items: center; justify-content: space-between;
 }
 .fx-panel-title {
@@ -272,7 +262,7 @@ button, input { font-family: inherit; }
 }
 .fx-type-btn {
   padding: 10px 8px; border-radius: 8px;
-  border: 1px solid var(--border); background: transparent;
+  border: 1px solid var(--stroke); background: transparent;
   color: var(--muted); font-size: 12px; cursor: pointer;
 }
 .fx-type-btn.is-active {
@@ -306,6 +296,86 @@ button, input { font-family: inherit; }
   cursor: pointer;
 }
 
+/* Soundscapes — compact, no layout shift */
+.scape-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  width: 100%;
+  max-width: 120px;
+}
+.scape-kicker {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(232,230,227,0.45);
+}
+.scape-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.scape-label {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(232,230,227,0.4);
+}
+.scape-select {
+  width: 100%;
+  background: rgba(18,18,20,0.92);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #e8e6e3;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+}
+.scape-select:focus {
+  border-color: rgba(201,162,39,0.45);
+}
+.scape-select option {
+  background: #121214;
+  color: #e8e6e3;
+}
+.scape-vol {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  margin-top: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.scape-vol::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #c9a227;
+  border: none;
+  cursor: pointer;
+}
+.scape-vol::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #c9a227;
+  border: none;
+  cursor: pointer;
+}
+.scape-vol:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(201,162,39,0.25);
+}
+
 @media (max-width: 720px) {
   .app {
     grid-template-columns: 1fr;
@@ -329,4 +399,5 @@ button, input { font-family: inherit; }
     height: min(100%, 94vw);
     max-height: 58vh;
   }
+  .scape-panel { max-width: 140px; }
 }
