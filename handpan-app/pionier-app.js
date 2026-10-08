@@ -399,7 +399,7 @@ document.querySelectorAll('[data-reverb]').forEach((btn) => {
       b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
     });
     ensureAudio();
-    if (app.fxChain?.setReverbType) app.fxChain.setReverbType(btn.getAttribute('data-comp'));
+    if (app.fxChain?.setReverbType) app.fxChain.setReverbType(btn.getAttribute('data-reverb'));
   });
 });
 document.querySelectorAll('[data-comp]').forEach((btn) => {
