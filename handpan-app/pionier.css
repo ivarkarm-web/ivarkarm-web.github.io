@@ -104,6 +104,14 @@ button, input { font-family: inherit; }
   letter-spacing: 0.12em;
   pointer-events: none;
   text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.catch-status.is-flash {
+  animation: catch-grade-flash 0.45s ease-out;
+}
+@keyframes catch-grade-flash {
+  0% { transform: translateX(-50%) scale(1.12); opacity: 1; }
+  100% { transform: translateX(-50%) scale(1); opacity: 1; }
 }
 
 /* Catch onboarding focus cues — restrained, no layout shift */
