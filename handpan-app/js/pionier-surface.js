@@ -20,6 +20,34 @@ export function createSurface(canvas) {
   }
 
   /** Premium tonefield slit — precision recess + restrained luminous core. */
+  function drawHoldLines(f, phase) {
+    if (f.playable === false) return;
+    const isDing = f.kind === 'ding';
+    const baseR = Math.max(f.rx, f.ry);
+    const pulse = reducedMotion ? 0.5 : Math.sin(phase * 1.8 + f.index * 0.9) * 0.5 + 0.5;
+    const alpha = 0.055 + pulse * 0.045;
+    const count = isDing ? 2 : 1;
+
+    ctx2.save();
+    ctx2.translate(f.x, f.y);
+    ctx2.rotate(f.rot || 0);
+    ctx2.globalCompositeOperation = 'lighter';
+    ctx2.lineCap = 'round';
+
+    for (let i = 0; i < count; i++) {
+      const inset = baseR * (0.22 + i * 0.09);
+      const sweep = (phase * 0.55 + f.index * 0.8 + i * 2.1) % (Math.PI * 2);
+      const rx = Math.max(2, f.rx - inset);
+      const ry = Math.max(2, f.ry - inset * 0.72);
+      ctx2.strokeStyle = `rgba(150,220,255,${alpha * (i ? 0.72 : 1)})`;
+      ctx2.lineWidth = Math.max(0.7, R * 0.0018);
+      ctx2.beginPath();
+      ctx2.ellipse(0, 0, rx, ry, 0, sweep - 0.72, sweep + 0.72);
+      ctx2.stroke();
+    }
+    ctx2.restore();
+  }
+
   function drawSlit(f, glow, playable) {
     const isDing = f.kind === 'ding';
     const slitLen = isDing ? Math.min(f.rx, f.ry) * 0.42 : Math.min(f.rx, f.ry) * 0.55;
@@ -191,6 +219,7 @@ export function createSurface(canvas) {
       }
 
       drawSlit(f, Math.max(glow, approach * 0.9), playable);
+      if (inst.held?.[f.index]) drawHoldLines(f, slitPhase);
 
       if (playable && f.zoneLabel) {
         const fontSize = Math.max(10, Math.min(13, R * 0.03));
