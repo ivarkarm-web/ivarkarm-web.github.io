@@ -1,5 +1,6 @@
 /**
  * catch-mode.js — Catch: signature Pionier musical interaction
+ * Works on Handpan, Kitchen, and Bird — sequence built from active instrument getNotes().
  */
 export class CatchMode {
   constructor(opts = {}) {
@@ -85,6 +86,7 @@ export class CatchMode {
       return;
     }
     // Ascending then descending (skip top note on the way down to avoid double)
+    // Kitchen/Bird: 5 zones at [0,1,3,5,7]; Handpan: full 9-note scale
     const ascending = notes.map((n) => n.index);
     const descending = notes.slice().reverse().map((n) => n.index).slice(1);
     this.sequence = [...ascending, ...descending];
@@ -94,10 +96,18 @@ export class CatchMode {
     this.misses = 0;
     this.score = 0;
     this._setPhase('catch-intro');
-    this.onStatus('CATCH');
+    const instName = inst.name || inst.id || '';
+    this.onStatus(instName ? `CATCH · ${instName}` : 'CATCH');
     this.startedAt = performance.now();
     this._spawnNextWave();
     this._setPhase('ascending');
+  }
+
+  _targetLabel(targetIndex) {
+    const inst = this.getInstrument();
+    const notes = inst?.getNotes?.() || [];
+    const n = notes.find((x) => x.index === targetIndex);
+    return n?.name || null;
   }
 
   _spawnNextWave() {
@@ -109,15 +119,21 @@ export class CatchMode {
     // Slightly slower first waves so the approach cue is readable
     const base = this.reducedMotion ? 1800 : 2200;
     const travelMs = this.seqIndex < 2 ? base + 280 : base;
+    const label = this._targetLabel(targetIndex);
     this.waves.push({
       id: `${this.seqIndex}-${targetIndex}-${Date.now()}`,
       targetIndex,
+      label,
       born: performance.now(),
       travelMs,
       progress: 0,
       caught: false,
       missed: false
     });
+    // Soft target cue for Kitchen/Bird (and Handpan note names when available)
+    if (label && this.phase !== 'catch-intro') {
+      this.onStatus(label);
+    }
   }
 
   _finish() {
