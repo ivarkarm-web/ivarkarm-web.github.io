@@ -231,6 +231,32 @@
     <p class="fx-panel-hint">Tweak amount with the <strong>Comp</strong>, <strong>Ambiance</strong>, and <strong>Room</strong> knobs.</p>
   </aside>
 
+  <script>
+    (function () {
+      var drawer = document.getElementById('mobileControlDrawer');
+      var toggle = document.getElementById('mobileControlsToggle');
+      if (!drawer || !toggle) return;
+      function setOpen(open) {
+        drawer.classList.toggle('is-open', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        toggle.querySelector('.mobile-controls-label').textContent = open ? 'Hide' : 'Controls';
+      }
+      toggle.addEventListener('click', function () {
+        setOpen(!drawer.classList.contains('is-open'));
+      });
+      var startY = null;
+      drawer.addEventListener('touchstart', function (e) {
+        if (e.touches.length === 1) startY = e.touches[0].clientY;
+      }, { passive: true });
+      drawer.addEventListener('touchend', function (e) {
+        if (startY === null || !e.changedTouches.length) return;
+        var dy = e.changedTouches[0].clientY - startY;
+        if (Math.abs(dy) > 24) setOpen(dy > 0);
+        startY = null;
+      }, { passive: true });
+    })();
+  </script>
+
   <script type="module" src="./pionier-app.js?v=31"></script>
 
   <script>
