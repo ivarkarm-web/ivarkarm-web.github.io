@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=12" />
+  <link rel="stylesheet" href="./pionier.css?v=14" />
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
@@ -78,73 +78,114 @@
 
     <aside class="sidebar right knobs-panel" aria-label="Sound knobs">
       <div class="knob-wrap" data-param="compress">
-        <canvas class="knob-canvas" width="56" height="56"></canvas>
         <div class="knob" id="knobCompress" role="slider" tabindex="0"
-             aria-label="Compressor" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40">
-          <span class="knob-val" id="valCompress">40</span>
+             aria-label="Compressor" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40"
+             aria-valuetext="Compressor 40 percent">
+          <canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas>
+          <span class="knob-value" id="valCompress">40</span>
         </div>
-        <span class="knob-label">Comp</span>
+        <span class="knob-name">Comp</span>
       </div>
       <div class="knob-wrap" data-param="delay">
-        <canvas class="knob-canvas" width="56" height="56"></canvas>
         <div class="knob" id="knobDelay" role="slider" tabindex="0"
-             aria-label="Ambiance" aria-valuemin="0" aria-valuemax="100" aria-valuenow="15">
-          <span class="knob-val" id="valDelay">15</span>
+             aria-label="Ambiance" aria-valuemin="0" aria-valuemax="100" aria-valuenow="15"
+             aria-valuetext="Ambiance 15 percent">
+          <canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas>
+          <span class="knob-value" id="valDelay">15</span>
         </div>
-        <span class="knob-label">Ambiance</span>
+        <span class="knob-name">Ambiance</span>
       </div>
       <div class="knob-wrap" data-param="reverb">
-        <canvas class="knob-canvas" width="56" height="56"></canvas>
         <div class="knob" id="knobReverb" role="slider" tabindex="0"
-             aria-label="Room" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25">
-          <span class="knob-val" id="valReverb">25</span>
+             aria-label="Room" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25"
+             aria-valuetext="Room 25 percent">
+          <canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas>
+          <span class="knob-value" id="valReverb">25</span>
         </div>
-        <span class="knob-label">Room</span>
+        <span class="knob-name">Room</span>
       </div>
-      <button type="button" class="fx-settings-btn" id="btnFxSettings" aria-label="FX settings" aria-expanded="false">
-        <span class="fx-gear">⚙</span>
-      </button>
+      <div class="knob-wrap fx-settings-wrap">
+        <div class="scape-panel" id="scapePanel" aria-label="Soundscapes">
+          <span class="scape-kicker">Scape</span>
+          <label class="scape-row">
+            <span class="scape-label">Back</span>
+            <select id="scapeBacking" class="scape-select" aria-label="Backing landscape">
+              <option value="off">Off</option>
+              <option value="drone">Drone</option>
+              <option value="pad">Pad</option>
+              <option value="pulse">Pulse</option>
+              <option value="arp">Arp</option>
+            </select>
+            <input type="range" id="scapeBackingVol" class="scape-vol" min="0" max="0.7" step="0.01" value="0.22"
+                   aria-label="Backing level" />
+          </label>
+          <label class="scape-row">
+            <span class="scape-label">Nature</span>
+            <select id="scapeNature" class="scape-select" aria-label="Nature texture">
+              <option value="off">Off</option>
+              <option value="rain">Rain</option>
+              <option value="stream">Stream</option>
+              <option value="forest">Forest</option>
+              <option value="birds">Birds</option>
+              <option value="storm">Storm</option>
+              <option value="jungle">Jungle</option>
+            </select>
+            <input type="range" id="scapeNatureVol" class="scape-vol" min="0" max="0.7" step="0.01" value="0.24"
+                   aria-label="Nature level" />
+          </label>
+        </div>
+
+      <button type="button" class="fx-settings-btn" id="btnFxSettings"
+                aria-label="Effects settings" aria-expanded="false" aria-controls="fxPanel"
+                title="Effects settings">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 8h10M18 8h2M14 8a2 2 0 1 0-4 0 2 2 0 0 0 4 0ZM4 16h2M10 16h10M8 16a2 2 0 1 0-4 0 2 2 0 0 0 4 0Z"
+                  stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <span class="knob-name">FX</span>
+      </div>
     </aside>
   </div>
 
-  <div class="fx-backdrop" id="fxBackdrop" hidden></div>
-  <aside class="fx-panel" id="fxPanel" hidden aria-label="FX settings">
-    <header class="fx-panel-header">
+  <div class="fx-panel-backdrop" id="fxBackdrop" hidden></div>
+  <aside class="fx-panel" id="fxPanel" aria-label="Effects settings" hidden>
+    <header class="fx-panel-head">
       <h2 class="fx-panel-title">FX</h2>
       <button type="button" class="fx-panel-close" id="fxPanelClose" aria-label="Close">×</button>
     </header>
 
     <section class="fx-section">
       <h3 class="fx-section-label">Delay</h3>
-      <div class="fx-type-grid" id="delayTypes" role="listbox" aria-label="Delay type">
+      <div class="fx-type-grid" role="listbox" aria-label="Delay type">
         <button type="button" class="fx-type-btn is-active" data-delay="echo" role="option" aria-selected="true">Echo</button>
         <button type="button" class="fx-type-btn" data-delay="slap" role="option" aria-selected="false">Slap</button>
         <button type="button" class="fx-type-btn" data-delay="ping" role="option" aria-selected="false">Ping</button>
         <button type="button" class="fx-type-btn" data-delay="dub" role="option" aria-selected="false">Dub</button>
       </div>
-      <p class="fx-type-desc" id="delayDesc">Classic repeating echoes. Use Ambiance knob for wet amount.</p>
+      <p class="fx-type-desc">Classic repeating echoes. Use Ambiance knob for wet amount.</p>
     </section>
 
     <section class="fx-section">
       <h3 class="fx-section-label">Reverb</h3>
-      <div class="fx-type-grid" id="reverbTypes" role="listbox" aria-label="Reverb type">
+      <div class="fx-type-grid" role="listbox" aria-label="Reverb type">
         <button type="button" class="fx-type-btn is-active" data-reverb="room" role="option" aria-selected="true">Room</button>
         <button type="button" class="fx-type-btn" data-reverb="hall" role="option" aria-selected="false">Hall</button>
         <button type="button" class="fx-type-btn" data-reverb="plate" role="option" aria-selected="false">Plate</button>
         <button type="button" class="fx-type-btn" data-reverb="cave" role="option" aria-selected="false">Cave</button>
       </div>
-      <p class="fx-type-desc" id="reverbDesc">Small intimate space. Use Room knob for wet amount.</p>
+      <p class="fx-type-desc">Small intimate space. Use Room knob for wet amount.</p>
     </section>
 
     <section class="fx-section">
       <h3 class="fx-section-label">Compressor</h3>
-      <div class="fx-type-grid" id="compTypes" role="listbox" aria-label="Compressor type">
+      <div class="fx-type-grid" role="listbox" aria-label="Compressor type">
         <button type="button" class="fx-type-btn is-active" data-comp="soft" role="option" aria-selected="true">Soft</button>
         <button type="button" class="fx-type-btn" data-comp="punch" role="option" aria-selected="false">Punch</button>
         <button type="button" class="fx-type-btn" data-comp="glue" role="option" aria-selected="false">Glue</button>
         <button type="button" class="fx-type-btn" data-comp="limit" role="option" aria-selected="false">Limit</button>
       </div>
-      <p class="fx-type-desc" id="compDesc">Gentle leveling — smooth and musical. Use Comp knob for amount.</p>
+      <p class="fx-type-desc">Gentle leveling — smooth and musical. Use Comp knob for amount.</p>
     </section>
 
     <section class="fx-section fx-master-section">
@@ -161,7 +202,7 @@
     <p class="fx-panel-hint">Tweak amount with the <strong>Comp</strong>, <strong>Ambiance</strong>, and <strong>Room</strong> knobs.</p>
   </aside>
 
-  <script type="module" src="./pionier-app.js?v=26"></script>
+  <script type="module" src="./pionier-app.js?v=28"></script>
 
   <script>
     (function () {
