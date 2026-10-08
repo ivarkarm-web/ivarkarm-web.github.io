@@ -721,3 +721,169 @@ html, body, #app, .app {
     max-height: 100%;
   }
 }
+
+
+/* MOBILE CONTROL DRAWER — keeps every control above the instrument instead of over it */
+.mobile-control-drawer { display: contents; }
+.mobile-controls-toggle { display: none; }
+
+@media (max-width: 720px) {
+  .mobile-control-drawer {
+    display: block;
+    position: fixed;
+    z-index: 30;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    transform: translateY(calc(-100% + 34px));
+    transition: transform .28s cubic-bezier(.22,1,.36,1);
+    pointer-events: none;
+  }
+  .mobile-control-drawer.is-open { transform: translateY(0); }
+
+  .mobile-controls-toggle {
+    display: flex;
+    position: absolute;
+    left: 50%;
+    bottom: -34px;
+    transform: translateX(-50%);
+    width: 112px;
+    height: 34px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px solid var(--stroke);
+    border-top: 0;
+    border-radius: 0 0 12px 12px;
+    background: rgba(10,10,11,.92);
+    color: var(--muted);
+    box-shadow: 0 8px 22px rgba(0,0,0,.25);
+    pointer-events: auto;
+    cursor: pointer;
+  }
+  .mobile-controls-grip {
+    width: 24px;
+    height: 3px;
+    border-radius: 99px;
+    background: rgba(232,230,227,.45);
+  }
+  .mobile-controls-label {
+    font-size: 9px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .mobile-control-panel {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    max-height: min(52dvh, 420px);
+    overflow-y: auto;
+    padding: max(8px, env(safe-area-inset-top)) 10px 10px;
+    background: rgba(10,10,11,.94);
+    border-bottom: 1px solid var(--stroke);
+    box-shadow: 0 12px 30px rgba(0,0,0,.3);
+    pointer-events: auto;
+    overscroll-behavior: contain;
+  }
+  .mobile-control-panel .sidebar.left,
+  .mobile-control-panel .sidebar.right {
+    position: static;
+    inset: auto;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    overflow: visible;
+  }
+
+  .mobile-control-panel .sidebar.left {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: end;
+    gap: 8px;
+  }
+  .mobile-control-panel .sidebar.left .control-scale {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  .mobile-control-panel .sidebar.left .control-row {
+    width: 100%;
+    gap: 8px;
+  }
+  .mobile-control-panel .sidebar.left .stepper {
+    min-height: 34px;
+  }
+  .mobile-control-panel .sidebar.left .step {
+    width: 26px;
+    height: 28px;
+  }
+
+  .mobile-control-panel .sidebar.right {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    justify-items: center;
+    gap: 8px;
+  }
+  .mobile-control-panel .sidebar.right .knob-wrap {
+    width: 100%;
+    min-width: 0;
+  }
+  .mobile-control-panel .sidebar.right .knob {
+    width: 38px;
+    height: 38px;
+  }
+  .mobile-control-panel .sidebar.right .knob-canvas {
+    width: 52px;
+    height: 52px;
+  }
+  .mobile-control-panel .sidebar.right .knob-value,
+  .mobile-control-panel .sidebar.right .knob-val { font-size: 10px; }
+  .mobile-control-panel .sidebar.right .knob-name {
+    display: block;
+    margin-top: 2px;
+    font-size: 8px;
+  }
+  .mobile-control-panel .sidebar.right .scape-panel {
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: none;
+    margin: 2px 0 0;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,.06);
+  }
+  .mobile-control-panel .sidebar.right .fx-settings-wrap {
+    display: contents;
+  }
+  .mobile-control-panel .sidebar.right .fx-settings-btn {
+    display: none;
+  }
+  .mobile-control-panel .sidebar.right .fx-settings-wrap > .knob-name {
+    display: none;
+  }
+
+  .stage { padding: 0; }
+  #pan {
+    width: min(96%, 82dvh, 780px);
+    height: min(96%, 82dvh, 780px);
+  }
+}
+
+@media (max-width: 420px) {
+  .mobile-control-panel { max-height: 58dvh; }
+  .mobile-control-panel .sidebar.right .knob {
+    width: 34px;
+    height: 34px;
+  }
+  .mobile-control-panel .sidebar.right .knob-canvas {
+    width: 48px;
+    height: 48px;
+  }
+}
