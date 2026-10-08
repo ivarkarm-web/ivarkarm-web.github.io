@@ -37,7 +37,7 @@ export class HandpanInstrument extends Instrument {
     super({ id: 'handpan', name: 'Handpan', description: '9-note radial steel handpan with interval scales and dynamic transposition.', category: 'handpan', polyphony: 9, compatibleFx: ['compressor', 'delay', 'reverb', 'warmth', 'air', 'chorus', 'shimmer'] });
     this.scaleIndex = 0; this.rootIndex = 2; this.octaveOffset = 0; this.voiceIndex = 0;
     this.notes = []; this.sampleBank = null; this.lastStrikeAt = new Map();
-    this.glow = new Float32Array(9); this.zoneFlash = new Float32Array(9);
+    this.glow = new Float32Array(9); this.zoneFlash = new Float32Array(9); this.held = new Uint8Array(9);
   }
   async activate(audioCtx, bus) {
     await super.activate(audioCtx, bus);
@@ -76,7 +76,7 @@ export class HandpanInstrument extends Instrument {
     const angleRad = zone.angleRad ?? gesture.angle ?? 0;
     const prev = this.activeVoices.get(idx);
     if (prev) { if (prev.stop) prev.stop(t, 0.04); else this._releaseVoice(prev, t, 0.04); }
-    this.glow[idx] = Math.min(1, 0.55 + vel * 0.45); this.zoneFlash[idx] = radial;
+    this.glow[idx] = Math.min(1, 0.55 + vel * 0.45); this.zoneFlash[idx] = radial; this.held[idx] = 1;
     this.lastStrikeAt.set(idx, performance.now());
     if (this.sampleBank && this.sampleBank.ready) {
       const played = this.sampleBank.play(note.midi, this.bus, t, { vel, radial, angleRad });
@@ -107,10 +107,12 @@ export class HandpanInstrument extends Instrument {
     try { if (voice.out) { voice.out.gain.cancelScheduledValues(t); voice.out.gain.setTargetAtTime(0, t, tc); } } catch (_) {}
   }
   noteOff(zoneId) {
+    this.held[zoneId] = 0;
     const v = this.activeVoices.get(zoneId); if (!v || !this.audioCtx) return;
     if (v.stop) v.stop(this.audioCtx.currentTime, 0.07); else this._releaseVoice(v, this.audioCtx.currentTime, 0.07);
   }
   dampAll() {
+    this.held.fill(0);
     const t = this.audioCtx ? this.audioCtx.currentTime : 0;
     for (const [, v] of this.activeVoices) { if (v.stop) v.stop(t, 0.05); else this._releaseVoice(v, t, 0.05); }
     this.activeVoices.clear();
