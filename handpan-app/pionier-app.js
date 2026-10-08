@@ -11,9 +11,9 @@ import { HandpanInstrument } from './js/instruments/handpan.js';
 import { KitchenInstrument } from './js/instruments/kitchen.js';
 import { BirdInstrument } from './js/instruments/bird.js';
 import { FxChain } from './js/fx.js';
-import { CatchMode } from './js/catch-mode.js';
+import { CatchMode } from './js/catch-mode.js?v=2';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
-import { createSurface, WORLD_ZONE_INDICES } from './js/pionier-surface.js?v=21';
+import { createSurface, WORLD_ZONE_INDICES } from './js/pionier-surface.js?v=22';
 
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
 
