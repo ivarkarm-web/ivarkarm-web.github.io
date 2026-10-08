@@ -42,6 +42,12 @@
       </div>
     </header>
 
+    <div class="mobile-control-drawer" id="mobileControlDrawer">
+      <button type="button" class="mobile-controls-toggle" id="mobileControlsToggle" aria-expanded="false" aria-controls="mobileControlPanel">
+        <span class="mobile-controls-grip" aria-hidden="true"></span>
+        <span class="mobile-controls-label">Controls</span>
+      </button>
+      <div class="mobile-control-panel" id="mobileControlPanel">
     <aside class="sidebar left">
       <div class="control-block control-scale">
         <label class="control-label">Scale</label>
@@ -71,10 +77,6 @@
         </div>
       </div>
     </aside>
-
-    <main class="stage">
-      <canvas id="pan" width="800" height="800" aria-label="Handpan instrument"></canvas>
-    </main>
 
     <aside class="sidebar right knobs-panel" aria-label="Sound knobs">
       <div class="knob-wrap" data-param="compress">
@@ -165,6 +167,14 @@
         <span class="knob-name">FX</span>
       </div>
     </aside>
+      </div>
+    </div>
+
+    <main class="stage">
+      <canvas id="pan" width="800" height="800" aria-label="Handpan instrument"></canvas>
+    </main>
+
+
   </div>
 
   <div class="fx-panel-backdrop" id="fxBackdrop" hidden></div>
