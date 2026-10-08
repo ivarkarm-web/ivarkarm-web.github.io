@@ -1,7 +1,10 @@
 /**
  * soundscapes.js — scale-aware ambient landscapes for Pionier
- * Backing (drone / pad / pulse / arp) follows active handpan notes.
- * Nature layers are lightweight synth textures.
+ *
+ * Three independent layers:
+ *   Back  — drone / pulse / arp (rhythmic harmonic support)
+ *   Pad   — soft / warm / deep (sustained atmospheric pad)
+ *   Nature — rain / stream / forest / birds / storm / jungle
  */
 import { getAudioContext, createBus, resumeAudio } from './audio-core.js';
 
@@ -13,13 +16,21 @@ export function createSoundscapes(opts = {}) {
   const ensureAudio = opts.ensureAudio || (() => !!getAudioContext());
 
   let backingBus = null;
+  let padBus = null;
   let natureBus = null;
+
   let backingMode = 'off';
+  let padMode = 'off';
   let natureMode = 'off';
+
   let backingGain = 0.22;
+  let padGain = 0.2;
   let natureGain = 0.24;
+
   let musicTimer = null;
   let musicStep = 0;
+  let padTimer = null;
+  let padStep = 0;
   let natureNodes = [];
   let natureTimers = [];
 
@@ -31,13 +42,10 @@ export function createSoundscapes(opts = {}) {
     if (!ensureAudio()) return false;
     const c = ctx();
     if (!c) return false;
-    if (!backingBus) {
-      backingBus = createBus('soundscape-backing', 0);
-    }
-    if (!natureBus) {
-      natureBus = createBus('soundscape-nature', 0);
-    }
-    return !!(backingBus && natureBus);
+    if (!backingBus) backingBus = createBus('soundscape-backing', 0);
+    if (!padBus) padBus = createBus('soundscape-pad', 0);
+    if (!natureBus) natureBus = createBus('soundscape-nature', 0);
+    return !!(backingBus && padBus && natureBus);
   }
 
   function ramp(gainNode, value, time = 0.2) {
@@ -68,6 +76,14 @@ export function createSoundscapes(opts = {}) {
       musicTimer = null;
     }
     musicStep = 0;
+  }
+
+  function stopPad() {
+    if (padTimer) {
+      clearInterval(padTimer);
+      padTimer = null;
+    }
+    padStep = 0;
   }
 
   function freqs() {
@@ -134,6 +150,7 @@ export function createSoundscapes(opts = {}) {
     natureNodes.push(s, f, g);
   }
 
+  // ── Back: drone / pulse / arp ─────────────────────────────────
   function musicTick() {
     if (backingMode === 'off' || !backingBus) return;
     const f = freqs();
@@ -145,12 +162,6 @@ export function createSoundscapes(opts = {}) {
       if (musicStep % 8 === 0) {
         tone(backingBus, root * 0.5, 0.05, 3.6, 'sine', now);
         tone(backingBus, root, 0.026, 3.2, 'triangle', now);
-      }
-    } else if (backingMode === 'pad') {
-      if (musicStep % 16 === 0) {
-        tone(backingBus, root * 0.5, 0.042, 6.2, 'sine', now);
-        tone(backingBus, f[Math.min(3, f.length - 1)], 0.024, 5.8, 'sine', now);
-        tone(backingBus, f[Math.min(5, f.length - 1)], 0.018, 5.4, 'triangle', now);
       }
     } else if (backingMode === 'pulse') {
       const seq = [0, 2, 4, 2, 5, 4, 2, 1];
@@ -165,7 +176,7 @@ export function createSoundscapes(opts = {}) {
   }
 
   function setBacking(mode) {
-    const next = ['off', 'drone', 'pad', 'pulse', 'arp'].includes(mode) ? mode : 'off';
+    const next = ['off', 'drone', 'pulse', 'arp'].includes(mode) ? mode : 'off';
     backingMode = next;
     stopMusic();
     if (next === 'off') {
@@ -176,11 +187,55 @@ export function createSoundscapes(opts = {}) {
     resumeAudio();
     ramp(backingBus, backingGain, 0.35);
     musicTick();
-    const interval =
-      next === 'arp' ? 420 : next === 'pulse' ? 620 : 900;
+    const interval = next === 'arp' ? 420 : next === 'pulse' ? 620 : 900;
     musicTimer = setInterval(musicTick, interval);
   }
 
+  // ── Pad: soft / warm / deep (sustained, scale-aware) ──────────
+  function padTick() {
+    if (padMode === 'off' || !padBus) return;
+    const f = freqs();
+    if (!f.length) return;
+    const root = f[0];
+    const now = ctx().currentTime;
+
+    // Re-trigger long tones every ~16 steps so they evolve with scale changes
+    if (padStep % 16 !== 0) {
+      padStep += 1;
+      return;
+    }
+
+    if (padMode === 'soft') {
+      tone(padBus, root * 0.5, 0.032, 7.2, 'sine', now);
+      tone(padBus, f[Math.min(2, f.length - 1)], 0.018, 6.8, 'sine', now);
+    } else if (padMode === 'warm') {
+      tone(padBus, root * 0.5, 0.038, 6.5, 'triangle', now);
+      tone(padBus, root, 0.022, 6.2, 'sine', now);
+      tone(padBus, f[Math.min(4, f.length - 1)], 0.016, 5.8, 'triangle', now);
+    } else if (padMode === 'deep') {
+      tone(padBus, root * 0.5, 0.045, 8.0, 'sine', now);
+      tone(padBus, root * 0.25, 0.028, 7.5, 'sine', now);
+      tone(padBus, f[Math.min(3, f.length - 1)], 0.014, 6.5, 'triangle', now);
+    }
+    padStep += 1;
+  }
+
+  function setPad(mode) {
+    const next = ['off', 'soft', 'warm', 'deep'].includes(mode) ? mode : 'off';
+    padMode = next;
+    stopPad();
+    if (next === 'off') {
+      if (padBus) ramp(padBus, 0, 0.28);
+      return;
+    }
+    if (!ensureBuses()) return;
+    resumeAudio();
+    ramp(padBus, padGain, 0.4);
+    padTick();
+    padTimer = setInterval(padTick, 900);
+  }
+
+  // ── Nature ────────────────────────────────────────────────────
   function chirp() {
     if (!['birds', 'forest', 'jungle'].includes(natureMode)) return;
     const freq = 900 + Math.random() * 1700;
@@ -250,37 +305,43 @@ export function createSoundscapes(opts = {}) {
     if (backingMode !== 'off' && backingBus) ramp(backingBus, backingGain, 0.12);
   }
 
+  function setPadLevel(v) {
+    padGain = Math.max(0, Math.min(0.7, Number(v) || 0));
+    if (padMode !== 'off' && padBus) ramp(padBus, padGain, 0.12);
+  }
+
   function setNatureLevel(v) {
     natureGain = Math.max(0, Math.min(0.7, Number(v) || 0));
     if (natureMode !== 'off' && natureBus) ramp(natureBus, natureGain, 0.12);
   }
 
-  /** Call when scale / root / octave changes so backing stays in tune. */
+  /** Call when scale / root / octave changes so layers stay in tune. */
   function syncScale() {
-    // Next musicTick uses fresh freqs(); no restart needed for continuous modes.
-    // For a seamless retune, optionally re-trigger current modes:
-    if (backingMode !== 'off') {
-      // keep timer; freqs() is live
-    }
+    // freqs() is live on next tick — no restart needed
   }
 
   function stopAll() {
     setBacking('off');
+    setPad('off');
     setNature('off');
   }
 
   return {
     setBacking,
+    setPad,
     setNature,
     setBackingLevel,
+    setPadLevel,
     setNatureLevel,
     syncScale,
     stopAll,
     get state() {
       return {
         backing: backingMode,
+        pad: padMode,
         nature: natureMode,
         backingGain,
+        padGain,
         natureGain
       };
     }
