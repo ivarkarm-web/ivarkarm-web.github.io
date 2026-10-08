@@ -14,6 +14,7 @@ import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
 import { createSurface, WORLD_ZONE_INDICES } from './js/pionier-surface.js?v=25';
+import { createSoundscapes } from './js/soundscapes.js?v=2';
 
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
 
@@ -42,6 +43,16 @@ try {
 
 const canvas = document.getElementById('pan');
 const surface = createSurface(canvas);
+
+const soundscapes = createSoundscapes({
+  getNotes: () => {
+    // Prefer full handpan scale for musical landscapes
+    if (!handpan.getNotes?.().length) handpan.rebuildNotes?.();
+    return handpan.getNotes() || [];
+  },
+  ensureAudio
+});
+app.soundscapes = soundscapes;
 
 function ensureAudio() {
   const ctx = getAudioContext();
@@ -261,6 +272,7 @@ function onMusicalChange() {
   layoutFields();
   updateLabels();
   draw();
+  soundscapes.syncScale?.();
   if (app.catchMode?.phase === 'focus-scale') app.catchMode.advanceFromUI();
 }
 
@@ -488,9 +500,41 @@ function tick(now) {
   requestAnimationFrame(tick);
 }
 
+function wireSoundscapes() {
+  const back = document.getElementById('scapeBacking');
+  const nat = document.getElementById('scapeNature');
+  const backVol = document.getElementById('scapeBackingVol');
+  const natVol = document.getElementById('scapeNatureVol');
+  if (back) {
+    back.addEventListener('change', () => {
+      ensureAudio();
+      soundscapes.setBacking(back.value);
+    });
+  }
+  if (nat) {
+    nat.addEventListener('change', () => {
+      ensureAudio();
+      soundscapes.setNature(nat.value);
+    });
+  }
+  if (backVol) {
+    backVol.addEventListener('input', () => {
+      ensureAudio();
+      soundscapes.setBackingLevel(Number(backVol.value));
+    });
+  }
+  if (natVol) {
+    natVol.addEventListener('input', () => {
+      ensureAudio();
+      soundscapes.setNatureLevel(Number(natVol.value));
+    });
+  }
+}
+
 async function boot() {
   injectInstrumentSelector();
   injectCatchStatus();
+  wireSoundscapes();
   await setInstrument('handpan');
   resize();
   window.addEventListener('resize', resize);
@@ -512,21 +556,18 @@ async function boot() {
       },
       resetCatch: () => app.catchMode.reset(),
       resetOnboarding: () => app.catchMode.startOnboarding(),
-      getStats: () => ({
-        instrument: activeInstrument().id,
-        voices: activeInstrument().activeVoices?.size ?? 0,
-        touches: app.gestureTracker.activeCount,
-        velocity: app.lastVelocity,
-        audioState: audioState(),
+      getState: () => ({
+        instrument: activeInstrument()?.id,
+        catchPhase: app.catchMode?.phase,
         fps: app.fps,
-        dpr: window.devicePixelRatio || 1,
-        tier: navigator.deviceMemory && navigator.deviceMemory <= 4 ? 'low' : 'high',
-        catchPhase: app.catchMode?.phase
+        audio: audioState(),
+        soundscapes: soundscapes.state
       })
     });
   }
 }
 
+// Unlock audio on first user gesture
 function unlock() {
   ensureAudio();
   window.removeEventListener('pointerdown', unlock);
