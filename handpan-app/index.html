@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=14" />
+  <link rel="stylesheet" href="./pionier.css?v=15" />
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
@@ -112,12 +112,22 @@
             <select id="scapeBacking" class="scape-select" aria-label="Backing landscape">
               <option value="off">Off</option>
               <option value="drone">Drone</option>
-              <option value="pad">Pad</option>
               <option value="pulse">Pulse</option>
               <option value="arp">Arp</option>
             </select>
             <input type="range" id="scapeBackingVol" class="scape-vol" min="0" max="0.7" step="0.01" value="0.22"
                    aria-label="Backing level" />
+          </label>
+          <label class="scape-row">
+            <span class="scape-label">Pad</span>
+            <select id="scapePad" class="scape-select" aria-label="Pad landscape">
+              <option value="off">Off</option>
+              <option value="soft">Soft</option>
+              <option value="warm">Warm</option>
+              <option value="deep">Deep</option>
+            </select>
+            <input type="range" id="scapePadVol" class="scape-vol" min="0" max="0.7" step="0.01" value="0.2"
+                   aria-label="Pad level" />
           </label>
           <label class="scape-row">
             <span class="scape-label">Nature</span>
@@ -202,7 +212,7 @@
     <p class="fx-panel-hint">Tweak amount with the <strong>Comp</strong>, <strong>Ambiance</strong>, and <strong>Room</strong> knobs.</p>
   </aside>
 
-  <script type="module" src="./pionier-app.js?v=28"></script>
+  <script type="module" src="./pionier-app.js?v=29"></script>
 
   <script>
     (function () {
