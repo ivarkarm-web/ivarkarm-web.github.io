@@ -196,8 +196,13 @@ function resize() {
   canvas.addEventListener(type, (e) => { e.preventDefault(); }, { passive: false });
 });
 
+canvas.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+});
+
 canvas.addEventListener('pointerdown', (e) => {
   e.preventDefault();
+  if (e.pointerType === 'touch') e.stopPropagation();
   ensureAudio();
   canvas.setPointerCapture(e.pointerId);
   const { x, y } = surface.canvasCoords(e);
@@ -218,6 +223,14 @@ canvas.addEventListener('pointerup', (e) => {
   app.gestureTracker.up(e.pointerId);
   if (idx != null) activeInstrument().noteOff(idx);
 });
+canvas.addEventListener('lostpointercapture', (e) => {
+  const idx = app.pointers.get(e.pointerId);
+  if (idx == null) return;
+  app.pointers.delete(e.pointerId);
+  app.gestureTracker.up(e.pointerId);
+  activeInstrument().noteOff(idx);
+});
+
 canvas.addEventListener('pointercancel', (e) => {
   const idx = app.pointers.get(e.pointerId);
   app.pointers.delete(e.pointerId);
