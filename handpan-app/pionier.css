@@ -888,3 +888,29 @@ html, body, #app, .app {
     height: 48px;
   }
 }
+
+
+/* Mobile drawer: one centered control surface, no legacy fixed knob bar */
+@media (max-width: 720px) {
+  .mobile-control-panel {
+    width: min(92vw, 520px);
+    margin: 0 auto;
+    grid-template-columns: 1fr;
+  }
+  .mobile-control-drawer {
+    display: block;
+    width: 100%;
+  }
+  .mobile-control-panel .sidebar.right {
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+}
