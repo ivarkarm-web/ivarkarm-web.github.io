@@ -197,7 +197,9 @@ export function createSurface(canvas) {
 
   function drawCatchWaves(waves) {
     for (const w of waves) {
-      const target = fields[w.targetIndex];
+      // Resolve by field index (not array position) for safety
+      const target =
+        fields.find((f) => f.index === w.targetIndex) || fields[w.targetIndex];
       if (!target) continue;
       const p = Math.min(1.15, w.progress);
       const x = CX + (target.x - CX) * p;
