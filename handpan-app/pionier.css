@@ -725,6 +725,7 @@ html, body, #app, .app {
 
 /* MOBILE CONTROL DRAWER — keeps every control above the instrument instead of over it */
 .mobile-control-drawer { display: contents; }
+.mobile-control-panel { display: contents; }
 .mobile-controls-toggle { display: none; }
 
 @media (max-width: 720px) {
