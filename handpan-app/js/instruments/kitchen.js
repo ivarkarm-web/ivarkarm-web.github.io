@@ -1,6 +1,6 @@
 /**
  * instruments/kitchen.js — Kitchen as resonant objects inside the Pionier surface
- * Pitch comes from shared pentatonic mapping (active handpan scale/root/octave).
+ * Pitch comes from shared pentatonic mapping when available; falls back gracefully.
  */
 import { Instrument } from '../instrument.js';
 
@@ -12,7 +12,6 @@ const OBJECTS = [
   { id: 'spoon', name: 'Spoon', brightness: 1.0, noise: 0.32, metallic: 0.85, decay: 0.85, partials: [1, 2.4, 4.2, 6.5], q: 10 }
 ];
 
-/** Map 5 kitchen voices onto handpan field indices (ding + selected rings). */
 export const KITCHEN_ZONE_INDICES = [0, 1, 3, 5, 7];
 
 export class KitchenInstrument extends Instrument {
@@ -38,21 +37,19 @@ export class KitchenInstrument extends Instrument {
 
   setMusicalContext(notes) {
     this.pitches = (notes || []).slice(0, 5).map((n) => ({
-      midi: n.midi,
-      freq: n.freq,
-      name: n.name
+      midi: n.midi, freq: n.freq, name: n.name
     }));
   }
 
   getZones() {
-    return this._zones || this.objects.map((o, i) => ({ id: o.id, index: KITCHEN_ZONE_INDICES[i], label: o.name }));
+    return this._zones || this.objects.map((o, i) => ({ id: o.id, index: i, label: o.name }));
   }
 
   getNotes() {
     return this.objects.map((o, i) => {
       const p = this.pitches[i];
       return {
-        index: KITCHEN_ZONE_INDICES[i],
+        index: i,
         midi: p?.midi ?? 60 + i * 2,
         name: o.name,
         freq: p?.freq ?? 220 * Math.pow(2, i / 5),
@@ -61,7 +58,9 @@ export class KitchenInstrument extends Instrument {
     });
   }
 
+  /** Accept sequential 0–4 (current layout) or handpan field indices. */
   fieldToObject(fieldIndex) {
+    if (fieldIndex >= 0 && fieldIndex <= 4) return fieldIndex;
     return KITCHEN_ZONE_INDICES.indexOf(fieldIndex);
   }
 
@@ -69,12 +68,12 @@ export class KitchenInstrument extends Instrument {
     if (!this.ready || !this.audioCtx || !this.bus) return;
     const fieldIdx = zone?.index ?? zone?.idx ?? 0;
     const objIdx = this.fieldToObject(fieldIdx);
-    if (objIdx < 0) return;
+    if (objIdx < 0 || objIdx > 4) return;
 
     const obj = this.objects[objIdx];
     if (!obj) return;
     const pitch = this.pitches[objIdx];
-    const baseFreq = pitch?.freq || 220;
+    const baseFreq = pitch?.freq || (220 * Math.pow(2, objIdx / 5));
 
     const ctx = this.audioCtx;
     const t = ctx.currentTime + 0.001;
@@ -114,11 +113,8 @@ export class KitchenInstrument extends Instrument {
     const ng = ctx.createGain();
     ng.gain.setValueAtTime(obj.noise * vel * (0.35 + metallic * 0.25), t);
     ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.03 + obj.noise * 0.04);
-    ns.connect(nf);
-    nf.connect(ng);
-    ng.connect(out);
-    ns.start(t);
-    ns.stop(t + 0.1);
+    ns.connect(nf); nf.connect(ng); ng.connect(out);
+    ns.start(t); ns.stop(t + 0.1);
 
     const decay = obj.decay * (0.75 + vel * 0.45);
     const peak = 0.28 * vel;
@@ -128,9 +124,7 @@ export class KitchenInstrument extends Instrument {
       osc.type = i === 0 ? 'sine' : (metallic > 0.5 ? 'triangle' : 'sine');
       const pf = freq * ratio * (1 + ((i % 2) ? -1 : 1) * 0.003 * (1 + movement));
       osc.frequency.setValueAtTime(pf, t);
-      if (i === 0) {
-        osc.frequency.exponentialRampToValueAtTime(pf * 0.97, t + decay * 0.35);
-      }
+      if (i === 0) osc.frequency.exponentialRampToValueAtTime(pf * 0.97, t + decay * 0.35);
 
       const filt = ctx.createBiquadFilter();
       filt.type = 'bandpass';
@@ -144,11 +138,8 @@ export class KitchenInstrument extends Instrument {
       g.gain.linearRampToValueAtTime(amp, t + 0.003 + i * 0.002);
       g.gain.exponentialRampToValueAtTime(0.0001, t + decay * (1 - i * 0.08));
 
-      osc.connect(filt);
-      filt.connect(g);
-      g.connect(out);
-      osc.start(t);
-      osc.stop(t + decay + 0.2);
+      osc.connect(filt); filt.connect(g); g.connect(out);
+      osc.start(t); osc.stop(t + decay + 0.2);
       oscs.push(osc);
     });
 
@@ -161,21 +152,15 @@ export class KitchenInstrument extends Instrument {
       bg.gain.setValueAtTime(0.0001, t);
       bg.gain.linearRampToValueAtTime(peak * 0.35 * (1 - obj.brightness), t + 0.008);
       bg.gain.exponentialRampToValueAtTime(0.0001, t + decay * 0.55);
-      body.connect(bg);
-      bg.connect(out);
-      body.start(t);
-      body.stop(t + decay);
+      body.connect(bg); bg.connect(out);
+      body.start(t); body.stop(t + decay);
       oscs.push(body);
     }
 
     const voice = {
-      idx: fieldIdx,
-      out,
+      idx: fieldIdx, out,
       stop: (tt, tc = 0.05) => {
-        try {
-          out.gain.cancelScheduledValues(tt);
-          out.gain.setTargetAtTime(0, tt, tc);
-        } catch (_) {}
+        try { out.gain.cancelScheduledValues(tt); out.gain.setTargetAtTime(0, tt, tc); } catch (_) {}
       }
     };
     if (oscs[0]) {
@@ -196,15 +181,11 @@ export class KitchenInstrument extends Instrument {
   tickGlow() {
     let any = false;
     for (let i = 0; i < 9; i++) {
-      if (this.glow[i] > 0.001) {
-        this.glow[i] *= 0.9;
-        any = true;
-      } else this.glow[i] = 0;
+      if (this.glow[i] > 0.001) { this.glow[i] *= 0.9; any = true; }
+      else this.glow[i] = 0;
     }
     return any;
   }
 
-  getPerformanceHints() {
-    return { maxVoices: 8, prefersSamples: false };
-  }
+  getPerformanceHints() { return { maxVoices: 8, prefersSamples: false }; }
 }
