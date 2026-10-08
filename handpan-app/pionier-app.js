@@ -143,7 +143,18 @@ function updateInstrumentUI() {
 function layoutFields() {
   if (!handpan.getNotes().length) handpan.rebuildNotes?.();
   surface.layoutHandpanFields(handpan.getNotes(), isFieldPlayable);
-  activeInstrument().setZones(surface.fields);
+  const inst = activeInstrument();
+  // Soft labels for Kitchen/Bird playable zones only (Handpan stays unlabeled)
+  if (inst.id === 'kitchen' || inst.id === 'bird') {
+    const notes = inst.getNotes?.() || [];
+    const byIndex = new Map(notes.map((n) => [n.index, n.name]));
+    for (const f of surface.fields) {
+      f.zoneLabel = byIndex.get(f.index) || null;
+    }
+  } else {
+    for (const f of surface.fields) f.zoneLabel = null;
+  }
+  inst.setZones(surface.fields);
 }
 
 function draw() {
