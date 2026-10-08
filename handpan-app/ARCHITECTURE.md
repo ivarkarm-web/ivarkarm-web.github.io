@@ -1,44 +1,57 @@
 # Pionier Architecture (instrument engine branch)
 
-## Status
-
 Branch: `pionier-instrument-engine`
 
-This branch introduces a shared instrument + gesture + modular FX foundation while preserving the existing playable handpan experience.
+## Integrated status
 
-## Modules
+The main application (`pionier-app.js`) is wired to the shared systems:
 
+```
+Pointer / Touch
+    ↓
+Gesture (gesture.js)
+    ↓
+Active Instrument (InstrumentRegistry)
+    ↓
+instrumentBus
+    ↓
+FxChain (fx.js)
+    ↓
+Master → AudioContext destination
+```
+
+### Registered instruments
+- **Handpan** (default) — sample-bank-first + synth fallback, full scales/root/octave/voices
+- **Kitchen** — 5 objects, synthesis placeholders
+- **Bird** — 5 calls, hybrid FM/noise placeholders
+
+### Modules
 | Path | Role |
 |------|------|
-| `js/instrument.js` | Instrument base class + InstrumentRegistry |
-| `js/gesture.js` | Gesture model + GestureTracker + gestureFromPointer |
-| `js/instruments/handpan.js` | Handpan as Instrument (scales, samples, synth fallback) |
-| `js/instruments/kitchen.js` | Kitchen World Instrument (synth placeholder) |
-| `js/instruments/bird.js` | Bird World Instrument (hybrid synth placeholder) |
-| `js/fx.js` | Modular FX modules + FxChain (comp/delay/reverb + warmth/lowpass/chorus) |
-| `js/catch-mode.js` | Catch ritual + wave-based scale sequence |
-| `js/debug.js` | `?debug=1` developer panel |
-| `js/sample-metadata.js` | Traceable sample metadata helpers |
-| `SOURCES.md` | Human-readable license / source ledger |
+| `js/instrument.js` | Instrument base + registry |
+| `js/gesture.js` | Gesture model + tracker |
+| `js/instruments/handpan.js` | HandpanInstrument |
+| `js/instruments/kitchen.js` | KitchenInstrument |
+| `js/instruments/bird.js` | BirdInstrument |
+| `js/fx.js` | FxChain + modules |
+| `js/catch-mode.js` | Catch phase machine + waves |
+| `js/debug.js` | `?debug=1` panel |
+| `js/sample-metadata.js` | Sample metadata helpers |
+| `SOURCES.md` | License ledger |
 
-## Design rules
+### Entry points
+- App: `handpan-app/pionier-app.js`
+- Catch: `?catch=1` starts onboarding ritual
+- Debug: `?debug=1` mounts developer panel
 
-- Handpan is the flagship implementation of Instrument, not a special case that blocks others.
-- Gestures are instrument-agnostic; instruments interpret them.
-- FX modules are real Web Audio graphs, not cosmetic UI.
-- Kitchen / Bird currently use synthesis placeholders clearly marked in SOURCES.md.
-- Catch is not Guitar Hero — waves/rings, scale-driven, setup ritual first.
-- Pionier stays independent of the portfolio runtime.
+### Design rules (unchanged)
+- Handpan is flagship, not a special-case blocker
+- Gestures are instrument-agnostic
+- FX modules are real Web Audio graphs
+- Kitchen/Bird placeholders marked in SOURCES.md
+- Catch is waves/rings, not Guitar Hero
+- Pionier stays independent of portfolio runtime
 
-## Next integration steps
-
-1. Wire `pionier-app.js` to InstrumentRegistry + GestureTracker + FxChain.
-2. Add instrument selector UI (Handpan / Kitchen / Bird).
-3. Route canvas hit-testing through the active instrument's zones.
-4. Render Catch waves on the canvas.
-5. Mount debug panel when `?debug=1`.
-6. Regression-test existing handpan sample + synth paths.
-
-## Compatibility
-
-Existing files (`audio-core.js`, `note-sample-bank.js`, `voice-presets.js`, canvas UI) remain the foundation. New modules import them; they do not replace the audio graph wholesale.
+### Known temporary assets
+Kitchen and Bird use internal synthesis until licensed recordings are added.
+See `SOURCES.md`.
