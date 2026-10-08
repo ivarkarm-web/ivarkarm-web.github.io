@@ -13,7 +13,7 @@ import { BirdInstrument } from './js/instruments/bird.js';
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
-import { createSurface, WORLD_ZONE_INDICES } from './js/pionier-surface.js?v=20';
+import { createSurface, WORLD_ZONE_INDICES } from './js/pionier-surface.js?v=21';
 
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
 
@@ -203,26 +203,40 @@ canvas.addEventListener('pointercancel', (e) => {
 });
 
 const keyMap = Object.fromEntries(KEYS.map((k, i) => [k, i]));
+/** Field indices currently held via keyboard (playable-only). */
+const keysHeld = new Set();
 window.addEventListener('keydown', (e) => {
   if (e.repeat) return;
+  // Don't steal keys while typing in inputs / focused controls
+  const tag = (e.target && e.target.tagName) || '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target?.isContentEditable) return;
   const idx = keyMap[e.key.toLowerCase()];
   if (idx == null || !isFieldPlayable(idx)) return;
+  if (keysHeld.has(idx)) return;
   e.preventDefault();
   ensureAudio();
   const inst = activeInstrument();
   const gesture = gestureFromPointer(
-    { pointerId: -1, pressure: 0.8, force: 0, type: 'keydown', clientX: 0, clientY: 0 },
+    { pointerId: -1 - idx, pressure: 0.8, force: 0, type: 'keydown', clientX: 0, clientY: 0 },
     { idx, index: idx, radial: 0.35, angleRad: 0 },
     1,
     inst.lastStrikeAt
   );
+  keysHeld.add(idx);
   inst.noteOn(gesture, { index: idx, radial: 0.35, angleRad: 0 });
   if (app.catchMode?.isActive) app.catchMode.onStrike(idx);
   draw();
 });
 window.addEventListener('keyup', (e) => {
   const idx = keyMap[e.key.toLowerCase()];
-  if (idx != null) activeInstrument().noteOff(idx);
+  if (idx == null || !keysHeld.has(idx)) return;
+  keysHeld.delete(idx);
+  activeInstrument().noteOff(idx);
+});
+// Clear held keys on blur so notes don't stick
+window.addEventListener('blur', () => {
+  for (const idx of keysHeld) activeInstrument().noteOff(idx);
+  keysHeld.clear();
 });
 
 function onMusicalChange() {
@@ -255,7 +269,16 @@ wire('voiceNext', () => {
 });
 wire('btnExit', () => { window.location.href = '../'; });
 wire('btnHelp', () => {
-  alert('Play: tap tonefields or Q–O. Scale / Base / Octave shape pitch for all instruments. Switch Handpan · Kitchen · Bird via the selector.');
+  const inst = activeInstrument();
+  const keys =
+    inst.id === 'handpan'
+      ? 'Q–O (all 9 tonefields)'
+      : 'Q W R Y I (5 active zones — same geometry as the lit pads)';
+  alert(
+    `Play: tap tonefields or ${keys}.\n` +
+      'Scale / Base / Octave shape pitch for all instruments.\n' +
+      'Switch Handpan · Kitchen · Bird via the selector.'
+  );
 });
 
 function cycleInstrument(dir) {
