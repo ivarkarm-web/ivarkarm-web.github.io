@@ -2071,3 +2071,20 @@ body.soundscapes-active #soundscapeControlDrawer.is-open select {
   z-index: 2;
 }
 #mandalaWrap .mandala-track-step:disabled { opacity: .5; }
+
+
+/* Keep the main drawer toggle anchored to the same bottom-center spot while open or closed. */
+@media (max-width: 720px) {
+  #mobileControlDrawer.is-open > #mobileControlsToggle,
+  #mobileControlDrawer > #mobileControlsToggle {
+    position: absolute !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 35 !important;
+  }
+  #mobileControlDrawer .mobile-control-panel {
+    padding-bottom: max(48px, calc(10px + env(safe-area-inset-bottom))) !important;
+  }
+}
