@@ -1689,9 +1689,10 @@ html, body, #app, .app {
 }
 .app.soundscapes-away {
   visibility: visible !important;
-  opacity: calc(1 - (var(--sc-progress, 1) * .32)) !important;
-  transform: translate3d(calc(var(--sc-progress, 1) * -2.4%),0,0) scale(calc(1 - (var(--sc-progress, 1) * .008)));
-  filter: blur(calc(var(--sc-progress, 1) * 1px));
+  opacity: calc(1 - (var(--sc-progress, 1) * .08)) !important;
+  transform-origin: right center;
+  transform: perspective(1400px) translate3d(calc(var(--sc-progress, 1) * -8%),0,0) rotateY(calc(var(--sc-progress, 1) * 7deg)) scale(calc(1 - (var(--sc-progress, 1) * .012)));
+  filter: blur(calc(var(--sc-progress, 1) * .35px));
   pointer-events: none !important;
 }
 .soundscapes-page {
@@ -1774,8 +1775,10 @@ html, body, #app, .app {
 
 .soundscapes-page.is-active {
   --sc-progress: 1;
-  transform: translate3d(calc((1 - var(--sc-progress, 1)) * 100%),0,0);
+  transform-origin: left center;
+  transform: perspective(1400px) translate3d(calc((1 - var(--sc-progress, 1)) * 100%),0,0) rotateY(calc((1 - var(--sc-progress, 1)) * -12deg));
   transition: transform .42s cubic-bezier(.22,1,.36,1);
+  backface-visibility: hidden;
   will-change: transform;
 }
 .soundscapes-page.is-active.is-interactive-swipe { transition: none !important; }
