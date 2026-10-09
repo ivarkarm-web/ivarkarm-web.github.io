@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=47" />
+  <link rel="stylesheet" href="./pionier.css?v=48" />
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
@@ -142,11 +142,17 @@
           <circle cx="300" cy="300" r="5" fill="currentColor"/>
         </svg>
         <div class="mandala-center">
-          <button type="button" class="mandala-play" id="mandalaPlay" aria-label="Play soundscape" title="Play / pause">
-            <span id="mandalaPlayIcon" aria-hidden="true">▶</span>
-          </button>
+          <div class="mandala-transport" aria-label="Track navigation">
+            <button type="button" class="mandala-track-step" id="mandalaPreviousTrack" aria-label="Previous track" title="Previous track" disabled>‹</button>
+            <button type="button" class="mandala-play" id="mandalaPlay" aria-label="Play soundscape" title="Play / pause">
+              <span id="mandalaPlayIcon" aria-hidden="true">▶</span>
+            </button>
+            <button type="button" class="mandala-track-step" id="mandalaNextTrack" aria-label="Next track" title="Next track" disabled>›</button>
+          </div>
         </div>
       </div>
+      <div class="soundscape-swipe-led soundscape-swipe-led-left" aria-hidden="true"><span></span></div>
+      <div class="soundscape-swipe-led soundscape-swipe-led-right" aria-hidden="true"><span></span></div>
       <div class="soundscape-track-meta">
         <div class="soundscape-track-title" id="soundscapeTrackTitle">Your first soundscape</div>
         <div class="soundscape-track-subtitle" id="soundscapeTrackSubtitle">Add an MP3 to begin · handpan-friendly ambience</div>
@@ -155,7 +161,7 @@
         <button type="button" class="soundscape-secondary" id="addSoundscapeTrack"><span aria-hidden="true">＋</span> Add MP3</button>
         <span class="soundscape-status" id="soundscapeStatus">READY WHEN YOU ARE</span>
       </div>
-      <input type="file" id="soundscapeFile" accept="audio/mpeg,audio/mp3,audio/*" hidden />
+      <input type="file" id="soundscapeFile" accept="audio/mpeg,audio/mp3,audio/*" multiple hidden />
     </main>
     <div class="soundscape-control-drawer" id="soundscapeControlDrawer">
       <button type="button" class="mobile-controls-toggle" id="soundscapeControlsToggle" aria-expanded="false" aria-controls="soundscapeControlPanel">
@@ -248,7 +254,7 @@
     })();
   </script>
 
-  <script type="module" src="./pionier-app.js?v=43"></script>
+  <script type="module" src="./pionier-app.js?v=44"></script>
 
   <script>
     (function () {
