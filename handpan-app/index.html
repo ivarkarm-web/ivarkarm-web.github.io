@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=29" />
+  <link rel="stylesheet" href="./pionier.css?v=30" />
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
@@ -97,20 +97,6 @@
       <div class="knob-wrap fx-settings-wrap">
         <div class="scape-panel" id="scapePanel" aria-label="Soundscapes">
           <span class="scape-kicker">Scape</span>
-          <div class="scape-row">
-            <div class="scape-head">
-              <span class="scape-label">Back</span>
-              <button type="button" class="scape-solo" id="scapeBackingSolo" aria-pressed="false" title="Solo Back">S</button>
-            </div>
-            <select id="scapeBacking" class="scape-select" aria-label="Backing landscape">
-              <option value="off">Off</option>
-              <option value="drone">Drone</option>
-              <option value="pulse">Pulse</option>
-              <option value="arp">Arp</option>
-            </select>
-            <input type="range" id="scapeBackingVol" class="scape-vol" min="0" max="0.7" step="0.01" value="0.22"
-                   aria-label="Backing level" />
-          </div>
           <div class="scape-row">
             <div class="scape-head">
               <span class="scape-label">Pad</span>
@@ -216,24 +202,31 @@
       var drawer = document.getElementById('mobileControlDrawer');
       var toggle = document.getElementById('mobileControlsToggle');
       if (!drawer || !toggle) return;
+
       function setOpen(open) {
         drawer.classList.toggle('is-open', open);
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-        toggle.querySelector('.mobile-controls-label').textContent = open ? 'Hide' : 'Controls';
+        var label = toggle.querySelector('.mobile-controls-label');
+        if (label) label.textContent = open ? 'Hide' : 'Controls';
       }
       toggle.addEventListener('click', function () {
         setOpen(!drawer.classList.contains('is-open'));
       });
+
+      /* Drag only the handle. Knob/slider touches and panel scrolling never
+         participate in drawer gestures. Pointer events work for touch and mouse. */
       var startY = null;
-      drawer.addEventListener('touchstart', function (e) {
-        if (e.touches.length === 1) startY = e.touches[0].clientY;
-      }, { passive: true });
-      drawer.addEventListener('touchend', function (e) {
-        if (startY === null || !e.changedTouches.length) return;
-        var dy = e.changedTouches[0].clientY - startY;
-        if (Math.abs(dy) > 24) setOpen(dy > 0);
+      toggle.addEventListener('pointerdown', function (e) {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        startY = e.clientY;
+      });
+      toggle.addEventListener('pointerup', function (e) {
+        if (startY === null) return;
+        var dy = e.clientY - startY;
+        if (Math.abs(dy) > 18) setOpen(dy < 0);
         startY = null;
-      }, { passive: true });
+      });
+      toggle.addEventListener('pointercancel', function () { startY = null; });
     })();
   </script>
 
