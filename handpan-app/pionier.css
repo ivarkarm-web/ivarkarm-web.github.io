@@ -1761,3 +1761,8 @@ html, body, #app, .app {
   .mandala-lines { animation: none !important; }
   .soundscape-control-drawer, .mandala-play { transition: none !important; }
 }
+
+.soundscapes-page.is-active { animation: soundscapes-enter .34s cubic-bezier(.22,1,.36,1) both; }
+.soundscapes-page.is-active.is-leaving { animation: soundscapes-exit .30s cubic-bezier(.4,0,.8,.2) both; }
+@keyframes soundscapes-enter { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes soundscapes-exit { from { transform: translateX(0); } to { transform: translateX(100%); } }
