@@ -1976,3 +1976,21 @@ html, body, #app, .app {
 @media (prefers-reduced-motion: reduce) {
   .soundscape-swipe-led span { animation: none !important; opacity: .72; }
 }
+
+
+/* PIONIER sizing pass: grow the instrument modestly; the mandala is synced to #pan's exact rect in JS. */
+#pan {
+  width: min(96%, 90dvh, 820px) !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+@media (max-width: 900px), (max-height: 500px) and (pointer: coarse) {
+  #pan {
+    width: min(92vw, 56dvh, 560px) !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+  }
+}
+@media (max-width: 420px) {
+  #pan { width: min(92vw, 54dvh, 480px) !important; }
+}
