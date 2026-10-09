@@ -1925,3 +1925,108 @@ html, body, #app, .app {
     filter: none !important;
   }
 }
+
+
+/* PIONIER — fluid, connected handpan <-> soundscapes gesture.
+   Keep both views in the same viewport: restrained parallax, soft crossfade,
+   and a little instrument/mandala depth instead of rotating page cards. */
+.app.soundscapes-away {
+  transform-origin: 50% 50% !important;
+  transform: translate3d(calc(var(--sc-progress, 0) * -1.8%), 0, 0) scale(calc(1 - var(--sc-progress, 0) * .008)) !important;
+  opacity: calc(1 - var(--sc-progress, 0) * .1) !important;
+  filter: none !important;
+  box-shadow: none !important;
+  will-change: transform, opacity;
+}
+.app.soundscapes-away #pan {
+  transform-origin: 65% 50% !important;
+  transform: translate3d(calc(var(--sc-progress, 0) * -10vw), calc(var(--sc-progress, 0) * -1.5dvh), 0)
+    rotateZ(calc(var(--sc-progress, 0) * -3deg))
+    scale(calc(1 - var(--sc-progress, 0) * .07)) !important;
+  filter: drop-shadow(8px 0 18px rgba(201,162,39,calc(var(--sc-progress, 0) * .13)));
+  will-change: transform, filter;
+}
+.soundscapes-page.is-active {
+  inset: 0 !important;
+  transform: none !important;
+  background: transparent !important;
+  perspective: none !important;
+  overflow: hidden;
+  isolation: isolate;
+}
+.soundscapes-page.is-active::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 42%, #171719 0%, #0a0a0b 72%);
+  opacity: var(--sc-progress, 0);
+  will-change: opacity;
+}
+.soundscapes-page.is-active .soundscapes-topbar,
+.soundscapes-page.is-active .soundscapes-stage,
+.soundscapes-page.is-active .soundscape-control-drawer {
+  position: relative;
+  z-index: 1;
+}
+.soundscapes-page.is-active .soundscapes-topbar {
+  transform: translate3d(calc((1 - var(--sc-progress, 0)) * 10vw), 0, 0);
+  opacity: calc(.15 + var(--sc-progress, 0) * .85);
+  will-change: transform, opacity;
+}
+.soundscapes-page.is-active .soundscapes-stage {
+  transform-origin: 50% 50%;
+  transform: translate3d(calc((1 - var(--sc-progress, 0)) * 18vw), 0, 0)
+    scale(calc(.96 + var(--sc-progress, 0) * .04));
+  opacity: calc(.12 + var(--sc-progress, 0) * .88);
+  filter: blur(calc((1 - var(--sc-progress, 0)) * 1.5px));
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity, filter;
+}
+.soundscapes-page.is-active .mandala-wrap {
+  transform-origin: 50% 50%;
+  transform: scale(calc(.94 + var(--sc-progress, 0) * .06))
+    rotate(calc((1 - var(--sc-progress, 0)) * -3deg));
+  filter: drop-shadow(0 0 24px rgba(201,162,39,calc(var(--sc-progress, 0) * .12)));
+  will-change: transform, filter;
+}
+.soundscapes-page.is-active.is-interactive-swipe,
+.soundscapes-page.is-active.is-interactive-swipe .soundscapes-topbar,
+.soundscapes-page.is-active.is-interactive-swipe .soundscapes-stage,
+.soundscapes-page.is-active.is-interactive-swipe .mandala-wrap {
+  transition: none !important;
+}
+.soundscapes-page.is-active:not(.is-interactive-swipe) .soundscapes-topbar,
+.soundscapes-page.is-active:not(.is-interactive-swipe) .soundscapes-stage,
+.soundscapes-page.is-active:not(.is-interactive-swipe) .mandala-wrap,
+.soundscapes-page.is-active:not(.is-interactive-swipe)::before,
+.app.soundscapes-away:not(.is-interactive-swipe),
+.app.soundscapes-away:not(.is-interactive-swipe) #pan {
+  transition: transform .48s cubic-bezier(.22, 1, .36, 1),
+              opacity .38s ease,
+              filter .38s ease !important;
+}
+@media (max-width: 900px) {
+  .app.soundscapes-away #pan {
+    transform: translate3d(calc(var(--sc-progress, 0) * -8vw), calc(var(--sc-progress, 0) * -1dvh), 0)
+      rotateZ(calc(var(--sc-progress, 0) * -2.5deg))
+      scale(calc(1 - var(--sc-progress, 0) * .055)) !important;
+  }
+  .soundscapes-page.is-active .soundscapes-stage {
+    transform: translate3d(calc((1 - var(--sc-progress, 0)) * 12vw), 0, 0)
+      scale(calc(.97 + var(--sc-progress, 0) * .03));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app.soundscapes-away,
+  .app.soundscapes-away #pan,
+  .soundscapes-page.is-active .soundscapes-topbar,
+  .soundscapes-page.is-active .soundscapes-stage,
+  .soundscapes-page.is-active .mandala-wrap {
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+}
