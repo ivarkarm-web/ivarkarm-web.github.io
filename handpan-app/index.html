@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=21" />
+  <link rel="stylesheet" href="./pionier.css?v=22" />
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
@@ -79,32 +79,20 @@
     </aside>
 
     <aside class="sidebar right knobs-panel" aria-label="Sound knobs">
-      <div class="knob-wrap" data-param="compress">
-        <div class="knob" id="knobCompress" role="slider" tabindex="0"
-             aria-label="Compressor" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40"
-             aria-valuetext="Compressor 40 percent">
-          <canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas>
-          <span class="knob-value" id="valCompress">40</span>
-        </div>
-        <span class="knob-name">Comp</span>
+      <div class="knob-wrap effect-knob-wrap" data-param="compress">
+        <div class="knob" id="knobCompress" role="slider" tabindex="0" aria-label="Compressor amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" aria-valuetext="Compressor 40 percent"><canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas><span class="knob-value" id="valCompress">40</span></div>
+        <div class="knob-name-row"><button type="button" class="knob-effect-trigger" aria-expanded="false" aria-controls="bubbleComp"><span>Comp</span><span class="tiny-gear" aria-hidden="true">⚙</span></button></div>
+        <div class="effect-bubble" id="bubbleComp" hidden aria-label="Compressor type"><span class="effect-bubble-title">Compressor</span><div class="effect-choice-list"><button type="button" class="fx-type-btn is-active" data-comp="soft" aria-pressed="true">Soft</button><button type="button" class="fx-type-btn" data-comp="punch" aria-pressed="false">Punch</button><button type="button" class="fx-type-btn" data-comp="glue" aria-pressed="false">Glue</button><button type="button" class="fx-type-btn" data-comp="limit" aria-pressed="false">Limit</button></div></div>
       </div>
-      <div class="knob-wrap" data-param="delay">
-        <div class="knob" id="knobDelay" role="slider" tabindex="0"
-             aria-label="Ambiance" aria-valuemin="0" aria-valuemax="100" aria-valuenow="15"
-             aria-valuetext="Ambiance 15 percent">
-          <canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas>
-          <span class="knob-value" id="valDelay">15</span>
-        </div>
-        <span class="knob-name">Ambiance</span>
+      <div class="knob-wrap effect-knob-wrap" data-param="delay">
+        <div class="knob" id="knobDelay" role="slider" tabindex="0" aria-label="Ambiance amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="15" aria-valuetext="Ambiance 15 percent"><canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas><span class="knob-value" id="valDelay">15</span></div>
+        <div class="knob-name-row"><button type="button" class="knob-effect-trigger" aria-expanded="false" aria-controls="bubbleAmbiance"><span>Ambiance</span><span class="tiny-gear" aria-hidden="true">⚙</span></button></div>
+        <div class="effect-bubble" id="bubbleAmbiance" hidden aria-label="Ambiance type"><span class="effect-bubble-title">Ambiance</span><div class="effect-choice-list"><button type="button" class="fx-type-btn is-active" data-delay="echo" aria-pressed="true">Echo</button><button type="button" class="fx-type-btn" data-delay="slap" aria-pressed="false">Slap</button><button type="button" class="fx-type-btn" data-delay="ping" aria-pressed="false">Ping</button><button type="button" class="fx-type-btn" data-delay="dub" aria-pressed="false">Dub</button></div></div>
       </div>
-      <div class="knob-wrap" data-param="reverb">
-        <div class="knob" id="knobReverb" role="slider" tabindex="0"
-             aria-label="Room" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25"
-             aria-valuetext="Room 25 percent">
-          <canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas>
-          <span class="knob-value" id="valReverb">25</span>
-        </div>
-        <span class="knob-name">Room</span>
+      <div class="knob-wrap effect-knob-wrap" data-param="reverb">
+        <div class="knob" id="knobReverb" role="slider" tabindex="0" aria-label="Room amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25" aria-valuetext="Room 25 percent"><canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas><span class="knob-value" id="valReverb">25</span></div>
+        <div class="knob-name-row"><button type="button" class="knob-effect-trigger" aria-expanded="false" aria-controls="bubbleRoom"><span>Room</span><span class="tiny-gear" aria-hidden="true">⚙</span></button></div>
+        <div class="effect-bubble" id="bubbleRoom" hidden aria-label="Reverb type"><span class="effect-bubble-title">Reverb</span><div class="effect-choice-list"><button type="button" class="fx-type-btn is-active" data-reverb="room" aria-pressed="true">Room</button><button type="button" class="fx-type-btn" data-reverb="hall" aria-pressed="false">Hall</button><button type="button" class="fx-type-btn" data-reverb="plate" aria-pressed="false">Plate</button><button type="button" class="fx-type-btn" data-reverb="cave" aria-pressed="false">Cave</button></div></div>
       </div>
       <div class="knob-wrap fx-settings-wrap">
         <div class="scape-panel" id="scapePanel" aria-label="Soundscapes">
@@ -156,15 +144,7 @@
           </div>
         </div>
 
-      <button type="button" class="fx-settings-btn" id="btnFxSettings"
-                aria-label="Effects settings" aria-expanded="false" aria-controls="fxPanel"
-                title="Effects settings">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M4 8h10M18 8h2M14 8a2 2 0 1 0-4 0 2 2 0 0 0 4 0ZM4 16h2M10 16h10M8 16a2 2 0 1 0-4 0 2 2 0 0 0 4 0Z"
-                  stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-          </svg>
-        </button>
-        <span class="knob-name">FX</span>
+      <!-- Effect types are selected from the tiny gear beside each knob name. -->
       </div>
     </aside>
       </div>
@@ -257,7 +237,7 @@
     })();
   </script>
 
-  <script type="module" src="./pionier-app.js?v=31"></script>
+  <script type="module" src="./pionier-app.js?v=32"></script>
 
   <script>
     (function () {
