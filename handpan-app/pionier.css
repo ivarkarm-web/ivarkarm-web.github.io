@@ -1832,3 +1832,96 @@ html, body, #app, .app {
     filter: none !important;
   }
 }
+
+
+/* PIONIER correction: do not slide the entire Soundscapes page.
+   Keep the viewport fixed and roll the instrument away while the mandala itself
+   swings into view as a foreground object. This replaces the page-as-card effect. */
+.app.soundscapes-away {
+  transform-origin: 100% 50% !important;
+  transform: perspective(1000px)
+    translate3d(calc(var(--sc-progress, 1) * -5%), 0, 0)
+    rotateY(calc(var(--sc-progress, 1) * 19deg))
+    scale(calc(1 - var(--sc-progress, 1) * .025)) !important;
+  opacity: 1 !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+.app.soundscapes-away #pan {
+  transform: translateY(-8dvh)
+    translateX(calc(var(--sc-progress, 1) * -22vw))
+    rotateY(calc(var(--sc-progress, 1) * 48deg))
+    rotateZ(calc(var(--sc-progress, 1) * -11deg))
+    scale(calc(1 - var(--sc-progress, 1) * .16)) !important;
+  transform-origin: 72% 50% !important;
+  filter: drop-shadow(16px 0 22px rgba(0,0,0,calc(var(--sc-progress, 1) * .4)));
+}
+.soundscapes-page.is-active {
+  inset: 0 !important;
+  transform: none !important;
+  background: transparent !important;
+  perspective: 1100px;
+  overflow: hidden;
+}
+.soundscapes-page.is-active::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 42%, #171719 0%, #0a0a0b 68%);
+  opacity: var(--sc-progress, 1);
+}
+.soundscapes-page.is-active .soundscapes-topbar,
+.soundscapes-page.is-active .soundscapes-stage,
+.soundscapes-page.is-active .soundscape-control-drawer {
+  position: relative;
+  z-index: 1;
+}
+.soundscapes-page.is-active .soundscapes-topbar {
+  transform: translate3d(calc((1 - var(--sc-progress, 1)) * 38vw), 0, 0);
+  opacity: var(--sc-progress, 1);
+}
+.soundscapes-page.is-active .soundscapes-stage {
+  transform-origin: 0% 50%;
+  transform:
+    translate3d(calc((1 - var(--sc-progress, 1)) * 58vw), 0, 0)
+    rotateY(calc((1 - var(--sc-progress, 1)) * -42deg))
+    rotateZ(calc((1 - var(--sc-progress, 1)) * 3deg))
+    scale(calc(.82 + var(--sc-progress, 1) * .18));
+  opacity: 1;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.soundscapes-page.is-active .mandala-wrap {
+  transform-origin: 0% 50%;
+  transform: rotateY(calc((1 - var(--sc-progress, 1)) * -22deg)) rotateZ(calc((1 - var(--sc-progress, 1)) * -8deg));
+  filter: drop-shadow(-24px 0 36px rgba(201,162,39,calc((1 - var(--sc-progress, 1)) * .22)));
+}
+.soundscapes-page.is-active.is-interactive-swipe,
+.soundscapes-page.is-active.is-interactive-swipe .soundscapes-topbar,
+.soundscapes-page.is-active.is-interactive-swipe .soundscapes-stage {
+  transition: none !important;
+}
+.soundscapes-page.is-active:not(.is-interactive-swipe) .soundscapes-topbar,
+.soundscapes-page.is-active:not(.is-interactive-swipe) .soundscapes-stage {
+  transition: transform .42s cubic-bezier(.22,1,.36,1), opacity .32s ease;
+}
+@media (max-width: 900px), (max-height: 500px) and (pointer: coarse) {
+  .app.soundscapes-away #pan {
+    transform: translateY(-8dvh)
+      translateX(calc(var(--sc-progress, 1) * -18vw))
+      rotateY(calc(var(--sc-progress, 1) * 42deg))
+      rotateZ(calc(var(--sc-progress, 1) * -9deg))
+      scale(calc(1 - var(--sc-progress, 1) * .12)) !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app.soundscapes-away, .app.soundscapes-away #pan,
+  .soundscapes-page.is-active .soundscapes-topbar,
+  .soundscapes-page.is-active .soundscapes-stage,
+  .soundscapes-page.is-active .mandala-wrap {
+    transform: none !important;
+    filter: none !important;
+  }
+}
