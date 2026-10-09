@@ -227,7 +227,7 @@ canvas.addEventListener('pointercancel', (e) => {
       page.classList.remove('is-leaving');
       page.classList.add('is-active');
       page.setAttribute('aria-hidden', 'false');
-      document.getElementById('app')?.classList.add('soundscapes-away');
+      document.getElementById('app')?.classList.add('soundscapes-away', 'is-interactive-swipe');
     } else {
       closeControls();
       if (!page.classList.contains('is-active')) return;
@@ -325,6 +325,7 @@ canvas.addEventListener('pointercancel', (e) => {
   function finishSwipe(open) {
     page.classList.remove('is-interactive-swipe');
     setSwipeProgress(open ? 1 : 0);
+    document.getElementById('app')?.classList.remove('is-interactive-swipe');
     if (open) {
       page.setAttribute('aria-hidden', 'false');
       return;
@@ -349,7 +350,10 @@ canvas.addEventListener('pointercancel', (e) => {
     const fromLeftEdge = e.clientX <= edgeWidth;
     if ((!onSoundscapes && fromRightEdge) || (onSoundscapes && fromLeftEdge)) {
       if (!onSoundscapes) { prepareSwipePage(); setSwipeProgress(0); }
-      else setSwipeProgress(1);
+      else {
+        setSwipeProgress(1);
+        document.getElementById('app')?.classList.add('is-interactive-swipe');
+      }
       page.classList.add('is-interactive-swipe');
       swipeStart = { x: e.clientX, y: e.clientY, lastX: e.clientX, lastTime: performance.now(), pointerId: e.pointerId, onSoundscapes, moved: false };
     } else swipeStart = null;
