@@ -1310,3 +1310,156 @@ html, body, #app, .app {
     display: none !important;
   }
 }
+
+
+/* PIONIER MOBILE SOUNDscape / SCALE LAYOUT FIX
+   Keep scale/base/octave in their own block. Keep all three knobs together,
+   then render Scape and FX as full-width rows inside a real wrapper (not display:contents). */
+@media (max-width: 900px), (max-height: 500px) and (pointer: coarse) {
+  .mobile-control-panel {
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px !important;
+  }
+
+  .mobile-control-panel .sidebar.left {
+    display: grid !important;
+    flex: 0 0 auto;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    align-items: end;
+    gap: 12px 8px !important;
+    padding: 0 0 14px !important;
+    border-bottom: 1px solid var(--stroke) !important;
+  }
+
+  .mobile-control-panel .sidebar.left .control-scale,
+  .mobile-control-panel .sidebar.left .control-row {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-width: 0;
+  }
+
+  .mobile-control-panel .sidebar.right {
+    display: grid !important;
+    flex: 0 0 auto;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-auto-flow: row;
+    align-items: start;
+    justify-items: stretch;
+    gap: 16px 8px !important;
+    width: 100% !important;
+    min-width: 0;
+  }
+
+  .mobile-control-panel .sidebar.right > .knob-wrap:not(.fx-settings-wrap) {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+  }
+
+  .mobile-control-panel .sidebar.right .knob {
+    position: relative !important;
+    width: 48px !important;
+    height: 48px !important;
+    flex: 0 0 48px !important;
+    margin: 0 auto;
+  }
+
+  .mobile-control-panel .sidebar.right .knob-canvas {
+    position: absolute;
+    inset: 0;
+    width: 48px !important;
+    height: 48px !important;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .mobile-control-panel .sidebar.right .knob-name {
+    display: block;
+    position: static;
+    margin: 5px 0 0;
+    font-size: 10px;
+    line-height: 1.2;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  /* This wrapper must remain a box. display:contents made Scape/FX siblings
+     of the knobs in the grid and allowed them to collide on narrow screens. */
+  .mobile-control-panel .sidebar.right .fx-settings-wrap {
+    display: flex !important;
+    flex-direction: column;
+    grid-column: 1 / -1 !important;
+    align-items: stretch;
+    gap: 12px;
+    width: 100% !important;
+    min-width: 0;
+    margin: 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--stroke);
+  }
+
+  .mobile-control-panel .sidebar.right .scape-panel {
+    display: flex !important;
+    flex-direction: column;
+    gap: 12px;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+  }
+
+  .mobile-control-panel .sidebar.right .scape-row {
+    display: grid !important;
+    grid-template-columns: minmax(56px, .55fr) minmax(0, 1fr);
+    grid-template-areas: "head select" "head volume";
+    align-items: center;
+    gap: 6px 10px;
+    width: 100%;
+    min-width: 0;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+  }
+
+  .mobile-control-panel .sidebar.right .scape-head {
+    grid-area: head;
+    min-width: 0;
+  }
+
+  .mobile-control-panel .sidebar.right .scape-select {
+    grid-area: select;
+    display: block;
+    width: 100% !important;
+    min-width: 0;
+    min-height: 38px;
+  }
+
+  .mobile-control-panel .sidebar.right .scape-vol {
+    grid-area: volume;
+    display: block;
+    width: 100% !important;
+    min-width: 0;
+    margin: 4px 0;
+  }
+
+  .mobile-control-panel .sidebar.right .fx-settings-btn {
+    display: flex !important;
+    position: static;
+    grid-column: auto;
+    flex: 0 0 auto;
+    width: 100% !important;
+    min-height: 42px;
+    margin: 0;
+  }
+
+  .mobile-control-panel .sidebar.right .fx-settings-wrap > .knob-name {
+    display: none !important;
+  }
+}
