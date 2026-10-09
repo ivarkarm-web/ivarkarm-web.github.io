@@ -219,9 +219,6 @@ canvas.addEventListener('pointercancel', (e) => {
   if (!page || !audio) return;
   // Keep the drawer above the mandala by removing it from the page's lower stacking context.
   if (drawer && drawer.parentNode !== document.body) document.body.appendChild(drawer);
-  // Keep the Soundscapes handle outside the transformed drawer so it cannot disappear off-screen.
-  if (toggle && toggle.parentNode !== document.body) document.body.appendChild(toggle);
-  if (toggle) toggle.classList.add('pionier-viewport-controls-handle');
   let trackList = [];
   let currentTrackIndex = -1;
   let trackObjectUrls = [];
