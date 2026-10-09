@@ -400,35 +400,70 @@ document.getElementById('btnFxSettings')?.addEventListener('click', () => {
 document.getElementById('fxPanelClose')?.addEventListener('click', () => setFxPanelOpen(false));
 document.getElementById('fxBackdrop')?.addEventListener('click', () => setFxPanelOpen(false));
 
-function closeEffectBubbles(){
-  document.querySelectorAll('.effect-bubble').forEach((bubble)=>{
-    bubble.hidden=true;
-    const trigger=document.querySelector('[aria-controls="'+bubble.id+'"]');
-    if(trigger)trigger.setAttribute('aria-expanded','false');
-    bubble.closest('.effect-knob-wrap')?.classList.remove('effect-menu-open');
+function restoreEffectBubble(bubble) {
+  if (!bubble || !bubble.dataset.originId) return;
+  const trigger = document.querySelector('[aria-controls="' + bubble.id + '"]');
+  const origin = trigger?.closest('.effect-knob-wrap');
+  if (origin) origin.appendChild(bubble);
+  delete bubble.dataset.originId;
+  bubble.classList.remove('is-viewport-menu');
+  bubble.style.left = '';
+  bubble.style.top = '';
+}
+function closeEffectBubbles() {
+  document.querySelectorAll('.effect-bubble').forEach((bubble) => {
+    bubble.hidden = true;
+    const trigger = document.querySelector('[aria-controls="' + bubble.id + '"]');
+    if (trigger) trigger.setAttribute('aria-expanded', 'false');
+    trigger?.closest('.effect-knob-wrap')?.classList.remove('effect-menu-open');
+    restoreEffectBubble(bubble);
   });
 }
-document.querySelectorAll('.knob-effect-trigger').forEach((trigger)=>{
-  trigger.addEventListener('click',(event)=>{
-    event.preventDefault();event.stopPropagation();
-    const bubble=document.getElementById(trigger.getAttribute('aria-controls'));
-    if(!bubble)return;
-    const shouldOpen=bubble.hidden;closeEffectBubbles();
-    if(shouldOpen){
-      bubble.hidden=false;trigger.setAttribute('aria-expanded','true');
-      trigger.closest('.effect-knob-wrap')?.classList.add('effect-menu-open');
-      const panel=document.getElementById('mobileControlPanel');
-      if(panel&&window.matchMedia('(max-width: 900px), (max-height: 500px) and (pointer: coarse)').matches){
-        requestAnimationFrame(()=>{
-          const r=bubble.getBoundingClientRect(),p=panel.getBoundingClientRect();
-          if(r.bottom>p.bottom-6)panel.scrollTop+=r.bottom-p.bottom+14;
-          if(r.top<p.top+4)panel.scrollTop-=p.top+4-r.top;
-        });
-      }
-    }
+function positionEffectBubble(bubble, trigger) {
+  const gap = 7, margin = 8;
+  const anchor = trigger.getBoundingClientRect();
+  const width = Math.min(window.innerWidth - margin * 2, window.matchMedia('(max-width: 900px), (max-height: 500px) and (pointer: coarse)').matches ? 220 : 208);
+  bubble.style.width = width + 'px';
+  bubble.style.maxWidth = (window.innerWidth - margin * 2) + 'px';
+  bubble.style.left = '0px';
+  bubble.style.top = '0px';
+  const menu = bubble.getBoundingClientRect();
+  let left = anchor.left + anchor.width / 2 - width / 2;
+  left = Math.max(margin, Math.min(left, window.innerWidth - width - margin));
+  let top = anchor.bottom + gap;
+  if (top + menu.height > window.innerHeight - margin) {
+    top = anchor.top - menu.height - gap;
+  }
+  top = Math.max(margin, Math.min(top, window.innerHeight - menu.height - margin));
+  bubble.style.left = Math.round(left) + 'px';
+  bubble.style.top = Math.round(top) + 'px';
+}
+document.querySelectorAll('.knob-effect-trigger').forEach((trigger) => {
+  trigger.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const bubble = document.getElementById(trigger.getAttribute('aria-controls'));
+    if (!bubble) return;
+    const shouldOpen = bubble.hidden;
+    closeEffectBubbles();
+    if (!shouldOpen) return;
+    const origin = trigger.closest('.effect-knob-wrap');
+    bubble.dataset.originId = origin?.getAttribute('data-param') || bubble.id;
+    bubble.classList.add('is-viewport-menu');
+    document.body.appendChild(bubble);
+    bubble.hidden = false;
+    trigger.setAttribute('aria-expanded', 'true');
+    origin?.classList.add('effect-menu-open');
+    requestAnimationFrame(() => positionEffectBubble(bubble, trigger));
   });
 });
-document.addEventListener('click',(event)=>{if(!event.target.closest('.effect-knob-wrap'))closeEffectBubbles();});
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.effect-bubble.is-viewport-menu:not([hidden])').forEach((bubble) => {
+    const trigger = document.querySelector('[aria-controls="' + bubble.id + '"]');
+    if (trigger) positionEffectBubble(bubble, trigger);
+  });
+});
+document.addEventListener('click',(event)=>{if(!event.target.closest('.effect-knob-wrap')&&!event.target.closest('.effect-bubble'))closeEffectBubbles();});
 document.addEventListener('keydown',(event)=>{if(event.key==='Escape')closeEffectBubbles();});
 
 document.querySelectorAll('[data-delay]').forEach((btn) => {
