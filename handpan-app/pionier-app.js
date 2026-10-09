@@ -400,14 +400,47 @@ document.getElementById('btnFxSettings')?.addEventListener('click', () => {
 document.getElementById('fxPanelClose')?.addEventListener('click', () => setFxPanelOpen(false));
 document.getElementById('fxBackdrop')?.addEventListener('click', () => setFxPanelOpen(false));
 
+function closeEffectBubbles(){
+  document.querySelectorAll('.effect-bubble').forEach((bubble)=>{
+    bubble.hidden=true;
+    const trigger=document.querySelector('[aria-controls="'+bubble.id+'"]');
+    if(trigger)trigger.setAttribute('aria-expanded','false');
+    bubble.closest('.effect-knob-wrap')?.classList.remove('effect-menu-open');
+  });
+}
+document.querySelectorAll('.knob-effect-trigger').forEach((trigger)=>{
+  trigger.addEventListener('click',(event)=>{
+    event.preventDefault();event.stopPropagation();
+    const bubble=document.getElementById(trigger.getAttribute('aria-controls'));
+    if(!bubble)return;
+    const shouldOpen=bubble.hidden;closeEffectBubbles();
+    if(shouldOpen){
+      bubble.hidden=false;trigger.setAttribute('aria-expanded','true');
+      trigger.closest('.effect-knob-wrap')?.classList.add('effect-menu-open');
+      const panel=document.getElementById('mobileControlPanel');
+      if(panel&&window.matchMedia('(max-width: 900px), (max-height: 500px) and (pointer: coarse)').matches){
+        requestAnimationFrame(()=>{
+          const r=bubble.getBoundingClientRect(),p=panel.getBoundingClientRect();
+          if(r.bottom>p.bottom-6)panel.scrollTop+=r.bottom-p.bottom+14;
+          if(r.top<p.top+4)panel.scrollTop-=p.top+4-r.top;
+        });
+      }
+    }
+  });
+});
+document.addEventListener('click',(event)=>{if(!event.target.closest('.effect-knob-wrap'))closeEffectBubbles();});
+document.addEventListener('keydown',(event)=>{if(event.key==='Escape')closeEffectBubbles();});
+
 document.querySelectorAll('[data-delay]').forEach((btn) => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('[data-delay]').forEach((b) => {
       b.classList.toggle('is-active', b === btn);
       b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+      b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
     });
     ensureAudio();
     if (app.fxChain?.setDelayType) app.fxChain.setDelayType(btn.getAttribute('data-delay'));
+    closeEffectBubbles();
   });
 });
 document.querySelectorAll('[data-reverb]').forEach((btn) => {
@@ -415,9 +448,11 @@ document.querySelectorAll('[data-reverb]').forEach((btn) => {
     document.querySelectorAll('[data-reverb]').forEach((b) => {
       b.classList.toggle('is-active', b === btn);
       b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+      b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
     });
     ensureAudio();
     if (app.fxChain?.setReverbType) app.fxChain.setReverbType(btn.getAttribute('data-reverb'));
+    closeEffectBubbles();
   });
 });
 document.querySelectorAll('[data-comp]').forEach((btn) => {
@@ -425,9 +460,11 @@ document.querySelectorAll('[data-comp]').forEach((btn) => {
     document.querySelectorAll('[data-comp]').forEach((b) => {
       b.classList.toggle('is-active', b === btn);
       b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+      b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
     });
     ensureAudio();
     if (app.fxChain?.setCompressorType) app.fxChain.setCompressorType(btn.getAttribute('data-comp'));
+    closeEffectBubbles();
   });
 });
 const masterVol = document.getElementById('masterVol');
