@@ -1852,9 +1852,11 @@ html, body, #app, .app {
 .soundscapes-page.is-active.is-interactive-swipe .soundscapes-stage,
 .soundscapes-page.is-active.is-interactive-swipe .mandala-wrap,
 .soundscapes-page.is-active.is-interactive-swipe .soundscape-control-drawer,
-.app.soundscapes-away:not(.is-interactive-swipe),
+.app.soundscapes-away:not(.is-interactive-swipe) {
+  transition: opacity .38s ease !important;
+}
 .app.soundscapes-away:not(.is-interactive-swipe) #pan {
-  transition: none !important;
+  transition: opacity .38s ease, transform .46s cubic-bezier(.22, 1, .36, 1) !important;
 }
 .soundscapes-page.is-active:not(.is-interactive-swipe)::before,
 .soundscapes-page.is-active:not(.is-interactive-swipe) .soundscapes-topbar,
