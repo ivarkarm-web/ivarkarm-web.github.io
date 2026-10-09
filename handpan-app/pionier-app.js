@@ -220,27 +220,28 @@ canvas.addEventListener('pointercancel', (e) => {
   let leavingTimer = null;
   const pan = document.getElementById('pan');
   const mandala = document.getElementById('mandalaWrap');
+  // Portal the artwork to <body> so no transformed/overflowing Soundscapes
+  // ancestor can change the coordinate system of position:fixed.
+  const mandalaHome = mandala?.parentNode || null;
+  const mandalaHomeNext = mandala?.nextSibling || null;
+  if (mandala && mandala.parentNode !== document.body) document.body.appendChild(mandala);
   function syncMandalaToPan() {
     if (!pan || !mandala) return;
     const rect = pan.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
-    // Match the canvas's exact viewport rectangle. Inline !important wins over
-    // legacy Soundscapes CSS that previously forced the mandala toward center.
-    const exact = {
-      position: 'fixed',
-      left: rect.left + 'px',
-      top: rect.top + 'px',
-      right: 'auto',
-      bottom: 'auto',
-      width: rect.width + 'px',
-      height: rect.height + 'px',
-      margin: '0',
-      padding: '0',
-      transform: 'none'
-    };
-    for (const [property, value] of Object.entries(exact)) {
-      mandala.style.setProperty(property.replace(/[A-Z]/g, letter => '-' + letter.toLowerCase()), value, 'important');
-    }
+    mandala.style.setProperty('position', 'fixed', 'important');
+    mandala.style.setProperty('left', rect.left + 'px', 'important');
+    mandala.style.setProperty('top', rect.top + 'px', 'important');
+    mandala.style.setProperty('right', 'auto', 'important');
+    mandala.style.setProperty('bottom', 'auto', 'important');
+    mandala.style.setProperty('width', rect.width + 'px', 'important');
+    mandala.style.setProperty('height', rect.height + 'px', 'important');
+    mandala.style.setProperty('max-width', 'none', 'important');
+    mandala.style.setProperty('max-height', 'none', 'important');
+    mandala.style.setProperty('margin', '0', 'important');
+    mandala.style.setProperty('padding', '0', 'important');
+    mandala.style.setProperty('transform', 'none', 'important');
+    mandala.style.setProperty('z-index', '1501', 'important');
   }
   window.addEventListener('resize', syncMandalaToPan, { passive: true });
   function showPage(show) {
@@ -249,9 +250,11 @@ canvas.addEventListener('pointercancel', (e) => {
     page.classList.remove('is-interactive-swipe');
     page.style.setProperty('--sc-progress', show ? '1' : '0');
     document.getElementById('app')?.style.setProperty('--sc-progress', show ? '1' : '0');
+    if (mandala) mandala.style.opacity = show ? '1' : '0';
     if (show) {
       page.classList.remove('is-leaving');
       page.classList.add('is-active');
+      mandala?.classList.add('is-overlay-active');
       page.setAttribute('aria-hidden', 'false');
       document.getElementById('app')?.classList.add('soundscapes-away', 'is-interactive-swipe');
     } else {
@@ -260,6 +263,7 @@ canvas.addEventListener('pointercancel', (e) => {
       page.setAttribute('aria-hidden', 'true');
       leavingTimer = setTimeout(() => {
         page.classList.remove('is-active', 'is-leaving');
+        mandala?.classList.remove('is-overlay-active');
         document.getElementById('app')?.classList.remove('soundscapes-away');
         page.style.removeProperty('--sc-progress');
         document.getElementById('app')?.style.removeProperty('--sc-progress');
@@ -340,11 +344,13 @@ canvas.addEventListener('pointercancel', (e) => {
     swipeProgress = Math.max(0, Math.min(1, progress));
     page.style.setProperty('--sc-progress', String(swipeProgress));
     document.getElementById('app')?.style.setProperty('--sc-progress', String(swipeProgress));
+    if (mandala) mandala.style.opacity = String(swipeProgress);
   }
   function prepareSwipePage() {
     if (leavingTimer) { clearTimeout(leavingTimer); leavingTimer = null; }
     syncMandalaToPan();
     page.classList.add('is-interactive-swipe', 'is-active');
+    mandala?.classList.add('is-overlay-active');
     page.classList.remove('is-leaving');
     page.setAttribute('aria-hidden', 'false');
     document.getElementById('app')?.classList.add('soundscapes-away');
@@ -362,6 +368,7 @@ canvas.addEventListener('pointercancel', (e) => {
     if (leavingTimer) clearTimeout(leavingTimer);
     leavingTimer = setTimeout(() => {
       page.classList.remove('is-active', 'is-leaving');
+      mandala?.classList.remove('is-overlay-active');
       document.getElementById('app')?.classList.remove('soundscapes-away');
       page.style.removeProperty('--sc-progress');
       swipeProgress = 0;
