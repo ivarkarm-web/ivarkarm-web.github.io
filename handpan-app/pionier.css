@@ -1948,3 +1948,31 @@ html, body, #app, .app {
 @keyframes edge-led-breathe { 0%,100% { opacity:.68; filter:brightness(.82); } 50% { opacity:1; filter:brightness(1.25); } }
 @media (max-width:520px) { .mandala-transport { gap:8px; } .mandala-track-step { width:34px; height:34px; } .soundscape-swipe-led { width:2px; height:clamp(100px,20vh,170px); } }
 @media (prefers-reduced-motion:reduce) { .soundscapes-page.is-active .soundscape-swipe-led span { animation:none !important; } }
+
+
+/* PIONIER white-silver lighting: persistent edge LEDs to match the note slits. */
+.soundscape-swipe-led {
+  z-index: 1600;
+  width: 2px;
+  height: clamp(116px, 23vh, 210px);
+  opacity: .62;
+  transition: opacity .35s ease, filter .35s ease;
+}
+.soundscape-swipe-led-left { left: 0; }
+.soundscape-swipe-led-right { right: 0; }
+.soundscape-swipe-led span {
+  background: linear-gradient(to bottom, transparent, rgba(226,238,252,.78) 18%, #fff 50%, rgba(226,238,252,.78) 82%, transparent);
+  box-shadow: 0 0 3px rgba(255,255,255,.82), 0 0 9px rgba(208,226,248,.42), 0 0 20px rgba(183,210,241,.16);
+  animation: edge-led-breathe 4.2s ease-in-out infinite;
+}
+.soundscape-swipe-led-right span { animation-delay: -2.1s; }
+@keyframes edge-led-breathe {
+  0%, 100% { opacity: .56; filter: brightness(.9); }
+  50% { opacity: .96; filter: brightness(1.12); }
+}
+@media (max-width: 520px) {
+  .soundscape-swipe-led { width: 2px; height: clamp(96px, 19vh, 160px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .soundscape-swipe-led span { animation: none !important; opacity: .72; }
+}
