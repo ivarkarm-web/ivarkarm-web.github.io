@@ -218,7 +218,19 @@ canvas.addEventListener('pointercancel', (e) => {
   let currentObjectUrl = null;
 
   let leavingTimer = null;
+  const pan = document.getElementById('pan');
+  const mandala = document.getElementById('mandalaWrap');
+  function syncMandalaToPan() {
+    if (!pan || !mandala) return;
+    const rect = pan.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    mandala.style.setProperty('--mandala-left', rect.left + 'px');
+    mandala.style.setProperty('--mandala-top', rect.top + 'px');
+    mandala.style.setProperty('--mandala-size', Math.min(rect.width, rect.height) + 'px');
+  }
+  window.addEventListener('resize', syncMandalaToPan, { passive: true });
   function showPage(show) {
+    if (show) syncMandalaToPan();
     if (leavingTimer) { clearTimeout(leavingTimer); leavingTimer = null; }
     page.classList.remove('is-interactive-swipe');
     page.style.setProperty('--sc-progress', show ? '1' : '0');
@@ -317,6 +329,7 @@ canvas.addEventListener('pointercancel', (e) => {
   }
   function prepareSwipePage() {
     if (leavingTimer) { clearTimeout(leavingTimer); leavingTimer = null; }
+    syncMandalaToPan();
     page.classList.add('is-interactive-swipe', 'is-active');
     page.classList.remove('is-leaving');
     page.setAttribute('aria-hidden', 'false');
