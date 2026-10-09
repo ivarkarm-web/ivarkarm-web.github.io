@@ -125,7 +125,7 @@ export function createSurface(canvas) {
     ctx2.beginPath();
     ctx2.arc(CX, CY, R, 0, Math.PI * 2);
     ctx2.fill();
-    ctx2.strokeStyle = 'rgba(201,162,39,0.14)';
+    ctx2.strokeStyle = 'rgba(220,232,246,0.13)';
     ctx2.lineWidth = Math.max(1.5, R * 0.01);
     ctx2.beginPath();
     ctx2.arc(CX, CY, R * 0.93, 0, Math.PI * 2);
