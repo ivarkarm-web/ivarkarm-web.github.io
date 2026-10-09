@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=66" />
+  <link rel="stylesheet" href="./pionier.css?v=67" />
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
@@ -276,39 +276,7 @@
     <p class="fx-panel-hint">Tweak amount with the <strong>Comp</strong>, <strong>Ambiance</strong>, and <strong>Room</strong> knobs.</p>
   </aside>
 
-  <script>
-    (function () {
-      var drawer = document.getElementById('mobileControlDrawer');
-      var toggle = document.getElementById('mobileControlsToggle');
-      if (!drawer || !toggle) return;
-      function setOpen(open) {
-        drawer.classList.toggle('is-open', open);
-        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-        var label = toggle.querySelector('.mobile-controls-label');
-        if (label) label.textContent = open ? 'Hide' : 'Controls';
-      }
-      toggle.addEventListener('click', function () {
-        setOpen(!drawer.classList.contains('is-open'));
-      });
-
-      /* Drag only the handle. Knob/slider touches and panel scrolling never
-         participate in drawer gestures. Pointer events work for touch and mouse. */
-      var startY = null;
-      toggle.addEventListener('pointerdown', function (e) {
-        if (e.pointerType === 'mouse' && e.button !== 0) return;
-        startY = e.clientY;
-      });
-      toggle.addEventListener('pointerup', function (e) {
-        if (startY === null) return;
-        var dy = e.clientY - startY;
-        if (Math.abs(dy) > 18) setOpen(dy < 0);
-        startY = null;
-      });
-      toggle.addEventListener('pointercancel', function () { startY = null; });
-    })();
-  </script>
-
-  <script type="module" src="./pionier-app.js?v=54"></script>
+  <script type="module" src="./pionier-app.js?v=55"></script>
 
   <script>
     (function () {
