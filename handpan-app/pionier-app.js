@@ -238,6 +238,108 @@ canvas.addEventListener('pointercancel', (e) => {
   if (idx != null) activeInstrument().noteOff(idx);
 });
 
+
+/* Soundscapes is a separate view; its audio element persists when switching back. */
+(function setupSoundscapesPage() {
+  const page = document.getElementById('soundscapesPage');
+  const back = document.getElementById('backToHandpan');
+  const audio = document.getElementById('soundscapeAudio');
+  const play = document.getElementById('mandalaPlay');
+  const playIcon = document.getElementById('mandalaPlayIcon');
+  const fileInput = document.getElementById('soundscapeFile');
+  const addButton = document.getElementById('addSoundscapeTrack');
+  const title = document.getElementById('soundscapeTrackTitle');
+  const subtitle = document.getElementById('soundscapeTrackSubtitle');
+  const status = document.getElementById('soundscapeStatus');
+  const volume = document.getElementById('soundscapeVolume');
+  const playback = document.getElementById('soundscapePlayback');
+  const drawer = document.getElementById('soundscapeControlDrawer');
+  const toggle = document.getElementById('soundscapeControlsToggle');
+  if (!page || !audio) return;
+  let currentObjectUrl = null;
+
+  function showPage(show) {
+    page.classList.toggle('is-active', show);
+    page.setAttribute('aria-hidden', show ? 'false' : 'true');
+    document.getElementById('app')?.classList.toggle('soundscapes-away', show);
+    if (!show) closeControls();
+  }
+  function openControls(open) {
+    drawer?.classList.toggle('is-open', open);
+    toggle?.setAttribute('aria-expanded', open ? 'true' : 'false');
+    const label = toggle?.querySelector('.mobile-controls-label');
+    if (label) label.textContent = open ? 'Hide' : 'Controls';
+  }
+  function closeControls() { openControls(false); }
+  back?.addEventListener('click', () => showPage(false));
+  toggle?.addEventListener('click', () => openControls(!drawer.classList.contains('is-open')));
+  addButton?.addEventListener('click', () => fileInput?.click());
+  fileInput?.addEventListener('change', () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
+    currentObjectUrl = URL.createObjectURL(file);
+    audio.src = currentObjectUrl;
+    audio.load();
+    title.textContent = file.name.replace(/\.[^.]+$/, '');
+    subtitle.textContent = 'Local preview · add hosted MP3 links in a later pass';
+    status.textContent = 'TRACK LOADED';
+    audio.play().then(() => updatePlaying(true)).catch(() => {
+      status.textContent = 'PRESS PLAY TO START';
+      updatePlaying(false);
+    });
+  });
+  function updatePlaying(isPlaying) {
+    page.classList.toggle('is-playing', isPlaying);
+    if (playIcon) playIcon.textContent = isPlaying ? 'Ⅱ' : '▶';
+    play?.setAttribute('aria-label', isPlaying ? 'Pause soundscape' : 'Play soundscape');
+    if (isPlaying) status.textContent = 'NOW PLAYING';
+    else if (audio.src) status.textContent = 'PAUSED';
+  }
+  play?.addEventListener('click', () => {
+    if (!audio.src) {
+      fileInput?.click();
+      return;
+    }
+    if (audio.paused) audio.play().then(() => updatePlaying(true)).catch(() => {
+      status.textContent = 'PLAYBACK UNAVAILABLE';
+    });
+    else { audio.pause(); updatePlaying(false); }
+  });
+  audio.addEventListener('play', () => updatePlaying(true));
+  audio.addEventListener('pause', () => updatePlaying(false));
+  audio.addEventListener('ended', () => {
+    if (playback?.value === 'loop') {
+      audio.currentTime = 0;
+      audio.play().catch(() => updatePlaying(false));
+    } else updatePlaying(false);
+  });
+  volume?.addEventListener('input', () => { audio.volume = Number(volume.value); });
+  playback?.addEventListener('change', () => { audio.loop = playback.value === 'loop'; });
+  audio.loop = true;
+  audio.volume = 0.8;
+  document.getElementById('soundscapesHelp')?.addEventListener('click', () => {
+    alert('Add an MP3 to preview your first soundscape. Playback continues when you return to the handpan.');
+  });
+
+  let swipeStart = null;
+  canvas.addEventListener('pointerdown', (e) => {
+    if (page.classList.contains('is-active')) return;
+    const rect = canvas.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+    const radius = Math.min(rect.width, rect.height) * 0.28;
+    const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
+    swipeStart = dist <= radius ? { x: e.clientX, y: e.clientY } : null;
+  }, { capture: true });
+  canvas.addEventListener('pointerup', (e) => {
+    if (!swipeStart) return;
+    const dx = e.clientX - swipeStart.x, dy = e.clientY - swipeStart.y;
+    if (dx > 78 && Math.abs(dx) > Math.abs(dy) * 1.2) showPage(true);
+    swipeStart = null;
+  }, { capture: true });
+  canvas.addEventListener('pointercancel', () => { swipeStart = null; }, { capture: true });
+})();
+
 const keyMap = Object.fromEntries(KEYS.map((k, i) => [k, i]));
 const keysHeld = new Set();
 window.addEventListener('keydown', (e) => {
@@ -311,7 +413,7 @@ wire('btnHelp', () => {
   alert(
     `Play: tap tonefields or ${keys}.\n` +
       'Scale / Base / Octave shape pitch for all instruments.\n' +
-      'Switch Handpan · Kitchen · Bird via the selector.\n' +
+      'Swipe right from the center of the pan to open Soundscapes.\n' +
       'Catch works on every instrument (same surface, active zones).'
   );
 });
@@ -527,41 +629,6 @@ if (masterVol) {
   });
 }
 
-function injectInstrumentSelector() {
-  if (document.getElementById('instrumentSelector')) return;
-  const topbar = document.querySelector('.topbar');
-  if (!topbar) return;
-  const wrap = document.createElement('div');
-  wrap.id = 'instrumentSelector';
-  wrap.className = 'instrument-selector';
-  wrap.setAttribute('role', 'tablist');
-  wrap.setAttribute('aria-label', 'Instrument');
-  [
-    { id: 'handpan', label: 'Handpan' },
-    { id: 'kitchen', label: 'Kitchen' },
-    { id: 'bird', label: 'Bird' }
-  ].forEach((item, i) => {
-    if (i > 0) {
-      const sep = document.createElement('span');
-      sep.className = 'instrument-sep';
-      sep.setAttribute('aria-hidden', 'true');
-      sep.textContent = '\u00b7';
-      wrap.appendChild(sep);
-    }
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'instrument-sel-btn';
-    btn.setAttribute('data-instrument', item.id);
-    btn.setAttribute('role', 'tab');
-    btn.textContent = item.label;
-    btn.addEventListener('click', () => setInstrument(item.id));
-    wrap.appendChild(btn);
-  });
-  const nav = topbar.querySelector('.instrument-nav');
-  if (nav) topbar.insertBefore(wrap, nav);
-  else topbar.appendChild(wrap);
-}
-
 function injectCatchStatus() {
   if (document.getElementById('catchStatus')) return;
   const el = document.createElement('div');
@@ -588,81 +655,14 @@ function tick(now) {
   requestAnimationFrame(tick);
 }
 
-function wireSoundscapes() {
-  const back = document.getElementById('scapeBacking');
-  const pad = document.getElementById('scapePad');
-  const nat = document.getElementById('scapeNature');
-  const backVol = document.getElementById('scapeBackingVol');
-  const padVol = document.getElementById('scapePadVol');
-  const natVol = document.getElementById('scapeNatureVol');
-  const backSolo = document.getElementById('scapeBackingSolo');
-  const padSolo = document.getElementById('scapePadSolo');
-  const natSolo = document.getElementById('scapeNatureSolo');
-  if (back) {
-    back.addEventListener('change', () => {
-      ensureAudio();
-      soundscapes.setBacking(back.value);
-    });
-  }
-  if (pad) {
-    pad.addEventListener('change', () => {
-      ensureAudio();
-      soundscapes.setPad(pad.value);
-    });
-  }
-  if (nat) {
-    nat.addEventListener('change', () => {
-      ensureAudio();
-      soundscapes.setNature(nat.value);
-    });
-  }
-  if (backVol) {
-    backVol.addEventListener('input', () => {
-      ensureAudio();
-      soundscapes.setBackingLevel(Number(backVol.value));
-    });
-  }
-  if (padVol) {
-    padVol.addEventListener('input', () => {
-      ensureAudio();
-      soundscapes.setPadLevel(Number(padVol.value));
-    });
-  }
-  if (natVol) {
-    natVol.addEventListener('input', () => {
-      ensureAudio();
-      soundscapes.setNatureLevel(Number(natVol.value));
-    });
-  }
-  function wireSolo(btn, layer) {
-    if (!btn) return;
-    btn.addEventListener('click', () => {
-      ensureAudio();
-      const next = btn.getAttribute('aria-pressed') !== 'true';
-      btn.setAttribute('aria-pressed', next ? 'true' : 'false');
-      btn.classList.toggle('is-active', next);
-      soundscapes.setSolo(layer, next);
-    });
-  }
-  wireSolo(backSolo, 'backing');
-  wireSolo(padSolo, 'pad');
-  wireSolo(natSolo, 'nature');
-}
-
 async function boot() {
-  injectInstrumentSelector();
   injectCatchStatus();
-  wireSoundscapes();
   await setInstrument('handpan');
   resize();
   window.addEventListener('resize', resize);
   requestAnimationFrame(tick);
   try {
     const q = new URLSearchParams(window.location.search);
-    const instParam = (q.get('instrument') || '').toLowerCase();
-    if (instParam === 'kitchen' || instParam === 'bird' || instParam === 'handpan') {
-      await setInstrument(instParam);
-    }
     if (q.get('catch') === '1') app.catchMode.startOnboarding();
   } catch (_) {}
   if (isDebugEnabled()) {
