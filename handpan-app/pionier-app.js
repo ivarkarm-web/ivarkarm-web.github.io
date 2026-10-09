@@ -290,7 +290,7 @@ canvas.addEventListener('pointercancel', (e) => {
     toggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
     const label = toggle.querySelector('.mobile-controls-label');
     if (label) label.textContent = shouldOpen ? 'Hide' : 'Controls';
-    drawer.style.setProperty('transform', shouldOpen ? 'translate3d(0,0,0)' : 'translate3d(0,calc(100% - 38px),0)', 'important');
+    drawer.style.setProperty('transform', shouldOpen ? 'translate3d(0,0,0)' : 'translate3d(0,calc(100% - 44px),0)', 'important');
     drawer.style.setProperty('pointer-events', shouldOpen ? 'auto' : 'none', 'important');
     toggle.style.setProperty('pointer-events', 'auto', 'important');
   }
