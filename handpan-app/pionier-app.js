@@ -8,6 +8,7 @@ import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/a
 import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
 import { HandpanInstrument } from './js/instruments/handpan.js';
+import { createTonalInstruments } from './js/instruments/tonal-family.js';
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
@@ -17,6 +18,7 @@ const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
 
 const handpan = new HandpanInstrument();
 InstrumentRegistry.register(handpan);
+for (const instrument of createTonalInstruments()) InstrumentRegistry.register(instrument);
 
 const app = {
   fxChain: null,
@@ -55,6 +57,14 @@ function activeInstrument() {
   return InstrumentRegistry.active || handpan;
 }
 
+function syncWorldPitch() {
+  const notes = handpan.getNotes();
+  for (const item of InstrumentRegistry.list()) {
+    const instrument = InstrumentRegistry.get(item.id);
+    if (instrument && typeof instrument.setMusicalContext === 'function') instrument.setMusicalContext(notes);
+  }
+}
+
 function isFieldPlayable(fieldIndex) {
   const inst = activeInstrument();
   if (inst.id === 'handpan') return fieldIndex >= 0 && fieldIndex <= 8;
@@ -66,7 +76,9 @@ async function setInstrument(id) {
   const ctx = getAudioContext();
   const prev = InstrumentRegistry.active;
   if (prev) prev.dampAll();
+  syncWorldPitch();
   await InstrumentRegistry.setActive(id, ctx, app.instrumentBus);
+  syncWorldPitch();
   updateInstrumentUI();
   layoutFields();
   const phase = app.catchMode?.phase;
@@ -116,11 +128,12 @@ function updateLabels() {
   }
   const voiceEl = document.getElementById('voiceName');
   const inst = activeInstrument();
-  if (voiceEl) voiceEl.textContent = inst.id === 'handpan' ? inst.voiceName : inst.name;
+  if (voiceEl) voiceEl.textContent = (inst.id === 'handpan' ? (inst.voiceName || inst.name) : inst.name) + ' ▾';
 }
 
 function updateInstrumentUI() {
   updateLabels();
+  renderInstrumentMenu();
   document.querySelectorAll('[data-instrument]').forEach((btn) => {
     btn.classList.toggle('is-active', btn.getAttribute('data-instrument') === activeInstrument().id);
   });
@@ -551,14 +564,8 @@ wire('rootDown', () => { handpan.setRootIndex(handpan.rootIndex - 1); onMusicalC
 wire('rootUp', () => { handpan.setRootIndex(handpan.rootIndex + 1); onMusicalChange(); });
 wire('octDown', () => { handpan.setOctaveOffset(handpan.octaveOffset - 1); onMusicalChange(); });
 wire('octUp', () => { handpan.setOctaveOffset(handpan.octaveOffset + 1); onMusicalChange(); });
-wire('voicePrev', () => {
-  if (activeInstrument().id === 'handpan') { handpan.setVoiceIndex(handpan.voiceIndex - 1); updateLabels(); }
-  else cycleInstrument(-1);
-});
-wire('voiceNext', () => {
-  if (activeInstrument().id === 'handpan') { handpan.setVoiceIndex(handpan.voiceIndex + 1); updateLabels(); }
-  else cycleInstrument(1);
-});
+wire('voicePrev', () => cycleInstrument(-1));
+wire('voiceNext', () => cycleInstrument(1));
 wire('btnExit', () => { window.location.href = '../'; });
 wire('btnHelp', () => {
   const inst = activeInstrument();
@@ -579,6 +586,40 @@ function cycleInstrument(dir) {
   const cur = ids.indexOf(activeInstrument().id);
   setInstrument(ids[(cur + dir + ids.length) % ids.length]);
 }
+
+function renderInstrumentMenu() {
+  const menu = document.getElementById('instrumentMenu');
+  if (!menu) return;
+  menu.replaceChildren();
+  for (const item of InstrumentRegistry.list()) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'instrument-menu-item' + (item.id === activeInstrument().id ? ' is-active' : '');
+    button.setAttribute('role', 'menuitem');
+    button.textContent = item.name;
+    button.title = item.description || item.name;
+    button.addEventListener('click', async () => {
+      menu.hidden = true;
+      document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false');
+      await setInstrument(item.id);
+    });
+    menu.appendChild(button);
+  }
+}
+const instrumentDropdownToggle = document.getElementById('instrumentDropdownToggle');
+const instrumentMenu = document.getElementById('instrumentMenu');
+instrumentDropdownToggle?.addEventListener('click', () => {
+  if (!instrumentMenu) return;
+  const open = instrumentMenu.hidden;
+  instrumentMenu.hidden = !open;
+  instrumentDropdownToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+document.addEventListener('pointerdown', (event) => {
+  if (!instrumentMenu || instrumentMenu.hidden) return;
+  if (instrumentMenu.contains(event.target) || instrumentDropdownToggle?.contains(event.target)) return;
+  instrumentMenu.hidden = true;
+  instrumentDropdownToggle?.setAttribute('aria-expanded', 'false');
+});
 
 function setupKnob(id, fxId, initial) {
   const el = document.getElementById(id);
