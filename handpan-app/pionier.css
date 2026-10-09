@@ -1775,6 +1775,35 @@ html, body, #app, .app {
 
 
 
+/* PIONIER silver-white mandala lighting: match the cool edge LEDs and note slits. */
+#mandalaWrap,
+#mandalaWrap .mandala-wrap {
+  color: #eaf2fb !important;
+  filter: drop-shadow(0 0 18px rgba(210,230,252,.10)) !important;
+}
+#mandalaWrap .mandala-lines {
+  animation: mandala-turn 100s linear infinite !important;
+  filter: drop-shadow(0 0 3px rgba(222,237,255,.34))
+          drop-shadow(0 0 10px rgba(196,220,250,.12));
+}
+#mandalaWrap .mandala-play {
+  border-color: rgba(226,239,255,.62) !important;
+  color: #f5f9ff !important;
+  box-shadow: 0 0 0 8px rgba(218,234,255,.045),
+              0 0 14px rgba(210,230,252,.13),
+              0 4px 22px rgba(0,0,0,.4) !important;
+}
+#mandalaWrap .mandala-play:hover {
+  background: rgba(220,237,255,.10) !important;
+  border-color: rgba(245,250,255,.92) !important;
+}
+#mandalaWrap .mandala-track-step {
+  border-color: rgba(220,235,252,.48) !important;
+  color: #f2f7ff !important;
+  box-shadow: 0 0 10px rgba(210,230,252,.12) !important;
+}
+#mandalaWrap .mandala-track-step:disabled { opacity: .5; }
+
 /* The mandala is portaled to body to guarantee viewport-coordinate alignment. */
 #mandalaWrap {
   position: fixed;
