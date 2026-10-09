@@ -224,18 +224,23 @@ canvas.addEventListener('pointercancel', (e) => {
     if (!pan || !mandala) return;
     const rect = pan.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
-    // Use concrete inline geometry, not inherited layout or CSS-variable fallbacks.
-    Object.assign(mandala.style, {
+    // Match the canvas's exact viewport rectangle. Inline !important wins over
+    // legacy Soundscapes CSS that previously forced the mandala toward center.
+    const exact = {
       position: 'fixed',
       left: rect.left + 'px',
       top: rect.top + 'px',
       right: 'auto',
       bottom: 'auto',
-      width: Math.min(rect.width, rect.height) + 'px',
-      height: Math.min(rect.width, rect.height) + 'px',
+      width: rect.width + 'px',
+      height: rect.height + 'px',
       margin: '0',
+      padding: '0',
       transform: 'none'
-    });
+    };
+    for (const [property, value] of Object.entries(exact)) {
+      mandala.style.setProperty(property.replace(/[A-Z]/g, letter => '-' + letter.toLowerCase()), value, 'important');
+    }
   }
   window.addEventListener('resize', syncMandalaToPan, { passive: true });
   function showPage(show) {
