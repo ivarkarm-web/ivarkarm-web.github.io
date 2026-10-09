@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=59" />
+  <link rel="stylesheet" href="./pionier.css?v=60" />
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
@@ -280,6 +280,9 @@
       var drawer = document.getElementById('mobileControlDrawer');
       var toggle = document.getElementById('mobileControlsToggle');
       if (!drawer || !toggle) return;
+      // Keep the main handle independent of the drawer's transform animation.
+      if (toggle.parentNode !== document.body) document.body.appendChild(toggle);
+      toggle.classList.add('pionier-viewport-controls-handle');
 
       function setOpen(open) {
         drawer.classList.toggle('is-open', open);
@@ -308,7 +311,7 @@
     })();
   </script>
 
-  <script type="module" src="./pionier-app.js?v=47"></script>
+  <script type="module" src="./pionier-app.js?v=48"></script>
 
   <script>
     (function () {
