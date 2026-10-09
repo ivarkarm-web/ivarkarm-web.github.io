@@ -224,9 +224,18 @@ canvas.addEventListener('pointercancel', (e) => {
     if (!pan || !mandala) return;
     const rect = pan.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
-    mandala.style.setProperty('--mandala-left', rect.left + 'px');
-    mandala.style.setProperty('--mandala-top', rect.top + 'px');
-    mandala.style.setProperty('--mandala-size', Math.min(rect.width, rect.height) + 'px');
+    // Use concrete inline geometry, not inherited layout or CSS-variable fallbacks.
+    Object.assign(mandala.style, {
+      position: 'fixed',
+      left: rect.left + 'px',
+      top: rect.top + 'px',
+      right: 'auto',
+      bottom: 'auto',
+      width: Math.min(rect.width, rect.height) + 'px',
+      height: Math.min(rect.width, rect.height) + 'px',
+      margin: '0',
+      transform: 'none'
+    });
   }
   window.addEventListener('resize', syncMandalaToPan, { passive: true });
   function showPage(show) {
