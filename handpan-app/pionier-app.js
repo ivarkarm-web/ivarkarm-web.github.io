@@ -5,7 +5,7 @@
 import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js';
 import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
-import { HandpanInstrument } from './js/instruments/handpan.js';
+import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js';
 import { createTonalInstruments } from './js/instruments/tonal-family.js?v=4';
 import { FxEngine } from './js/fx-engine.js';
 import { setupControlsUI } from './js/controls-ui.js';
@@ -123,7 +123,7 @@ function layoutFields() {
   if (!handpan.getNotes().length) handpan.rebuildNotes?.();
   surface.layoutHandpanFields(handpan.getNotes(), isFieldPlayable);
   for (const f of surface.fields) f.zoneLabel = null;
-  handpan.setZones(surface.fields);
+  handpan.setZones?.(surface.fields);
 }
 
 function draw() {
@@ -178,7 +178,7 @@ canvas.addEventListener('pointercancel', (e) => {
   if (idx != null) activeInstrument().noteOff(idx);
 });
 
-/* Soundscapes — persistent audio element, progress UI, Mandala canvas */
+/* Soundscapes — persistent audio, progress UI, Mandala canvas */
 (function setupSoundscapesPage() {
   const page = document.getElementById('soundscapesPage');
   const back = document.getElementById('backToHandpan');
@@ -354,7 +354,6 @@ canvas.addEventListener('pointercancel', (e) => {
   audio.loop = true;
   audio.volume = 0.8;
 
-  // Edge swipe navigation
   let swipeStart = null;
   function isInteractiveTarget(target) {
     return !!target?.closest?.('button, input, select, textarea, a, .mobile-control-drawer, .soundscape-control-drawer');
@@ -386,12 +385,28 @@ wire('btnExit', () => { window.location.href = '../'; });
 wire('btnHelp', () => {
   alert('Play: tap tonefields or Q–O.\nScale / Base / Octave shape pitch.\nSwipe from the right edge to open Soundscapes.\nPlayback continues when you return.');
 });
-wire('scalePrev', () => { handpan.cycleScale?.(-1) || (handpan.scaleIndex = (handpan.scaleIndex - 1 + 10) % 10); handpan.rebuildNotes?.(); updateLabels(); layoutFields(); draw(); });
-wire('scaleNext', () => { handpan.cycleScale?.(1) || (handpan.scaleIndex = (handpan.scaleIndex + 1) % 10); handpan.rebuildNotes?.(); updateLabels(); layoutFields(); draw(); });
-wire('rootDown', () => { handpan.rootIndex = (handpan.rootIndex - 1 + 12) % 12; handpan.rebuildNotes?.(); updateLabels(); layoutFields(); draw(); });
-wire('rootUp', () => { handpan.rootIndex = (handpan.rootIndex + 1) % 12; handpan.rebuildNotes?.(); updateLabels(); layoutFields(); draw(); });
-wire('octDown', () => { handpan.octaveOffset = Math.max(-1, handpan.octaveOffset - 1); handpan.rebuildNotes?.(); updateLabels(); layoutFields(); draw(); });
-wire('octUp', () => { handpan.octaveOffset = Math.min(1, handpan.octaveOffset + 1); handpan.rebuildNotes?.(); updateLabels(); layoutFields(); draw(); });
+
+function refreshPitch() {
+  handpan.rebuildNotes();
+  syncWorldPitch();
+  updateLabels();
+  layoutFields();
+  draw();
+}
+wire('scalePrev', () => {
+  const n = HANDPAN_SCALES.length;
+  handpan.setScaleIndex((handpan.scaleIndex - 1 + n) % n);
+  refreshPitch();
+});
+wire('scaleNext', () => {
+  const n = HANDPAN_SCALES.length;
+  handpan.setScaleIndex((handpan.scaleIndex + 1) % n);
+  refreshPitch();
+});
+wire('rootDown', () => { handpan.setRootIndex((handpan.rootIndex - 1 + 12) % 12); refreshPitch(); });
+wire('rootUp', () => { handpan.setRootIndex((handpan.rootIndex + 1) % 12); refreshPitch(); });
+wire('octDown', () => { handpan.setOctaveOffset(Math.max(-1, handpan.octaveOffset - 1)); refreshPitch(); });
+wire('octUp', () => { handpan.setOctaveOffset(Math.min(1, handpan.octaveOffset + 1)); refreshPitch(); });
 
 function cycleInstrument(dir) {
   const ids = InstrumentRegistry.list().map((x) => x.id);
