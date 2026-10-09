@@ -421,20 +421,27 @@ function closeEffectBubbles() {
 }
 function positionEffectBubble(bubble, trigger) {
   const gap = 7, margin = 8;
+  const vv = window.visualViewport;
+  const viewportLeft = vv ? vv.offsetLeft : 0;
+  const viewportTop = vv ? vv.offsetTop : 0;
+  const viewportWidth = vv ? vv.width : window.innerWidth;
+  const viewportHeight = vv ? vv.height : window.innerHeight;
+  const viewportRight = viewportLeft + viewportWidth;
+  const viewportBottom = viewportTop + viewportHeight;
   const anchor = trigger.getBoundingClientRect();
-  const width = Math.min(window.innerWidth - margin * 2, window.matchMedia('(max-width: 900px), (max-height: 500px) and (pointer: coarse)').matches ? 220 : 208);
+  const isCompact = window.matchMedia('(max-width: 900px), (max-height: 500px) and (pointer: coarse)').matches;
+  const width = Math.max(0, Math.min(viewportWidth - margin * 2, isCompact ? 220 : 208));
   bubble.style.width = width + 'px';
-  bubble.style.maxWidth = (window.innerWidth - margin * 2) + 'px';
-  bubble.style.left = '0px';
-  bubble.style.top = '0px';
+  bubble.style.maxWidth = Math.max(0, viewportWidth - margin * 2) + 'px';
+  bubble.style.maxHeight = Math.max(100, Math.min(isCompact ? 180 : 176, viewportHeight - margin * 2)) + 'px';
+  bubble.style.left = Math.round(viewportLeft + margin) + 'px';
+  bubble.style.top = Math.round(viewportTop + margin) + 'px';
   const menu = bubble.getBoundingClientRect();
   let left = anchor.left + anchor.width / 2 - width / 2;
-  left = Math.max(margin, Math.min(left, window.innerWidth - width - margin));
+  left = Math.max(viewportLeft + margin, Math.min(left, viewportRight - width - margin));
   let top = anchor.bottom + gap;
-  if (top + menu.height > window.innerHeight - margin) {
-    top = anchor.top - menu.height - gap;
-  }
-  top = Math.max(margin, Math.min(top, window.innerHeight - menu.height - margin));
+  if (top + menu.height > viewportBottom - margin) top = anchor.top - menu.height - gap;
+  top = Math.max(viewportTop + margin, Math.min(top, viewportBottom - menu.height - margin));
   bubble.style.left = Math.round(left) + 'px';
   bubble.style.top = Math.round(top) + 'px';
 }
@@ -457,12 +464,15 @@ document.querySelectorAll('.knob-effect-trigger').forEach((trigger) => {
     requestAnimationFrame(() => positionEffectBubble(bubble, trigger));
   });
 });
-window.addEventListener('resize', () => {
+function repositionOpenEffectBubbles() {
   document.querySelectorAll('.effect-bubble.is-viewport-menu:not([hidden])').forEach((bubble) => {
     const trigger = document.querySelector('[aria-controls="' + bubble.id + '"]');
     if (trigger) positionEffectBubble(bubble, trigger);
   });
-});
+}
+window.addEventListener('resize', repositionOpenEffectBubbles);
+window.visualViewport?.addEventListener('resize', repositionOpenEffectBubbles);
+window.visualViewport?.addEventListener('scroll', repositionOpenEffectBubbles);
 document.addEventListener('click',(event)=>{if(!event.target.closest('.effect-knob-wrap')&&!event.target.closest('.effect-bubble'))closeEffectBubbles();});
 document.addEventListener('keydown',(event)=>{if(event.key==='Escape')closeEffectBubbles();});
 
