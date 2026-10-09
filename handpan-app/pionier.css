@@ -1926,3 +1926,25 @@ html, body, #app, .app {
   .app.soundscapes-away #pan,
   .soundscapes-page.is-active .mandala-wrap { transition: none !important; }
 }
+
+/* Mandala transport and edge-lit swipe hints */
+.mandala-center { pointer-events: none; }
+.mandala-transport { pointer-events: auto; display:flex; align-items:center; justify-content:center; gap:clamp(8px,2vw,18px); }
+.mandala-play, .mandala-track-step { pointer-events:auto; flex:0 0 auto; }
+.mandala-track-step {
+ width:clamp(34px,6vw,46px); height:clamp(34px,6vw,46px); display:grid; place-items:center;
+ padding:0 0 3px; border:1px solid rgba(255,255,255,.3); border-radius:50%;
+ color:#fff; background:rgba(8,8,10,.84); box-shadow:0 0 12px rgba(255,255,255,.08);
+ font-size:clamp(23px,4vw,30px); line-height:1; cursor:pointer;
+}
+.mandala-track-step:disabled { opacity:.28; cursor:default; }
+.soundscape-swipe-led { position:fixed; z-index:1502; top:50%; width:3px; height:clamp(112px,24vh,220px); transform:translateY(-50%); pointer-events:none; opacity:0; transition:opacity .5s ease; }
+.soundscape-swipe-led-left { left:0; }
+.soundscape-swipe-led-right { right:0; }
+.soundscape-swipe-led span { position:absolute; top:0; bottom:0; left:0; right:0; background:linear-gradient(to bottom, transparent, #fff 22%, #fff 78%, transparent); box-shadow:0 0 5px rgba(255,255,255,.95), 0 0 14px rgba(255,255,255,.62), 0 0 32px rgba(255,255,255,.28); }
+.soundscapes-page.is-active .soundscape-swipe-led { opacity:.82; }
+.soundscapes-page.is-active .soundscape-swipe-led span { animation:edge-led-breathe 3.2s ease-in-out infinite; }
+.soundscapes-page.is-active .soundscape-swipe-led-right span { animation-delay:-1.6s; }
+@keyframes edge-led-breathe { 0%,100% { opacity:.68; filter:brightness(.82); } 50% { opacity:1; filter:brightness(1.25); } }
+@media (max-width:520px) { .mandala-transport { gap:8px; } .mandala-track-step { width:34px; height:34px; } .soundscape-swipe-led { width:2px; height:clamp(100px,20vh,170px); } }
+@media (prefers-reduced-motion:reduce) { .soundscapes-page.is-active .soundscape-swipe-led span { animation:none !important; } }
