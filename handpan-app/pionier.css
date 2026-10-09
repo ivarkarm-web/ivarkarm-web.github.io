@@ -1774,6 +1774,19 @@ html, body, #app, .app {
 }
 
 
+
+/* Mandala overlay: no page copy or interface furniture, only the artwork/play control. */
+.soundscapes-page.is-active .soundscapes-topbar,
+.soundscapes-page.is-active .soundscapes-eyebrow,
+.soundscapes-page.is-active .soundscape-track-meta,
+.soundscapes-page.is-active .soundscape-player-actions,
+.soundscapes-page.is-active .soundscape-control-drawer,
+.soundscapes-page.is-active #soundscapeFile,
+.soundscapes-page.is-active #soundscapesHelp,
+.soundscapes-page.is-active #backToHandpan {
+  display: none !important;
+}
+
 /* PIONIER — seamless instrument morph: the mandala occupies the exact pan canvas rectangle. */
 .app.soundscapes-away {
   opacity: 1 !important;
