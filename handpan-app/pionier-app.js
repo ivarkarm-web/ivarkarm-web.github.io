@@ -272,10 +272,16 @@ canvas.addEventListener('pointercancel', (e) => {
     }
   }
   function openControls(open) {
-    drawer?.classList.toggle('is-open', open);
-    toggle?.setAttribute('aria-expanded', open ? 'true' : 'false');
-    const label = toggle?.querySelector('.mobile-controls-label');
+    if (!drawer || !toggle) return;
+    drawer.classList.toggle('is-open', !!open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    const label = toggle.querySelector('.mobile-controls-label');
     if (label) label.textContent = open ? 'Hide' : 'Controls';
+    // Keep the Soundscapes drawer's own state authoritative. The main app has
+    // several mobile-drawer overrides, so set the visible position explicitly.
+    drawer.style.setProperty('transform', open ? 'translate3d(0,0,0)' : 'translate3d(0,calc(100% - 38px),0)', 'important');
+    drawer.style.setProperty('pointer-events', open ? 'auto' : 'none', 'important');
+    toggle.style.setProperty('pointer-events', 'auto', 'important');
   }
   function closeControls() { openControls(false); }
   back?.addEventListener('click', () => showPage(false));
