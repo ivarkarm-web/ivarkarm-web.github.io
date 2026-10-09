@@ -205,6 +205,8 @@ canvas.addEventListener('pointercancel', (e) => {
   const audio = document.getElementById('soundscapeAudio');
   const play = document.getElementById('mandalaPlay');
   const playIcon = document.getElementById('mandalaPlayIcon');
+  const previousTrackButton = document.getElementById('mandalaPreviousTrack');
+  const nextTrackButton = document.getElementById('mandalaNextTrack');
   const fileInput = document.getElementById('soundscapeFile');
   const addButton = document.getElementById('addSoundscapeTrack');
   const title = document.getElementById('soundscapeTrackTitle');
@@ -215,8 +217,9 @@ canvas.addEventListener('pointercancel', (e) => {
   const drawer = document.getElementById('soundscapeControlDrawer');
   const toggle = document.getElementById('soundscapeControlsToggle');
   if (!page || !audio) return;
-  let currentObjectUrl = null;
-
+  let trackList = [];
+  let currentTrackIndex = -1;
+  let trackObjectUrls = [];
   let leavingTimer = null;
   const pan = document.getElementById('pan');
   const mandala = document.getElementById('mandalaWrap');
@@ -273,34 +276,68 @@ canvas.addEventListener('pointercancel', (e) => {
   }
   function openControls(open) {
     if (!drawer || !toggle) return;
-    drawer.classList.toggle('is-open', !!open);
-    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    const shouldOpen = !!open;
+    drawer.classList.toggle('is-open', shouldOpen);
+    toggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
     const label = toggle.querySelector('.mobile-controls-label');
-    if (label) label.textContent = open ? 'Hide' : 'Controls';
-    // Keep the Soundscapes drawer's own state authoritative. The main app has
-    // several mobile-drawer overrides, so set the visible position explicitly.
-    drawer.style.setProperty('transform', open ? 'translate3d(0,0,0)' : 'translate3d(0,calc(100% - 38px),0)', 'important');
-    drawer.style.setProperty('pointer-events', open ? 'auto' : 'none', 'important');
+    if (label) label.textContent = shouldOpen ? 'Hide' : 'Controls';
+    drawer.style.setProperty('transform', shouldOpen ? 'translate3d(0,0,0)' : 'translate3d(0,calc(100% - 38px),0)', 'important');
+    drawer.style.setProperty('pointer-events', shouldOpen ? 'auto' : 'none', 'important');
     toggle.style.setProperty('pointer-events', 'auto', 'important');
   }
   function closeControls() { openControls(false); }
   back?.addEventListener('click', () => showPage(false));
-  toggle?.addEventListener('click', () => openControls(!drawer.classList.contains('is-open')));
+  let drawerDragStartY = null;
+  let suppressDrawerClick = false;
+  toggle?.addEventListener('pointerdown', (event) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    drawerDragStartY = event.clientY;
+    suppressDrawerClick = false;
+  });
+  toggle?.addEventListener('pointerup', (event) => {
+    if (drawerDragStartY === null) return;
+    const deltaY = event.clientY - drawerDragStartY;
+    drawerDragStartY = null;
+    if (Math.abs(deltaY) > 12) {
+      openControls(deltaY < 0);
+      suppressDrawerClick = true;
+    }
+  });
+  toggle?.addEventListener('pointercancel', () => { drawerDragStartY = null; });
+  toggle?.addEventListener('click', () => {
+    if (suppressDrawerClick) { suppressDrawerClick = false; return; }
+    openControls(!drawer.classList.contains('is-open'));
+  });
   addButton?.addEventListener('click', () => fileInput?.click());
+  function updateTrackButtons() {
+    const enabled = trackList.length > 1;
+    if (previousTrackButton) previousTrackButton.disabled = !enabled;
+    if (nextTrackButton) nextTrackButton.disabled = !enabled;
+  }
+  function playTrackAt(index, autoplay = true) {
+    if (!trackList.length) { fileInput?.click(); return; }
+    currentTrackIndex = (index + trackList.length) % trackList.length;
+    const track = trackList[currentTrackIndex];
+    audio.pause(); audio.src = track.url; audio.load();
+    title.textContent = track.name;
+    subtitle.textContent = trackList.length > 1 ? 'TRACK ' + (currentTrackIndex + 1) + ' / ' + trackList.length + ' · SWIPE TO EXPLORE' : 'ONE TRACK LOADED · ADD MORE TO BUILD A PLAYLIST';
+    status.textContent = 'TRACK LOADED'; updateTrackButtons();
+    if (autoplay) audio.play().then(() => updatePlaying(true)).catch(() => { status.textContent = 'PRESS PLAY TO START'; updatePlaying(false); });
+    else updatePlaying(false);
+  }
+  function stepTrack(direction) {
+    if (!trackList.length) { fileInput?.click(); return; }
+    if (trackList.length === 1) { playTrackAt(0, true); return; }
+    playTrackAt(currentTrackIndex + direction, true);
+  }
+  previousTrackButton?.addEventListener('click', () => stepTrack(-1));
+  nextTrackButton?.addEventListener('click', () => stepTrack(1));
   fileInput?.addEventListener('change', () => {
-    const file = fileInput.files && fileInput.files[0];
-    if (!file) return;
-    if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
-    currentObjectUrl = URL.createObjectURL(file);
-    audio.src = currentObjectUrl;
-    audio.load();
-    title.textContent = file.name.replace(/\.[^.]+$/, '');
-    subtitle.textContent = 'Local preview · add hosted MP3 links in a later pass';
-    status.textContent = 'TRACK LOADED';
-    audio.play().then(() => updatePlaying(true)).catch(() => {
-      status.textContent = 'PRESS PLAY TO START';
-      updatePlaying(false);
-    });
+    const files = Array.from(fileInput.files || []).filter((file) => file.type.startsWith('audio/') || /\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(file.name));
+    if (!files.length) return;
+    audio.pause(); trackObjectUrls.forEach((url) => URL.revokeObjectURL(url)); trackObjectUrls = [];
+    trackList = files.map((file) => { const url = URL.createObjectURL(file); trackObjectUrls.push(url); return { name: file.name.replace(/\.[^.]+$/, ''), url }; });
+    currentTrackIndex = -1; playTrackAt(0, true); fileInput.value = '';
   });
   function updatePlaying(isPlaying) {
     page.classList.toggle('is-playing', isPlaying);
@@ -325,12 +362,28 @@ canvas.addEventListener('pointercancel', (e) => {
     if (playback?.value === 'loop') {
       audio.currentTime = 0;
       audio.play().catch(() => updatePlaying(false));
+    } else if (trackList.length > 1 && currentTrackIndex < trackList.length - 1) {
+      playTrackAt(currentTrackIndex + 1, true);
     } else updatePlaying(false);
   });
   volume?.addEventListener('input', () => { audio.volume = Number(volume.value); });
   playback?.addEventListener('change', () => { audio.loop = playback.value === 'loop'; });
   audio.loop = true;
   audio.volume = 0.8;
+  updateTrackButtons();
+  let trackSwipeStart = null;
+  mandala?.addEventListener('pointerdown', (event) => {
+    if (event.target?.closest?.('button')) return;
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    trackSwipeStart = { x: event.clientX, y: event.clientY, id: event.pointerId };
+  });
+  mandala?.addEventListener('pointerup', (event) => {
+    if (!trackSwipeStart || event.pointerId !== trackSwipeStart.id) return;
+    const dx = event.clientX - trackSwipeStart.x, dy = event.clientY - trackSwipeStart.y;
+    trackSwipeStart = null;
+    if (Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy) * 1.25) stepTrack(dx < 0 ? 1 : -1);
+  });
+  mandala?.addEventListener('pointercancel', () => { trackSwipeStart = null; });
   document.getElementById('soundscapesHelp')?.addEventListener('click', () => {
     alert('Add an MP3 to preview your first soundscape. Playback continues when you return to the handpan.');
   });
