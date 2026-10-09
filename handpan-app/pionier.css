@@ -1552,12 +1552,13 @@ html, body, #app, .app {
   #pan {
     position: relative !important;
     z-index: 1 !important;
-    width: min(74vw, 43dvh, 560px) !important;
+    width: min(72vw, 30dvh, 440px) !important;
     height: auto !important;
     aspect-ratio: 1 / 1 !important;
     max-width: 100% !important;
     max-height: 100% !important;
     margin: 0 auto !important;
+    transform: translateY(-13dvh) !important;
   }
   .mobile-control-drawer {
     position: fixed !important;
