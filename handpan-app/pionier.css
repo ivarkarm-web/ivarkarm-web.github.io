@@ -2154,3 +2154,6 @@ body.soundscapes-active #mobileControlDrawer { display:none !important; }
   .instrument-nav { gap:2px !important; }
   .instrument-name { max-width:min(40vw,142px); font-size:11px !important; }
 }
+
+#soundscapeControlDrawer:not(.is-open) .soundscape-control-panel { visibility:hidden !important; pointer-events:none !important; }
+#soundscapeControlDrawer.is-open .soundscape-control-panel { visibility:visible !important; pointer-events:auto !important; }
