@@ -2312,3 +2312,102 @@ body.soundscapes-active #soundscapeControlDrawer.is-open,
 body.soundscapes-active #soundscapeControlDrawer.is-open .soundscape-control-panel {
   pointer-events: auto !important;
 }
+
+
+/* Final layout correction: larger, easier-to-hit top instrument controls. */
+#app > .topbar {
+  min-height: 58px !important;
+  padding: 8px max(14px, env(safe-area-inset-left, 0px)) !important;
+  gap: 12px !important;
+}
+#app > .topbar .play-pill {
+  min-height: 38px !important;
+  padding: 9px 14px !important;
+  font-size: 12px !important;
+}
+#app > .topbar .instrument-nav { gap: 8px !important; }
+#app > .topbar .instrument-nav .icon-btn,
+#app > .topbar .top-actions .icon-btn {
+  width: 42px !important;
+  min-width: 42px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  font-size: 22px !important;
+}
+#app > .topbar .instrument-name {
+  min-height: 42px !important;
+  padding: 10px 16px !important;
+  max-width: min(56vw, 340px) !important;
+  font-size: 15px !important;
+  line-height: 1.2 !important;
+}
+.instrument-menu { z-index: 1800 !important; }
+#mobileControlDrawer > #mobileControlsToggle,
+#soundscapeControlDrawer > #soundscapeControlsToggle {
+  flex: 0 0 48px !important;
+  min-height: 48px !important;
+  height: 48px !important;
+  background: #0a0a0b !important;
+  color: #e8e6e3 !important;
+  border-top: 1px solid rgba(201,162,39,.32) !important;
+  cursor: pointer !important;
+}
+#mobileControlDrawer > #mobileControlsToggle .mobile-controls-grip,
+#soundscapeControlDrawer > #soundscapeControlsToggle .mobile-controls-grip {
+  width: 24px !important;
+  height: 3px !important;
+  border-radius: 3px !important;
+  background: #c9a227 !important;
+  flex: 0 0 24px !important;
+}
+#soundscapeControlDrawer {
+  visibility: visible !important;
+}
+body.soundscapes-active #soundscapeControlDrawer {
+  display: flex !important;
+  visibility: visible !important;
+  position: fixed !important;
+  left: 0 !important; right: 0 !important; bottom: 0 !important;
+  z-index: 1700 !important;
+  pointer-events: none !important;
+  transform: translate3d(0,calc(100% - 48px),0) !important;
+}
+body.soundscapes-active #soundscapeControlDrawer.is-open {
+  transform: translate3d(0,0,0) !important;
+  pointer-events: auto !important;
+}
+body.soundscapes-active #soundscapeControlDrawer > #soundscapeControlsToggle {
+  display: flex !important;
+  position: relative !important;
+  pointer-events: auto !important;
+  z-index: 2 !important;
+}
+body.soundscapes-active #soundscapeControlDrawer.is-open .soundscape-control-panel {
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+@media (max-width: 700px), (max-height: 500px) and (pointer: coarse) {
+  #app > .topbar {
+    min-height: 54px !important;
+    padding: 6px max(10px, env(safe-area-inset-left, 0px)) !important;
+    gap: 6px !important;
+  }
+  #app > .topbar .play-pill {
+    min-height: 36px !important;
+    padding: 7px 9px !important;
+    font-size: 11px !important;
+  }
+  #app > .topbar .instrument-nav { gap: 3px !important; }
+  #app > .topbar .instrument-nav .icon-btn,
+  #app > .topbar .top-actions .icon-btn {
+    width: 34px !important; min-width: 34px !important;
+    height: 34px !important; min-height: 34px !important;
+    font-size: 19px !important;
+  }
+  #app > .topbar .instrument-name {
+    min-height: 36px !important;
+    padding: 8px 9px !important;
+    max-width: min(48vw, 220px) !important;
+    font-size: 12px !important;
+  }
+}
