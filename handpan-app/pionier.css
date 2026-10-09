@@ -1774,9 +1774,8 @@ html, body, #app, .app {
 }
 
 
-/* PIONIER — handpan dissolves into the soundscape.
-   One progress value drives both surfaces: the mandala grows from the handpan's
-   position, while the entire instrument UI fades away. No page-card rotation. */
+/* PIONIER — crossfade between handpan and soundscapes.
+   The mandala stays at its natural size and simply fades in over the disappearing pan. */
 .app.soundscapes-away {
   opacity: calc(1 - var(--sc-progress, 0)) !important;
   transform: none !important;
@@ -1788,7 +1787,7 @@ html, body, #app, .app {
 }
 .app.soundscapes-away #pan {
   opacity: calc(1 - var(--sc-progress, 0)) !important;
-  transform: translateY(-8dvh) scale(calc(1 - var(--sc-progress, 0) * .08)) !important;
+  transform: translateY(-8dvh) !important;
   filter: none !important;
   transition: none;
 }
@@ -1821,25 +1820,23 @@ html, body, #app, .app {
 }
 .soundscapes-page.is-active .soundscapes-topbar {
   opacity: var(--sc-progress, 0);
-  transform: none;
+  transform: none !important;
   transition: none;
   will-change: opacity;
 }
 .soundscapes-page.is-active .soundscapes-stage {
-  --sc-origin-y: 4dvh;
-  transform-origin: 50% 50%;
-  transform: translate3d(0, calc((1 - var(--sc-progress, 0)) * var(--sc-origin-y)), 0)
-    scale(calc(.72 + var(--sc-progress, 0) * .28));
+  transform: none !important;
+  transform-origin: initial;
   opacity: var(--sc-progress, 0);
-  filter: none;
+  filter: none !important;
   transition: none;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  will-change: transform, opacity;
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+  will-change: opacity;
 }
 .soundscapes-page.is-active .mandala-wrap {
-  transform: none;
-  filter: drop-shadow(0 0 28px rgba(201,162,39,calc(var(--sc-progress, 0) * .08)));
+  transform: none !important;
+  filter: none !important;
   transition: none;
 }
 .soundscapes-page.is-active .soundscape-control-drawer {
@@ -1853,25 +1850,14 @@ html, body, #app, .app {
 .soundscapes-page.is-active.is-interactive-swipe .mandala-wrap,
 .soundscapes-page.is-active.is-interactive-swipe .soundscape-control-drawer,
 .app.soundscapes-away:not(.is-interactive-swipe) {
-  transition: opacity .38s ease !important;
-}
-.app.soundscapes-away:not(.is-interactive-swipe) #pan {
-  transition: opacity .38s ease, transform .46s cubic-bezier(.22, 1, .36, 1) !important;
+  transition: none !important;
 }
 .soundscapes-page.is-active:not(.is-interactive-swipe)::before,
 .soundscapes-page.is-active:not(.is-interactive-swipe) .soundscapes-topbar,
 .soundscapes-page.is-active:not(.is-interactive-swipe) .soundscapes-stage,
-.soundscapes-page.is-active:not(.is-interactive-swipe) .soundscape-control-drawer {
-  transition: transform .46s cubic-bezier(.22, 1, .36, 1),
-              opacity .38s ease !important;
-}
-@media (max-width: 900px), (max-height: 500px) and (pointer: coarse) {
-  .soundscapes-page.is-active .soundscapes-stage {
-    --sc-origin-y: -8dvh;
-  }
-  .app.soundscapes-away #pan {
-    transform: translateY(-8dvh) scale(calc(1 - var(--sc-progress, 0) * .08)) !important;
-  }
+.soundscapes-page.is-active:not(.is-interactive-swipe) .soundscape-control-drawer,
+.app.soundscapes-away:not(.is-interactive-swipe) #pan {
+  transition: opacity .38s ease !important;
 }
 @media (prefers-reduced-motion: reduce) {
   .app.soundscapes-away,
