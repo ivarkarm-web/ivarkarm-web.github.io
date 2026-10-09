@@ -566,6 +566,47 @@ wire('octDown', () => { handpan.setOctaveOffset(handpan.octaveOffset - 1); onMus
 wire('octUp', () => { handpan.setOctaveOffset(handpan.octaveOffset + 1); onMusicalChange(); });
 wire('voicePrev', () => cycleInstrument(-1));
 wire('voiceNext', () => cycleInstrument(1));
+
+// Bottom-sheet controls: the previous layout pass added the button but omitted
+// its event wiring, leaving a visible but dead handle.
+(function setupMainControlDrawer() {
+  const drawer = document.getElementById('mobileControlDrawer');
+  const toggle = document.getElementById('mobileControlsToggle');
+  if (!drawer || !toggle) return;
+  let startY = null;
+  let suppressClick = false;
+
+  function setOpen(open) {
+    drawer.classList.toggle('is-open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    const label = toggle.querySelector('.mobile-controls-label');
+    if (label) label.textContent = open ? 'Hide controls' : 'Controls';
+    // Keep the visible handle interactive while the hidden panel cannot block
+    // the handpan canvas.
+    drawer.style.pointerEvents = open ? 'auto' : 'none';
+    toggle.style.pointerEvents = 'auto';
+  }
+  toggle.addEventListener('pointerdown', (event) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    startY = event.clientY;
+    suppressClick = false;
+  });
+  toggle.addEventListener('pointerup', (event) => {
+    if (startY === null) return;
+    const delta = event.clientY - startY;
+    startY = null;
+    if (Math.abs(delta) > 12) {
+      setOpen(delta < 0);
+      suppressClick = true;
+    }
+  });
+  toggle.addEventListener('pointercancel', () => { startY = null; });
+  toggle.addEventListener('click', () => {
+    if (suppressClick) { suppressClick = false; return; }
+    setOpen(!drawer.classList.contains('is-open'));
+  });
+  setOpen(false);
+})();
 wire('btnExit', () => { window.location.href = '../'; });
 wire('btnHelp', () => {
   const inst = activeInstrument();
