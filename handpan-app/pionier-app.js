@@ -295,22 +295,39 @@ canvas.addEventListener('pointercancel', (e) => {
     alert('Add an MP3 to preview your first soundscape. Playback continues when you return to the handpan.');
   });
 
+  /*
+   * Edge-swipe navigation lives on window, not the pan canvas:
+   * start in the right edge and swipe left to reveal Soundscapes.
+   * The reverse gesture from the left edge returns to the handpan.
+   * Ignore controls so sliders and knobs remain completely untouched.
+   */
   let swipeStart = null;
-  canvas.addEventListener('pointerdown', (e) => {
-    if (page.classList.contains('is-active')) return;
-    const rect = canvas.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
-    const radius = Math.min(rect.width, rect.height) * 0.28;
-    const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
-    swipeStart = dist <= radius ? { x: e.clientX, y: e.clientY } : null;
-  }, { capture: true });
-  canvas.addEventListener('pointerup', (e) => {
-    if (!swipeStart) return;
-    const dx = e.clientX - swipeStart.x, dy = e.clientY - swipeStart.y;
-    if (dx > 78 && Math.abs(dx) > Math.abs(dy) * 1.2) showPage(true);
+  function isInteractiveTarget(target) {
+    return !!target?.closest?.('button, input, select, textarea, a, .mobile-control-drawer, .soundscape-control-drawer, .effect-bubble');
+  }
+  window.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (isInteractiveTarget(e.target)) { swipeStart = null; return; }
+    const onSoundscapes = page.classList.contains('is-active');
+    const edgeWidth = Math.max(44, Math.min(92, window.innerWidth * 0.16));
+    const fromRightEdge = e.clientX >= window.innerWidth - edgeWidth;
+    const fromLeftEdge = e.clientX <= edgeWidth;
+    if ((!onSoundscapes && fromRightEdge) || (onSoundscapes && fromLeftEdge)) {
+      swipeStart = { x: e.clientX, y: e.clientY, pointerId: e.pointerId, onSoundscapes };
+    } else swipeStart = null;
+  }, { capture: true, passive: true });
+  window.addEventListener('pointerup', (e) => {
+    if (!swipeStart || e.pointerId !== swipeStart.pointerId) return;
+    const dx = e.clientX - swipeStart.x;
+    const dy = e.clientY - swipeStart.y;
+    const mostlyHorizontal = Math.abs(dx) > Math.abs(dy) * 1.15;
+    if (mostlyHorizontal && Math.abs(dx) >= 54) {
+      if (!swipeStart.onSoundscapes && dx < 0) showPage(true);
+      else if (swipeStart.onSoundscapes && dx > 0) showPage(false);
+    }
     swipeStart = null;
-  }, { capture: true });
-  canvas.addEventListener('pointercancel', () => { swipeStart = null; }, { capture: true });
+  }, { capture: true, passive: true });
+  window.addEventListener('pointercancel', () => { swipeStart = null; }, { capture: true, passive: true });
 })();
 
 const keyMap = Object.fromEntries(KEYS.map((k, i) => [k, i]));
