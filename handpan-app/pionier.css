@@ -1775,6 +1775,31 @@ html, body, #app, .app {
 
 
 
+/* The mandala is portaled to body to guarantee viewport-coordinate alignment. */
+#mandalaWrap {
+  position: fixed;
+  display: none;
+  z-index: 1501;
+  box-sizing: border-box;
+  color: #c9a227;
+  overflow: visible;
+  filter: none;
+  pointer-events: auto;
+  will-change: opacity;
+}
+.soundscapes-page.is-active ~ #mandalaWrap,
+#mandalaWrap.is-overlay-active {
+  display: block !important;
+}
+#mandalaWrap .mandala-art {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: visible;
+}
+#mandalaWrap .mandala-lines { animation: none !important; }
+#mandalaWrap .mandala-center { pointer-events: none; }
+#mandalaWrap .mandala-play { pointer-events: auto; }
 /* Mandala overlay: no page copy or interface furniture, only the artwork/play control. */
 .soundscapes-page.is-active .soundscapes-topbar,
 .soundscapes-page.is-active .soundscapes-eyebrow,
