@@ -1663,3 +1663,21 @@ html, body, #app, .app {
 .fx-panel .fx-master-section,
 .fx-panel .fx-master-slider,
 .fx-panel .fx-master-row { display: none !important; }
+
+
+/* PIONIER final polish: keep knob values centered at two/three digits and remove stray Scape label. */
+@media (max-width: 900px), (max-height: 500px) and (pointer: coarse) {
+  .mobile-control-panel .sidebar.right .knob-value,
+  .mobile-control-panel .sidebar.right .knob-val {
+    display: inline-block !important;
+    min-width: 2.8ch;
+    max-width: calc(100% - 8px);
+    text-align: center;
+    white-space: nowrap;
+    font-size: 10px !important;
+    line-height: 1 !important;
+    font-variant-numeric: tabular-nums;
+    transform: translateY(1px);
+  }
+  .mobile-control-panel .sidebar.right .scape-kicker { display: none !important; }
+}
