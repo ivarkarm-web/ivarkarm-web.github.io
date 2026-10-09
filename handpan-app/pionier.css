@@ -1786,3 +1786,49 @@ html, body, #app, .app {
 @media (prefers-reduced-motion: reduce) {
   .app, .soundscapes-page.is-active { transition-duration: .01ms !important; }
 }
+
+
+/* PIONIER: make the edge-swipe feel like two connected surfaces physically rolling.
+   Deliberately stronger than a conventional page-slide; progress is driven by the finger. */
+.app.soundscapes-away {
+  transform-origin: 100% 50% !important;
+  transform:
+    perspective(900px)
+    translate3d(calc(var(--sc-progress, 1) * -17%), 0, 0)
+    rotateY(calc(var(--sc-progress, 1) * 25deg))
+    rotateZ(calc(var(--sc-progress, 1) * -1.8deg))
+    scale(calc(1 - (var(--sc-progress, 1) * .045))) !important;
+  opacity: calc(1 - (var(--sc-progress, 1) * .12)) !important;
+  filter: blur(calc(var(--sc-progress, 1) * .7px)) !important;
+  box-shadow: 22px 0 44px rgba(0,0,0,calc(var(--sc-progress, 1) * .5));
+}
+.soundscapes-page.is-active {
+  transform-origin: 0% 50% !important;
+  transform:
+    perspective(900px)
+    translate3d(calc((1 - var(--sc-progress, 1)) * 100%), 0, 0)
+    rotateY(calc((1 - var(--sc-progress, 1)) * -32deg))
+    rotateZ(calc((1 - var(--sc-progress, 1)) * 1.4deg))
+    scale(calc(.94 + (var(--sc-progress, 1) * .06))) !important;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: -26px 0 54px rgba(0,0,0,calc((1 - var(--sc-progress, 1)) * .7));
+  overflow: hidden;
+}
+.soundscapes-page.is-active::before {
+  content: "";
+  position: absolute;
+  z-index: 10;
+  inset: 0 auto 0 0;
+  width: clamp(18px, 4vw, 54px);
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(201,162,39,calc((1 - var(--sc-progress, 1)) * .13)), rgba(0,0,0,0));
+  opacity: calc(1 - var(--sc-progress, 1));
+}
+@media (prefers-reduced-motion: reduce) {
+  .app.soundscapes-away, .soundscapes-page.is-active {
+    transform: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+}
