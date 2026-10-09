@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=61" />
+  <link rel="stylesheet" href="./pionier.css?v=62" />
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
@@ -33,7 +33,7 @@
       </button>
       <div class="instrument-nav">
         <button type="button" class="icon-btn" id="voicePrev" aria-label="Previous voice">‹</button>
-        <span class="instrument-name" id="voiceName">Steel</span>
+        <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Handpan ▾</button>
         <button type="button" class="icon-btn" id="voiceNext" aria-label="Next voice">›</button>
       </div>
       <div class="top-actions">
@@ -41,6 +41,7 @@
         <button type="button" class="icon-btn exit-btn" id="btnExit" aria-label="Exit" title="Exit">×</button>
       </div>
     </header>
+    <div class="instrument-menu" id="instrumentMenu" role="menu" aria-label="Choose instrument" hidden></div>
 
     <div class="mobile-control-drawer" id="mobileControlDrawer">
       <button type="button" class="mobile-controls-toggle" id="mobileControlsToggle" aria-expanded="false" aria-controls="mobileControlPanel">
@@ -307,7 +308,7 @@
     })();
   </script>
 
-  <script type="module" src="./pionier-app.js?v=49"></script>
+  <script type="module" src="./pionier-app.js?v=50"></script>
 
   <script>
     (function () {
