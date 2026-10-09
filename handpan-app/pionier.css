@@ -1769,7 +1769,7 @@ html, body, #app, .app {
   .soundscapes-topbar { padding-left: max(12px,env(safe-area-inset-left,0px)); padding-right: max(12px,env(safe-area-inset-right,0px)); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .mandala-lines { animation: none !important; }
+  .mandala-lines { animation: mandala-turn 100s linear infinite !important; }
   .soundscape-control-drawer, .mandala-play { transition: none !important; }
 }
 
