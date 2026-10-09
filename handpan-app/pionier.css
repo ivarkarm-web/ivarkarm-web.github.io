@@ -1769,7 +1769,7 @@ html, body, #app, .app {
   .soundscapes-topbar { padding-left: max(12px,env(safe-area-inset-left,0px)); padding-right: max(12px,env(safe-area-inset-right,0px)); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .mandala-lines { animation: mandala-turn 100s linear infinite !important; }
+  .mandala-lines { animation: none !important; }
   .soundscape-control-drawer, .mandala-play { transition: none !important; }
 }
 
@@ -1797,7 +1797,7 @@ html, body, #app, .app {
   height: 100% !important;
   overflow: visible;
 }
-#mandalaWrap .mandala-lines { animation: none !important; }
+#mandalaWrap .mandala-lines { animation: mandala-turn 100s linear infinite !important; }
 #mandalaWrap .mandala-center { pointer-events: none; }
 #mandalaWrap .mandala-play { pointer-events: auto; }
 /* Mandala overlay: no page copy or interface furniture, only the artwork/play control. */
