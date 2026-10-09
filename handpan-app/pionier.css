@@ -1230,3 +1230,83 @@ html, body, #app, .app {
     padding-right: max(8px, env(safe-area-inset-right, 0px));
   }
 }
+
+
+/* PIONIER MOBILE DRAWER FIX — open as a true full-screen sheet.
+   The closed drawer leaves only its handle visible; when opened it covers
+   the whole viewport so the instrument/legacy side controls cannot peek through. */
+@media (max-width: 900px), (max-height: 500px) and (pointer: coarse) {
+  .mobile-control-drawer {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+    background: #0a0a0b;
+    overflow: hidden;
+    z-index: 1000 !important;
+    transform: translateY(calc(100% - 36px)) !important;
+    transition: transform .28s cubic-bezier(.22, 1, .36, 1);
+    pointer-events: none;
+  }
+
+  .mobile-control-drawer.is-open {
+    transform: translateY(0) !important;
+    pointer-events: auto;
+    box-shadow: 0 0 0 100vmax rgba(0,0,0,.84);
+  }
+
+  .mobile-controls-toggle {
+    position: relative !important;
+    inset: auto !important;
+    flex: 0 0 36px;
+    align-self: center;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 100%;
+    max-width: none;
+    height: 36px;
+    min-height: 36px;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+    border-top: 0;
+    background: #0a0a0b;
+    z-index: 2;
+  }
+
+  .mobile-control-drawer.is-open .mobile-controls-toggle {
+    border-bottom: 1px solid var(--stroke);
+  }
+
+  .mobile-control-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 12px 12px max(16px, env(safe-area-inset-bottom, 0px)) !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    background: #0a0a0b !important;
+    box-shadow: none !important;
+    touch-action: pan-y !important;
+  }
+
+  /* Keep the original controls only inside the sheet, never as a second layer. */
+  #app > .sidebar,
+  #app > .knobs-panel {
+    display: none !important;
+  }
+}
