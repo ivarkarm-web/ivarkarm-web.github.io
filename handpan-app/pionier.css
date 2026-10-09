@@ -1683,7 +1683,17 @@ html, body, #app, .app {
 }
 
 /* PIONIER SOUNDscapes — companion page in the same graphite / muted-gold language. */
-.app.soundscapes-away { visibility: hidden !important; pointer-events: none !important; }
+.app {
+  transition: opacity .62s cubic-bezier(.22,1,.36,1), transform .72s cubic-bezier(.22,1,.36,1), filter .62s ease;
+  will-change: opacity, transform;
+}
+.app.soundscapes-away {
+  visibility: visible !important;
+  opacity: .34 !important;
+  transform: translate3d(-2.4%,0,0) scale(.992);
+  filter: blur(1px);
+  pointer-events: none !important;
+}
 .soundscapes-page {
   position: fixed; inset: 0; z-index: 1500; display: none; overflow: hidden;
   color: var(--fg); background: radial-gradient(ellipse at 50% 42%, #171719 0%, #0a0a0b 68%);
@@ -1762,7 +1772,12 @@ html, body, #app, .app {
   .soundscape-control-drawer, .mandala-play { transition: none !important; }
 }
 
-.soundscapes-page.is-active { animation: soundscapes-enter .34s cubic-bezier(.22,1,.36,1) both; }
-.soundscapes-page.is-active.is-leaving { animation: soundscapes-exit .30s cubic-bezier(.4,0,.8,.2) both; }
-@keyframes soundscapes-enter { from { transform: translateX(100%); } to { transform: translateX(0); } }
-@keyframes soundscapes-exit { from { transform: translateX(0); } to { transform: translateX(100%); } }
+.soundscapes-page.is-active { animation: soundscapes-enter .68s cubic-bezier(.22,1,.36,1) both; }
+.soundscapes-page.is-active.is-leaving { animation: soundscapes-exit .60s cubic-bezier(.4,0,.8,.2) both; }
+.soundscapes-topbar, .soundscapes-stage {
+  animation: soundscape-content-arrive .52s cubic-bezier(.22,1,.36,1) both;
+  animation-delay: .07s;
+}
+@keyframes soundscapes-enter { from { transform: translate3d(100%,0,0) scale(.985); } to { transform: translate3d(0,0,0) scale(1); } }
+@keyframes soundscapes-exit { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(100%,0,0) scale(.985); } }
+@keyframes soundscape-content-arrive { from { opacity: .72; } to { opacity: 1; } }
