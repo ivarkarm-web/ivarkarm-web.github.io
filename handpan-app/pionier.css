@@ -2007,6 +2007,11 @@ body.soundscapes-active #soundscapeControlDrawer.is-open {
 
 
 /* PIONIER control reliability: the player drawer is portaled to body so it sits above the mandala overlay. */
+/* The portaled Soundscapes drawer must not leak onto the main instrument screen. */
+body:not(.soundscapes-active) #soundscapeControlDrawer {
+  display: none !important;
+}
+
 body.soundscapes-active #soundscapeControlDrawer {
   position: fixed !important;
   z-index: 1700 !important;
