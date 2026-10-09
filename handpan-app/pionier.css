@@ -1232,16 +1232,16 @@ html, body, #app, .app {
 }
 
 
-/* PIONIER MOBILE DRAWER FIX — open as a true full-screen sheet.
-   The closed drawer leaves only its handle visible; when opened it covers
-   the whole viewport so the instrument/legacy side controls cannot peek through. */
+/* PIONIER MOBILE DRAWER — compact bottom sheet, about 45% of viewport height.
+   The sheet stays anchored to the bottom; its shadow dims the area behind it. */
 @media (max-width: 900px), (max-height: 500px) and (pointer: coarse) {
   .mobile-control-drawer {
     position: fixed !important;
-    inset: 0 !important;
+    inset: auto 0 0 0 !important;
     width: 100vw !important;
-    height: 100dvh !important;
-    max-height: 100dvh !important;
+    height: 45dvh !important;
+    max-height: 45dvh !important;
+    min-height: 220px;
     display: flex !important;
     flex-direction: column;
     align-items: stretch;
