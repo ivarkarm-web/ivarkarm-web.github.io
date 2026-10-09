@@ -1854,7 +1854,8 @@ html, body, #app, .app {
 .app.soundscapes-away #mobileControlDrawer {
   display: none !important;
 }
-.soundscapes-page.is-active .soundscape-control-drawer {
+.soundscapes-page.is-active .soundscape-control-drawer,
+body.soundscapes-active #soundscapeControlDrawer {
   display: flex !important;
   visibility: visible !important;
   pointer-events: none;
@@ -1864,7 +1865,8 @@ html, body, #app, .app {
   display: flex !important;
   pointer-events: auto !important;
 }
-.soundscapes-page.is-active .soundscape-control-drawer.is-open {
+.soundscapes-page.is-active .soundscape-control-drawer.is-open,
+body.soundscapes-active #soundscapeControlDrawer.is-open {
   pointer-events: auto !important;
 }
 .soundscapes-page.is-active .soundscapes-stage {
@@ -2002,3 +2004,36 @@ html, body, #app, .app {
   position: relative;
   top: 10vh;
 }
+
+
+/* PIONIER control reliability: the player drawer is portaled to body so it sits above the mandala overlay. */
+body.soundscapes-active #soundscapeControlDrawer {
+  position: fixed !important;
+  z-index: 1700 !important;
+  pointer-events: none;
+}
+body.soundscapes-active #soundscapeControlDrawer .mobile-controls-toggle {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto !important;
+  touch-action: pan-y;
+}
+body.soundscapes-active #soundscapeControlDrawer.is-open,
+body.soundscapes-active #soundscapeControlDrawer.is-open .soundscape-control-panel,
+body.soundscapes-active #soundscapeControlDrawer.is-open .soundscape-control-row,
+body.soundscapes-active #soundscapeControlDrawer.is-open input,
+body.soundscapes-active #soundscapeControlDrawer.is-open select {
+  pointer-events: auto !important;
+}
+#mandalaWrap .mandala-center { pointer-events: none !important; }
+#mandalaWrap .mandala-transport,
+#mandalaWrap .mandala-track-step,
+#mandalaWrap .mandala-play { pointer-events: auto !important; }
+#mandalaWrap .mandala-track-step {
+  display: grid !important;
+  visibility: visible !important;
+  opacity: .9;
+  position: relative;
+  z-index: 2;
+}
+#mandalaWrap .mandala-track-step:disabled { opacity: .5; }
