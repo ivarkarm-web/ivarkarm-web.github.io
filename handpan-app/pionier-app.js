@@ -258,11 +258,25 @@ canvas.addEventListener('pointercancel', (e) => {
   if (!page || !audio) return;
   let currentObjectUrl = null;
 
+  let leavingTimer = null;
   function showPage(show) {
-    page.classList.toggle('is-active', show);
-    page.setAttribute('aria-hidden', show ? 'false' : 'true');
-    document.getElementById('app')?.classList.toggle('soundscapes-away', show);
-    if (!show) closeControls();
+    if (leavingTimer) { clearTimeout(leavingTimer); leavingTimer = null; }
+    if (show) {
+      page.classList.remove('is-leaving');
+      page.classList.add('is-active');
+      page.setAttribute('aria-hidden', 'false');
+      document.getElementById('app')?.classList.add('soundscapes-away');
+    } else {
+      closeControls();
+      if (!page.classList.contains('is-active')) return;
+      page.classList.add('is-leaving');
+      page.setAttribute('aria-hidden', 'true');
+      leavingTimer = setTimeout(() => {
+        page.classList.remove('is-active', 'is-leaving');
+        document.getElementById('app')?.classList.remove('soundscapes-away');
+        leavingTimer = null;
+      }, 310);
+    }
   }
   function openControls(open) {
     drawer?.classList.toggle('is-open', open);
