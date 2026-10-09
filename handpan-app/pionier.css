@@ -1463,3 +1463,27 @@ html, body, #app, .app {
     display: none !important;
   }
 }
+
+
+/* Per-knob effect bubbles keep type selection separate from amount adjustment. */
+.effect-knob-wrap{position:relative;overflow:visible!important}
+.knob-name-row{display:flex;align-items:center;justify-content:center;width:100%;margin-top:5px;position:relative;z-index:4}
+.knob-effect-trigger{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:22px;padding:2px 4px;border:0;border-radius:6px;background:transparent;color:rgba(245,242,233,.78);font:inherit;font-size:10px;line-height:1.2;letter-spacing:.015em;white-space:nowrap;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.knob-effect-trigger:hover,.knob-effect-trigger[aria-expanded="true"]{color:var(--gold,#c9a227);background:rgba(201,162,39,.09)}
+.tiny-gear{display:inline-flex;align-items:center;justify-content:center;width:11px;height:11px;font-size:9px;line-height:1;opacity:.68}
+.knob-effect-trigger[aria-expanded="true"] .tiny-gear{opacity:1}
+.effect-bubble[hidden]{display:none!important}
+.effect-bubble{position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);z-index:1100;width:min(208px,calc(100vw - 28px));max-height:min(176px,28dvh);overflow-y:auto;overscroll-behavior:contain;padding:10px;border:1px solid rgba(201,162,39,.36);border-radius:12px;background:rgba(13,13,15,.98);box-shadow:0 12px 34px rgba(0,0,0,.48),0 0 0 1px rgba(255,255,255,.025) inset;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);touch-action:pan-y}
+.effect-bubble-title{display:block;margin:0 0 8px;color:rgba(245,242,233,.56);font-size:9px;line-height:1.2;letter-spacing:.12em;text-transform:uppercase}
+.effect-choice-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.effect-bubble .fx-type-btn{display:flex;align-items:center;justify-content:center;width:100%;min-width:0;min-height:31px;padding:5px 7px;border:1px solid rgba(255,255,255,.09);border-radius:7px;background:rgba(255,255,255,.035);color:rgba(245,242,233,.82);font-size:10px;line-height:1.15;cursor:pointer;touch-action:manipulation}
+.effect-bubble .fx-type-btn.is-active{border-color:rgba(201,162,39,.62);background:rgba(201,162,39,.14);color:#f1d77a}
+.effect-bubble .fx-type-btn:focus-visible,.knob-effect-trigger:focus-visible{outline:2px solid var(--gold,#c9a227);outline-offset:2px}
+#fxPanel,#fxBackdrop{display:none!important}
+@media(max-width:900px),(max-height:500px) and (pointer:coarse){
+.mobile-control-panel .sidebar.right .effect-knob-wrap{position:relative;overflow:visible!important}
+.mobile-control-panel .sidebar.right .effect-knob-wrap.effect-menu-open{z-index:1101}
+.mobile-control-panel .sidebar.right .knob-name-row{margin-top:3px}
+.mobile-control-panel .sidebar.right .knob-effect-trigger{font-size:10px;min-height:24px;padding:3px 2px}
+.mobile-control-panel .sidebar.right .effect-bubble{width:min(200px,calc(100vw - 24px));max-height:24dvh}
+}
