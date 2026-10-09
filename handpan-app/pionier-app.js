@@ -222,6 +222,7 @@ canvas.addEventListener('pointercancel', (e) => {
     if (leavingTimer) { clearTimeout(leavingTimer); leavingTimer = null; }
     page.classList.remove('is-interactive-swipe');
     page.style.setProperty('--sc-progress', show ? '1' : '0');
+    document.getElementById('app')?.style.setProperty('--sc-progress', show ? '1' : '0');
     if (show) {
       page.classList.remove('is-leaving');
       page.classList.add('is-active');
@@ -235,6 +236,7 @@ canvas.addEventListener('pointercancel', (e) => {
         page.classList.remove('is-active', 'is-leaving');
         document.getElementById('app')?.classList.remove('soundscapes-away');
         page.style.removeProperty('--sc-progress');
+        document.getElementById('app')?.style.removeProperty('--sc-progress');
         leavingTimer = null;
       }, 430);
     }
@@ -311,6 +313,7 @@ canvas.addEventListener('pointercancel', (e) => {
   function setSwipeProgress(progress) {
     swipeProgress = Math.max(0, Math.min(1, progress));
     page.style.setProperty('--sc-progress', String(swipeProgress));
+    document.getElementById('app')?.style.setProperty('--sc-progress', String(swipeProgress));
   }
   function prepareSwipePage() {
     if (leavingTimer) { clearTimeout(leavingTimer); leavingTimer = null; }
