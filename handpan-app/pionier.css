@@ -2073,18 +2073,35 @@ body.soundscapes-active #soundscapeControlDrawer.is-open select {
 #mandalaWrap .mandala-track-step:disabled { opacity: .5; }
 
 
-/* Keep the main drawer toggle anchored to the same bottom-center spot while open or closed. */
-@media (max-width: 720px) {
-  #mobileControlDrawer.is-open > #mobileControlsToggle,
+/* Keep both page controls handles visible while the drawers are collapsed. The handle
+   is the final flex row, so the drawer's collapsed transform leaves it on-screen. */
+@media (max-width: 900px), (max-height: 500px) and (pointer: coarse) {
+  #mobileControlDrawer {
+    transform: translate3d(0, calc(100% - 44px), 0) !important;
+  }
+  #mobileControlDrawer.is-open {
+    transform: translate3d(0, 0, 0) !important;
+  }
+  #mobileControlDrawer > #mobileControlPanel {
+    order: 0 !important;
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 0px)) !important;
+  }
   #mobileControlDrawer > #mobileControlsToggle {
-    position: absolute !important;
-    top: auto !important;
-    bottom: 0 !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
+    order: 1 !important;
+    position: relative !important;
+    inset: auto !important;
+    left: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    flex: 0 0 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    width: 100% !important;
     z-index: 35 !important;
   }
-  #mobileControlDrawer .mobile-control-panel {
-    padding-bottom: max(48px, calc(10px + env(safe-area-inset-bottom))) !important;
+  #soundscapeControlDrawer .mobile-controls-toggle {
+    flex: 0 0 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
   }
 }
