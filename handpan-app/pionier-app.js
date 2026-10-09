@@ -128,7 +128,7 @@ function updateLabels() {
   }
   const voiceEl = document.getElementById('voiceName');
   const inst = activeInstrument();
-  if (voiceEl) voiceEl.textContent = (inst.id === 'handpan' ? (inst.voiceName || inst.name) : inst.name) + ' ▾';
+  if (voiceEl) voiceEl.textContent = inst.name + ' ▾';
 }
 
 function updateInstrumentUI() {
