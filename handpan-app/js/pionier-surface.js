@@ -19,64 +19,61 @@ export function createSurface(canvas) {
     ctx2.ellipse(f.x, f.y, f.rx, f.ry, f.rot || 0, 0, Math.PI * 2);
   }
 
-  /** Premium tonefield slit — precision recess + restrained luminous core. */
+  /** Precision-machined slit with a cool white LED core, matched to the edge lights. */
   function drawSlit(f, glow, playable) {
     const isDing = f.kind === 'ding';
     const slitLen = isDing ? Math.min(f.rx, f.ry) * 0.42 : Math.min(f.rx, f.ry) * 0.55;
-    const slitW = Math.max(1.2, R * 0.0065);
-    const rot = f.rot || 0;
-    const idleAlpha = playable ? 0.55 : 0.10;
+    const slitW = Math.max(1.15, R * 0.0058);
     const g = Math.max(0, Math.min(1, glow || 0));
     const pulse = reducedMotion ? 0 : Math.sin(slitPhase + f.index * 0.7) * 0.5 + 0.5;
-    const coreAlpha = (0.35 + g * 0.55 + pulse * 0.08 * (1 - g)) * (playable ? 1 : 0.12);
+    const idle = playable ? 1 : 0.16;
+    const coreAlpha = (0.28 + pulse * 0.035 + g * 0.58) * idle;
     const halfL = slitLen * 0.5;
-
     ctx2.save();
     ctx2.translate(f.x, f.y);
-    ctx2.rotate(isDing ? 0 : rot + Math.PI / 2);
-
-    const recess = ctx2.createLinearGradient(0, -slitW * 2.5, 0, slitW * 2.5);
+    ctx2.rotate(isDing ? 0 : (f.rot || 0) + Math.PI / 2);
+    const recess = ctx2.createLinearGradient(0, -slitW * 2.7, 0, slitW * 2.7);
     recess.addColorStop(0, 'rgba(0,0,0,0)');
-    recess.addColorStop(0.35, `rgba(0,0,0,${0.45 * idleAlpha})`);
-    recess.addColorStop(0.5, `rgba(0,0,0,${0.65 * idleAlpha})`);
-    recess.addColorStop(0.65, `rgba(0,0,0,${0.45 * idleAlpha})`);
+    recess.addColorStop(0.28, `rgba(0,0,0,${0.24 * idle})`);
+    recess.addColorStop(0.5, `rgba(0,0,0,${0.78 * idle})`);
+    recess.addColorStop(0.72, `rgba(0,0,0,${0.24 * idle})`);
     recess.addColorStop(1, 'rgba(0,0,0,0)');
     ctx2.fillStyle = recess;
     ctx2.beginPath();
     ctx2.ellipse(0, 0, halfL * 1.05, slitW * 2.8, 0, 0, Math.PI * 2);
     ctx2.fill();
-
-    ctx2.fillStyle = `rgba(4,4,6,${0.7 * idleAlpha})`;
+    ctx2.strokeStyle = `rgba(218,226,236,${0.12 * idle + g * 0.22})`;
+    ctx2.lineWidth = Math.max(0.65, R * 0.0024);
     ctx2.beginPath();
-    ctx2.ellipse(0, 0, halfL * 0.92, slitW * 1.1, 0, 0, Math.PI * 2);
+    ctx2.ellipse(0, 0, halfL * 0.98, slitW * 1.08, 0, 0, Math.PI * 2);
+    ctx2.stroke();
+    ctx2.fillStyle = `rgba(3,5,8,${0.78 * idle})`;
+    ctx2.beginPath();
+    ctx2.ellipse(0, 0, halfL * 0.92, slitW * 0.78, 0, 0, Math.PI * 2);
     ctx2.fill();
-
     ctx2.globalCompositeOperation = 'lighter';
-    const coreGrad = ctx2.createLinearGradient(-halfL, 0, halfL, 0);
-    const ca = coreAlpha;
-    coreGrad.addColorStop(0, 'rgba(201,162,39,0)');
-    coreGrad.addColorStop(0.2, `rgba(228,195,90,${ca * 0.35})`);
-    coreGrad.addColorStop(0.5, `rgba(255,240,200,${ca * 0.7})`);
-    coreGrad.addColorStop(0.8, `rgba(228,195,90,${ca * 0.35})`);
-    coreGrad.addColorStop(1, 'rgba(201,162,39,0)');
-    ctx2.fillStyle = coreGrad;
+    const core = ctx2.createLinearGradient(-halfL, 0, halfL, 0);
+    core.addColorStop(0, 'rgba(242,248,255,0)');
+    core.addColorStop(0.16, `rgba(205,221,239,${coreAlpha * 0.38})`);
+    core.addColorStop(0.5, `rgba(255,255,255,${coreAlpha * 0.82})`);
+    core.addColorStop(0.84, `rgba(205,221,239,${coreAlpha * 0.38})`);
+    core.addColorStop(1, 'rgba(242,248,255,0)');
+    ctx2.fillStyle = core;
     ctx2.beginPath();
-    ctx2.ellipse(0, 0, halfL * 0.88, slitW * 0.55, 0, 0, Math.PI * 2);
+    ctx2.ellipse(0, 0, halfL * 0.88, slitW * 0.48, 0, 0, Math.PI * 2);
     ctx2.fill();
-
-    if (g > 0.04 && playable) {
+    if (g > 0.025 && playable) {
       const bloom = ctx2.createRadialGradient(0, 0, 0, 0, 0, halfL * 1.05);
-      bloom.addColorStop(0, `rgba(255,230,160,${g * 0.28})`);
-      bloom.addColorStop(0.45, `rgba(201,162,39,${g * 0.14})`);
-      bloom.addColorStop(1, 'rgba(201,162,39,0)');
+      bloom.addColorStop(0, `rgba(238,246,255,${g * 0.2})`);
+      bloom.addColorStop(0.42, `rgba(177,204,232,${g * 0.09})`);
+      bloom.addColorStop(1, 'rgba(177,204,232,0)');
       ctx2.fillStyle = bloom;
       ctx2.beginPath();
-      ctx2.ellipse(0, 0, halfL * 1.15, slitW * 4.5, 0, 0, Math.PI * 2);
+      ctx2.ellipse(0, 0, halfL * 1.12, slitW * 3.8, 0, 0, Math.PI * 2);
       ctx2.fill();
     }
     ctx2.restore();
   }
-
   function layoutHandpanFields(handpanNotes, isFieldPlayable) {
     const list = handpanNotes;
     const midis = list.map((n) => n.midi);
@@ -163,14 +160,13 @@ export function createSurface(canvas) {
       pathPad(f);
       ctx2.fill();
 
-      const strokeGold = Math.max(
-        glow > 0.04 && playable ? 0.28 + glow * 0.45 : 0,
-        approach * 0.75
+      const strokeLight = Math.max(
+        glow > 0.035 && playable ? 0.16 + glow * 0.42 : 0,
+        approach * 0.72
       );
-      ctx2.strokeStyle =
-        strokeGold > 0.04
-          ? `rgba(201,162,39,${strokeGold})`
-          : `rgba(255,255,255,${0.08 * dim})`;
+      ctx2.strokeStyle = strokeLight > 0.04
+        ? `rgba(224,236,250,${strokeLight})`
+        : `rgba(220,230,242,${0.09 * dim})`;
       ctx2.lineWidth = isDing ? 1.8 : 1.2;
       pathPad(f);
       ctx2.stroke();
@@ -181,9 +177,9 @@ export function createSurface(canvas) {
         const gAmt = Math.max(glow, approach * 0.85);
         const gr = Math.max(f.rx, f.ry) * (0.95 + radial * 0.45 + approach * 0.2);
         const hg = ctx2.createRadialGradient(f.x, f.y, 0, f.x, f.y, gr);
-        hg.addColorStop(0, `rgba(201,162,39,${gAmt * (0.26 + (1 - radial) * 0.18)})`);
-        hg.addColorStop(0.5, `rgba(228,195,90,${gAmt * (radial * 0.2 + approach * 0.15)})`);
-        hg.addColorStop(1, 'rgba(201,162,39,0)');
+        hg.addColorStop(0, `rgba(226,239,255,${gAmt * (0.19 + (1 - radial) * 0.12)})`);
+        hg.addColorStop(0.5, `rgba(166,198,230,${gAmt * (radial * 0.14 + approach * 0.1)})`);
+        hg.addColorStop(1, 'rgba(166,198,230,0)');
         ctx2.fillStyle = hg;
         pathPad({ x: f.x, y: f.y, rx: f.rx * 1.12, ry: f.ry * 1.12, rot: f.rot });
         ctx2.fill();
@@ -200,7 +196,7 @@ export function createSurface(canvas) {
         ctx2.textBaseline = 'middle';
         const ly = f.y + Math.min(f.rx, f.ry) * (isDing ? 0.42 : 0.38);
         const la = 0.58 + (glow > 0.1 ? glow * 0.28 : 0);
-        ctx2.fillStyle = `rgba(228,195,90,${la})`;
+        ctx2.fillStyle = `rgba(224,235,248,${la})`;
         ctx2.fillText(f.zoneLabel, f.x, ly);
         ctx2.restore();
       }
