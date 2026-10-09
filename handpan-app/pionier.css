@@ -1825,10 +1825,10 @@ html, body, #app, .app {
 }
 .soundscapes-page.is-active .mandala-wrap {
   position: fixed !important;
-  left: var(--mandala-left, 50%) !important;
-  top: var(--mandala-top, 50%) !important;
-  width: var(--mandala-size, min(76vw, 47dvh, 440px)) !important;
-  height: var(--mandala-size, min(76vw, 47dvh, 440px)) !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: min(76vw, 47dvh, 440px) !important;
+  height: min(76vw, 47dvh, 440px) !important;
   max-width: none !important;
   max-height: none !important;
   margin: 0 !important;
