@@ -10,7 +10,9 @@ const PRESETS = [
   { id: 'kalimba', name: 'Kalimba', description: 'Bright thumb-piano plucks with woody metallic overtones.', category: 'tonal', wave: 'triangle', partials: [1, 2.73, 5.42, 8.2], levels: [1, .26, .08, .025], decay: 1.35, attack: .003, pitchDrop: .004, brightness: .88 },
   { id: 'marimba', name: 'Marimba', description: 'Rounded wooden bars with a mallet-like transient.', category: 'tonal', wave: 'sine', partials: [1, 3.95, 9.2, 15.1], levels: [1, .22, .055, .015], decay: .78, attack: .002, pitchDrop: .006, brightness: .58 },
   { id: 'crystal-bowl', name: 'Crystal Bowls', description: 'Pure, singing bowl-like tones with long, glassy resonance.', category: 'tonal', wave: 'sine', partials: [1, 2.01, 3.02, 4.08], levels: [1, .2, .075, .025], decay: 4.4, attack: .025, pitchDrop: .001, brightness: .96 },
-  { id: 'rav-vast', name: 'Resonant Tongue', description: 'Deep, layered tank-drum resonance with a gentle metallic bloom.', category: 'tonal', wave: 'triangle', partials: [1, 2.01, 3.47, 5.8], levels: [1, .4, .17, .055], decay: 3.1, attack: .01, pitchDrop: .009, brightness: .7 }
+  { id: 'rav-vast', name: 'Resonant Tongue', description: 'Deep, layered tank-drum resonance inspired by RAV-style tuned tongues.', category: 'tonal', wave: 'triangle', partials: [1, 2.01, 3.47, 5.8], levels: [1, .4, .17, .055], decay: 3.1, attack: .01, pitchDrop: .009, brightness: .7 },
+  { id: 'ocarina', name: 'Ocarina', description: 'Breathy ceramic-flute tone, mapped to the same nine scale pitches.', category: 'tonal', wave: 'sine', partials: [1, 2.02, 3.01], levels: [1, .12, .025], decay: 1.15, attack: .035, pitchDrop: .002, brightness: .42 },
+  { id: 'pentatonic-flute', name: 'Pentatonic Flute', description: 'Soft breath-led wooden-flute voice; every current scale degree stays playable.', category: 'tonal', wave: 'sine', partials: [1, 2, 3.01, 4.02], levels: [1, .1, .025, .008], decay: 1.8, attack: .055, pitchDrop: .001, brightness: .32 }
 ];
 
 export class TonalInstrument extends Instrument {
