@@ -1639,3 +1639,27 @@ html, body, #app, .app {
   #app > .sidebar,
   #app > .knobs-panel { display: none !important; }
 }
+
+
+/* PIONIER: knobs must capture vertical drags instead of being treated as panel scrolling */
+@media (max-width: 900px), (max-height: 500px) and (pointer: coarse) {
+  .mobile-control-panel .knob,
+  .mobile-control-panel .knob-canvas,
+  .mobile-control-panel .knob-value {
+    touch-action: none !important;
+    pointer-events: auto !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+  }
+  .mobile-control-panel .knob {
+    position: relative !important;
+    z-index: 3 !important;
+    cursor: ns-resize !important;
+  }
+  .mobile-control-panel input[type="range"] {
+    touch-action: pan-x !important;
+  }
+}
+.fx-panel .fx-master-section,
+.fx-panel .fx-master-slider,
+.fx-panel .fx-master-row { display: none !important; }
