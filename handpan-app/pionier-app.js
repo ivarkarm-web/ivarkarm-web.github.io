@@ -8,22 +8,15 @@ import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/a
 import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
 import { HandpanInstrument } from './js/instruments/handpan.js';
-import { KitchenInstrument } from './js/instruments/kitchen.js';
-import { BirdInstrument } from './js/instruments/bird.js';
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
 import { createSurface, WORLD_ZONE_INDICES } from './js/pionier-surface.js?v=25';
-import { createSoundscapes } from './js/soundscapes.js?v=4';
 
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
 
 const handpan = new HandpanInstrument();
-const kitchen = new KitchenInstrument();
-const bird = new BirdInstrument();
 InstrumentRegistry.register(handpan);
-InstrumentRegistry.register(kitchen);
-InstrumentRegistry.register(bird);
 
 const app = {
   fxChain: null,
@@ -44,15 +37,6 @@ try {
 const canvas = document.getElementById('pan');
 const surface = createSurface(canvas);
 
-const soundscapes = createSoundscapes({
-  getNotes: () => {
-    if (!handpan.getNotes?.().length) handpan.rebuildNotes?.();
-    return handpan.getNotes() || [];
-  },
-  ensureAudio
-});
-app.soundscapes = soundscapes;
-
 function ensureAudio() {
   const ctx = getAudioContext();
   if (!ctx) return false;
@@ -67,21 +51,6 @@ function ensureAudio() {
   return true;
 }
 
-function pentatonicFromHandpan() {
-  if (!handpan.notes?.length) handpan.rebuildNotes?.();
-  const notes = handpan.getNotes();
-  return WORLD_ZONE_INDICES.map((i) => {
-    const n = notes[i] || notes[0];
-    return { midi: n.midi, freq: n.freq, name: n.name, index: i };
-  });
-}
-
-function syncWorldPitch() {
-  const penta = pentatonicFromHandpan();
-  kitchen.setMusicalContext(penta);
-  bird.setMusicalContext(penta);
-}
-
 function activeInstrument() {
   return InstrumentRegistry.active || handpan;
 }
@@ -89,7 +58,7 @@ function activeInstrument() {
 function isFieldPlayable(fieldIndex) {
   const inst = activeInstrument();
   if (inst.id === 'handpan') return fieldIndex >= 0 && fieldIndex <= 8;
-  return WORLD_ZONE_INDICES.includes(fieldIndex);
+  return fieldIndex >= 0 && fieldIndex <= 8;
 }
 
 async function setInstrument(id) {
@@ -98,7 +67,6 @@ async function setInstrument(id) {
   const prev = InstrumentRegistry.active;
   if (prev) prev.dampAll();
   await InstrumentRegistry.setActive(id, ctx, app.instrumentBus);
-  syncWorldPitch();
   updateInstrumentUI();
   layoutFields();
   const phase = app.catchMode?.phase;
@@ -163,17 +131,8 @@ function updateInstrumentUI() {
 function layoutFields() {
   if (!handpan.getNotes().length) handpan.rebuildNotes?.();
   surface.layoutHandpanFields(handpan.getNotes(), isFieldPlayable);
-  const inst = activeInstrument();
-  if (inst.id === 'kitchen' || inst.id === 'bird') {
-    const notes = inst.getNotes?.() || [];
-    const byIndex = new Map(notes.map((n) => [n.index, n.name]));
-    for (const f of surface.fields) {
-      f.zoneLabel = byIndex.get(f.index) || null;
-    }
-  } else {
-    for (const f of surface.fields) f.zoneLabel = null;
-  }
-  inst.setZones(surface.fields);
+  for (const f of surface.fields) f.zoneLabel = null;
+  handpan.setZones(surface.fields);
 }
 
 function draw() {
@@ -394,7 +353,6 @@ function onMusicalChange() {
   layoutFields();
   updateLabels();
   draw();
-  soundscapes.syncScale?.();
   if (app.catchMode?.phase === 'focus-scale') app.catchMode.advanceFromUI();
 }
 
