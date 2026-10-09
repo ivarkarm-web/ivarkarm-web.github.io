@@ -1214,3 +1214,19 @@ html, body, #app, .app {
 .fx-panel button {
   -webkit-tap-highlight-color: transparent;
 }
+
+
+/* Touch scrolling must be allowed inside the drawer and FX sheet; the canvas
+   itself remains the only surface that suppresses browser gestures. */
+@media (max-width: 900px), (max-height: 500px) and (pointer: coarse) {
+  html, body { touch-action: auto; }
+  .mobile-control-drawer,
+  .mobile-control-panel,
+  .mobile-control-panel .sidebar.left,
+  .mobile-control-panel .sidebar.right,
+  .fx-panel { touch-action: pan-y !important; }
+  .topbar {
+    padding-left: max(8px, env(safe-area-inset-left, 0px));
+    padding-right: max(8px, env(safe-area-inset-right, 0px));
+  }
+}
