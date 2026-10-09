@@ -1748,3 +1748,10 @@ html, body, #app, .app {
   .mobile-control-panel .sidebar.right { gap: 18px 4px !important; }
   .mobile-control-panel .sidebar.right .knob { width: 46px !important; height: 46px !important; }
 }
+
+
+/* PIONIER: keep the mobile drawer handle at the bottom in both states */
+@media (max-width: 760px), (max-height: 560px) and (orientation: landscape) {
+  .mobile-control-panel { order: 1 !important; }
+  .mobile-controls-toggle { order: 2 !important; flex-shrink: 0 !important; }
+}
