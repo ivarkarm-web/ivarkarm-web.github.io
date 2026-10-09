@@ -1805,7 +1805,6 @@ html, body, #app, .app {
 .soundscapes-page.is-active .soundscapes-eyebrow,
 .soundscapes-page.is-active .soundscape-track-meta,
 .soundscapes-page.is-active .soundscape-player-actions,
-.soundscapes-page.is-active .soundscape-control-drawer,
 .soundscapes-page.is-active #soundscapeFile,
 .soundscapes-page.is-active #soundscapesHelp,
 .soundscapes-page.is-active #backToHandpan {
@@ -1847,9 +1846,26 @@ html, body, #app, .app {
 .soundscapes-page.is-active .soundscapes-topbar,
 .soundscapes-page.is-active .soundscapes-eyebrow,
 .soundscapes-page.is-active .soundscape-track-meta,
-.soundscapes-page.is-active .soundscape-player-actions,
-.soundscapes-page.is-active .soundscape-control-drawer {
+.soundscapes-page.is-active .soundscape-player-actions {
   display: none !important;
+}
+
+/* Swap the main handpan drawer for Soundscapes' own player controls. */
+.app.soundscapes-away #mobileControlDrawer {
+  display: none !important;
+}
+.soundscapes-page.is-active .soundscape-control-drawer {
+  display: flex !important;
+  visibility: visible !important;
+  pointer-events: none;
+  z-index: 1600 !important;
+}
+.soundscapes-page.is-active .soundscape-control-drawer .mobile-controls-toggle {
+  display: flex !important;
+  pointer-events: auto !important;
+}
+.soundscapes-page.is-active .soundscape-control-drawer.is-open {
+  pointer-events: auto !important;
 }
 .soundscapes-page.is-active .soundscapes-stage {
   position: static !important;
