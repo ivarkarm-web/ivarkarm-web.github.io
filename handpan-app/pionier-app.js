@@ -11,7 +11,7 @@ import { HandpanInstrument } from './js/instruments/handpan.js';
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
-import { createSurface, WORLD_ZONE_INDICES } from './js/pionier-surface.js?v=25';
+import { createSurface, WORLD_ZONE_INDICES } from './js/pionier-surface.js?v=26';
 
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
 
@@ -223,6 +223,11 @@ canvas.addEventListener('pointercancel', (e) => {
   let leavingTimer = null;
   const pan = document.getElementById('pan');
   const mandala = document.getElementById('mandalaWrap');
+  const edgeLedLeft = document.querySelector('.soundscape-swipe-led-left');
+  const edgeLedRight = document.querySelector('.soundscape-swipe-led-right');
+  [edgeLedLeft, edgeLedRight].forEach((led) => {
+    if (led && led.parentNode !== document.body) document.body.appendChild(led);
+  });
   // Portal the artwork to <body> so no transformed/overflowing Soundscapes
   // ancestor can change the coordinate system of position:fixed.
   const mandalaHome = mandala?.parentNode || null;
