@@ -234,7 +234,7 @@ canvas.addEventListener('pointercancel', (e) => {
         page.classList.remove('is-active', 'is-leaving');
         document.getElementById('app')?.classList.remove('soundscapes-away');
         leavingTimer = null;
-      }, 310);
+      }, 610);
     }
   }
   function openControls(open) {
