@@ -2256,3 +2256,59 @@ body.soundscapes-active #mobileControlDrawer { display:none !important; }
   #mobileControlDrawer > #mobileControlPanel { grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important; }
   #app > .stage #pan { width:min(62vw,calc(100dvh - 100px),540px) !important; }
 }
+
+
+/* Reliability patch: keep both bottom-sheet handles styled and tappable after
+   the Soundscapes artwork and player drawer are portaled to document.body. */
+#mobileControlDrawer > #mobileControlsToggle,
+#soundscapeControlDrawer > #soundscapeControlsToggle {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 9px !important;
+  min-height: 48px !important;
+  height: 48px !important;
+  padding: 0 14px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  border-top: 1px solid rgba(201,162,39,.24) !important;
+  background: #0a0a0b !important;
+  color: #e8e6e3 !important;
+  box-shadow: none !important;
+  font: inherit !important;
+  font-size: 11px !important;
+  letter-spacing: .1em !important;
+  text-transform: uppercase !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  touch-action: pan-y !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+#mobileControlDrawer > #mobileControlsToggle .mobile-controls-grip,
+#soundscapeControlDrawer > #soundscapeControlsToggle .mobile-controls-grip {
+  display: block !important;
+  flex: 0 0 22px !important;
+  width: 22px !important;
+  height: 3px !important;
+  border-radius: 3px !important;
+  background: var(--gold, #c9a227) !important;
+}
+#soundscapeControlDrawer > #soundscapeControlsToggle {
+  position: relative !important;
+  z-index: 2 !important;
+}
+body.soundscapes-active #soundscapeControlDrawer {
+  display: flex !important;
+  visibility: visible !important;
+  bottom: 0 !important;
+  pointer-events: none !important;
+}
+body.soundscapes-active #soundscapeControlDrawer > #soundscapeControlsToggle {
+  pointer-events: auto !important;
+}
+body.soundscapes-active #soundscapeControlDrawer.is-open,
+body.soundscapes-active #soundscapeControlDrawer.is-open .soundscape-control-panel {
+  pointer-events: auto !important;
+}
