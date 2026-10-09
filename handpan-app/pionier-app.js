@@ -8,7 +8,7 @@ import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/a
 import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
 import { HandpanInstrument } from './js/instruments/handpan.js';
-import { createTonalInstruments } from './js/instruments/tonal-family.js';
+import { createTonalInstruments } from './js/instruments/tonal-family.js?v=2';
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
