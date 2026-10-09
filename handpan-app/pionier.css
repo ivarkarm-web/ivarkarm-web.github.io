@@ -1774,99 +1774,101 @@ html, body, #app, .app {
 }
 
 
-/* PIONIER — crossfade between handpan and soundscapes.
-   The mandala stays at its natural size and simply fades in over the disappearing pan. */
+/* PIONIER — seamless instrument morph: the mandala occupies the exact pan canvas rectangle. */
 .app.soundscapes-away {
-  opacity: calc(1 - var(--sc-progress, 0)) !important;
+  opacity: 1 !important;
   transform: none !important;
   filter: none !important;
   box-shadow: none !important;
   pointer-events: none !important;
-  transition: none;
-  will-change: opacity;
+  transition: none !important;
+  will-change: auto;
 }
 .app.soundscapes-away #pan {
   opacity: calc(1 - var(--sc-progress, 0)) !important;
-  transform: translateY(-8dvh) !important;
-  filter: none !important;
-  transition: none;
-}
-.soundscapes-page.is-active {
-  inset: 0 !important;
-  display: flex !important;
-  transform: none !important;
-  transform-style: flat !important;
-  perspective: none !important;
-  background: #0a0a0b !important;
-  overflow: hidden;
-  isolation: isolate;
-}
-.soundscapes-page.is-active::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(ellipse at 50% 42%, #171719 0%, #0a0a0b 72%);
-  opacity: var(--sc-progress, 0);
-  transition: none;
-  will-change: opacity;
-}
-.soundscapes-page.is-active .soundscapes-topbar,
-.soundscapes-page.is-active .soundscapes-stage,
-.soundscapes-page.is-active .soundscape-control-drawer {
-  position: relative;
-  z-index: 1;
-}
-.soundscapes-page.is-active .soundscapes-topbar {
-  opacity: var(--sc-progress, 0);
-  transform: none !important;
-  transition: none;
-  will-change: opacity;
-}
-.soundscapes-page.is-active .soundscapes-stage {
-  transform: none !important;
-  transform-origin: initial;
-  opacity: var(--sc-progress, 0);
-  filter: none !important;
-  transition: none;
-  backface-visibility: visible;
-  -webkit-backface-visibility: visible;
-  will-change: opacity;
-}
-.soundscapes-page.is-active .mandala-wrap {
-  transform: none !important;
-  filter: none !important;
-  transition: none;
-}
-.soundscapes-page.is-active .soundscape-control-drawer {
-  opacity: var(--sc-progress, 0);
-  transition: none;
-}
-.soundscapes-page.is-active.is-interactive-swipe,
-.soundscapes-page.is-active.is-interactive-swipe::before,
-.soundscapes-page.is-active.is-interactive-swipe .soundscapes-topbar,
-.soundscapes-page.is-active.is-interactive-swipe .soundscapes-stage,
-.soundscapes-page.is-active.is-interactive-swipe .mandala-wrap,
-.soundscapes-page.is-active.is-interactive-swipe .soundscape-control-drawer,
-.app.soundscapes-away:not(.is-interactive-swipe) {
   transition: none !important;
 }
-.soundscapes-page.is-active:not(.is-interactive-swipe)::before,
-.soundscapes-page.is-active:not(.is-interactive-swipe) .soundscapes-topbar,
-.soundscapes-page.is-active:not(.is-interactive-swipe) .soundscapes-stage,
-.soundscapes-page.is-active:not(.is-interactive-swipe) .soundscape-control-drawer,
+.soundscapes-page,
+.soundscapes-page.is-active {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1500 !important;
+  display: none;
+  overflow: visible !important;
+  background: transparent !important;
+  color: var(--fg);
+  isolation: isolate;
+  pointer-events: none;
+}
+.soundscapes-page.is-active {
+  display: block !important;
+  transform: none !important;
+  perspective: none !important;
+}
+.soundscapes-page.is-active::before { content: none !important; display: none !important; }
+.soundscapes-page.is-active .soundscapes-topbar,
+.soundscapes-page.is-active .soundscapes-eyebrow,
+.soundscapes-page.is-active .soundscape-track-meta,
+.soundscapes-page.is-active .soundscape-player-actions,
+.soundscapes-page.is-active .soundscape-control-drawer {
+  display: none !important;
+}
+.soundscapes-page.is-active .soundscapes-stage {
+  position: static !important;
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+.soundscapes-page.is-active .mandala-wrap {
+  position: fixed !important;
+  left: var(--mandala-left, 50%) !important;
+  top: var(--mandala-top, 50%) !important;
+  width: var(--mandala-size, min(76vw, 47dvh, 440px)) !important;
+  height: var(--mandala-size, min(76vw, 47dvh, 440px)) !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: none !important;
+  transform: none !important;
+  filter: none !important;
+  color: #c9a227;
+  opacity: var(--sc-progress, 0);
+  transition: none !important;
+  pointer-events: auto;
+  will-change: opacity;
+}
+.soundscapes-page.is-active .mandala-art {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: visible;
+}
+.soundscapes-page.is-active .mandala-center { pointer-events: none; }
+.soundscapes-page.is-active .mandala-play {
+  pointer-events: auto;
+}
+.soundscapes-page.is-active .mandala-wrap,
+.soundscapes-page.is-active .mandala-art,
+.soundscapes-page.is-active .mandala-lines,
+.soundscapes-page.is-active .mandala-center {
+  transform: none !important;
+  filter: none !important;
+}
+.soundscapes-page.is-active.is-interactive-swipe .mandala-wrap,
+.soundscapes-page.is-active.is-interactive-swipe .mandala-lines,
+.app.soundscapes-away.is-interactive-swipe #pan {
+  transition: none !important;
+}
+.soundscapes-page.is-active:not(.is-interactive-swipe) .mandala-wrap,
 .app.soundscapes-away:not(.is-interactive-swipe) #pan {
   transition: opacity .38s ease !important;
 }
 @media (prefers-reduced-motion: reduce) {
-  .app.soundscapes-away,
   .app.soundscapes-away #pan,
-  .soundscapes-page.is-active::before,
-  .soundscapes-page.is-active .soundscapes-topbar,
-  .soundscapes-page.is-active .soundscapes-stage,
-  .soundscapes-page.is-active .mandala-wrap,
-  .soundscapes-page.is-active .soundscape-control-drawer {
-    transition: none !important;
-  }
+  .soundscapes-page.is-active .mandala-wrap { transition: none !important; }
 }
