@@ -1539,17 +1539,20 @@ html, body, #app, .app {
 }
 
 
-/* PIONIER recovery: retain the earlier compact, scrollable drawer.
-   The handpan is sized to fit in the stage above the open controls sheet. */
+/* PIONIER mobile controls: handle-only drag, compact sheet, instrument stays visible */
 @media (max-width: 900px), (max-height: 500px) and (pointer: coarse) {
-  #app.app { overflow: hidden !important; }
+  #app.app { position: relative !important; overflow: hidden !important; }
   .stage {
+    position: relative !important;
+    z-index: 1 !important;
     min-width: 0 !important;
     min-height: 0 !important;
     overflow: visible !important;
   }
   #pan {
-    width: min(82vw, 52dvh, 620px) !important;
+    position: relative !important;
+    z-index: 1 !important;
+    width: min(74vw, 43dvh, 560px) !important;
     height: auto !important;
     aspect-ratio: 1 / 1 !important;
     max-width: 100% !important;
@@ -1558,11 +1561,14 @@ html, body, #app, .app {
   }
   .mobile-control-drawer {
     position: fixed !important;
-    inset: auto 0 env(safe-area-inset-bottom, 0px) !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    bottom: env(safe-area-inset-bottom, 0px) !important;
     width: 100% !important;
-    height: min(42dvh, 360px) !important;
-    min-height: 200px !important;
-    max-height: 42dvh !important;
+    height: min(46dvh, 390px) !important;
+    min-height: 190px !important;
+    max-height: 46dvh !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: stretch !important;
@@ -1571,32 +1577,36 @@ html, body, #app, .app {
     overflow: hidden !important;
     background: #0a0a0b !important;
     z-index: 1000 !important;
-    transform: translateY(calc(100% - 36px)) !important;
-    transition: transform .28s cubic-bezier(.22, 1, .36, 1) !important;
+    transform: translate3d(0, calc(100% - 38px), 0) !important;
+    transition: transform .26s cubic-bezier(.22, 1, .36, 1) !important;
     pointer-events: none !important;
     box-shadow: none !important;
+    will-change: transform;
   }
   .mobile-control-drawer.is-open {
-    transform: translateY(0) !important;
+    transform: translate3d(0, 0, 0) !important;
     pointer-events: auto !important;
-    box-shadow: 0 0 0 100vmax rgba(0,0,0,.25) !important;
+    box-shadow: 0 -12px 30px rgba(0,0,0,.28) !important;
   }
   .mobile-controls-toggle {
+    display: flex !important;
     position: relative !important;
     inset: auto !important;
     transform: none !important;
     order: 0 !important;
-    flex: 0 0 36px !important;
+    flex: 0 0 38px !important;
     width: 100% !important;
-    height: 36px !important;
-    min-height: 36px !important;
-    border-radius: 0 !important;
-    border-left: 0 !important;
-    border-right: 0 !important;
-    border-top: 0 !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    margin: 0 !important;
+    border-radius: 12px 12px 0 0 !important;
+    border: 1px solid var(--stroke) !important;
+    border-bottom: 0 !important;
     background: #0a0a0b !important;
     z-index: 2 !important;
     pointer-events: auto !important;
+    touch-action: none !important;
+    cursor: grab !important;
   }
   .mobile-control-panel {
     display: flex !important;
@@ -1619,8 +1629,10 @@ html, body, #app, .app {
     background: #0a0a0b !important;
     pointer-events: auto !important;
     touch-action: pan-y !important;
+    -webkit-overflow-scrolling: touch !important;
   }
   .mobile-control-drawer:not(.is-open) .mobile-control-panel {
+    visibility: hidden !important;
     pointer-events: none !important;
   }
   #app > .sidebar,
