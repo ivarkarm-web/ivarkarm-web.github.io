@@ -1750,41 +1750,38 @@ html, body, #app, .app {
 }
 
 
-/* PIONIER: bottom-anchored mobile controls handle without breaking drawer motion */
+/* PIONIER: bottom handle, preserving the drawer's original slide-to-hide behavior */
 @media (max-width: 760px), (max-height: 560px) and (orientation: landscape) {
   .mobile-control-drawer {
-    transform: none !important;
+    transform: translateY(calc(100% - 38px)) !important;
     pointer-events: none !important;
   }
   .mobile-control-drawer.is-open {
-    transform: none !important;
-    pointer-events: auto !important;
-  }
-  .mobile-controls-toggle {
-    position: absolute !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    top: auto !important;
-    order: initial !important;
-    flex: 0 0 38px !important;
-    z-index: 5 !important;
+    transform: translateY(0) !important;
     pointer-events: auto !important;
   }
   .mobile-control-panel {
-    position: absolute !important;
-    inset: 0 0 38px 0 !important;
-    height: auto !important;
-    flex: none !important;
-    order: initial !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-    transition: opacity .18s ease !important;
-  }
-  .mobile-control-drawer.is-open .mobile-control-panel {
+    order: 1 !important;
+    position: relative !important;
+    inset: auto !important;
+    flex: 1 1 auto !important;
     visibility: visible !important;
     opacity: 1 !important;
     pointer-events: auto !important;
+    transition: none !important;
+  }
+  .mobile-controls-toggle {
+    position: relative !important;
+    inset: auto !important;
+    order: 2 !important;
+    flex: 0 0 38px !important;
+    width: 100% !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    z-index: 5 !important;
+    pointer-events: auto !important;
+  }
+  .mobile-control-drawer:not(.is-open) .mobile-control-panel {
+    pointer-events: none !important;
   }
 }
