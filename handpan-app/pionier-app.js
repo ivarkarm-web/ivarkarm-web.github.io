@@ -217,6 +217,8 @@ canvas.addEventListener('pointercancel', (e) => {
   const drawer = document.getElementById('soundscapeControlDrawer');
   const toggle = document.getElementById('soundscapeControlsToggle');
   if (!page || !audio) return;
+  // Keep the drawer above the mandala by removing it from the page's lower stacking context.
+  if (drawer && drawer.parentNode !== document.body) document.body.appendChild(drawer);
   let trackList = [];
   let currentTrackIndex = -1;
   let trackObjectUrls = [];
@@ -262,6 +264,7 @@ canvas.addEventListener('pointercancel', (e) => {
     if (show) {
       page.classList.remove('is-leaving');
       page.classList.add('is-active');
+      document.body.classList.add('soundscapes-active');
       mandala?.classList.add('is-overlay-active');
       page.setAttribute('aria-hidden', 'false');
       document.getElementById('app')?.classList.add('soundscapes-away', 'is-interactive-swipe');
@@ -271,6 +274,7 @@ canvas.addEventListener('pointercancel', (e) => {
       page.setAttribute('aria-hidden', 'true');
       leavingTimer = setTimeout(() => {
         page.classList.remove('is-active', 'is-leaving');
+        document.body.classList.remove('soundscapes-active');
         mandala?.classList.remove('is-overlay-active');
         document.getElementById('app')?.classList.remove('soundscapes-away');
         page.style.removeProperty('--sc-progress');
@@ -315,9 +319,10 @@ canvas.addEventListener('pointercancel', (e) => {
   });
   addButton?.addEventListener('click', () => fileInput?.click());
   function updateTrackButtons() {
-    const enabled = trackList.length > 1;
-    if (previousTrackButton) previousTrackButton.disabled = !enabled;
-    if (nextTrackButton) nextTrackButton.disabled = !enabled;
+    // Keep navigation visible and clickable even before a playlist is loaded.
+    // With no tracks, either arrow opens the MP3 picker; one track safely repeats it.
+    if (previousTrackButton) previousTrackButton.disabled = false;
+    if (nextTrackButton) nextTrackButton.disabled = false;
   }
   function playTrackAt(index, autoplay = true) {
     if (!trackList.length) { fileInput?.click(); return; }
