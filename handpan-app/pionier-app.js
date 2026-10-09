@@ -126,7 +126,7 @@ function updateLabels() {
     const o = handpan.octaveOffset;
     octEl.textContent = o === 0 ? '0' : o > 0 ? '+' + o : String(o);
   }
-  const voiceEl = document.getElementById('voiceName');
+  const voiceEl = document.getElementById('instrumentDropdownToggle');
   const inst = activeInstrument();
   if (voiceEl) voiceEl.textContent = inst.name + ' ▾';
 }
