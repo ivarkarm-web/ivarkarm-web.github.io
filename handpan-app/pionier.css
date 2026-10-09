@@ -1487,3 +1487,53 @@ html, body, #app, .app {
 .mobile-control-panel .sidebar.right .knob-effect-trigger{font-size:10px;min-height:24px;padding:3px 2px}
 .mobile-control-panel .sidebar.right .effect-bubble{width:min(200px,calc(100vw - 24px));max-height:24dvh}
 }
+
+
+/* FINAL MOBILE MENU GEOMETRY: bubbles escape the drawer's clipping context
+   and are positioned against the viewport by JS. Keep the control sheet full-width. */
+@media (max-width: 900px), (max-height: 500px) and (pointer: coarse) {
+  .mobile-control-drawer,
+  .mobile-control-panel,
+  .mobile-control-panel .sidebar,
+  .mobile-control-panel .knob-wrap,
+  .mobile-control-panel .knob-name-row {
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+  }
+  .mobile-control-drawer {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .mobile-control-panel {
+    width: 100% !important;
+    max-width: none !important;
+    padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+  }
+  .mobile-control-panel .sidebar.left,
+  .mobile-control-panel .sidebar.right {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+  }
+}
+.effect-bubble.is-viewport-menu {
+  position: fixed !important;
+  inset: auto !important;
+  left: 8px;
+  top: 8px;
+  transform: none !important;
+  width: min(208px, calc(100vw - 16px)) !important;
+  max-width: calc(100vw - 16px) !important;
+  max-height: min(176px, 32dvh) !important;
+  z-index: 20000 !important;
+  box-sizing: border-box !important;
+}
+@media (max-width: 900px), (max-height: 500px) and (pointer: coarse) {
+  .effect-bubble.is-viewport-menu {
+    width: min(220px, calc(100vw - 16px)) !important;
+    max-height: min(180px, 32dvh) !important;
+  }
+}
