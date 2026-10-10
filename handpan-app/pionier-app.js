@@ -1,32 +1,24 @@
 /**
- * pionier-app.js — integrated instrument surface
+ * pionier-app.js — restored working instrument surface (backup-compatible)
  */
 import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js';
 import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
 import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js';
 import { createTonalInstruments } from './js/instruments/tonal-family.js?v=4';
-import { BirdInstrument } from './js/instruments/bird.js';
-import { KitchenInstrument } from './js/instruments/kitchen.js';
-import { FxEngine } from './js/fx-engine.js';
-import { setupControlsUI } from './js/controls-ui.js';
+import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
 import { createSurface } from './js/pionier-surface.js?v=26';
-import { createMandalaRenderer } from './js/mandala-canvas.js';
 
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
 
 const handpan = new HandpanInstrument();
 InstrumentRegistry.register(handpan);
 for (const instrument of createTonalInstruments()) InstrumentRegistry.register(instrument);
-InstrumentRegistry.register(new BirdInstrument());
-InstrumentRegistry.register(new KitchenInstrument());
 
 const app = {
-  fxEngine: null,
-  controlsReady: false,
-  controlsApi: null,
+  fxChain: null,
   instrumentBus: null,
   gestureTracker: new GestureTracker(),
   pointers: new Map(),
@@ -42,6 +34,7 @@ try {
 } catch (_) {}
 
 const canvas = document.getElementById('pan');
+if (!canvas) console.error('Pionier: #pan canvas missing');
 const surface = createSurface(canvas);
 
 function ensureAudio() {
@@ -50,14 +43,10 @@ function ensureAudio() {
   if (!app.instrumentBus) {
     app.instrumentBus = ctx.createGain();
     app.instrumentBus.gain.value = 1.0;
-    app.fxEngine = new FxEngine(ctx, getAudioMaster());
-    app.instrumentBus.connect(app.fxEngine.input);
-    if (app.controlsApi && typeof app.controlsApi.attachEngine === 'function') {
-      app.controlsApi.attachEngine(app.fxEngine);
-    } else if (!app.controlsReady) {
-      app.controlsApi = setupControlsUI(app.fxEngine);
-      app.controlsReady = true;
-    }
+    app.fxChain = new FxChain(ctx, getAudioMaster());
+    app.fxChain.seedDefaults();
+    app.instrumentBus.connect(app.fxChain.input);
+    wireKnobs();
   }
   resumeAudio();
   return true;
@@ -71,7 +60,9 @@ function syncWorldPitch() {
   const notes = handpan.getNotes();
   for (const item of InstrumentRegistry.list()) {
     const instrument = InstrumentRegistry.get(item.id);
-    if (instrument && typeof instrument.setMusicalContext === 'function') instrument.setMusicalContext(notes);
+    if (instrument && typeof instrument.setMusicalContext === 'function') {
+      instrument.setMusicalContext(notes);
+    }
   }
 }
 
@@ -110,12 +101,9 @@ app.catchMode = new CatchMode({
   getInstrument: () => activeInstrument(),
   onStatus: (msg) => {
     const el = document.getElementById('catchStatus');
-    if (!el) return;
-    el.textContent = msg || '';
+    if (el) el.textContent = msg || '';
   },
-  onPhase: (phase) => {
-    document.body.dataset.catchPhase = phase;
-  }
+  onPhase: (phase) => { document.body.dataset.catchPhase = phase; }
 });
 app.catchMode.reducedMotion = app.reducedMotion;
 
@@ -123,15 +111,15 @@ function updateLabels() {
   const scaleEl = document.getElementById('scaleLabel');
   const rootEl = document.getElementById('rootLabel');
   const octEl = document.getElementById('octLabel');
-  if (scaleEl) scaleEl.textContent = handpan.scaleLabel;
-  if (rootEl) rootEl.textContent = handpan.rootLabel;
+  if (scaleEl && handpan.scaleLabel) scaleEl.textContent = handpan.scaleLabel;
+  if (rootEl && handpan.rootLabel) rootEl.textContent = handpan.rootLabel;
   if (octEl) {
-    const o = handpan.octaveOffset;
+    const o = handpan.octaveOffset ?? 0;
     octEl.textContent = o === 0 ? '0' : o > 0 ? '+' + o : String(o);
   }
   const voiceEl = document.getElementById('instrumentDropdownToggle');
   const inst = activeInstrument();
-  if (voiceEl) voiceEl.textContent = inst.name + ' ▾';
+  if (voiceEl) voiceEl.textContent = (inst.name || inst.id) + ' ▾';
 }
 
 function updateInstrumentUI() {
@@ -153,21 +141,23 @@ function layoutFields() {
 }
 
 function draw() {
+  if (!surface || !canvas) return;
   surface.drawBody(activeInstrument(), false, null);
 }
 
 function resize() {
+  if (!surface) return;
   surface.resize();
   layoutFields();
   draw();
 }
 
 ;['touchstart', 'touchmove', 'touchend'].forEach((type) => {
-  canvas.addEventListener(type, (e) => { e.preventDefault(); }, { passive: false });
+  canvas?.addEventListener(type, (e) => { e.preventDefault(); }, { passive: false });
 });
-canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+canvas?.addEventListener('contextmenu', (e) => e.preventDefault());
 
-canvas.addEventListener('pointerdown', (e) => {
+canvas?.addEventListener('pointerdown', (e) => {
   e.preventDefault();
   if (e.pointerType === 'touch') e.stopPropagation();
   ensureAudio();
@@ -184,213 +174,210 @@ canvas.addEventListener('pointerdown', (e) => {
   if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);
   draw();
 });
-canvas.addEventListener('pointerup', (e) => {
+canvas?.addEventListener('pointerup', (e) => {
   const idx = app.pointers.get(e.pointerId);
   app.pointers.delete(e.pointerId);
   app.gestureTracker.up(e.pointerId);
   if (idx != null) activeInstrument().noteOff(idx);
 });
-canvas.addEventListener('lostpointercapture', (e) => {
+canvas?.addEventListener('lostpointercapture', (e) => {
   const idx = app.pointers.get(e.pointerId);
   if (idx == null) return;
   app.pointers.delete(e.pointerId);
   app.gestureTracker.up(e.pointerId);
   activeInstrument().noteOff(idx);
 });
-canvas.addEventListener('pointercancel', (e) => {
+canvas?.addEventListener('pointercancel', (e) => {
   const idx = app.pointers.get(e.pointerId);
   app.pointers.delete(e.pointerId);
   app.gestureTracker.up(e.pointerId);
   if (idx != null) activeInstrument().noteOff(idx);
 });
 
-(function setupSoundscapesPage() {
+function paintKnob(canvasEl, value01) {
+  if (!canvasEl) return;
+  const ctx = canvasEl.getContext('2d');
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const size = 88;
+  if (canvasEl.width !== size * dpr) {
+    canvasEl.width = size * dpr;
+    canvasEl.height = size * dpr;
+    canvasEl.style.width = size + 'px';
+    canvasEl.style.height = size + 'px';
+  }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, size, size);
+  const cx = size / 2, cy = size / 2, r = 32;
+  const start = -Math.PI * 0.75;
+  const end = Math.PI * 0.75;
+  const angle = start + (end - start) * Math.max(0, Math.min(1, value01));
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, start, end);
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, start, angle);
+  ctx.strokeStyle = '#c9a227';
+  ctx.lineWidth = 4;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r - 10, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(18,18,20,0.95)';
+  ctx.fill();
+}
+
+function wireKnobs() {
+  if (!app.fxChain) return;
+  const map = [
+    { knobId: 'knobCompress', valId: 'valCompress', fxId: 'compressor', def: 0.4 },
+    { knobId: 'knobDelay', valId: 'valDelay', fxId: 'delay', def: 0.15 },
+    { knobId: 'knobReverb', valId: 'valReverb', fxId: 'reverb', def: 0.25 }
+  ];
+  for (const m of map) {
+    const el = document.getElementById(m.knobId);
+    const val = document.getElementById(m.valId);
+    if (!el) continue;
+    const canvasEl = el.querySelector('.knob-canvas');
+    let value = m.def;
+    paintKnob(canvasEl, value);
+    if (val) val.textContent = String(Math.round(value * 100));
+    let dragging = false;
+    let startY = 0;
+    let startVal = 0;
+    const apply = (v) => {
+      value = Math.max(0, Math.min(1, v));
+      app.fxChain.setValue(m.fxId, value);
+      paintKnob(canvasEl, value);
+      if (val) val.textContent = String(Math.round(value * 100));
+      el.setAttribute('aria-valuenow', String(Math.round(value * 100)));
+    };
+    el.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      dragging = true;
+      startY = e.clientY;
+      startVal = value;
+      try { el.setPointerCapture(e.pointerId); } catch (_) {}
+    });
+    el.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dy = startY - e.clientY;
+      apply(startVal + dy / 140);
+    });
+    el.addEventListener('pointerup', () => { dragging = false; });
+    el.addEventListener('pointercancel', () => { dragging = false; });
+  }
+  document.querySelectorAll('[data-comp]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const mod = app.fxChain?.modules?.find((x) => x.id === 'compressor');
+      if (mod) mod.type = btn.getAttribute('data-comp');
+      mod?._apply?.(getAudioContext());
+      document.querySelectorAll('[data-comp]').forEach((b) => {
+        b.classList.toggle('is-active', b === btn);
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+      });
+    });
+  });
+  document.querySelectorAll('[data-delay]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const mod = app.fxChain?.modules?.find((x) => x.id === 'delay');
+      if (mod) {
+        const t = btn.getAttribute('data-delay');
+        mod.type = t === 'dub' ? 'ambient' : t;
+      }
+      mod?._apply?.(getAudioContext());
+      document.querySelectorAll('[data-delay]').forEach((b) => {
+        b.classList.toggle('is-active', b === btn);
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+      });
+    });
+  });
+  document.querySelectorAll('[data-reverb]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const mod = app.fxChain?.modules?.find((x) => x.id === 'reverb');
+      if (mod) mod.type = btn.getAttribute('data-reverb');
+      mod?._apply?.(getAudioContext());
+      document.querySelectorAll('[data-reverb]').forEach((b) => {
+        b.classList.toggle('is-active', b === btn);
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+      });
+    });
+  });
+  document.querySelectorAll('.knob-effect-trigger').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute('aria-controls');
+      const bubble = id ? document.getElementById(id) : null;
+      if (!bubble) return;
+      const open = bubble.hasAttribute('hidden');
+      document.querySelectorAll('.effect-bubble').forEach((b) => b.setAttribute('hidden', ''));
+      document.querySelectorAll('.knob-effect-trigger').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+      if (open) {
+        bubble.removeAttribute('hidden');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.effect-bubble').forEach((b) => b.setAttribute('hidden', ''));
+    document.querySelectorAll('.knob-effect-trigger').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+  });
+}
+
+(function setupDrawer() {
+  const drawer = document.getElementById('mobileControlDrawer');
+  const toggle = document.getElementById('mobileControlsToggle');
+  if (!drawer || !toggle) return;
+  toggle.addEventListener('click', () => {
+    const open = !drawer.classList.contains('is-open');
+    drawer.classList.toggle('is-open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    const label = toggle.querySelector('.mobile-controls-label');
+    if (label) label.textContent = open ? 'Hide' : 'Controls';
+  });
+})();
+
+(function setupSoundscapes() {
   const page = document.getElementById('soundscapesPage');
   const back = document.getElementById('backToHandpan');
   const audio = document.getElementById('soundscapeAudio');
   const play = document.getElementById('mandalaPlay');
   const playIcon = document.getElementById('mandalaPlayIcon');
-  const previousTrackButton = document.getElementById('mandalaPreviousTrack');
-  const nextTrackButton = document.getElementById('mandalaNextTrack');
   const fileInput = document.getElementById('soundscapeFile');
   const addButton = document.getElementById('addSoundscapeTrack');
   const title = document.getElementById('soundscapeTrackTitle');
   const subtitle = document.getElementById('soundscapeTrackSubtitle');
   const status = document.getElementById('soundscapeStatus');
   const volume = document.getElementById('soundscapeVolume');
-  const progressEl = document.getElementById('soundscapeProgress');
-  const timeElapsed = document.getElementById('soundscapeTimeElapsed');
-  const timeTotal = document.getElementById('soundscapeTimeTotal');
   const playback = document.getElementById('soundscapePlayback');
-  const drawer = document.getElementById('soundscapeControlDrawer');
-  const toggle = document.getElementById('soundscapeControlsToggle');
   if (!page || !audio) return;
-  if (drawer && drawer.parentNode !== document.body) document.body.appendChild(drawer);
+
   let trackList = [];
-  let currentTrackIndex = -1;
   let trackObjectUrls = [];
-  let leavingTimer = null;
-  let seeking = false;
-  const pan = document.getElementById('pan');
-  const mandala = document.getElementById('mandalaWrap');
-  if (mandala && mandala.parentNode !== document.body) document.body.appendChild(mandala);
-
-  function fmtTime(s) {
-    if (!isFinite(s) || s < 0) return '0:00';
-    const m = Math.floor(s / 60);
-    const sec = Math.floor(s % 60);
-    return m + ':' + String(sec).padStart(2, '0');
-  }
-  function syncProgress() {
-    if (!audio || seeking) return;
-    const dur = audio.duration;
-    const cur = audio.currentTime;
-    if (timeElapsed) timeElapsed.textContent = fmtTime(cur);
-    if (timeTotal) timeTotal.textContent = fmtTime(isFinite(dur) ? dur : 0);
-    if (progressEl && isFinite(dur) && dur > 0) progressEl.value = String(Math.round((cur / dur) * 1000));
-  }
-  audio.addEventListener('timeupdate', syncProgress);
-  audio.addEventListener('loadedmetadata', syncProgress);
-  audio.addEventListener('durationchange', syncProgress);
-  progressEl?.addEventListener('pointerdown', () => { seeking = true; });
-  function seekFromProgress() {
-    if (!audio || !isFinite(audio.duration) || audio.duration <= 0) { seeking = false; return; }
-    const ratio = Number(progressEl.value) / 1000;
-    const t = Math.max(0, Math.min(audio.duration, ratio * audio.duration));
-    try { audio.currentTime = t; } catch (_) {}
-    seeking = false;
-    syncProgress();
-  }
-  progressEl?.addEventListener('pointerup', seekFromProgress);
-  progressEl?.addEventListener('change', seekFromProgress);
-  progressEl?.addEventListener('keyup', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') seekFromProgress();
-  });
-  progressEl?.addEventListener('input', () => {
-    if (!seeking || !audio || !isFinite(audio.duration)) return;
-    if (timeElapsed) timeElapsed.textContent = fmtTime((Number(progressEl.value) / 1000) * audio.duration);
-  });
-
-  let mandalaRenderer = null;
-  if (mandala) {
-    mandalaRenderer = createMandalaRenderer(mandala);
-    mandala.style.pointerEvents = 'none';
-    mandala.style.visibility = 'hidden';
-    mandala.style.zIndex = '-1';
-    mandala.style.opacity = '0';
-  }
-
-  function syncMandalaToPan() {
-    if (!pan || !mandala) return;
-    const rect = pan.getBoundingClientRect();
-    if (!rect.width || !rect.height) return;
-    mandala.style.setProperty('position', 'fixed', 'important');
-    mandala.style.setProperty('left', rect.left + 'px', 'important');
-    mandala.style.setProperty('top', rect.top + 'px', 'important');
-    mandala.style.setProperty('width', rect.width + 'px', 'important');
-    mandala.style.setProperty('height', rect.height + 'px', 'important');
-  }
-  window.addEventListener('resize', syncMandalaToPan, { passive: true });
 
   function showPage(show) {
-    if (show) syncMandalaToPan();
-    if (leavingTimer) { clearTimeout(leavingTimer); leavingTimer = null; }
-    page.style.setProperty('--sc-progress', show ? '1' : '0');
-    document.getElementById('app')?.style.setProperty('--sc-progress', show ? '1' : '0');
-    if (mandala) {
-      mandala.style.opacity = show ? '1' : '0';
-      mandala.style.pointerEvents = 'none';
-      if (!show) {
-        mandala.style.zIndex = '-1';
-        mandala.style.visibility = 'hidden';
-      } else {
-        mandala.style.zIndex = '1501';
-        mandala.style.visibility = 'visible';
-      }
-    }
     if (show) {
       page.classList.add('is-active');
-      document.body.classList.add('soundscapes-active');
-      mandalaRenderer?.start();
-      mandala?.classList.add('is-overlay-active');
       page.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('soundscapes-active');
       document.getElementById('app')?.classList.add('soundscapes-away');
-      const transport = mandala?.querySelector('.mandala-transport');
-      if (transport) transport.style.pointerEvents = 'auto';
     } else {
-      closeControls();
-      if (!page.classList.contains('is-active')) return;
+      page.classList.remove('is-active');
       page.setAttribute('aria-hidden', 'true');
-      leavingTimer = setTimeout(() => {
-        page.classList.remove('is-active');
-        document.body.classList.remove('soundscapes-active');
-        mandalaRenderer?.stop();
-        mandala?.classList.remove('is-overlay-active');
-        document.getElementById('app')?.classList.remove('soundscapes-away');
-        if (mandala) {
-          mandala.style.visibility = 'hidden';
-          mandala.style.zIndex = '-1';
-          mandala.style.pointerEvents = 'none';
-        }
-        leavingTimer = null;
-      }, 320);
+      document.body.classList.remove('soundscapes-active');
+      document.getElementById('app')?.classList.remove('soundscapes-away');
     }
   }
-  function openControls(open) {
-    if (!drawer || !toggle) return;
-    drawer.classList.toggle('is-open', !!open);
-    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-    const label = toggle.querySelector('.mobile-controls-label');
-    if (label) label.textContent = open ? 'Hide' : 'Controls';
-  }
-  function closeControls() { openControls(false); }
   back?.addEventListener('click', () => showPage(false));
-  toggle?.addEventListener('click', () => openControls(!drawer.classList.contains('is-open')));
-  addButton?.addEventListener('click', () => fileInput?.click());
 
-  function playTrackAt(index, autoplay = true) {
-    if (!trackList.length) { fileInput?.click(); return; }
-    currentTrackIndex = (index + trackList.length) % trackList.length;
-    const track = trackList[currentTrackIndex];
-    audio.pause(); audio.src = track.url; audio.load();
-    title.textContent = track.name;
-    subtitle.textContent = trackList.length > 1 ? 'TRACK ' + (currentTrackIndex + 1) + ' / ' + trackList.length : 'ONE TRACK LOADED';
-    status.textContent = 'TRACK LOADED';
-    if (autoplay) audio.play().then(() => updatePlaying(true)).catch(() => { status.textContent = 'PRESS PLAY TO START'; updatePlaying(false); });
-    else updatePlaying(false);
-  }
-  function stepTrack(direction) {
-    if (!trackList.length) { fileInput?.click(); return; }
-    if (trackList.length === 1) { playTrackAt(0, true); return; }
-    playTrackAt(currentTrackIndex + direction, true);
-  }
-  previousTrackButton?.addEventListener('click', () => stepTrack(-1));
-  nextTrackButton?.addEventListener('click', () => stepTrack(1));
-  fileInput?.addEventListener('change', () => {
-    const files = Array.from(fileInput.files || []).filter((f) => f.type.startsWith('audio/') || /\.(mp3|wav|m4a|ogg)$/i.test(f.name));
-    if (!files.length) return;
-    audio.pause();
-    trackObjectUrls.forEach((u) => URL.revokeObjectURL(u));
-    trackObjectUrls = [];
-    trackList = files.map((file) => {
-      const url = URL.createObjectURL(file);
-      trackObjectUrls.push(url);
-      return { name: file.name.replace(/\.[^.]+$/, ''), url };
-    });
-    currentTrackIndex = -1;
-    playTrackAt(0, true);
-    fileInput.value = '';
-  });
   function updatePlaying(isPlaying) {
     page.classList.toggle('is-playing', isPlaying);
     if (playIcon) playIcon.textContent = isPlaying ? 'Ⅱ' : '▶';
-    play?.setAttribute('aria-label', isPlaying ? 'Pause soundscape' : 'Play soundscape');
-    if (isPlaying) status.textContent = 'NOW PLAYING';
-    else if (audio.src) status.textContent = 'PAUSED';
   }
   play?.addEventListener('click', () => {
     if (!audio.src) { fileInput?.click(); return; }
-    if (audio.paused) audio.play().then(() => updatePlaying(true)).catch(() => { status.textContent = 'PLAYBACK UNAVAILABLE'; });
+    if (audio.paused) audio.play().then(() => updatePlaying(true)).catch(() => {});
     else { audio.pause(); updatePlaying(false); }
   });
   audio.addEventListener('play', () => updatePlaying(true));
@@ -399,56 +386,52 @@ canvas.addEventListener('pointercancel', (e) => {
     if (playback?.value === 'loop') {
       audio.currentTime = 0;
       audio.play().catch(() => updatePlaying(false));
-    } else if (trackList.length > 1 && currentTrackIndex < trackList.length - 1) {
-      playTrackAt(currentTrackIndex + 1, true);
     } else updatePlaying(false);
   });
   volume?.addEventListener('input', () => { audio.volume = Number(volume.value); });
   playback?.addEventListener('change', () => { audio.loop = playback.value === 'loop'; });
   audio.loop = true;
   audio.volume = 0.8;
+  addButton?.addEventListener('click', () => fileInput?.click());
+  fileInput?.addEventListener('change', () => {
+    const files = Array.from(fileInput.files || []).filter((f) => f.type.startsWith('audio/') || /\.(mp3|wav|m4a|ogg)$/i.test(f.name));
+    if (!files.length) return;
+    trackObjectUrls.forEach((u) => URL.revokeObjectURL(u));
+    trackObjectUrls = [];
+    trackList = files.map((file) => {
+      const url = URL.createObjectURL(file);
+      trackObjectUrls.push(url);
+      return { name: file.name.replace(/\.[^.]+$/, ''), url };
+    });
+    const track = trackList[0];
+    audio.src = track.url;
+    audio.load();
+    if (title) title.textContent = track.name;
+    if (subtitle) subtitle.textContent = 'TRACK 1 / ' + trackList.length;
+    if (status) status.textContent = 'TRACK LOADED';
+    audio.play().then(() => updatePlaying(true)).catch(() => {
+      if (status) status.textContent = 'PRESS PLAY TO START';
+      updatePlaying(false);
+    });
+    fileInput.value = '';
+  });
 
   let swipeStart = null;
-  function isInteractiveTarget(target) {
-    return !!target?.closest?.('button, input, select, textarea, a, .mobile-control-drawer, .soundscape-control-drawer, .knob, .ctrl-dropdown');
-  }
   window.addEventListener('pointerdown', (e) => {
-    if (isInteractiveTarget(e.target)) return;
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
-    const edge = 56;
-    if (e.clientX > window.innerWidth - edge || e.clientX < edge) {
-      swipeStart = { x: e.clientX, y: e.clientY, id: e.pointerId, fromRight: e.clientX > window.innerWidth / 2 };
+    if (e.target.closest?.('button, input, select, textarea, a, .mobile-control-drawer, .soundscape-control-drawer, .knob')) return;
+    if (e.clientX > window.innerWidth - 48) {
+      swipeStart = { x: e.clientX, y: e.clientY, id: e.pointerId };
     }
   });
-  window.addEventListener('pointermove', (e) => {
-    if (!swipeStart || e.pointerId !== swipeStart.id) return;
-    const dx = e.clientX - swipeStart.x;
-    const dy = e.clientY - swipeStart.y;
-    if (Math.abs(dx) < 12 || Math.abs(dx) < Math.abs(dy) * 1.1) return;
-    if (!page.classList.contains('is-active') && dx < -20 && swipeStart.fromRight) {
-      const p = Math.min(1, Math.abs(dx) / 140);
-      page.style.setProperty('--sc-progress', String(p * 0.35));
-    }
-  }, { passive: true });
   window.addEventListener('pointerup', (e) => {
     if (!swipeStart || e.pointerId !== swipeStart.id) return;
     const dx = e.clientX - swipeStart.x;
     const dy = e.clientY - swipeStart.y;
-    const fromRight = swipeStart.fromRight;
     swipeStart = null;
-    if (Math.abs(dx) > 32 && Math.abs(dx) > Math.abs(dy) * 1.15) {
-      if (dx < 0 && !page.classList.contains('is-active') && fromRight) showPage(true);
-      else if (dx > 0 && page.classList.contains('is-active')) showPage(false);
-    } else if (!page.classList.contains('is-active')) {
-      page.style.setProperty('--sc-progress', '0');
+    if (dx < -36 && Math.abs(dx) > Math.abs(dy) * 1.2 && !page.classList.contains('is-active')) {
+      showPage(true);
     }
   });
-  window.addEventListener('pointercancel', () => {
-    swipeStart = null;
-    if (!page.classList.contains('is-active')) page.style.setProperty('--sc-progress', '0');
-  });
-
-  document.getElementById('btnSoundscapes')?.addEventListener('click', () => showPage(true));
 })();
 
 function wire(id, fn) {
@@ -456,7 +439,7 @@ function wire(id, fn) {
 }
 wire('btnExit', () => { window.location.href = '../'; });
 wire('btnHelp', () => {
-  alert('Play: tap tonefields or Q–O.\nScale / Base / Octave change pitch.\nOpen Controls from the bottom handle for effects.\nOpen Soundscapes via the ◌ button or swipe from the right edge.\nBacking tracks keep playing when you return.');
+  alert('Play: tap tonefields or Q–O.\nScale / Base / Octave change pitch.\nOpen Controls from the bottom handle.\nSwipe from the right edge for Soundscapes.');
 });
 
 function refreshPitch() {
@@ -478,8 +461,8 @@ wire('scaleNext', () => {
 });
 wire('rootDown', () => { handpan.setRootIndex((handpan.rootIndex - 1 + 12) % 12); refreshPitch(); });
 wire('rootUp', () => { handpan.setRootIndex((handpan.rootIndex + 1) % 12); refreshPitch(); });
-wire('octDown', () => { handpan.setOctaveOffset(Math.max(-1, handpan.octaveOffset - 1)); refreshPitch(); });
-wire('octUp', () => { handpan.setOctaveOffset(Math.min(1, handpan.octaveOffset + 1)); refreshPitch(); });
+wire('octDown', () => { handpan.setOctaveOffset(Math.max(-1, (handpan.octaveOffset ?? 0) - 1)); refreshPitch(); });
+wire('octUp', () => { handpan.setOctaveOffset(Math.min(1, (handpan.octaveOffset ?? 0) + 1)); refreshPitch(); });
 
 function cycleInstrument(dir) {
   const ids = InstrumentRegistry.list().map((x) => x.id);
@@ -518,11 +501,10 @@ document.addEventListener('click', (e) => {
   if (!menu || menu.hidden) return;
   if (e.target.closest('#instrumentMenu') || e.target.closest('#instrumentDropdownToggle')) return;
   menu.hidden = true;
-  document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false');
 });
 
 window.addEventListener('keydown', (e) => {
-  if (e.target.matches('input, select, textarea')) return;
+  if (e.target.matches?.('input, select, textarea')) return;
   const i = KEYS.indexOf(e.key.toLowerCase());
   if (i >= 0) {
     e.preventDefault();
@@ -551,14 +533,19 @@ function tick(now) {
 }
 
 async function boot() {
-  if (!app.controlsReady) {
-    app.controlsApi = setupControlsUI(null);
-    app.controlsReady = true;
+  try {
+    await setInstrument('handpan');
+  } catch (err) {
+    console.error('boot setInstrument', err);
   }
-  await setInstrument('handpan');
   resize();
   window.addEventListener('resize', resize);
   requestAnimationFrame(tick);
-  if (isDebugEnabled?.()) mountDebugPanel?.(app);
+  const unlock = () => {
+    ensureAudio();
+    window.removeEventListener('pointerdown', unlock);
+  };
+  window.addEventListener('pointerdown', unlock);
+  if (isDebugEnabled?.()) mountDebugPanel?.({ setInstrument });
 }
 boot();
