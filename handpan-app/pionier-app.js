@@ -247,10 +247,10 @@ function paintKnob(canvasEl, value01, size = 88) {
 function wireKnobs() {
   if (!app.fxChain) return;
   const map = [
-    { knobId: 'knobCompress', valId: 'valCompress', fxId: 'compressor', def: 0.4, size: 88 },
-    { knobId: 'knobDelay', valId: 'valDelay', fxId: 'delay', def: 0.15, size: 88 },
-    { knobId: 'knobReverb', valId: 'valReverb', fxId: 'reverb', def: 0.25, size: 88 },
-    { knobId: 'knobFilter', valId: 'valFilter', fxId: 'filter', def: 0.12, size: 88 },
+    { knobId: 'knobCompress', valId: 'valCompress', fxId: 'compressor', def: 0.4, size: 68 },
+    { knobId: 'knobDelay', valId: 'valDelay', fxId: 'delay', def: 0.15, size: 68 },
+    { knobId: 'knobReverb', valId: 'valReverb', fxId: 'reverb', def: 0.25, size: 68 },
+    { knobId: 'knobFilter', valId: 'valFilter', fxId: 'filter', def: 0.12, size: 68 },
     { knobId: 'knobBass', valId: 'valBass', tone: 'bass', def: 0.5, size: 72 },
     { knobId: 'knobLow', valId: 'valLow', tone: 'low', def: 0.5, size: 72 },
     { knobId: 'knobMid', valId: 'valMid', tone: 'mid', def: 0.5, size: 72 },
@@ -310,7 +310,6 @@ function wireKnobs() {
   wireType('data-reverb', 'reverb');
   wireType('data-filter', 'filter');
 
-  // Fix delay type mapping for "dub"
   document.querySelectorAll('[data-delay]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const mod = app.fxChain?.modules?.find((x) => x.id === 'delay');
