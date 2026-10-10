@@ -1,7 +1,3 @@
-/**
- * audio-core.js — single AudioContext + destination master
- * Instrument chain ends at master; HTML media elements stay outside this graph.
- */
 let context = null;
 let master = null;
 let compressor = null;
@@ -21,7 +17,7 @@ export function getAudioContext() {
   catch { context = new AC(); }
 
   master = context.createGain();
-  master.gain.value = 1.0;
+  master.gain.value = 1.15;
   compressor = context.createDynamicsCompressor();
   compressor.threshold.value = -12;
   compressor.knee.value = 20;
@@ -74,11 +70,7 @@ export function audioState() {
 
 if (typeof document !== 'undefined') {
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      suspendAudio();
-    } else {
-      resumeAudio();
-    }
+    if (document.hidden) suspendAudio();
   });
 }
 
