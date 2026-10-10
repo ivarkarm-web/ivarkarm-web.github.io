@@ -1,17 +1,55 @@
 /**
- * pionier-app.js — load last good instrument + wire scale selector dropdown
+ * pionier-app.js — load instrument core + wire scale selector + anti-ghost touch
  */
 const GOOD = 'https://cdn.jsdelivr.net/gh/ivarkarm-web/ivarkarm-web.github.io@3984a53f1bdd04e93a9b4a8abf86a504fe78bf5f/handpan-app/pionier-app.js';
 const BASE = new URL('.', import.meta.url).href;
+
+function killCanvasGhosts(canvas) {
+  if (!canvas || canvas.dataset.ghostKill === '1') return;
+  canvas.dataset.ghostKill = '1';
+  canvas.draggable = false;
+  canvas.setAttribute('draggable', 'false');
+  try {
+    canvas.style.webkitUserDrag = 'none';
+    canvas.style.userDrag = 'none';
+    canvas.style.webkitTouchCallout = 'none';
+    canvas.style.webkitUserSelect = 'none';
+    canvas.style.userSelect = 'none';
+    canvas.style.touchAction = 'none';
+  } catch (_) {}
+
+  const block = (e) => { e.preventDefault(); e.stopPropagation(); };
+  // Native drag / long-press image previews (iOS/Android) stack as "ghost images"
+  canvas.addEventListener('dragstart', block, true);
+  canvas.addEventListener('drag', block, true);
+  canvas.addEventListener('selectstart', block, true);
+  canvas.addEventListener('contextmenu', block, true);
+  // Extra capture-phase touch block (some WebViews skip pointer events for drag image)
+  canvas.addEventListener('touchstart', (e) => { e.preventDefault(); }, { passive: false, capture: true });
+  canvas.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false, capture: true });
+
+  // Empty drag image fallback if a drag ever starts
+  canvas.addEventListener('dragstart', (e) => {
+    try {
+      if (e.dataTransfer) {
+        e.dataTransfer.setData('text/plain', '');
+        e.dataTransfer.effectAllowed = 'none';
+        const img = new Image();
+        img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+        e.dataTransfer.setDragImage(img, 0, 0);
+      }
+    } catch (_) {}
+    e.preventDefault();
+  }, true);
+}
 
 async function boot() {
   const res = await fetch(GOOD);
   if (!res.ok) throw new Error('failed to load base app ' + res.status);
   let src = await res.text();
 
-  // Rewrite relative imports to absolute paths under this app folder
   src = src.replace(
-    /from\s+(['\"])(\.\/?[^'\"]+)\1/g,
+    /from\s+(['"])(\.?\/?[^'"]+)\1/g,
     (m, q, path) => {
       const abs = new URL(path, BASE).href;
       return `from ${q}${abs}${q}`;
@@ -22,7 +60,13 @@ async function boot() {
   const url = URL.createObjectURL(blob);
   await import(url);
 
-  // Scale selector UI (menu already in index.html)
+  // Anti-ghost: run now and after a frame (canvas may be rebound)
+  const pan = () => document.getElementById('pan');
+  killCanvasGhosts(pan());
+  requestAnimationFrame(() => killCanvasGhosts(pan()));
+  setTimeout(() => killCanvasGhosts(pan()), 500);
+
+  // Scale selector UI
   const { HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js', BASE).href);
   const scaleLabel = document.getElementById('scaleLabel');
   const scaleMenu = document.getElementById('scaleMenu');
@@ -31,7 +75,7 @@ async function boot() {
   function renderMenu() {
     scaleMenu.replaceChildren();
     let lastTuning = null;
-    HANDPAN_SCALES.forEach((scale, index) => {
+    HANDPAN_SCALES.forEach((scale) => {
       const tuning = scale.tuning || '12-TET';
       if (tuning !== lastTuning) {
         lastTuning = tuning;
@@ -63,7 +107,6 @@ async function boot() {
           if (cur === target || (scaleLabel.textContent || '').includes(target)) break;
           nextBtn?.click();
         }
-        // Ensure label shows short name + caret
         scaleLabel.textContent = scale.label + ' ▾';
         scaleMenu.hidden = true;
         scaleLabel.setAttribute('aria-expanded', 'false');
@@ -100,7 +143,6 @@ async function boot() {
     scaleLabel.setAttribute('aria-expanded', 'false');
   });
 
-  // Keep caret on label after stepper use
   const mark = () => {
     const t = scaleLabel.textContent || '';
     if (!t.includes('▾')) scaleLabel.textContent = t.trim() + ' ▾';
