@@ -62,7 +62,8 @@ export function createSurface(canvas) {
     ctx2.ellipse(0, 0, halfL * 0.88, slitW * 0.48, 0, 0, Math.PI * 2);
     ctx2.fill();
     if (g > 0.025 && playable) {
-      const bloom = ctx2.createRadialGradient(0, 0, 0, 0, halfL * 1.05);
+      // Must be 6 args: x0,y0,r0,x1,y1,r1 (was missing y1 — crashed draw loop)
+      const bloom = ctx2.createRadialGradient(0, 0, 0, 0, 0, halfL * 1.05);
       bloom.addColorStop(0, `rgba(238,246,255,${g * 0.2})`);
       bloom.addColorStop(0.42, `rgba(177,204,232,${g * 0.09})`);
       bloom.addColorStop(1, 'rgba(177,204,232,0)');
