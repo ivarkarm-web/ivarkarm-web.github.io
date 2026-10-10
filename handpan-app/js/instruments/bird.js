@@ -62,11 +62,19 @@ export class BirdInstrument extends Instrument {
   }
 
   fieldToCall(fieldIndex) {
-    return BIRD_ZONE_INDICES.indexOf(fieldIndex);
+    const exact = BIRD_ZONE_INDICES.indexOf(fieldIndex);
+    if (exact >= 0) return exact;
+    let best = 0, bestDist = 99;
+    for (let i = 0; i < BIRD_ZONE_INDICES.length; i++) {
+      const d = Math.abs(BIRD_ZONE_INDICES[i] - fieldIndex);
+      if (d < bestDist) { bestDist = d; best = i; }
+    }
+    return best;
   }
 
   noteOn(gesture, zone) {
-    if (!this.ready || !this.audioCtx || !this.bus) return;
+    if (!this.audioCtx || !this.bus) return;
+    if (!this.ready) this._ready = true;
     const fieldIdx = zone?.index ?? zone?.idx ?? 0;
     const callIdx = this.fieldToCall(fieldIdx);
     if (callIdx < 0) return;
@@ -74,7 +82,6 @@ export class BirdInstrument extends Instrument {
     const call = this.calls[callIdx];
     if (!call) return;
     const pitch = this.pitches[callIdx];
-    // Bird voices sit higher — map pentatonic up one or two octaves for avian range
     const baseFreq = (pitch?.freq || 440) * (call.id === 'call' ? 2 : call.id === 'click' ? 4 : 3);
 
     const ctx = this.audioCtx;
@@ -101,10 +108,8 @@ export class BirdInstrument extends Instrument {
     out.gain.value = 1;
     out.connect(this.bus);
 
-    // Carrier
     const car = ctx.createOscillator();
     car.type = 'sine';
-    // Pitch contour by call type
     if (call.contour === 'up') {
       car.frequency.setValueAtTime(f0 * 0.85, t);
       car.frequency.exponentialRampToValueAtTime(f0 * 1.15, t + decay * 0.35);
@@ -124,7 +129,6 @@ export class BirdInstrument extends Instrument {
       car.frequency.exponentialRampToValueAtTime(f0 * 0.97, t + decay);
     }
 
-    // FM modulator for avian timbre
     const mod = ctx.createOscillator();
     mod.type = 'sine';
     const modRatio = 1.4 + nx * 1.8 + (call.id === 'click' ? 2.5 : 0);
@@ -132,11 +136,10 @@ export class BirdInstrument extends Instrument {
     const modG = ctx.createGain();
     const modDepth = f0 * (0.15 + vel * 0.55) * (0.4 + brightness * 0.8);
     modG.gain.setValueAtTime(modDepth, t);
-    modG.gain.exponentialRampToValueAtTime(modDepth * 0.08, t + decay * 0.7);
+    modG.gain.exponentialRampToValueAtTime(Math.max(0.001, modDepth * 0.08), t + decay * 0.7);
     mod.connect(modG);
     modG.connect(car.frequency);
 
-    // Vibrato / trill LFO
     const lfoRate = call.contour === 'trill'
       ? 12 + movement * 18 + vel * 8
       : 4 + call.vibrato * 6 + movement * 8;
@@ -148,17 +151,16 @@ export class BirdInstrument extends Instrument {
     lfo.connect(lfoG);
     lfoG.connect(car.frequency);
 
-    // Formant-ish bandpass
     const filt = ctx.createBiquadFilter();
     filt.type = 'bandpass';
     filt.frequency.setValueAtTime(f0 * (1.1 + brightness * 0.5), t);
     filt.Q.value = 2.5 + (1 - nx) * 5 + brightness * 2;
 
     const g = ctx.createGain();
-    const peak = 0.2 * vel;
+    const peak = 0.28 * vel;
     g.gain.setValueAtTime(0.0001, t);
     g.gain.linearRampToValueAtTime(peak, t + call.attack + (1 - vel) * 0.015);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + Math.max(0.08, decay));
 
     car.connect(filt);
     filt.connect(g);
@@ -171,7 +173,6 @@ export class BirdInstrument extends Instrument {
     mod.stop(t + decay + 0.12);
     lfo.stop(t + decay + 0.12);
 
-    // Transient noise for chirp / click
     if (call.id === 'click' || call.id === 'chirp') {
       const nlen = Math.floor(ctx.sampleRate * (call.id === 'click' ? 0.025 : 0.04));
       const buf = ctx.createBuffer(1, nlen, ctx.sampleRate);
