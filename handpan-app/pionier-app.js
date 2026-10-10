@@ -46,8 +46,10 @@ async function boot() {
   src = src.replace(
     /from\s+(['"])(\.?\/?[^'"]+)\1/g,
     (m, q, path) => {
-      const abs = new URL(path, BASE).href;
-      return `from ${q}${abs}${q}`;
+      const abs = new URL(path, BASE);
+      // Force fresh modules (surface fix etc.) — ignore baked ?v= from CDN base
+      abs.searchParams.set('v', '93');
+      return `from ${q}${abs.href}${q}`;
     }
   );
 
