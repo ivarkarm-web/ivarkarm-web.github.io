@@ -11,7 +11,7 @@ import { FxEngine } from './js/fx-engine.js';
 import { setupControlsUI } from './js/controls-ui.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
-import { createSurface, WORLD_ZONE_INDICES } from './js/pionier-surface.js?v=26';
+import { createSurface } from './js/pionier-surface.js?v=26';
 import { createMandalaRenderer } from './js/mandala-canvas.js';
 
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
@@ -23,6 +23,7 @@ for (const instrument of createTonalInstruments()) InstrumentRegistry.register(i
 const app = {
   fxEngine: null,
   controlsReady: false,
+  controlsApi: null,
   instrumentBus: null,
   gestureTracker: new GestureTracker(),
   pointers: new Map(),
@@ -45,11 +46,13 @@ function ensureAudio() {
   if (!ctx) return false;
   if (!app.instrumentBus) {
     app.instrumentBus = ctx.createGain();
-    app.instrumentBus.gain.value = 1.45;
+    app.instrumentBus.gain.value = 1.0;
     app.fxEngine = new FxEngine(ctx, getAudioMaster());
     app.instrumentBus.connect(app.fxEngine.input);
-    if (!app.controlsReady) {
-      setupControlsUI(app.fxEngine);
+    if (app.controlsApi && typeof app.controlsApi.attachEngine === 'function') {
+      app.controlsApi.attachEngine(app.fxEngine);
+    } else if (!app.controlsReady) {
+      app.controlsApi = setupControlsUI(app.fxEngine);
       app.controlsReady = true;
     }
   }
@@ -120,8 +123,10 @@ function updateInstrumentUI() {
 }
 
 function layoutFields() {
-  if (!handpan.getNotes().length) handpan.rebuildNotes?.();
-  surface.layoutHandpanFields(handpan.getNotes(), isFieldPlayable);
+  if (!handpan.getNotes().length) handpan.rebuildNotes();
+  const notes = handpan.getNotes();
+  if (!notes.length) return;
+  surface.layoutHandpanFields(notes, isFieldPlayable);
   for (const f of surface.fields) f.zoneLabel = null;
   handpan.setZones?.(surface.fields);
 }
@@ -145,10 +150,10 @@ canvas.addEventListener('pointerdown', (e) => {
   e.preventDefault();
   if (e.pointerType === 'touch') e.stopPropagation();
   ensureAudio();
-  canvas.setPointerCapture(e.pointerId);
   const { x, y } = surface.canvasCoords(e);
   const hit = surface.hitVector(x, y);
   if (!hit) return;
+  try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
   const inst = activeInstrument();
   const gesture = gestureFromPointer(e, hit, app.gestureTracker.activeCount + 1, inst.lastStrikeAt);
   app.gestureTracker.down(gesture);
@@ -228,11 +233,18 @@ canvas.addEventListener('pointercancel', (e) => {
   audio.addEventListener('loadedmetadata', syncProgress);
   audio.addEventListener('durationchange', syncProgress);
   progressEl?.addEventListener('pointerdown', () => { seeking = true; });
-  progressEl?.addEventListener('pointerup', () => {
-    if (!audio || !isFinite(audio.duration)) { seeking = false; return; }
-    audio.currentTime = (Number(progressEl.value) / 1000) * audio.duration;
+  function seekFromProgress() {
+    if (!audio || !isFinite(audio.duration) || audio.duration <= 0) { seeking = false; return; }
+    const ratio = Number(progressEl.value) / 1000;
+    const t = Math.max(0, Math.min(audio.duration, ratio * audio.duration));
+    try { audio.currentTime = t; } catch (_) {}
     seeking = false;
     syncProgress();
+  }
+  progressEl?.addEventListener('pointerup', seekFromProgress);
+  progressEl?.addEventListener('change', seekFromProgress);
+  progressEl?.addEventListener('keyup', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') seekFromProgress();
   });
   progressEl?.addEventListener('input', () => {
     if (!seeking || !audio || !isFinite(audio.duration)) return;
@@ -240,7 +252,13 @@ canvas.addEventListener('pointercancel', (e) => {
   });
 
   let mandalaRenderer = null;
-  if (mandala) mandalaRenderer = createMandalaRenderer(mandala);
+  if (mandala) {
+    mandalaRenderer = createMandalaRenderer(mandala);
+    mandala.style.pointerEvents = 'none';
+    mandala.style.visibility = 'hidden';
+    mandala.style.zIndex = '-1';
+    mandala.style.opacity = '0';
+  }
 
   function syncMandalaToPan() {
     if (!pan || !mandala) return;
@@ -251,7 +269,6 @@ canvas.addEventListener('pointercancel', (e) => {
     mandala.style.setProperty('top', rect.top + 'px', 'important');
     mandala.style.setProperty('width', rect.width + 'px', 'important');
     mandala.style.setProperty('height', rect.height + 'px', 'important');
-    mandala.style.setProperty('z-index', '1501', 'important');
   }
   window.addEventListener('resize', syncMandalaToPan, { passive: true });
 
@@ -260,7 +277,17 @@ canvas.addEventListener('pointercancel', (e) => {
     if (leavingTimer) { clearTimeout(leavingTimer); leavingTimer = null; }
     page.style.setProperty('--sc-progress', show ? '1' : '0');
     document.getElementById('app')?.style.setProperty('--sc-progress', show ? '1' : '0');
-    if (mandala) mandala.style.opacity = show ? '1' : '0';
+    if (mandala) {
+      mandala.style.opacity = show ? '1' : '0';
+      mandala.style.pointerEvents = 'none';
+      if (!show) {
+        mandala.style.zIndex = '-1';
+        mandala.style.visibility = 'hidden';
+      } else {
+        mandala.style.zIndex = '1501';
+        mandala.style.visibility = 'visible';
+      }
+    }
     if (show) {
       page.classList.add('is-active');
       document.body.classList.add('soundscapes-active');
@@ -268,6 +295,8 @@ canvas.addEventListener('pointercancel', (e) => {
       mandala?.classList.add('is-overlay-active');
       page.setAttribute('aria-hidden', 'false');
       document.getElementById('app')?.classList.add('soundscapes-away');
+      const transport = mandala?.querySelector('.mandala-transport');
+      if (transport) transport.style.pointerEvents = 'auto';
     } else {
       closeControls();
       if (!page.classList.contains('is-active')) return;
@@ -278,6 +307,11 @@ canvas.addEventListener('pointercancel', (e) => {
         mandalaRenderer?.stop();
         mandala?.classList.remove('is-overlay-active');
         document.getElementById('app')?.classList.remove('soundscapes-away');
+        if (mandala) {
+          mandala.style.visibility = 'hidden';
+          mandala.style.zIndex = '-1';
+          mandala.style.pointerEvents = 'none';
+        }
         leavingTimer = null;
       }, 430);
     }
@@ -433,11 +467,19 @@ function renderInstrumentMenu() {
     menu.appendChild(button);
   }
 }
-document.getElementById('instrumentDropdownToggle')?.addEventListener('click', () => {
+document.getElementById('instrumentDropdownToggle')?.addEventListener('click', (e) => {
+  e.stopPropagation();
   const menu = document.getElementById('instrumentMenu');
   if (!menu) return;
   menu.hidden = !menu.hidden;
   document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', menu.hidden ? 'false' : 'true');
+});
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('instrumentMenu');
+  if (!menu || menu.hidden) return;
+  if (e.target.closest('#instrumentMenu') || e.target.closest('#instrumentDropdownToggle')) return;
+  menu.hidden = true;
+  document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false');
 });
 
 window.addEventListener('keydown', (e) => {
@@ -470,6 +512,10 @@ function tick(now) {
 }
 
 async function boot() {
+  if (!app.controlsReady) {
+    app.controlsApi = setupControlsUI(null);
+    app.controlsReady = true;
+  }
   await setInstrument('handpan');
   resize();
   window.addEventListener('resize', resize);
