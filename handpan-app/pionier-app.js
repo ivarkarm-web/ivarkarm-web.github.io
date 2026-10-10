@@ -17,25 +17,11 @@ function killCanvasGhosts(canvas) {
     canvas.style.userSelect = 'none';
     canvas.style.touchAction = 'none';
   } catch (_) {}
-
   const block = (e) => { e.preventDefault(); };
   canvas.addEventListener('dragstart', block, true);
   canvas.addEventListener('drag', block, true);
   canvas.addEventListener('selectstart', block, true);
   canvas.addEventListener('contextmenu', block, true);
-
-  canvas.addEventListener('dragstart', (e) => {
-    try {
-      if (e.dataTransfer) {
-        e.dataTransfer.setData('text/plain', '');
-        e.dataTransfer.effectAllowed = 'none';
-        const img = new Image();
-        img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-        e.dataTransfer.setDragImage(img, 0, 0);
-      }
-    } catch (_) {}
-    e.preventDefault();
-  }, true);
 }
 
 async function boot() {
@@ -43,13 +29,17 @@ async function boot() {
   if (!res.ok) throw new Error('failed to load base app ' + res.status);
   let src = await res.text();
 
+  // CDN base pins broken surface at ?v=28 — force fixed file
+  src = src.split("pionier-surface.js?v=28").join("pionier-surface.js?v=93");
+  src = src.split("'./js/pionier-surface.js'").join("'./js/pionier-surface.js?v=93'");
+  src = src.split('"./js/pionier-surface.js"').join('"./js/pionier-surface.js?v=93"');
+
   src = src.replace(
     /from\s+(['"])(\.?\/?[^'"]+)\1/g,
     (m, q, path) => {
       const abs = new URL(path, BASE);
-      // Force fresh modules (surface fix etc.) — ignore baked ?v= from CDN base
-      abs.searchParams.set('v', '93');
-      return `from ${q}${abs.href}${q}`;
+      if (String(path).includes('pionier-surface')) abs.searchParams.set('v', '93');
+      return 'from ' + q + abs.href + q;
     }
   );
 
@@ -118,11 +108,6 @@ async function boot() {
     const open = scaleMenu.hidden;
     scaleMenu.hidden = !open;
     scaleLabel.setAttribute('aria-expanded', open ? 'true' : 'false');
-    if (open) {
-      requestAnimationFrame(() => {
-        scaleMenu.querySelector('.scale-menu-item.is-active')?.scrollIntoView({ block: 'nearest' });
-      });
-    }
   });
 
   document.addEventListener('click', (e) => {
