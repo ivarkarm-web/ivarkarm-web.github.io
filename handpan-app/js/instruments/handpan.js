@@ -1,6 +1,7 @@
 /**
  * instruments/handpan.js — Handpan as first-class Instrument
- * Supports aftertouch: pressure → gain, radial position → brightness while held.
+ * Supports aftertouch (pressure → gain, radial → brightness) and
+ * MPE-style polyphonic pitch bend (vertical drift → cents detune).
  */
 import { Instrument } from '../instrument.js';
 import { NoteSampleBank } from '../note-sample-bank.js';
@@ -10,6 +11,9 @@ const NOTE_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A'
 const RING_ANGLES = [180, 225, 270, 315, 0, 45, 90, 135];
 const ZIGZAG_SLOTS = [0, 1, 7, 2, 6, 3, 5, 4];
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
+
+/** Max MPE pitch bend range in semitones (±). */
+const PITCH_BEND_RANGE = 2;
 
 export const HANDPAN_SCALES = [
   { id: 'celtic-minor', label: 'Celtic Minor', intervals: [0, 7, 8, 10, 12, 14, 15, 17, 19] },
@@ -38,7 +42,7 @@ export class HandpanInstrument extends Instrument {
     super({
       id: 'handpan',
       name: 'Handpan',
-      description: '9-note radial steel handpan with interval scales, dynamic transposition, and aftertouch.',
+      description: '9-note radial steel handpan with interval scales, aftertouch, and MPE pitch bend.',
       category: 'handpan',
       polyphony: 9,
       compatibleFx: ['compressor', 'delay', 'reverb', 'warmth', 'air', 'chorus', 'shimmer']
@@ -53,6 +57,9 @@ export class HandpanInstrument extends Instrument {
     this.glow = new Float32Array(9);
     this.zoneFlash = new Float32Array(9);
     this.held = new Uint8Array(9);
+    /** Current pitch bend in cents per pad (−1200…+1200 typical). */
+    this.pitchBendCents = new Float32Array(9);
+    this.pitchBendRange = PITCH_BEND_RANGE;
   }
 
   async activate(audioCtx, bus) {
@@ -118,6 +125,10 @@ export class HandpanInstrument extends Instrument {
     this.voiceIndex = ((i % VOICE_PRESETS.length) + VOICE_PRESETS.length) % VOICE_PRESETS.length;
   }
 
+  setPitchBendRange(semitones) {
+    this.pitchBendRange = Math.max(0.25, Math.min(48, semitones));
+  }
+
   get scaleLabel() {
     return HANDPAN_SCALES[this.scaleIndex]?.label || '';
   }
@@ -130,10 +141,6 @@ export class HandpanInstrument extends Instrument {
     return VOICE_PRESETS[this.voiceIndex]?.name || 'Steel';
   }
 
-  /**
-   * Build shared aftertouch nodes (expressGain + expressFilter) that sit
-   * between the voice output and the instrument bus.
-   */
   _makeExpressNodes(ctx, dest, t) {
     const expressFilter = ctx.createBiquadFilter();
     expressFilter.type = 'lowpass';
@@ -147,6 +154,41 @@ export class HandpanInstrument extends Instrument {
     expressGain.connect(dest);
 
     return { expressFilter, expressGain };
+  }
+
+  /**
+   * Apply pitch bend in cents to a live voice (synth oscs or sample sources).
+   */
+  _applyPitchBend(voice, cents, t) {
+    if (!voice || voice.released) return;
+    const clamped = Math.max(-this.pitchBendRange * 100, Math.min(this.pitchBendRange * 100, cents));
+
+    // Synth: use AudioParam detune (cents) on each oscillator
+    if (voice.oscs) {
+      for (const osc of voice.oscs) {
+        try {
+          osc.detune.cancelScheduledValues(t);
+          osc.detune.setTargetAtTime(clamped, t, 0.03);
+        } catch (_) {
+          try { osc.detune.value = clamped; } catch (_) {}
+        }
+      }
+    }
+
+    // Samples: modulate playbackRate relative to base rate
+    if (voice.sampleSources) {
+      const ratio = Math.pow(2, clamped / 1200);
+      for (const src of voice.sampleSources) {
+        if (!src || !src.playbackRate) continue;
+        const base = src._baseRate ?? 1;
+        try {
+          src.playbackRate.cancelScheduledValues(t);
+          src.playbackRate.setTargetAtTime(base * ratio, t, 0.03);
+        } catch (_) {
+          try { src.playbackRate.value = base * ratio; } catch (_) {}
+        }
+      }
+    }
   }
 
   noteOn(gesture, zone) {
@@ -172,22 +214,32 @@ export class HandpanInstrument extends Instrument {
     this.glow[idx] = Math.min(1, 0.55 + vel * 0.45);
     this.zoneFlash[idx] = radial;
     this.held[idx] = 1;
+    this.pitchBendCents[idx] = 0;
     this.lastStrikeAt.set(idx, performance.now());
 
     // Prefer samples when available
     if (this.sampleBank && this.sampleBank.ready) {
       const played = this.sampleBank.play(note.midi, this.bus, t, { vel, radial, angleRad });
       if (played) {
-        // Insert aftertouch gain on the sample bus for live pressure control
         const expressGain = ctx.createGain();
         expressGain.gain.setValueAtTime(0.85 + pressure * 0.3, t);
         try {
           played.bus.disconnect();
           played.bus.connect(expressGain);
           expressGain.connect(this.bus);
-        } catch (_) {
-          // If graph already locked, keep original path
+        } catch (_) {}
+
+        // Collect BufferSource nodes for live pitch bend via playbackRate
+        const sampleSources = [];
+        if (Array.isArray(played.nodes)) {
+          for (const n of played.nodes) {
+            if (n && typeof n.start === 'function' && n.playbackRate) {
+              n._baseRate = n.playbackRate.value || 1;
+              sampleSources.push(n);
+            }
+          }
         }
+
         this.activeVoices.set(idx, {
           idx,
           stop: (tt, tc) => {
@@ -200,8 +252,10 @@ export class HandpanInstrument extends Instrument {
           released: false,
           expressGain,
           expressFilter: null,
+          sampleSources,
           kind: 'sample',
-          baseGain: 0.85 + pressure * 0.3
+          baseGain: 0.85 + pressure * 0.3,
+          baseFreq: note.freq
         });
         return;
       }
@@ -217,7 +271,6 @@ export class HandpanInstrument extends Instrument {
     const z = NoteSampleBank.zoneWeights(radial);
 
     const { expressFilter, expressGain } = this._makeExpressNodes(ctx, this.bus, t);
-    // Initial aftertouch state from strike
     const bright = Math.max(0, Math.min(1, radial));
     const cutoff = 1800 + bright * 10000 + vel * 2000;
     expressFilter.frequency.setValueAtTime(cutoff, t);
@@ -241,6 +294,7 @@ export class HandpanInstrument extends Instrument {
       const osc = ctx.createOscillator();
       osc.type = preset.wave || 'sine';
       osc.frequency.value = f * ratio * (1 + ((i % 2) ? -1 : 1) * (preset.spread || 0.005));
+      osc.detune.value = 0;
       const g = ctx.createGain();
       const peak = (0.32 + 0.28 * vel) * (gains[i] || 0.06);
       g.gain.setValueAtTime(0.0001, t);
@@ -262,6 +316,7 @@ export class HandpanInstrument extends Instrument {
       expressFilter,
       kind: 'synth',
       baseGain: 0.9 + pressure * 0.25,
+      baseFreq: f,
       stop: (tt, tc) => this._releaseVoice(voice, tt, tc)
     };
 
@@ -278,10 +333,10 @@ export class HandpanInstrument extends Instrument {
   }
 
   /**
-   * Continuous aftertouch while a pad is held.
-   * - pressure / force → subtle gain swell
-   * - radial position → brightness (filter cutoff)
-   * - also refreshes visual glow
+   * Continuous expression while a pad is held.
+   * - pressure / force → gain swell
+   * - radial → brightness (filter)
+   * - pitchBend (semitones, −range…+range) → per-note MPE detune
    */
   express(gesture, zone) {
     if (!this.ready || !this.audioCtx) return;
@@ -300,11 +355,11 @@ export class HandpanInstrument extends Instrument {
     );
     const radial = Math.max(0, Math.min(1.2, zone.radial ?? gesture.radial ?? 0.4));
 
-    // Visual feedback — keep glow alive while pressing
+    // Visual feedback
     this.glow[idx] = Math.min(1, Math.max(this.glow[idx], 0.35 + pressure * 0.55));
     this.zoneFlash[idx] = radial;
 
-    // Gain aftertouch (pressure)
+    // Gain aftertouch
     if (voice.expressGain) {
       const target = (voice.baseGain ?? 1) * (0.82 + pressure * 0.35);
       try {
@@ -313,7 +368,7 @@ export class HandpanInstrument extends Instrument {
       } catch (_) {}
     }
 
-    // Brightness aftertouch (radial → filter cutoff) — synth voices only
+    // Brightness aftertouch
     if (voice.expressFilter) {
       const bright = Math.max(0, Math.min(1, radial));
       const cutoff = 1600 + bright * 11000 + pressure * 1500;
@@ -321,6 +376,17 @@ export class HandpanInstrument extends Instrument {
         voice.expressFilter.frequency.cancelScheduledValues(t);
         voice.expressFilter.frequency.setTargetAtTime(cutoff, t, 0.05);
       } catch (_) {}
+    }
+
+    // MPE pitch bend (semitones → cents)
+    let bendSemi = gesture.pitchBend;
+    if (bendSemi == null && typeof gesture.pitchBendNorm === 'number') {
+      bendSemi = gesture.pitchBendNorm * this.pitchBendRange;
+    }
+    if (typeof bendSemi === 'number' && Number.isFinite(bendSemi)) {
+      const cents = bendSemi * 100;
+      this.pitchBendCents[idx] = cents;
+      this._applyPitchBend(voice, cents, t);
     }
   }
 
@@ -340,6 +406,7 @@ export class HandpanInstrument extends Instrument {
 
   noteOff(zoneId) {
     this.held[zoneId] = 0;
+    this.pitchBendCents[zoneId] = 0;
     const v = this.activeVoices.get(zoneId);
     if (!v || !this.audioCtx) return;
     if (v.stop) v.stop(this.audioCtx.currentTime, 0.07);
@@ -348,6 +415,7 @@ export class HandpanInstrument extends Instrument {
 
   dampAll() {
     this.held.fill(0);
+    this.pitchBendCents.fill(0);
     const t = this.audioCtx ? this.audioCtx.currentTime : 0;
     for (const [, v] of this.activeVoices) {
       if (v.stop) v.stop(t, 0.05);
@@ -360,7 +428,6 @@ export class HandpanInstrument extends Instrument {
     let any = false;
     for (let i = 0; i < 9; i++) {
       if (this.glow[i] > 0.001) {
-        // Decay slower while held so aftertouch glow stays visible
         this.glow[i] *= this.held[i] ? 0.97 : 0.9;
         any = true;
       } else {
@@ -371,6 +438,12 @@ export class HandpanInstrument extends Instrument {
   }
 
   getPerformanceHints() {
-    return { maxVoices: 9, prefersSamples: true, supportsAftertouch: true };
+    return {
+      maxVoices: 9,
+      prefersSamples: true,
+      supportsAftertouch: true,
+      supportsPitchBend: true,
+      pitchBendRange: this.pitchBendRange
+    };
   }
 }
