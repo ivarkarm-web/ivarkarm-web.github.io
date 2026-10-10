@@ -1,16 +1,6 @@
 /**
  * Pionier tonal instrument family — physics-informed Web Audio models.
- *
- * Instrument references used for the sound models:
- * - RAV / steel tongue drums: tuned partials and long, layered resonance.
- * - Kalimba / mbira: plucked metal tine modes plus a quieter body resonance.
- * - Marimba: wooden-bar modes with a strong, inharmonic upper partial.
- * - Singing bowls: paired, slightly detuned modal partials that create beating.
- * - Ocarina: cavity-resonator tone dominated by a near-pure fundamental.
- * - Flute: sustained fundamental with breath noise.
- *
- * These are original procedural models, not recordings or claimed exact replicas.
- * Every model inherits Pionier's current nine pitches from the selected handpan scale.
+ * Every model inherits Pionier's nine pitches from the selected handpan scale.
  */
 import { Instrument } from '../instrument.js';
 
@@ -43,7 +33,7 @@ const PRESETS = [
     id: 'rav-vast', name: 'Resonant Tongue',
     description: 'Deep tuned-tongue tone with chorus-like overtones and a long steel-shell tail.',
     model: 'rav', wave: 'sine', decay: 3.7, attack: .009, brightness: .72,
-    modes: [[1, 1, 1], [2, .46, .80], [3.01, .26, .62], [4.04, .14, .50], [5.43, .075, .38], [6.8, .03, .28]]
+    modes: [[1, 1, 1], [2.005, .38, .78], [3.01, .16, .58], [4.15, .075, .38], [6.8, .03, .28]]
   },
   {
     id: 'ocarina', name: 'Ocarina',
@@ -56,6 +46,54 @@ const PRESETS = [
     description: 'Airy, sustained flute voice with a soft breath component.',
     model: 'flute', wave: 'sine', decay: 1.8, attack: .065, brightness: .32, sustain: true,
     modes: [[1, 1, 1], [2, .13, .28], [3.01, .035, .16], [4.02, .012, .09]]
+  },
+  {
+    id: 'temple-bell', name: 'Temple Bell',
+    description: 'Bright struck bell with long metallic shimmer and slow decay.',
+    model: 'bowl', wave: 'sine', decay: 4.2, attack: .004, brightness: .95,
+    modes: [[1, 1, 1], [2.76, .28, .7], [5.4, .12, .45], [8.2, .05, .3], [11.1, .02, .2]]
+  },
+  {
+    id: 'gong', name: 'Gong',
+    description: 'Deep wash of inharmonic partials with a swelling body.',
+    model: 'rav', wave: 'sine', decay: 5.0, attack: .02, brightness: .55,
+    modes: [[1, 1, 1], [1.37, .4, .9], [1.92, .25, .8], [2.55, .15, .65], [3.4, .08, .5], [4.7, .04, .35]]
+  },
+  {
+    id: 'harp', name: 'Harp',
+    description: 'Plucked string with clear partials and gentle decay.',
+    model: 'kalimba', wave: 'triangle', decay: 2.4, attack: .003, brightness: .75,
+    modes: [[1, 1, 1], [2.01, .4, .7], [3.02, .18, .5], [4.05, .08, .35], [5.1, .03, .22]]
+  },
+  {
+    id: 'piano', name: 'Soft Piano',
+    description: 'Gentle hammered-string character with medium sustain.',
+    model: 'marimba', wave: 'triangle', decay: 1.9, attack: .004, brightness: .6,
+    modes: [[1, 1, 1], [2, .32, .65], [3, .12, .45], [4.1, .05, .3], [5.2, .02, .18]]
+  },
+  {
+    id: 'synth-pad', name: 'Synth Pad',
+    description: 'Slow-attack sustained pad for ambient layering.',
+    model: 'flute', wave: 'sine', decay: 3.5, attack: .12, brightness: .4, sustain: true,
+    modes: [[1, 1, 1], [1.5, .2, .6], [2, .15, .5], [3, .06, .3]]
+  },
+  {
+    id: 'pluck', name: 'Soft Pluck',
+    description: 'Short muted pluck, useful for rhythmic patterns.',
+    model: 'kalimba', wave: 'triangle', decay: 0.55, attack: .001, brightness: .85,
+    modes: [[1, 1, 1], [2.4, .22, .4], [4.1, .06, .22]]
+  },
+  {
+    id: 'glass', name: 'Glass Harmonica',
+    description: 'Ethereal rubbed-glass tone with slow bloom.',
+    model: 'bowl', wave: 'sine', decay: 3.8, attack: .08, brightness: .9, sustain: true,
+    modes: [[1, 1, 1], [1.01, .35, .95], [2.02, .12, .55], [3.05, .04, .3]]
+  },
+  {
+    id: 'log-drum', name: 'Log Drum',
+    description: 'Wooden slit-drum thump with short, warm body.',
+    model: 'marimba', wave: 'sine', decay: 0.7, attack: .003, brightness: .4,
+    modes: [[1, 1, 1], [2.8, .2, .4], [5.2, .05, .22]]
   }
 ];
 
@@ -156,75 +194,53 @@ export class TonalInstrument extends Instrument {
       partialFilter.Q.setValueAtTime(.55 + preset.brightness * .65, t);
 
       const gain = ctx.createGain();
-      const peak = .24 * vel * level * (i === 0 ? 1 : .9 + radial * .16);
+      const peak = level * vel * (.55 + (1 - radial * .25) * .45);
       gain.gain.setValueAtTime(.0001, t);
-      gain.gain.linearRampToValueAtTime(peak, t + preset.attack + i * .0015);
-
-      if (isSustain) {
-        // Wind instruments sustain until the pointer is released.
-      } else {
-        const modeDecay = decay * damping;
-        gain.gain.exponentialRampToValueAtTime(.0001, t + Math.max(.12, modeDecay));
-        osc.stop(t + Math.max(.18, modeDecay) + .08);
+      gain.gain.linearRampToValueAtTime(Math.max(.0002, peak), t + preset.attack);
+      if (!isSustain) {
+        const end = t + Math.max(.08, decay * damping);
+        gain.gain.exponentialRampToValueAtTime(.0001, end);
+        osc.stop(end + .03);
       }
-      osc.connect(partialFilter); partialFilter.connect(gain); gain.connect(out);
+      osc.connect(partialFilter);
+      partialFilter.connect(gain);
+      gain.connect(out);
       osc.start(t);
-      oscillators.push(osc);
+      oscillators.push({ osc, gain, filter: partialFilter });
     });
 
-    // A short, filtered strike excites the metal/wood models. Wind voices use
-    // a quieter continuous air stream while held, not a generic percussive click.
-    let noise = null;
-    if (preset.model === 'kalimba') {
-      noise = addNoise(ctx, out, t, { frequency: 3300 + fundamental * 1.2, level: .035 * vel, duration: .055, attack: .001, filter: 'highpass', q: .5 });
-      // Quiet body modes add the box/gourd resonance heard behind a tine.
-      [180, 360, 620].forEach((hz, i) => {
-        const body = ctx.createOscillator();
-        body.type = 'sine'; body.frequency.setValueAtTime(hz, t);
-        const g = ctx.createGain(); const peak = vel * [.012, .008, .003][i];
-        g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(peak, t + .004);
-        g.gain.exponentialRampToValueAtTime(.0001, t + decay * [.65, .38, .24][i]);
-        body.connect(g); g.connect(out); body.start(t); body.stop(t + decay + .05); oscillators.push(body);
-      });
-    } else if (preset.model === 'marimba') {
-      noise = addNoise(ctx, out, t, { frequency: 1500 + fundamental * 2, level: .024 * vel, duration: .028, attack: .001, filter: 'lowpass', q: .6 });
-    } else if (preset.model === 'tongue' || preset.model === 'rav') {
-      noise = addNoise(ctx, out, t, { frequency: 2100 + fundamental * 1.4, level: .012 * vel, duration: .045, attack: .002, filter: 'bandpass', q: .9 });
-    } else if (preset.model === 'bowl') {
-      noise = addNoise(ctx, out, t, { frequency: 4600, level: .007 * vel, duration: .022, attack: .003, filter: 'highpass', q: .7 });
-    } else if (isSustain) {
-      noise = addNoise(ctx, out, t, {
-        frequency: preset.model === 'ocarina' ? 1900 : 2800,
-        level: preset.model === 'ocarina' ? .012 * vel : .021 * vel,
-        attack: preset.attack, filter: 'highpass', q: .55, loop: true
+    if (preset.model === 'flute' || preset.model === 'ocarina') {
+      addNoise(ctx, out, t, {
+        frequency: preset.model === 'flute' ? 3200 : 1800,
+        level: preset.model === 'flute' ? .022 * vel : .012 * vel,
+        attack: preset.attack * .6,
+        duration: isSustain ? undefined : Math.min(.2, decay * .15),
+        loop: isSustain,
+        filter: 'bandpass',
+        q: 1.2
       });
     }
 
     const voice = {
-      idx, out, oscillators, noise, released: false, oneShot: !isSustain,
-      stop: (when, timeConstant = .06) => {
-        if (voice.released) return;
-        voice.released = true;
-        try {
-          out.gain.cancelScheduledValues(when);
-          out.gain.setTargetAtTime(.0001, when, timeConstant);
-          if (noise?.source?.loop) {
-            noise.gain.gain.cancelScheduledValues(when);
-            noise.gain.gain.setTargetAtTime(.0001, when, timeConstant);
-            noise.source.stop(when + Math.max(.08, timeConstant * 5));
-          }
-          if (isSustain) oscillators.forEach(osc => { try { osc.stop(when + Math.max(.1, timeConstant * 5)); } catch (_) {} });
-        } catch (_) {}
+      idx,
+      oneShot: !isSustain,
+      stop: (when, release = .08) => {
+        const stopAt = when ?? ctx.currentTime;
+        for (const { osc, gain } of oscillators) {
+          try {
+            gain.gain.cancelScheduledValues(stopAt);
+            gain.gain.setTargetAtTime(.0001, stopAt, Math.max(.01, release / 3));
+            osc.stop(stopAt + release + .05);
+          } catch (_) {}
+        }
+        setTimeout(() => {
+          if (this.activeVoices.get(idx) === voice) this.activeVoices.delete(idx);
+          try { out.disconnect(); } catch (_) {}
+        }, (release + .08) * 1000);
       }
     };
-
     if (!isSustain) {
-      oscillators[0].onended = () => {
-        if (this.activeVoices.get(idx) === voice) this.activeVoices.delete(idx);
-        try { out.disconnect(); } catch (_) {}
-      };
-    } else {
-      oscillators[0].onended = () => {
+      oscillators[0].osc.onended = () => {
         if (this.activeVoices.get(idx) === voice) this.activeVoices.delete(idx);
         try { out.disconnect(); } catch (_) {}
       };
@@ -234,7 +250,6 @@ export class TonalInstrument extends Instrument {
 
   noteOff(idx) {
     const voice = this.activeVoices.get(idx);
-    // Struck instruments ring naturally after the finger leaves the surface.
     if (voice && !voice.oneShot && this.audioCtx) voice.stop(this.audioCtx.currentTime, .09);
   }
 
@@ -249,10 +264,11 @@ export class TonalInstrument extends Instrument {
     for (let i = 0; i < 9; i++) {
       if (this.glow[i] > .001) { this.glow[i] *= .9; active = true; }
       else this.glow[i] = 0;
+      if (this.zoneFlash[i] > .001) { this.zoneFlash[i] *= .88; active = true; }
+      else this.zoneFlash[i] = 0;
     }
     return active;
   }
-  getPerformanceHints() { return { maxVoices: 9, prefersSamples: false, synthesis: 'modal' }; }
 }
 
 export const TONAL_INSTRUMENT_PRESETS = PRESETS;
