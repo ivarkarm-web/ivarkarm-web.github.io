@@ -2,7 +2,7 @@
 .looper-rail {
   position: fixed;
   right: max(12px, env(safe-area-inset-right));
-  top: 50%;
+  top: 25%;
   transform: translateY(-50%);
   z-index: 55;
   display: flex;
