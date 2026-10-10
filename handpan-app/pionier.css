@@ -217,9 +217,27 @@ html, body {
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 16px;
+  align-items: flex-start;
+  gap: 6px 8px;
   padding-top: 8px;
   border-top: 1px solid rgba(255,255,255,0.06);
+}
+/* Comp · Ambiance · Room · Filter — one row */
+.sidebar.right.knobs-panel > .effect-knob-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 88px;
+}
+.sidebar.right.knobs-panel > .effect-knob-wrap .knob,
+.sidebar.right.knobs-panel > .effect-knob-wrap .knob-canvas {
+  width: 68px;
+  height: 68px;
+}
+.sidebar.right.knobs-panel > .effect-knob-wrap .knob-value { font-size: 11px; }
+.sidebar.right.knobs-panel > .effect-knob-wrap .knob-name-row { font-size: 10px; }
+.sidebar.right.knobs-panel > .tone-knobs {
+  flex: 1 0 100%;
+  width: 100%;
 }
 .knob-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; }
 .knob { position: relative; width: 88px; height: 88px; cursor: ns-resize; touch-action: none; user-select: none; }
