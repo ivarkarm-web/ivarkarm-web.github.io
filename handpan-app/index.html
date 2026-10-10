@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=95" />
+  <link rel="stylesheet" href="./pionier.css?v=96" />
   <link rel="stylesheet" href="./scale-menu.css?v=2" />
   <script>
     if ('serviceWorker' in navigator) {
@@ -129,6 +129,17 @@
     <main class="stage">
       <canvas id="pan" width="800" height="800" aria-label="Handpan instrument" draggable="false"></canvas>
     </main>
+
+    <div class="backdrop-player" id="backdropPlayer" aria-label="Background music">
+      <button type="button" class="bp-btn" data-act="prev" aria-label="Previous track">‹</button>
+      <button type="button" class="bp-btn bp-play" data-act="play" aria-label="Play">▶</button>
+      <button type="button" class="bp-btn" data-act="next" aria-label="Next track">›</button>
+      <span class="bp-name" data-track-name>Mist Drone</span>
+      <label class="bp-vol" title="Volume">
+        <span class="bp-vol-icon" aria-hidden="true">♪</span>
+        <input type="range" data-volume min="0" max="100" value="55" aria-label="Background volume" />
+      </label>
+    </div>
   </div>
 
   <script>
@@ -141,6 +152,6 @@
       lastTouchEnd = now;
     }, { passive: false });
   </script>
-  <script type="module" src="./pionier-app.js?v=95"></script>
+  <script type="module" src="./pionier-app.js?v=96"></script>
 </body>
 </html>
