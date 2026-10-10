@@ -96,7 +96,6 @@
 #mobileControlDrawer > #mobileControlPanel {
   display: flex !important;
   flex-direction: column !important;
-  gap: 0 !important;
   flex: 1 1 auto !important;
   width: 100% !important;
   max-height: calc(min(72dvh, 560px) - var(--ctrl-handle-h)) !important;
@@ -167,8 +166,8 @@
 .ctrl-module-head { display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%; }
 .ctrl-module-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ctrl-muted); }
 .ctrl-gear {
-  appearance: none; -webkit-appearance: none; width: 22px; height: 22px; border: 0; border-radius: 50%;
-  background: transparent; color: var(--ctrl-muted); font-size: 12px; line-height: 1;
+  appearance: none; width: 22px; height: 22px; border: 0; border-radius: 50%;
+  background: transparent; color: var(--ctrl-muted); font-size: 12px;
   cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;
 }
 .ctrl-gear:hover, .ctrl-gear[aria-expanded="true"] {
@@ -179,15 +178,13 @@
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 14px;
 }
 .ctrl-module.is-bypassed .knob { opacity: 0.45; }
-.ctrl-module.is-bypassed .ctrl-algo-name::after { content: " (off)"; }
 
 .ctrl-dropdown {
   position: fixed; z-index: 1700; min-width: 180px;
   max-width: min(260px, calc(100vw - 24px)); max-height: min(280px, 50dvh);
-  overflow-y: auto; overscroll-behavior: contain; padding: 6px;
+  overflow-y: auto; padding: 6px;
   border: 1px solid var(--ctrl-stroke); border-radius: 10px;
   background: rgba(12, 12, 13, 0.98); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(12px);
 }
 .ctrl-dropdown[hidden] { display: none !important; }
 .ctrl-dropdown-item {
@@ -201,7 +198,7 @@
 }
 .ctrl-dropdown-item.bypass-item {
   border-top: 1px solid rgba(255, 255, 255, 0.06); margin-top: 4px; padding-top: 10px;
-  color: var(--ctrl-muted); font-style: italic;
+  font-style: italic;
 }
 
 .ctrl-tone-row {
@@ -223,7 +220,9 @@
 #app > .stage { display: flex !important; align-items: center !important; justify-content: center !important; }
 #app > .stage #pan {
   width: min(92vw, calc(100dvh - 120px), 720px) !important;
-  max-width: 92vw !important; height: auto !important; aspect-ratio: 1 !important;
+  max-width: min(92vw, 720px) !important;
+  height: auto !important;
+  aspect-ratio: 1 !important;
 }
 @media (min-width: 900px) {
   #mobileControlDrawer { width: min(440px, 92vw) !important; }
