@@ -14,13 +14,40 @@ import { Instrument } from '../instrument.js';
 import { NoteSampleBank } from '../note-sample-bank.js';
 import { VOICE_PRESETS } from '../voice-presets.js';
 import { HANDPAN_SCALES, scaleToCents } from './handpan-scales.js';
+import { MIN_NOTES, MAX_NOTES, ringAngles } from '../pad-layout.js';
 
-export { HANDPAN_SCALES };
+export { HANDPAN_SCALES, MIN_NOTES, MAX_NOTES };
 
 const NOTE_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
-const RING_ANGLES = [180, 225, 270, 315, 0, 45, 90, 135];
-const ZIGZAG_SLOTS = [0, 1, 7, 2, 6, 3, 5, 4];
-const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
+const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd'];
+
+/**
+ * Grow a scale's note list past its 9 stock notes by walking on up the same
+ * scale: each new note is the next pitch class of the scale above the current
+ * top note. Works in cents so 12-TET, maqam and just-intonation scales all
+ * keep their own tuning. The first 9 notes are never changed.
+ */
+export function extendScaleCents(baseCents, count) {
+  const out = baseCents.slice(0, MIN_NOTES);
+  if (count <= out.length) return out.slice(0, Math.max(1, count));
+  const octave = 1200;
+  const classes = [...new Set(out.map((c) => Math.round((((c % octave) + octave) % octave) * 100) / 100))]
+    .sort((a, b) => a - b);
+  let top = Math.max(...out);
+  while (out.length < count) {
+    const floorOct = Math.floor(top / octave) * octave;
+    let next = null;
+    for (let oct = 0; oct < 3 && next === null; oct++) {
+      for (const pc of classes) {
+        const c = floorOct + oct * octave + pc;
+        if (c > top + 0.5) { next = c; break; }
+      }
+    }
+    out.push(next);
+    top = next;
+  }
+  return out;
+}
 
 const PITCH_BEND_RANGE = 2;
 const GLIDE_TIME = 0.12;
@@ -58,25 +85,26 @@ export class HandpanInstrument extends Instrument {
     super({
       id: 'handpan',
       name: 'Handpan',
-      description: '9-note radial steel handpan with microtonal scales, aftertouch, MPE bend, and glide.',
+      description: 'Radial steel handpan, 9 to 13 notes, with microtonal scales, aftertouch, MPE bend, and glide.',
       category: 'handpan',
-      polyphony: 9,
+      polyphony: MAX_NOTES,
       compatibleFx: ['compressor', 'delay', 'reverb', 'warmth', 'air', 'chorus', 'shimmer']
     });
     this.scaleIndex = 0;
     this.rootIndex = 2;
     this.octaveOffset = 0;
     this.voiceIndex = 0;
+    this.noteCount = MIN_NOTES;
     this.notes = [];
     this.sampleBank = null;
     this.lastStrikeAt = new Map();
-    this.glow = new Float32Array(9);
-    this.zoneFlash = new Float32Array(9);
-    this.held = new Uint8Array(9);
-    this.pitchBendCents = new Float32Array(9);
+    this.glow = new Float32Array(MAX_NOTES);
+    this.zoneFlash = new Float32Array(MAX_NOTES);
+    this.held = new Uint8Array(MAX_NOTES);
+    this.pitchBendCents = new Float32Array(MAX_NOTES);
     this.pitchBendRange = PITCH_BEND_RANGE;
     this.glideTime = GLIDE_TIME;
-    this._smoothPressure = new Float32Array(9);
+    this._smoothPressure = new Float32Array(MAX_NOTES);
   }
 
   async activate(audioCtx, bus) {
@@ -100,8 +128,9 @@ export class HandpanInstrument extends Instrument {
   rebuildNotes() {
     const scale = HANDPAN_SCALES[this.scaleIndex] || HANDPAN_SCALES[0];
     const base = rootToMidi(this.rootIndex, this.octaveOffset);
-    const centsList = scaleToCents(scale);
+    const centsList = extendScaleCents(scaleToCents(scale), this.noteCount);
     const isMicro = !!(scale.cents && scale.cents.length) || (scale.tuning && scale.tuning !== '12-TET');
+    const angles = ringAngles(Math.max(1, centsList.length - 1));
 
     this.notes = centsList.map((cents, i) => {
       const midiExact = base + cents / 100;
@@ -115,7 +144,7 @@ export class HandpanInstrument extends Instrument {
         name: isMicro ? centsName(base, cents) : midiName(midiExact),
         freq: centsToFreq(base, cents),
         kind: isDing ? 'ding' : 'ring',
-        angle: isDing ? 0 : RING_ANGLES[ZIGZAG_SLOTS[i - 1]],
+        angle: isDing ? 0 : angles[i - 1],
         key: KEYS[i],
         microtonal: isMicro
       };
@@ -124,6 +153,18 @@ export class HandpanInstrument extends Instrument {
 
   getNotes() { return this.notes.slice(); }
   getZones() { return this._zones || []; }
+
+  /** Add the next note of the current scale. Returns false at the maximum. */
+  addNote() {
+    if (this.noteCount >= MAX_NOTES) return false;
+    this.noteCount += 1;
+    this.rebuildNotes();
+    return true;
+  }
+  setNoteCount(n) {
+    this.noteCount = Math.max(MIN_NOTES, Math.min(MAX_NOTES, Math.round(n) || MIN_NOTES));
+    this.rebuildNotes();
+  }
 
   setScaleIndex(i) {
     this.scaleIndex = ((i % HANDPAN_SCALES.length) + HANDPAN_SCALES.length) % HANDPAN_SCALES.length;
@@ -209,7 +250,7 @@ export class HandpanInstrument extends Instrument {
   glideTo(fromIdx, toIdx, gesture, zone) {
     if (!this.ready || !this.audioCtx) return false;
     if (fromIdx == null || toIdx == null || fromIdx === toIdx) return false;
-    if (toIdx < 0 || toIdx > 8) return false;
+    if (toIdx < 0 || toIdx >= this.noteCount) return false;
     const voice = this.activeVoices.get(fromIdx);
     const note = this.notes[toIdx];
     if (!voice || voice.released || !note) return false;
@@ -260,7 +301,7 @@ export class HandpanInstrument extends Instrument {
   noteOn(gesture, zone) {
     if (!this.ready || !this.audioCtx || !this.bus) return;
     const idx = zone?.index ?? zone?.i;
-    if (idx == null || idx < 0 || idx > 8) return;
+    if (idx == null || idx < 0 || idx >= this.noteCount) return;
     const note = this.notes[idx];
     if (!note) return;
     const ctx = this.audioCtx;
@@ -375,7 +416,7 @@ export class HandpanInstrument extends Instrument {
   express(gesture, zone) {
     if (!this.ready || !this.audioCtx) return;
     const idx = zone?.index ?? zone?.i;
-    if (idx == null || idx < 0 || idx > 8) return;
+    if (idx == null || idx < 0 || idx >= this.noteCount) return;
     if (!this.held[idx]) return;
     const voice = this.activeVoices.get(idx);
     if (!voice || voice.released) return;
@@ -467,7 +508,7 @@ export class HandpanInstrument extends Instrument {
 
   tickGlow() {
     let any = false;
-    for (let i = 0; i < 9; i++) {
+    for (let i = 0; i < MAX_NOTES; i++) {
       if (this.glow[i] > 0.001) {
         this.glow[i] *= this.held[i] ? 0.97 : 0.9;
         any = true;
@@ -478,7 +519,7 @@ export class HandpanInstrument extends Instrument {
 
   getPerformanceHints() {
     return {
-      maxVoices: 9,
+      maxVoices: MAX_NOTES,
       prefersSamples: !this.isMicrotonal,
       supportsAftertouch: true,
       supportsPitchBend: true,

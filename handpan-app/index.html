@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no" />
   <title>Handpan — Ivar Karm</title>
-  <meta name="description" content="Playable virtual handpan — 9-note radial instrument with interval scales and dynamic transposition." />
+  <meta name="description" content="Playable virtual handpan — radial instrument that grows from 9 to 13 notes, with interval scales and dynamic transposition." />
   <meta name="theme-color" content="#070708" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=99" />
+  <link rel="stylesheet" href="./pionier.css?v=100" />
   <link rel="stylesheet" href="./looper.css?v=107" />
   <link rel="stylesheet" href="./scale-menu.css?v=2" />
   <script>
@@ -153,6 +153,12 @@
         <span class="bp-vol-icon" aria-hidden="true">♪</span>
         <input type="range" data-volume min="0" max="100" value="55" aria-label="Background volume" />
       </label>
+      <div class="note-plus-wrap" id="notePlusWrap">
+        <button type="button" class="note-plus" id="notePlus" aria-label="Add the next scale note" title="Add the next scale note">
+          <span class="note-plus-icon" aria-hidden="true"></span>
+        </button>
+        <span class="note-plus-count" id="notePlusCount" aria-live="polite">9/13</span>
+      </div>
     </div>
   </div>
 
@@ -166,6 +172,6 @@
       lastTouchEnd = now;
     }, { passive: false });
   </script>
-  <script type="module" src="./pionier-app.js?v=106"></script>
+  <script type="module" src="./pionier-app.js?v=107"></script>
 </body>
 </html>

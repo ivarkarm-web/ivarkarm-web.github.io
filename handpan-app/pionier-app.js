@@ -4,6 +4,78 @@
 const GOOD = 'https://cdn.jsdelivr.net/gh/ivarkarm-web/ivarkarm-web.github.io@3984a53f1bdd04e93a9b4a8abf86a504fe78bf5f/handpan-app/pionier-app.js';
 const BASE = new URL('.', import.meta.url).href;
 
+// Cache-busting for the modules changed by the 9→13 note feature. Every
+// importer of a module must use the same query, or the browser would load two
+// separate copies of it.
+const SURFACE_V = '94';
+const HANDPAN_V = '1';
+
+/**
+ * Changes applied to the pinned base app so it can run 9–13 notes.
+ * Each anchor is matched exactly; a missing anchor is logged, not fatal.
+ */
+const CORE_PATCHES = [
+  // Keyboard keys for notes 10–13.
+  [
+    "const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];",
+    "const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd'];"
+  ],
+  // Playable pads follow the handpan's current note count (other voices stay at 9).
+  [
+    'return fieldIndex >= 0 && fieldIndex <= 8;',
+    'return fieldIndex >= 0 && fieldIndex < padCount();'
+  ],
+  [
+    'surface.layoutHandpanFields(notes, isFieldPlayable);',
+    'surface.layoutHandpanFields(notes.slice(0, padCount()), isFieldPlayable);'
+  ],
+  [
+    'tap tonefields or Q–O (hold',
+    'tap tonefields or Q–O, P, A, S, D (hold'
+  ]
+];
+
+/** Appended to the base app so the "+" button can reach its internals. */
+const CORE_TAIL = `
+function padCount() {
+  return activeInstrument() === handpan ? (handpan.noteCount || 9) : 9;
+}
+window.PionierCore = {
+  handpan,
+  surface,
+  activeInstrument: () => activeInstrument(),
+  addNote() {
+    if (activeInstrument() !== handpan || typeof handpan.addNote !== 'function') return false;
+    if (!handpan.addNote()) return false;
+    if (typeof surface.armTransition === 'function') surface.armTransition();
+    syncWorldPitch();
+    layoutFields();
+    const added = handpan.noteCount - 1;
+    handpan.glow[added] = 1;
+    handpan.zoneFlash[added] = 0.3;
+    updateLabels();
+    draw();
+    return true;
+  }
+};
+`;
+
+function patchCore(src) {
+  for (const [from, to] of CORE_PATCHES) {
+    if (!src.includes(from)) {
+      console.warn('[pionier] core patch anchor not found:', from.slice(0, 48));
+      continue;
+    }
+    src = src.split(from).join(to);
+  }
+  if (/\nboot\(\);\s*$/.test(src)) {
+    src = src.replace(/\nboot\(\);\s*$/, '\n' + CORE_TAIL + '\nboot();\n');
+  } else {
+    console.warn('[pionier] core tail anchor not found; note button disabled');
+  }
+  return src;
+}
+
 function killCanvasGhosts(canvas) {
   if (!canvas || canvas.dataset.ghostKill === '1') return;
   canvas.dataset.ghostKill = '1';
@@ -29,15 +101,18 @@ async function boot() {
   if (!res.ok) throw new Error('failed to load base app ' + res.status);
   let src = await res.text();
 
-  src = src.split('pionier-surface.js?v=28').join('pionier-surface.js?v=93');
-  src = src.split("'./js/pionier-surface.js'").join("'./js/pionier-surface.js?v=93'");
-  src = src.split('"./js/pionier-surface.js"').join('"./js/pionier-surface.js?v=93"');
+  src = patchCore(src);
+
+  src = src.split('pionier-surface.js?v=28').join('pionier-surface.js?v=' + SURFACE_V);
+  src = src.split("'./js/pionier-surface.js'").join("'./js/pionier-surface.js?v=" + SURFACE_V + "'");
+  src = src.split('"./js/pionier-surface.js"').join('"./js/pionier-surface.js?v=' + SURFACE_V + '"');
 
   src = src.replace(
     /from\s+(['"])(\.?\/?[^'"]+)\1/g,
     (m, q, path) => {
       const abs = new URL(path, BASE);
-      if (String(path).includes('pionier-surface')) abs.searchParams.set('v', '93');
+      if (String(path).includes('pionier-surface')) abs.searchParams.set('v', SURFACE_V);
+      if (String(path).includes('instruments/handpan.js')) abs.searchParams.set('v', HANDPAN_V);
       return 'from ' + q + abs.href + q;
     }
   );
@@ -50,7 +125,7 @@ async function boot() {
   killCanvasGhosts(pan());
   requestAnimationFrame(() => killCanvasGhosts(pan()));
 
-  const { HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js', BASE).href);
+  const { HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=' + HANDPAN_V, BASE).href);
   const scaleLabel = document.getElementById('scaleLabel');
   const scaleMenu = document.getElementById('scaleMenu');
   if (scaleLabel && scaleMenu && HANDPAN_SCALES) {
@@ -127,6 +202,15 @@ async function boot() {
     document.getElementById('scalePrev')?.addEventListener('click', () => setTimeout(mark, 0));
     document.getElementById('scaleNext')?.addEventListener('click', () => setTimeout(mark, 0));
     mark();
+  }
+
+  try {
+    const { mountNotePlus } = await import(
+      new URL('./js/note-plus.js?v=1', BASE).href
+    );
+    mountNotePlus();
+  } catch (err) {
+    console.warn('[note-plus] mount failed', err);
   }
 
   try {

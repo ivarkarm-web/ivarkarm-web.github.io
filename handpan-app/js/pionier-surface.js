@@ -2,12 +2,19 @@
  * pionier-surface.js — shared handpan visual surface for all instruments
  * Layout, drawing (body + tonefields + slits), hit testing.
  */
+import { MIN_NOTES, ringAngles, ringPadScale } from './pad-layout.js';
+
 export const WORLD_ZONE_INDICES = [0, 1, 3, 5, 7];
+
+/** How long existing pads glide and the new pad grows when a note is added. */
+const ADD_NOTE_MS = 520;
 
 export function createSurface(canvas) {
   const ctx2 = canvas.getContext('2d');
   let W = 800, H = 800, R = 0, CX = 0, CY = 0;
   let fields = [];
+  let anim = null;
+  let armed = false;
   let slitPhase = 0;
   let reducedMotion = false;
   try {
@@ -74,15 +81,61 @@ export function createSurface(canvas) {
     }
     ctx2.restore();
   }
+  /** Call right before relayout to glide existing pads and grow the new one. */
+  function armTransition() {
+    armed = true;
+  }
+
+  /** Pad geometry for this frame: eased between old and new layout while a note is being added. */
+  function animatedView(now) {
+    if (!anim) return fields;
+    const t = (now - anim.t0) / anim.dur;
+    if (t >= 1) {
+      anim = null;
+      return fields;
+    }
+    const e = 1 - Math.pow(1 - Math.max(0, t), 3);
+    const mix = (a, b) => a + (b - a) * e;
+    return fields.map((f) => {
+      const from = anim.from.get(f.index);
+      if (!from) return { ...f, rx: f.rx * e, ry: f.ry * e, appear: e };
+      let dr = f.rot - (from.rot || 0);
+      dr = Math.atan2(Math.sin(dr), Math.cos(dr));
+      return {
+        ...f,
+        x: mix(from.x, f.x),
+        y: mix(from.y, f.y),
+        rx: mix(from.rx, f.rx),
+        ry: mix(from.ry, f.ry),
+        rot: (from.rot || 0) + dr * e,
+        ux: f.ux != null ? mix(from.ux ?? f.ux, f.ux) : f.ux,
+        uy: f.uy != null ? mix(from.uy ?? f.uy, f.uy) : f.uy
+      };
+    });
+  }
+
   function layoutHandpanFields(handpanNotes, isFieldPlayable) {
     const list = handpanNotes;
-    const midis = list.map((n) => n.midi);
-    const midiMin = Math.min(...midis);
-    const midiMax = Math.max(...midis);
-    const midiSpan = Math.max(1, midiMax - midiMin);
+    const wasArmed = armed;
+    armed = false;
+    const previous = wasArmed && fields.length
+      ? animatedView(performance.now()).map((f) => ({ ...f }))
+      : null;
 
-    fields = list.map((n) => {
-      const lowAmount = (midiMax - n.midi) / midiSpan;
+    // Pad sizes follow pitch within the stock 9 notes; notes added beyond
+    // them are the highest, so they take the smallest size and never change
+    // how the original pads look.
+    const stock = list.slice(0, MIN_NOTES);
+    const stockMidis = stock.map((n) => n.midi);
+    const midiMin = Math.min(...stockMidis);
+    const midiMax = Math.max(...stockMidis);
+    const midiSpan = Math.max(1, midiMax - midiMin);
+    const ringCount = Math.max(1, list.length - 1);
+    const angles = ringAngles(ringCount);
+    const padScale = ringPadScale(ringCount);
+
+    fields = list.map((n, pos) => {
+      const lowAmount = Math.max(0, Math.min(1, (midiMax - n.midi) / midiSpan));
       // Keep higher notes a bit larger so they stay easy to hit
       const size = 1.12 + lowAmount * 0.36;
       const playable = isFieldPlayable(n.index);
@@ -93,10 +146,11 @@ export function createSurface(canvas) {
           rx: rr, ry: rr, rot: 0, label: n.name, playable, kind: 'ding'
         };
       }
-      const a = (n.angle * Math.PI) / 180;
+      const slot = (n.index != null ? n.index : pos) - 1;
+      const a = ((angles[slot] ?? n.angle) * Math.PI) / 180;
       const d = R * 0.58;
-      const radial = R * 0.155 * size;
-      const tangential = R * 0.112 * size;
+      const radial = R * 0.155 * size * padScale;
+      const tangential = R * 0.112 * size * padScale;
       const ux = Math.sin(a);
       const uy = -Math.cos(a);
       return {
@@ -107,6 +161,10 @@ export function createSurface(canvas) {
         label: n.name, playable, kind: 'ring'
       };
     });
+
+    anim = previous && !reducedMotion
+      ? { t0: performance.now(), dur: ADD_NOTE_MS, from: new Map(previous.map((f) => [f.index, f])) }
+      : null;
     return fields;
   }
 
@@ -129,12 +187,13 @@ export function createSurface(canvas) {
 
     if (catchActive) ctx2.globalAlpha = 0.78;
 
-    fields.forEach((f) => {
+    const view = animatedView(performance.now());
+    view.forEach((f) => {
       const glow = inst.glow?.[f.index] || 0;
       const radial = inst.zoneFlash?.[f.index] || 0;
       const isDing = f.kind === 'ding';
       const playable = f.playable !== false;
-      const dim = playable ? 1 : 0.26;
+      const dim = (playable ? 1 : 0.26) * (f.appear ?? 1);
       const hlx = f.ux != null ? f.ux : -0.35;
       const hly = f.uy != null ? f.uy : -0.45;
       const wp = waveTargets?.get?.(f.index);
@@ -275,6 +334,7 @@ export function createSurface(canvas) {
   return {
     resize,
     layoutHandpanFields,
+    armTransition,
     drawBody,
     drawCatchWaves,
     hitVector,
