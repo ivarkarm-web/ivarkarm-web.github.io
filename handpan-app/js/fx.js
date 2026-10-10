@@ -210,8 +210,43 @@ export class FxChain {
   constructor(ctx, destination) {
     this.ctx = ctx; this.destination = destination; this.modules = [];
     this.input = ctx.createGain(); this.input.gain.value = 1;
-    this.master = ctx.createGain(); this.master.gain.value = 1.25;
-    this.input.connect(this.master); this.master.connect(destination); this._rebuild();
+    this.bass = ctx.createBiquadFilter();
+    this.bass.type = 'lowshelf';
+    this.bass.frequency.value = 90;
+    this.bass.gain.value = 0;
+    this.low = ctx.createBiquadFilter();
+    this.low.type = 'peaking';
+    this.low.frequency.value = 280;
+    this.low.Q.value = 0.9;
+    this.low.gain.value = 0;
+    this.mid = ctx.createBiquadFilter();
+    this.mid.type = 'peaking';
+    this.mid.frequency.value = 1200;
+    this.mid.Q.value = 0.85;
+    this.mid.gain.value = 0;
+    this.master = ctx.createGain(); this.master.gain.value = 1.15;
+    this.bass.connect(this.low);
+    this.low.connect(this.mid);
+    this.mid.connect(this.master);
+    this.master.connect(destination);
+    this._rebuild();
+  }
+  /** v in 0..1, 0.5 = neutral */
+  setBass(v) {
+    const g = (Math.max(0, Math.min(1, v)) - 0.5) * 24;
+    this.bass.gain.setTargetAtTime(g, this.ctx.currentTime, 0.04);
+  }
+  setLow(v) {
+    const g = (Math.max(0, Math.min(1, v)) - 0.5) * 24;
+    this.low.gain.setTargetAtTime(g, this.ctx.currentTime, 0.04);
+  }
+  setMid(v) {
+    const g = (Math.max(0, Math.min(1, v)) - 0.5) * 24;
+    this.mid.gain.setTargetAtTime(g, this.ctx.currentTime, 0.04);
+  }
+  setMaster(v) {
+    const g = Math.max(0, Math.min(1.4, Math.max(0, Math.min(1, v)) * 1.4));
+    this.master.gain.setTargetAtTime(g, this.ctx.currentTime, 0.04);
   }
   get activeCount() { return this.modules.length; }
   add(id) {
@@ -226,13 +261,12 @@ export class FxChain {
   }
   setValue(id, value) { const m = this.modules.find((x) => x.id === id); if (m) m.setValue(value, this.ctx); }
   setBypass(id, on) { const m = this.modules.find((x) => x.id === id); if (m) m.setBypass(on, this.ctx); }
-  setMaster(v) { this.master.gain.setTargetAtTime(Math.max(0, Math.min(1.5, v)), this.ctx.currentTime, 0.04); }
   _rebuild() {
     try { this.input.disconnect(); } catch (_) {}
     this.modules.forEach((m) => { try { m._output?.disconnect(); } catch (_) {} });
     let prev = this.input;
     for (const m of this.modules) { prev.connect(m._input); prev = m._output; }
-    prev.connect(this.master);
+    prev.connect(this.bass);
   }
   seedDefaults() {
     this.add('compressor'); this.add('delay'); this.add('reverb');
