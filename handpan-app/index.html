@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=84" />
+  <link rel="stylesheet" href="./pionier.css?v=85" />
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
@@ -31,10 +31,16 @@
       <button type="button" class="pill play-pill" id="modePlay" title="Play mode">
         <span class="dot"></span> play
       </button>
-      <div class="instrument-nav">
-        <button type="button" class="icon-btn" id="voicePrev" aria-label="Previous voice">‹</button>
-        <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Handpan ▾</button>
-        <button type="button" class="icon-btn" id="voiceNext" aria-label="Next voice">›</button>
+      <div class="center-nav">
+        <div class="page-tabs" role="tablist" aria-label="Main sections">
+          <button type="button" class="page-tab is-active" id="tabHandpan" role="tab" aria-selected="true">Handpan</button>
+          <button type="button" class="page-tab" id="tabSoundscapes" role="tab" aria-selected="false">Soundscapes</button>
+        </div>
+        <div class="instrument-nav" id="instrumentNav">
+          <button type="button" class="icon-btn" id="voicePrev" aria-label="Previous voice">‹</button>
+          <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Handpan ▾</button>
+          <button type="button" class="icon-btn" id="voiceNext" aria-label="Next voice">›</button>
+        </div>
       </div>
       <div class="top-actions">
         <button type="button" class="icon-btn" id="btnHelp" aria-label="Help" title="Help">?</button>
@@ -129,9 +135,19 @@
 
   <section class="soundscapes-page" id="soundscapesPage" aria-hidden="true">
     <header class="soundscapes-topbar">
-      <button type="button" class="pill soundscapes-back" id="backToHandpan"><span aria-hidden="true">‹</span> Handpan</button>
-      <div class="soundscapes-brand">PIONIER <span>/</span> SOUNDSCAPES</div>
-      <button type="button" class="icon-btn" id="soundscapesHelp" aria-label="Soundscapes info" title="Soundscapes info">?</button>
+      <button type="button" class="pill play-pill" id="soundscapesPlayPill" title="Play mode" disabled>
+        <span class="dot"></span> play
+      </button>
+      <div class="center-nav">
+        <div class="page-tabs" role="tablist" aria-label="Main sections">
+          <button type="button" class="page-tab" id="tabHandpanFromSS" role="tab" aria-selected="false">Handpan</button>
+          <button type="button" class="page-tab is-active" id="tabSoundscapesActive" role="tab" aria-selected="true">Soundscapes</button>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button type="button" class="icon-btn" id="soundscapesHelp" aria-label="Soundscapes info" title="Soundscapes info">?</button>
+        <button type="button" class="icon-btn exit-btn" id="btnExitSS" aria-label="Exit" title="Exit">×</button>
+      </div>
     </header>
     <main class="soundscapes-stage">
       <div class="soundscapes-eyebrow">LISTEN · PLAY · RETURN</div>
@@ -193,6 +209,7 @@
         <p class="soundscape-control-note">Playback continues when you return to the handpan.</p>
       </div>
     </div>
+    <button type="button" id="backToHandpan" hidden aria-hidden="true">Back</button>
   </section>
 
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
@@ -206,6 +223,6 @@
       lastTouchEnd = now;
     }, { passive: false });
   </script>
-  <script type="module" src="./pionier-app.js?v=84"></script>
+  <script type="module" src="./pionier-app.js?v=85"></script>
 </body>
 </html>
