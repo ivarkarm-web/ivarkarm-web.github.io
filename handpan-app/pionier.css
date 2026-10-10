@@ -285,16 +285,25 @@ body::before {
   transform: translateZ(0);
 }
 
-/* Backdrop music player under handpan */
+/* Backdrop music player — sits above the Controls drawer grip */
 .backdrop-player {
-  flex: 0 0 auto;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(52px + env(safe-area-inset-bottom, 0px));
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 8px 14px max(14px, env(safe-area-inset-bottom));
-  z-index: 15;
-  background: linear-gradient(to top, rgba(7, 7, 8, 0.92), rgba(7, 7, 8, 0.35) 75%, transparent);
+  padding: 8px 14px;
+  z-index: 50;
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  border-radius: 999px;
+  background: rgba(12, 12, 14, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+  pointer-events: auto;
 }
 
 .bp-btn {
