@@ -241,7 +241,7 @@ body::before {
   align-items: center;
   justify-content: center;
   min-height: 0;
-  padding: 4px 8px 12px;
+  padding: 4px 8px 8px;
   position: relative;
   z-index: 1;
 }
@@ -252,8 +252,8 @@ body::before {
   left: 50%;
   top: 52%;
   transform: translate(-50%, -50%);
-  width: min(78vw, calc(100dvh - 160px), 620px);
-  height: min(78vw, calc(100dvh - 160px), 620px);
+  width: min(78vw, calc(100dvh - 200px), 620px);
+  height: min(78vw, calc(100dvh - 200px), 620px);
   border-radius: 50%;
   background:
     radial-gradient(circle at 50% 48%,
@@ -266,7 +266,7 @@ body::before {
 
 #pan {
   display: block;
-  width: min(92vw, calc(100dvh - 140px), 720px);
+  width: min(92vw, calc(100dvh - 190px), 720px);
   max-width: 92vw;
   height: auto;
   aspect-ratio: 1;
@@ -283,6 +283,105 @@ body::before {
   contain: layout style;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
+}
+
+/* Backdrop music player under handpan */
+.backdrop-player {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px max(14px, env(safe-area-inset-bottom));
+  z-index: 15;
+  background: linear-gradient(to top, rgba(7, 7, 8, 0.92), rgba(7, 7, 8, 0.35) 75%, transparent);
+}
+
+.bp-btn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(22, 22, 26, 0.85);
+  color: rgba(232, 230, 227, 0.75);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.bp-btn:hover {
+  color: var(--gold);
+  border-color: rgba(212, 176, 74, 0.35);
+}
+.bp-btn:active { transform: scale(0.95); }
+.bp-play {
+  width: 42px;
+  height: 42px;
+  font-size: 13px;
+  border-color: rgba(212, 176, 74, 0.28);
+  color: var(--gold);
+}
+.bp-play.is-playing {
+  background: rgba(212, 176, 74, 0.12);
+}
+
+.bp-name {
+  min-width: 7.5rem;
+  max-width: 28vw;
+  margin: 0 6px 0 8px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: rgba(232, 230, 227, 0.62);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+.bp-vol {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 4px;
+  color: rgba(232, 230, 227, 0.45);
+  font-size: 12px;
+}
+.bp-vol-icon { opacity: 0.7; }
+.bp-vol input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: min(88px, 18vw);
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  outline: none;
+  cursor: pointer;
+}
+.bp-vol input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 0;
+  cursor: pointer;
+}
+.bp-vol input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 0;
+  cursor: pointer;
+}
+
+@media (max-width: 380px) {
+  .bp-name { min-width: 0; max-width: 22vw; font-size: 11px; }
+  .bp-vol input[type="range"] { width: 64px; }
 }
 
 .mobile-control-drawer {
@@ -572,7 +671,8 @@ html, body, #app, .app, .stage {
 .step:focus-visible,
 .knob:focus-visible,
 .fx-type-btn:focus-visible,
-.mobile-controls-toggle:focus-visible {
+.mobile-controls-toggle:focus-visible,
+.bp-btn:focus-visible {
   outline: 2px solid rgba(212, 176, 74, 0.55);
   outline-offset: 2px;
 }
