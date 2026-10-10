@@ -8,36 +8,30 @@
   <meta name="theme-color" content="#0a0a0b" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
   <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=70" />
-  <link rel="stylesheet" href="./controls.css?v=1" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <link rel="stylesheet" href="./pionier.css?v=72" />
+  <link rel="stylesheet" href="./controls.css?v=3" />
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then((regs) => {
-        regs.forEach((r) => r.unregister());
-      });
-    }
-    if (window.caches && caches.keys) {
-      caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+      navigator.serviceWorker.getRegistrations().then((regs) => regs.forEach((r) => r.unregister()));
     }
   </script>
 </head>
 <body>
   <div id="app" class="app">
-    <header class="topbar">
+    <header class="top-bar">
       <button type="button" class="pill play-pill" id="modePlay" title="Play mode">
-        <span class="dot"></span> play
+        <span class="pill-dot"></span> PLAY
       </button>
-      <div class="instrument-nav">
+      <div class="instrument-switch">
         <button type="button" class="icon-btn" id="voicePrev" aria-label="Previous instrument">‹</button>
         <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Handpan ▾</button>
         <button type="button" class="icon-btn" id="voiceNext" aria-label="Next instrument">›</button>
       </div>
       <div class="top-actions">
+        <button type="button" class="icon-btn" id="btnSoundscapes" aria-label="Soundscapes" title="Soundscapes">◌</button>
         <button type="button" class="icon-btn" id="btnHelp" aria-label="Help" title="Help">?</button>
         <button type="button" class="icon-btn exit-btn" id="btnExit" aria-label="Exit" title="Exit">×</button>
       </div>
@@ -52,15 +46,15 @@
       <div class="mobile-control-panel" id="mobileControlPanel">
         <div class="ctrl-scale-row">
           <div class="control-block">
-            <label class="control-label">Scale</label>
-            <div class="stepper scale-stepper">
+            <div class="control-label">Scale</div>
+            <div class="stepper">
               <button type="button" class="step" id="scalePrev" aria-label="Previous scale">‹</button>
               <span class="step-value scale-name" id="scaleLabel">Celtic Minor</span>
               <button type="button" class="step" id="scaleNext" aria-label="Next scale">›</button>
             </div>
           </div>
           <div class="control-block">
-            <label class="control-label">Base</label>
+            <div class="control-label">Base</div>
             <div class="stepper">
               <button type="button" class="step" id="rootDown" aria-label="Lower root">−</button>
               <span class="step-value" id="rootLabel">D</span>
@@ -68,55 +62,55 @@
             </div>
           </div>
           <div class="control-block">
-            <label class="control-label">Octave</label>
+            <div class="control-label">Octave</div>
             <div class="stepper">
-              <button type="button" class="step" id="octDown" aria-label="Octave down">−</button>
+              <button type="button" class="step" id="octDown" aria-label="Lower octave">−</button>
               <span class="step-value" id="octLabel">0</span>
-              <button type="button" class="step" id="octUp" aria-label="Octave up">+</button>
+              <button type="button" class="step" id="octUp" aria-label="Raise octave">+</button>
             </div>
           </div>
         </div>
 
-        <div class="ctrl-fx-grid" id="ctrlFxGrid">
+        <div class="ctrl-fx-grid">
           <div class="ctrl-module" data-module="ambience">
-            <div class="knob" id="knobAmbience" role="slider" tabindex="0" aria-label="Ambience amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="15">
-              <canvas class="knob-canvas" width="144" height="144" aria-hidden="true"></canvas>
+            <div class="knob" id="knobAmbience" role="slider" tabindex="0" aria-label="Ambience" aria-valuemin="0" aria-valuemax="100" aria-valuenow="15">
+              <canvas class="knob-canvas" width="116" height="116" aria-hidden="true"></canvas>
               <span class="knob-value" id="valAmbience">15</span>
             </div>
             <div class="ctrl-module-head">
               <span class="ctrl-module-label">Ambience</span>
-              <button type="button" class="ctrl-gear" id="gearAmbience" aria-expanded="false" aria-controls="ddAmbience" aria-label="Ambience effect type">⚙</button>
+              <button type="button" class="ctrl-gear" id="gearAmbience" aria-expanded="false" aria-controls="ddAmbience" aria-label="Ambience type">⚙</button>
             </div>
             <div class="ctrl-algo-name" id="algoAmbience">Clean Digital Delay</div>
             <div class="ctrl-dropdown" id="ddAmbience" hidden role="listbox" aria-label="Ambience effects"></div>
           </div>
           <div class="ctrl-module" data-module="room">
-            <div class="knob" id="knobRoom" role="slider" tabindex="0" aria-label="Room amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25">
-              <canvas class="knob-canvas" width="144" height="144" aria-hidden="true"></canvas>
+            <div class="knob" id="knobRoom" role="slider" tabindex="0" aria-label="Room" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25">
+              <canvas class="knob-canvas" width="116" height="116" aria-hidden="true"></canvas>
               <span class="knob-value" id="valRoom">25</span>
             </div>
             <div class="ctrl-module-head">
               <span class="ctrl-module-label">Room</span>
-              <button type="button" class="ctrl-gear" id="gearRoom" aria-expanded="false" aria-controls="ddRoom" aria-label="Room effect type">⚙</button>
+              <button type="button" class="ctrl-gear" id="gearRoom" aria-expanded="false" aria-controls="ddRoom" aria-label="Room type">⚙</button>
             </div>
             <div class="ctrl-algo-name" id="algoRoom">Small Room</div>
             <div class="ctrl-dropdown" id="ddRoom" hidden role="listbox" aria-label="Room effects"></div>
           </div>
           <div class="ctrl-module" data-module="comp">
-            <div class="knob" id="knobComp" role="slider" tabindex="0" aria-label="Compressor amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40">
-              <canvas class="knob-canvas" width="144" height="144" aria-hidden="true"></canvas>
-              <span class="knob-value" id="valComp">40</span>
+            <div class="knob" id="knobComp" role="slider" tabindex="0" aria-label="Comp" aria-valuemin="0" aria-valuemax="100" aria-valuenow="35">
+              <canvas class="knob-canvas" width="116" height="116" aria-hidden="true"></canvas>
+              <span class="knob-value" id="valComp">35</span>
             </div>
             <div class="ctrl-module-head">
               <span class="ctrl-module-label">Comp</span>
-              <button type="button" class="ctrl-gear" id="gearComp" aria-expanded="false" aria-controls="ddComp" aria-label="Compressor type">⚙</button>
+              <button type="button" class="ctrl-gear" id="gearComp" aria-expanded="false" aria-controls="ddComp" aria-label="Comp type">⚙</button>
             </div>
             <div class="ctrl-algo-name" id="algoComp">Transparent Compressor</div>
-            <div class="ctrl-dropdown" id="ddComp" hidden role="listbox" aria-label="Compressor effects"></div>
+            <div class="ctrl-dropdown" id="ddComp" hidden role="listbox" aria-label="Comp effects"></div>
           </div>
           <div class="ctrl-module" data-module="effects">
-            <div class="knob" id="knobEffects" role="slider" tabindex="0" aria-label="Effects amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
-              <canvas class="knob-canvas" width="144" height="144" aria-hidden="true"></canvas>
+            <div class="knob" id="knobEffects" role="slider" tabindex="0" aria-label="Effects" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+              <canvas class="knob-canvas" width="116" height="116" aria-hidden="true"></canvas>
               <span class="knob-value" id="valEffects">50</span>
             </div>
             <div class="ctrl-module-head">
@@ -129,31 +123,31 @@
         </div>
 
         <div class="ctrl-tone-row">
-          <div class="ctrl-tone" data-tone="low">
+          <div class="ctrl-tone">
             <div class="knob" id="knobLow" role="slider" tabindex="0" aria-label="Low" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
               <canvas class="knob-canvas" width="116" height="116" aria-hidden="true"></canvas>
               <span class="knob-value" id="valLow">50</span>
             </div>
             <span class="ctrl-tone-label">Low</span>
           </div>
-          <div class="ctrl-tone" data-tone="mid">
+          <div class="ctrl-tone">
             <div class="knob" id="knobMid" role="slider" tabindex="0" aria-label="Mid" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
               <canvas class="knob-canvas" width="116" height="116" aria-hidden="true"></canvas>
               <span class="knob-value" id="valMid">50</span>
             </div>
             <span class="ctrl-tone-label">Mid</span>
           </div>
-          <div class="ctrl-tone" data-tone="bass">
+          <div class="ctrl-tone">
             <div class="knob" id="knobBass" role="slider" tabindex="0" aria-label="Bass" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
               <canvas class="knob-canvas" width="116" height="116" aria-hidden="true"></canvas>
               <span class="knob-value" id="valBass">50</span>
             </div>
             <span class="ctrl-tone-label">Bass</span>
           </div>
-          <div class="ctrl-tone" data-tone="master">
-            <div class="knob" id="knobMaster" role="slider" tabindex="0" aria-label="Master" aria-valuemin="0" aria-valuemax="100" aria-valuenow="85">
+          <div class="ctrl-tone">
+            <div class="knob" id="knobMaster" role="slider" tabindex="0" aria-label="Master" aria-valuemin="0" aria-valuemax="100" aria-valuenow="75">
               <canvas class="knob-canvas" width="116" height="116" aria-hidden="true"></canvas>
-              <span class="knob-value" id="valMaster">85</span>
+              <span class="knob-value" id="valMaster">75</span>
             </div>
             <span class="ctrl-tone-label">Master</span>
           </div>
@@ -162,80 +156,49 @@
     </div>
 
     <main class="stage">
-      <canvas id="pan" width="800" height="800" aria-label="Handpan instrument"></canvas>
+      <canvas id="pan" aria-label="Handpan instrument surface"></canvas>
     </main>
   </div>
 
-  <section class="soundscapes-page" id="soundscapesPage" aria-hidden="true">
-    <header class="soundscapes-topbar">
-      <button type="button" class="pill soundscapes-back" id="backToHandpan"><span aria-hidden="true">‹</span> Handpan</button>
-      <div class="soundscapes-brand">PIONIER <span>/</span> SOUNDSCAPES</div>
-      <button type="button" class="icon-btn" id="soundscapesHelp" aria-label="Soundscapes info" title="Soundscapes info">?</button>
-    </header>
-    <main class="soundscapes-stage">
-      <div class="soundscapes-eyebrow">LISTEN · PLAY · RETURN</div>
-      <div class="mandala-wrap" id="mandalaWrap" aria-label="Slowly rotating mandala artwork">
-        <svg class="mandala-art" viewBox="0 0 600 600" role="img" aria-label="Handpan-inspired concentric resonance pattern"></svg>
-        <div class="mandala-center">
-          <div class="mandala-transport" aria-label="Track navigation">
-            <button type="button" class="mandala-track-step" id="mandalaPreviousTrack" aria-label="Previous track" title="Previous track">‹</button>
-            <button type="button" class="mandala-play" id="mandalaPlay" aria-label="Play soundscape" title="Play / pause">
-              <span id="mandalaPlayIcon" aria-hidden="true">▶</span>
-            </button>
-            <button type="button" class="mandala-track-step" id="mandalaNextTrack" aria-label="Next track" title="Next track">›</button>
-          </div>
+  <div id="soundscapesPage" class="soundscapes-page" aria-hidden="true">
+    <button type="button" class="back-to-handpan" id="backToHandpan">← Handpan</button>
+    <div class="soundscape-meta">
+      <div class="soundscape-track-title" id="soundscapeTrackTitle">No track loaded</div>
+      <div class="soundscape-track-subtitle" id="soundscapeTrackSubtitle">ADD A BACKING TRACK</div>
+      <div class="soundscape-status" id="soundscapeStatus">IDLE</div>
+    </div>
+    <div class="mandala-wrap" id="mandalaWrap">
+      <svg class="mandala-art" viewBox="0 0 200 200" aria-hidden="true"></svg>
+      <div class="mandala-center">
+        <div class="mandala-transport">
+          <button type="button" id="mandalaPreviousTrack" aria-label="Previous track">‹</button>
+          <button type="button" id="mandalaPlay" aria-label="Play soundscape"><span id="mandalaPlayIcon">▶</span></button>
+          <button type="button" id="mandalaNextTrack" aria-label="Next track">›</button>
         </div>
       </div>
-      <div class="soundscape-swipe-led soundscape-swipe-led-left" aria-hidden="true"><span></span></div>
-      <div class="soundscape-swipe-led soundscape-swipe-led-right" aria-hidden="true"><span></span></div>
-      <div class="soundscape-track-meta">
-        <div class="soundscape-track-title" id="soundscapeTrackTitle">Your first soundscape</div>
-        <div class="soundscape-track-subtitle" id="soundscapeTrackSubtitle">Add an MP3 to begin · handpan-friendly ambience</div>
-        <div class="soundscape-progress-wrap">
-          <span class="soundscape-time" id="soundscapeTimeElapsed">0:00</span>
-          <input type="range" class="soundscape-progress" id="soundscapeProgress" min="0" max="1000" value="0" step="1" aria-label="Track progress" />
-          <span class="soundscape-time" id="soundscapeTimeTotal">0:00</span>
-        </div>
-      </div>
-      <div class="soundscape-player-actions">
-        <button type="button" class="soundscape-secondary" id="addSoundscapeTrack"><span aria-hidden="true">＋</span> Add MP3</button>
-        <span class="soundscape-status" id="soundscapeStatus">READY WHEN YOU ARE</span>
-      </div>
-      <input type="file" id="soundscapeFile" accept="audio/mpeg,audio/mp3,audio/*" multiple hidden />
-    </main>
+    </div>
+    <div class="soundscape-progress-wrap">
+      <span class="soundscape-time" id="soundscapeTimeElapsed">0:00</span>
+      <input type="range" id="soundscapeProgress" class="soundscape-progress" min="0" max="1000" value="0" step="1" aria-label="Track position" />
+      <span class="soundscape-time" id="soundscapeTimeTotal">0:00</span>
+    </div>
     <div class="soundscape-control-drawer" id="soundscapeControlDrawer">
       <button type="button" class="mobile-controls-toggle" id="soundscapeControlsToggle" aria-expanded="false" aria-controls="soundscapeControlPanel">
-        <span class="mobile-controls-grip" aria-hidden="true"></span><span class="mobile-controls-label">Controls</span>
+        <span class="mobile-controls-grip" aria-hidden="true"></span>
+        <span class="mobile-controls-label">Controls</span>
       </button>
       <div class="soundscape-control-panel" id="soundscapeControlPanel">
         <div class="soundscape-control-heading">PLAYER CONTROLS</div>
         <label class="soundscape-control-row"><span>Track volume</span><input id="soundscapeVolume" type="range" min="0" max="1" step="0.01" value="0.8" /></label>
         <label class="soundscape-control-row"><span>Playback</span><select id="soundscapePlayback"><option value="loop">Loop track</option><option value="once">Play once</option></select></label>
         <p class="soundscape-control-note">Playback stays running while you return to the handpan.</p>
+        <button type="button" id="addSoundscapeTrack" class="soundscape-add-btn">Add track</button>
+        <input type="file" id="soundscapeFile" accept="audio/*" multiple hidden />
       </div>
     </div>
-  </section>
-  <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
+  </div>
 
-  <script type="module" src="./pionier-app.js?v=70"></script>
-  <script>
-    (function () {
-      function block(e) { e.preventDefault(); }
-      ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (type) {
-        document.addEventListener(type, block, { passive: false, capture: true });
-      });
-      document.addEventListener('touchmove', function (e) {
-        if (e.touches && e.touches.length > 1) e.preventDefault();
-        if (typeof e.scale === 'number' && e.scale !== 1) e.preventDefault();
-      }, { passive: false, capture: true });
-      var lastTouchEnd = 0;
-      document.addEventListener('touchend', function (e) {
-        var now = Date.now();
-        if (now - lastTouchEnd < 400) e.preventDefault();
-        lastTouchEnd = now;
-      }, { passive: false, capture: true });
-      document.addEventListener('dblclick', block, { capture: true });
-    })();
-  </script>
+  <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
+  <script type="module" src="./pionier-app.js?v=72"></script>
 </body>
 </html>
