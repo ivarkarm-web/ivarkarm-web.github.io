@@ -13,7 +13,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=69" />
+  <link rel="stylesheet" href="./pionier.css?v=70" />
+  <link rel="stylesheet" href="./controls.css?v=1" />
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
@@ -32,9 +33,9 @@
         <span class="dot"></span> play
       </button>
       <div class="instrument-nav">
-        <button type="button" class="icon-btn" id="voicePrev" aria-label="Previous voice">‹</button>
+        <button type="button" class="icon-btn" id="voicePrev" aria-label="Previous instrument">‹</button>
         <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Handpan ▾</button>
-        <button type="button" class="icon-btn" id="voiceNext" aria-label="Next voice">›</button>
+        <button type="button" class="icon-btn" id="voiceNext" aria-label="Next instrument">›</button>
       </div>
       <div class="top-actions">
         <button type="button" class="icon-btn" id="btnHelp" aria-label="Help" title="Help">?</button>
@@ -49,66 +50,121 @@
         <span class="mobile-controls-label">Controls</span>
       </button>
       <div class="mobile-control-panel" id="mobileControlPanel">
-    <aside class="sidebar left">
-      <div class="control-block control-scale">
-        <label class="control-label">Scale</label>
-        <div class="stepper scale-stepper">
-          <button type="button" class="step" id="scalePrev" aria-label="Previous scale">‹</button>
-          <span class="step-value scale-name" id="scaleLabel">Celtic Minor</span>
-          <button type="button" class="step" id="scaleNext" aria-label="Next scale">›</button>
-        </div>
-      </div>
-
-      <div class="control-row">
-        <div class="control-block control-half">
-          <label class="control-label">Base Note</label>
-          <div class="stepper">
-            <button type="button" class="step" id="rootDown" aria-label="Lower root">−</button>
-            <span class="step-value" id="rootLabel">D</span>
-            <button type="button" class="step" id="rootUp" aria-label="Raise root">+</button>
+        <div class="ctrl-scale-row">
+          <div class="control-block">
+            <label class="control-label">Scale</label>
+            <div class="stepper scale-stepper">
+              <button type="button" class="step" id="scalePrev" aria-label="Previous scale">‹</button>
+              <span class="step-value scale-name" id="scaleLabel">Celtic Minor</span>
+              <button type="button" class="step" id="scaleNext" aria-label="Next scale">›</button>
+            </div>
+          </div>
+          <div class="control-block">
+            <label class="control-label">Base</label>
+            <div class="stepper">
+              <button type="button" class="step" id="rootDown" aria-label="Lower root">−</button>
+              <span class="step-value" id="rootLabel">D</span>
+              <button type="button" class="step" id="rootUp" aria-label="Raise root">+</button>
+            </div>
+          </div>
+          <div class="control-block">
+            <label class="control-label">Octave</label>
+            <div class="stepper">
+              <button type="button" class="step" id="octDown" aria-label="Octave down">−</button>
+              <span class="step-value" id="octLabel">0</span>
+              <button type="button" class="step" id="octUp" aria-label="Octave up">+</button>
+            </div>
           </div>
         </div>
-        <div class="control-block control-half">
-          <label class="control-label">Octave</label>
-          <div class="stepper">
-            <button type="button" class="step" id="octDown" aria-label="Octave down">−</button>
-            <span class="step-value" id="octLabel">0</span>
-            <button type="button" class="step" id="octUp" aria-label="Octave up">+</button>
+
+        <div class="ctrl-fx-grid" id="ctrlFxGrid">
+          <div class="ctrl-module" data-module="ambience">
+            <div class="knob" id="knobAmbience" role="slider" tabindex="0" aria-label="Ambience amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="15">
+              <canvas class="knob-canvas" width="144" height="144" aria-hidden="true"></canvas>
+              <span class="knob-value" id="valAmbience">15</span>
+            </div>
+            <div class="ctrl-module-head">
+              <span class="ctrl-module-label">Ambience</span>
+              <button type="button" class="ctrl-gear" id="gearAmbience" aria-expanded="false" aria-controls="ddAmbience" aria-label="Ambience effect type">⚙</button>
+            </div>
+            <div class="ctrl-algo-name" id="algoAmbience">Clean Digital Delay</div>
+            <div class="ctrl-dropdown" id="ddAmbience" hidden role="listbox" aria-label="Ambience effects"></div>
+          </div>
+          <div class="ctrl-module" data-module="room">
+            <div class="knob" id="knobRoom" role="slider" tabindex="0" aria-label="Room amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25">
+              <canvas class="knob-canvas" width="144" height="144" aria-hidden="true"></canvas>
+              <span class="knob-value" id="valRoom">25</span>
+            </div>
+            <div class="ctrl-module-head">
+              <span class="ctrl-module-label">Room</span>
+              <button type="button" class="ctrl-gear" id="gearRoom" aria-expanded="false" aria-controls="ddRoom" aria-label="Room effect type">⚙</button>
+            </div>
+            <div class="ctrl-algo-name" id="algoRoom">Small Room</div>
+            <div class="ctrl-dropdown" id="ddRoom" hidden role="listbox" aria-label="Room effects"></div>
+          </div>
+          <div class="ctrl-module" data-module="comp">
+            <div class="knob" id="knobComp" role="slider" tabindex="0" aria-label="Compressor amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40">
+              <canvas class="knob-canvas" width="144" height="144" aria-hidden="true"></canvas>
+              <span class="knob-value" id="valComp">40</span>
+            </div>
+            <div class="ctrl-module-head">
+              <span class="ctrl-module-label">Comp</span>
+              <button type="button" class="ctrl-gear" id="gearComp" aria-expanded="false" aria-controls="ddComp" aria-label="Compressor type">⚙</button>
+            </div>
+            <div class="ctrl-algo-name" id="algoComp">Transparent Compressor</div>
+            <div class="ctrl-dropdown" id="ddComp" hidden role="listbox" aria-label="Compressor effects"></div>
+          </div>
+          <div class="ctrl-module" data-module="effects">
+            <div class="knob" id="knobEffects" role="slider" tabindex="0" aria-label="Effects amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+              <canvas class="knob-canvas" width="144" height="144" aria-hidden="true"></canvas>
+              <span class="knob-value" id="valEffects">50</span>
+            </div>
+            <div class="ctrl-module-head">
+              <span class="ctrl-module-label">Effects</span>
+              <button type="button" class="ctrl-gear" id="gearEffects" aria-expanded="false" aria-controls="ddEffects" aria-label="Effects type">⚙</button>
+            </div>
+            <div class="ctrl-algo-name" id="algoEffects">Low-Pass Filter</div>
+            <div class="ctrl-dropdown" id="ddEffects" hidden role="listbox" aria-label="Filter effects"></div>
           </div>
         </div>
-      </div>
-    </aside>
 
-    <aside class="sidebar right knobs-panel" aria-label="Sound knobs">
-      <div class="knob-wrap effect-knob-wrap" data-param="compress">
-        <div class="knob" id="knobCompress" role="slider" tabindex="0" aria-label="Compressor amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" aria-valuetext="Compressor 40 percent"><canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas><span class="knob-value" id="valCompress">40</span></div>
-        <div class="knob-name-row"><button type="button" class="knob-effect-trigger" aria-expanded="false" aria-controls="bubbleComp"><span>Comp</span><span class="tiny-gear" aria-hidden="true">⚙</span></button></div>
-        <div class="effect-bubble" id="bubbleComp" hidden aria-label="Compressor type"><span class="effect-bubble-title">Compressor</span><div class="effect-choice-list"><button type="button" class="fx-type-btn is-active" data-comp="soft" aria-pressed="true">Soft</button><button type="button" class="fx-type-btn" data-comp="punch" aria-pressed="false">Punch</button><button type="button" class="fx-type-btn" data-comp="glue" aria-pressed="false">Glue</button><button type="button" class="fx-type-btn" data-comp="limit" aria-pressed="false">Limit</button></div></div>
-      </div>
-      <div class="knob-wrap effect-knob-wrap" data-param="delay">
-        <div class="knob" id="knobDelay" role="slider" tabindex="0" aria-label="Ambiance amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="15" aria-valuetext="Ambiance 15 percent"><canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas><span class="knob-value" id="valDelay">15</span></div>
-        <div class="knob-name-row"><button type="button" class="knob-effect-trigger" aria-expanded="false" aria-controls="bubbleAmbiance"><span>Ambiance</span><span class="tiny-gear" aria-hidden="true">⚙</span></button></div>
-        <div class="effect-bubble" id="bubbleAmbiance" hidden aria-label="Ambiance type"><span class="effect-bubble-title">Ambiance</span><div class="effect-choice-list"><button type="button" class="fx-type-btn is-active" data-delay="echo" aria-pressed="true">Echo</button><button type="button" class="fx-type-btn" data-delay="slap" aria-pressed="false">Slap</button><button type="button" class="fx-type-btn" data-delay="ping" aria-pressed="false">Ping</button><button type="button" class="fx-type-btn" data-delay="dub" aria-pressed="false">Dub</button></div></div>
-      </div>
-      <div class="knob-wrap effect-knob-wrap" data-param="reverb">
-        <div class="knob" id="knobReverb" role="slider" tabindex="0" aria-label="Room amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25" aria-valuetext="Room 25 percent"><canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas><span class="knob-value" id="valReverb">25</span></div>
-        <div class="knob-name-row"><button type="button" class="knob-effect-trigger" aria-expanded="false" aria-controls="bubbleRoom"><span>Room</span><span class="tiny-gear" aria-hidden="true">⚙</span></button></div>
-        <div class="effect-bubble" id="bubbleRoom" hidden aria-label="Reverb type"><span class="effect-bubble-title">Reverb</span><div class="effect-choice-list"><button type="button" class="fx-type-btn is-active" data-reverb="room" aria-pressed="true">Room</button><button type="button" class="fx-type-btn" data-reverb="hall" aria-pressed="false">Hall</button><button type="button" class="fx-type-btn" data-reverb="plate" aria-pressed="false">Plate</button><button type="button" class="fx-type-btn" data-reverb="cave" aria-pressed="false">Cave</button></div></div>
-      </div>
-      <div class="knob-wrap fx-settings-wrap">
-        <!-- FX type choices live beside the handpan knobs. -->
-      </div>
-    </aside>
+        <div class="ctrl-tone-row">
+          <div class="ctrl-tone" data-tone="low">
+            <div class="knob" id="knobLow" role="slider" tabindex="0" aria-label="Low" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+              <canvas class="knob-canvas" width="116" height="116" aria-hidden="true"></canvas>
+              <span class="knob-value" id="valLow">50</span>
+            </div>
+            <span class="ctrl-tone-label">Low</span>
+          </div>
+          <div class="ctrl-tone" data-tone="mid">
+            <div class="knob" id="knobMid" role="slider" tabindex="0" aria-label="Mid" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+              <canvas class="knob-canvas" width="116" height="116" aria-hidden="true"></canvas>
+              <span class="knob-value" id="valMid">50</span>
+            </div>
+            <span class="ctrl-tone-label">Mid</span>
+          </div>
+          <div class="ctrl-tone" data-tone="bass">
+            <div class="knob" id="knobBass" role="slider" tabindex="0" aria-label="Bass" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+              <canvas class="knob-canvas" width="116" height="116" aria-hidden="true"></canvas>
+              <span class="knob-value" id="valBass">50</span>
+            </div>
+            <span class="ctrl-tone-label">Bass</span>
+          </div>
+          <div class="ctrl-tone" data-tone="master">
+            <div class="knob" id="knobMaster" role="slider" tabindex="0" aria-label="Master" aria-valuemin="0" aria-valuemax="100" aria-valuenow="85">
+              <canvas class="knob-canvas" width="116" height="116" aria-hidden="true"></canvas>
+              <span class="knob-value" id="valMaster">85</span>
+            </div>
+            <span class="ctrl-tone-label">Master</span>
+          </div>
+        </div>
       </div>
     </div>
 
     <main class="stage">
       <canvas id="pan" width="800" height="800" aria-label="Handpan instrument"></canvas>
     </main>
-
-
   </div>
-
 
   <section class="soundscapes-page" id="soundscapesPage" aria-hidden="true">
     <header class="soundscapes-topbar">
@@ -119,90 +175,14 @@
     <main class="soundscapes-stage">
       <div class="soundscapes-eyebrow">LISTEN · PLAY · RETURN</div>
       <div class="mandala-wrap" id="mandalaWrap" aria-label="Slowly rotating mandala artwork">
-        <svg class="mandala-art" viewBox="0 0 600 600" role="img" aria-label="Handpan-inspired concentric resonance pattern">
-          <defs>
-            <radialGradient id="mandalaGlow">
-              <stop offset="0" stop-color="#eaf2fb" stop-opacity=".13"/>
-              <stop offset=".58" stop-color="#c8dcf4" stop-opacity=".045"/>
-              <stop offset="1" stop-color="#c8dcf4" stop-opacity="0"/>
-            </radialGradient>
-            <linearGradient id="mandalaSteel" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#f4f8ff" stop-opacity=".88"/>
-              <stop offset=".48" stop-color="#c6d9ef" stop-opacity=".56"/>
-              <stop offset="1" stop-color="#edf5ff" stop-opacity=".78"/>
-            </linearGradient>
-            <g id="mandalaTonefield">
-              <ellipse cx="300" cy="156" rx="28" ry="49" stroke="url(#mandalaSteel)" stroke-width="1.5" stroke-opacity=".86"/>
-              <ellipse cx="300" cy="156" rx="21" ry="40" stroke="currentColor" stroke-width=".8" stroke-opacity=".38"/>
-              <path d="M286 145 Q300 137 314 145" stroke="currentColor" stroke-width=".8" stroke-opacity=".34"/>
-              <circle cx="300" cy="122" r="2.2" fill="currentColor" stroke="none" opacity=".72"/>
-            </g>
-            <g id="mandalaRimMark">
-              <path d="M300 22 L300 34" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".72"/>
-              <circle cx="300" cy="39" r="1.8" fill="currentColor" stroke="none" opacity=".62"/>
-            </g>
-          </defs>
-          <circle cx="300" cy="300" r="294" fill="url(#mandalaGlow)"/>
-          <g class="mandala-lines" fill="none" stroke="currentColor">
-            <!-- The outer shell echoes the handpan's rolled rim and turned-steel finish. -->
-            <circle cx="300" cy="300" r="282" stroke-opacity=".24" stroke-width="1.2"/>
-            <circle cx="300" cy="300" r="272" stroke-opacity=".58" stroke-width="1.1"/>
-            <circle cx="300" cy="300" r="260" stroke-opacity=".2"/>
-            <circle cx="300" cy="300" r="226" stroke-opacity=".14"/>
-            <circle cx="300" cy="300" r="210" stroke-opacity=".28"/>
-            <circle cx="300" cy="300" r="188" stroke-opacity=".13"/>
-            <circle cx="300" cy="300" r="144" stroke-opacity=".36"/>
-            <circle cx="300" cy="300" r="126" stroke-opacity=".16"/>
-            <circle cx="300" cy="300" r="70" stroke-opacity=".24"/>
-            <circle cx="300" cy="300" r="42" stroke-opacity=".4"/>
-            <g stroke-opacity=".16" stroke-width=".8">
-              <path d="M300 54V78"/><path d="M300 54V78" transform="rotate(15 300 300)"/>
-              <path d="M300 54V78" transform="rotate(30 300 300)"/><path d="M300 54V78" transform="rotate(45 300 300)"/>
-              <path d="M300 54V78" transform="rotate(60 300 300)"/><path d="M300 54V78" transform="rotate(75 300 300)"/>
-              <path d="M300 54V78" transform="rotate(90 300 300)"/><path d="M300 54V78" transform="rotate(105 300 300)"/>
-              <path d="M300 54V78" transform="rotate(120 300 300)"/><path d="M300 54V78" transform="rotate(135 300 300)"/>
-              <path d="M300 54V78" transform="rotate(150 300 300)"/><path d="M300 54V78" transform="rotate(165 300 300)"/>
-              <path d="M300 54V78" transform="rotate(180 300 300)"/><path d="M300 54V78" transform="rotate(195 300 300)"/>
-              <path d="M300 54V78" transform="rotate(210 300 300)"/><path d="M300 54V78" transform="rotate(225 300 300)"/>
-              <path d="M300 54V78" transform="rotate(240 300 300)"/><path d="M300 54V78" transform="rotate(255 300 300)"/>
-              <path d="M300 54V78" transform="rotate(270 300 300)"/><path d="M300 54V78" transform="rotate(285 300 300)"/>
-              <path d="M300 54V78" transform="rotate(300 300 300)"/><path d="M300 54V78" transform="rotate(315 300 300)"/>
-              <path d="M300 54V78" transform="rotate(330 300 300)"/><path d="M300 54V78" transform="rotate(345 300 300)"/>
-            </g>
-            <use href="#mandalaRimMark"/><use href="#mandalaRimMark" transform="rotate(15 300 300)"/>
-            <use href="#mandalaRimMark" transform="rotate(30 300 300)"/><use href="#mandalaRimMark" transform="rotate(45 300 300)"/>
-            <use href="#mandalaRimMark" transform="rotate(60 300 300)"/><use href="#mandalaRimMark" transform="rotate(75 300 300)"/>
-            <use href="#mandalaRimMark" transform="rotate(90 300 300)"/><use href="#mandalaRimMark" transform="rotate(105 300 300)"/>
-            <use href="#mandalaRimMark" transform="rotate(120 300 300)"/><use href="#mandalaRimMark" transform="rotate(135 300 300)"/>
-            <use href="#mandalaRimMark" transform="rotate(150 300 300)"/><use href="#mandalaRimMark" transform="rotate(165 300 300)"/>
-            <use href="#mandalaRimMark" transform="rotate(180 300 300)"/><use href="#mandalaRimMark" transform="rotate(195 300 300)"/>
-            <use href="#mandalaRimMark" transform="rotate(210 300 300)"/><use href="#mandalaRimMark" transform="rotate(225 300 300)"/>
-            <use href="#mandalaRimMark" transform="rotate(240 300 300)"/><use href="#mandalaRimMark" transform="rotate(255 300 300)"/>
-            <use href="#mandalaRimMark" transform="rotate(270 300 300)"/><use href="#mandalaRimMark" transform="rotate(285 300 300)"/>
-            <use href="#mandalaRimMark" transform="rotate(300 300 300)"/><use href="#mandalaRimMark" transform="rotate(315 300 300)"/>
-            <use href="#mandalaRimMark" transform="rotate(330 300 300)"/><use href="#mandalaRimMark" transform="rotate(345 300 300)"/>
-            <!-- Eight surrounding tone fields mirror the radial note layout of the playable handpan. -->
-            <use href="#mandalaTonefield" transform="rotate(0 300 300)"/>
-            <use href="#mandalaTonefield" transform="rotate(45 300 300)"/>
-            <use href="#mandalaTonefield" transform="rotate(90 300 300)"/>
-            <use href="#mandalaTonefield" transform="rotate(135 300 300)"/>
-            <use href="#mandalaTonefield" transform="rotate(180 300 300)"/>
-            <use href="#mandalaTonefield" transform="rotate(225 300 300)"/>
-            <use href="#mandalaTonefield" transform="rotate(270 300 300)"/>
-            <use href="#mandalaTonefield" transform="rotate(315 300 300)"/>
-          </g>
-          <!-- Central ding, kept static like the center of the real instrument. -->
-          <circle cx="300" cy="300" r="30" fill="#0a0a0b" fill-opacity=".82" stroke="currentColor" stroke-opacity=".62" stroke-width="1.2"/>
-          <circle cx="300" cy="300" r="22" fill="none" stroke="url(#mandalaSteel)" stroke-opacity=".64" stroke-width="1.1"/>
-          <circle cx="300" cy="300" r="5" fill="currentColor" fill-opacity=".86" stroke="none"/>
-        </svg>
+        <svg class="mandala-art" viewBox="0 0 600 600" role="img" aria-label="Handpan-inspired concentric resonance pattern"></svg>
         <div class="mandala-center">
           <div class="mandala-transport" aria-label="Track navigation">
-            <button type="button" class="mandala-track-step" id="mandalaPreviousTrack" aria-label="Previous track" title="Previous track" disabled>‹</button>
+            <button type="button" class="mandala-track-step" id="mandalaPreviousTrack" aria-label="Previous track" title="Previous track">‹</button>
             <button type="button" class="mandala-play" id="mandalaPlay" aria-label="Play soundscape" title="Play / pause">
               <span id="mandalaPlayIcon" aria-hidden="true">▶</span>
             </button>
-            <button type="button" class="mandala-track-step" id="mandalaNextTrack" aria-label="Next track" title="Next track" disabled>›</button>
+            <button type="button" class="mandala-track-step" id="mandalaNextTrack" aria-label="Next track" title="Next track">›</button>
           </div>
         </div>
       </div>
@@ -211,6 +191,11 @@
       <div class="soundscape-track-meta">
         <div class="soundscape-track-title" id="soundscapeTrackTitle">Your first soundscape</div>
         <div class="soundscape-track-subtitle" id="soundscapeTrackSubtitle">Add an MP3 to begin · handpan-friendly ambience</div>
+        <div class="soundscape-progress-wrap">
+          <span class="soundscape-time" id="soundscapeTimeElapsed">0:00</span>
+          <input type="range" class="soundscape-progress" id="soundscapeProgress" min="0" max="1000" value="0" step="1" aria-label="Track progress" />
+          <span class="soundscape-time" id="soundscapeTimeTotal">0:00</span>
+        </div>
       </div>
       <div class="soundscape-player-actions">
         <button type="button" class="soundscape-secondary" id="addSoundscapeTrack"><span aria-hidden="true">＋</span> Add MP3</button>
@@ -232,52 +217,7 @@
   </section>
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
 
-  <div class="fx-panel-backdrop" id="fxBackdrop" hidden></div>
-  <aside class="fx-panel" id="fxPanel" aria-label="Effects settings" hidden>
-    <header class="fx-panel-head">
-      <h2 class="fx-panel-title">FX</h2>
-      <button type="button" class="fx-panel-close" id="fxPanelClose" aria-label="Close">×</button>
-    </header>
-
-    <section class="fx-section">
-      <h3 class="fx-section-label">Delay</h3>
-      <div class="fx-type-grid" role="listbox" aria-label="Delay type">
-        <button type="button" class="fx-type-btn is-active" data-delay="echo" role="option" aria-selected="true">Echo</button>
-        <button type="button" class="fx-type-btn" data-delay="slap" role="option" aria-selected="false">Slap</button>
-        <button type="button" class="fx-type-btn" data-delay="ping" role="option" aria-selected="false">Ping</button>
-        <button type="button" class="fx-type-btn" data-delay="dub" role="option" aria-selected="false">Dub</button>
-      </div>
-      <p class="fx-type-desc">Classic repeating echoes. Use Ambiance knob for wet amount.</p>
-    </section>
-
-    <section class="fx-section">
-      <h3 class="fx-section-label">Reverb</h3>
-      <div class="fx-type-grid" role="listbox" aria-label="Reverb type">
-        <button type="button" class="fx-type-btn is-active" data-reverb="room" role="option" aria-selected="true">Room</button>
-        <button type="button" class="fx-type-btn" data-reverb="hall" role="option" aria-selected="false">Hall</button>
-        <button type="button" class="fx-type-btn" data-reverb="plate" role="option" aria-selected="false">Plate</button>
-        <button type="button" class="fx-type-btn" data-reverb="cave" role="option" aria-selected="false">Cave</button>
-      </div>
-      <p class="fx-type-desc">Small intimate space. Use Room knob for wet amount.</p>
-    </section>
-
-    <section class="fx-section">
-      <h3 class="fx-section-label">Compressor</h3>
-      <div class="fx-type-grid" role="listbox" aria-label="Compressor type">
-        <button type="button" class="fx-type-btn is-active" data-comp="soft" role="option" aria-selected="true">Soft</button>
-        <button type="button" class="fx-type-btn" data-comp="punch" role="option" aria-selected="false">Punch</button>
-        <button type="button" class="fx-type-btn" data-comp="glue" role="option" aria-selected="false">Glue</button>
-        <button type="button" class="fx-type-btn" data-comp="limit" role="option" aria-selected="false">Limit</button>
-      </div>
-      <p class="fx-type-desc">Gentle leveling — smooth and musical. Use Comp knob for amount.</p>
-    </section>
-
-
-    <p class="fx-panel-hint">Tweak amount with the <strong>Comp</strong>, <strong>Ambiance</strong>, and <strong>Room</strong> knobs.</p>
-  </aside>
-
-  <script type="module" src="./pionier-app.js?v=55"></script>
-
+  <script type="module" src="./pionier-app.js?v=70"></script>
   <script>
     (function () {
       function block(e) { e.preventDefault(); }
@@ -295,10 +235,7 @@
         lastTouchEnd = now;
       }, { passive: false, capture: true });
       document.addEventListener('dblclick', block, { capture: true });
-      // CSS owns the viewport coordinate system.
-      // Do not scale or resize the application from visualViewport.zoom.
     })();
   </script>
-
 </body>
 </html>
