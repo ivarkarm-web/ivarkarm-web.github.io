@@ -1,8 +1,8 @@
 /**
  * looper.js — multi-layer phrase looper (max 5)
- * Record: arm/stop layer
+ * Record (right): arm/stop layer
  * Track circles: play/pause that layer only
- * Clear: wipe all layers
+ * Clear (left): wipe all layers — always visible
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js';
 
@@ -24,6 +24,7 @@ export function mountLooper({ root } = {}) {
     legacyPlay.style.display = 'none';
   }
 
+  // Clear lives on the left side of the screen (outside the right rail)
   if (!clearBtn) {
     clearBtn = document.createElement('button');
     clearBtn.type = 'button';
@@ -31,11 +32,19 @@ export function mountLooper({ root } = {}) {
     clearBtn.className = 'looper-clear-btn';
     clearBtn.setAttribute('aria-label', 'Clear all loops');
     clearBtn.title = 'Clear all loops';
-    clearBtn.innerHTML = '<span class="looper-clear-icon" aria-hidden="true">×</span>';
-    rail.insertBefore(clearBtn, btn);
+    document.body.appendChild(clearBtn);
+  } else if (clearBtn.parentElement === rail) {
+    document.body.appendChild(clearBtn);
   }
+  clearBtn.className = 'looper-clear-btn';
+  clearBtn.innerHTML =
+    '<span class="looper-clear-ring" aria-hidden="true"></span>' +
+    '<span class="looper-clear-core" aria-hidden="true">' +
+    '<span class="looper-clear-x"></span>' +
+    '</span>';
+  clearBtn.hidden = false;
+  clearBtn.disabled = false;
 
-  /** @type {{ buffer: AudioBuffer, source: AudioBufferSourceNode|null, gain: GainNode, startedAt: number, offset: number, paused: boolean }[]} */
   const layers = [];
   let recording = false;
   let recChunks = null;
@@ -85,8 +94,8 @@ export function mountLooper({ root } = {}) {
             ? 'Record next layer'
             : 'Start loop recording'
     );
-    clearBtn.hidden = !hasLayers && !recording;
-    clearBtn.disabled = !hasLayers && !recording;
+    clearBtn.classList.toggle('has-layers', hasLayers || recording);
+    clearBtn.hidden = false;
   }
 
   function startLayerSource(layer, offset) {
@@ -146,11 +155,27 @@ export function mountLooper({ root } = {}) {
         ? 'Play layer ' + (i + 1)
         : 'Pause layer ' + (i + 1);
       c.setAttribute('aria-label', c.title);
-      c.innerHTML =
-        '<span class="looper-circle-num">' + (i + 1) + '</span>' +
-        '<span class="looper-circle-icon" aria-hidden="true">' +
-        (layer.paused ? '▶' : '⏸') +
-        '</span>';
+
+      // Number + CSS-drawn play/pause (no emoji)
+      const num = document.createElement('span');
+      num.className = 'looper-circle-num';
+      num.textContent = String(i + 1);
+
+      const icon = document.createElement('span');
+      icon.className = 'looper-circle-icon ' + (layer.paused ? 'is-play' : 'is-pause');
+      icon.setAttribute('aria-hidden', 'true');
+      if (layer.paused) {
+        // triangle play
+        icon.innerHTML = '<span class="looper-glyph-play"></span>';
+      } else {
+        // two bars pause
+        icon.innerHTML =
+          '<span class="looper-glyph-pause"><i></i><i></i></span>';
+      }
+
+      c.appendChild(num);
+      c.appendChild(icon);
+
       c.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -234,7 +259,6 @@ export function mountLooper({ root } = {}) {
   function onClear(e) {
     e.preventDefault();
     e.stopPropagation();
-    if (!layers.length && !recording) return;
     clearAll();
     clearBtn.classList.add('is-fired');
     setTimeout(() => clearBtn.classList.remove('is-fired'), 220);

@@ -1,4 +1,4 @@
-/* Looper (right rail) */
+/* Looper — record + layers on the right */
 .looper-rail {
   position: fixed;
   right: max(12px, env(safe-area-inset-right));
@@ -20,13 +20,13 @@
   pointer-events: none;
 }
 
-/* Per-track play/pause indicators */
+/* Per-track indicators */
 .looper-circle {
   pointer-events: auto;
   appearance: none;
   position: relative;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   border: 2px solid rgba(220, 60, 60, 0.9);
   background: rgba(220, 60, 60, 0.22);
@@ -41,7 +41,7 @@
   transition: opacity 0.2s ease, border-color 0.2s ease, background 0.2s ease, transform 0.12s ease, box-shadow 0.2s ease;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  color: #f2e8e8;
+  color: #f5ecec;
 }
 .looper-circle:hover {
   transform: scale(1.06);
@@ -51,42 +51,70 @@
   transform: scale(0.94);
 }
 .looper-circle.is-playing {
-  background: rgba(220, 60, 60, 0.28);
-  box-shadow: 0 0 14px rgba(220, 60, 60, 0.45);
+  background: rgba(220, 60, 60, 0.3);
+  box-shadow: 0 0 14px rgba(220, 60, 60, 0.48);
 }
 .looper-circle.is-paused {
-  opacity: 0.7;
-  border-color: rgba(255, 255, 255, 0.28);
-  background: rgba(24, 24, 28, 0.9);
+  opacity: 0.85;
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(22, 22, 26, 0.92);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-  color: rgba(232, 230, 227, 0.75);
+  color: rgba(232, 230, 227, 0.9);
 }
 .looper-circle.is-paused:hover {
-  border-color: rgba(212, 176, 74, 0.5);
+  border-color: rgba(212, 176, 74, 0.55);
   color: #d4b04a;
 }
 
 .looper-circle-num {
   position: absolute;
-  top: 3px;
+  top: 4px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 8px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  opacity: 0.55;
+  opacity: 0.5;
   line-height: 1;
   pointer-events: none;
 }
+
 .looper-circle-icon {
-  display: block;
-  font-size: 12px;
-  line-height: 1;
-  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
   pointer-events: none;
+  width: 14px;
+  height: 14px;
 }
-.looper-circle.is-paused .looper-circle-icon {
-  transform: translateX(1px);
+
+/* CSS play triangle */
+.looper-glyph-play {
+  display: block;
+  width: 0;
+  height: 0;
+  margin-left: 2px;
+  border-style: solid;
+  border-width: 6px 0 6px 10px;
+  border-color: transparent transparent transparent currentColor;
+}
+
+/* CSS pause bars */
+.looper-glyph-pause {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 12px;
+  height: 12px;
+}
+.looper-glyph-pause i {
+  display: block;
+  width: 3.5px;
+  height: 12px;
+  border-radius: 1px;
+  background: currentColor;
 }
 
 @keyframes looper-circle-in {
@@ -94,55 +122,109 @@
   to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
-/* Legacy global play hidden */
 .looper-play-btn {
   display: none !important;
 }
 
-/* Clear */
+/* Clear — left side, same size as record */
 .looper-clear-btn {
+  position: fixed;
+  left: max(12px, env(safe-area-inset-left));
+  top: 25%;
+  transform: translateY(-50%);
+  z-index: 55;
   pointer-events: auto;
   appearance: none;
-  border: 1.5px solid rgba(255, 255, 255, 0.14);
-  background: rgba(18, 18, 22, 0.85);
-  color: rgba(232, 230, 227, 0.55);
-  width: 36px;
-  height: 36px;
+  border: 0;
+  background: transparent;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   cursor: pointer;
   padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.12s ease;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 .looper-clear-btn[hidden] {
-  display: none !important;
-}
-.looper-clear-btn:hover {
-  border-color: rgba(220, 60, 60, 0.55);
-  color: #e05050;
-  background: rgba(40, 16, 16, 0.9);
-}
-.looper-clear-btn:active {
-  transform: scale(0.94);
-}
-.looper-clear-btn.is-fired {
-  border-color: rgba(220, 60, 60, 0.7);
-  color: #ff6b6b;
-  background: rgba(60, 20, 20, 0.95);
-}
-.looper-clear-icon {
-  display: block;
-  margin-top: -1px;
+  display: block !important; /* always visible */
+  visibility: visible !important;
 }
 
+.looper-clear-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, 0.28);
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.04),
+    0 6px 20px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.looper-clear-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* X drawn with two bars */
+.looper-clear-x {
+  position: relative;
+  width: 14px;
+  height: 14px;
+}
+.looper-clear-x::before,
+.looper-clear-x::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 2.5px;
+  margin: -1.25px 0 0 -7px;
+  border-radius: 1px;
+  background: rgba(232, 230, 227, 0.7);
+  transition: background 0.18s ease;
+}
+.looper-clear-x::before {
+  transform: rotate(45deg);
+}
+.looper-clear-x::after {
+  transform: rotate(-45deg);
+}
+
+.looper-clear-btn:hover .looper-clear-ring {
+  border-color: rgba(220, 60, 60, 0.7);
+  box-shadow:
+    0 0 0 4px rgba(220, 60, 60, 0.12),
+    0 6px 22px rgba(0, 0, 0, 0.4);
+}
+.looper-clear-btn:hover .looper-clear-x::before,
+.looper-clear-btn:hover .looper-clear-x::after {
+  background: #e05050;
+}
+.looper-clear-btn:active {
+  transform: translateY(-50%) scale(0.94);
+}
+.looper-clear-btn.has-layers .looper-clear-ring {
+  border-color: rgba(220, 60, 60, 0.55);
+}
+.looper-clear-btn.is-fired .looper-clear-ring {
+  border-color: #ff4d4d;
+  box-shadow: 0 0 0 6px rgba(220, 60, 60, 0.15);
+}
+.looper-clear-btn.is-fired .looper-clear-x::before,
+.looper-clear-btn.is-fired .looper-clear-x::after {
+  background: #ff6b6b;
+}
+
+/* Record button (right) */
 .looper-btn {
   pointer-events: auto;
   appearance: none;
@@ -199,10 +281,11 @@
   0%, 100% { box-shadow: 0 0 0 3px rgba(224, 54, 54, 0.2), 0 6px 20px rgba(0, 0, 0, 0.35); }
   50% { box-shadow: 0 0 0 8px rgba(224, 54, 54, 0.12), 0 6px 24px rgba(224, 54, 54, 0.25); }
 }
+
 @media (max-width: 380px) {
-  .looper-btn { width: 46px; height: 46px; }
-  .looper-clear-btn { width: 32px; height: 32px; font-size: 16px; }
-  .looper-circle { width: 36px; height: 36px; }
-  .looper-circle-icon { font-size: 11px; }
+  .looper-btn,
+  .looper-clear-btn { width: 46px; height: 46px; }
+  .looper-circle { width: 38px; height: 38px; }
   .looper-rail { right: max(8px, env(safe-area-inset-right)); gap: 8px; }
+  .looper-clear-btn { left: max(8px, env(safe-area-inset-left)); }
 }
