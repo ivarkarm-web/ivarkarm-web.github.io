@@ -1,132 +1,180 @@
 /**
- * mandala-canvas.js — Mellow multi-layer Mandala renderer for Pionier
+ * mandala-canvas.js — layered, slow-moving mandala for Soundscapes
+ * Restrained gold / white / dark palette. Respects prefers-reduced-motion.
  */
-export function createMandalaRenderer(hostEl) {
-  if (!hostEl) return null;
-  const canvas = document.createElement('canvas');
-  canvas.className = 'mandala-canvas';
-  canvas.setAttribute('aria-hidden', 'true');
-  Object.assign(canvas.style, {
-    position: 'absolute', inset: '0', width: '100%', height: '100%',
-    pointerEvents: 'none', zIndex: '0'
-  });
-  hostEl.style.position = hostEl.style.position || 'relative';
-  hostEl.insertBefore(canvas, hostEl.firstChild);
+export function createMandalaRenderer(host) {
+  if (!host) return null;
+  let canvas = host.querySelector('.mandala-canvas');
+  if (!canvas) {
+    canvas = document.createElement('canvas');
+    canvas.className = 'mandala-canvas';
+    canvas.setAttribute('aria-hidden', 'true');
+    host.insertBefore(canvas, host.firstChild);
+  }
   const ctx = canvas.getContext('2d');
-  let w = 0, h = 0, dpr = 1;
-  let raf = 0, last = performance.now(), running = false, reduced = false;
+  let raf = 0;
+  let running = false;
+  let last = 0;
+  let reduced = false;
   try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) {}
+
   const layers = [
-    { r: 0.92, speed: 0.015, line: 0.9, alpha: 0.22, spokes: 24 },
-    { r: 0.78, speed: -0.011, line: 0.8, alpha: 0.28, spokes: 16 },
-    { r: 0.62, speed: 0.008, line: 0.75, alpha: 0.2, spokes: 12 },
-    { r: 0.48, speed: -0.018, line: 0.7, alpha: 0.32, spokes: 8 },
-    { r: 0.34, speed: 0.006, line: 0.85, alpha: 0.25, spokes: 8 },
-    { r: 0.18, speed: -0.004, line: 1.0, alpha: 0.4, spokes: 0 }
+    { r: 0.18, spokes: 6,  speed: 0.018, alpha: 0.22, line: 1.0, petals: 0 },
+    { r: 0.28, spokes: 12, speed: -0.014, alpha: 0.18, line: 0.8, petals: 0 },
+    { r: 0.40, spokes: 8,  speed: 0.011, alpha: 0.26, line: 1.1, petals: 8 },
+    { r: 0.52, spokes: 16, speed: -0.008, alpha: 0.14, line: 0.7, petals: 0 },
+    { r: 0.64, spokes: 10, speed: 0.006, alpha: 0.20, line: 0.9, petals: 10 },
+    { r: 0.76, spokes: 24, speed: -0.004, alpha: 0.11, line: 0.6, petals: 0 },
+    { r: 0.88, spokes: 12, speed: 0.003, alpha: 0.16, line: 0.85, petals: 12 }
   ];
   layers.forEach((L) => { L.angle = Math.random() * Math.PI * 2; });
-  const particles = Array.from({ length: reduced ? 12 : 36 }, () => ({
+
+  const dots = Array.from({ length: 48 }, () => ({
     a: Math.random() * Math.PI * 2,
-    r: 0.25 + Math.random() * 0.65,
-    speed: (Math.random() - 0.5) * 0.02,
+    r: 0.2 + Math.random() * 0.7,
+    s: 0.004 + Math.random() * 0.012,
     size: 0.6 + Math.random() * 1.4,
     alpha: 0.08 + Math.random() * 0.18
   }));
+
   function resize() {
-    const rect = hostEl.getBoundingClientRect();
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    w = Math.max(1, Math.floor(rect.width));
-    h = Math.max(1, Math.floor(rect.height));
-    canvas.width = Math.floor(w * dpr);
-    canvas.height = Math.floor(h * dpr);
-    canvas.style.width = w + 'px';
-    canvas.style.height = h + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const rect = host.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.max(1, Math.round(rect.width * dpr));
+    const h = Math.max(1, Math.round(rect.height * dpr));
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
   }
+
   function draw(dt) {
-    if (!w || !h) return;
-    const cx = w / 2, cy = h / 2;
-    const R = Math.min(w, h) * 0.48;
+    resize();
+    const w = canvas.width;
+    const h = canvas.height;
+    const cx = w / 2;
+    const cy = h / 2;
+    const R = Math.min(w, h) * 0.46;
     ctx.clearRect(0, 0, w, h);
-    const g = ctx.createRadialGradient(cx, cy, R * 0.05, cx, cy, R);
-    g.addColorStop(0, 'rgba(234,242,251,0.06)');
-    g.addColorStop(0.55, 'rgba(201,162,39,0.03)');
-    g.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = g;
+
+    const og = ctx.createRadialGradient(cx, cy, R * 0.15, cx, cy, R);
+    og.addColorStop(0, 'rgba(201, 162, 39, 0.06)');
+    og.addColorStop(0.55, 'rgba(180, 190, 210, 0.03)');
+    og.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = og;
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill();
+
+    const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 0.16);
+    core.addColorStop(0, 'rgba(232, 230, 227, 0.08)');
+    core.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = core;
+    ctx.beginPath(); ctx.arc(cx, cy, R * 0.16, 0, Math.PI * 2); ctx.fill();
+
     for (const L of layers) {
       if (!reduced) L.angle += L.speed * dt;
       const rr = R * L.r;
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(L.angle);
-      ctx.strokeStyle = 'rgba(200, 210, 220, ' + L.alpha + ')';
+
+      ctx.beginPath();
+      ctx.arc(0, 0, rr, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(210, 218, 228, ' + L.alpha + ')';
       ctx.lineWidth = L.line;
-      ctx.beginPath(); ctx.arc(0, 0, rr, 0, Math.PI * 2); ctx.stroke();
+      ctx.stroke();
+
       if (L.spokes > 0) {
-        ctx.strokeStyle = 'rgba(201, 162, 39, ' + (L.alpha * 0.85) + ')';
-        ctx.lineWidth = 0.7;
+        ctx.strokeStyle = 'rgba(201, 162, 39, ' + (L.alpha * 0.9) + ')';
+        ctx.lineWidth = Math.max(0.6, L.line * 0.7);
         for (let i = 0; i < L.spokes; i++) {
           const a = (i / L.spokes) * Math.PI * 2;
+          const inner = rr - (L.petals ? 3 : 5);
+          const outer = rr + (L.petals ? 2 : 4);
           ctx.beginPath();
-          ctx.moveTo(Math.cos(a) * (rr - 6), Math.sin(a) * (rr - 6));
-          ctx.lineTo(Math.cos(a) * (rr + 4), Math.sin(a) * (rr + 4));
+          ctx.moveTo(Math.cos(a) * inner, Math.sin(a) * inner);
+          ctx.lineTo(Math.cos(a) * outer, Math.sin(a) * outer);
           ctx.stroke();
         }
       }
-      if (L.spokes === 8 && L.r > 0.4) {
-        ctx.strokeStyle = 'rgba(210, 220, 230, ' + (L.alpha * 0.7) + ')';
-        ctx.lineWidth = 1;
-        for (let i = 0; i < 8; i++) {
-          const a = (i / 8) * Math.PI * 2 - Math.PI / 2;
+
+      if (L.petals > 0) {
+        ctx.strokeStyle = 'rgba(201, 162, 39, ' + (L.alpha * 0.55) + ')';
+        ctx.lineWidth = 0.8;
+        for (let i = 0; i < L.petals; i++) {
+          const a0 = (i / L.petals) * Math.PI * 2;
+          const a1 = a0 + Math.PI / L.petals;
           ctx.beginPath();
-          ctx.ellipse(Math.cos(a) * rr * 0.72, Math.sin(a) * rr * 0.72, 10, 16, a, 0, Math.PI * 2);
+          ctx.arc(0, 0, rr + 8, a0 + 0.08, a1 - 0.08);
           ctx.stroke();
         }
       }
+
+      if (L.spokes === 8 || L.spokes === 10) {
+        ctx.fillStyle = 'rgba(232, 230, 227, ' + (L.alpha * 0.7) + ')';
+        for (let i = 0; i < L.spokes; i++) {
+          const a = (i / L.spokes) * Math.PI * 2;
+          const x = Math.cos(a) * rr;
+          const y = Math.sin(a) * rr;
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(a);
+          ctx.beginPath();
+          ctx.moveTo(0, -2.2); ctx.lineTo(1.6, 0); ctx.lineTo(0, 2.2); ctx.lineTo(-1.6, 0);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
       ctx.restore();
     }
-    ctx.beginPath(); ctx.arc(cx, cy, R * 0.07, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(10,10,11,0.85)'; ctx.fill();
-    ctx.strokeStyle = 'rgba(201,162,39,0.45)'; ctx.lineWidth = 1.2; ctx.stroke();
-    ctx.beginPath(); ctx.arc(cx, cy, R * 0.02, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(232,230,227,0.7)'; ctx.fill();
-    if (!reduced) {
-      for (const p of particles) {
-        p.a += p.speed * dt;
-        const pr = R * p.r;
-        ctx.beginPath();
-        ctx.arc(cx + Math.cos(p.a) * pr, cy + Math.sin(p.a) * pr, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(220, 225, 230, ' + p.alpha + ')';
-        ctx.fill();
-      }
+
+    for (const d of dots) {
+      if (!reduced) d.a += d.s * dt;
+      const x = cx + Math.cos(d.a) * R * d.r;
+      const y = cy + Math.sin(d.a) * R * d.r;
+      ctx.beginPath();
+      ctx.arc(x, y, d.size, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(201, 162, 39, ' + d.alpha + ')';
+      ctx.fill();
     }
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(layers[2].angle * 0.5);
+    ctx.strokeStyle = 'rgba(201, 162, 39, 0.2)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2 - Math.PI / 2;
+      const x = Math.cos(a) * R * 0.22;
+      const y = Math.sin(a) * R * 0.22;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
   }
+
   function frame(now) {
     if (!running) return;
-    const dt = Math.min(0.05, (now - last) / 1000);
+    const dt = last ? Math.min(0.05, (now - last) / 16.67) : 1;
     last = now;
     draw(dt);
     raf = requestAnimationFrame(frame);
   }
+
   function start() {
     if (running) return;
     running = true;
+    last = 0;
     resize();
-    last = performance.now();
-    if (reduced) draw(0);
-    else raf = requestAnimationFrame(frame);
+    raf = requestAnimationFrame(frame);
   }
   function stop() {
     running = false;
     if (raf) cancelAnimationFrame(raf);
     raf = 0;
   }
-  function destroy() { stop(); canvas.remove(); }
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) stop();
-    else if (hostEl.offsetParent !== null) start();
-  });
-  window.addEventListener('resize', () => { if (running) resize(); }, { passive: true });
-  return { start, stop, resize, destroy, canvas };
+  return { start, stop, resize };
 }
