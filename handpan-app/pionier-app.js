@@ -26,6 +26,7 @@ const app = {
   instrumentBus: null,
   gestureTracker: new GestureTracker(),
   pointers: new Map(),
+  keysHeld: new Set(),
   catchMode: null,
   lastVelocity: 0.75,
   fps: 0,
@@ -169,6 +170,10 @@ function resize() {
   draw();
 }
 
+// ─── Complex multi-touch system ─────────────────────────────────────────────
+// Supports: multi-finger polyphony, pressure/force velocity, radial timbre,
+//           slide-between-pads, hold tracking, pointer capture, touch scroll lock.
+
 ;['touchstart', 'touchmove', 'touchend'].forEach((type) => {
   canvas?.addEventListener(type, (e) => { e.preventDefault(); }, { passive: false });
 });
@@ -191,24 +196,57 @@ canvas?.addEventListener('pointerdown', (e) => {
   if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);
   draw();
 });
-canvas?.addEventListener('pointerup', (e) => {
+
+canvas?.addEventListener('pointermove', (e) => {
+  if (!app.pointers.has(e.pointerId)) return;
+  e.preventDefault();
+  const { x, y } = surface.canvasCoords(e);
+  const hit = surface.hitVector(x, y);
+  const prevIdx = app.pointers.get(e.pointerId);
+  const inst = activeInstrument();
+
+  // Keep gesture tracker updated (hold time, movement, etc.)
+  const moved = app.gestureTracker.move(e.pointerId, hit?.x ?? x, hit?.y ?? y, {
+    radial: hit?.radial,
+    angle: hit?.angleRad,
+    pressure: e.pressure || 0,
+    force: e.force || 0,
+    activeTouches: app.gestureTracker.activeCount
+  });
+
+  // Slide onto a different playable pad → release previous, strike new
+  if (hit && hit.index !== prevIdx) {
+    if (prevIdx != null) inst.noteOff(prevIdx);
+    app.pointers.set(e.pointerId, hit.index);
+    const gesture = gestureFromPointer(e, hit, app.gestureTracker.activeCount, inst.lastStrikeAt);
+    // Slightly softer velocity for slides so they feel continuous
+    gesture.velocity = Math.min(1, (gesture.velocity || 0.65) * 0.85);
+    inst.noteOn(gesture, hit);
+    if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);
+    draw();
+  } else if (hit && typeof inst.express === 'function' && moved) {
+    // Continuous expression while staying on the same pad (pressure / radial drift)
+    inst.express(moved, hit);
+  }
+});
+
+function releasePointer(e) {
   const idx = app.pointers.get(e.pointerId);
   app.pointers.delete(e.pointerId);
   app.gestureTracker.up(e.pointerId);
   if (idx != null) activeInstrument().noteOff(idx);
+  try { canvas.releasePointerCapture?.(e.pointerId); } catch (_) {}
+}
+
+canvas?.addEventListener('pointerup', (e) => {
+  e.preventDefault();
+  releasePointer(e);
 });
 canvas?.addEventListener('lostpointercapture', (e) => {
-  const idx = app.pointers.get(e.pointerId);
-  if (idx == null) return;
-  app.pointers.delete(e.pointerId);
-  app.gestureTracker.up(e.pointerId);
-  activeInstrument().noteOff(idx);
+  releasePointer(e);
 });
 canvas?.addEventListener('pointercancel', (e) => {
-  const idx = app.pointers.get(e.pointerId);
-  app.pointers.delete(e.pointerId);
-  app.gestureTracker.up(e.pointerId);
-  if (idx != null) activeInstrument().noteOff(idx);
+  releasePointer(e);
 });
 
 function paintKnob(canvasEl, value01, size = 88) {
@@ -470,7 +508,7 @@ function wire(id, fn) {
 }
 wire('btnExit', () => { window.location.href = '../'; });
 wire('btnHelp', () => {
-  alert('Play: tap tonefields or Q–O.\nUse the Handpan / Soundscapes tabs to switch pages.\nControls: Comp, Ambiance, Room, Filter (⚙ for types), Bass, Low, Mid, Master.');
+  alert('Play: tap tonefields or Q–O (hold to sustain).\nSlide across pads to move notes.\nMulti-touch polyphony supported.\nUse the Handpan / Soundscapes tabs to switch pages.\nControls: Comp, Ambiance, Room, Filter (⚙ for types), Bass, Low, Mid, Master.');
 });
 
 function refreshPitch() {
@@ -534,18 +572,31 @@ document.addEventListener('click', (e) => {
   menu.hidden = true;
 });
 
+// Keyboard: hold to sustain, release to noteOff (mirrors touch behavior)
 window.addEventListener('keydown', (e) => {
   if (e.target.matches?.('input, select, textarea')) return;
+  if (e.repeat) return;
   const i = KEYS.indexOf(e.key.toLowerCase());
-  if (i >= 0) {
-    e.preventDefault();
-    ensureAudio();
-    const inst = activeInstrument();
-    const hit = { index: i, radial: 0.5, angleRad: 0 };
-    inst.noteOn({ velocity: 0.75, pointerId: -1 - i }, hit);
-    setTimeout(() => inst.noteOff(i), 180);
-    draw();
-  }
+  if (i < 0) return;
+  e.preventDefault();
+  if (app.keysHeld.has(i)) return;
+  app.keysHeld.add(i);
+  ensureAudio();
+  const inst = activeInstrument();
+  const hit = { index: i, radial: 0.5, angleRad: 0 };
+  inst.noteOn({ velocity: 0.75, pointerId: -1 - i }, hit);
+  draw();
+});
+window.addEventListener('keyup', (e) => {
+  const i = KEYS.indexOf(e.key.toLowerCase());
+  if (i < 0) return;
+  app.keysHeld.delete(i);
+  activeInstrument().noteOff(i);
+});
+window.addEventListener('blur', () => {
+  // Release all held keys if window loses focus
+  for (const i of app.keysHeld) activeInstrument().noteOff(i);
+  app.keysHeld.clear();
 });
 
 function tick(now) {
