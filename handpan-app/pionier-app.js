@@ -5,7 +5,9 @@ import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/a
 import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
 import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js';
-import { createTonalInstruments } from './js/instruments/tonal-family.js?v=4';
+import { createTonalInstruments } from './js/instruments/tonal-family.js?v=5';
+import { BirdInstrument } from './js/instruments/bird.js';
+import { KitchenInstrument } from './js/instruments/kitchen.js';
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
@@ -16,6 +18,8 @@ const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
 const handpan = new HandpanInstrument();
 InstrumentRegistry.register(handpan);
 for (const instrument of createTonalInstruments()) InstrumentRegistry.register(instrument);
+InstrumentRegistry.register(new BirdInstrument());
+InstrumentRegistry.register(new KitchenInstrument());
 
 const app = {
   fxChain: null,
@@ -73,25 +77,52 @@ function isFieldPlayable(fieldIndex) {
 async function setInstrument(id) {
   ensureAudio();
   const ctx = getAudioContext();
-  if (!ctx || !app.instrumentBus) return;
+  if (!ctx) {
+    console.warn('setInstrument: no audio context');
+    return;
+  }
+  if (!app.instrumentBus) ensureAudio();
+  if (!app.instrumentBus) return;
+
   if (!handpan.getNotes().length) handpan.rebuildNotes();
+  const notes = handpan.getNotes();
+  if (!notes.length) {
+    console.warn('setInstrument: no pitch notes available');
+    return;
+  }
+
   const prev = InstrumentRegistry.active;
-  if (prev) prev.dampAll();
-  syncWorldPitch();
+  if (prev) {
+    try { prev.dampAll(); } catch (_) {}
+  }
+
+  for (const item of InstrumentRegistry.list()) {
+    const inst = InstrumentRegistry.get(item.id);
+    if (inst && typeof inst.setMusicalContext === 'function') {
+      try { inst.setMusicalContext(notes); } catch (_) {}
+    }
+  }
+
   try {
     await InstrumentRegistry.setActive(id, ctx, app.instrumentBus);
   } catch (err) {
     console.warn('setInstrument failed', id, err);
-    return;
+    try { await InstrumentRegistry.setActive('handpan', ctx, app.instrumentBus); } catch (_) {}
   }
+
   const active = InstrumentRegistry.active;
-  if (active && typeof active.setMusicalContext === 'function') {
-    active.setMusicalContext(handpan.getNotes());
+  if (active) {
+    if (typeof active.setMusicalContext === 'function') {
+      active.setMusicalContext(notes);
+    }
+    if (typeof active.setZones === 'function') {
+      active.setZones(surface.fields);
+    }
+    if (!active.ready && active.audioCtx) {
+      active._ready = true;
+    }
   }
-  if (active && typeof active.setZones === 'function') {
-    active.setZones(surface.fields);
-  }
-  syncWorldPitch();
+
   updateInstrumentUI();
   layoutFields();
   draw();
