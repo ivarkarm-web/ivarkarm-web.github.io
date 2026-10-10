@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=97" />
+  <link rel="stylesheet" href="./pionier.css?v=98" />
   <link rel="stylesheet" href="./scale-menu.css?v=2" />
   <script>
     if ('serviceWorker' in navigator) {
@@ -130,6 +130,14 @@
       <canvas id="pan" width="800" height="800" aria-label="Handpan instrument" draggable="false"></canvas>
     </main>
 
+    <div class="looper-rail" id="looperRail" aria-label="Looper">
+      <div class="looper-layers" id="looperLayers" aria-hidden="true"></div>
+      <button type="button" class="looper-btn" id="looperBtn" aria-label="Start loop recording" title="Loop · long-press to clear">
+        <span class="looper-btn-ring" aria-hidden="true"></span>
+        <span class="looper-btn-core" aria-hidden="true"></span>
+      </button>
+    </div>
+
     <div class="backdrop-player" id="backdropPlayer" aria-label="Background music">
       <button type="button" class="bp-btn" data-act="prev" aria-label="Previous track">‹</button>
       <button type="button" class="bp-btn bp-play" data-act="play" aria-label="Play">▶</button>
@@ -152,6 +160,6 @@
       lastTouchEnd = now;
     }, { passive: false });
   </script>
-  <script type="module" src="./pionier-app.js?v=96"></script>
+  <script type="module" src="./pionier-app.js?v=98"></script>
 </body>
 </html>
