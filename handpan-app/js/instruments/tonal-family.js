@@ -144,18 +144,36 @@ export class TonalInstrument extends Instrument {
   }
 
   setMusicalContext(notes) {
-    this.pitches = (notes || []).slice(0, 9).map(n => ({
-      midi: n.midi, freq: n.freq, name: n.name, kind: n.kind, index: n.index
-    }));
+    const list = (notes || []).slice(0, 9);
+    this.pitches = new Array(9).fill(null);
+    list.forEach((n, i) => {
+      const idx = (n.index != null && n.index >= 0 && n.index <= 8) ? n.index : i;
+      this.pitches[idx] = {
+        midi: n.midi, freq: n.freq, name: n.name, kind: n.kind, index: idx
+      };
+    });
+    for (let i = 0; i < 9; i++) {
+      if (!this.pitches[i]) {
+        const src = list[Math.min(i, Math.max(0, list.length - 1))];
+        if (src) {
+          this.pitches[i] = {
+            midi: src.midi, freq: src.freq, name: src.name, kind: src.kind, index: i
+          };
+        }
+      }
+    }
   }
-  getNotes() { return this.pitches.slice(); }
+  getNotes() { return this.pitches.filter(Boolean).slice(); }
   getZones() { return this._zones || []; }
 
   noteOn(gesture = {}, zone = {}) {
-    if (!this.ready || !this.audioCtx || !this.bus) return;
-    const idx = zone.index ?? zone.idx;
-    const note = this.pitches[idx];
-    if (!note || idx < 0 || idx > 8) return;
+    if (!this.audioCtx || !this.bus) return;
+    if (!this.ready) this._ready = true;
+    const idx = zone.index ?? zone.idx ?? 0;
+    if (idx < 0 || idx > 8) return;
+    let note = this.pitches[idx];
+    if (!note) note = this.pitches.find(Boolean);
+    if (!note || !note.freq) return;
 
     const ctx = this.audioCtx;
     const t = ctx.currentTime + .001;
@@ -194,13 +212,16 @@ export class TonalInstrument extends Instrument {
       partialFilter.Q.setValueAtTime(.55 + preset.brightness * .65, t);
 
       const gain = ctx.createGain();
-      const peak = level * vel * (.55 + (1 - radial * .25) * .45);
+      const levelBoost = isSustain ? 1 : 1.35;
+      const peak = level * vel * (.55 + (1 - radial * .25) * .45) * levelBoost;
       gain.gain.setValueAtTime(.0001, t);
-      gain.gain.linearRampToValueAtTime(Math.max(.0002, peak), t + preset.attack);
+      const atk = Math.max(0.002, preset.attack || 0.005);
+      gain.gain.linearRampToValueAtTime(Math.max(.0002, peak), t + atk);
       if (!isSustain) {
-        const end = t + Math.max(.08, decay * damping);
-        gain.gain.exponentialRampToValueAtTime(.0001, end);
-        osc.stop(end + .03);
+        const end = t + Math.max(atk + 0.06, decay * damping);
+        try { gain.gain.exponentialRampToValueAtTime(.0001, end); }
+        catch (_) { gain.gain.linearRampToValueAtTime(.0001, end); }
+        try { osc.stop(end + .05); } catch (_) {}
       }
       osc.connect(partialFilter);
       partialFilter.connect(gain);
@@ -239,7 +260,7 @@ export class TonalInstrument extends Instrument {
         }, (release + .08) * 1000);
       }
     };
-    if (!isSustain) {
+    if (!isSustain && oscillators[0]) {
       oscillators[0].osc.onended = () => {
         if (this.activeVoices.get(idx) === voice) this.activeVoices.delete(idx);
         try { out.disconnect(); } catch (_) {}
