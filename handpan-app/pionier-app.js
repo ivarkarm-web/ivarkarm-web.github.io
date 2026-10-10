@@ -18,17 +18,12 @@ function killCanvasGhosts(canvas) {
     canvas.style.touchAction = 'none';
   } catch (_) {}
 
-  const block = (e) => { e.preventDefault(); e.stopPropagation(); };
-  // Native drag / long-press image previews (iOS/Android) stack as "ghost images"
+  const block = (e) => { e.preventDefault(); };
   canvas.addEventListener('dragstart', block, true);
   canvas.addEventListener('drag', block, true);
   canvas.addEventListener('selectstart', block, true);
   canvas.addEventListener('contextmenu', block, true);
-  // Extra capture-phase touch block (some WebViews skip pointer events for drag image)
-  canvas.addEventListener('touchstart', (e) => { e.preventDefault(); }, { passive: false, capture: true });
-  canvas.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false, capture: true });
 
-  // Empty drag image fallback if a drag ever starts
   canvas.addEventListener('dragstart', (e) => {
     try {
       if (e.dataTransfer) {
@@ -60,13 +55,10 @@ async function boot() {
   const url = URL.createObjectURL(blob);
   await import(url);
 
-  // Anti-ghost: run now and after a frame (canvas may be rebound)
   const pan = () => document.getElementById('pan');
   killCanvasGhosts(pan());
   requestAnimationFrame(() => killCanvasGhosts(pan()));
-  setTimeout(() => killCanvasGhosts(pan()), 500);
 
-  // Scale selector UI
   const { HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js', BASE).href);
   const scaleLabel = document.getElementById('scaleLabel');
   const scaleMenu = document.getElementById('scaleMenu');
