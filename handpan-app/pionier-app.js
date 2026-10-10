@@ -11,7 +11,7 @@ import { KitchenInstrument } from './js/instruments/kitchen.js';
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
-import { createSurface } from './js/pionier-surface.js?v=26';
+import { createSurface } from './js/pionier-surface.js?v=27';
 
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
 
@@ -225,11 +225,10 @@ canvas?.addEventListener('pointercancel', (e) => {
   if (idx != null) activeInstrument().noteOff(idx);
 });
 
-function paintKnob(canvasEl, value01) {
+function paintKnob(canvasEl, value01, size = 88) {
   if (!canvasEl) return;
   const ctx = canvasEl.getContext('2d');
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const size = 88;
   if (canvasEl.width !== size * dpr) {
     canvasEl.width = size * dpr;
     canvasEl.height = size * dpr;
@@ -238,7 +237,7 @@ function paintKnob(canvasEl, value01) {
   }
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, size, size);
-  const cx = size / 2, cy = size / 2, r = 32;
+  const cx = size / 2, cy = size / 2, r = size * 0.36;
   const start = -Math.PI * 0.75;
   const end = Math.PI * 0.75;
   const angle = start + (end - start) * Math.max(0, Math.min(1, value01));
@@ -262,9 +261,13 @@ function paintKnob(canvasEl, value01) {
 function wireKnobs() {
   if (!app.fxChain) return;
   const map = [
-    { knobId: 'knobCompress', valId: 'valCompress', fxId: 'compressor', def: 0.4 },
-    { knobId: 'knobDelay', valId: 'valDelay', fxId: 'delay', def: 0.15 },
-    { knobId: 'knobReverb', valId: 'valReverb', fxId: 'reverb', def: 0.25 }
+    { knobId: 'knobCompress', valId: 'valCompress', fxId: 'compressor', def: 0.4, size: 88 },
+    { knobId: 'knobDelay', valId: 'valDelay', fxId: 'delay', def: 0.15, size: 88 },
+    { knobId: 'knobReverb', valId: 'valReverb', fxId: 'reverb', def: 0.25, size: 88 },
+    { knobId: 'knobBass', valId: 'valBass', tone: 'bass', def: 0.5, size: 72 },
+    { knobId: 'knobLow', valId: 'valLow', tone: 'low', def: 0.5, size: 72 },
+    { knobId: 'knobMid', valId: 'valMid', tone: 'mid', def: 0.5, size: 72 },
+    { knobId: 'knobMaster', valId: 'valMaster', tone: 'master', def: 0.82, size: 72 }
   ];
   for (const m of map) {
     const el = document.getElementById(m.knobId);
@@ -272,18 +275,21 @@ function wireKnobs() {
     if (!el) continue;
     const canvasEl = el.querySelector('.knob-canvas');
     let value = m.def;
-    paintKnob(canvasEl, value);
-    if (val) val.textContent = String(Math.round(value * 100));
-    let dragging = false;
-    let startY = 0;
-    let startVal = 0;
     const apply = (v) => {
       value = Math.max(0, Math.min(1, v));
-      app.fxChain.setValue(m.fxId, value);
-      paintKnob(canvasEl, value);
+      if (m.tone === 'bass') app.fxChain.setBass(value);
+      else if (m.tone === 'low') app.fxChain.setLow(value);
+      else if (m.tone === 'mid') app.fxChain.setMid(value);
+      else if (m.tone === 'master') app.fxChain.setMaster(value);
+      else app.fxChain.setValue(m.fxId, value);
+      paintKnob(canvasEl, value, m.size || 88);
       if (val) val.textContent = String(Math.round(value * 100));
       el.setAttribute('aria-valuenow', String(Math.round(value * 100)));
     };
+    apply(value);
+    let dragging = false;
+    let startY = 0;
+    let startVal = 0;
     el.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       dragging = true;
@@ -470,7 +476,7 @@ function wire(id, fn) {
 }
 wire('btnExit', () => { window.location.href = '../'; });
 wire('btnHelp', () => {
-  alert('Play: tap tonefields or Q–O.\nScale / Base / Octave change pitch.\nOpen Controls from the bottom handle.\nSwipe from the right edge for Soundscapes.');
+  alert('Play: tap tonefields or Q–O.\nScale / Base / Octave change pitch.\nOpen Controls for Comp, Ambiance, Room, Bass, Low, Mid, Master.\nSwipe from the right edge for Soundscapes.');
 });
 
 function refreshPitch() {
