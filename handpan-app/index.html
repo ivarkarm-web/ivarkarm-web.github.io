@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./pionier.css?v=99" />
-  <link rel="stylesheet" href="./looper.css?v=98" />
+  <link rel="stylesheet" href="./looper.css?v=100" />
   <link rel="stylesheet" href="./scale-menu.css?v=2" />
   <script>
     if ('serviceWorker' in navigator) {
@@ -133,6 +133,9 @@
 
     <div class="looper-rail" id="looperRail" aria-label="Looper">
       <div class="looper-layers" id="looperLayers" aria-hidden="true"></div>
+      <button type="button" class="looper-play-btn" id="looperPlayBtn" hidden aria-label="Pause loops" title="Play / pause loops">
+        <span class="looper-play-icon" aria-hidden="true">⏸</span>
+      </button>
       <button type="button" class="looper-btn" id="looperBtn" aria-label="Start loop recording" title="Loop · long-press to clear">
         <span class="looper-btn-ring" aria-hidden="true"></span>
         <span class="looper-btn-core" aria-hidden="true"></span>
@@ -161,6 +164,6 @@
       lastTouchEnd = now;
     }, { passive: false });
   </script>
-  <script type="module" src="./pionier-app.js?v=98"></script>
+  <script type="module" src="./pionier-app.js?v=100"></script>
 </body>
 </html>
