@@ -1,1 +1,230 @@
-PLACEHOLDER
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no" />
+  <title>Handpan — Ivar Karm</title>
+  <meta name="description" content="Playable virtual handpan — 9-note radial instrument with interval scales and dynamic transposition." />
+  <meta name="theme-color" content="#0a0a0b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./pionier.css?v=88" />
+  <link rel="stylesheet" href="./scale-menu.css?v=1" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        regs.forEach((r) => r.unregister());
+      });
+    }
+    if (window.caches && caches.keys) {
+      caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+    }
+  </script>
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="topbar">
+      <button type="button" class="pill play-pill" id="modePlay" title="Play mode">
+        <span class="dot"></span> play
+      </button>
+      <div class="center-nav">
+        <div class="page-tabs" role="tablist" aria-label="Main sections">
+          <button type="button" class="page-tab is-active" id="tabHandpan" role="tab" aria-selected="true">Handpan</button>
+          <button type="button" class="page-tab" id="tabSoundscapes" role="tab" aria-selected="false">Soundscapes</button>
+        </div>
+        <div class="instrument-nav" id="instrumentNav">
+          <button type="button" class="icon-btn" id="voicePrev" aria-label="Previous voice">‹</button>
+          <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Handpan ▾</button>
+          <button type="button" class="icon-btn" id="voiceNext" aria-label="Next voice">›</button>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button type="button" class="icon-btn" id="btnHelp" aria-label="Help" title="Help">?</button>
+        <button type="button" class="icon-btn exit-btn" id="btnExit" aria-label="Exit" title="Exit">×</button>
+      </div>
+    </header>
+    <div class="instrument-menu" id="instrumentMenu" role="menu" aria-label="Choose instrument" hidden></div>
+
+    <div class="mobile-control-drawer" id="mobileControlDrawer">
+      <button type="button" class="mobile-controls-toggle" id="mobileControlsToggle" aria-expanded="false" aria-controls="mobileControlPanel">
+        <span class="mobile-controls-grip" aria-hidden="true"></span>
+        <span class="mobile-controls-label">Controls</span>
+      </button>
+      <div class="mobile-control-panel" id="mobileControlPanel">
+    <aside class="sidebar left">
+      <div class="control-block control-scale">
+        <label class="control-label">Scale</label>
+        <div class="stepper scale-stepper">
+          <button type="button" class="step" id="scalePrev" aria-label="Previous scale">‹</button>
+          <button type="button" class="step-value scale-name scale-dropdown-toggle" id="scaleLabel" aria-haspopup="true" aria-expanded="false" aria-controls="scaleMenu" title="Choose scale">Celtic Minor ▾</button>
+          <button type="button" class="step" id="scaleNext" aria-label="Next scale">›</button>
+        </div>
+        <div class="scale-menu" id="scaleMenu" role="menu" aria-label="Choose scale" hidden></div>
+      </div>
+
+      <div class="control-row">
+        <div class="control-block control-half">
+          <label class="control-label">Base Note</label>
+          <div class="stepper">
+            <button type="button" class="step" id="rootDown" aria-label="Lower root">−</button>
+            <span class="step-value" id="rootLabel">D</span>
+            <button type="button" class="step" id="rootUp" aria-label="Raise root">+</button>
+          </div>
+        </div>
+        <div class="control-block control-half">
+          <label class="control-label">Octave</label>
+          <div class="stepper">
+            <button type="button" class="step" id="octDown" aria-label="Octave down">−</button>
+            <span class="step-value" id="octLabel">0</span>
+            <button type="button" class="step" id="octUp" aria-label="Octave up">+</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <aside class="sidebar right knobs-panel" aria-label="Sound knobs">
+      <div class="knob-wrap effect-knob-wrap" data-param="compress">
+        <div class="knob" id="knobCompress" role="slider" tabindex="0" aria-label="Compressor amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40"><canvas class="knob-canvas" width="68" height="68" aria-hidden="true"></canvas><span class="knob-value" id="valCompress">40</span></div>
+        <div class="knob-name-row"><button type="button" class="knob-effect-trigger" aria-expanded="false" aria-controls="bubbleComp"><span>Comp</span><span class="tiny-gear" aria-hidden="true">⚙</span></button></div>
+        <div class="effect-bubble" id="bubbleComp" hidden aria-label="Compressor type"><span class="effect-bubble-title">Compressor</span><div class="effect-choice-list"><button type="button" class="fx-type-btn is-active" data-comp="soft" aria-pressed="true">Soft</button><button type="button" class="fx-type-btn" data-comp="punch" aria-pressed="false">Punch</button><button type="button" class="fx-type-btn" data-comp="glue" aria-pressed="false">Glue</button><button type="button" class="fx-type-btn" data-comp="limit" aria-pressed="false">Limit</button></div></div>
+      </div>
+      <div class="knob-wrap effect-knob-wrap" data-param="delay">
+        <div class="knob" id="knobDelay" role="slider" tabindex="0" aria-label="Ambiance amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="15"><canvas class="knob-canvas" width="68" height="68" aria-hidden="true"></canvas><span class="knob-value" id="valDelay">15</span></div>
+        <div class="knob-name-row"><button type="button" class="knob-effect-trigger" aria-expanded="false" aria-controls="bubbleAmbiance"><span>Ambiance</span><span class="tiny-gear" aria-hidden="true">⚙</span></button></div>
+        <div class="effect-bubble" id="bubbleAmbiance" hidden aria-label="Ambiance type"><span class="effect-bubble-title">Ambiance</span><div class="effect-choice-list"><button type="button" class="fx-type-btn is-active" data-delay="echo" aria-pressed="true">Echo</button><button type="button" class="fx-type-btn" data-delay="slap" aria-pressed="false">Slap</button><button type="button" class="fx-type-btn" data-delay="ping" aria-pressed="false">Ping</button><button type="button" class="fx-type-btn" data-delay="dub" aria-pressed="false">Dub</button></div></div>
+      </div>
+      <div class="knob-wrap effect-knob-wrap" data-param="reverb">
+        <div class="knob" id="knobReverb" role="slider" tabindex="0" aria-label="Room amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25"><canvas class="knob-canvas" width="68" height="68" aria-hidden="true"></canvas><span class="knob-value" id="valReverb">25</span></div>
+        <div class="knob-name-row"><button type="button" class="knob-effect-trigger" aria-expanded="false" aria-controls="bubbleRoom"><span>Room</span><span class="tiny-gear" aria-hidden="true">⚙</span></button></div>
+        <div class="effect-bubble" id="bubbleRoom" hidden aria-label="Reverb type"><span class="effect-bubble-title">Reverb</span><div class="effect-choice-list"><button type="button" class="fx-type-btn is-active" data-reverb="room" aria-pressed="true">Room</button><button type="button" class="fx-type-btn" data-reverb="hall" aria-pressed="false">Hall</button><button type="button" class="fx-type-btn" data-reverb="plate" aria-pressed="false">Plate</button><button type="button" class="fx-type-btn" data-reverb="cave" aria-pressed="false">Cave</button></div></div>
+      </div>
+      <div class="knob-wrap effect-knob-wrap" data-param="filter">
+        <div class="knob" id="knobFilter" role="slider" tabindex="0" aria-label="Filter amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="12"><canvas class="knob-canvas" width="68" height="68" aria-hidden="true"></canvas><span class="knob-value" id="valFilter">12</span></div>
+        <div class="knob-name-row"><button type="button" class="knob-effect-trigger" aria-expanded="false" aria-controls="bubbleFilter"><span>Filter</span><span class="tiny-gear" aria-hidden="true">⚙</span></button></div>
+        <div class="effect-bubble" id="bubbleFilter" hidden aria-label="Filter type"><span class="effect-bubble-title">Effects · Filters</span><div class="effect-choice-list"><button type="button" class="fx-type-btn is-active" data-filter="lowpass" aria-pressed="true">Low Pass</button><button type="button" class="fx-type-btn" data-filter="highpass" aria-pressed="false">High Pass</button><button type="button" class="fx-type-btn" data-filter="band" aria-pressed="false">Band Pass</button><button type="button" class="fx-type-btn" data-filter="notch" aria-pressed="false">Notch</button></div></div>
+      </div>
+      <div class="knob-row tone-knobs" aria-label="Tone and master">
+        <div class="knob-wrap" data-param="bass">
+          <div class="knob" id="knobBass" role="slider" tabindex="0" aria-label="Bass" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><canvas class="knob-canvas" width="72" height="72" aria-hidden="true"></canvas><span class="knob-value" id="valBass">50</span></div>
+          <div class="knob-name-row"><span>Bass</span></div>
+        </div>
+        <div class="knob-wrap" data-param="low">
+          <div class="knob" id="knobLow" role="slider" tabindex="0" aria-label="Low" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><canvas class="knob-canvas" width="72" height="72" aria-hidden="true"></canvas><span class="knob-value" id="valLow">50</span></div>
+          <div class="knob-name-row"><span>Low</span></div>
+        </div>
+        <div class="knob-wrap" data-param="mid">
+          <div class="knob" id="knobMid" role="slider" tabindex="0" aria-label="Mid" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><canvas class="knob-canvas" width="72" height="72" aria-hidden="true"></canvas><span class="knob-value" id="valMid">50</span></div>
+          <div class="knob-name-row"><span>Mid</span></div>
+        </div>
+        <div class="knob-wrap" data-param="master">
+          <div class="knob" id="knobMaster" role="slider" tabindex="0" aria-label="Master" aria-valuemin="0" aria-valuemax="100" aria-valuenow="80"><canvas class="knob-canvas" width="72" height="72" aria-hidden="true"></canvas><span class="knob-value" id="valMaster">80</span></div>
+          <div class="knob-name-row"><span>Master</span></div>
+        </div>
+      </div>
+    </aside>
+      </div>
+    </div>
+
+    <main class="stage">
+      <canvas id="pan" width="800" height="800" aria-label="Handpan instrument"></canvas>
+    </main>
+  </div>
+
+  <section class="soundscapes-page" id="soundscapesPage" aria-hidden="true">
+    <header class="soundscapes-topbar">
+      <button type="button" class="pill play-pill" id="soundscapesPlayPill" title="Play mode" disabled>
+        <span class="dot"></span> play
+      </button>
+      <div class="center-nav">
+        <div class="page-tabs" role="tablist" aria-label="Main sections">
+          <button type="button" class="page-tab" id="tabHandpanFromSS" role="tab" aria-selected="false">Handpan</button>
+          <button type="button" class="page-tab is-active" id="tabSoundscapesActive" role="tab" aria-selected="true">Soundscapes</button>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button type="button" class="icon-btn" id="soundscapesHelp" aria-label="Soundscapes info" title="Soundscapes info">?</button>
+        <button type="button" class="icon-btn exit-btn" id="btnExitSS" aria-label="Exit" title="Exit">×</button>
+      </div>
+    </header>
+    <main class="soundscapes-stage">
+      <div class="soundscapes-eyebrow">LISTEN · PLAY · RETURN</div>
+      <div class="mandala-wrap" id="mandalaWrap" aria-label="Slowly rotating mandala artwork">
+        <svg class="mandala-art" viewBox="0 0 600 600" role="img" aria-label="Handpan-inspired concentric resonance pattern">
+          <defs>
+            <radialGradient id="mandalaGlow">
+              <stop offset="0" stop-color="#eaf2fb" stop-opacity=".13"/>
+              <stop offset=".58" stop-color="#c8dcf4" stop-opacity=".045"/>
+              <stop offset="1" stop-color="#c8dcf4" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="mandalaSteel" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#f4f8ff" stop-opacity=".88"/>
+              <stop offset=".48" stop-color="#c6d9ef" stop-opacity=".56"/>
+              <stop offset="1" stop-color="#edf5ff" stop-opacity=".78"/>
+            </linearGradient>
+          </defs>
+          <circle cx="300" cy="300" r="294" fill="url(#mandalaGlow)"/>
+          <g class="mandala-lines" fill="none" stroke="currentColor">
+            <circle cx="300" cy="300" r="282" stroke-opacity=".24" stroke-width="1.2"/>
+            <circle cx="300" cy="300" r="272" stroke-opacity=".58" stroke-width="1.1"/>
+            <circle cx="300" cy="300" r="210" stroke-opacity=".28"/>
+            <circle cx="300" cy="300" r="144" stroke-opacity=".36"/>
+            <circle cx="300" cy="300" r="70" stroke-opacity=".24"/>
+            <circle cx="300" cy="300" r="42" stroke-opacity=".4"/>
+          </g>
+          <circle cx="300" cy="300" r="30" fill="#0a0a0b" fill-opacity=".82" stroke="currentColor" stroke-opacity=".62" stroke-width="1.2"/>
+          <circle cx="300" cy="300" r="22" fill="none" stroke="url(#mandalaSteel)" stroke-opacity=".64" stroke-width="1.1"/>
+          <circle cx="300" cy="300" r="5" fill="currentColor" fill-opacity=".86" stroke="none"/>
+        </svg>
+        <div class="mandala-center">
+          <div class="mandala-transport" aria-label="Track navigation">
+            <button type="button" class="mandala-track-step" id="mandalaPreviousTrack" aria-label="Previous track" title="Previous track">‹</button>
+            <button type="button" class="mandala-play" id="mandalaPlay" aria-label="Play soundscape" title="Play / pause">
+              <span id="mandalaPlayIcon" aria-hidden="true">▶</span>
+            </button>
+            <button type="button" class="mandala-track-step" id="mandalaNextTrack" aria-label="Next track" title="Next track">›</button>
+          </div>
+        </div>
+      </div>
+      <div class="soundscape-track-meta">
+        <div class="soundscape-track-title" id="soundscapeTrackTitle">Your first soundscape</div>
+        <div class="soundscape-track-subtitle" id="soundscapeTrackSubtitle">Add an MP3 to begin · handpan-friendly ambience</div>
+      </div>
+      <div class="soundscape-player-actions">
+        <button type="button" class="soundscape-secondary" id="addSoundscapeTrack"><span aria-hidden="true">＋</span> Add MP3</button>
+        <span class="soundscape-status" id="soundscapeStatus">READY WHEN YOU ARE</span>
+      </div>
+      <input type="file" id="soundscapeFile" accept="audio/mpeg,audio/mp3,audio/*" multiple hidden />
+    </main>
+    <div class="soundscape-control-drawer" id="soundscapeControlDrawer">
+      <button type="button" class="mobile-controls-toggle" id="soundscapeControlsToggle" aria-expanded="false" aria-controls="soundscapeControlPanel">
+        <span class="mobile-controls-grip" aria-hidden="true"></span><span class="mobile-controls-label">Controls</span>
+      </button>
+      <div class="soundscape-control-panel" id="soundscapeControlPanel">
+        <div class="soundscape-control-heading">PLAYER CONTROLS</div>
+        <label class="soundscape-control-row"><span>Track volume</span><input id="soundscapeVolume" type="range" min="0" max="1" step="0.01" value="0.8" /></label>
+        <label class="soundscape-control-row"><span>Playback</span><select id="soundscapePlayback"><option value="loop">Loop track</option><option value="once">Play once</option></select></label>
+        <p class="soundscape-control-note">Playback continues when you return to the handpan.</p>
+      </div>
+    </div>
+    <button type="button" id="backToHandpan" hidden aria-hidden="true">Back</button>
+  </section>
+
+  <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
+  <script>
+    document.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: false });
+    document.addEventListener('gesturechange', (e) => e.preventDefault(), { passive: false });
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (e) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) e.preventDefault();
+      lastTouchEnd = now;
+    }, { passive: false });
+  </script>
+  <script type="module" src="./pionier-app.js?v=87"></script>
+</body>
+</html>
