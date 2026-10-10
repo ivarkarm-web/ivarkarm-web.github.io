@@ -27,11 +27,62 @@
   box-shadow: 0 0 10px rgba(220, 60, 60, 0.35);
   animation: looper-circle-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: calc(var(--i, 0) * 0.04s);
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+.looper-circle.is-paused {
+  opacity: 0.4;
+  border-color: rgba(220, 60, 60, 0.4);
+  box-shadow: none;
 }
 @keyframes looper-circle-in {
   from { opacity: 0; transform: translateX(-28px) scale(0.4); }
   to { opacity: 1; transform: translateX(0) scale(1); }
 }
+
+/* Play / pause (shown once layers exist) */
+.looper-play-btn {
+  pointer-events: auto;
+  appearance: none;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  background: rgba(18, 18, 22, 0.85);
+  color: rgba(232, 230, 227, 0.85);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  line-height: 1;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.looper-play-btn[hidden] {
+  display: none !important;
+}
+.looper-play-btn:hover {
+  border-color: rgba(212, 176, 74, 0.4);
+  color: #d4b04a;
+}
+.looper-play-btn:active {
+  transform: scale(0.94);
+}
+.looper-play-btn.is-paused {
+  border-color: rgba(220, 60, 60, 0.45);
+  color: #e05050;
+}
+.looper-play-btn.is-playing {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+.looper-play-icon {
+  display: block;
+  transform: translateX(0.5px);
+}
+
 .looper-btn {
   pointer-events: auto;
   appearance: none;
@@ -90,6 +141,7 @@
 }
 @media (max-width: 380px) {
   .looper-btn { width: 46px; height: 46px; }
+  .looper-play-btn { width: 36px; height: 36px; font-size: 12px; }
   .looper-circle { width: 12px; height: 12px; }
   .looper-rail { right: max(8px, env(safe-area-inset-right)); gap: 8px; }
 }

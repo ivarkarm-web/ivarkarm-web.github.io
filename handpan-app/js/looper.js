@@ -1,7 +1,7 @@
 /**
  * looper.js — multi-layer phrase looper (max 5)
- * Click: arm/stop-record layer · Long-press: clear all
- * Records the main mix so instrument/scale changes only affect live play.
+ * Record btn: arm/stop layer · Long-press: clear all
+ * Play/pause btn: mute/resume all looping layers
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js';
 
@@ -12,11 +12,28 @@ export function mountLooper({ root } = {}) {
   const rail = root || document.getElementById('looperRail');
   const btn = document.getElementById('looperBtn');
   const layersEl = document.getElementById('looperLayers');
+  let playBtn = document.getElementById('looperPlayBtn');
   if (!rail || !btn || !layersEl || rail.dataset.mounted === '1') return null;
   rail.dataset.mounted = '1';
 
+  // Ensure play/pause button exists (in case HTML is older)
+  if (!playBtn) {
+    playBtn = document.createElement('button');
+    playBtn.type = 'button';
+    playBtn.id = 'looperPlayBtn';
+    playBtn.className = 'looper-play-btn';
+    playBtn.setAttribute('aria-label', 'Pause loops');
+    playBtn.title = 'Play / pause loops';
+    playBtn.innerHTML =
+      '<span class="looper-play-icon" aria-hidden="true">⏸</span>';
+    // Insert before the record button
+    rail.insertBefore(playBtn, btn);
+  }
+
+  /** @type {{ buffer: AudioBuffer, source: AudioBufferSourceNode|null, gain: GainNode, startedAt: number, offset: number }[]} */
   const layers = [];
   let recording = false;
+  let playing = true;
   let recChunks = null;
   let processor = null;
   let silent = null;
@@ -63,17 +80,79 @@ export function mountLooper({ root } = {}) {
             ? 'Record next layer'
             : 'Start loop recording'
     );
+
+    const hasLayers = layers.length > 0;
+    playBtn.hidden = !hasLayers;
+    playBtn.classList.toggle('is-paused', hasLayers && !playing);
+    playBtn.classList.toggle('is-playing', hasLayers && playing);
+    const icon = playBtn.querySelector('.looper-play-icon');
+    if (icon) icon.textContent = playing ? '⏸' : '▶';
+    playBtn.setAttribute(
+      'aria-label',
+      playing ? 'Pause loops' : 'Play loops'
+    );
   }
 
   function renderCircles() {
     layersEl.replaceChildren();
     layers.forEach((_, i) => {
       const c = document.createElement('span');
-      c.className = 'looper-circle';
+      c.className = 'looper-circle' + (playing ? '' : ' is-paused');
       c.style.setProperty('--i', String(i));
       c.title = 'Layer ' + (i + 1);
       layersEl.appendChild(c);
     });
+  }
+
+  function startLayerSource(layer, offset) {
+    const ctx = getAudioContext();
+    if (!ctx || !layer.gain) return;
+    try { layer.source?.stop(); } catch (_) {}
+    const source = ctx.createBufferSource();
+    source.buffer = layer.buffer;
+    source.loop = true;
+    source.connect(layer.gain);
+    const off = Math.max(0, offset || 0) % (layer.buffer.duration || 1);
+    source.start(0, off);
+    layer.source = source;
+    layer.offset = off;
+    layer.startedAt = ctx.currentTime - off;
+  }
+
+  function pauseAll() {
+    if (!playing || !layers.length) return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    for (const layer of layers) {
+      const dur = layer.buffer.duration || 1;
+      const elapsed = ((now - (layer.startedAt || now)) % dur + dur) % dur;
+      layer.offset = elapsed;
+      try { layer.source?.stop(); } catch (_) {}
+      layer.source = null;
+    }
+    playing = false;
+    setBtnState();
+    renderCircles();
+  }
+
+  function resumeAll() {
+    if (playing || !layers.length) return;
+    resumeAudio();
+    for (const layer of layers) {
+      startLayerSource(layer, layer.offset || 0);
+    }
+    playing = true;
+    setBtnState();
+    renderCircles();
+  }
+
+  function togglePlayPause(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!layers.length || recording) return;
+    if (playing) pauseAll();
+    else resumeAll();
   }
 
   function startRecord() {
@@ -81,6 +160,8 @@ export function mountLooper({ root } = {}) {
     const ctx = ensureTap();
     if (!ctx) return;
     resumeAudio();
+    // Keep existing layers audible while overdubbing
+    if (!playing && layers.length) resumeAll();
     recChunks = [];
     recording = true;
     setBtnState();
@@ -111,13 +192,20 @@ export function mountLooper({ root } = {}) {
     gain.gain.value = 0.92;
     gain.connect(master);
 
-    const source = ctx.createBufferSource();
-    source.buffer = buffer;
-    source.loop = true;
-    source.connect(gain);
-    source.start();
+    const layer = {
+      buffer,
+      source: null,
+      gain,
+      startedAt: ctx.currentTime,
+      offset: 0
+    };
+    layers.push(layer);
 
-    layers.push({ buffer, source, gain });
+    if (playing) {
+      startLayerSource(layer, 0);
+    }
+    // if paused, layer waits until resume
+
     renderCircles();
     setBtnState();
   }
@@ -125,6 +213,7 @@ export function mountLooper({ root } = {}) {
   function clearAll() {
     recording = false;
     recChunks = null;
+    playing = true;
     for (const layer of layers) {
       try { layer.source?.stop(); } catch (_) {}
       try { layer.gain.disconnect(); } catch (_) {}
@@ -166,8 +255,21 @@ export function mountLooper({ root } = {}) {
   });
   btn.addEventListener('contextmenu', (e) => e.preventDefault());
 
+  playBtn.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  });
+  playBtn.addEventListener('pointerup', togglePlayPause);
+  playBtn.addEventListener('click', togglePlayPause);
+
   setBtnState();
   renderCircles();
 
-  return { clearAll, get layerCount() { return layers.length; } };
+  return {
+    clearAll,
+    pauseAll,
+    resumeAll,
+    get layerCount() { return layers.length; },
+    get isPlaying() { return playing; }
+  };
 }
