@@ -89,7 +89,6 @@
   height: 14px;
 }
 
-/* CSS play triangle */
 .looper-glyph-play {
   display: block;
   width: 0;
@@ -100,7 +99,6 @@
   border-color: transparent transparent transparent currentColor;
 }
 
-/* CSS pause bars */
 .looper-glyph-pause {
   display: flex;
   align-items: center;
@@ -126,7 +124,54 @@
   display: none !important;
 }
 
-/* Clear — left side, same size as record */
+/* Hold-to-delete overlay on track */
+.looper-circle-delete {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(18, 10, 10, 0.88);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 2;
+}
+.looper-circle.is-deleting {
+  border-color: #ff4d4d !important;
+  box-shadow: 0 0 0 4px rgba(220, 60, 60, 0.25), 0 0 18px rgba(220, 60, 60, 0.45) !important;
+  transform: scale(1.08);
+}
+.looper-circle.is-deleting .looper-circle-delete {
+  opacity: 1;
+}
+.looper-circle.is-deleting .looper-circle-num,
+.looper-circle.is-deleting .looper-circle-icon {
+  opacity: 0;
+}
+
+.looper-circle-x {
+  position: relative;
+  width: 16px;
+  height: 16px;
+}
+.looper-circle-x::before,
+.looper-circle-x::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 2.5px;
+  margin: -1.25px 0 0 -8px;
+  border-radius: 1px;
+  background: #ff6b6b;
+}
+.looper-circle-x::before { transform: rotate(45deg); }
+.looper-circle-x::after { transform: rotate(-45deg); }
+
+/* Clear — left side */
 .looper-clear-btn {
   position: fixed;
   left: max(12px, env(safe-area-inset-left));
@@ -191,12 +236,8 @@
   background: rgba(232, 230, 227, 0.7);
   transition: background 0.18s ease;
 }
-.looper-clear-x::before {
-  transform: rotate(45deg);
-}
-.looper-clear-x::after {
-  transform: rotate(-45deg);
-}
+.looper-clear-x::before { transform: rotate(45deg); }
+.looper-clear-x::after { transform: rotate(-45deg); }
 
 .looper-clear-btn:hover .looper-clear-ring {
   border-color: rgba(220, 60, 60, 0.7);
@@ -263,7 +304,6 @@
   box-shadow: 0 0 0 4px rgba(224, 54, 54, 0.18), 0 6px 22px rgba(0, 0, 0, 0.4);
 }
 
-/* Recording → green */
 .looper-btn.is-recording .looper-btn-ring {
   animation: looper-pulse-rec 1s ease-in-out infinite;
   border-color: #2ecc71;
