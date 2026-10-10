@@ -1,0 +1,95 @@
+/* Looper (right rail) */
+.looper-rail {
+  position: fixed;
+  right: max(12px, env(safe-area-inset-right));
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 55;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+.looper-layers {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+.looper-circle {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(220, 60, 60, 0.85);
+  background: rgba(220, 60, 60, 0.18);
+  box-shadow: 0 0 10px rgba(220, 60, 60, 0.35);
+  animation: looper-circle-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 0.04s);
+}
+@keyframes looper-circle-in {
+  from { opacity: 0; transform: translateX(-28px) scale(0.4); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+.looper-btn {
+  pointer-events: auto;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.looper-btn-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2.5px solid rgba(210, 50, 50, 0.9);
+  box-shadow: 0 0 0 3px rgba(210, 50, 50, 0.12), 0 6px 20px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.looper-btn-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border-radius: 50%;
+  background: #e03636;
+  box-shadow: 0 0 12px rgba(224, 54, 54, 0.55);
+  transition: border-radius 0.18s ease, width 0.18s ease, height 0.18s ease, margin 0.18s ease;
+}
+.looper-btn:hover .looper-btn-ring {
+  border-color: #ff4d4d;
+  box-shadow: 0 0 0 4px rgba(224, 54, 54, 0.18), 0 6px 22px rgba(0, 0, 0, 0.4);
+}
+.looper-btn.is-recording .looper-btn-ring {
+  animation: looper-pulse 1s ease-in-out infinite;
+  border-color: #ff3b3b;
+}
+.looper-btn.is-recording .looper-btn-core {
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 3px;
+  background: #ff2a2a;
+}
+.looper-btn.is-cleared .looper-btn-ring {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+@keyframes looper-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(224, 54, 54, 0.2), 0 6px 20px rgba(0, 0, 0, 0.35); }
+  50% { box-shadow: 0 0 0 8px rgba(224, 54, 54, 0.12), 0 6px 24px rgba(224, 54, 54, 0.25); }
+}
+@media (max-width: 380px) {
+  .looper-btn { width: 46px; height: 46px; }
+  .looper-circle { width: 12px; height: 12px; }
+  .looper-rail { right: max(8px, env(safe-area-inset-right)); gap: 8px; }
+}
