@@ -77,24 +77,16 @@ function isFieldPlayable(fieldIndex) {
 async function setInstrument(id) {
   ensureAudio();
   const ctx = getAudioContext();
-  if (!ctx) {
-    console.warn('setInstrument: no audio context');
-    return;
-  }
+  if (!ctx) return;
   if (!app.instrumentBus) ensureAudio();
   if (!app.instrumentBus) return;
 
   if (!handpan.getNotes().length) handpan.rebuildNotes();
   const notes = handpan.getNotes();
-  if (!notes.length) {
-    console.warn('setInstrument: no pitch notes available');
-    return;
-  }
+  if (!notes.length) return;
 
   const prev = InstrumentRegistry.active;
-  if (prev) {
-    try { prev.dampAll(); } catch (_) {}
-  }
+  if (prev) { try { prev.dampAll(); } catch (_) {} }
 
   for (const item of InstrumentRegistry.list()) {
     const inst = InstrumentRegistry.get(item.id);
@@ -112,15 +104,9 @@ async function setInstrument(id) {
 
   const active = InstrumentRegistry.active;
   if (active) {
-    if (typeof active.setMusicalContext === 'function') {
-      active.setMusicalContext(notes);
-    }
-    if (typeof active.setZones === 'function') {
-      active.setZones(surface.fields);
-    }
-    if (!active.ready && active.audioCtx) {
-      active._ready = true;
-    }
+    if (typeof active.setMusicalContext === 'function') active.setMusicalContext(notes);
+    if (typeof active.setZones === 'function') active.setZones(surface.fields);
+    if (!active.ready && active.audioCtx) active._ready = true;
   }
 
   updateInstrumentUI();
@@ -264,6 +250,7 @@ function wireKnobs() {
     { knobId: 'knobCompress', valId: 'valCompress', fxId: 'compressor', def: 0.4, size: 88 },
     { knobId: 'knobDelay', valId: 'valDelay', fxId: 'delay', def: 0.15, size: 88 },
     { knobId: 'knobReverb', valId: 'valReverb', fxId: 'reverb', def: 0.25, size: 88 },
+    { knobId: 'knobFilter', valId: 'valFilter', fxId: 'filter', def: 0.12, size: 88 },
     { knobId: 'knobBass', valId: 'valBass', tone: 'bass', def: 0.5, size: 72 },
     { knobId: 'knobLow', valId: 'valLow', tone: 'low', def: 0.5, size: 72 },
     { knobId: 'knobMid', valId: 'valMid', tone: 'mid', def: 0.5, size: 72 },
@@ -299,48 +286,41 @@ function wireKnobs() {
     });
     el.addEventListener('pointermove', (e) => {
       if (!dragging) return;
-      const dy = startY - e.clientY;
-      apply(startVal + dy / 140);
+      apply(startVal + (startY - e.clientY) / 140);
     });
     el.addEventListener('pointerup', () => { dragging = false; });
     el.addEventListener('pointercancel', () => { dragging = false; });
   }
-  document.querySelectorAll('[data-comp]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const mod = app.fxChain?.modules?.find((x) => x.id === 'compressor');
-      if (mod) mod.type = btn.getAttribute('data-comp');
-      mod?._apply?.(getAudioContext());
-      document.querySelectorAll('[data-comp]').forEach((b) => {
-        b.classList.toggle('is-active', b === btn);
-        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+
+  const wireType = (attr, moduleId) => {
+    document.querySelectorAll(`[${attr}]`).forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mod = app.fxChain?.modules?.find((x) => x.id === moduleId);
+        if (mod) mod.type = btn.getAttribute(attr);
+        mod?._apply?.(getAudioContext());
+        document.querySelectorAll(`[${attr}]`).forEach((b) => {
+          b.classList.toggle('is-active', b === btn);
+          b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+        });
       });
     });
-  });
+  };
+  wireType('data-comp', 'compressor');
+  wireType('data-delay', 'delay');
+  wireType('data-reverb', 'reverb');
+  wireType('data-filter', 'filter');
+
+  // Fix delay type mapping for "dub"
   document.querySelectorAll('[data-delay]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const mod = app.fxChain?.modules?.find((x) => x.id === 'delay');
-      if (mod) {
-        const t = btn.getAttribute('data-delay');
-        mod.type = t === 'dub' ? 'ambient' : t;
-      }
-      mod?._apply?.(getAudioContext());
-      document.querySelectorAll('[data-delay]').forEach((b) => {
-        b.classList.toggle('is-active', b === btn);
-        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
-      });
+      if (!mod) return;
+      const t = btn.getAttribute('data-delay');
+      mod.type = t === 'dub' ? 'ambient' : t;
+      mod._apply?.(getAudioContext());
     });
   });
-  document.querySelectorAll('[data-reverb]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const mod = app.fxChain?.modules?.find((x) => x.id === 'reverb');
-      if (mod) mod.type = btn.getAttribute('data-reverb');
-      mod?._apply?.(getAudioContext());
-      document.querySelectorAll('[data-reverb]').forEach((b) => {
-        b.classList.toggle('is-active', b === btn);
-        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
-      });
-    });
-  });
+
   document.querySelectorAll('.knob-effect-trigger').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -390,7 +370,6 @@ function wireKnobs() {
   const playback = document.getElementById('soundscapePlayback');
   if (!page || !audio) return;
 
-  let trackList = [];
   let trackObjectUrls = [];
 
   function showPage(show) {
@@ -435,7 +414,7 @@ function wireKnobs() {
     if (!files.length) return;
     trackObjectUrls.forEach((u) => URL.revokeObjectURL(u));
     trackObjectUrls = [];
-    trackList = files.map((file) => {
+    const trackList = files.map((file) => {
       const url = URL.createObjectURL(file);
       trackObjectUrls.push(url);
       return { name: file.name.replace(/\.[^.]+$/, ''), url };
@@ -476,7 +455,7 @@ function wire(id, fn) {
 }
 wire('btnExit', () => { window.location.href = '../'; });
 wire('btnHelp', () => {
-  alert('Play: tap tonefields or Q–O.\nScale / Base / Octave change pitch.\nOpen Controls for Comp, Ambiance, Room, Bass, Low, Mid, Master.\nSwipe from the right edge for Soundscapes.');
+  alert('Play: tap tonefields or Q–O.\nControls: Comp, Ambiance, Room, Filter (⚙ for types), Bass, Low, Mid, Master.\nSwipe from the right edge for Soundscapes.');
 });
 
 function refreshPitch() {
@@ -548,8 +527,7 @@ window.addEventListener('keydown', (e) => {
     ensureAudio();
     const inst = activeInstrument();
     const hit = { index: i, radial: 0.5, angleRad: 0 };
-    const gesture = { velocity: 0.75, pointerId: -1 - i };
-    inst.noteOn(gesture, hit);
+    inst.noteOn({ velocity: 0.75, pointerId: -1 - i }, hit);
     setTimeout(() => inst.noteOff(i), 180);
     draw();
   }
@@ -570,18 +548,11 @@ function tick(now) {
 }
 
 async function boot() {
-  try {
-    await setInstrument('handpan');
-  } catch (err) {
-    console.error('boot setInstrument', err);
-  }
+  try { await setInstrument('handpan'); } catch (err) { console.error(err); }
   resize();
   window.addEventListener('resize', resize);
   requestAnimationFrame(tick);
-  const unlock = () => {
-    ensureAudio();
-    window.removeEventListener('pointerdown', unlock);
-  };
+  const unlock = () => { ensureAudio(); window.removeEventListener('pointerdown', unlock); };
   window.addEventListener('pointerdown', unlock);
   if (isDebugEnabled?.()) mountDebugPanel?.({ setInstrument });
 }
