@@ -78,7 +78,7 @@
   pointer-events: auto !important;
   touch-action: manipulation !important;
   -webkit-tap-highlight-color: transparent !important;
-  z-index: 2 !important;
+  z-index: 1602 !important;
 }
 #mobileControlDrawer > #mobileControlsToggle .mobile-controls-grip {
   display: block !important;
@@ -270,7 +270,6 @@
 }
 .mandala-wrap .mandala-center { position: relative; z-index: 2; }
 
-/* Mandala must never intercept handpan input when inactive */
 #mandalaWrap {
   pointer-events: none !important;
 }
@@ -281,4 +280,15 @@
   visibility: hidden;
   opacity: 0;
   z-index: -1 !important;
+}
+
+/* Fluid Soundscapes transition */
+#soundscapesPage {
+  transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+#mandalaWrap {
+  transition: opacity 0.32s ease, visibility 0.32s;
+}
+#app.soundscapes-away .stage {
+  transition: opacity 0.28s ease, filter 0.28s ease;
 }
