@@ -11,7 +11,7 @@ import { KitchenInstrument } from './js/instruments/kitchen.js';
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
-import { createSurface } from './js/pionier-surface.js?v=27';
+import { createSurface } from './js/pionier-surface.js?v=28';
 
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
 
