@@ -62,7 +62,7 @@ export function createSurface(canvas) {
     ctx2.ellipse(0, 0, halfL * 0.88, slitW * 0.48, 0, 0, Math.PI * 2);
     ctx2.fill();
     if (g > 0.025 && playable) {
-      const bloom = ctx2.createRadialGradient(0, 0, 0, 0, 0, halfL * 1.05);
+      const bloom = ctx2.createRadialGradient(0, 0, 0, 0, halfL * 1.05);
       bloom.addColorStop(0, `rgba(238,246,255,${g * 0.2})`);
       bloom.addColorStop(0.42, `rgba(177,204,232,${g * 0.09})`);
       bloom.addColorStop(1, 'rgba(177,204,232,0)');
@@ -82,7 +82,8 @@ export function createSurface(canvas) {
 
     fields = list.map((n) => {
       const lowAmount = (midiMax - n.midi) / midiSpan;
-      const size = 1 + lowAmount * 0.42;
+      // Keep higher notes a bit larger so they stay easy to hit
+      const size = 1.12 + lowAmount * 0.36;
       const playable = isFieldPlayable(n.index);
       if (n.kind === 'ding') {
         const rr = R * 0.185 * size;
@@ -230,8 +231,12 @@ export function createSurface(canvas) {
       const lx = dx * cos - dy * sin;
       const ly = dx * sin + dy * cos;
       const d = Math.hypot(lx / f.rx, ly / f.ry);
-      // Wider target (was 1.28) so edge taps still register
-      if (d <= 1.48 && d < bestD) {
+      // Smaller (higher) pads get a larger relative hit radius so they register reliably
+      const minAxis = Math.min(f.rx, f.ry);
+      const refAxis = R * 0.14;
+      const expand = Math.max(0, Math.min(0.55, (refAxis - minAxis) / (R * 0.09)));
+      const hitLimit = 1.55 + expand; // ~1.55 large pads → ~2.1 tiny high notes
+      if (d <= hitLimit && d < bestD) {
         bestD = d;
         best = {
           idx: f.index,
