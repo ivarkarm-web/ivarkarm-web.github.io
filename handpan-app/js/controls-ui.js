@@ -1,6 +1,6 @@
 /**
  * controls-ui.js — Unified Controls panel controller
- * One open/closed state, four effect modules + four tone knobs.
+ * Supports deferred engine attach (UI before first AudioContext).
  */
 import {
   AMBIENCE_FX, ROOM_FX, COMP_FX, EFFECTS_FX
@@ -18,7 +18,7 @@ function drawKnob(canvas, value, gold = '#c9a227') {
   const ctx = canvas.getContext('2d');
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   const size = canvas.clientWidth || 72;
-  const w = size * dpr;
+  const w = Math.max(1, Math.round(size * dpr));
   if (canvas.width !== w) {
     canvas.width = w;
     canvas.height = w;
@@ -48,7 +48,7 @@ function drawKnob(canvas, value, gold = '#c9a227') {
 }
 
 function bindKnob(el, initial, onChange) {
-  if (!el) return { set: () => {} };
+  if (!el) return { set: () => {}, paint: () => {}, get: () => initial };
   const canvas = el.querySelector('.knob-canvas');
   const valEl = el.querySelector('.knob-value');
   let value = initial;
@@ -91,16 +91,26 @@ function bindKnob(el, initial, onChange) {
     onChange(value);
   });
   paint();
-  return { set, get: () => value };
+  return { set, paint, get: () => value };
 }
 
 export function setupControlsUI(fxEngine) {
   const drawer = document.getElementById('mobileControlDrawer');
   const toggle = document.getElementById('mobileControlsToggle');
-  if (!drawer || !toggle) return;
+  if (!drawer || !toggle) return { setOpen() {}, closeAllDropdowns() {}, attachEngine() {}, repaint() {} };
+
+  let engine = fxEngine || null;
+  const knobHandles = [];
+  function eng() { return engine; }
 
   let startY = null;
   let suppressClick = false;
+
+  function repaintKnobs() {
+    requestAnimationFrame(() => {
+      for (const h of knobHandles) h.paint?.();
+    });
+  }
 
   function setOpen(open) {
     drawer.classList.toggle('is-open', open);
@@ -110,6 +120,7 @@ export function setupControlsUI(fxEngine) {
     drawer.style.pointerEvents = open ? 'auto' : 'none';
     toggle.style.pointerEvents = 'auto';
     if (!open) closeAllDropdowns();
+    else repaintKnobs();
   }
 
   toggle.addEventListener('pointerdown', (e) => {
@@ -149,7 +160,7 @@ export function setupControlsUI(fxEngine) {
       btn.dataset.index = String(i);
       btn.textContent = item.name;
       btn.addEventListener('click', () => {
-        fxEngine.selectAlgo(moduleId, i);
+        eng()?.selectAlgo(moduleId, i);
         dd.querySelectorAll('.ctrl-dropdown-item').forEach((b) => {
           const active = b === btn;
           b.classList.toggle('is-active', active);
@@ -158,6 +169,7 @@ export function setupControlsUI(fxEngine) {
         const nameEl = document.getElementById('algo' + key);
         if (nameEl) nameEl.textContent = item.name;
         document.querySelector('.ctrl-module[data-module="' + moduleId + '"]')?.classList.remove('is-bypassed');
+        eng()?.setModuleBypass(moduleId, false);
         closeAllDropdowns();
       });
       dd.appendChild(btn);
@@ -167,7 +179,7 @@ export function setupControlsUI(fxEngine) {
     bypass.className = 'ctrl-dropdown-item bypass-item';
     bypass.textContent = 'Bypass / Off';
     bypass.addEventListener('click', () => {
-      fxEngine.setModuleBypass(moduleId, true);
+      eng()?.setModuleBypass(moduleId, true);
       document.querySelector('.ctrl-module[data-module="' + moduleId + '"]')?.classList.add('is-bypassed');
       closeAllDropdowns();
     });
@@ -206,7 +218,7 @@ export function setupControlsUI(fxEngine) {
       if (wasOpen) return;
       const mod = gear.closest('.ctrl-module')?.dataset.module;
       if (mod) {
-        fxEngine.setModuleBypass(mod, false);
+        eng()?.setModuleBypass(mod, false);
         gear.closest('.ctrl-module')?.classList.remove('is-bypassed');
       }
       gear.setAttribute('aria-expanded', 'true');
@@ -221,38 +233,56 @@ export function setupControlsUI(fxEngine) {
     if (e.key === 'Escape') closeAllDropdowns();
   });
 
+  const pending = { modules: {}, tones: {} };
   const knobMap = {
     ambience: { id: 'knobAmbience', init: 0.15 },
     room: { id: 'knobRoom', init: 0.25 },
-    comp: { id: 'knobComp', init: 0.4 },
+    comp: { id: 'knobComp', init: 0.35 },
     effects: { id: 'knobEffects', init: 0.5 }
   };
   for (const [mod, cfg] of Object.entries(knobMap)) {
     const el = document.getElementById(cfg.id);
-    bindKnob(el, cfg.init, (v) => {
-      fxEngine.setModuleValue(mod, v);
-      fxEngine.setModuleBypass(mod, false);
+    pending.modules[mod] = cfg.init;
+    const handle = bindKnob(el, cfg.init, (v) => {
+      pending.modules[mod] = v;
+      eng()?.setModuleValue(mod, v);
+      eng()?.setModuleBypass(mod, false);
       document.querySelector('.ctrl-module[data-module="' + mod + '"]')?.classList.remove('is-bypassed');
     });
-    fxEngine.setModuleValue(mod, cfg.init);
+    knobHandles.push(handle);
   }
 
   const toneMap = {
     low: { id: 'knobLow', init: 0.5 },
     mid: { id: 'knobMid', init: 0.5 },
     bass: { id: 'knobBass', init: 0.5 },
-    master: { id: 'knobMaster', init: 0.85 }
+    master: { id: 'knobMaster', init: 0.75 }
   };
   for (const [tone, cfg] of Object.entries(toneMap)) {
     const el = document.getElementById(cfg.id);
-    bindKnob(el, cfg.init, (v) => fxEngine.setTone(tone, v));
-    fxEngine.setTone(tone, cfg.init);
+    pending.tones[tone] = cfg.init;
+    const handle = bindKnob(el, cfg.init, (v) => {
+      pending.tones[tone] = v;
+      eng()?.setTone(tone, v);
+    });
+    knobHandles.push(handle);
   }
 
-  fxEngine.selectAlgo('ambience', 0);
-  fxEngine.selectAlgo('room', 0);
-  fxEngine.selectAlgo('comp', 0);
-  fxEngine.selectAlgo('effects', 0);
+  function applyPending() {
+    if (!engine) return;
+    for (const [mod, v] of Object.entries(pending.modules)) engine.setModuleValue(mod, v);
+    for (const [tone, v] of Object.entries(pending.tones)) engine.setTone(tone, v);
+    engine.selectAlgo('ambience', 0);
+    engine.selectAlgo('room', 0);
+    engine.selectAlgo('comp', 0);
+    engine.selectAlgo('effects', 0);
+  }
+  if (engine) applyPending();
 
-  return { setOpen, closeAllDropdowns };
+  function attachEngine(next) {
+    engine = next || null;
+    applyPending();
+  }
+
+  return { setOpen, closeAllDropdowns, attachEngine, repaint: repaintKnobs };
 }
