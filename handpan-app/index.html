@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=81" />
+  <link rel="stylesheet" href="./pionier.css?v=82" />
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
@@ -94,6 +94,24 @@
         <div class="knob" id="knobReverb" role="slider" tabindex="0" aria-label="Room amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25" aria-valuetext="Room 25 percent"><canvas class="knob-canvas" width="88" height="88" aria-hidden="true"></canvas><span class="knob-value" id="valReverb">25</span></div>
         <div class="knob-name-row"><button type="button" class="knob-effect-trigger" aria-expanded="false" aria-controls="bubbleRoom"><span>Room</span><span class="tiny-gear" aria-hidden="true">⚙</span></button></div>
         <div class="effect-bubble" id="bubbleRoom" hidden aria-label="Reverb type"><span class="effect-bubble-title">Reverb</span><div class="effect-choice-list"><button type="button" class="fx-type-btn is-active" data-reverb="room" aria-pressed="true">Room</button><button type="button" class="fx-type-btn" data-reverb="hall" aria-pressed="false">Hall</button><button type="button" class="fx-type-btn" data-reverb="plate" aria-pressed="false">Plate</button><button type="button" class="fx-type-btn" data-reverb="cave" aria-pressed="false">Cave</button></div></div>
+      </div>
+      <div class="knob-row tone-knobs" aria-label="Tone and master">
+        <div class="knob-wrap" data-param="bass">
+          <div class="knob" id="knobBass" role="slider" tabindex="0" aria-label="Bass" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><canvas class="knob-canvas" width="72" height="72" aria-hidden="true"></canvas><span class="knob-value" id="valBass">50</span></div>
+          <div class="knob-name-row"><span>Bass</span></div>
+        </div>
+        <div class="knob-wrap" data-param="low">
+          <div class="knob" id="knobLow" role="slider" tabindex="0" aria-label="Low" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><canvas class="knob-canvas" width="72" height="72" aria-hidden="true"></canvas><span class="knob-value" id="valLow">50</span></div>
+          <div class="knob-name-row"><span>Low</span></div>
+        </div>
+        <div class="knob-wrap" data-param="mid">
+          <div class="knob" id="knobMid" role="slider" tabindex="0" aria-label="Mid" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><canvas class="knob-canvas" width="72" height="72" aria-hidden="true"></canvas><span class="knob-value" id="valMid">50</span></div>
+          <div class="knob-name-row"><span>Mid</span></div>
+        </div>
+        <div class="knob-wrap" data-param="master">
+          <div class="knob" id="knobMaster" role="slider" tabindex="0" aria-label="Master" aria-valuemin="0" aria-valuemax="100" aria-valuenow="80"><canvas class="knob-canvas" width="72" height="72" aria-hidden="true"></canvas><span class="knob-value" id="valMaster">80</span></div>
+          <div class="knob-name-row"><span>Master</span></div>
+        </div>
       </div>
       <div class="knob-wrap fx-settings-wrap">
       </div>
@@ -177,6 +195,16 @@
   </section>
 
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
-  <script type="module" src="./pionier-app.js?v=81"></script>
+  <script>
+    document.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: false });
+    document.addEventListener('gesturechange', (e) => e.preventDefault(), { passive: false });
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (e) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) e.preventDefault();
+      lastTouchEnd = now;
+    }, { passive: false });
+  </script>
+  <script type="module" src="./pionier-app.js?v=82"></script>
 </body>
 </html>
