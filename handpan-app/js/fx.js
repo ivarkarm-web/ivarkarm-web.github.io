@@ -128,17 +128,48 @@ export class ReverbFx extends FxModule {
   }
 }
 
-export class LowpassFx extends FxModule {
-  constructor() { super({ id: 'lowpass', name: 'Low Pass', category: 'filters', defaultValue: 0.7 }); }
+export class FilterFx extends FxModule {
+  constructor() {
+    super({ id: 'filter', name: 'Filter', category: 'filters', defaultValue: 0.55 });
+    this.type = 'lowpass'; // lowpass | highpass | band | notch
+  }
   create(ctx) {
-    this.filter = ctx.createBiquadFilter(); this.filter.type = 'lowpass'; this.filter.Q.value = 0.7;
-    this._nodes = [this.filter]; this._input = this.filter; this._output = this.filter; this._apply(ctx);
+    this.filter = ctx.createBiquadFilter();
+    this.filter.type = 'lowpass';
+    this.filter.Q.value = 0.9;
+    this._nodes = [this.filter];
+    this._input = this.filter;
+    this._output = this.filter;
+    this._apply(ctx);
     return { input: this._input, output: this._output };
   }
   _apply(ctx) {
     if (!this.filter || !ctx) return;
-    const hz = this.bypassed ? 20000 : 200 + Math.pow(this.value, 1.6) * 19800;
-    this.filter.frequency.setTargetAtTime(hz, ctx.currentTime, 0.04);
+    const t = ctx.currentTime;
+    const amt = this.bypassed ? 0 : this.value;
+    const type = this.type || 'lowpass';
+
+    if (type === 'highpass') {
+      this.filter.type = 'highpass';
+      const hz = amt < 0.02 ? 20 : 40 + Math.pow(amt, 1.35) * 4000;
+      this.filter.frequency.setTargetAtTime(hz, t, 0.04);
+      this.filter.Q.setTargetAtTime(0.7 + amt * 2.2, t, 0.05);
+    } else if (type === 'band') {
+      this.filter.type = 'bandpass';
+      const hz = 200 + Math.pow(amt, 1.2) * 3800;
+      this.filter.frequency.setTargetAtTime(hz, t, 0.04);
+      this.filter.Q.setTargetAtTime(1.2 + amt * 6, t, 0.05);
+    } else if (type === 'notch') {
+      this.filter.type = 'notch';
+      const hz = 300 + Math.pow(amt, 1.15) * 3200;
+      this.filter.frequency.setTargetAtTime(hz, t, 0.04);
+      this.filter.Q.setTargetAtTime(0.8 + amt * 10, t, 0.05);
+    } else {
+      this.filter.type = 'lowpass';
+      const hz = amt < 0.02 ? 20000 : 220 + Math.pow(1 - amt, 1.6) * 16000;
+      this.filter.frequency.setTargetAtTime(hz, t, 0.04);
+      this.filter.Q.setTargetAtTime(0.6 + amt * 3.5, t, 0.05);
+    }
   }
 }
 
@@ -198,7 +229,7 @@ export class ChorusFx extends FxModule {
 }
 
 export const FX_CATALOGUE = [
-  { id: 'lowpass', name: 'Low Pass', category: 'filters', factory: () => new LowpassFx() },
+  { id: 'filter', name: 'Filter', category: 'filters', factory: () => new FilterFx() },
   { id: 'warmth', name: 'Warmth', category: 'character', factory: () => new WarmthFx() },
   { id: 'compressor', name: 'Comp', category: 'character', factory: () => new CompressorFx() },
   { id: 'chorus', name: 'Chorus', category: 'space', factory: () => new ChorusFx() },
@@ -231,7 +262,6 @@ export class FxChain {
     this.master.connect(destination);
     this._rebuild();
   }
-  /** v in 0..1, 0.5 = neutral */
   setBass(v) {
     const g = (Math.max(0, Math.min(1, v)) - 0.5) * 24;
     this.bass.gain.setTargetAtTime(g, this.ctx.currentTime, 0.04);
@@ -269,10 +299,12 @@ export class FxChain {
     prev.connect(this.bass);
   }
   seedDefaults() {
-    this.add('compressor'); this.add('delay'); this.add('reverb');
+    this.add('compressor'); this.add('delay'); this.add('reverb'); this.add('filter');
     const comp = this.modules.find((m) => m.id === 'compressor'); if (comp) comp.setValue(0.4, this.ctx);
     const del = this.modules.find((m) => m.id === 'delay'); if (del) del.setValue(0.15, this.ctx);
     const rev = this.modules.find((m) => m.id === 'reverb'); if (rev) rev.setValue(0.25, this.ctx);
+    const fil = this.modules.find((m) => m.id === 'filter');
+    if (fil) { fil.setValue(0.12, this.ctx); }
   }
   dispose() {
     this.modules.forEach((m) => m.dispose()); this.modules = [];
