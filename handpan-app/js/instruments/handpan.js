@@ -13,6 +13,9 @@
 import { Instrument } from '../instrument.js';
 import { NoteSampleBank } from '../note-sample-bank.js';
 import { VOICE_PRESETS } from '../voice-presets.js';
+import { HANDPAN_SCALES, scaleToCents } from './handpan-scales.js';
+
+export { HANDPAN_SCALES };
 
 const NOTE_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
 const RING_ANGLES = [180, 225, 270, 315, 0, 45, 90, 135];
@@ -23,9 +26,6 @@ const PITCH_BEND_RANGE = 2;
 const GLIDE_TIME = 0.12;
 const BEND_SMOOTH = 0.055;
 const PRESSURE_SMOOTH = 0.06;
-
-import { HANDPAN_SCALES, scaleToCents } from './handpan-scales.js';
-export { HANDPAN_SCALES };
 
 function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
 function centsToFreq(rootMidi, cents) {
