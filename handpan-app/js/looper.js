@@ -1,7 +1,7 @@
 /**
  * looper.js — multi-layer phrase looper (max 5)
  * Record (right): arm/stop layer
- * Track circles: tap play/pause · hold to delete that layer
+ * Track circles: tap play/pause · hold for X · tap again to delete
  * Clear (left): wipe all layers — always visible
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js';
@@ -50,6 +50,7 @@ export function mountLooper({ root } = {}) {
   let silent = null;
   let pressTimer = null;
   let longFired = false;
+  let pendingDelete = -1; // layer index armed for delete
 
   function ensureTap() {
     const ctx = getAudioContext();
@@ -148,6 +149,7 @@ export function mountLooper({ root } = {}) {
     try { layer.source?.stop(); } catch (_) {}
     try { layer.gain.disconnect(); } catch (_) {}
     layers.splice(index, 1);
+    pendingDelete = -1;
     renderCircles();
     setBtnState();
   }
@@ -157,11 +159,16 @@ export function mountLooper({ root } = {}) {
     layers.forEach((layer, i) => {
       const c = document.createElement('button');
       c.type = 'button';
-      c.className = 'looper-circle' + (layer.paused ? ' is-paused' : ' is-playing');
+      c.className = 'looper-circle' + (layer.paused ? ' is-paused' : ' is-playing')
+        + (pendingDelete === i ? ' is-deleting' : '');
       c.style.setProperty('--i', String(i));
-      c.title = layer.paused
-        ? 'Play layer ' + (i + 1) + ' · hold to delete'
-        : 'Pause layer ' + (i + 1) + ' · hold to delete';
+      if (pendingDelete === i) {
+        c.title = 'Tap again to delete layer ' + (i + 1);
+      } else {
+        c.title = layer.paused
+          ? 'Play layer ' + (i + 1) + ' · hold to delete'
+          : 'Pause layer ' + (i + 1) + ' · hold to delete';
+      }
       c.setAttribute('aria-label', c.title);
 
       const num = document.createElement('span');
@@ -198,9 +205,13 @@ export function mountLooper({ root } = {}) {
 
       const armDelete = () => {
         holdArmed = true;
+        pendingDelete = i;
         c.classList.add('is-deleting');
-        c.title = 'Release to delete layer ' + (i + 1);
+        c.title = 'Tap again to delete layer ' + (i + 1);
         c.setAttribute('aria-label', c.title);
+        layersEl.querySelectorAll('.looper-circle.is-deleting').forEach((el) => {
+          if (el !== c) el.classList.remove('is-deleting');
+        });
         try {
           if (navigator.vibrate) navigator.vibrate(18);
         } catch (_) {}
@@ -212,6 +223,8 @@ export function mountLooper({ root } = {}) {
         holdArmed = false;
         try { c.setPointerCapture(e.pointerId); } catch (_) {}
         clearHold();
+        // Already showing X — second press will confirm; no new hold timer
+        if (pendingDelete === i) return;
         holdTimer = setTimeout(armDelete, LONG_MS);
       });
 
@@ -220,19 +233,33 @@ export function mountLooper({ root } = {}) {
         e.stopPropagation();
         clearHold();
         try { c.releasePointerCapture(e.pointerId); } catch (_) {}
-        if (holdArmed) {
-          holdArmed = false;
-          c.classList.remove('is-deleting');
+
+        // Second press on armed track → delete
+        if (pendingDelete === i && !holdArmed) {
+          pendingDelete = -1;
           deleteLayer(i);
           return;
         }
+
+        // Hold completed → keep X, wait for second press
+        if (holdArmed) {
+          holdArmed = false;
+          pendingDelete = i;
+          return;
+        }
+
+        // Short tap elsewhere cancels pending delete
+        if (pendingDelete !== -1 && pendingDelete !== i) {
+          pendingDelete = -1;
+          renderCircles();
+        }
+
         toggleLayer(i);
       });
 
       c.addEventListener('pointercancel', () => {
         clearHold();
         holdArmed = false;
-        c.classList.remove('is-deleting');
       });
 
       c.addEventListener('pointerleave', () => {
@@ -240,6 +267,7 @@ export function mountLooper({ root } = {}) {
       });
 
       c.addEventListener('contextmenu', (e) => e.preventDefault());
+
       c.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -302,6 +330,7 @@ export function mountLooper({ root } = {}) {
   function clearAll() {
     recording = false;
     recChunks = null;
+    pendingDelete = -1;
     for (const layer of layers) {
       try { layer.source?.stop(); } catch (_) {}
       try { layer.gain.disconnect(); } catch (_) {}
