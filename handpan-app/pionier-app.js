@@ -140,7 +140,7 @@ async function boot() {
 
   try {
     const { mountLooper } = await import(
-      new URL('./js/looper.js?v=102', BASE).href
+      new URL('./js/looper.js?v=103', BASE).href
     );
     mountLooper();
   } catch (err) {
