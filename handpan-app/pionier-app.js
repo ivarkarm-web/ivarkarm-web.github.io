@@ -1,12 +1,13 @@
 /**
  * pionier-app.js — integrated instrument surface
- * Pointer → Gesture → Active Instrument → Bus → FxEngine → Master → Output
  */
 import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js';
 import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
 import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js';
 import { createTonalInstruments } from './js/instruments/tonal-family.js?v=4';
+import { BirdInstrument } from './js/instruments/bird.js';
+import { KitchenInstrument } from './js/instruments/kitchen.js';
 import { FxEngine } from './js/fx-engine.js';
 import { setupControlsUI } from './js/controls-ui.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
@@ -19,6 +20,8 @@ const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];
 const handpan = new HandpanInstrument();
 InstrumentRegistry.register(handpan);
 for (const instrument of createTonalInstruments()) InstrumentRegistry.register(instrument);
+InstrumentRegistry.register(new BirdInstrument());
+InstrumentRegistry.register(new KitchenInstrument());
 
 const app = {
   fxEngine: null,
@@ -79,10 +82,24 @@ function isFieldPlayable(fieldIndex) {
 async function setInstrument(id) {
   ensureAudio();
   const ctx = getAudioContext();
+  if (!ctx || !app.instrumentBus) return;
+  if (!handpan.getNotes().length) handpan.rebuildNotes();
   const prev = InstrumentRegistry.active;
   if (prev) prev.dampAll();
   syncWorldPitch();
-  await InstrumentRegistry.setActive(id, ctx, app.instrumentBus);
+  try {
+    await InstrumentRegistry.setActive(id, ctx, app.instrumentBus);
+  } catch (err) {
+    console.warn('setInstrument failed', id, err);
+    return;
+  }
+  const active = InstrumentRegistry.active;
+  if (active && typeof active.setMusicalContext === 'function') {
+    active.setMusicalContext(handpan.getNotes());
+  }
+  if (active && typeof active.setZones === 'function') {
+    active.setZones(surface.fields);
+  }
   syncWorldPitch();
   updateInstrumentUI();
   layoutFields();
@@ -129,6 +146,10 @@ function layoutFields() {
   surface.layoutHandpanFields(notes, isFieldPlayable);
   for (const f of surface.fields) f.zoneLabel = null;
   handpan.setZones?.(surface.fields);
+  const active = activeInstrument();
+  if (active && active !== handpan && typeof active.setZones === 'function') {
+    active.setZones(surface.fields);
+  }
 }
 
 function draw() {
@@ -183,7 +204,6 @@ canvas.addEventListener('pointercancel', (e) => {
   if (idx != null) activeInstrument().noteOff(idx);
 });
 
-/* Soundscapes — persistent audio, progress UI, Mandala canvas */
 (function setupSoundscapesPage() {
   const page = document.getElementById('soundscapesPage');
   const back = document.getElementById('backToHandpan');
@@ -313,7 +333,7 @@ canvas.addEventListener('pointercancel', (e) => {
           mandala.style.pointerEvents = 'none';
         }
         leavingTimer = null;
-      }, 430);
+      }, 320);
     }
   }
   function openControls(open) {
@@ -390,26 +410,45 @@ canvas.addEventListener('pointercancel', (e) => {
 
   let swipeStart = null;
   function isInteractiveTarget(target) {
-    return !!target?.closest?.('button, input, select, textarea, a, .mobile-control-drawer, .soundscape-control-drawer');
+    return !!target?.closest?.('button, input, select, textarea, a, .mobile-control-drawer, .soundscape-control-drawer, .knob, .ctrl-dropdown');
   }
   window.addEventListener('pointerdown', (e) => {
     if (isInteractiveTarget(e.target)) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
-    const edge = 28;
+    const edge = 56;
     if (e.clientX > window.innerWidth - edge || e.clientX < edge) {
-      swipeStart = { x: e.clientX, y: e.clientY, id: e.pointerId };
+      swipeStart = { x: e.clientX, y: e.clientY, id: e.pointerId, fromRight: e.clientX > window.innerWidth / 2 };
     }
   });
+  window.addEventListener('pointermove', (e) => {
+    if (!swipeStart || e.pointerId !== swipeStart.id) return;
+    const dx = e.clientX - swipeStart.x;
+    const dy = e.clientY - swipeStart.y;
+    if (Math.abs(dx) < 12 || Math.abs(dx) < Math.abs(dy) * 1.1) return;
+    if (!page.classList.contains('is-active') && dx < -20 && swipeStart.fromRight) {
+      const p = Math.min(1, Math.abs(dx) / 140);
+      page.style.setProperty('--sc-progress', String(p * 0.35));
+    }
+  }, { passive: true });
   window.addEventListener('pointerup', (e) => {
     if (!swipeStart || e.pointerId !== swipeStart.id) return;
     const dx = e.clientX - swipeStart.x;
     const dy = e.clientY - swipeStart.y;
+    const fromRight = swipeStart.fromRight;
     swipeStart = null;
-    if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) {
-      if (dx < 0 && !page.classList.contains('is-active')) showPage(true);
+    if (Math.abs(dx) > 32 && Math.abs(dx) > Math.abs(dy) * 1.15) {
+      if (dx < 0 && !page.classList.contains('is-active') && fromRight) showPage(true);
       else if (dx > 0 && page.classList.contains('is-active')) showPage(false);
+    } else if (!page.classList.contains('is-active')) {
+      page.style.setProperty('--sc-progress', '0');
     }
   });
+  window.addEventListener('pointercancel', () => {
+    swipeStart = null;
+    if (!page.classList.contains('is-active')) page.style.setProperty('--sc-progress', '0');
+  });
+
+  document.getElementById('btnSoundscapes')?.addEventListener('click', () => showPage(true));
 })();
 
 function wire(id, fn) {
@@ -417,7 +456,7 @@ function wire(id, fn) {
 }
 wire('btnExit', () => { window.location.href = '../'; });
 wire('btnHelp', () => {
-  alert('Play: tap tonefields or Q–O.\nScale / Base / Octave shape pitch.\nSwipe from the right edge to open Soundscapes.\nPlayback continues when you return.');
+  alert('Play: tap tonefields or Q–O.\nScale / Base / Octave change pitch.\nOpen Controls from the bottom handle for effects.\nOpen Soundscapes via the ◌ button or swipe from the right edge.\nBacking tracks keep playing when you return.');
 });
 
 function refreshPitch() {
