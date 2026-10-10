@@ -39,7 +39,7 @@
   to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
-/* Play / pause (shown once layers exist) */
+/* Play / pause */
 .looper-play-btn {
   pointer-events: auto;
   appearance: none;
@@ -81,6 +81,50 @@
 .looper-play-icon {
   display: block;
   transform: translateX(0.5px);
+}
+
+/* Clear */
+.looper-clear-btn {
+  pointer-events: auto;
+  appearance: none;
+  border: 1.5px solid rgba(255, 255, 255, 0.14);
+  background: rgba(18, 18, 22, 0.85);
+  color: rgba(232, 230, 227, 0.55);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.looper-clear-btn[hidden] {
+  display: none !important;
+}
+.looper-clear-btn:hover {
+  border-color: rgba(220, 60, 60, 0.55);
+  color: #e05050;
+  background: rgba(40, 16, 16, 0.9);
+}
+.looper-clear-btn:active {
+  transform: scale(0.94);
+}
+.looper-clear-btn.is-fired {
+  border-color: rgba(220, 60, 60, 0.7);
+  color: #ff6b6b;
+  background: rgba(60, 20, 20, 0.95);
+}
+.looper-clear-icon {
+  display: block;
+  margin-top: -1px;
 }
 
 .looper-btn {
@@ -142,6 +186,7 @@
 @media (max-width: 380px) {
   .looper-btn { width: 46px; height: 46px; }
   .looper-play-btn { width: 36px; height: 36px; font-size: 12px; }
+  .looper-clear-btn { width: 32px; height: 32px; font-size: 16px; }
   .looper-circle { width: 12px; height: 12px; }
   .looper-rail { right: max(8px, env(safe-area-inset-right)); gap: 8px; }
 }

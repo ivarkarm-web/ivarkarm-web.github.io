@@ -1,7 +1,8 @@
 /**
  * looper.js — multi-layer phrase looper (max 5)
- * Record btn: arm/stop layer · Long-press: clear all
- * Play/pause btn: mute/resume all looping layers
+ * Record: arm/stop layer
+ * Play/pause: mute/resume all layers
+ * Clear: wipe all layers
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js';
 
@@ -13,10 +14,10 @@ export function mountLooper({ root } = {}) {
   const btn = document.getElementById('looperBtn');
   const layersEl = document.getElementById('looperLayers');
   let playBtn = document.getElementById('looperPlayBtn');
+  let clearBtn = document.getElementById('looperClearBtn');
   if (!rail || !btn || !layersEl || rail.dataset.mounted === '1') return null;
   rail.dataset.mounted = '1';
 
-  // Ensure play/pause button exists (in case HTML is older)
   if (!playBtn) {
     playBtn = document.createElement('button');
     playBtn.type = 'button';
@@ -24,13 +25,21 @@ export function mountLooper({ root } = {}) {
     playBtn.className = 'looper-play-btn';
     playBtn.setAttribute('aria-label', 'Pause loops');
     playBtn.title = 'Play / pause loops';
-    playBtn.innerHTML =
-      '<span class="looper-play-icon" aria-hidden="true">⏸</span>';
-    // Insert before the record button
+    playBtn.innerHTML = '<span class="looper-play-icon" aria-hidden="true">⏸</span>';
     rail.insertBefore(playBtn, btn);
   }
 
-  /** @type {{ buffer: AudioBuffer, source: AudioBufferSourceNode|null, gain: GainNode, startedAt: number, offset: number }[]} */
+  if (!clearBtn) {
+    clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.id = 'looperClearBtn';
+    clearBtn.className = 'looper-clear-btn';
+    clearBtn.setAttribute('aria-label', 'Clear all loops');
+    clearBtn.title = 'Clear all loops';
+    clearBtn.innerHTML = '<span class="looper-clear-icon" aria-hidden="true">×</span>';
+    rail.insertBefore(clearBtn, playBtn);
+  }
+
   const layers = [];
   let recording = false;
   let playing = true;
@@ -68,29 +77,30 @@ export function mountLooper({ root } = {}) {
   }
 
   function setBtnState() {
+    const hasLayers = layers.length > 0;
+
     btn.classList.toggle('is-recording', recording);
-    btn.classList.toggle('has-layers', layers.length > 0);
+    btn.classList.toggle('has-layers', hasLayers);
     btn.setAttribute(
       'aria-label',
       recording
         ? 'Stop recording layer'
         : layers.length >= MAX_LAYERS
-          ? 'Looper full (long-press to clear)'
-          : layers.length
+          ? 'Looper full'
+          : hasLayers
             ? 'Record next layer'
             : 'Start loop recording'
     );
 
-    const hasLayers = layers.length > 0;
     playBtn.hidden = !hasLayers;
     playBtn.classList.toggle('is-paused', hasLayers && !playing);
     playBtn.classList.toggle('is-playing', hasLayers && playing);
     const icon = playBtn.querySelector('.looper-play-icon');
     if (icon) icon.textContent = playing ? '⏸' : '▶';
-    playBtn.setAttribute(
-      'aria-label',
-      playing ? 'Pause loops' : 'Play loops'
-    );
+    playBtn.setAttribute('aria-label', playing ? 'Pause loops' : 'Play loops');
+
+    clearBtn.hidden = !hasLayers && !recording;
+    clearBtn.disabled = !hasLayers && !recording;
   }
 
   function renderCircles() {
@@ -160,7 +170,6 @@ export function mountLooper({ root } = {}) {
     const ctx = ensureTap();
     if (!ctx) return;
     resumeAudio();
-    // Keep existing layers audible while overdubbing
     if (!playing && layers.length) resumeAll();
     recChunks = [];
     recording = true;
@@ -201,10 +210,7 @@ export function mountLooper({ root } = {}) {
     };
     layers.push(layer);
 
-    if (playing) {
-      startLayerSource(layer, 0);
-    }
-    // if paused, layer waits until resume
+    if (playing) startLayerSource(layer, 0);
 
     renderCircles();
     setBtnState();
@@ -221,6 +227,15 @@ export function mountLooper({ root } = {}) {
     layers.length = 0;
     renderCircles();
     setBtnState();
+  }
+
+  function onClear(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!layers.length && !recording) return;
+    clearAll();
+    clearBtn.classList.add('is-fired');
+    setTimeout(() => clearBtn.classList.remove('is-fired'), 220);
   }
 
   function onPressStart(e) {
@@ -261,6 +276,13 @@ export function mountLooper({ root } = {}) {
   });
   playBtn.addEventListener('pointerup', togglePlayPause);
   playBtn.addEventListener('click', togglePlayPause);
+
+  clearBtn.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  });
+  clearBtn.addEventListener('pointerup', onClear);
+  clearBtn.addEventListener('click', onClear);
 
   setBtnState();
   renderCircles();
