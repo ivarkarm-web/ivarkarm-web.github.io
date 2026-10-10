@@ -1,5 +1,5 @@
 /**
- * pionier-app.js — load instrument core + scale selector + backdrop player
+ * pionier-app.js — load instrument core + scale selector + backdrop + looper
  */
 const GOOD = 'https://cdn.jsdelivr.net/gh/ivarkarm-web/ivarkarm-web.github.io@3984a53f1bdd04e93a9b4a8abf86a504fe78bf5f/handpan-app/pionier-app.js';
 const BASE = new URL('.', import.meta.url).href;
@@ -136,6 +136,15 @@ async function boot() {
     mountBackdropPlayer();
   } catch (err) {
     console.warn('[backdrop] mount failed', err);
+  }
+
+  try {
+    const { mountLooper } = await import(
+      new URL('./js/looper.js?v=98', BASE).href
+    );
+    mountLooper();
+  } catch (err) {
+    console.warn('[looper] mount failed', err);
   }
 }
 
