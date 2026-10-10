@@ -1,15 +1,12 @@
-/* Pionier-inspired handpan shell — cleaned; Controls owned by controls.css */
+/* Pionier handpan shell — emergency restore stylesheet */
 :root {
   --bg: #0a0a0b;
   --panel: #121214;
-  --panel-2: #1a1a1e;
-  --stroke: rgba(255, 255, 255, 0.08);
+  --stroke: rgba(255,255,255,0.08);
+  --muted: rgba(232,230,227,0.55);
   --fg: #e8e6e3;
-  --muted: #9a9690;
   --gold: #c9a227;
-  --gold-soft: rgba(201, 162, 39, 0.35);
-  --danger: #c45c5c;
-  --font: "Inter", system-ui, -apple-system, sans-serif;
+  --gold-soft: rgba(201,162,39,0.28);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -18,12 +15,9 @@ html, body {
   width: 100%; height: 100%;
   background: var(--bg);
   color: var(--fg);
-  font-family: var(--font);
-  -webkit-font-smoothing: antialiased;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
   overflow: hidden;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .app {
@@ -33,44 +27,41 @@ html, body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  background: var(--bg);
 }
 
-/* Top bar */
 .topbar {
-  position: relative;
-  z-index: 40;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
   padding: max(10px, env(safe-area-inset-top)) 12px 8px;
   flex: 0 0 auto;
+  z-index: 20;
 }
 .pill {
   appearance: none;
   border: 1px solid var(--stroke);
-  background: rgba(18, 18, 20, 0.9);
-  color: var(--muted);
+  background: rgba(18,18,20,0.9);
+  color: var(--fg);
   border-radius: 999px;
-  padding: 7px 12px;
+  padding: 7px 14px;
   font-size: 12px;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
 }
-.pill .dot {
+.pill .dot, .pill .pill-dot {
   display: inline-block;
   width: 7px; height: 7px;
   border-radius: 50%;
   background: var(--gold);
-  box-shadow: 0 0 8px var(--gold-soft);
   margin-right: 6px;
   vertical-align: middle;
 }
-.instrument-nav {
+.instrument-nav, .instrument-switch {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   min-width: 0;
 }
 .icon-btn {
@@ -79,78 +70,74 @@ html, body {
   background: transparent;
   color: var(--muted);
   width: 36px; height: 36px;
-  border-radius: 10px;
+  border-radius: 50%;
   font-size: 18px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.icon-btn:hover { color: var(--fg); background: rgba(255,255,255,0.04); }
+.icon-btn:hover { color: var(--gold); }
 .instrument-name {
   appearance: none;
-  -webkit-appearance: none;
   border: 0;
   background: transparent;
   color: var(--fg);
-  cursor: pointer;
-  padding: 7px 9px;
-  border-radius: 9px;
-  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 500;
   max-width: min(40vw, 190px);
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 13px;
-  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
 }
 .top-actions { display: flex; gap: 2px; }
 
 .instrument-menu {
-  position: fixed;
-  z-index: 1800;
-  top: 58px;
+  position: absolute;
+  top: 56px;
   left: 50%;
   transform: translateX(-50%);
   width: min(320px, calc(100vw - 24px));
   max-height: min(62dvh, 430px);
   overflow-y: auto;
-  padding: 8px;
-  border: 1px solid rgba(201, 162, 39, 0.28);
-  border-radius: 14px;
-  background: rgba(10, 10, 11, 0.98);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.58);
-  backdrop-filter: blur(16px);
+  z-index: 40;
+  background: rgba(12,12,13,0.98);
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.5);
 }
 .instrument-menu[hidden] { display: none !important; }
 .instrument-menu-item {
   display: block;
   width: 100%;
   min-height: 42px;
-  padding: 10px 12px;
-  text-align: left;
   border: 0;
-  border-radius: 9px;
-  color: var(--muted);
   background: transparent;
+  color: var(--muted);
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
   cursor: pointer;
-  font-size: 13px;
 }
 .instrument-menu-item:hover,
 .instrument-menu-item.is-active {
-  background: rgba(201, 162, 39, 0.12);
+  background: rgba(201,162,39,0.12);
   color: var(--fg);
 }
 .instrument-menu-item.is-active { box-shadow: inset 2px 0 var(--gold); }
 
-/* Stage + handpan canvas */
 .stage {
   flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 0;
-  padding: 4px 8px 56px;
+  padding: 8px;
   position: relative;
+  z-index: 1;
 }
 #pan {
   display: block;
@@ -160,32 +147,130 @@ html, body {
   aspect-ratio: 1;
   touch-action: none;
   cursor: pointer;
+  position: relative;
+  z-index: 2;
 }
 
-/* Legacy sidebars hidden — controls live in unified drawer */
-.sidebar { display: none !important; }
-
-/* Handpan Controls drawer fully owned by controls.css */
-.mobile-control-drawer { display: contents; }
-.mobile-control-panel { display: contents; }
-.mobile-controls-toggle { display: none; }
-
-/* Catch mode status */
-.catch-status {
+/* Controls drawer */
+.mobile-control-drawer {
   position: fixed;
   left: 50%;
-  top: 64px;
-  transform: translateX(-50%);
-  z-index: 50;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  color: var(--gold);
+  bottom: 0;
+  transform: translateX(-50%) translateY(calc(100% - 44px));
+  width: min(100vw, 420px);
+  z-index: 1600;
+  background: rgba(10,10,11,0.97);
+  border: 1px solid rgba(201,162,39,0.22);
+  border-bottom: 0;
+  border-radius: 14px 14px 0 0;
+  transition: transform 0.28s ease;
   pointer-events: none;
-  text-align: center;
-  min-height: 1.2em;
 }
+.mobile-control-drawer.is-open {
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+  box-shadow: 0 0 0 100vmax rgba(0,0,0,0.4), 0 -12px 36px rgba(0,0,0,0.4);
+}
+.mobile-controls-toggle {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 44px;
+  border: 0;
+  background: #0a0a0b;
+  color: var(--fg);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.mobile-controls-grip {
+  display: block;
+  width: 22px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(232,230,227,0.4);
+}
+.mobile-control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 14px max(16px, env(safe-area-inset-bottom));
+  max-height: min(60dvh, 480px);
+  overflow-y: auto;
+}
+.mobile-control-drawer:not(.is-open) .mobile-control-panel {
+  display: none;
+}
+.sidebar {
+  display: flex !important;
+  flex-direction: column;
+  gap: 10px;
+}
+.sidebar.right.knobs-panel {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.knob-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; }
+.knob { position: relative; width: 88px; height: 88px; cursor: ns-resize; touch-action: none; user-select: none; }
+.knob-canvas { width: 88px; height: 88px; display: block; }
+.knob-value {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: var(--fg); pointer-events: none;
+}
+.knob-name-row { font-size: 11px; color: var(--muted); }
+.knob-effect-trigger {
+  appearance: none; border: 0; background: transparent;
+  color: inherit; font: inherit; cursor: pointer;
+  display: flex; align-items: center; gap: 4px;
+}
+.effect-bubble {
+  position: absolute; z-index: 1700; bottom: 100%; left: 50%;
+  transform: translateX(-50%);
+  min-width: 140px; padding: 8px;
+  background: rgba(12,12,13,0.98);
+  border: 1px solid rgba(201,162,39,0.22);
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+.effect-bubble[hidden] { display: none !important; }
+.effect-bubble-title {
+  display: block; font-size: 10px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
+}
+.fx-type-btn {
+  display: block; width: 100%; min-height: 32px;
+  border: 0; background: transparent; color: var(--muted);
+  text-align: left; padding: 6px 8px; border-radius: 6px; cursor: pointer;
+}
+.fx-type-btn.is-active, .fx-type-btn:hover {
+  background: rgba(201,162,39,0.12); color: var(--fg);
+}
+.control-block { display: flex; flex-direction: column; gap: 4px; }
+.control-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.control-row { display: flex; gap: 8px; }
+.control-half { flex: 1; }
+.stepper {
+  display: flex; align-items: center; gap: 2px;
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;
+  background: rgba(0,0,0,0.25); overflow: hidden;
+}
+.step {
+  flex: 0 0 28px; height: 32px; border: 0; background: transparent;
+  color: var(--muted); cursor: pointer; font-size: 14px;
+}
+.step:hover { color: var(--gold); }
+.step-value { flex: 1; text-align: center; font-size: 12px; color: var(--fg); padding: 0 4px; }
 
-/* ========== SOUNDSCAPES / MANDALA ========== */
+/* Soundscapes */
 .soundscapes-page {
   position: fixed;
   inset: 0;
@@ -195,7 +280,7 @@ html, body {
   background: var(--bg);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.28s ease;
 }
 .soundscapes-page.is-active {
   opacity: 1;
@@ -206,12 +291,11 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: max(10px, env(safe-area-inset-top)) 12px 8px;
-  flex: 0 0 auto;
 }
 .soundscapes-back {
   appearance: none;
   border: 1px solid var(--stroke);
-  background: rgba(18, 18, 20, 0.9);
+  background: rgba(18,18,20,0.9);
   color: var(--fg);
   border-radius: 999px;
   padding: 7px 14px;
@@ -221,14 +305,12 @@ html, body {
   align-items: center;
   gap: 4px;
 }
-.soundscapes-back span { color: var(--gold); font-size: 20px; line-height: 12px; }
 .soundscapes-brand {
   font-size: 11px;
   letter-spacing: 0.14em;
   color: var(--muted);
 }
 .soundscapes-brand span { color: var(--gold); padding: 0 4px; }
-
 .soundscapes-stage {
   flex: 1 1 auto;
   display: flex;
@@ -238,7 +320,6 @@ html, body {
   gap: 16px;
   padding: 12px 16px max(24px, env(safe-area-inset-bottom));
   min-height: 0;
-  overflow: hidden;
 }
 .soundscapes-eyebrow {
   font-size: 10px;
@@ -246,18 +327,13 @@ html, body {
   color: var(--muted);
   text-transform: uppercase;
 }
-
 .mandala-wrap {
   position: relative;
   width: min(72vw, 420px);
   aspect-ratio: 1;
   color: rgba(200, 210, 220, 0.7);
 }
-.mandala-art {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
+.mandala-art { width: 100%; height: 100%; display: block; }
 .mandala-center {
   position: absolute;
   inset: 0;
@@ -284,14 +360,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s, border-color 0.2s, transform 0.2s;
 }
-.mandala-play:hover {
-  background: rgba(201, 162, 39, 0.12);
-  border-color: var(--gold);
-  transform: scale(1.04);
-}
-.soundscapes-page.is-playing .mandala-play { color: var(--gold); }
 .mandala-track-step {
   appearance: none;
   width: 40px; height: 40px;
@@ -302,153 +371,46 @@ html, body {
   font-size: 22px;
   cursor: pointer;
 }
-.mandala-track-step:hover { color: var(--fg); }
-
-.soundscape-track-meta {
-  text-align: center;
-  max-width: min(420px, 90vw);
-}
-.soundscape-track-title {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--fg);
-  margin-bottom: 4px;
-}
-.soundscape-track-subtitle {
-  font-size: 11px;
-  color: var(--muted);
-  letter-spacing: 0.04em;
-}
+.soundscape-track-meta { text-align: center; }
+.soundscape-track-title { font-size: 16px; font-weight: 500; }
+.soundscape-track-subtitle { font-size: 12px; color: var(--muted); margin-top: 4px; }
 .soundscape-player-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 .soundscape-secondary {
   appearance: none;
   border: 1px solid var(--stroke);
   background: transparent;
-  color: var(--muted);
+  color: var(--fg);
   border-radius: 999px;
-  padding: 8px 14px;
-  font-size: 12px;
+  padding: 8px 16px;
+  font-size: 13px;
   cursor: pointer;
 }
-.soundscape-secondary span { color: var(--gold); margin-right: 4px; }
-.soundscape-status {
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-
-/* Soundscape player controls drawer */
+.soundscape-status { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
 .soundscape-control-drawer {
   position: fixed;
-  left: 0; right: 0; bottom: 0;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(100vw, 400px);
   z-index: 1600;
-  display: flex;
-  flex-direction: column;
-  transform: translate3d(0, calc(100% - 44px), 0);
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-  pointer-events: none;
-  background: #0a0a0b;
-  border-top: 1px solid rgba(201, 162, 39, 0.22);
 }
-.soundscape-control-drawer.is-open {
-  transform: translate3d(0, 0, 0);
-  pointer-events: auto;
-  box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.28);
-}
-.soundscape-control-drawer .mobile-controls-toggle {
-  appearance: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  flex: 0 0 44px;
-  width: 100%;
-  height: 44px;
-  border: 0;
-  border-bottom: 1px solid var(--stroke);
-  background: #0a0a0b;
-  color: var(--muted);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  pointer-events: auto;
-}
-.soundscape-control-drawer .mobile-controls-grip {
-  width: 22px;
-  height: 3px;
-  border-radius: 3px;
-  background: rgba(232, 230, 227, 0.4);
-}
-.soundscape-control-panel {
-  padding: 12px 16px max(16px, env(safe-area-inset-bottom));
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+.soundscape-control-panel { padding: 12px 16px 20px; }
 .soundscape-control-heading {
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  color: var(--muted);
+  font-size: 10px; letter-spacing: 0.14em; color: var(--muted);
+  margin-bottom: 10px;
 }
 .soundscape-control-row {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--fg);
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; margin-bottom: 10px; font-size: 13px;
 }
-.soundscape-control-row input,
-.soundscape-control-row select {
-  width: 100%;
-  accent-color: var(--gold);
-}
-.soundscape-control-note {
-  font-size: 11px;
-  color: var(--muted);
-  margin: 0;
-}
-.soundscape-control-drawer:not(.is-open) .soundscape-control-panel {
-  visibility: hidden;
-  pointer-events: none;
-}
-
-/* Hide handpan controls while on soundscapes */
-.app.soundscapes-away #mobileControlDrawer {
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
-
-/* Swipe edge LEDs */
-.soundscape-swipe-led {
-  position: fixed;
-  top: 50%;
-  width: 3px;
-  height: 48px;
-  margin-top: -24px;
-  border-radius: 2px;
-  background: rgba(201, 162, 39, 0.25);
-  z-index: 1400;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-.soundscape-swipe-led-left { left: 4px; }
-.soundscape-swipe-led-right { right: 4px; }
-body.soundscapes-active .soundscape-swipe-led-left,
-.app:not(.soundscapes-away) .soundscape-swipe-led-right {
-  opacity: 0.5;
-}
+.soundscape-control-note { font-size: 11px; color: var(--muted); }
+.soundscape-swipe-led { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  .soundscapes-page,
-  .soundscape-control-drawer,
-  .mandala-play {
-    transition: none;
-  }
+  .mobile-control-drawer,
+  .soundscapes-page { transition: none; }
 }
