@@ -1,6 +1,6 @@
 /**
  * pionier-app.js — restored working instrument surface (backup-compatible)
- * MPE pitch bend: vertical finger drift while held → per-note detune
+ * MPE pitch bend + smooth glide between pads + pressure expression
  */
 import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js';
 import { InstrumentRegistry } from './js/instrument.js';
@@ -213,11 +213,18 @@ canvas?.addEventListener('pointermove', (e) => {
   });
 
   if (hit && hit.index !== prevIdx) {
-    if (prevIdx != null) inst.noteOff(prevIdx);
-    app.pointers.set(e.pointerId, { index: hit.index, originY: y, originX: x });
     const gesture = gestureFromPointer(e, hit, app.gestureTracker.activeCount, inst.lastStrikeAt);
     gesture.velocity = Math.min(1, (gesture.velocity || 0.65) * 0.85);
-    inst.noteOn(gesture, hit);
+    // Prefer smooth MPE glide/portamento when instrument supports it
+    let glided = false;
+    if (prevIdx != null && typeof inst.glideTo === 'function') {
+      glided = !!inst.glideTo(prevIdx, hit.index, gesture, hit);
+    }
+    if (!glided) {
+      if (prevIdx != null) inst.noteOff(prevIdx);
+      inst.noteOn(gesture, hit);
+    }
+    app.pointers.set(e.pointerId, { index: hit.index, originY: y, originX: x });
     if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);
     draw();
   } else if (hit && typeof inst.express === 'function' && moved) {
@@ -491,7 +498,7 @@ function wire(id, fn) {
 }
 wire('btnExit', () => { window.location.href = '../'; });
 wire('btnHelp', () => {
-  alert('Play: tap tonefields or Q–O (hold to sustain).\nSlide across pads to move notes.\nHold + drag up/down for MPE pitch bend (±2 semitones).\nPressure / radial position = aftertouch.\nMulti-touch polyphony supported.');
+  alert('Play: tap tonefields or Q–O (hold to sustain).\nSlide across pads for smooth glide/portamento.\nHold + drag up/down for MPE pitch bend (±2 semitones).\nPressure = gain, vibrato depth, filter resonance.\nRadial position = brightness.\nMulti-touch polyphony supported.');
 });
 
 function refreshPitch() {
