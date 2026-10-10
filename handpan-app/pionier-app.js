@@ -354,6 +354,32 @@ function wireKnobs() {
   });
 })();
 
+function setActivePage(which) {
+  const page = document.getElementById('soundscapesPage');
+  const showSS = which === 'soundscapes';
+  if (page) {
+    page.classList.toggle('is-active', showSS);
+    page.setAttribute('aria-hidden', showSS ? 'false' : 'true');
+  }
+  document.body.classList.toggle('soundscapes-active', showSS);
+  document.getElementById('app')?.classList.toggle('soundscapes-away', showSS);
+  document.querySelectorAll('.page-tab').forEach((tab) => {
+    const isSS = tab.id === 'tabSoundscapes' || tab.id === 'tabSoundscapesActive';
+    const isHand = tab.id === 'tabHandpan' || tab.id === 'tabHandpanFromSS';
+    const active = showSS ? isSS : isHand;
+    tab.classList.toggle('is-active', active);
+    tab.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+}
+
+(function setupPageTabs() {
+  document.getElementById('tabHandpan')?.addEventListener('click', () => setActivePage('handpan'));
+  document.getElementById('tabSoundscapes')?.addEventListener('click', () => setActivePage('soundscapes'));
+  document.getElementById('tabHandpanFromSS')?.addEventListener('click', () => setActivePage('handpan'));
+  document.getElementById('tabSoundscapesActive')?.addEventListener('click', () => setActivePage('soundscapes'));
+  document.getElementById('btnExitSS')?.addEventListener('click', () => { window.location.href = '../'; });
+})();
+
 (function setupSoundscapes() {
   const page = document.getElementById('soundscapesPage');
   const back = document.getElementById('backToHandpan');
@@ -372,17 +398,7 @@ function wireKnobs() {
   let trackObjectUrls = [];
 
   function showPage(show) {
-    if (show) {
-      page.classList.add('is-active');
-      page.setAttribute('aria-hidden', 'false');
-      document.body.classList.add('soundscapes-active');
-      document.getElementById('app')?.classList.add('soundscapes-away');
-    } else {
-      page.classList.remove('is-active');
-      page.setAttribute('aria-hidden', 'true');
-      document.body.classList.remove('soundscapes-active');
-      document.getElementById('app')?.classList.remove('soundscapes-away');
-    }
+    setActivePage(show ? 'soundscapes' : 'handpan');
   }
   back?.addEventListener('click', () => showPage(false));
 
@@ -444,7 +460,7 @@ function wireKnobs() {
     const dy = e.clientY - swipeStart.y;
     swipeStart = null;
     if (dx < -36 && Math.abs(dx) > Math.abs(dy) * 1.2 && !page.classList.contains('is-active')) {
-      showPage(true);
+      setActivePage('soundscapes');
     }
   });
 })();
@@ -454,7 +470,7 @@ function wire(id, fn) {
 }
 wire('btnExit', () => { window.location.href = '../'; });
 wire('btnHelp', () => {
-  alert('Play: tap tonefields or Q–O.\nControls: Comp, Ambiance, Room, Filter (⚙ for types), Bass, Low, Mid, Master.\nSwipe from the right edge for Soundscapes.');
+  alert('Play: tap tonefields or Q–O.\nUse the Handpan / Soundscapes tabs to switch pages.\nControls: Comp, Ambiance, Room, Filter (⚙ for types), Bass, Low, Mid, Master.');
 });
 
 function refreshPitch() {
