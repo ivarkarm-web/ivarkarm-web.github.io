@@ -1,4 +1,4 @@
-/* Pionier handpan shell — emergency restore stylesheet */
+/* Pionier handpan shell */
 :root {
   --bg: #0a0a0b;
   --panel: #121214;
@@ -11,6 +11,8 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 html, body {
+  touch-action: manipulation;
+  -ms-touch-action: manipulation;
   margin: 0; padding: 0;
   width: 100%; height: 100%;
   background: var(--bg);
@@ -18,6 +20,8 @@ html, body {
   font-family: Inter, system-ui, -apple-system, sans-serif;
   overflow: hidden;
   -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .app {
@@ -151,7 +155,6 @@ html, body {
   z-index: 2;
 }
 
-/* Controls drawer */
 .mobile-control-drawer {
   position: fixed;
   left: 50%;
@@ -270,7 +273,25 @@ html, body {
 .step:hover { color: var(--gold); }
 .step-value { flex: 1; text-align: center; font-size: 12px; color: var(--fg); padding: 0 4px; }
 
-/* Soundscapes */
+.tone-knobs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 14px;
+  width: 100%;
+  padding-top: 10px;
+  margin-top: 4px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.tone-knobs .knob { width: 72px; height: 72px; }
+.tone-knobs .knob-canvas { width: 72px; height: 72px; }
+.tone-knobs .knob-value { font-size: 11px; }
+
+html, body, #app, .app, .stage {
+  touch-action: manipulation;
+}
+#pan { touch-action: none; }
+
 .soundscapes-page {
   position: fixed;
   inset: 0;
