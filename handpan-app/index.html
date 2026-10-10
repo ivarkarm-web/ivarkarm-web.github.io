@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./pionier.css?v=99" />
-  <link rel="stylesheet" href="./looper.css?v=102" />
+  <link rel="stylesheet" href="./looper.css?v=103" />
   <link rel="stylesheet" href="./scale-menu.css?v=2" />
   <script>
     if ('serviceWorker' in navigator) {
@@ -133,14 +133,16 @@
 
     <div class="looper-rail" id="looperRail" aria-label="Looper">
       <div class="looper-layers" id="looperLayers" aria-hidden="true"></div>
-      <button type="button" class="looper-clear-btn" id="looperClearBtn" hidden aria-label="Clear all loops" title="Clear all loops">
-        <span class="looper-clear-icon" aria-hidden="true">×</span>
-      </button>
       <button type="button" class="looper-btn" id="looperBtn" aria-label="Start loop recording" title="Record loop layer">
         <span class="looper-btn-ring" aria-hidden="true"></span>
         <span class="looper-btn-core" aria-hidden="true"></span>
       </button>
     </div>
+
+    <button type="button" class="looper-clear-btn" id="looperClearBtn" aria-label="Clear all loops" title="Clear all loops">
+      <span class="looper-clear-ring" aria-hidden="true"></span>
+      <span class="looper-clear-core" aria-hidden="true"><span class="looper-clear-x"></span></span>
+    </button>
 
     <div class="backdrop-player" id="backdropPlayer" aria-label="Background music">
       <button type="button" class="bp-btn" data-act="prev" aria-label="Previous track">‹</button>
@@ -164,6 +166,6 @@
       lastTouchEnd = now;
     }, { passive: false });
   </script>
-  <script type="module" src="./pionier-app.js?v=102"></script>
+  <script type="module" src="./pionier-app.js?v=103"></script>
 </body>
 </html>
