@@ -19,7 +19,6 @@ export function createSurface(canvas) {
     ctx2.ellipse(f.x, f.y, f.rx, f.ry, f.rot || 0, 0, Math.PI * 2);
   }
 
-  /** Precision-machined slit with a cool white LED core, matched to the edge lights. */
   function drawSlit(f, glow, playable) {
     const isDing = f.kind === 'ding';
     const slitLen = isDing ? Math.min(f.rx, f.ry) * 0.42 : Math.min(f.rx, f.ry) * 0.55;
@@ -109,11 +108,6 @@ export function createSurface(canvas) {
     return fields;
   }
 
-  /**
-   * @param {object} inst
-   * @param {boolean} catchActive
-   * @param {Map<number, number>|null} waveTargets fieldIndex → wave progress (0–1+)
-   */
   function drawBody(inst, catchActive, waveTargets = null) {
     ctx2.clearRect(0, 0, W, H);
 
@@ -144,7 +138,6 @@ export function createSurface(canvas) {
       const wp = waveTargets?.get?.(f.index);
       let approach = 0;
       if (wp != null && playable) {
-        // Light up from ~0.55 progress, peak at perfect window (~0.92)
         approach = Math.max(0, 1 - Math.abs(wp - 0.92) * 2.4);
         approach = Math.min(1, approach * (0.25 + Math.min(1, wp) * 0.8));
       }
@@ -187,19 +180,6 @@ export function createSurface(canvas) {
       }
 
       drawSlit(f, Math.max(glow, approach * 0.9), playable);
-
-      if (playable && f.zoneLabel) {
-        const fontSize = Math.max(10, Math.min(13, R * 0.03));
-        ctx2.save();
-        ctx2.font = `500 ${fontSize}px Inter, system-ui, sans-serif`;
-        ctx2.textAlign = 'center';
-        ctx2.textBaseline = 'middle';
-        const ly = f.y + Math.min(f.rx, f.ry) * (isDing ? 0.42 : 0.38);
-        const la = 0.58 + (glow > 0.1 ? glow * 0.28 : 0);
-        ctx2.fillStyle = `rgba(224,235,248,${la})`;
-        ctx2.fillText(f.zoneLabel, f.x, ly);
-        ctx2.restore();
-      }
     });
 
     ctx2.globalAlpha = 1;
@@ -207,7 +187,6 @@ export function createSurface(canvas) {
 
   function drawCatchWaves(waves) {
     for (const w of waves) {
-      // Resolve by field index (not array position) for safety
       const target =
         fields.find((f) => f.index === w.targetIndex) || fields[w.targetIndex];
       if (!target) continue;
@@ -216,13 +195,11 @@ export function createSurface(canvas) {
       const y = CY + (target.y - CY) * p;
       const padR = Math.max(target.rx, target.ry);
       const rr = R * 0.065 + p * padR * 1.22;
-      // Peak visibility in the catch window (~0.82–1.0)
       const windowDist = Math.abs(p - 0.92);
       const alpha = Math.max(0, 0.88 * (1 - windowDist * 2.0));
       if (alpha < 0.04) continue;
       ctx2.save();
       ctx2.globalCompositeOperation = 'lighter';
-      // Soft outer bloom
       const bloom = ctx2.createRadialGradient(x, y, rr * 0.2, x, y, rr * 1.35);
       bloom.addColorStop(0, `rgba(255,230,160,${alpha * 0.55})`);
       bloom.addColorStop(0.4, `rgba(228,195,90,${alpha * 0.28})`);
@@ -231,21 +208,11 @@ export function createSurface(canvas) {
       ctx2.beginPath();
       ctx2.arc(x, y, rr * 1.35, 0, Math.PI * 2);
       ctx2.fill();
-      // Crisp primary ring
       ctx2.strokeStyle = `rgba(255,242,190,${alpha * 0.95})`;
       ctx2.lineWidth = Math.max(2.2, R * 0.011);
       ctx2.beginPath();
       ctx2.arc(x, y, rr * 0.78, 0, Math.PI * 2);
       ctx2.stroke();
-      // Thin outer accent near perfect window
-      if (windowDist < 0.2) {
-        const a2 = alpha * (1 - windowDist / 0.2) * 0.55;
-        ctx2.strokeStyle = `rgba(255,250,220,${a2})`;
-        ctx2.lineWidth = Math.max(1.2, R * 0.006);
-        ctx2.beginPath();
-        ctx2.arc(x, y, rr * 1.02, 0, Math.PI * 2);
-        ctx2.stroke();
-      }
       ctx2.restore();
     }
   }
@@ -263,7 +230,8 @@ export function createSurface(canvas) {
       const lx = dx * cos - dy * sin;
       const ly = dx * sin + dy * cos;
       const d = Math.hypot(lx / f.rx, ly / f.ry);
-      if (d <= 1.28 && d < bestD) {
+      // Wider target (was 1.28) so edge taps still register
+      if (d <= 1.48 && d < bestD) {
         bestD = d;
         best = {
           idx: f.index,
