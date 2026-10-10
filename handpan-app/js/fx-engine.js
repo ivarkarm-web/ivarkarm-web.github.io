@@ -1,20 +1,7 @@
 /**
  * fx-engine.js — Unified modular effects architecture for Pionier
- *
- * Signal graph:
- *   Instrument Bus
- *     → Ambience (Delay)
- *     → Room (Reverb)
- *     → Comp (Dynamics)
- *     → Effects (Filter / experimental)
- *     → Tone (Low / Mid / Bass)
- *     → Master
- *     → Destination
- *
- * Each of the four effect modules offers exactly 10 selectable algorithms.
- * The primary knobs maps to the selected algorithm's main intensity parameter.
+ * Instrument Bus → Ambience → Room → Comp → Effects → Tone → Master → Destination
  */
-
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
@@ -111,10 +98,14 @@ class EffectModule {
   }
   _rebuild() {
     if (!this._ctx || !this._input || !this._output) return;
+    const ctx = this._ctx;
+    const t = ctx.currentTime;
+    try { this._output.gain.setTargetAtTime(0, t, 0.01); } catch (_) {}
     this._disposeNodes();
     try { this._input.disconnect(); } catch (_) {}
     this._buildGraph();
     this._apply();
+    try { this._output.gain.setTargetAtTime(1, ctx.currentTime + 0.02, 0.03); } catch (_) {}
   }
   _buildGraph() {}
   _apply() {}
@@ -292,9 +283,9 @@ class RoomModule extends EffectModule {
       'plate': { decay: 0.42, size: 0.85, tone: 7800, wet: 0.5, pre: 0.006 },
       'spring': { decay: 0.38, size: 0.75, tone: 4500, wet: 0.48, pre: 0.004 },
       'shimmer': { decay: 0.65, size: 1.6, tone: 9000, wet: 0.5, pre: 0.018 },
-      'freeze': { decay: 0.95, size: 1.2, tone: 5000, wet: 0.6, pre: 0.01 },
+      'freeze': { decay: 0.72, size: 1.2, tone: 5000, wet: 0.55, pre: 0.01 },
       'granular-cloud': { decay: 0.7, size: 1.8, tone: 3800, wet: 0.52, pre: 0.025 },
-      'infinite': { decay: 0.92, size: 2.4, tone: 2800, wet: 0.58, pre: 0.04 }
+      'infinite': { decay: 0.8, size: 2.2, tone: 2800, wet: 0.55, pre: 0.04 }
     };
     const p = presets[algo] || presets['small-room'];
     this.dry.gain.setTargetAtTime(1, t, 0.05);
@@ -303,8 +294,8 @@ class RoomModule extends EffectModule {
     this.taps.forEach((tap, i) => {
       const sizeMul = p.size * (0.7 + amt * 0.6);
       tap.d.delayTime.setTargetAtTime((0.025 + i * 0.014) * sizeMul, t, 0.12);
-      const fbTarget = (algo === 'freeze' && amt > 0.55) ? 0.96 : p.decay * (0.55 + amt * 0.45);
-      tap.fb.gain.setTargetAtTime(clamp(fbTarget, 0, 0.97), t, 0.1);
+      const fbTarget = (algo === 'freeze' && amt > 0.55) ? 0.88 : p.decay * (0.55 + amt * 0.4);
+      tap.fb.gain.setTargetAtTime(clamp(fbTarget, 0, 0.9), t, 0.1);
       tap.lp.frequency.setTargetAtTime(p.tone * (1 - i * 0.06), t, 0.12);
       tap.g.gain.setTargetAtTime(0.18 + amt * 0.12, t, 0.08);
     });
@@ -313,7 +304,7 @@ class RoomModule extends EffectModule {
 }
 
 class CompModule extends EffectModule {
-  constructor() { super('comp', 'COMP', COMP_FX, 0); this.value = 0.4; }
+  constructor() { super('comp', 'COMP', COMP_FX, 0); this.value = 0.35; }
   _buildGraph() {
     const ctx = this._ctx;
     this.comp = ctx.createDynamicsCompressor();
@@ -330,8 +321,6 @@ class CompModule extends EffectModule {
     this.comp.connect(this.makeup);
     this.makeup.connect(this.wet);
     this.wet.connect(this.mixOut);
-    this._input.connect(this.hp);
-    this.hp.connect(this.wet);
     this.mixOut.connect(this._output);
     this._nodes.push(this.comp, this.makeup, this.dry, this.wet, this.mixOut, this.hp);
   }
@@ -341,16 +330,16 @@ class CompModule extends EffectModule {
     const amt = this.bypassed ? 0 : this.value;
     const algo = this.algo.id;
     const presets = {
-      'transparent': { thr: -22, knee: 20, ratio: 2.0, atk: 0.015, rel: 0.25, makeup: 1.08 },
-      'soft-knee': { thr: -18, knee: 28, ratio: 2.8, atk: 0.02, rel: 0.32, makeup: 1.1 },
-      'vintage': { thr: -16, knee: 12, ratio: 3.5, atk: 0.008, rel: 0.18, makeup: 1.18 },
-      'fast-peak': { thr: -12, knee: 4, ratio: 6.0, atk: 0.001, rel: 0.08, makeup: 1.15 },
-      'slow-bus': { thr: -20, knee: 18, ratio: 2.4, atk: 0.04, rel: 0.45, makeup: 1.12 },
-      'parallel': { thr: -24, knee: 16, ratio: 4.0, atk: 0.01, rel: 0.22, makeup: 1.25 },
-      'multiband': { thr: -18, knee: 14, ratio: 3.2, atk: 0.012, rel: 0.28, makeup: 1.14 },
-      'transient': { thr: -10, knee: 6, ratio: 5.0, atk: 0.0008, rel: 0.05, makeup: 1.1 },
-      'pumping': { thr: -14, knee: 8, ratio: 8.0, atk: 0.002, rel: 0.35, makeup: 1.2 },
-      'envelope': { thr: -20, knee: 22, ratio: 3.0, atk: 0.025, rel: 0.5, makeup: 1.16 }
+      'transparent': { thr: -22, knee: 20, ratio: 2.0, atk: 0.015, rel: 0.25, makeup: 1.05 },
+      'soft-knee': { thr: -18, knee: 28, ratio: 2.8, atk: 0.02, rel: 0.32, makeup: 1.08 },
+      'vintage': { thr: -16, knee: 12, ratio: 3.5, atk: 0.008, rel: 0.18, makeup: 1.12 },
+      'fast-peak': { thr: -12, knee: 4, ratio: 6.0, atk: 0.001, rel: 0.08, makeup: 1.1 },
+      'slow-bus': { thr: -20, knee: 18, ratio: 2.4, atk: 0.04, rel: 0.45, makeup: 1.08 },
+      'parallel': { thr: -24, knee: 16, ratio: 4.0, atk: 0.01, rel: 0.22, makeup: 1.15 },
+      'multiband': { thr: -18, knee: 14, ratio: 3.2, atk: 0.012, rel: 0.28, makeup: 1.1 },
+      'transient': { thr: -10, knee: 6, ratio: 5.0, atk: 0.0008, rel: 0.05, makeup: 1.08 },
+      'pumping': { thr: -14, knee: 8, ratio: 8.0, atk: 0.002, rel: 0.35, makeup: 1.12 },
+      'envelope': { thr: -20, knee: 22, ratio: 3.0, atk: 0.025, rel: 0.5, makeup: 1.1 }
     };
     const p = presets[algo] || presets.transparent;
     this.comp.threshold.setTargetAtTime(-2 + (p.thr + 2) * Math.pow(amt, 0.7), t, 0.04);
@@ -358,8 +347,8 @@ class CompModule extends EffectModule {
     this.comp.ratio.setTargetAtTime(1.05 + (p.ratio - 1.05) * amt, t, 0.04);
     this.comp.attack.setTargetAtTime(p.atk, t, 0.04);
     this.comp.release.setTargetAtTime(p.rel, t, 0.04);
-    const makeup = 1 + (p.makeup - 1) * amt * 1.3;
-    this.makeup.gain.setTargetAtTime(clamp(makeup, 1, 1.6), t, 0.06);
+    const makeup = 1 + (p.makeup - 1) * amt * 1.2;
+    this.makeup.gain.setTargetAtTime(clamp(makeup, 1, 1.4), t, 0.06);
     const wetAmt = algo === 'parallel' ? Math.min(1, amt * 1.2) : (amt > 0.02 ? 1 : 0);
     this.wet.gain.setTargetAtTime(wetAmt, t, 0.04);
     this.dry.gain.setTargetAtTime(1, t, 0.04);
@@ -514,10 +503,10 @@ class ToneStage {
     const t = this.ctx.currentTime;
     v = clamp01(v);
     if (id === 'master') {
-      this.master.gain.setTargetAtTime(v * 1.35, t, 0.04);
+      this.master.gain.setTargetAtTime(v * 1.1, t, 0.04);
       return;
     }
-    const db = (v - 0.5) * 24;
+    const db = (v - 0.5) * 18;
     if (id === 'low') this.low.gain.setTargetAtTime(db, t, 0.05);
     else if (id === 'mid') this.mid.gain.setTargetAtTime(db, t, 0.05);
     else if (id === 'bass') this.bass.gain.setTargetAtTime(db * 0.85, t, 0.05);
@@ -551,7 +540,7 @@ export class FxEngine {
     this.tone.set('low', 0.5);
     this.tone.set('mid', 0.5);
     this.tone.set('bass', 0.5);
-    this.tone.set('master', 0.85);
+    this.tone.set('master', 0.75);
   }
   getModule(id) { return this.modules.find((m) => m.id === id) || null; }
   setModuleValue(id, value) { const m = this.getModule(id); if (m) m.setValue(value); }
