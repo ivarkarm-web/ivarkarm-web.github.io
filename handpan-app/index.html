@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=88" />
+  <link rel="stylesheet" href="./pionier.css?v=89" />
   <link rel="stylesheet" href="./scale-menu.css?v=1" />
   <script>
     if ('serviceWorker' in navigator) {
@@ -33,10 +33,6 @@
         <span class="dot"></span> play
       </button>
       <div class="center-nav">
-        <div class="page-tabs" role="tablist" aria-label="Main sections">
-          <button type="button" class="page-tab is-active" id="tabHandpan" role="tab" aria-selected="true">Handpan</button>
-          <button type="button" class="page-tab" id="tabSoundscapes" role="tab" aria-selected="false">Soundscapes</button>
-        </div>
         <div class="instrument-nav" id="instrumentNav">
           <button type="button" class="icon-btn" id="voicePrev" aria-label="Previous voice">‹</button>
           <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Handpan ▾</button>
@@ -135,86 +131,6 @@
     </main>
   </div>
 
-  <section class="soundscapes-page" id="soundscapesPage" aria-hidden="true">
-    <header class="soundscapes-topbar">
-      <button type="button" class="pill play-pill" id="soundscapesPlayPill" title="Play mode" disabled>
-        <span class="dot"></span> play
-      </button>
-      <div class="center-nav">
-        <div class="page-tabs" role="tablist" aria-label="Main sections">
-          <button type="button" class="page-tab" id="tabHandpanFromSS" role="tab" aria-selected="false">Handpan</button>
-          <button type="button" class="page-tab is-active" id="tabSoundscapesActive" role="tab" aria-selected="true">Soundscapes</button>
-        </div>
-      </div>
-      <div class="top-actions">
-        <button type="button" class="icon-btn" id="soundscapesHelp" aria-label="Soundscapes info" title="Soundscapes info">?</button>
-        <button type="button" class="icon-btn exit-btn" id="btnExitSS" aria-label="Exit" title="Exit">×</button>
-      </div>
-    </header>
-    <main class="soundscapes-stage">
-      <div class="soundscapes-eyebrow">LISTEN · PLAY · RETURN</div>
-      <div class="mandala-wrap" id="mandalaWrap" aria-label="Slowly rotating mandala artwork">
-        <svg class="mandala-art" viewBox="0 0 600 600" role="img" aria-label="Handpan-inspired concentric resonance pattern">
-          <defs>
-            <radialGradient id="mandalaGlow">
-              <stop offset="0" stop-color="#eaf2fb" stop-opacity=".13"/>
-              <stop offset=".58" stop-color="#c8dcf4" stop-opacity=".045"/>
-              <stop offset="1" stop-color="#c8dcf4" stop-opacity="0"/>
-            </radialGradient>
-            <linearGradient id="mandalaSteel" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#f4f8ff" stop-opacity=".88"/>
-              <stop offset=".48" stop-color="#c6d9ef" stop-opacity=".56"/>
-              <stop offset="1" stop-color="#edf5ff" stop-opacity=".78"/>
-            </linearGradient>
-          </defs>
-          <circle cx="300" cy="300" r="294" fill="url(#mandalaGlow)"/>
-          <g class="mandala-lines" fill="none" stroke="currentColor">
-            <circle cx="300" cy="300" r="282" stroke-opacity=".24" stroke-width="1.2"/>
-            <circle cx="300" cy="300" r="272" stroke-opacity=".58" stroke-width="1.1"/>
-            <circle cx="300" cy="300" r="210" stroke-opacity=".28"/>
-            <circle cx="300" cy="300" r="144" stroke-opacity=".36"/>
-            <circle cx="300" cy="300" r="70" stroke-opacity=".24"/>
-            <circle cx="300" cy="300" r="42" stroke-opacity=".4"/>
-          </g>
-          <circle cx="300" cy="300" r="30" fill="#0a0a0b" fill-opacity=".82" stroke="currentColor" stroke-opacity=".62" stroke-width="1.2"/>
-          <circle cx="300" cy="300" r="22" fill="none" stroke="url(#mandalaSteel)" stroke-opacity=".64" stroke-width="1.1"/>
-          <circle cx="300" cy="300" r="5" fill="currentColor" fill-opacity=".86" stroke="none"/>
-        </svg>
-        <div class="mandala-center">
-          <div class="mandala-transport" aria-label="Track navigation">
-            <button type="button" class="mandala-track-step" id="mandalaPreviousTrack" aria-label="Previous track" title="Previous track">‹</button>
-            <button type="button" class="mandala-play" id="mandalaPlay" aria-label="Play soundscape" title="Play / pause">
-              <span id="mandalaPlayIcon" aria-hidden="true">▶</span>
-            </button>
-            <button type="button" class="mandala-track-step" id="mandalaNextTrack" aria-label="Next track" title="Next track">›</button>
-          </div>
-        </div>
-      </div>
-      <div class="soundscape-track-meta">
-        <div class="soundscape-track-title" id="soundscapeTrackTitle">Your first soundscape</div>
-        <div class="soundscape-track-subtitle" id="soundscapeTrackSubtitle">Add an MP3 to begin · handpan-friendly ambience</div>
-      </div>
-      <div class="soundscape-player-actions">
-        <button type="button" class="soundscape-secondary" id="addSoundscapeTrack"><span aria-hidden="true">＋</span> Add MP3</button>
-        <span class="soundscape-status" id="soundscapeStatus">READY WHEN YOU ARE</span>
-      </div>
-      <input type="file" id="soundscapeFile" accept="audio/mpeg,audio/mp3,audio/*" multiple hidden />
-    </main>
-    <div class="soundscape-control-drawer" id="soundscapeControlDrawer">
-      <button type="button" class="mobile-controls-toggle" id="soundscapeControlsToggle" aria-expanded="false" aria-controls="soundscapeControlPanel">
-        <span class="mobile-controls-grip" aria-hidden="true"></span><span class="mobile-controls-label">Controls</span>
-      </button>
-      <div class="soundscape-control-panel" id="soundscapeControlPanel">
-        <div class="soundscape-control-heading">PLAYER CONTROLS</div>
-        <label class="soundscape-control-row"><span>Track volume</span><input id="soundscapeVolume" type="range" min="0" max="1" step="0.01" value="0.8" /></label>
-        <label class="soundscape-control-row"><span>Playback</span><select id="soundscapePlayback"><option value="loop">Loop track</option><option value="once">Play once</option></select></label>
-        <p class="soundscape-control-note">Playback continues when you return to the handpan.</p>
-      </div>
-    </div>
-    <button type="button" id="backToHandpan" hidden aria-hidden="true">Back</button>
-  </section>
-
-  <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
   <script>
     document.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: false });
     document.addEventListener('gesturechange', (e) => e.preventDefault(), { passive: false });
@@ -225,6 +141,6 @@
       lastTouchEnd = now;
     }, { passive: false });
   </script>
-  <script type="module" src="./pionier-app.js?v=88"></script>
+  <script type="module" src="./pionier-app.js?v=89"></script>
 </body>
 </html>
