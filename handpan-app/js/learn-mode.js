@@ -238,6 +238,8 @@ function beginPlayerTurn(scoredSteps){
  state.chordHits=new Set();
  state.wrongAttempts=0;
  state.running=true;
+ // The intro demo can outlast the hint's fade animation; show it again when play begins.
+ showFollowLight();
  $('.learn-feedback',root).textContent=state.lesson.id==='home-away'?'Your turn — play both notes of each glowing chord.':'Your turn — repeat the glowing scale.';
  glowTargets(0);
  updateStats();
