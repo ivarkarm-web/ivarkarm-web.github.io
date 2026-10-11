@@ -410,17 +410,7 @@ function startRewardParticles(){
   halo.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=halo;ctx.fillRect(0,0,w,h);
 
-  // Slow, interleaved orbital filaments — intentionally subtle behind the reward card.
-  ctx.save();ctx.translate(cx,cy);ctx.globalCompositeOperation='screen';
-  for(let ring=0;ring<3;ring++){
-   ctx.beginPath();
-   const rx=base*(.42+ring*.19), ry=base*(.24+ring*.16);
-   const rotation=elapsed*(ring%2?-.000035:.000027)+ring*.72;
-   ctx.ellipse(0,0,rx,ry,rotation,0,Math.PI*2);
-   ctx.strokeStyle=ring===1?'rgba(206,180,124,.075)':'rgba(135,187,204,.045)';
-   ctx.lineWidth=ring===1?.8:.65;ctx.stroke();
-  }
-  ctx.restore();
+  // Atmospheric halo only: no geometric orbit rings.
 
   // Deep field: tiny dust, mid-field: floating motes, foreground: luminous seeds.
   ctx.globalCompositeOperation='screen';
@@ -445,26 +435,10 @@ function startRewardParticles(){
    }
    ctx.fillStyle=`rgba(${p.color.r},${p.color.g},${p.color.b},${alpha})`;
    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
-   if(p.layer===2&&p.radius>2.2){
-    ctx.strokeStyle=`rgba(255,231,183,${alpha*.22})`;ctx.lineWidth=.55;
-    ctx.beginPath();ctx.moveTo(x-r*2.5,y);ctx.lineTo(x+r*2.5,y);ctx.moveTo(x,y-r*2.5);ctx.lineTo(x,y+r*2.5);ctx.stroke();
-   }
+
   }
 
-  // Sparse constellation links form and dissolve naturally, not a rigid mesh.
-  const links=particles.filter(p=>p.layer===2);
-  ctx.lineWidth=.55;
-  for(let i=0;i<links.length;i++){
-   const a=links[i],ax=a.x*w,ay=a.y*h;
-   for(let j=i+1;j<Math.min(i+5,links.length);j++){
-    const b=links[j],bx=b.x*w,by=b.y*h,dx=ax-bx,dy=ay-by,dist=Math.hypot(dx,dy);
-    if(dist<Math.min(105,base*.24)){
-     const strength=(1-dist/Math.min(105,base*.24))*.075*Math.min(a.alpha,b.alpha);
-     ctx.strokeStyle=`rgba(186,204,199,${strength})`;
-     ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.stroke();
-    }
-   }
-  }
+  // Organic drifting particles only — no connecting lines or star-cross glints.
   ctx.globalCompositeOperation='source-over';
   if(!reducedMotion)rewardFrame=requestAnimationFrame(draw);
  };
