@@ -38,25 +38,33 @@ const CORE_PATCHES = [
 /** Appended to the base app so the "+" button can reach its internals. */
 const CORE_TAIL = `
 function padCount() {
-  return activeInstrument() === handpan ? (handpan.noteCount || 9) : 9;
+  // Shared note count for the full instrument library.
+  return handpan.noteCount || 9;
+}
+function changeNoteCount(delta) {
+  const before = handpan.noteCount || 9;
+  const after = Math.max(9, Math.min(13, before + delta));
+  if (after === before) return false;
+  handpan.setNoteCount(after);
+  if (typeof surface.armTransition === 'function') surface.armTransition();
+  syncWorldPitch();
+  layoutFields();
+  const active = activeInstrument();
+  if (active && active.glow) {
+    for (let i = 0; i < active.glow.length; i++) active.glow[i] = i === after - 1 ? 1 : 0;
+  }
+  if (active && active.zoneFlash && after > before && after - 1 < active.zoneFlash.length) active.zoneFlash[after - 1] = 0.3;
+  updateLabels();
+  draw();
+  return true;
 }
 window.PionierCore = {
   handpan,
   surface,
   activeInstrument: () => activeInstrument(),
-  addNote() {
-    if (activeInstrument() !== handpan || typeof handpan.addNote !== 'function') return false;
-    if (!handpan.addNote()) return false;
-    if (typeof surface.armTransition === 'function') surface.armTransition();
-    syncWorldPitch();
-    layoutFields();
-    const added = handpan.noteCount - 1;
-    handpan.glow[added] = 1;
-    handpan.zoneFlash[added] = 0.3;
-    updateLabels();
-    draw();
-    return true;
-  }
+  addNote() { return changeNoteCount(1); },
+  removeNote() { return changeNoteCount(-1); },
+  noteCount: () => padCount()
 };
 `;
 
@@ -103,6 +111,7 @@ async function boot() {
 
   src = patchCore(src);
 
+  src = src.split('tonal-family.js?v=5').join('tonal-family.js?v=6');
   src = src.split('pionier-surface.js?v=28').join('pionier-surface.js?v=' + SURFACE_V);
   src = src.split("'./js/pionier-surface.js'").join("'./js/pionier-surface.js?v=" + SURFACE_V + "'");
   src = src.split('"./js/pionier-surface.js"').join('"./js/pionier-surface.js?v=' + SURFACE_V + '"');
@@ -206,7 +215,7 @@ async function boot() {
 
   try {
     const { mountNotePlus } = await import(
-      new URL('./js/note-plus.js?v=1', BASE).href
+      new URL('./js/note-plus.js?v=2', BASE).href
     );
     mountNotePlus();
   } catch (err) {
