@@ -1,5 +1,5 @@
 import { LESSONS } from './lessons.js';
-import { TimingScorer } from './learn-core.js?v=2';
+import { TimingScorer } from './learn-core.js?v=3';
 
 const $ = (s, root=document) => root.querySelector(s);
 const state = { lesson:null, scorer:null, startedAt:0, running:false, mode:'guided', timer:null, demoTimers:[], completed:new Set(), startedLessons:new Set(), best:{}, glowFrame:0 };
@@ -83,17 +83,53 @@ function glowTargets(stepIndex){
 function startPractice(){
  if(!state.lesson)return;
  stopDemo();
- // Give the player one beat to see the lit target before the first timing window.
- const scoredSteps=state.lesson.steps.map(step=>({...step,at:step.at+1}));
- state.scorer=new TimingScorer(scoredSteps,2.0); state.startedAt=performance.now(); state.running=true;
- state.startedLessons.add(state.lesson.id);
- $('.learn-feedback',root).textContent='First note is lit — play when ready.';
- $('.learn-actions [data-action="start"]',root).textContent='Restart practice';
- root.querySelectorAll('.learn-step').forEach((n,i)=>n.classList.toggle('is-current',i===0));
- glowTargets(0); updateStats();
- $('.learn-actions [data-action="start"]',root).textContent='Restart practice';
- // Switch from lesson selection to a compact live practice HUD; keep feedback visible.
+ const lesson=state.lesson;
+ const scoredSteps=lesson.steps.map(step=>({...step,at:step.at+1}));
+ state.scorer=new TimingScorer(scoredSteps,2.0);
+ state.startedAt=0;
+ state.running=false;
+ state.startedLessons.add(lesson.id);
+ $('.learn-actions [data-action="start"]',root).textContent='Restart';
  root.classList.add('learn-practicing');
+ updateStats();
+
+ // Demonstrate the entire phrase first: each tonefield lights and sounds in order.
+ // Then reset the scorer and hand the same sequence to the player to repeat.
+ const core=window.PionierCore, inst=active(), fields=core?.surface?.fields;
+ if(!inst?.noteOn||!Array.isArray(fields)||!fields.length){
+   beginPlayerTurn(scoredSteps);
+   return;
+ }
+ $('.learn-feedback',root).textContent='Watch the scale…';
+ const interval=560;
+ lesson.steps.forEach((step,i)=>{
+   state.demoTimers.push(setTimeout(()=>{
+     if(!root || root.hidden || state.lesson!==lesson)return;
+     glowTargets(i);
+     step.targets.forEach(idx=>{
+       const field=fields.find(f=>f.index===idx);
+       if(!field)return;
+       const gesture={velocity:.62,pressure:.62,pointerId:-700-i,lastStrikeAt:inst.lastStrikeAt};
+       try{
+         inst.noteOn(gesture,field);
+         state.demoTimers.push(setTimeout(()=>{try{inst.noteOff(idx);}catch(_){}},260));
+       }catch(err){console.warn('[learn] demo note failed',err);}
+     });
+   },i*interval));
+ });
+ state.demoTimers.push(setTimeout(()=>{
+   if(!root || root.hidden || state.lesson!==lesson)return;
+   beginPlayerTurn(scoredSteps);
+ },lesson.steps.length*interval+300));
+}
+function beginPlayerTurn(scoredSteps){
+ state.demoTimers=[];
+ state.scorer=new TimingScorer(scoredSteps,2.0);
+ state.startedAt=performance.now();
+ state.running=true;
+ $('.learn-feedback',root).textContent='Your turn — repeat the glowing scale.';
+ glowTargets(0);
+ updateStats();
 }
 function onNote(e){
  if(!state.running||!state.lesson)return;
