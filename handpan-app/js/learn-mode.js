@@ -163,7 +163,6 @@ function startPractice(){
    beginPlayerTurn(scoredSteps);
    return;
  }
- $('.learn-feedback',root).textContent='Watch the scale…';
  const interval=560;
  lesson.steps.forEach((step,i)=>{
    state.demoTimers.push(setTimeout(()=>{
