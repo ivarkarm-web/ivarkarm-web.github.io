@@ -7,7 +7,7 @@ const BASE = new URL('.', import.meta.url).href;
 // Cache-busting for the modules changed by the 9→13 note feature. Every
 // importer of a module must use the same query, or the browser would load two
 // separate copies of it.
-const SURFACE_V = '94';
+const SURFACE_V = '95';
 const HANDPAN_V = '1';
 
 /**
