@@ -1,56 +1,63 @@
-/**
- * note-plus.js — the little "+" above the music player.
- * Each press adds the next note of the current scale (9 → 13 notes).
- */
+/** Shared 9–13 note-count controls for every Pionier instrument. */
 import { MIN_NOTES, MAX_NOTES } from './pad-layout.js';
 
 export function mountNotePlus() {
   const wrap = document.getElementById('notePlusWrap');
-  const btn = document.getElementById('notePlus');
+  const plus = document.getElementById('notePlus');
   const count = document.getElementById('notePlusCount');
   const core = window.PionierCore;
-  const handpan = core && core.handpan;
-  if (!wrap || !btn) return;
-
-  // Stale cached engine without note growth: hide rather than show a dead button.
-  if (!core || !handpan || typeof handpan.addNote !== 'function' || typeof core.addNote !== 'function') {
-    wrap.hidden = true;
+  if (!wrap || !plus || !core || typeof core.addNote !== 'function' || typeof core.removeNote !== 'function') {
+    if (wrap) wrap.hidden = true;
     return;
   }
 
-  function sync() {
-    const n = handpan.noteCount ?? MIN_NOTES;
-    const onHandpan = core.activeInstrument() === handpan;
-    const atMax = n >= MAX_NOTES;
-    if (count) count.textContent = n + '/' + MAX_NOTES;
-    btn.disabled = atMax || !onHandpan;
-    if (atMax) {
-      btn.title = 'Maximum of ' + MAX_NOTES + ' notes reached';
-    } else if (!onHandpan) {
-      btn.title = 'Switch to Handpan to add notes';
-    } else {
-      btn.title = 'Add the next scale note (' + n + ' of ' + MAX_NOTES + ')';
-    }
-    btn.setAttribute('aria-label', btn.title);
-    wrap.classList.toggle('is-full', atMax);
+  let minus = document.getElementById('noteMinus');
+  if (!minus) {
+    minus = document.createElement('button');
+    minus.type = 'button';
+    minus.id = 'noteMinus';
+    minus.className = 'note-plus note-minus';
+    minus.innerHTML = '<span class="note-minus-icon" aria-hidden="true"></span>';
+    minus.setAttribute('aria-label', 'Remove the last note');
+    minus.title = 'Remove the last note';
+    plus.insertAdjacentElement('afterend', minus);
   }
 
-  btn.addEventListener('click', (e) => {
+  function sync() {
+    const n = typeof core.noteCount === 'function' ? core.noteCount() : (core.handpan?.noteCount ?? MIN_NOTES);
+    const atMin = n <= MIN_NOTES;
+    const atMax = n >= MAX_NOTES;
+    if (count) count.textContent = n + '/' + MAX_NOTES;
+    plus.disabled = atMax;
+    plus.title = atMax ? 'Maximum of ' + MAX_NOTES + ' notes reached' : 'Add a note (' + n + ' of ' + MAX_NOTES + ')';
+    plus.setAttribute('aria-label', plus.title);
+    minus.disabled = atMin;
+    minus.title = atMin ? 'Minimum of ' + MIN_NOTES + ' notes' : 'Remove the last note (' + n + ' total)';
+    minus.setAttribute('aria-label', minus.title);
+    wrap.classList.toggle('is-full', atMax);
+    wrap.classList.toggle('is-minimum', atMin);
+  }
+
+  plus.addEventListener('click', (e) => {
     e.stopPropagation();
-    if (btn.disabled) return;
+    if (plus.disabled) return;
     if (core.addNote()) {
-      btn.classList.remove('is-pulse');
-      void btn.offsetWidth;
-      btn.classList.add('is-pulse');
+      plus.classList.remove('is-pulse');
+      void plus.offsetWidth;
+      plus.classList.add('is-pulse');
     }
     sync();
   });
+  minus.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (minus.disabled) return;
+    core.removeNote();
+    sync();
+  });
 
-  // The voice name changes whenever the instrument does.
   const voiceName = document.getElementById('instrumentDropdownToggle');
   if (voiceName && typeof MutationObserver === 'function') {
     new MutationObserver(sync).observe(voiceName, { childList: true, characterData: true, subtree: true });
   }
-
   sync();
 }
