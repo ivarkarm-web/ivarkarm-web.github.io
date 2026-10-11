@@ -54,7 +54,7 @@ function onClick(e){
 function active(){return window.PionierCore?.activeInstrument?.();}
 function glowTargets(stepIndex){
  const inst=active(), step=state.lesson?.steps[stepIndex]; if(!inst?.glow||!step)return;
- for(let i=0;i<inst.glow.length;i++)inst.glow[i]=step.targets.includes(i)?.36:0;
+ for(let i=0;i<inst.glow.length;i++)inst.glow[i]=step.targets.includes(i) ? 0.36 : 0;
 }
 function startPractice(){
  if(!state.lesson)return;
