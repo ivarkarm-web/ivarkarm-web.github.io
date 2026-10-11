@@ -2,7 +2,7 @@ import { LESSONS } from './lessons.js?v=2';
 import { TimingScorer } from './learn-core.js?v=4';
 
 const $ = (s, root=document) => root.querySelector(s);
-const state = { lesson:null, scorer:null, startedAt:0, running:false, mode:'guided', timer:null, demoTimers:[], completed:new Set(), startedLessons:new Set(), best:{}, glowFrame:0, practiceIndex:0, chordHits:new Set() };
+const state = { lesson:null, scorer:null, startedAt:0, running:false, mode:'guided', timer:null, demoTimers:[], completed:new Set(), startedLessons:new Set(), best:{}, glowFrame:0, practiceIndex:0, chordHits:new Set(), wrongAttempts:0 };
 let root, list, stage;
 function mount(){
   if($('#learnMode')) return;
@@ -101,6 +101,26 @@ function glowTargets(stepIndex){
  };
  state.glowFrame=requestAnimationFrame(animate);
 }
+function wrongNoteHint(stepIndex, message){
+ state.wrongAttempts++;
+ if(state.wrongAttempts<5){ $('.learn-feedback',root).textContent=message; return; }
+ state.wrongAttempts=0;
+ const inst=active(), step=state.lesson?.steps[stepIndex];
+ if(inst?.glow && step){
+  cancelAnimationFrame(state.glowFrame);
+  const targets=new Set(step.targets), start=performance.now(), duration=2200;
+  const animate=now=>{
+   const t=Math.min(1,(now-start)/duration);
+   const pulse=.22+.78*(.5+.5*Math.sin(t*Math.PI*6));
+   for(let i=0;i<inst.glow.length;i++)inst.glow[i]=targets.has(i)?pulse:0;
+   redraw();
+   if(t<1)state.glowFrame=requestAnimationFrame(animate);
+   else { for(let i=0;i<inst.glow.length;i++)inst.glow[i]=targets.has(i)?1:0; redraw(); }
+  };
+  state.glowFrame=requestAnimationFrame(animate);
+ }else glowTargets(stepIndex);
+ $('.learn-feedback',root).textContent='Extra LED hint — watch the pulsing note.';
+}
 function startPractice(){
  if(!state.lesson)return;
  hideResult();
@@ -156,6 +176,7 @@ function beginPlayerTurn(scoredSteps){
  state.startedAt=performance.now();
  state.practiceIndex=0;
  state.chordHits=new Set();
+ state.wrongAttempts=0;
  state.running=true;
  $('.learn-feedback',root).textContent=state.lesson.id==='home-away'?'Your turn — play both notes of each glowing chord.':'Your turn — repeat the glowing scale.';
  glowTargets(0);
@@ -174,10 +195,11 @@ function onNote(e){
    state.scorer.misses++;
    state.scorer.combo=0;
    state.scorer.lastFeedback='MISS';
-   $('.learn-feedback',root).textContent='Follow the glowing tonefield.';
+   wrongNoteHint(stepIndex,'Follow the glowing tonefield.');
    updateStats();
    return;
   }
+  state.wrongAttempts=0;
   state.scorer.stepHits[stepIndex].add(step.targets.indexOf(idx));
   state.scorer.hits++;
   state.scorer.combo++;
@@ -208,11 +230,12 @@ function onNote(e){
    state.scorer.misses++;
    state.scorer.combo=0;
    state.scorer.lastFeedback='MISS';
-   $('.learn-feedback',root).textContent='Play one of the two glowing notes in this chord.';
+   wrongNoteHint(stepIndex,'Play one of the two glowing notes in this chord.');
    updateStats();
    return;
   }
   if(state.chordHits.has(idx))return;
+  state.wrongAttempts=0;
   state.chordHits.add(idx);
   state.scorer.hits++;
   state.scorer.combo++;
@@ -242,7 +265,9 @@ function onNote(e){
  }
  const elapsed=((performance.now()-state.startedAt)/1000)*(state.lesson.bpm/60);
  const result=state.scorer.scoreNote(idx,elapsed);
- $('.learn-feedback',root).textContent=result.feedback==='MISS'?'Not that note — find the glowing tonefield.':result.feedback==='PERFECT'?'Perfect · stay with the pulse.':result.feedback==='GREAT'?'Beautifully placed.':result.feedback==='GOOD'?'Good — keep the phrase moving.':'A little late — keep going.';
+ if(result.correct)state.wrongAttempts=0;
+ if(!result.correct)wrongNoteHint(state.practiceIndex,'Not that note — find the glowing tonefield.');
+ else $('.learn-feedback',root).textContent=result.feedback==='PERFECT'?'Perfect · stay with the pulse.':result.feedback==='GREAT'?'Beautifully placed.':result.feedback==='GOOD'?'Good — keep the phrase moving.':'A little late — keep going.';
  if(result.correct){
   const el=$(`[data-step="${result.stepIndex}"]`,root); el?.classList.add('is-hit');
   const next=state.lesson.steps.findIndex((s,i)=>!state.scorer.stepComplete(i));
