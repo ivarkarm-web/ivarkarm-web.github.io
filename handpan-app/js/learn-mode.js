@@ -1,8 +1,8 @@
 import { LESSONS } from './lessons.js';
-import { TimingScorer } from './learn-core.js?v=3';
+import { TimingScorer } from './learn-core.js?v=4';
 
 const $ = (s, root=document) => root.querySelector(s);
-const state = { lesson:null, scorer:null, startedAt:0, running:false, mode:'guided', timer:null, demoTimers:[], completed:new Set(), startedLessons:new Set(), best:{}, glowFrame:0 };
+const state = { lesson:null, scorer:null, startedAt:0, running:false, mode:'guided', timer:null, demoTimers:[], completed:new Set(), startedLessons:new Set(), best:{}, glowFrame:0, practiceIndex:0 };
 let root, list, stage;
 function mount(){
   if($('#learnMode')) return;
@@ -126,14 +126,50 @@ function beginPlayerTurn(scoredSteps){
  state.demoTimers=[];
  state.scorer=new TimingScorer(scoredSteps,2.0);
  state.startedAt=performance.now();
+ state.practiceIndex=0;
  state.running=true;
  $('.learn-feedback',root).textContent='Your turn — repeat the glowing scale.';
  glowTargets(0);
  updateStats();
 }
 function onNote(e){
- if(!state.running||!state.lesson)return;
- const idx=Number(e.detail?.index); const elapsed=((performance.now()-state.startedAt)/1000)*(state.lesson.bpm/60);
+ if(!state.running||!state.lesson||!state.scorer)return;
+ const idx=Number(e.detail?.index);
+ // The first lesson is a call-and-response exercise, not a rhythm test.
+ // Count the exact next note in order; timing must never prevent a correct repeat.
+ if(state.lesson.id==='first-touch'){
+  const stepIndex=state.practiceIndex;
+  const step=state.lesson.steps[stepIndex];
+  if(!step)return;
+  if(!step.targets.includes(idx)){
+   state.scorer.misses++;
+   state.scorer.combo=0;
+   state.scorer.lastFeedback='MISS';
+   $('.learn-feedback',root).textContent='Follow the glowing tonefield.';
+   updateStats();
+   return;
+  }
+  state.scorer.stepHits[stepIndex].add(step.targets.indexOf(idx));
+  state.scorer.hits++;
+  state.scorer.combo++;
+  state.scorer.bestCombo=Math.max(state.scorer.bestCombo,state.scorer.combo);
+  state.scorer.score+=100;
+  state.scorer.lastFeedback='PERFECT';
+  state.practiceIndex++;
+  $('.learn-feedback',root).textContent='Perfect · keep following the lights.';
+  $('.learn-progress',root).textContent=state.practiceIndex+' / '+state.lesson.steps.length;
+  if(state.practiceIndex>=state.lesson.steps.length){
+   state.running=false;clearGlows();state.completed.add(state.lesson.id);
+   state.best[state.lesson.id]=Math.max(state.best[state.lesson.id]||0,state.scorer.score);
+   $('.learn-feedback',root).textContent='Lesson complete · '+state.scorer.score+' points. Let it settle.';
+   renderLessons(state.lesson.level);
+  }else{
+   glowTargets(state.practiceIndex);
+  }
+  updateStats();
+  return;
+ }
+ const elapsed=((performance.now()-state.startedAt)/1000)*(state.lesson.bpm/60);
  const result=state.scorer.scoreNote(idx,elapsed);
  $('.learn-feedback',root).textContent=result.feedback==='MISS'?'Not that note — find the glowing tonefield.':result.feedback==='PERFECT'?'Perfect · stay with the pulse.':result.feedback==='GREAT'?'Beautifully placed.':result.feedback==='GOOD'?'Good — keep the phrase moving.':'A little late — keep going.';
  if(result.correct){
