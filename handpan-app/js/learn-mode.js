@@ -2,7 +2,7 @@ import { LESSONS } from './lessons.js';
 import { TimingScorer } from './learn-core.js';
 
 const $ = (s, root=document) => root.querySelector(s);
-const state = { lesson:null, scorer:null, startedAt:0, running:false, mode:'guided', timer:null, demoTimers:[], completed:new Set(), startedLessons:new Set(), best:{} };
+const state = { lesson:null, scorer:null, startedAt:0, running:false, mode:'guided', timer:null, demoTimers:[], completed:new Set(), startedLessons:new Set(), best:{}, glowFrame:0 };
 let root, list, stage;
 function mount(){
   if($('#learnMode')) return;
@@ -37,8 +37,17 @@ function renderLessons(level){
  const lessons=$('.learn-lessons',root);
  lessons.innerHTML=LESSONS.filter(l=>l.level===level).map(l=>`<button type="button" data-lesson="${l.id}" class="learn-lesson ${state.lesson?.id===l.id?'is-active':''}"><span class="lesson-check">${state.completed.has(l.id)?'✓':'○'}</span><span><b>${l.name}</b><small>${l.description}</small></span><span class="lesson-best">${state.best[l.id]||''}</span></button>`).join('');
 }
+function lessonFor(id){
+ const lesson=LESSONS.find(l=>l.id===id); if(!lesson)return null;
+ if(id!=='first-touch')return lesson;
+ const count=Math.max(1,Math.min(13,Number(window.PionierCore?.noteCount?.())||9));
+ const ascent=Array.from({length:count},(_,i)=>i);
+ const descent=Array.from({length:Math.max(0,count-1)},(_,i)=>count-2-i);
+ const targets=[...ascent,...descent];
+ return {...lesson,description:'Play every tonefield up the scale, then follow the lights back down.',bpm:56,steps:targets.map((target,index)=>({at:index,targets:[target]}))};
+}
 function selectLesson(id){
- state.lesson=LESSONS.find(l=>l.id===id); if(!state.lesson)return;
+ state.lesson=lessonFor(id); if(!state.lesson)return;
  stopDemo(); state.running=false; state.scorer=null;
  $('.learn-name',root).textContent=state.lesson.name;
  $('.learn-description',root).textContent=state.lesson.description;
@@ -56,11 +65,20 @@ function onClick(e){
 }
 function active(){return window.PionierCore?.activeInstrument?.();}
 function redraw(){try{window.PionierCore?.draw?.();}catch(err){console.debug('[learn] redraw deferred',err);}}
-function clearGlows(){const inst=active();if(inst?.glow)for(let i=0;i<inst.glow.length;i++)inst.glow[i]=0;redraw();}
+function clearGlows(){cancelAnimationFrame(state.glowFrame);const inst=active();if(inst?.glow)for(let i=0;i<inst.glow.length;i++)inst.glow[i]=0;redraw();}
 function glowTargets(stepIndex){
  const inst=active(), step=state.lesson?.steps[stepIndex]; if(!inst?.glow||!step)return;
- for(let i=0;i<inst.glow.length;i++)inst.glow[i]=step.targets.includes(i) ? 1 : 0;
- redraw();
+ cancelAnimationFrame(state.glowFrame);
+ const targets=new Set(step.targets), start=performance.now();
+ const initial=Array.from(inst.glow, (v,i)=>targets.has(i)?1:Math.max(0,v||0));
+ const fadeMs=420;
+ const animate=now=>{
+  const t=Math.min(1,(now-start)/fadeMs);
+  for(let i=0;i<inst.glow.length;i++)inst.glow[i]=targets.has(i)?1:initial[i]*(1-t);
+  redraw();
+  if(t<1)state.glowFrame=requestAnimationFrame(animate);
+ };
+ state.glowFrame=requestAnimationFrame(animate);
 }
 function startPractice(){
  if(!state.lesson)return;
