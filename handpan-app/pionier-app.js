@@ -66,6 +66,7 @@ window.PionierCore = {
   handpan,
   surface,
   activeInstrument: () => activeInstrument(),
+  draw() { draw(); },
   addNote() { return changeNoteCount(1); },
   removeNote() { return changeNoteCount(-1); },
   noteCount: () => padCount()
