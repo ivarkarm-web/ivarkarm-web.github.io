@@ -9,20 +9,20 @@ function mount(){
   root=document.createElement('section'); root.id='learnMode'; root.className='learn-mode'; root.hidden=true;
   root.innerHTML=`
     <div class="learn-shell" role="dialog" aria-modal="true" aria-labelledby="learnTitle">
-      <header class="learn-head"><div><p class="learn-eyebrow">PIONIER · PRACTICE</p><h2 id="learnTitle">Learn the instrument</h2><p class="learn-sub">Listen. Follow. Find your own flow.</p></div><button class="learn-close" type="button" aria-label="Close lessons">×</button></header>
+      <header class="learn-head"><div><h2 id="learnTitle">Learn</h2></div><button class="learn-close" type="button" aria-label="Close lessons">×</button></header>
       <div class="learn-layout"><nav class="learn-library" aria-label="Lessons"><div class="learn-levels"></div><div class="learn-lessons"></div></nav>
-      <main class="learn-stage"><div class="learn-stage-top"><span class="learn-progress">0 / 0</span></div><h3 class="learn-name">Choose a lesson</h3><p class="learn-description">Start with a small phrase and let your hands learn its shape.</p>
+      <main class="learn-stage"><div class="learn-stage-top"><span class="learn-progress">0 / 0</span></div><h3 class="learn-name">Choose</h3><p class="learn-description"></p>
       
       <div class="learn-sequence" aria-live="polite"></div><div class="learn-feedback" aria-live="polite">Choose a lesson to begin.</div>
       <div class="learn-stats"><div><b data-stat="score">0</b><span>Score</span></div><div><b data-stat="combo">0</b><span>Combo</span></div><div><b data-stat="accuracy">—</b><span>Accuracy</span></div></div>
       <div class="learn-actions"><button type="button" data-action="start" class="primary">Start</button></div>
-      <p class="learn-hint">Hide this panel to play the full handpan. Your practice stays active — tap Learn to return.</p>
+      
       </main></div>
     </div>
     <div class="learn-result" hidden role="dialog" aria-modal="true" aria-labelledby="learnResultTitle">
       <div class="learn-result-card">
-        <p class="learn-eyebrow">PIONIER · PRACTICE COMPLETE</p>
-        <h2 id="learnResultTitle">Lesson complete</h2>
+        <p class="learn-eyebrow">COMPLETE</p>
+        <h2 id="learnResultTitle">Finished</h2>
         <p class="learn-result-lesson"></p>
         <div class="learn-result-score"><span>FINAL SCORE</span><strong data-result="score">0</strong></div>
         <div class="learn-result-stats">
@@ -31,8 +31,9 @@ function mount(){
           <div><strong data-result="hits">0</strong><span>Notes played</span></div>
         </div>
         <div class="learn-result-actions">
-          <button type="button" data-action="result-restart" class="primary">Play again</button>
-          <button type="button" data-action="result-lessons">All lessons</button>
+          <button type="button" data-action="result-restart">Restart</button>
+          <button type="button" data-action="result-next" class="primary">Next</button>
+          <button type="button" data-action="result-lessons">Menu</button>
         </div>
       </div>
     </div>`;
@@ -71,7 +72,7 @@ function selectLesson(id){
  $('.learn-progress',root).textContent=`0 / ${state.lesson.steps.length}`;
  $('.learn-feedback',root).textContent='Ready when you are.';
  $('.learn-sequence',root).replaceChildren();
- $('.learn-actions [data-action="start"]',root).textContent=state.startedLessons.has(state.lesson.id)?'Restart practice':'Start practice';
+ $('.learn-actions [data-action="start"]',root).textContent='Start';
  updateStats(); renderLessons(state.lesson.level);
 }
 function onClick(e){
@@ -80,7 +81,8 @@ function onClick(e){
  const action=e.target.closest('[data-action]')?.dataset.action;
  if(action==='start')startPractice();
  if(action==='result-restart'){hideResult();startPractice();}
- if(action==='result-lessons'){hideResult();root.classList.remove('learn-practicing');$('.learn-actions [data-action="start"]',root).textContent='Restart practice';}
+ if(action==='result-next'){const i=LESSONS.findIndex(l=>l.id===state.lesson?.id);const next=LESSONS[i+1];if(next){hideResult();root.classList.remove('learn-practicing');selectLesson(next.id);startPractice();}else{hideResult();root.classList.remove('learn-practicing');$('.learn-name',root).textContent='All complete';$('.learn-description',root).textContent='';}}
+ if(action==='result-lessons'){hideResult();root.classList.remove('learn-practicing');$('.learn-actions [data-action="start"]',root).textContent='Start';}
 }
 function active(){return window.PionierCore?.activeInstrument?.();}
 function redraw(){try{window.PionierCore?.draw?.();}catch(err){console.debug('[learn] redraw deferred',err);}}
@@ -284,7 +286,7 @@ function demo(){
  },step.at*unit)));
  $('.learn-feedback',root).textContent='Listen closely…';
 }
-function open(){mount();root.hidden=false;root.classList.remove('learn-practicing');document.body.classList.add('learn-mode-open');if(!state.lesson)selectLesson(LESSONS[0].id);else $('.learn-actions [data-action="start"]',root).textContent=state.startedLessons.has(state.lesson.id)?'Restart practice':'Start practice';}
+function open(){mount();root.hidden=false;root.classList.remove('learn-practicing');document.body.classList.add('learn-mode-open');if(!state.lesson)selectLesson(LESSONS[0].id);else $('.learn-actions [data-action="start"]',root).textContent='Start';}
 function close(){if(!root)return;state.demoTimers.forEach(clearTimeout);state.demoTimers=[];root.hidden=true;root.classList.remove('learn-practicing');document.body.classList.remove('learn-mode-open');}
 window.PionierLearn={open,close,lessons:LESSONS};
 document.addEventListener('DOMContentLoaded',mount);
