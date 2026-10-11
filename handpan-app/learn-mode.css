@@ -770,3 +770,48 @@
   72% { opacity: 1; color: rgba(255,244,211,.96); transform: translate(-50%, 0); text-shadow: 0 0 22px rgba(238,199,112,.25); }
   100% { opacity: 0; color: rgba(255,244,211,0); transform: translate(-50%, -5px); text-shadow: 0 0 18px rgba(238,199,112,0); }
 }
+
+
+/* Arcade lesson select: collectible stars, unlock states, and game-like cards. */
+.learn-shell { width:min(980px,100%); }
+.learn-layout { grid-template-columns:minmax(0,1.12fr) minmax(250px,.88fr) !important; }
+.learn-library { padding:18px !important; min-width:0; }
+.learn-levels { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:7px !important; }
+.learn-levels button { position:relative; min-width:0; min-height:42px; padding:9px 10px !important; border:1px solid rgba(255,255,255,.09) !important; border-radius:10px !important; background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.015)) !important; font-size:11px !important; }
+.learn-levels button.is-active { border-color:rgba(244,199,91,.7) !important; background:linear-gradient(145deg,rgba(244,199,91,.17),rgba(244,199,91,.045)) !important; box-shadow:0 0 18px rgba(244,199,91,.08),inset 0 0 0 1px rgba(244,199,91,.08); color:#fff2c6 !important; }
+.learn-levels button em { margin-left:auto; color:#e5c66f; font-size:9px; font-style:normal; white-space:nowrap; }
+.learn-levels button.is-locked { opacity:.38; cursor:not-allowed; }
+.learn-lessons { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:9px !important; margin-top:14px !important; }
+.learn-lesson { position:relative; display:flex !important; flex-direction:column; align-items:flex-start !important; justify-content:space-between; gap:9px !important; min-width:0; min-height:112px; padding:12px !important; overflow:hidden; border:1px solid rgba(221,194,124,.2) !important; border-radius:13px !important; text-align:left; background:linear-gradient(145deg,rgba(32,31,28,.96),rgba(12,13,16,.98)) !important; box-shadow:inset 0 1px rgba(255,255,255,.055),0 5px 16px rgba(0,0,0,.12); transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,opacity .18s ease; }
+.learn-lesson::before { content:""; position:absolute; inset:0 auto 0 0; width:3px; background:linear-gradient(180deg,#ffe8a0,#a57b32); opacity:.55; }
+.learn-lesson::after { content:""; position:absolute; width:90px; height:90px; right:-42px; top:-44px; border:1px solid rgba(236,203,123,.16); border-radius:50%; box-shadow:0 0 0 9px rgba(236,203,123,.025),0 0 0 20px rgba(236,203,123,.02); pointer-events:none; }
+.learn-lesson:not(.is-locked) { cursor:pointer; }
+.learn-lesson:not(.is-locked):hover { transform:translateY(-2px); border-color:rgba(238,201,111,.55) !important; box-shadow:0 8px 22px rgba(0,0,0,.25),0 0 20px rgba(221,183,93,.07); }
+.learn-lesson.is-active { border-color:#f0cd78 !important; background:linear-gradient(145deg,rgba(108,83,34,.48),rgba(18,17,15,.98)) !important; box-shadow:inset 0 0 0 1px rgba(255,225,151,.13),0 0 24px rgba(225,184,89,.1); }
+.learn-lesson.is-complete::before { opacity:1; box-shadow:0 0 13px rgba(255,214,113,.4); }
+.learn-lesson.is-locked { opacity:.42; filter:saturate(.45); cursor:not-allowed; }
+.arcade-number { display:block; color:#b89c59; font-size:9px; font-weight:600; letter-spacing:.16em; }
+.arcade-card-title { display:block; width:100%; min-width:0; }
+.learn-lesson .arcade-card-title b { display:block; font-size:clamp(11px,1.2vw,13px) !important; line-height:1.3 !important; font-weight:550 !important; overflow-wrap:anywhere; }
+.learn-lesson .arcade-card-title small { display:block; margin-top:5px; color:rgba(225,220,204,.5); font-size:8px; line-height:1.3; letter-spacing:.09em; }
+.arcade-stars { display:flex; gap:3px; align-items:center; line-height:1; }
+.arcade-stars i { font-style:normal; font-size:13px; color:rgba(255,255,255,.16); }
+.arcade-stars i.earned { color:#f2cd70; text-shadow:0 0 9px rgba(242,205,112,.5); }
+.arcade-lock { position:absolute; right:11px; bottom:12px; color:#d8b75e; font-size:11px; opacity:.9; }
+.learn-lesson.is-locked .arcade-lock { color:#aaa; }
+.learn-stage { min-width:0; }
+@media(max-width:650px) {
+ .learn-shell { width:100%; }
+ .learn-layout { grid-template-columns:minmax(0,1fr) !important; }
+ .learn-library { padding:10px !important; }
+ .learn-levels { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+ .learn-levels button { min-height:38px; padding:7px !important; font-size:10px !important; }
+ .learn-levels button em { font-size:8px; }
+ .learn-lessons { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:7px !important; max-height:34dvh; overflow-y:auto; padding:1px 2px 5px !important; }
+ .learn-lesson { min-height:94px; padding:9px !important; gap:7px !important; }
+ .learn-lesson .arcade-card-title b { font-size:11px !important; }
+ .learn-lesson .arcade-card-title small { font-size:7px; }
+ .arcade-stars i { font-size:12px; }
+ .arcade-lock { right:8px; bottom:9px; }
+}
+@media(prefers-reduced-motion:reduce) { .learn-lesson { transition:none !important; } }
