@@ -104,16 +104,35 @@ function glowTargets(stepIndex){
  };
  state.glowFrame=requestAnimationFrame(animate);
 }
-function wrongNoteHint(){
- state.wrongAttempts++;
- if(state.wrongAttempts<5)return;
- state.wrongAttempts=0;
+function showFollowLight(){
  const feedback=$('.learn-feedback',root);
  if(!feedback)return;
  feedback.textContent='Follow the light';
  feedback.classList.remove('learn-hint-fade');
  void feedback.offsetWidth;
  feedback.classList.add('learn-hint-fade');
+}
+function pulseCurrentTarget(){
+ const inst=active(), step=state.lesson?.steps[state.practiceIndex];
+ if(!inst?.glow || !step?.targets?.length)return;
+ cancelAnimationFrame(state.glowFrame);
+ const targets=new Set(step.targets), start=performance.now(), duration=1800;
+ const animate=now=>{
+  const elapsed=now-start, t=Math.min(1,elapsed/duration);
+  const pulse=.35+.65*(.5+.5*Math.cos(elapsed/115*Math.PI*2));
+  for(const index of targets)if(index<inst.glow.length)inst.glow[index]=t>=1?1:pulse;
+  redraw();
+  if(t<1)state.glowFrame=requestAnimationFrame(animate);
+  else { for(const index of targets)if(index<inst.glow.length)inst.glow[index]=1; redraw(); }
+ };
+ state.glowFrame=requestAnimationFrame(animate);
+}
+function wrongNoteHint(){
+ state.wrongAttempts++;
+ if(state.wrongAttempts<5)return;
+ state.wrongAttempts=0;
+ pulseCurrentTarget();
+ showFollowLight();
 }
 
 function startPractice(){
@@ -134,6 +153,7 @@ function startPractice(){
  state.startedLessons.add(lesson.id);
  $('.learn-actions [data-action="start"]',root).textContent='Restart';
  root.classList.add('learn-practicing');
+ showFollowLight();
  updateStats();
 
  // Demonstrate the entire phrase first: each tonefield lights and sounds in order.
