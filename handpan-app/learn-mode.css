@@ -335,3 +335,27 @@
   .learn-practicing { inset: max(66px, env(safe-area-inset-top)) 8px auto auto !important; width: min(240px, calc(100vw - 16px)) !important; }
   .learn-practicing .learn-shell { padding: 8px 9px !important; }
 }
+
+
+/* Compact guided-practice score window — keep it small on every instrument. */
+.learn-practicing {
+  width: min(188px, calc(100vw - 20px)) !important;
+  max-width: calc(100vw - 20px) !important;
+  inset: max(66px, env(safe-area-inset-top)) 10px auto auto !important;
+}
+.learn-practicing .learn-shell {
+  padding: 6px 8px !important;
+  border-radius: 11px !important;
+}
+.learn-practicing .learn-head { padding: 0 0 3px !important; }
+.learn-practicing .learn-close { width: 20px !important; height: 20px !important; flex-basis: 20px !important; }
+.learn-practicing .learn-stage { gap: 4px !important; }
+.learn-practicing .learn-stats { gap: 2px !important; padding-top: 5px !important; }
+.learn-practicing .learn-stats b { font-size: 12px !important; }
+.learn-practicing .learn-stats span { font-size: 8px !important; }
+.learn-practicing .learn-feedback { font-size: 9px !important; line-height: 1.2 !important; }
+.learn-practicing .learn-actions [data-action="start"] { height: 25px !important; min-height: 25px !important; font-size: 9px !important; }
+@media (max-width: 650px) {
+  .learn-practicing { width: min(176px, calc(100vw - 16px)) !important; inset: max(62px, env(safe-area-inset-top)) 8px auto auto !important; }
+  .learn-practicing .learn-shell { padding: 5px 7px !important; }
+}
