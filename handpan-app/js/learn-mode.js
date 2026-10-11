@@ -83,6 +83,12 @@ function glowTargets(stepIndex){
 function startPractice(){
  if(!state.lesson)return;
  stopDemo();
+ // Rebuild the scale-sized intro against whichever instrument is active now.
+ if(state.lesson.id==='first-touch'){
+  state.lesson=lessonFor('first-touch');
+  $('.learn-description',root).textContent=state.lesson.description;
+  $('.learn-progress',root).textContent='0 / '+state.lesson.steps.length;
+ }
  const lesson=state.lesson;
  const scoredSteps=lesson.steps.map(step=>({...step,at:step.at+1}));
  state.scorer=new TimingScorer(scoredSteps,2.0);
