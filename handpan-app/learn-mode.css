@@ -359,3 +359,19 @@
   .learn-practicing { width: min(176px, calc(100vw - 16px)) !important; inset: max(62px, env(safe-area-inset-top)) 8px auto auto !important; }
   .learn-practicing .learn-shell { padding: 5px 7px !important; }
 }
+
+
+/* Practice HUD: centered in the upper-middle, clear of the side-mounted loop controls. */
+.learn-mode.learn-practicing {
+  inset: max(76px, calc(env(safe-area-inset-top) + 64px)) auto auto 50% !important;
+  transform: translateX(-50%) !important;
+  width: min(188px, calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+}
+@media (max-width: 650px) {
+  .learn-mode.learn-practicing {
+    inset: max(70px, calc(env(safe-area-inset-top) + 58px)) auto auto 50% !important;
+    transform: translateX(-50%) !important;
+    width: min(176px, calc(100vw - 20px)) !important;
+  }
+}
