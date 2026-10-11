@@ -24,6 +24,8 @@ function mount(){
   $('.learn-close',root).addEventListener('click', close);
   renderLibrary();
   document.addEventListener('pionier:learn-note', onNote);
+  $('#learnLaunch')?.addEventListener('click', open);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && root && !root.hidden) close(); });
 }
 function renderLibrary(){
  const levels=$('.learn-levels',root), lessons=$('.learn-lessons',root);
@@ -71,7 +73,7 @@ function onNote(e){
  $('.learn-feedback',root).textContent=result.feedback==='MISS'?'Not that note — find the glowing tonefield.':result.feedback==='PERFECT'?'Perfect · stay with the pulse.':result.feedback==='GREAT'?'Beautifully placed.':result.feedback==='GOOD'?'Good — keep the phrase moving.':'A little late — keep going.';
  if(result.correct){
   const el=$(`[data-step="${result.stepIndex}"]`,root); el?.classList.add('is-hit');
-  const next=state.lesson.steps.findIndex((s,i)=>i>result.stepIndex&&!state.scorer.stepComplete(i));
+  const next=state.lesson.steps.findIndex((s,i)=>!state.scorer.stepComplete(i));
   $('.learn-progress',root).textContent=`${state.scorer.stepHits.filter((set)=>set.size).length} / ${state.lesson.steps.length}`;
   if(next>=0){root.querySelectorAll('.learn-step').forEach((n,i)=>n.classList.toggle('is-current',i===next));glowTargets(next);}
   if(state.scorer.allComplete()){state.running=false;state.completed.add(state.lesson.id);state.best[state.lesson.id]=Math.max(state.best[state.lesson.id]||0,state.scorer.score);$('.learn-feedback',root).textContent='Lesson complete · '+state.scorer.score+' points. Let it settle.';renderLessons(state.lesson.level);}
