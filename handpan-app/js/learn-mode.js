@@ -23,7 +23,7 @@ function mount(){
   root.addEventListener('click', onClick);
   $('.learn-close',root).addEventListener('click', close);
   renderLibrary();
-  document.addEventListener('pionier:learn-note', onNote);
+  window.addEventListener('pionier:learn-note', onNote);
   $('#learnLaunch')?.addEventListener('click', open);
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && root && !root.hidden) close(); });
 }
