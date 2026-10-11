@@ -127,3 +127,40 @@
   .learn-practicing .learn-name { font-size: 16px; }
   .learn-practicing .learn-stats { padding: 5px 0; margin: 5px 0; }
 }
+
+/* Practice picker: keep the action visible and let only the lesson list scroll. */
+.learn-stage-top { margin: 0 0 4px; }
+.learn-stage-top .learn-progress { color: #aaa; }
+@media (max-width: 650px) {
+  .learn-mode:not(.learn-practicing) { height: min(72dvh, 620px); max-height: min(72dvh, 620px); }
+  .learn-mode:not(.learn-practicing) .learn-layout { overflow: hidden; }
+  .learn-mode:not(.learn-practicing) .learn-library {
+    flex: 0 1 auto;
+    min-height: 0;
+    max-height: 32%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .learn-mode:not(.learn-practicing) .learn-stage {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 8px 14px max(10px, env(safe-area-inset-bottom));
+  }
+  .learn-mode:not(.learn-practicing) .learn-stage-top { display: none; }
+  .learn-mode:not(.learn-practicing) .learn-name { margin: 0 0 4px; font-size: 18px; }
+  .learn-mode:not(.learn-practicing) .learn-description { font-size: 10px; line-height: 1.3; }
+  .learn-mode:not(.learn-practicing) .learn-modes { margin: 7px 0; }
+  .learn-mode:not(.learn-practicing) .learn-feedback { margin: 6px 0; }
+  .learn-mode:not(.learn-practicing) .learn-stats { margin: 5px 0; padding: 6px 0; }
+  .learn-mode:not(.learn-practicing) .learn-actions {
+    position: sticky;
+    bottom: 0;
+    margin-top: auto;
+    padding-top: 7px;
+    padding-bottom: 2px;
+    background: linear-gradient(180deg, rgba(12,13,15,0), rgba(12,13,15,.98) 24%);
+  }
+}
