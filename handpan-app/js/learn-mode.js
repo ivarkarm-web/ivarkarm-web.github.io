@@ -1,5 +1,5 @@
-import { LESSONS } from './js/lessons.js';
-import { TimingScorer } from './js/learn-core.js';
+import { LESSONS } from './lessons.js';
+import { TimingScorer } from './learn-core.js';
 
 const $ = (s, root=document) => root.querySelector(s);
 const state = { lesson:null, scorer:null, startedAt:0, running:false, mode:'guided', timer:null, demoTimers:[], completed:new Set(), best:{} };
@@ -74,7 +74,7 @@ function onNote(e){
  if(result.correct){
   const el=$(`[data-step="${result.stepIndex}"]`,root); el?.classList.add('is-hit');
   const next=state.lesson.steps.findIndex((s,i)=>!state.scorer.stepComplete(i));
-  $('.learn-progress',root).textContent=`${state.scorer.stepHits.filter((set)=>set.size).length} / ${state.lesson.steps.length}`;
+  $('.learn-progress',root).textContent=`${state.lesson.steps.filter((_,i)=>state.scorer.stepComplete(i)).length} / ${state.lesson.steps.length}`;
   if(next>=0){root.querySelectorAll('.learn-step').forEach((n,i)=>n.classList.toggle('is-current',i===next));glowTargets(next);}
   if(state.scorer.allComplete()){state.running=false;state.completed.add(state.lesson.id);state.best[state.lesson.id]=Math.max(state.best[state.lesson.id]||0,state.scorer.score);$('.learn-feedback',root).textContent='Lesson complete · '+state.scorer.score+' points. Let it settle.';renderLessons(state.lesson.level);}
  }
@@ -104,6 +104,6 @@ function demo(){
  $('.learn-feedback',root).textContent='Listen closely…';
 }
 function open(){mount();root.hidden=false;document.body.classList.add('learn-mode-open');if(!state.lesson)selectLesson(LESSONS[0].id);}
-function close(){if(!root)return;stopDemo();root.hidden=true;document.body.classList.remove('learn-mode-open');const inst=active();if(inst?.glow)for(let i=0;i<inst.glow.length;i++)inst.glow[i]=0;}
+function close(){if(!root)return;state.demoTimers.forEach(clearTimeout);state.demoTimers=[];root.hidden=true;document.body.classList.remove('learn-mode-open');}
 window.PionierLearn={open,close,lessons:LESSONS};
 document.addEventListener('DOMContentLoaded',mount);
