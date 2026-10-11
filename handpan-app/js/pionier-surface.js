@@ -295,7 +295,7 @@ export function createSurface(canvas) {
       const minAxis = Math.min(f.rx, f.ry);
       const refAxis = R * 0.14;
       const expand = Math.max(0, Math.min(0.55, (refAxis - minAxis) / (R * 0.09)));
-      const hitLimit = 1.55 + expand; // ~1.55 large pads → ~2.1 tiny high notes
+      const hitLimit = 1.78 + expand; // Forgiving touch targets for fast playing, especially on small high notes
       if (d <= hitLimit && d < bestD) {
         bestD = d;
         best = {
