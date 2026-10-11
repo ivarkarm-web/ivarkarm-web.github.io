@@ -646,39 +646,7 @@
   padding: max(20px, env(safe-area-inset-top)) 18px max(20px, env(safe-area-inset-bottom)) !important;
   background: radial-gradient(ellipse at center, rgba(13,17,25,.38), rgba(3,4,7,.92) 75%) !important;
 }
-.learn-complete .learn-result-mandala {
-  position: absolute;
-  left: 50%; top: 50%;
-  width: min(112vmin, 900px);
-  aspect-ratio: 1;
-  transform: translate(-50%,-50%);
-  border-radius: 50%;
-  opacity: .66;
-  pointer-events: none;
-  background:
-    repeating-conic-gradient(from 0deg, transparent 0deg 4deg, rgba(220,190,113,.65) 4.15deg 4.45deg, transparent 4.6deg 7.5deg),
-    repeating-conic-gradient(from 3.75deg, rgba(213,181,100,.10) 0deg 1deg, transparent 1.2deg 15deg);
-  -webkit-mask-image: radial-gradient(circle, transparent 0 9%, #000 10% 12%, transparent 12.5% 16%, #000 16.5% 17%, transparent 17.5% 20%, #000 20.5% 21%, transparent 21.5% 26%, #000 26.5% 28%, transparent 28.5% 32%, #000 32.5% 33%, transparent 33.5% 38%, #000 38.5% 40%, transparent 40.5% 44%, #000 44.5% 46%, transparent 46.5% 50%, #000 50.5% 52%, transparent 52.5% 56%, #000 56.5% 58%, transparent 58.5% 62%, #000 62.5% 64%, transparent 64.5% 68%, #000 68.5% 70%, transparent 70.5% 74%, #000 74.5% 76%, transparent 76.5% 80%, #000 80.5% 82%, transparent 82.5% 86%, #000 86.5% 88%, transparent 88.5% 92%, #000 92.5%);
-  mask-image: radial-gradient(circle, transparent 0 9%, #000 10% 12%, transparent 12.5% 16%, #000 16.5% 17%, transparent 17.5% 20%, #000 20.5% 21%, transparent 21.5% 26%, #000 26.5% 28%, transparent 28.5% 32%, #000 32.5% 33%, transparent 33.5% 38%, #000 38.5% 40%, transparent 40.5% 44%, #000 44.5% 46%, transparent 46.5% 50%, #000 50.5% 52%, transparent 52.5% 56%, #000 56.5% 58%, transparent 58.5% 62%, #000 62.5% 64%, transparent 64.5% 68%, #000 68.5% 70%, transparent 70.5% 74%, #000 74.5% 76%, transparent 76.5% 80%, #000 80.5% 82%, transparent 82.5% 86%, #000 86.5% 88%, transparent 88.5% 92%, #000 92.5%);
-  filter: drop-shadow(0 0 18px rgba(222,187,101,.2));
-  animation: learn-mandala-turn 72s linear infinite;
-}
-.learn-complete .learn-result-mandala::before,
-.learn-complete .learn-result-mandala::after,
-.learn-complete .learn-result-mandala i {
-  content: "";
-  position: absolute;
-  inset: 13%;
-  border: 1px solid rgba(225,193,119,.48);
-  border-radius: 50%;
-  background: repeating-conic-gradient(from 0deg, rgba(225,193,119,.14) 0deg 1deg, transparent 1.2deg 15deg);
-}
-.learn-complete .learn-result-mandala::before { inset: 22%; transform: rotate(22.5deg); border-radius: 42%; }
-.learn-complete .learn-result-mandala::after { inset: 30%; transform: rotate(45deg); border-radius: 35%; }
-.learn-complete .learn-result-mandala i:nth-child(1) { inset: 7%; transform: rotate(11.25deg); border-style: dotted; }
-.learn-complete .learn-result-mandala i:nth-child(2) { inset: 38%; transform: rotate(-15deg); border-width: 2px; }
-.learn-complete .learn-result-mandala i:nth-child(3) { inset: 45%; border-color: rgba(255,226,151,.8); box-shadow: 0 0 30px rgba(230,190,100,.28), inset 0 0 25px rgba(230,190,100,.15); }
-@keyframes learn-mandala-turn { to { transform: translate(-50%,-50%) rotate(360deg); } }
+/* The reward background is atmospheric particle light only; no radial-stick mandala. */
 .learn-complete .learn-result-card {
   position: relative !important;
   z-index: 2 !important;
@@ -996,12 +964,6 @@
   position: absolute !important; inset: 0 !important; z-index: 0 !important;
   width: 100% !important; height: 100% !important; pointer-events: none !important;
 }
-.learn-complete .learn-result-mandala {
-  opacity: .42 !important;
-  filter: drop-shadow(0 0 25px rgba(220,187,110,.24)) !important;
-  animation: learn-mandala-turn 46s linear infinite, learn-mandala-breathe 5s ease-in-out infinite alternate !important;
-}
-@keyframes learn-mandala-breathe { from { opacity: .24; scale: .94; } to { opacity: .55; scale: 1.04; } }
 .learn-complete .learn-result-card {
   z-index: 3 !important; width: min(410px, 100%) !important; height: auto !important;
   min-height: 0 !important;
@@ -1033,7 +995,7 @@
   .learn-complete .learn-result-stats { padding: 8px 0 10px !important; }
   .learn-complete .learn-result-actions button { height: 40px !important; min-height: 40px !important; }
 }
-@media(prefers-reduced-motion:reduce) { .learn-complete .learn-result-mandala { animation: none !important; } }
+
 
 
 /* Follow-the-light: text only, spanning the clear/loop controls over the pan. */
