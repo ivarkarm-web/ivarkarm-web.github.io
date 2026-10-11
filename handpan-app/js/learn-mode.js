@@ -1,5 +1,5 @@
 import { LESSONS } from './lessons.js';
-import { TimingScorer } from './learn-core.js';
+import { TimingScorer } from './learn-core.js?v=2';
 
 const $ = (s, root=document) => root.querySelector(s);
 const state = { lesson:null, scorer:null, startedAt:0, running:false, mode:'guided', timer:null, demoTimers:[], completed:new Set(), startedLessons:new Set(), best:{}, glowFrame:0 };
