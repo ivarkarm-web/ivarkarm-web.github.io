@@ -839,3 +839,23 @@
   .learn-mode:not(.learn-practicing) .learn-stats { padding: 5px 0 !important; margin: 4px 0 !important; }
   .learn-mode:not(.learn-practicing) .learn-actions button { padding: 8px 10px !important; }
 }
+
+
+/* Keep Start directly beneath the lesson info/stats; never pin it to the bottom. */
+.learn-mode:not(.learn-practicing) .learn-stage { justify-content: flex-start !important; }
+.learn-mode:not(.learn-practicing) .learn-actions { margin-top: 4px !important; padding-top: 0 !important; }
+.learn-mode:not(.learn-practicing) .learn-actions [data-action="start"] {
+  min-height: 38px !important;
+  height: 38px !important;
+  padding: 7px 12px !important;
+  font-size: 12px !important;
+  border-radius: 10px !important;
+}
+@media(max-width:650px) {
+  .learn-mode:not(.learn-practicing) .learn-actions { margin-top: 4px !important; padding-top: 0 !important; }
+  .learn-mode:not(.learn-practicing) .learn-actions [data-action="start"] {
+    min-height: 38px !important;
+    height: 38px !important;
+    font-size: 12px !important;
+  }
+}
