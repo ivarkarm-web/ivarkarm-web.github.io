@@ -1034,3 +1034,42 @@
   .learn-complete .learn-result-actions button { height: 40px !important; min-height: 40px !important; }
 }
 @media(prefers-reduced-motion:reduce) { .learn-complete .learn-result-mandala { animation: none !important; } }
+
+
+/* Follow-the-light hint: centered over the handpan, between Clear and Loop. */
+.follow-light-hint {
+  position: fixed !important;
+  left: 50% !important;
+  top: 25% !important;
+  z-index: 10001 !important;
+  transform: translate(-50%, 7px) !important;
+  width: max-content !important;
+  max-width: calc(100vw - 112px) !important;
+  padding: 8px 13px !important;
+  border: 1px solid rgba(244, 213, 143, .25) !important;
+  border-radius: 999px !important;
+  background: rgba(8, 10, 14, .52) !important;
+  color: rgba(255, 244, 211, 0) !important;
+  font: 500 11px/1.2 Inter, system-ui, sans-serif !important;
+  letter-spacing: .17em !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  text-shadow: 0 0 20px rgba(238, 199, 112, 0) !important;
+  box-shadow: 0 0 24px rgba(238, 199, 112, 0) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+.follow-light-hint.is-visible {
+  animation: follow-light-center-fade 3s ease-in-out both !important;
+}
+@keyframes follow-light-center-fade {
+  0% { opacity: 0; color: rgba(255,244,211,0); transform: translate(-50%,7px); text-shadow: 0 0 20px rgba(238,199,112,0); box-shadow: 0 0 24px rgba(238,199,112,0); }
+  16% { opacity: 1; color: rgba(255,244,211,.98); transform: translate(-50%,0); text-shadow: 0 0 20px rgba(238,199,112,.4); box-shadow: 0 0 24px rgba(238,199,112,.12); }
+  72% { opacity: 1; color: rgba(255,244,211,.98); transform: translate(-50%,0); text-shadow: 0 0 20px rgba(238,199,112,.26); box-shadow: 0 0 24px rgba(238,199,112,.08); }
+  100% { opacity: 0; color: rgba(255,244,211,0); transform: translate(-50%,-5px); text-shadow: 0 0 20px rgba(238,199,112,0); box-shadow: 0 0 24px rgba(238,199,112,0); }
+}
+@media (max-width: 420px) {
+  .follow-light-hint { font-size: 9px !important; letter-spacing: .12em !important; }
+}
