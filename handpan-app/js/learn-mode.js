@@ -18,6 +18,23 @@ function mount(){
       <div class="learn-actions"><button type="button" data-action="start" class="primary">Start</button></div>
       <p class="learn-hint">Hide this panel to play the full handpan. Your practice stays active — tap Learn to return.</p>
       </main></div>
+    </div>
+    <div class="learn-result" hidden role="dialog" aria-modal="true" aria-labelledby="learnResultTitle">
+      <div class="learn-result-card">
+        <p class="learn-eyebrow">PIONIER · PRACTICE COMPLETE</p>
+        <h2 id="learnResultTitle">Lesson complete</h2>
+        <p class="learn-result-lesson"></p>
+        <div class="learn-result-score"><span>FINAL SCORE</span><strong data-result="score">0</strong></div>
+        <div class="learn-result-stats">
+          <div><strong data-result="combo">0</strong><span>Best combo</span></div>
+          <div><strong data-result="accuracy">0%</strong><span>Accuracy</span></div>
+          <div><strong data-result="hits">0</strong><span>Notes played</span></div>
+        </div>
+        <div class="learn-result-actions">
+          <button type="button" data-action="result-restart" class="primary">Play again</button>
+          <button type="button" data-action="result-lessons">All lessons</button>
+        </div>
+      </div>
     </div>`;
   document.body.append(root);
   root.addEventListener('click', onClick);
@@ -48,7 +65,7 @@ function lessonFor(id){
 }
 function selectLesson(id){
  state.lesson=lessonFor(id); if(!state.lesson)return;
- stopDemo(); state.running=false; state.scorer=null;
+ stopDemo(); state.running=false; state.scorer=null; hideResult();
  $('.learn-name',root).textContent=state.lesson.name;
  $('.learn-description',root).textContent=state.lesson.description;
  $('.learn-progress',root).textContent=`0 / ${state.lesson.steps.length}`;
@@ -58,10 +75,12 @@ function selectLesson(id){
  updateStats(); renderLessons(state.lesson.level);
 }
 function onClick(e){
- const lesson=e.target.closest('[data-lesson]'); if(lesson){selectLesson(lesson.dataset.lesson);return;}
+ const lesson=e.target.closest('[data-lesson]'); if(lesson){hideResult();selectLesson(lesson.dataset.lesson);return;}
  const mode=e.target.closest('[data-mode]'); if(mode)return;
  const action=e.target.closest('[data-action]')?.dataset.action;
  if(action==='start')startPractice();
+ if(action==='result-restart'){hideResult();startPractice();}
+ if(action==='result-lessons'){hideResult();root.classList.remove('learn-practicing');$('.learn-actions [data-action="start"]',root).textContent='Restart practice';}
 }
 function active(){return window.PionierCore?.activeInstrument?.();}
 function redraw(){try{window.PionierCore?.draw?.();}catch(err){console.debug('[learn] redraw deferred',err);}}
@@ -82,6 +101,7 @@ function glowTargets(stepIndex){
 }
 function startPractice(){
  if(!state.lesson)return;
+ hideResult();
  stopDemo();
  // Rebuild the scale-sized intro against whichever instrument is active now.
  if(state.lesson.id==='first-touch'){
@@ -169,7 +189,7 @@ function onNote(e){
    state.running=false;clearGlows();state.completed.add(state.lesson.id);
    state.best[state.lesson.id]=Math.max(state.best[state.lesson.id]||0,state.scorer.score);
    $('.learn-feedback',root).textContent='Lesson complete · '+state.scorer.score+' points. Let it settle.';
-   renderLessons(state.lesson.level);
+   renderLessons(state.lesson.level);showResult();
   }else{
    glowTargets(state.practiceIndex);
   }
@@ -205,7 +225,7 @@ function onNote(e){
     state.running=false;clearGlows();state.completed.add(state.lesson.id);
     state.best[state.lesson.id]=Math.max(state.best[state.lesson.id]||0,state.scorer.score);
     $('.learn-feedback',root).textContent='Lesson complete · '+state.scorer.score+' points. Let it settle.';
-    renderLessons(state.lesson.level);
+    renderLessons(state.lesson.level);showResult();
    }else{
     $('.learn-feedback',root).textContent='Chord complete · follow the next pair.';
     glowTargets(state.practiceIndex);
@@ -226,10 +246,21 @@ function onNote(e){
   const next=state.lesson.steps.findIndex((s,i)=>!state.scorer.stepComplete(i));
   $('.learn-progress',root).textContent=`${state.lesson.steps.filter((_,i)=>state.scorer.stepComplete(i)).length} / ${state.lesson.steps.length}`;
   if(next>=0){root.querySelectorAll('.learn-step').forEach((n,i)=>n.classList.toggle('is-current',i===next));glowTargets(next);}
-  if(state.scorer.allComplete()){state.running=false;clearGlows();state.completed.add(state.lesson.id);state.best[state.lesson.id]=Math.max(state.best[state.lesson.id]||0,state.scorer.score);$('.learn-feedback',root).textContent='Lesson complete · '+state.scorer.score+' points. Let it settle.';renderLessons(state.lesson.level);}
+  if(state.scorer.allComplete()){state.running=false;clearGlows();state.completed.add(state.lesson.id);state.best[state.lesson.id]=Math.max(state.best[state.lesson.id]||0,state.scorer.score);$('.learn-feedback',root).textContent='Lesson complete · '+state.scorer.score+' points. Let it settle.';renderLessons(state.lesson.level);showResult();}
  }
  updateStats();
 }
+function showResult(){
+ const s=state.scorer;
+ if(!s||!root)return;
+ $('.learn-result-lesson',root).textContent=state.lesson?.name||'';
+ $('[data-result="score"]',root).textContent=s.score;
+ $('[data-result="combo"]',root).textContent=s.bestCombo;
+ $('[data-result="accuracy"]',root).textContent=Math.round(s.accuracy()*100)+'%';
+ $('[data-result="hits"]',root).textContent=s.hits;
+ $('.learn-result',root).hidden=false;
+}
+function hideResult(){if(root){$('.learn-result',root).hidden=true;}}
 function updateStats(){
  if(!root)return; const s=state.scorer;
  $('[data-stat="score"]',root).textContent=s?.score||0;
