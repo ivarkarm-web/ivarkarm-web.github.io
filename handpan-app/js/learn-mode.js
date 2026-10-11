@@ -108,7 +108,7 @@ function startPractice(){
  // Rebuild the scale-sized intro against whichever instrument is active now.
  if(state.lesson.id==='first-touch'){
   state.lesson=lessonFor('first-touch');
-  $('.learn-description',root).textContent=state.lesson.description;
+  $('.learn-description',root).textContent='';
   $('.learn-progress',root).textContent='0 / '+state.lesson.steps.length;
  }
  const lesson=state.lesson;
