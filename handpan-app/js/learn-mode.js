@@ -141,12 +141,22 @@ function glowTargets(stepIndex){
  state.glowFrame=requestAnimationFrame(animate);
 }
 function showFollowLight(){
- const feedback=$('.learn-feedback',root);
- if(!feedback)return;
- feedback.textContent='Follow the light';
- feedback.classList.remove('learn-hint-fade');
- void feedback.offsetWidth;
- feedback.classList.add('learn-hint-fade');
+ // A standalone viewport hint stays above the instrument, centered between
+ // the left Clear control and the right Looper control. Do not place it in
+ // the lesson panel: that panel can sit outside the instrument on small screens.
+ let hint=document.getElementById('followLightHint');
+ if(!hint){
+  hint=document.createElement('div');
+  hint.id='followLightHint';
+  hint.className='follow-light-hint';
+  hint.setAttribute('role','status');
+  hint.setAttribute('aria-live','polite');
+  document.body.append(hint);
+ }
+ hint.textContent='FOLLOW THE LIGHT';
+ hint.classList.remove('is-visible');
+ void hint.offsetWidth;
+ hint.classList.add('is-visible');
 }
 function pulseCurrentTarget(){
  const inst=active(), step=state.lesson?.steps[state.practiceIndex];
