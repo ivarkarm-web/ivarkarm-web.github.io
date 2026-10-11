@@ -12,9 +12,20 @@ const HANDPAN_V = '1';
 
 /**
  * Changes applied to the pinned base app so it can run 9–13 notes.
- * Each anchor is matched exactly; a missing anchor is logged, not fatal.
+ * Required interaction anchors fail closed rather than silently booting
+ * with broken pointer-release behavior.
  */
 const CORE_PATCHES = [
+  // A note is shared by pitch index, but pointer ownership is not. Do not
+  // release a pad while another pointer still holds that same pad.
+  [
+    "      if (prevIdx != null) inst.noteOff(prevIdx);",
+    "      if (prevIdx != null && !Array.from(app.pointers.entries()).some(([pointerId, pointer]) => pointerId !== e.pointerId && (typeof pointer === 'object' && pointer !== null ? pointer.index : pointer) === prevIdx)) inst.noteOff(prevIdx);"
+  ],
+  [
+    "  if (idx != null) activeInstrument().noteOff(idx);",
+    "  const stillHeldByAnotherPointer = idx != null && Array.from(app.pointers.values()).some((pointer) => (typeof pointer === 'object' && pointer !== null ? pointer.index : pointer) === idx);\n  if (idx != null && !stillHeldByAnotherPointer) activeInstrument().noteOff(idx);"
+  ],
   [
     "  inst.noteOn(gesture, hit);\n  if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);",
     "  inst.noteOn(gesture, hit);\n  window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now() } }));\n  if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);"
@@ -90,17 +101,26 @@ window.PionierCore = {
 `;
 
 function patchCore(src) {
+  const requiredAnchors = [
+    "      if (prevIdx != null) inst.noteOff(prevIdx);",
+    "  if (idx != null) activeInstrument().noteOff(idx);"
+  ];
+  for (const anchor of requiredAnchors) {
+    if (!src.includes(anchor)) {
+      throw new Error('[pionier] required core anchor missing; refusing to boot an unpatched interaction engine: ' + anchor);
+    }
+  }
   for (const [from, to] of CORE_PATCHES) {
     if (!src.includes(from)) {
-      console.warn('[pionier] core patch anchor not found:', from.slice(0, 48));
+      console.warn('[pionier] optional core patch anchor not found:', from.slice(0, 48));
       continue;
     }
     src = src.split(from).join(to);
   }
-  if (/\nboot\(\);\s*$/.test(src)) {
-    src = src.replace(/\nboot\(\);\s*$/, '\n' + CORE_TAIL + '\nboot();\n');
+  if (/\\nboot\\(\\);\\s*$/.test(src)) {
+    src = src.replace(/\\nboot\\(\\);\\s*$/, '\\n' + CORE_TAIL + '\\nboot();\\n');
   } else {
-    console.warn('[pionier] core tail anchor not found; note button disabled');
+    throw new Error('[pionier] core tail anchor missing; refusing to boot an incomplete app');
   }
   return src;
 }
@@ -126,10 +146,16 @@ function killCanvasGhosts(canvas) {
 }
 
 async function boot() {
+  console.info('[pionier] interaction baseline', {
+    engine: GOOD,
+    surfaceVersion: SURFACE_V,
+    handpanVersion: HANDPAN_V
+  });
   const res = await fetch(GOOD);
   if (!res.ok) throw new Error('failed to load base app ' + res.status);
   let src = await res.text();
 
+  // Require the pointer lifecycle patches to apply before boot.
   src = patchCore(src);
 
   src = src.split('tonal-family.js?v=5').join('tonal-family.js?v=6');
