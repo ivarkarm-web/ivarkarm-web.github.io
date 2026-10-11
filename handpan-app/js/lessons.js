@@ -3,7 +3,7 @@ const pattern = (entries) => entries.map(([at, targets]) => ({ at, targets: Arra
 
 export const LESSONS = [
   { id:'first-touch', level:1, levelName:'First Notes', name:'Up & Down the Scale', description:'Play every tonefield up the scale, then follow the lights back down.', bpm:64, steps:atBeats([0,1,2,3,2,1,0]) },
-  { id:'home-away', level:1, levelName:'First Notes', name:'First Chords', description:'Play two tonefields together, then move the chord shape around the pan.', bpm:66, steps:pattern([[0,[0,2]],[1,[1,3]],[2,[2,4]],[3,[1,3]],[4,[0,2]],[5,[1,4]],[6,[0,2]]]) },
+  { id:'home-away', level:1, levelName:'First Notes', name:'Chords Up & Down', description:'Play each two-note chord as it climbs the scale, then follow the same shapes back down.', bpm:66, steps:pattern([[0,[0,2]],[1,[1,3]],[2,[2,4]],[3,[3,5]],[4,[4,6]],[5,[5,7]],[6,[6,8]],[7,[5,7]],[8,[4,6]],[9,[3,5]],[10,[2,4]],[11,[1,3]],[12,[0,2]]]) },
   { id:'small-arc', level:1, levelName:'First Notes', name:'Small Arc', description:'Trace a gentle rise and fall across the centre.', bpm:68, steps:atBeats([0,2,1,3,2,4,3,2]) },
   { id:'five-tone-path', level:1, levelName:'First Notes', name:'Five-Tone Path', description:'Walk up five notes, then return.', bpm:70, steps:atBeats([0,1,2,3,4,3,2,1,0]) },
   { id:'steady-pulse', level:2, levelName:'Rhythms', name:'Steady Pulse', description:'Keep an even eighth-note pulse.', bpm:72, steps:atBeats([0,0,1,1,2,2,3,3], 0.5) },
