@@ -1,12 +1,14 @@
 /**
- * note-plus.js — the little "+" above the music player.
- * Each press adds the next note of the current scale (9 → 13 notes).
+ * note-plus.js — the little "+" above the music player, and the "−" that
+ * appears next to it once a note has been added.
+ * "+" adds the next note of the current scale (9 → 13); "−" removes the newest.
  */
 import { MIN_NOTES, MAX_NOTES } from './pad-layout.js';
 
 export function mountNotePlus() {
   const wrap = document.getElementById('notePlusWrap');
   const btn = document.getElementById('notePlus');
+  const minus = document.getElementById('noteMinus');
   const count = document.getElementById('notePlusCount');
   const core = window.PionierCore;
   const handpan = core && core.handpan;
@@ -16,6 +18,13 @@ export function mountNotePlus() {
   if (!core || !handpan || typeof handpan.addNote !== 'function' || typeof core.addNote !== 'function') {
     wrap.hidden = true;
     return;
+  }
+  const canRemove = !!minus && typeof handpan.removeNote === 'function' && typeof core.removeNote === 'function';
+
+  function pulse(el) {
+    el.classList.remove('is-pulse');
+    void el.offsetWidth;
+    el.classList.add('is-pulse');
   }
 
   function sync() {
@@ -33,18 +42,30 @@ export function mountNotePlus() {
     }
     btn.setAttribute('aria-label', btn.title);
     wrap.classList.toggle('is-full', atMax);
+
+    // "−" only exists once something has been added, and only for the Handpan.
+    if (canRemove) {
+      minus.hidden = !(n > MIN_NOTES && onHandpan);
+      minus.title = 'Remove the newest note (' + n + ' of ' + MAX_NOTES + ')';
+      minus.setAttribute('aria-label', minus.title);
+    }
   }
 
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (btn.disabled) return;
-    if (core.addNote()) {
-      btn.classList.remove('is-pulse');
-      void btn.offsetWidth;
-      btn.classList.add('is-pulse');
-    }
+    if (core.addNote()) pulse(btn);
     sync();
   });
+
+  if (canRemove) {
+    minus.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (minus.hidden) return;
+      if (core.removeNote()) pulse(minus);
+      sync();
+    });
+  }
 
   // The voice name changes whenever the instrument does.
   const voiceName = document.getElementById('instrumentDropdownToggle');

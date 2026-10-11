@@ -161,6 +161,18 @@ export class HandpanInstrument extends Instrument {
     this.rebuildNotes();
     return true;
   }
+  /** Remove the newest note (the highest one). Returns false at the 9-note minimum. */
+  removeNote() {
+    if (this.noteCount <= MIN_NOTES) return false;
+    const idx = this.noteCount - 1;
+    this.noteOff(idx);
+    this.noteCount -= 1;
+    this.glow[idx] = 0;
+    this.zoneFlash[idx] = 0;
+    this.held[idx] = 0;
+    this.rebuildNotes();
+    return true;
+  }
   setNoteCount(n) {
     this.noteCount = Math.max(MIN_NOTES, Math.min(MAX_NOTES, Math.round(n) || MIN_NOTES));
     this.rebuildNotes();

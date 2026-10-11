@@ -446,6 +446,13 @@ body::before {
   outline: 2px solid rgba(224, 236, 250, 0.55);
   outline-offset: 2px;
 }
+/* "−" shares the pad-style button; it only exists once a note has been added */
+.note-minus .note-plus-icon::after { display: none; }
+.note-minus:not([hidden]) { animation: note-minus-in 0.28s var(--ease); }
+@keyframes note-minus-in {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: scale(1); }
+}
 .note-plus.is-pulse { animation: note-plus-pulse 0.55s ease-out; }
 @keyframes note-plus-pulse {
   from { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 6px 18px rgba(0, 0, 0, 0.45), 0 0 0 0 rgba(166, 198, 230, 0.5); }
@@ -461,7 +468,8 @@ body::before {
 }
 .note-plus-wrap.is-full .note-plus-count { color: rgba(232, 230, 227, 0.72); }
 @media (prefers-reduced-motion: reduce) {
-  .note-plus.is-pulse { animation: none; }
+  .note-plus.is-pulse,
+  .note-minus:not([hidden]) { animation: none; }
 }
 
 .mobile-control-drawer {

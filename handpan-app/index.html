@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=100" />
+  <link rel="stylesheet" href="./pionier.css?v=101" />
   <link rel="stylesheet" href="./looper.css?v=107" />
   <link rel="stylesheet" href="./scale-menu.css?v=2" />
   <script>
@@ -157,6 +157,9 @@
         <button type="button" class="note-plus" id="notePlus" aria-label="Add the next scale note" title="Add the next scale note">
           <span class="note-plus-icon" aria-hidden="true"></span>
         </button>
+        <button type="button" class="note-plus note-minus" id="noteMinus" aria-label="Remove the newest note" title="Remove the newest note" hidden>
+          <span class="note-plus-icon" aria-hidden="true"></span>
+        </button>
         <span class="note-plus-count" id="notePlusCount" aria-live="polite">9/13</span>
       </div>
     </div>
@@ -172,6 +175,6 @@
       lastTouchEnd = now;
     }, { passive: false });
   </script>
-  <script type="module" src="./pionier-app.js?v=107"></script>
+  <script type="module" src="./pionier-app.js?v=108"></script>
 </body>
 </html>

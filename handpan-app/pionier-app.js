@@ -7,8 +7,8 @@ const BASE = new URL('.', import.meta.url).href;
 // Cache-busting for the modules changed by the 9→13 note feature. Every
 // importer of a module must use the same query, or the browser would load two
 // separate copies of it.
-const SURFACE_V = '94';
-const HANDPAN_V = '1';
+const SURFACE_V = '95';
+const HANDPAN_V = '2';
 
 /**
  * Changes applied to the pinned base app so it can run 9–13 notes.
@@ -53,6 +53,16 @@ window.PionierCore = {
     const added = handpan.noteCount - 1;
     handpan.glow[added] = 1;
     handpan.zoneFlash[added] = 0.3;
+    updateLabels();
+    draw();
+    return true;
+  },
+  removeNote() {
+    if (activeInstrument() !== handpan || typeof handpan.removeNote !== 'function') return false;
+    if (!handpan.removeNote()) return false;
+    if (typeof surface.armTransition === 'function') surface.armTransition();
+    syncWorldPitch();
+    layoutFields();
     updateLabels();
     draw();
     return true;
@@ -206,7 +216,7 @@ async function boot() {
 
   try {
     const { mountNotePlus } = await import(
-      new URL('./js/note-plus.js?v=1', BASE).href
+      new URL('./js/note-plus.js?v=2', BASE).href
     );
     mountNotePlus();
   } catch (err) {

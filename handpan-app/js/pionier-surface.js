@@ -96,7 +96,14 @@ export function createSurface(canvas) {
     }
     const e = 1 - Math.pow(1 - Math.max(0, t), 3);
     const mix = (a, b) => a + (b - a) * e;
-    return fields.map((f) => {
+    // Pads that were just removed shrink away where they were.
+    const leaving = [];
+    for (const [index, from] of anim.from) {
+      if (!fields.some((f) => f.index === index)) {
+        leaving.push({ ...from, rx: from.rx * (1 - e), ry: from.ry * (1 - e), appear: 1 - e });
+      }
+    }
+    return leaving.concat(fields.map((f) => {
       const from = anim.from.get(f.index);
       if (!from) return { ...f, rx: f.rx * e, ry: f.ry * e, appear: e };
       let dr = f.rot - (from.rot || 0);
@@ -111,7 +118,7 @@ export function createSurface(canvas) {
         ux: f.ux != null ? mix(from.ux ?? f.ux, f.ux) : f.ux,
         uy: f.uy != null ? mix(from.uy ?? f.uy, f.uy) : f.uy
       };
-    });
+    }));
   }
 
   function layoutHandpanFields(handpanNotes, isFieldPlayable) {
