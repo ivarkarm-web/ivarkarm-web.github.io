@@ -7,7 +7,7 @@ const BASE = new URL('.', import.meta.url).href;
 // Cache-busting for the modules changed by the 9→13 note feature. Every
 // importer of a module must use the same query, or the browser would load two
 // separate copies of it.
-const SURFACE_V = '95';
+const SURFACE_V = '96';
 const HANDPAN_V = '1';
 
 /**
@@ -117,8 +117,8 @@ function patchCore(src) {
     }
     src = src.split(from).join(to);
   }
-  if (/\\nboot\\(\\);\\s*$/.test(src)) {
-    src = src.replace(/\\nboot\\(\\);\\s*$/, '\\n' + CORE_TAIL + '\\nboot();\\n');
+  if (/\nboot\(\);\s*$/.test(src)) {
+    src = src.replace(/\nboot\(\);\s*$/, '\n' + CORE_TAIL + '\nboot();\n');
   } else {
     throw new Error('[pionier] core tail anchor missing; refusing to boot an incomplete app');
   }
