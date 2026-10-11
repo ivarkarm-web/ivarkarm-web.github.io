@@ -20,10 +20,13 @@ function mount(){
       </main></div>
     </div>
     <div class="learn-result" hidden role="dialog" aria-modal="true" aria-labelledby="learnResultTitle">
+      <div class="learn-result-mandala" aria-hidden="true"><i></i><i></i><i></i></div>
       <div class="learn-result-card">
-        <p class="learn-eyebrow">COMPLETE</p>
+        <p class="learn-eyebrow">LESSON COMPLETE</p>
         <h2 id="learnResultTitle">Finished</h2>
         <p class="learn-result-lesson"></p>
+        <div class="learn-result-stars" role="img" aria-label="Lesson rating: 0 out of 3 stars"><span data-star="1">★</span><span data-star="2">★</span><span data-star="3">★</span></div>
+        <p class="learn-result-star-caption">Keep exploring</p>
         <div class="learn-result-score"><span>FINAL SCORE</span><strong data-result="score">0</strong></div>
         <div class="learn-result-stats">
           <div><strong data-result="combo">0</strong><span>Best combo</span></div>
@@ -285,9 +288,16 @@ function showResult(){
  $('[data-result="combo"]',root).textContent=s.bestCombo;
  $('[data-result="accuracy"]',root).textContent=Math.round(s.accuracy()*100)+'%';
  $('[data-result="hits"]',root).textContent=s.hits;
+ const accuracy=s.accuracy();
+ const stars=accuracy>=.90?3:accuracy>=.75?2:1;
+ root.querySelectorAll('[data-star]').forEach(star=>star.classList.toggle('is-earned',Number(star.dataset.star)<=stars));
+ $('.learn-result-stars',root).setAttribute('aria-label','Lesson rating: '+stars+' out of 3 stars');
+ $('.learn-result-star-caption',root).textContent=stars===3?'Beautifully played':stars===2?'A strong performance':'First star earned — keep going';
+ root.classList.remove('learn-practicing');
+ root.classList.add('learn-complete');
  $('.learn-result',root).hidden=false;
 }
-function hideResult(){if(root){$('.learn-result',root).hidden=true;}}
+function hideResult(){if(root){$('.learn-result',root).hidden=true;root.classList.remove('learn-complete');}}
 function updateStats(){
  if(!root)return; const s=state.scorer;
  $('[data-stat="score"]',root).textContent=s?.score||0;
