@@ -66,8 +66,8 @@ function startPractice(){
  $('.learn-actions [data-action="start"]',root).textContent='Restart practice';
  root.querySelectorAll('.learn-step').forEach((n,i)=>n.classList.toggle('is-current',i===0));
  if(state.mode==='memory')clearGlows();else glowTargets(0); updateStats();
- // Keep the practice state active, but dismiss the sheet so the instrument is playable.
- close();
+ // Switch from lesson selection to a compact live practice HUD; keep feedback visible.
+ root.classList.add('learn-practicing');
 }
 function onNote(e){
  if(!state.running||!state.lesson)return;
@@ -106,7 +106,7 @@ function demo(){
  },step.at*unit)));
  $('.learn-feedback',root).textContent='Listen closely…';
 }
-function open(){mount();root.hidden=false;document.body.classList.add('learn-mode-open');if(!state.lesson)selectLesson(LESSONS[0].id);}
-function close(){if(!root)return;state.demoTimers.forEach(clearTimeout);state.demoTimers=[];root.hidden=true;document.body.classList.remove('learn-mode-open');}
+function open(){mount();root.hidden=false;root.classList.remove('learn-practicing');document.body.classList.add('learn-mode-open');if(!state.lesson)selectLesson(LESSONS[0].id);}
+function close(){if(!root)return;state.demoTimers.forEach(clearTimeout);state.demoTimers=[];root.hidden=true;root.classList.remove('learn-practicing');document.body.classList.remove('learn-mode-open');}
 window.PionierLearn={open,close,lessons:LESSONS};
 document.addEventListener('DOMContentLoaded',mount);
