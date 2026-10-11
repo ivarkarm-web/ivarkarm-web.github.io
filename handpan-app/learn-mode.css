@@ -414,3 +414,154 @@
 .learn-result-actions button { min-width: 0; padding: 12px 8px; border: 1px solid #ffffff24; border-radius: 10px; background: #ffffff07; color: inherit; font: inherit; font-size: 11px; cursor: pointer; }
 .learn-result-actions button.primary { background: #c6a95c; color: #17140d; border-color: #c6a95c; }
 @media(max-width:400px) { .learn-result-card { padding: 21px 17px; } }
+
+
+/* Minimal, exploratory Learn menu */
+.learn-head { padding: 16px 18px 12px !important; align-items: center !important; }
+.learn-head h2 { font-size: 20px !important; letter-spacing: .01em; }
+.learn-layout { grid-template-columns: minmax(150px,.55fr) minmax(0,1fr) !important; min-height: 0 !important; }
+.learn-library { padding: 12px !important; }
+.learn-levels { grid-template-columns: 1fr !important; gap: 3px !important; }
+.learn-levels button { padding: 8px 9px !important; font-size: 10px !important; }
+.learn-lessons { display: grid !important; grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 6px !important; margin-top: 10px !important; }
+.learn-lesson {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+  min-height: 48px !important;
+  padding: 8px !important;
+  border: 1px solid rgba(255,255,255,.1) !important;
+  border-radius: 10px !important;
+  background: rgba(255,255,255,.025) !important;
+}
+.learn-lesson b { font-size: 10px !important; line-height: 1.3 !important; font-weight: 500 !important; }
+.learn-lesson small { display: none !important; }
+.learn-lesson .lesson-check { flex: 0 0 auto; }
+.learn-lesson .lesson-best { font-size: 9px !important; }
+.learn-stage { padding: 18px !important; }
+.learn-name { font-size: 18px !important; margin: 3px 0 8px !important; }
+.learn-description { display: none !important; }
+.learn-feedback { margin: 8px 0 !important; }
+.learn-hint { display: none !important; }
+
+/* No persistent score/restart control floating over the instrument. */
+.learn-practicing .learn-actions { display: none !important; }
+
+/* Completion becomes its own full-screen moment with three clear choices. */
+.learn-result {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 200 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  min-height: 100vh !important;
+  padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom)) !important;
+  border-radius: 0 !important;
+  display: grid !important;
+  place-items: center !important;
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(198,169,92,.11), transparent 48%),
+    rgba(4,5,7,.97) !important;
+  backdrop-filter: blur(22px) !important;
+  -webkit-backdrop-filter: blur(22px) !important;
+}
+.learn-result[hidden] { display: none !important; }
+.learn-result-card {
+  width: min(420px, 100%) !important;
+  min-height: min(620px, calc(100dvh - 48px)) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  padding: clamp(26px, 7vw, 44px) !important;
+  border-radius: 24px !important;
+  background: linear-gradient(160deg, rgba(24,24,25,.94), rgba(8,9,11,.98)) !important;
+  border-color: rgba(226,205,151,.22) !important;
+}
+.learn-result-card h2 { font-size: clamp(28px,7vw,38px) !important; }
+.learn-result-lesson { margin: 9px 0 30px !important; }
+.learn-result-score { padding: 24px 0 !important; }
+.learn-result-score strong { font-size: clamp(54px,14vw,72px) !important; }
+.learn-result-stats { padding: 22px 0 30px !important; }
+.learn-result-actions { display: grid !important; grid-template-columns: 1fr !important; gap: 9px !important; margin-top: auto !important; }
+.learn-result-actions button { min-height: 48px !important; border-radius: 13px !important; font-size: 13px !important; }
+@media(max-width:650px) {
+  .learn-mode:not(.learn-practicing) {
+    inset: max(8px, env(safe-area-inset-top)) 8px max(8px, env(safe-area-inset-bottom)) !important;
+    width: auto !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: hidden !important;
+    justify-content: stretch !important;
+    align-items: stretch !important;
+  }
+  .learn-mode:not(.learn-practicing) .learn-shell {
+    width: 100% !important;
+    max-height: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    border-radius: 18px !important;
+  }
+  .learn-mode:not(.learn-practicing) .learn-head { flex: 0 0 auto !important; }
+  .learn-mode:not(.learn-practicing) .learn-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+  .learn-mode:not(.learn-practicing) .learn-library {
+    flex: 0 0 auto !important;
+    padding: 8px 10px !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid #ffffff12 !important;
+  }
+  .learn-mode:not(.learn-practicing) .learn-levels {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 4px !important;
+  }
+  .learn-mode:not(.learn-practicing) .learn-levels button {
+    justify-content: center !important;
+    text-align: center !important;
+    min-height: 34px !important;
+    padding: 6px !important;
+    border: 1px solid rgba(255,255,255,.08) !important;
+    border-radius: 8px !important;
+    font-size: 9px !important;
+  }
+  .learn-mode:not(.learn-practicing) .learn-levels button span { display: none !important; }
+  .learn-mode:not(.learn-practicing) .learn-lessons {
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 5px !important;
+    margin-top: 7px !important;
+    max-height: 30dvh !important;
+    overflow-y: auto !important;
+    padding: 1px 1px 5px !important;
+  }
+  .learn-mode:not(.learn-practicing) .learn-lesson {
+    min-height: 42px !important;
+    padding: 7px !important;
+    border-radius: 9px !important;
+  }
+  .learn-mode:not(.learn-practicing) .learn-lesson b { font-size: 10px !important; }
+  .learn-mode:not(.learn-practicing) .learn-stage {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    padding: 12px 14px max(14px, env(safe-area-inset-bottom)) !important;
+  }
+  .learn-mode:not(.learn-practicing) .learn-name { font-size: 17px !important; }
+  .learn-mode:not(.learn-practicing) .learn-sequence { display: none !important; }
+  .learn-mode:not(.learn-practicing) .learn-feedback { font-size: 11px !important; }
+  .learn-mode:not(.learn-practicing) .learn-stats { margin: 8px 0 !important; padding: 9px 0 !important; }
+  .learn-mode:not(.learn-practicing) .learn-actions { margin-top: auto !important; padding-top: 10px !important; }
+  .learn-mode:not(.learn-practicing) .learn-actions [data-action="start"] { min-height: 48px !important; font-size: 14px !important; }
+  .learn-result { padding: max(16px, env(safe-area-inset-top)) 14px max(16px, env(safe-area-inset-bottom)) !important; }
+  .learn-result-card { min-height: calc(100dvh - max(32px, env(safe-area-inset-top) + env(safe-area-inset-bottom))) !important; border-radius: 20px !important; padding: 26px 20px !important; }
+}
