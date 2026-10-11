@@ -1,4 +1,4 @@
-import { LESSONS } from './lessons.js';
+import { LESSONS } from './lessons.js?v=2';
 import { TimingScorer } from './learn-core.js?v=4';
 
 const $ = (s, root=document) => root.querySelector(s);
