@@ -380,6 +380,7 @@
 /* Lesson completion score window */
 .learn-result[hidden] { display: none !important; }
 .learn-result {
+  pointer-events: auto;
   position: fixed;
   inset: 0;
   z-index: 120;
