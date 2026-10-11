@@ -42,7 +42,7 @@ export class TimingScorer {
       return { correct: false, complete: false, feedback: 'MISS', delta: null, stepIndex: null };
     }
 
-    const grade = timingGrade(best.delta, this.window);
+    const grade = timingGrade(best.delta, this.window) || { label: 'LATE', points: 30 };
     this.stepHits[best.stepIndex].add(best.targetIndex);
     this.hits += 1;
     this.combo += 1;
