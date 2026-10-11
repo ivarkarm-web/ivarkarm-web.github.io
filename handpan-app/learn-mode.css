@@ -164,3 +164,86 @@
     background: linear-gradient(180deg, rgba(12,13,15,0), rgba(12,13,15,.98) 24%);
   }
 }
+
+
+/* Guided playing: keep the instrument unobstructed and remove numeric step UI. */
+.learn-practicing {
+  inset: max(72px, env(safe-area-inset-top)) auto auto 50% !important;
+  transform: translateX(-50%);
+  width: max-content !important;
+  max-width: min(92vw, 340px);
+  height: auto !important;
+  max-height: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  pointer-events: none !important;
+}
+.learn-practicing .learn-shell {
+  width: max-content;
+  max-width: 100%;
+  max-height: none;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px 5px 12px;
+  border-radius: 999px;
+  background: rgba(9,10,12,.82);
+  border: 1px solid rgba(210,225,242,.16);
+  box-shadow: 0 6px 22px rgba(0,0,0,.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  pointer-events: auto;
+}
+.learn-practicing .learn-head {
+  display: contents;
+  padding: 0;
+  border: 0;
+}
+.learn-practicing .learn-head > div,
+.learn-practicing .learn-library,
+.learn-practicing .learn-stage-top,
+.learn-practicing .learn-name,
+.learn-practicing .learn-description,
+.learn-practicing .learn-modes,
+.learn-practicing .learn-sequence,
+.learn-practicing .learn-stats,
+.learn-practicing .learn-actions,
+.learn-practicing .learn-hint { display: none !important; }
+.learn-practicing .learn-close {
+  order: 2;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  font-size: 16px;
+  line-height: 1;
+  border: 0;
+  background: rgba(255,255,255,.06);
+}
+.learn-practicing .learn-layout { display: block; min-height: 0; }
+.learn-practicing .learn-stage {
+  display: block;
+  padding: 0;
+  min-width: 0;
+}
+.learn-practicing .learn-feedback {
+  margin: 0;
+  min-height: 0;
+  max-width: 260px;
+  color: #e5e8ed;
+  font-size: 11px;
+  line-height: 1.35;
+}
+@media (max-width: 650px) {
+  .learn-practicing {
+    inset: max(66px, env(safe-area-inset-top)) auto auto 50% !important;
+    max-width: calc(100vw - 24px);
+    width: max-content !important;
+  }
+  .learn-practicing .learn-shell { padding: 5px 7px 5px 10px; gap: 6px; }
+  .learn-practicing .learn-feedback { max-width: min(66vw, 240px); font-size: 10px; }
+}
