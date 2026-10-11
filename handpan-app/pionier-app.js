@@ -19,6 +19,14 @@ const CORE_PATCHES = [
     "  inst.noteOn(gesture, hit);\n  if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);",
     "  inst.noteOn(gesture, hit);\n  window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now() } }));\n  if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);"
   ],
+  [
+    "      inst.noteOn(gesture, hit);\n    }\n    app.pointers.set(e.pointerId, { index: hit.index, originY: y, originX: x });",
+    "      inst.noteOn(gesture, hit);\n    }\n    window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now(), instrument: inst.id || inst.name || 'handpan' } }));\n    app.pointers.set(e.pointerId, { index: hit.index, originY: y, originX: x });"
+  ],
+  [
+    "  inst.noteOn({ velocity: 0.75, pointerId: -1 - i }, hit);\n  draw();",
+    "  inst.noteOn({ velocity: 0.75, pointerId: -1 - i }, hit);\n  window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now(), instrument: inst.id || inst.name || 'handpan' } }));\n  draw();"
+  ],
   // Keyboard keys for notes 10–13.
   [
     "const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];",
@@ -42,7 +50,13 @@ const CORE_PATCHES = [
 /** Appended to the base app so the "+" button can reach its internals. */
 const CORE_TAIL = `
 function padCount() {
-  // Shared note count for the full instrument library.
+  // Lessons follow the active instrument, not the hidden handpan configuration.
+  const inst = activeInstrument();
+  const notes = inst?.getNotes?.();
+  if (Array.isArray(notes) && notes.length) return notes.length;
+  if (Number.isFinite(inst?.noteCount) && inst.noteCount > 0) return inst.noteCount;
+  const fields = surface?.fields;
+  if (Array.isArray(fields) && fields.length) return fields.length;
   return handpan.noteCount || 9;
 }
 function changeNoteCount(delta) {
