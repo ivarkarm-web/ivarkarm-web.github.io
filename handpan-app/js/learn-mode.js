@@ -2,7 +2,13 @@ import { LESSONS } from './lessons.js?v=2';
 import { TimingScorer } from './learn-core.js?v=4';
 
 const $ = (s, root=document) => root.querySelector(s);
-const state = { lesson:null, scorer:null, startedAt:0, running:false, mode:'guided', timer:null, demoTimers:[], completed:new Set(), startedLessons:new Set(), best:{}, glowFrame:0, practiceIndex:0, chordHits:new Set(), wrongAttempts:0 };
+const PROGRESS_KEY='pionier-learn-progress-v1';
+function loadProgress(){
+ try { const saved=JSON.parse(localStorage.getItem(PROGRESS_KEY)||'{}'); return saved&&typeof saved==='object'?saved:{}; }
+ catch(_){ return {}; }
+}
+const savedProgress=loadProgress();
+const state = { lesson:null, scorer:null, startedAt:0, running:false, mode:'guided', timer:null, demoTimers:[], completed:new Set(savedProgress.completed||[]), startedLessons:new Set(), best:savedProgress.best||{}, stars:savedProgress.stars||{}, selectedLevel:1, glowFrame:0, practiceIndex:0, chordHits:new Set(), wrongAttempts:0 };
 let root, list, stage;
 function mount(){
   if($('#learnMode')) return;
@@ -48,15 +54,43 @@ function mount(){
   $('#learnLaunch')?.addEventListener('click', open);
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && root && !root.hidden) close(); });
 }
+function starsFor(id){ return Math.max(0,Math.min(3,Number(state.stars[id])||0)); }
+function totalStars(){ return Object.values(state.stars).reduce((sum,n)=>sum+Math.max(0,Math.min(3,Number(n)||0)),0); }
+function levelUnlocked(level){
+ if(level===1)return true;
+ const thresholds={2:3,3:8,4:14};
+ return totalStars()>=(thresholds[level]||Infinity);
+}
+function lessonUnlocked(lesson){
+ if(!levelUnlocked(lesson.level))return false;
+ const siblings=LESSONS.filter(item=>item.level===lesson.level);
+ const index=siblings.findIndex(item=>item.id===lesson.id);
+ return index<=0 || starsFor(siblings[index-1].id)>0;
+}
+function saveProgress(){
+ try{localStorage.setItem(PROGRESS_KEY,JSON.stringify({completed:[...state.completed],best:state.best,stars:state.stars}));}catch(_){}
+}
 function renderLibrary(){
- const levels=$('.learn-levels',root), lessons=$('.learn-lessons',root);
- levels.innerHTML=[1,2,3,4].map(n=>`<button type="button" data-level="${n}" class="${n===1?'is-active':''}"><span>0${n}</span>${['First Notes','Rhythms','Phrases & Chords','Short Pieces'][n-1]}</button>`).join('');
- levels.addEventListener('click',e=>{const b=e.target.closest('[data-level]');if(!b)return;levels.querySelectorAll('button').forEach(x=>x.classList.toggle('is-active',x===b));renderLessons(+b.dataset.level);});
- renderLessons(1);
+ const levels=$('.learn-levels',root);
+ levels.innerHTML=[1,2,3,4].map(n=>{
+  const unlocked=levelUnlocked(n), earned=LESSONS.filter(l=>l.level===n).reduce((sum,l)=>sum+starsFor(l.id),0);
+  return `<button type="button" data-level="${n}" class="${n===state.selectedLevel?'is-active':''} ${unlocked?'':'is-locked'}" ${unlocked?'':'disabled'}><span>0${n}</span>${['First Notes','Rhythms','Phrases & Chords','Short Pieces'][n-1]}<em>${unlocked?earned+' ★':'🔒 '+({2:3,3:8,4:14}[n]||0)+' ★'}</em></button>`;
+ }).join('');
+ levels.onclick=e=>{const b=e.target.closest('[data-level]');if(!b||b.disabled)return;state.selectedLevel=Number(b.dataset.level);renderLibrary();renderLessons(state.selectedLevel);};
+ renderLessons(state.selectedLevel);
 }
 function renderLessons(level){
+ state.selectedLevel=level;
  const lessons=$('.learn-lessons',root);
- lessons.innerHTML=LESSONS.filter(l=>l.level===level).map(l=>`<button type="button" data-lesson="${l.id}" class="learn-lesson ${state.lesson?.id===l.id?'is-active':''}"><span class="lesson-check">${state.completed.has(l.id)?'✓':'·'}</span><span><b>${l.name}</b></span><span class="lesson-best">${state.best[l.id]||''}</span></button>`).join('');
+ lessons.innerHTML=LESSONS.filter(l=>l.level===level).map((l,index)=>{
+  const unlocked=lessonUnlocked(l), stars=starsFor(l.id), isActive=state.lesson?.id===l.id;
+  return `<button type="button" data-lesson="${l.id}" class="learn-lesson ${isActive?'is-active':''} ${unlocked?'':'is-locked'} ${state.completed.has(l.id)?'is-complete':''}" ${unlocked?'':'disabled'} aria-label="${l.name}, ${unlocked?'unlocked':'locked'}, ${stars} of 3 stars">
+   <span class="arcade-number">${String(LESSONS.filter(x=>x.level===level).findIndex(x=>x.id===l.id)+1).padStart(2,'0')}</span>
+   <span class="arcade-card-title"><b>${l.name}</b><small>${unlocked?(state.completed.has(l.id)?'CLEARED':'READY TO PLAY'):'EARN A STAR TO UNLOCK'}</small></span>
+   <span class="arcade-stars" aria-label="${stars} stars">${[1,2,3].map(n=>`<i class="${n<=stars?'earned':''}">★</i>`).join('')}</span>
+   <span class="arcade-lock" aria-hidden="true">${unlocked?(state.completed.has(l.id)?'✓':'▶'):'🔒'}</span>
+  </button>`;
+ }).join('');
 }
 function lessonFor(id){
  const lesson=LESSONS.find(l=>l.id===id); if(!lesson)return null;
@@ -76,15 +110,15 @@ function selectLesson(id){
  $('.learn-feedback',root).textContent='Ready when you are.';
  $('.learn-sequence',root).replaceChildren();
  $('.learn-actions [data-action="start"]',root).textContent='Start';
- updateStats(); renderLessons(state.lesson.level);
+ updateStats(); state.selectedLevel=state.lesson.level; renderLibrary(); renderLessons(state.lesson.level);
 }
 function onClick(e){
- const lesson=e.target.closest('[data-lesson]'); if(lesson){hideResult();selectLesson(lesson.dataset.lesson);return;}
+ const lesson=e.target.closest('[data-lesson]'); if(lesson){if(lesson.disabled)return;hideResult();selectLesson(lesson.dataset.lesson);return;}
  const mode=e.target.closest('[data-mode]'); if(mode)return;
  const action=e.target.closest('[data-action]')?.dataset.action;
  if(action==='start')startPractice();
  if(action==='result-restart'){hideResult();startPractice();}
- if(action==='result-next'){const i=LESSONS.findIndex(l=>l.id===state.lesson?.id);const next=LESSONS[i+1];if(next){hideResult();root.classList.remove('learn-practicing');selectLesson(next.id);startPractice();}else{hideResult();root.classList.remove('learn-practicing');selectLesson(LESSONS[0].id);}}
+ if(action==='result-next'){const i=LESSONS.findIndex(l=>l.id===state.lesson?.id);const next=LESSONS[i+1];if(next&&lessonUnlocked(next)){hideResult();root.classList.remove('learn-practicing');selectLesson(next.id);startPractice();}else{hideResult();root.classList.remove('learn-practicing');state.selectedLevel=state.lesson?.level||1;renderLibrary();renderLessons(state.selectedLevel);}}
  if(action==='result-lessons'){hideResult();root.classList.remove('learn-practicing');$('.learn-actions [data-action="start"]',root).textContent='Start';}
 }
 function active(){return window.PionierCore?.activeInstrument?.();}
@@ -227,7 +261,7 @@ function onNote(e){
    state.running=false;clearGlows();state.completed.add(state.lesson.id);
    state.best[state.lesson.id]=Math.max(state.best[state.lesson.id]||0,state.scorer.score);
    $('.learn-feedback',root).textContent='Lesson complete · '+state.scorer.score+' points. Let it settle.';
-   renderLessons(state.lesson.level);showResult();
+   renderLibrary();renderLessons(state.lesson.level);showResult();
   }else{
    glowTargets(state.practiceIndex);
   }
@@ -301,6 +335,8 @@ function showResult(){
  $('[data-result="hits"]',root).textContent=s.hits;
  const accuracy=s.accuracy();
  const stars=accuracy>=.90?3:accuracy>=.75?2:1;
+ state.stars[state.lesson.id]=Math.max(starsFor(state.lesson.id),stars);
+ saveProgress();
  root.querySelectorAll('[data-star]').forEach(star=>star.classList.toggle('is-earned',Number(star.dataset.star)<=stars));
  $('.learn-result-stars',root).setAttribute('aria-label','Lesson rating: '+stars+' out of 3 stars');
  $('.learn-result-star-caption',root).textContent=stars===3?'Beautifully played':stars===2?'A strong performance':'First star earned — keep going';
