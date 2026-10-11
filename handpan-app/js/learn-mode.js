@@ -366,38 +366,110 @@ function startRewardParticles(){
  stopRewardParticles();
  const canvas=$('.learn-reward-particles',root), ctx=canvas?.getContext('2d');
  if(!canvas||!ctx)return;
- let w=0,h=0,dpr=1,last=0;
- const particles=Array.from({length:150},()=>({
-  angle:Math.random()*Math.PI*2, radius:.08+Math.random()*.62,
-  speed:(.00008+Math.random()*.00024)*(Math.random()<.5?-1:1),
-  size:.5+Math.random()*1.8, alpha:.15+Math.random()*.65,
-  drift:Math.random()*Math.PI*2, hue:Math.random()<.78?42:190
- }));
+ let w=0,h=0,dpr=1,last=0,elapsed=0;
+ const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+ const rand=(a,b)=>a+Math.random()*(b-a);
+ const palette=[
+  {r:255,g:222,b:157}, // champagne gold
+  {r:224,g:184,b:111}, // antique gold
+  {r:155,g:210,b:226}, // glacial blue
+  {r:245,g:239,b:220}  // pearl
+ ];
+ const makeParticle=(layer)=>({
+  x:Math.random(), y:Math.random(), px:0, py:0,
+  vx:rand(-.00012,.00012)*(layer===0?1:.55),
+  vy:rand(-.00022,-.00004)*(layer===0?1:.5),
+  radius:layer===0?rand(.45,1.15):layer===1?rand(.8,1.8):rand(1.2,2.7),
+  alpha:layer===0?rand(.12,.35):layer===1?rand(.18,.48):rand(.25,.68),
+  phase:rand(0,Math.PI*2), pulse:rand(.45,1.3),
+  layer, color:palette[Math.random()<.68?0:Math.random()<.55?1:Math.random()<.78?2:3],
+  twinkle:rand(.0005,.002)
+ });
+ const particles=Array.from({length:reducedMotion?70:210},(_,i)=>makeParticle(i%3));
  const resize=()=>{
-  const rect=canvas.getBoundingClientRect(); dpr=Math.min(window.devicePixelRatio||1,2);
-  w=rect.width;h=rect.height;canvas.width=Math.max(1,Math.round(w*dpr));canvas.height=Math.max(1,Math.round(h*dpr));
+  const rect=canvas.getBoundingClientRect();
+  dpr=Math.min(window.devicePixelRatio||1,2);
+  w=rect.width;h=rect.height;
+  canvas.width=Math.max(1,Math.round(w*dpr));canvas.height=Math.max(1,Math.round(h*dpr));
   ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,h);
+  particles.forEach(p=>{p.px=p.x*w;p.py=p.y*h;});
  };
  rewardResize=resize;window.addEventListener('resize',resize,{passive:true});resize();
  const draw=now=>{
-  const dt=Math.min(40,now-(last||now));last=now;
-  ctx.clearRect(0,0,w,h);
-  const cx=w*.5,cy=h*.47,base=Math.min(w,h)*.47;
-  const halo=ctx.createRadialGradient(cx,cy,0,cx,cy,base);
-  halo.addColorStop(0,'rgba(215,174,83,.12)');halo.addColorStop(.45,'rgba(72,105,128,.045)');halo.addColorStop(1,'rgba(0,0,0,0)');
+  const dt=Math.min(34,now-(last||now));last=now;elapsed+=dt;
+  // A very light veil preserves particle trails without muddying the black backdrop.
+  ctx.globalCompositeOperation='source-over';
+  ctx.fillStyle='rgba(5,7,11,0.16)';ctx.fillRect(0,0,w,h);
+  const cx=w*.5,cy=h*.47,base=Math.min(w,h)*.48;
+  const breath=.96+.04*Math.sin(elapsed*.00038);
+  const halo=ctx.createRadialGradient(cx,cy,0,cx,cy,base*breath);
+  halo.addColorStop(0,'rgba(213,174,94,.105)');
+  halo.addColorStop(.24,'rgba(112,151,170,.045)');
+  halo.addColorStop(.58,'rgba(57,86,105,.018)');
+  halo.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=halo;ctx.fillRect(0,0,w,h);
-  for(const p of particles){
-   p.angle+=p.speed*dt*60;p.drift+=dt*.0007;
-   const radius=base*p.radius*(.92+.035*Math.sin(p.drift));
-   const x=cx+Math.cos(p.angle)*radius,y=cy+Math.sin(p.angle)*radius;
-   const twinkle=.55+.45*Math.sin(now*.0015+p.drift);
-   ctx.beginPath();ctx.arc(x,y,p.size,0,Math.PI*2);
-   ctx.fillStyle='rgba('+(p.hue===42?'255,214,132':'130,205,231')+','+(p.alpha*twinkle*(p.hue===42?1:.65))+')';ctx.fill();
-   if(p.size>1.75){ctx.strokeStyle='rgba(255,221,153,'+(p.alpha*.22)+')';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(x-4,y);ctx.lineTo(x+4,y);ctx.moveTo(x,y-4);ctx.lineTo(x,y+4);ctx.stroke();}
+
+  // Slow, interleaved orbital filaments — intentionally subtle behind the reward card.
+  ctx.save();ctx.translate(cx,cy);ctx.globalCompositeOperation='screen';
+  for(let ring=0;ring<3;ring++){
+   ctx.beginPath();
+   const rx=base*(.42+ring*.19), ry=base*(.24+ring*.16);
+   const rotation=elapsed*(ring%2?-.000035:.000027)+ring*.72;
+   ctx.ellipse(0,0,rx,ry,rotation,0,Math.PI*2);
+   ctx.strokeStyle=ring===1?'rgba(206,180,124,.075)':'rgba(135,187,204,.045)';
+   ctx.lineWidth=ring===1?.8:.65;ctx.stroke();
   }
-  rewardFrame=requestAnimationFrame(draw);
+  ctx.restore();
+
+  // Deep field: tiny dust, mid-field: floating motes, foreground: luminous seeds.
+  ctx.globalCompositeOperation='screen';
+  for(const p of particles){
+   p.px=p.x*w;p.py=p.y*h;
+   if(!reducedMotion){
+    p.x+=p.vx*dt;p.y+=p.vy*dt;
+    p.x+=Math.sin(elapsed*.00019+p.phase)*dt*.000012*(p.layer+1);
+   }
+   if(p.y<-.025){p.y=1.025;p.x=Math.random();}
+   if(p.x<-.025)p.x=1.025;if(p.x>1.025)p.x=-.025;
+   const x=p.x*w,y=p.y*h;
+   const twinkle=.62+.38*Math.sin(elapsed*p.twinkle+p.phase);
+   const alpha=p.alpha*twinkle;
+   const r=p.radius*(p.layer===2?1:.85);
+   // Only a few motes get a real soft bloom, keeping the scene refined.
+   if(p.layer===2&&p.radius>2){
+    const bloom=ctx.createRadialGradient(x,y,0,x,y,r*5);
+    bloom.addColorStop(0,`rgba(${p.color.r},${p.color.g},${p.color.b},${alpha*.25})`);
+    bloom.addColorStop(1,`rgba(${p.color.r},${p.color.g},${p.color.b},0)`);
+    ctx.fillStyle=bloom;ctx.beginPath();ctx.arc(x,y,r*5,0,Math.PI*2);ctx.fill();
+   }
+   ctx.fillStyle=`rgba(${p.color.r},${p.color.g},${p.color.b},${alpha})`;
+   ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+   if(p.layer===2&&p.radius>2.2){
+    ctx.strokeStyle=`rgba(255,231,183,${alpha*.22})`;ctx.lineWidth=.55;
+    ctx.beginPath();ctx.moveTo(x-r*2.5,y);ctx.lineTo(x+r*2.5,y);ctx.moveTo(x,y-r*2.5);ctx.lineTo(x,y+r*2.5);ctx.stroke();
+   }
+  }
+
+  // Sparse constellation links form and dissolve naturally, not a rigid mesh.
+  const links=particles.filter(p=>p.layer===2);
+  ctx.lineWidth=.55;
+  for(let i=0;i<links.length;i++){
+   const a=links[i],ax=a.x*w,ay=a.y*h;
+   for(let j=i+1;j<Math.min(i+5,links.length);j++){
+    const b=links[j],bx=b.x*w,by=b.y*h,dx=ax-bx,dy=ay-by,dist=Math.hypot(dx,dy);
+    if(dist<Math.min(105,base*.24)){
+     const strength=(1-dist/Math.min(105,base*.24))*.075*Math.min(a.alpha,b.alpha);
+     ctx.strokeStyle=`rgba(186,204,199,${strength})`;
+     ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.stroke();
+    }
+   }
+  }
+  ctx.globalCompositeOperation='source-over';
+  if(!reducedMotion)rewardFrame=requestAnimationFrame(draw);
  };
- rewardFrame=requestAnimationFrame(draw);
+ if(reducedMotion){draw(performance.now());}
+ else rewardFrame=requestAnimationFrame(draw);
 }
 function updateStats(){
  if(!root)return; const s=state.scorer;
