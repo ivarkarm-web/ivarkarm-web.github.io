@@ -2,7 +2,7 @@ import { LESSONS } from './lessons.js';
 import { TimingScorer } from './learn-core.js';
 
 const $ = (s, root=document) => root.querySelector(s);
-const state = { lesson:null, scorer:null, startedAt:0, running:false, mode:'guided', timer:null, demoTimers:[], completed:new Set(), best:{} };
+const state = { lesson:null, scorer:null, startedAt:0, running:false, mode:'guided', timer:null, demoTimers:[], completed:new Set(), startedLessons:new Set(), best:{} };
 let root, list, stage;
 function mount(){
   if($('#learnMode')) return;
@@ -11,7 +11,7 @@ function mount(){
     <div class="learn-shell" role="dialog" aria-modal="true" aria-labelledby="learnTitle">
       <header class="learn-head"><div><p class="learn-eyebrow">PIONIER · PRACTICE</p><h2 id="learnTitle">Learn the instrument</h2><p class="learn-sub">Listen. Follow. Find your own flow.</p></div><button class="learn-close" type="button" aria-label="Close lessons">×</button></header>
       <div class="learn-layout"><nav class="learn-library" aria-label="Lessons"><div class="learn-levels"></div><div class="learn-lessons"></div></nav>
-      <main class="learn-stage"><div class="learn-stage-top"><span class="learn-kicker">YOUR PRACTICE</span><span class="learn-progress">0 / 0</span></div><h3 class="learn-name">Choose a lesson</h3><p class="learn-description">Start with a small phrase and let your hands learn its shape.</p>
+      <main class="learn-stage"><div class="learn-stage-top"><span class="learn-progress">0 / 0</span></div><h3 class="learn-name">Choose a lesson</h3><p class="learn-description">Start with a small phrase and let your hands learn its shape.</p>
       <div class="learn-modes"><button data-mode="listen" type="button">Listen</button><button data-mode="guided" class="is-active" type="button">Follow</button><button data-mode="memory" type="button">From memory</button></div>
       <div class="learn-sequence" aria-live="polite"></div><div class="learn-feedback" aria-live="polite">Choose a lesson to begin.</div>
       <div class="learn-stats"><div><b data-stat="score">0</b><span>Score</span></div><div><b data-stat="combo">0</b><span>Combo</span></div><div><b data-stat="accuracy">—</b><span>Accuracy</span></div></div>
@@ -45,6 +45,7 @@ function selectLesson(id){
  $('.learn-progress',root).textContent=`0 / ${state.lesson.steps.length}`;
  $('.learn-feedback',root).textContent='Ready when you are.';
  $('.learn-sequence',root).innerHTML=state.lesson.steps.map((s,i)=>`<span data-step="${i}" class="learn-step">${s.targets.map(n=>String(n+1)).join(' + ')}</span>`).join('');
+ $('.learn-actions [data-action="start"]',root).textContent=state.startedLessons.has(state.lesson.id)?'Restart practice':'Start practice';
  updateStats(); renderLessons(state.lesson.level);
 }
 function onClick(e){
@@ -54,18 +55,25 @@ function onClick(e){
  if(action==='demo')demo(); if(action==='start')startPractice();
 }
 function active(){return window.PionierCore?.activeInstrument?.();}
-function clearGlows(){const inst=active();if(inst?.glow)for(let i=0;i<inst.glow.length;i++)inst.glow[i]=0;}
+function redraw(){try{window.PionierCore?.draw?.();}catch(err){console.debug('[learn] redraw deferred',err);}}
+function clearGlows(){const inst=active();if(inst?.glow)for(let i=0;i<inst.glow.length;i++)inst.glow[i]=0;redraw();}
 function glowTargets(stepIndex){
  const inst=active(), step=state.lesson?.steps[stepIndex]; if(!inst?.glow||!step)return;
- for(let i=0;i<inst.glow.length;i++)inst.glow[i]=step.targets.includes(i) ? 0.36 : 0;
+ for(let i=0;i<inst.glow.length;i++)inst.glow[i]=step.targets.includes(i) ? 1 : 0;
+ redraw();
 }
 function startPractice(){
  if(!state.lesson)return;
- stopDemo(); state.scorer=new TimingScorer(state.lesson.steps,0.48); state.startedAt=performance.now(); state.running=true;
- $('.learn-feedback',root).textContent='Play the first glowing note.';
+ stopDemo();
+ // Give the player one beat to see the lit target before the first timing window.
+ const scoredSteps=state.lesson.steps.map(step=>({...step,at:step.at+1}));
+ state.scorer=new TimingScorer(scoredSteps,0.48); state.startedAt=performance.now(); state.running=true;
+ state.startedLessons.add(state.lesson.id);
+ $('.learn-feedback',root).textContent='First note is lit — play when ready.';
  $('.learn-actions [data-action="start"]',root).textContent='Restart practice';
  root.querySelectorAll('.learn-step').forEach((n,i)=>n.classList.toggle('is-current',i===0));
  if(state.mode==='memory')clearGlows();else glowTargets(0); updateStats();
+ $('.learn-actions [data-action="start"]',root).textContent='Restart practice';
  // Switch from lesson selection to a compact live practice HUD; keep feedback visible.
  root.classList.add('learn-practicing');
 }
@@ -106,7 +114,7 @@ function demo(){
  },step.at*unit)));
  $('.learn-feedback',root).textContent='Listen closely…';
 }
-function open(){mount();root.hidden=false;root.classList.remove('learn-practicing');document.body.classList.add('learn-mode-open');if(!state.lesson)selectLesson(LESSONS[0].id);}
+function open(){mount();root.hidden=false;root.classList.remove('learn-practicing');document.body.classList.add('learn-mode-open');if(!state.lesson)selectLesson(LESSONS[0].id);else $('.learn-actions [data-action="start"]',root).textContent=state.startedLessons.has(state.lesson.id)?'Restart practice':'Start practice';}
 function close(){if(!root)return;state.demoTimers.forEach(clearTimeout);state.demoTimers=[];root.hidden=true;root.classList.remove('learn-practicing');document.body.classList.remove('learn-mode-open');}
 window.PionierLearn={open,close,lessons:LESSONS};
 document.addEventListener('DOMContentLoaded',mount);
