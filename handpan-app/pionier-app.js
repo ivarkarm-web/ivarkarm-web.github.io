@@ -50,13 +50,7 @@ const CORE_PATCHES = [
 /** Appended to the base app so the "+" button can reach its internals. */
 const CORE_TAIL = `
 function padCount() {
-  // Lessons follow the active instrument, not the hidden handpan configuration.
-  const inst = activeInstrument();
-  const notes = inst?.getNotes?.();
-  if (Array.isArray(notes) && notes.length) return notes.length;
-  if (Number.isFinite(inst?.noteCount) && inst.noteCount > 0) return inst.noteCount;
-  const fields = surface?.fields;
-  if (Array.isArray(fields) && fields.length) return fields.length;
+  // The plus/minus layout controls remain specific to the handpan.
   return handpan.noteCount || 9;
 }
 function changeNoteCount(delta) {
@@ -83,7 +77,15 @@ window.PionierCore = {
   draw() { draw(); },
   addNote() { return changeNoteCount(1); },
   removeNote() { return changeNoteCount(-1); },
-  noteCount: () => padCount()
+  noteCount: () => {
+    const inst = activeInstrument();
+    const notes = inst?.getNotes?.();
+    if (Array.isArray(notes) && notes.length) return notes.length;
+    if (Number.isFinite(inst?.noteCount) && inst.noteCount > 0) return inst.noteCount;
+    const fields = surface?.fields;
+    if (Array.isArray(fields) && fields.length) return fields.length;
+    return padCount();
+  }
 };
 `;
 
