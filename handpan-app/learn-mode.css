@@ -815,3 +815,27 @@
  .arcade-lock { right:8px; bottom:9px; }
 }
 @media(prefers-reduced-motion:reduce) { .learn-lesson { transition:none !important; } }
+
+
+/* Compact lesson preview: keep the lesson picker and instrument in focus. */
+.learn-mode:not(.learn-practicing) .learn-stage {
+  padding: 10px 13px !important;
+}
+.learn-mode:not(.learn-practicing) .learn-stage-top { margin: 0 0 2px !important; font-size: 9px !important; }
+.learn-mode:not(.learn-practicing) .learn-name { font-size: 16px !important; line-height: 1.2 !important; margin: 0 0 3px !important; }
+.learn-mode:not(.learn-practicing) .learn-description { font-size: 10px !important; line-height: 1.3 !important; margin: 0 !important; }
+.learn-mode:not(.learn-practicing) .learn-sequence { min-height: 0 !important; gap: 4px !important; }
+.learn-mode:not(.learn-practicing) .learn-step { min-width: 23px !important; height: 23px !important; font-size: 9px !important; border-radius: 6px !important; }
+.learn-mode:not(.learn-practicing) .learn-feedback { min-height: 0 !important; margin: 5px 0 !important; font-size: 10px !important; line-height: 1.2 !important; }
+.learn-mode:not(.learn-practicing) .learn-stats { gap: 12px !important; padding: 6px 0 !important; margin: 5px 0 !important; }
+.learn-mode:not(.learn-practicing) .learn-stats div { gap: 2px !important; }
+.learn-mode:not(.learn-practicing) .learn-stats b { font-size: 14px !important; line-height: 1.1 !important; }
+.learn-mode:not(.learn-practicing) .learn-stats span { font-size: 8px !important; }
+.learn-mode:not(.learn-practicing) .learn-actions button { padding: 8px 12px !important; font-size: 10px !important; }
+@media(max-width:650px) {
+  .learn-mode:not(.learn-practicing) .learn-stage { padding: 8px 10px !important; }
+  .learn-mode:not(.learn-practicing) .learn-name { font-size: 15px !important; }
+  .learn-mode:not(.learn-practicing) .learn-feedback { margin: 4px 0 !important; }
+  .learn-mode:not(.learn-practicing) .learn-stats { padding: 5px 0 !important; margin: 4px 0 !important; }
+  .learn-mode:not(.learn-practicing) .learn-actions button { padding: 8px 10px !important; }
+}
