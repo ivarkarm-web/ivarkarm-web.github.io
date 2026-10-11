@@ -16,7 +16,7 @@ function mount(){
       <div class="learn-sequence" aria-live="polite"></div><div class="learn-feedback" aria-live="polite">Choose a lesson to begin.</div>
       <div class="learn-stats"><div><b data-stat="score">0</b><span>Score</span></div><div><b data-stat="combo">0</b><span>Combo</span></div><div><b data-stat="accuracy">—</b><span>Accuracy</span></div></div>
       <div class="learn-actions"><button type="button" data-action="demo">▶ Listen to phrase</button><button type="button" data-action="start" class="primary">Start practice</button></div>
-      <p class="learn-hint">Play the highlighted notes on the handpan behind this panel. You can close this panel at any time.</p>
+      <p class="learn-hint">Hide this panel to play the full handpan. Your practice stays active — tap Learn to return.</p>
       </main></div>
     </div>`;
   document.body.append(root);
@@ -49,11 +49,12 @@ function selectLesson(id){
 }
 function onClick(e){
  const lesson=e.target.closest('[data-lesson]'); if(lesson){selectLesson(lesson.dataset.lesson);return;}
- const mode=e.target.closest('[data-mode]'); if(mode){state.mode=mode.dataset.mode;root.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('is-active',b===mode));$('.learn-feedback',root).textContent=state.mode==='listen'?'Listen to the phrase, then play it.':state.mode==='memory'?'Listen once, then try without the highlights.':'Follow the glowing notes in time.';return;}
+ const mode=e.target.closest('[data-mode]'); if(mode){state.mode=mode.dataset.mode;root.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('is-active',b===mode));root.classList.toggle('learn-memory',state.mode==='memory');$('.learn-feedback',root).textContent=state.mode==='listen'?'Listen to the phrase, then play it.':state.mode==='memory'?'Listen once, then play from memory without the sequence or highlights.':'Follow the glowing notes in time.';return;}
  const action=e.target.closest('[data-action]')?.dataset.action;
  if(action==='demo')demo(); if(action==='start')startPractice();
 }
 function active(){return window.PionierCore?.activeInstrument?.();}
+function clearGlows(){const inst=active();if(inst?.glow)for(let i=0;i<inst.glow.length;i++)inst.glow[i]=0;}
 function glowTargets(stepIndex){
  const inst=active(), step=state.lesson?.steps[stepIndex]; if(!inst?.glow||!step)return;
  for(let i=0;i<inst.glow.length;i++)inst.glow[i]=step.targets.includes(i) ? 0.36 : 0;
@@ -64,7 +65,7 @@ function startPractice(){
  $('.learn-feedback',root).textContent='Play the first glowing note.';
  $('.learn-actions [data-action="start"]',root).textContent='Restart practice';
  root.querySelectorAll('.learn-step').forEach((n,i)=>n.classList.toggle('is-current',i===0));
- glowTargets(0); updateStats();
+ if(state.mode==='memory')clearGlows();else glowTargets(0); updateStats();
 }
 function onNote(e){
  if(!state.running||!state.lesson)return;
@@ -75,8 +76,8 @@ function onNote(e){
   const el=$(`[data-step="${result.stepIndex}"]`,root); el?.classList.add('is-hit');
   const next=state.lesson.steps.findIndex((s,i)=>!state.scorer.stepComplete(i));
   $('.learn-progress',root).textContent=`${state.lesson.steps.filter((_,i)=>state.scorer.stepComplete(i)).length} / ${state.lesson.steps.length}`;
-  if(next>=0){root.querySelectorAll('.learn-step').forEach((n,i)=>n.classList.toggle('is-current',i===next));glowTargets(next);}
-  if(state.scorer.allComplete()){state.running=false;state.completed.add(state.lesson.id);state.best[state.lesson.id]=Math.max(state.best[state.lesson.id]||0,state.scorer.score);$('.learn-feedback',root).textContent='Lesson complete · '+state.scorer.score+' points. Let it settle.';renderLessons(state.lesson.level);}
+  if(next>=0){root.querySelectorAll('.learn-step').forEach((n,i)=>n.classList.toggle('is-current',i===next));if(state.mode==='memory')clearGlows();else glowTargets(next);}
+  if(state.scorer.allComplete()){state.running=false;clearGlows();state.completed.add(state.lesson.id);state.best[state.lesson.id]=Math.max(state.best[state.lesson.id]||0,state.scorer.score);$('.learn-feedback',root).textContent='Lesson complete · '+state.scorer.score+' points. Let it settle.';renderLessons(state.lesson.level);}
  }
  updateStats();
 }
@@ -97,7 +98,7 @@ function demo(){
    const gesture={velocity:.62,pressure:.62,pointerId:-500-i,lastStrikeAt:inst.lastStrikeAt};
    try{inst.noteOn(gesture,field);setTimeout(()=>inst.noteOff(idx),220);}catch(err){console.warn('Learn demo note failed',err);}
   });
-  if(state.mode!=='memory')glowTargets(i);
+  if(state.mode!=='memory')glowTargets(i);else clearGlows();
   $('.learn-sequence',root)?.querySelectorAll('.learn-step').forEach((n,j)=>n.classList.toggle('is-current',i===j));
   if(i===state.lesson.steps.length-1)setTimeout(()=>{if(state.mode==='listen')startPractice();else $('.learn-feedback',root).textContent='Your turn. Try the phrase now.';},unit);
  },step.at*unit)));
