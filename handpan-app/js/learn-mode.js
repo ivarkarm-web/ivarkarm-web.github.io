@@ -28,7 +28,6 @@ function mount(){
     </div>
     <div class="learn-result" hidden role="dialog" aria-modal="true" aria-labelledby="learnResultTitle">
       <canvas class="learn-reward-particles" aria-hidden="true"></canvas>
-      <div class="learn-result-mandala" aria-hidden="true"><i></i><i></i><i></i></div>
       <div class="learn-result-card">
         <p class="learn-eyebrow">LESSON COMPLETE</p>
         <h2 id="learnResultTitle">Finished</h2>
@@ -377,15 +376,15 @@ function startRewardParticles(){
  ];
  const makeParticle=(layer)=>({
   x:Math.random(), y:Math.random(), px:0, py:0,
-  vx:rand(-.00012,.00012)*(layer===0?1:.55),
-  vy:rand(-.00022,-.00004)*(layer===0?1:.5),
-  radius:layer===0?rand(.45,1.15):layer===1?rand(.8,1.8):rand(1.2,2.7),
-  alpha:layer===0?rand(.12,.35):layer===1?rand(.18,.48):rand(.25,.68),
+  vx:rand(-.000025,.000025)*(layer===0?1:.55),
+  vy:rand(-.000045,-.000008)*(layer===0?1:.5),
+  radius:layer===0?rand(.35,.8):layer===1?rand(.65,1.35):rand(1,2.1),
+  alpha:layer===0?rand(.10,.23):layer===1?rand(.13,.32):rand(.18,.43),
   phase:rand(0,Math.PI*2), pulse:rand(.45,1.3),
   layer, color:palette[Math.random()<.68?0:Math.random()<.55?1:Math.random()<.78?2:3],
-  twinkle:rand(.0005,.002)
+  twinkle:rand(.00007,.00022)
  });
- const particles=Array.from({length:reducedMotion?70:210},(_,i)=>makeParticle(i%3));
+ const particles=Array.from({length:reducedMotion?55:165},(_,i)=>makeParticle(i%3));
  const resize=()=>{
   const rect=canvas.getBoundingClientRect();
   dpr=Math.min(window.devicePixelRatio||1,2);
@@ -400,12 +399,12 @@ function startRewardParticles(){
   const dt=Math.min(34,now-(last||now));last=now;elapsed+=dt;
   // A very light veil preserves particle trails without muddying the black backdrop.
   ctx.globalCompositeOperation='source-over';
-  ctx.fillStyle='rgba(5,7,11,0.16)';ctx.fillRect(0,0,w,h);
+  ctx.fillStyle='rgba(5,7,11,0.075)';ctx.fillRect(0,0,w,h);
   const cx=w*.5,cy=h*.47,base=Math.min(w,h)*.48;
-  const breath=.96+.04*Math.sin(elapsed*.00038);
+  const breath=.985+.015*Math.sin(elapsed*.00016);
   const halo=ctx.createRadialGradient(cx,cy,0,cx,cy,base*breath);
-  halo.addColorStop(0,'rgba(213,174,94,.105)');
-  halo.addColorStop(.24,'rgba(112,151,170,.045)');
+  halo.addColorStop(0,'rgba(213,174,94,.13)');
+  halo.addColorStop(.24,'rgba(112,151,170,.055)');
   halo.addColorStop(.58,'rgba(57,86,105,.018)');
   halo.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=halo;ctx.fillRect(0,0,w,h);
@@ -418,20 +417,20 @@ function startRewardParticles(){
    p.px=p.x*w;p.py=p.y*h;
    if(!reducedMotion){
     p.x+=p.vx*dt;p.y+=p.vy*dt;
-    p.x+=Math.sin(elapsed*.00019+p.phase)*dt*.000012*(p.layer+1);
+    p.x+=Math.sin(elapsed*.00009+p.phase)*dt*.000003*(p.layer+1);
    }
    if(p.y<-.025){p.y=1.025;p.x=Math.random();}
    if(p.x<-.025)p.x=1.025;if(p.x>1.025)p.x=-.025;
    const x=p.x*w,y=p.y*h;
-   const twinkle=.62+.38*Math.sin(elapsed*p.twinkle+p.phase);
+   const twinkle=.82+.18*Math.sin(elapsed*p.twinkle+p.phase);
    const alpha=p.alpha*twinkle;
-   const r=p.radius*(p.layer===2?1:.85);
+   const r=p.radius*(p.layer===2?1:.9);
    // Only a few motes get a real soft bloom, keeping the scene refined.
-   if(p.layer===2&&p.radius>2){
-    const bloom=ctx.createRadialGradient(x,y,0,x,y,r*5);
-    bloom.addColorStop(0,`rgba(${p.color.r},${p.color.g},${p.color.b},${alpha*.25})`);
+   if(p.layer===2&&p.radius>1.6){
+    const bloom=ctx.createRadialGradient(x,y,0,x,y,r*7);
+    bloom.addColorStop(0,`rgba(${p.color.r},${p.color.g},${p.color.b},${alpha*.34})`);
     bloom.addColorStop(1,`rgba(${p.color.r},${p.color.g},${p.color.b},0)`);
-    ctx.fillStyle=bloom;ctx.beginPath();ctx.arc(x,y,r*5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=bloom;ctx.beginPath();ctx.arc(x,y,r*7,0,Math.PI*2);ctx.fill();
    }
    ctx.fillStyle=`rgba(${p.color.r},${p.color.g},${p.color.b},${alpha})`;
    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
