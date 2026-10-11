@@ -416,6 +416,24 @@ body::before {
   cursor: pointer;
   transition: border-color 0.15s ease, transform 0.12s ease, opacity 0.2s ease;
 }
+.note-minus { margin-left: -2px; }
+.note-minus-icon::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: rgba(226, 239, 255, 0.82);
+  transform: translate(-50%, -50%);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+.note-minus:hover:not(:disabled) .note-minus-icon::before {
+  background: #fff;
+  box-shadow: 0 0 8px rgba(190, 214, 240, 0.7);
+}
+.note-minus:disabled { opacity: 0.28; }
 .note-plus-icon::before,
 .note-plus-icon::after {
   content: '';
