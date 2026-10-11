@@ -21,7 +21,7 @@ function mount(){
       <main class="learn-stage"><div class="learn-stage-top"><span class="learn-progress">0 / 0</span></div><h3 class="learn-name">Choose</h3><p class="learn-description"></p>
       
       <div class="learn-sequence" aria-live="polite"></div><div class="learn-feedback" aria-live="polite">Choose a lesson to begin.</div>
-      <div class="learn-stats"><div><b data-stat="score">0</b><span>Score</span></div><div><b data-stat="combo">0</b><span>Combo</span></div><div><b data-stat="accuracy">—</b><span>Accuracy</span></div></div>
+      <div class="learn-stats"><div><b data-stat="combo">0</b><span>Combo</span></div><div><b data-stat="accuracy">—</b><span>Accuracy</span></div></div>
       <div class="learn-actions"><button type="button" data-action="start" class="primary">Start</button></div>
       
       </main></div>
@@ -35,7 +35,6 @@ function mount(){
         <p class="learn-result-lesson"></p>
         <div class="learn-result-stars" role="img" aria-label="Lesson rating: 0 out of 3 stars"><span data-star="1">★</span><span data-star="2">★</span><span data-star="3">★</span></div>
         <p class="learn-result-star-caption">Keep exploring</p>
-        <div class="learn-result-score"><span>FINAL SCORE</span><strong data-result="score">0</strong></div>
         <div class="learn-result-stats">
           <div><strong data-result="combo">0</strong><span>Best combo</span></div>
           <div><strong data-result="accuracy">0%</strong><span>Accuracy</span></div>
@@ -273,8 +272,7 @@ function onNote(e){
   $('.learn-progress',root).textContent=state.practiceIndex+' / '+state.lesson.steps.length;
   if(state.practiceIndex>=state.lesson.steps.length){
    state.running=false;clearGlows();state.completed.add(state.lesson.id);
-   state.best[state.lesson.id]=Math.max(state.best[state.lesson.id]||0,state.scorer.score);
-   $('.learn-feedback',root).textContent='Lesson complete · '+state.scorer.score+' points. Let it settle.';
+   $('.learn-feedback',root).textContent='Lesson complete. Let it settle.';
    renderLibrary();renderLessons(state.lesson.level);showResult();
   }else{
    glowTargets(state.practiceIndex);
@@ -310,8 +308,7 @@ function onNote(e){
    $('.learn-progress',root).textContent=state.practiceIndex+' / '+state.lesson.steps.length;
    if(state.practiceIndex>=state.lesson.steps.length){
     state.running=false;clearGlows();state.completed.add(state.lesson.id);
-    state.best[state.lesson.id]=Math.max(state.best[state.lesson.id]||0,state.scorer.score);
-    $('.learn-feedback',root).textContent='Lesson complete · '+state.scorer.score+' points. Let it settle.';
+    $('.learn-feedback',root).textContent='Lesson complete. Let it settle.';
     renderLessons(state.lesson.level);showResult();
    }else{
     $('.learn-feedback',root).textContent='Chord complete · follow the next pair.';
@@ -335,7 +332,7 @@ function onNote(e){
   const next=state.lesson.steps.findIndex((s,i)=>!state.scorer.stepComplete(i));
   $('.learn-progress',root).textContent=`${state.lesson.steps.filter((_,i)=>state.scorer.stepComplete(i)).length} / ${state.lesson.steps.length}`;
   if(next>=0){root.querySelectorAll('.learn-step').forEach((n,i)=>n.classList.toggle('is-current',i===next));glowTargets(next);}
-  if(state.scorer.allComplete()){state.running=false;clearGlows();state.completed.add(state.lesson.id);state.best[state.lesson.id]=Math.max(state.best[state.lesson.id]||0,state.scorer.score);$('.learn-feedback',root).textContent='Lesson complete · '+state.scorer.score+' points. Let it settle.';renderLessons(state.lesson.level);showResult();}
+  if(state.scorer.allComplete()){state.running=false;clearGlows();state.completed.add(state.lesson.id);$('.learn-feedback',root).textContent='Lesson complete. Let it settle.';renderLessons(state.lesson.level);showResult();}
  }
  updateStats();
 }
@@ -343,7 +340,6 @@ function showResult(){
  const s=state.scorer;
  if(!s||!root)return;
  $('.learn-result-lesson',root).textContent=state.lesson?.name||'';
- $('[data-result="score"]',root).textContent=s.score;
  $('[data-result="combo"]',root).textContent=s.bestCombo;
  $('[data-result="accuracy"]',root).textContent=Math.round(s.accuracy()*100)+'%';
  $('[data-result="hits"]',root).textContent=s.hits;
@@ -405,7 +401,6 @@ function startRewardParticles(){
 }
 function updateStats(){
  if(!root)return; const s=state.scorer;
- $('[data-stat="score"]',root).textContent=s?.score||0;
  $('[data-stat="combo"]',root).textContent=s?.combo||0;
  $('[data-stat="accuracy"]',root).textContent=s?Math.round(s.accuracy()*100)+'%':'—';
 }
