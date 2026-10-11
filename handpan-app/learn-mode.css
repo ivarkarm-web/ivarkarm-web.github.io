@@ -1036,40 +1036,55 @@
 @media(prefers-reduced-motion:reduce) { .learn-complete .learn-result-mandala { animation: none !important; } }
 
 
-/* Follow-the-light hint: centered over the handpan, between Clear and Loop. */
+/* Follow-the-light: text only, spanning the clear/loop controls over the pan. */
 .follow-light-hint {
   position: fixed !important;
   left: 50% !important;
   top: 25% !important;
   z-index: 10001 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: clamp(8px, 2vw, 22px) !important;
+  width: calc(100vw - 132px) !important;
+  max-width: 720px !important;
+  min-height: 28px !important;
+  padding: 0 !important;
   transform: translate(-50%, 7px) !important;
-  width: max-content !important;
-  max-width: calc(100vw - 112px) !important;
-  padding: 8px 13px !important;
-  border: 1px solid rgba(244, 213, 143, .25) !important;
-  border-radius: 999px !important;
-  background: rgba(8, 10, 14, .52) !important;
-  color: rgba(255, 244, 211, 0) !important;
-  font: 500 11px/1.2 Inter, system-ui, sans-serif !important;
-  letter-spacing: .17em !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #fff0c1;
+  font: 500 clamp(11px, 1.8vw, 15px)/1.2 Inter, system-ui, sans-serif !important;
+  letter-spacing: clamp(.14em, .65vw, .28em) !important;
   text-align: center !important;
   white-space: nowrap !important;
-  text-shadow: 0 0 20px rgba(238, 199, 112, 0) !important;
-  box-shadow: 0 0 24px rgba(238, 199, 112, 0) !important;
+  text-shadow: 0 0 10px rgba(255,215,135,.8), 0 0 28px rgba(255,194,89,.4) !important;
   opacity: 0 !important;
   pointer-events: none !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
+}
+.follow-light-hint::before,
+.follow-light-hint::after {
+  content: "" !important;
+  display: block !important;
+  height: 1px !important;
+  flex: 1 1 0 !important;
+  min-width: 8px !important;
+  background: linear-gradient(90deg, transparent, rgba(255,221,150,.9)) !important;
+  box-shadow: 0 0 8px rgba(255,205,110,.55) !important;
+}
+.follow-light-hint::after {
+  background: linear-gradient(90deg, rgba(255,221,150,.9), transparent) !important;
 }
 .follow-light-hint.is-visible {
-  animation: follow-light-center-fade 3s ease-in-out both !important;
+  animation: follow-light-center-fade 3.2s ease-in-out both !important;
 }
 @keyframes follow-light-center-fade {
-  0% { opacity: 0; color: rgba(255,244,211,0); transform: translate(-50%,7px); text-shadow: 0 0 20px rgba(238,199,112,0); box-shadow: 0 0 24px rgba(238,199,112,0); }
-  16% { opacity: 1; color: rgba(255,244,211,.98); transform: translate(-50%,0); text-shadow: 0 0 20px rgba(238,199,112,.4); box-shadow: 0 0 24px rgba(238,199,112,.12); }
-  72% { opacity: 1; color: rgba(255,244,211,.98); transform: translate(-50%,0); text-shadow: 0 0 20px rgba(238,199,112,.26); box-shadow: 0 0 24px rgba(238,199,112,.08); }
-  100% { opacity: 0; color: rgba(255,244,211,0); transform: translate(-50%,-5px); text-shadow: 0 0 20px rgba(238,199,112,0); box-shadow: 0 0 24px rgba(238,199,112,0); }
+  0% { opacity: 0; transform: translate(-50%, 7px); }
+  14% { opacity: 1; transform: translate(-50%, 0); }
+  72% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -5px); }
 }
 @media (max-width: 420px) {
-  .follow-light-hint { font-size: 9px !important; letter-spacing: .12em !important; }
+  .follow-light-hint { width: calc(100vw - 104px) !important; font-size: 9px !important; letter-spacing: .11em !important; gap: 6px !important; }
 }
