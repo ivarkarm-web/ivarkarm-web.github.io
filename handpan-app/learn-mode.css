@@ -859,3 +859,10 @@
     font-size: 12px !important;
   }
 }
+
+
+/* Keep some breathing room before Start, without pinning it to the panel bottom. */
+.learn-mode:not(.learn-practicing) .learn-actions { margin-top: 28px !important; padding-top: 0 !important; }
+@media(max-width:650px) {
+  .learn-mode:not(.learn-practicing) .learn-actions { margin-top: 22px !important; padding-top: 0 !important; }
+}
