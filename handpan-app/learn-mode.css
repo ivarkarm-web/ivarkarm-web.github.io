@@ -721,3 +721,52 @@
  .learn-complete .learn-result-mandala,
  .learn-complete .learn-result-stars span.is-earned { animation: none !important; }
 }
+
+
+/* Practice should not blur, dim, or cover the instrument. */
+.learn-mode.learn-practicing {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  pointer-events: none !important;
+}
+.learn-mode.learn-practicing .learn-shell {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.learn-mode.learn-practicing .learn-feedback {
+  position: fixed !important;
+  left: 50% !important;
+  top: 16% !important;
+  transform: translate(-50%, 8px) !important;
+  width: auto !important;
+  max-width: 90vw !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: rgba(255,244,211,0) !important;
+  font-size: clamp(15px, 2.8vw, 20px) !important;
+  font-weight: 400 !important;
+  letter-spacing: .16em !important;
+  text-align: center !important;
+  text-shadow: 0 0 18px rgba(238,199,112,0) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.learn-practicing .learn-feedback.learn-hint-fade {
+  animation: follow-light-fade 2.8s ease-in-out both !important;
+}
+@keyframes follow-light-fade {
+  0% { opacity: 0; color: rgba(255,244,211,0); transform: translate(-50%, 8px); text-shadow: 0 0 18px rgba(238,199,112,0); }
+  18% { opacity: 1; color: rgba(255,244,211,.96); transform: translate(-50%, 0); text-shadow: 0 0 22px rgba(238,199,112,.38); }
+  72% { opacity: 1; color: rgba(255,244,211,.96); transform: translate(-50%, 0); text-shadow: 0 0 22px rgba(238,199,112,.25); }
+  100% { opacity: 0; color: rgba(255,244,211,0); transform: translate(-50%, -5px); text-shadow: 0 0 18px rgba(238,199,112,0); }
+}
