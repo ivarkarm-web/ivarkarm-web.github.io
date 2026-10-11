@@ -337,6 +337,8 @@ function showResult(){
  const stars=accuracy>=.90?3:accuracy>=.75?2:1;
  state.stars[state.lesson.id]=Math.max(starsFor(state.lesson.id),stars);
  saveProgress();
+ renderLibrary();
+ renderLessons(state.lesson.level);
  root.querySelectorAll('[data-star]').forEach(star=>star.classList.toggle('is-earned',Number(star.dataset.star)<=stars));
  $('.learn-result-stars',root).setAttribute('aria-label','Lesson rating: '+stars+' out of 3 stars');
  $('.learn-result-star-caption',root).textContent=stars===3?'Beautifully played':stars===2?'A strong performance':'First star earned — keep going';
