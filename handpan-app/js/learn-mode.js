@@ -53,7 +53,7 @@ function selectLesson(id){
  $('.learn-description',root).textContent=state.lesson.description;
  $('.learn-progress',root).textContent=`0 / ${state.lesson.steps.length}`;
  $('.learn-feedback',root).textContent='Ready when you are.';
- $('.learn-sequence',root).innerHTML=state.lesson.steps.map((s,i)=>`<span data-step="${i}" class="learn-step">${s.targets.map(n=>String(n+1)).join(' + ')}</span>`).join('');
+ $('.learn-sequence',root).replaceChildren();
  $('.learn-actions [data-action="start"]',root).textContent=state.startedLessons.has(state.lesson.id)?'Restart practice':'Start practice';
  updateStats(); renderLessons(state.lesson.level);
 }
