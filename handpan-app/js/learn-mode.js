@@ -53,7 +53,7 @@ function renderLibrary(){
 }
 function renderLessons(level){
  const lessons=$('.learn-lessons',root);
- lessons.innerHTML=LESSONS.filter(l=>l.level===level).map(l=>`<button type="button" data-lesson="${l.id}" class="learn-lesson ${state.lesson?.id===l.id?'is-active':''}"><span class="lesson-check">${state.completed.has(l.id)?'✓':'○'}</span><span><b>${l.name}</b><small>${l.description}</small></span><span class="lesson-best">${state.best[l.id]||''}</span></button>`).join('');
+ lessons.innerHTML=LESSONS.filter(l=>l.level===level).map(l=>`<button type="button" data-lesson="${l.id}" class="learn-lesson ${state.lesson?.id===l.id?'is-active':''}"><span class="lesson-check">${state.completed.has(l.id)?'✓':'·'}</span><span><b>${l.name}</b></span><span class="lesson-best">${state.best[l.id]||''}</span></button>`).join('');
 }
 function lessonFor(id){
  const lesson=LESSONS.find(l=>l.id===id); if(!lesson)return null;
@@ -68,7 +68,7 @@ function selectLesson(id){
  state.lesson=lessonFor(id); if(!state.lesson)return;
  stopDemo(); state.running=false; state.scorer=null; hideResult();
  $('.learn-name',root).textContent=state.lesson.name;
- $('.learn-description',root).textContent=state.lesson.description;
+ $('.learn-description',root).textContent='';
  $('.learn-progress',root).textContent=`0 / ${state.lesson.steps.length}`;
  $('.learn-feedback',root).textContent='Ready when you are.';
  $('.learn-sequence',root).replaceChildren();
@@ -81,7 +81,7 @@ function onClick(e){
  const action=e.target.closest('[data-action]')?.dataset.action;
  if(action==='start')startPractice();
  if(action==='result-restart'){hideResult();startPractice();}
- if(action==='result-next'){const i=LESSONS.findIndex(l=>l.id===state.lesson?.id);const next=LESSONS[i+1];if(next){hideResult();root.classList.remove('learn-practicing');selectLesson(next.id);startPractice();}else{hideResult();root.classList.remove('learn-practicing');$('.learn-name',root).textContent='All complete';$('.learn-description',root).textContent='';}}
+ if(action==='result-next'){const i=LESSONS.findIndex(l=>l.id===state.lesson?.id);const next=LESSONS[i+1];if(next){hideResult();root.classList.remove('learn-practicing');selectLesson(next.id);startPractice();}else{hideResult();root.classList.remove('learn-practicing');selectLesson(LESSONS[0].id);}}
  if(action==='result-lessons'){hideResult();root.classList.remove('learn-practicing');$('.learn-actions [data-action="start"]',root).textContent='Start';}
 }
 function active(){return window.PionierCore?.activeInstrument?.();}
