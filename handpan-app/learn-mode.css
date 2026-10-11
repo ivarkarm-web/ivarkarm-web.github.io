@@ -75,3 +75,55 @@
   .learn-modes button { padding-left: 7px; padding-right: 7px; }
   .learn-actions button { font-size: 9px; }
 }
+
+
+/* Live practice HUD: dismiss lesson browsing, not the feedback the player needs. */
+.learn-mode.learn-practicing {
+  inset: auto 14px 14px auto;
+  width: min(460px, calc(100vw - 28px));
+  height: auto;
+  max-height: 34vh;
+  padding: 0;
+  align-items: flex-end;
+  justify-content: flex-end;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  pointer-events: none;
+}
+.learn-practicing .learn-shell {
+  width: 100%;
+  max-height: 34vh;
+  overflow: auto;
+  pointer-events: auto;
+  border-radius: 16px;
+}
+.learn-practicing .learn-head { padding: 7px 10px; align-items: center; }
+.learn-practicing .learn-head > div,
+.learn-practicing .learn-library,
+.learn-practicing .learn-description,
+.learn-practicing .learn-modes,
+.learn-practicing .learn-actions [data-action="demo"],
+.learn-practicing .learn-hint { display: none; }
+.learn-practicing .learn-close { width: 28px; height: 28px; flex-basis: 28px; font-size: 18px; }
+.learn-practicing .learn-layout { display: block; min-height: 0; }
+.learn-practicing .learn-stage { padding: 10px 14px 12px; }
+.learn-practicing .learn-name { font-size: 18px; margin: 5px 0; }
+.learn-practicing .learn-sequence { min-height: 0; }
+.learn-practicing .learn-feedback { margin: 7px 0; }
+.learn-practicing .learn-stats { padding: 7px 0; margin: 7px 0; }
+.learn-practicing .learn-actions button { padding: 8px 10px; }
+@media (max-width: 650px) {
+  .learn-mode.learn-practicing {
+    inset: auto 8px max(8px, env(safe-area-inset-bottom));
+    width: auto;
+    height: auto;
+    max-height: 32dvh;
+    border-radius: 16px;
+  }
+  .learn-practicing .learn-shell { max-height: 32dvh; border-radius: 16px; }
+  .learn-practicing .learn-head { padding: 5px 8px; }
+  .learn-practicing .learn-stage { padding: 8px 11px 10px; }
+  .learn-practicing .learn-name { font-size: 16px; }
+  .learn-practicing .learn-stats { padding: 5px 0; margin: 5px 0; }
+}
