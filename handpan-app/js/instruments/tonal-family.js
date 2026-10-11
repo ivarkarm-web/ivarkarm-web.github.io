@@ -133,26 +133,26 @@ export class TonalInstrument extends Instrument {
   constructor(preset) {
     super({
       id: preset.id, name: preset.name, description: preset.description,
-      category: 'tonal', polyphony: 9,
+      category: 'tonal', polyphony: 13,
       compatibleFx: ['compressor', 'delay', 'reverb', 'warmth', 'air', 'chorus', 'shimmer', 'lowpass']
     });
     this.preset = preset;
     this.pitches = [];
-    this.glow = new Float32Array(9);
-    this.zoneFlash = new Float32Array(9);
+    this.glow = new Float32Array(13);
+    this.zoneFlash = new Float32Array(13);
     this.lastStrikeAt = new Map();
   }
 
   setMusicalContext(notes) {
-    const list = (notes || []).slice(0, 9);
-    this.pitches = new Array(9).fill(null);
+    const list = (notes || []).slice(0, 13);
+    this.pitches = new Array(13).fill(null);
     list.forEach((n, i) => {
-      const idx = (n.index != null && n.index >= 0 && n.index <= 8) ? n.index : i;
+      const idx = (n.index != null && n.index >= 0 && n.index <= 12) ? n.index : i;
       this.pitches[idx] = {
         midi: n.midi, freq: n.freq, name: n.name, kind: n.kind, index: idx
       };
     });
-    for (let i = 0; i < 9; i++) {
+    for (let i = 0; i < 13; i++) {
       if (!this.pitches[i]) {
         const src = list[Math.min(i, Math.max(0, list.length - 1))];
         if (src) {
@@ -170,7 +170,7 @@ export class TonalInstrument extends Instrument {
     if (!this.audioCtx || !this.bus) return;
     if (!this.ready) this._ready = true;
     const idx = zone.index ?? zone.idx ?? 0;
-    if (idx < 0 || idx > 8) return;
+    if (idx < 0 || idx > 12) return;
     let note = this.pitches[idx];
     if (!note) note = this.pitches.find(Boolean);
     if (!note || !note.freq) return;
