@@ -276,3 +276,62 @@
 .learn-practicing .learn-feedback { display: none; }
 .learn-practicing .learn-stats b { font-size: 14px; }
 .learn-practicing .learn-stats span { font-size: 9px; }
+
+
+/* First lesson: a compact score card that never stretches across the handpan. */
+.learn-practicing {
+  inset: max(70px, env(safe-area-inset-top)) 12px auto auto !important;
+  transform: none !important;
+  width: min(258px, calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+}
+.learn-practicing .learn-shell {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 9px 11px !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+}
+.learn-practicing .learn-head {
+  display: flex !important;
+  justify-content: flex-end !important;
+  padding: 0 0 6px !important;
+}
+.learn-practicing .learn-head > div { display: none !important; }
+.learn-practicing .learn-close { width: 24px !important; height: 24px !important; flex-basis: 24px !important; }
+.learn-practicing .learn-layout { display: block !important; }
+.learn-practicing .learn-stage {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 7px !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+.learn-practicing .learn-stats {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 5px !important;
+  width: 100% !important;
+  padding: 8px 0 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-top: 1px solid rgba(255,255,255,.1) !important;
+}
+.learn-practicing .learn-stats div { min-width: 0 !important; gap: 3px !important; }
+.learn-practicing .learn-stats b { font-size: 15px !important; line-height: 1.1 !important; }
+.learn-practicing .learn-stats span { font-size: 9px !important; white-space: nowrap !important; }
+.learn-practicing .learn-actions { display: flex !important; width: 100% !important; }
+.learn-practicing .learn-actions [data-action="start"] {
+  width: 100% !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  padding: 0 10px !important;
+  font-size: 10px !important;
+}
+.learn-practicing .learn-feedback { display: block !important; max-width: 100% !important; font-size: 10px !important; }
+@media (max-width: 650px) {
+  .learn-practicing { inset: max(66px, env(safe-area-inset-top)) 8px auto auto !important; width: min(240px, calc(100vw - 16px)) !important; }
+  .learn-practicing .learn-shell { padding: 8px 9px !important; }
+}
