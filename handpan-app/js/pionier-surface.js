@@ -295,8 +295,14 @@ export function createSurface(canvas) {
       const minAxis = Math.min(f.rx, f.ry);
       const refAxis = R * 0.14;
       const expand = Math.max(0, Math.min(0.55, (refAxis - minAxis) / (R * 0.09)));
-      const hitLimit = 1.78 + expand; // Forgiving touch targets for fast playing, especially on small high notes
-      if (d <= hitLimit && d < bestD) {
+      // Prefer a pad's visible surface over a neighbouring pad's expanded
+      // touch halo. Expanded hit zones are only a fallback when no visible
+      // pad contains the point; this reduces adjacent-note misfires.
+      const hitLimit = 1.48 + Math.min(0.28, expand);
+      const isInsidePad = d <= 1;
+      const bestIsInsidePad = best?.insidePad === true;
+      if ((isInsidePad && (!bestIsInsidePad || d < bestD)) ||
+          (!isInsidePad && !bestIsInsidePad && d <= hitLimit && d < bestD)) {
         bestD = d;
         best = {
           idx: f.index,
@@ -306,10 +312,12 @@ export function createSurface(canvas) {
           nx: 0.5 + (f.x - CX) / (R * 2),
           ny: 0.5 + (f.y - CY) / (R * 2),
           x: cx,
-          y: cy
+          y: cy,
+          insidePad: isInsidePad
         };
       }
     }
+    if (best) delete best.insidePad;
     return best;
   }
 
