@@ -2,7 +2,7 @@ import { LESSONS } from './lessons.js?v=2';
 import { TimingScorer } from './learn-core.js?v=4';
 
 const $ = (s, root=document) => root.querySelector(s);
-const state = { lesson:null, scorer:null, startedAt:0, running:false, mode:'guided', timer:null, demoTimers:[], completed:new Set(), startedLessons:new Set(), best:{}, glowFrame:0, practiceIndex:0 };
+const state = { lesson:null, scorer:null, startedAt:0, running:false, mode:'guided', timer:null, demoTimers:[], completed:new Set(), startedLessons:new Set(), best:{}, glowFrame:0, practiceIndex:0, chordHits:new Set() };
 let root, list, stage;
 function mount(){
   if($('#learnMode')) return;
@@ -133,8 +133,9 @@ function beginPlayerTurn(scoredSteps){
  state.scorer=new TimingScorer(scoredSteps,2.0);
  state.startedAt=performance.now();
  state.practiceIndex=0;
+ state.chordHits=new Set();
  state.running=true;
- $('.learn-feedback',root).textContent='Your turn — repeat the glowing scale.';
+ $('.learn-feedback',root).textContent=state.lesson.id==='home-away'?'Your turn — play both notes of each glowing chord.':'Your turn — repeat the glowing scale.';
  glowTargets(0);
  updateStats();
 }
@@ -171,6 +172,48 @@ function onNote(e){
    renderLessons(state.lesson.level);
   }else{
    glowTargets(state.practiceIndex);
+  }
+  updateStats();
+  return;
+ }
+ // Chords are a call-and-response sequence: keep the current pair lit until
+ // both notes have been played, then move the hint to the next chord.
+ if(state.lesson.id==='home-away'){
+  const stepIndex=state.practiceIndex;
+  const step=state.lesson.steps[stepIndex];
+  if(!step)return;
+  if(!step.targets.includes(idx)){
+   state.scorer.misses++;
+   state.scorer.combo=0;
+   state.scorer.lastFeedback='MISS';
+   $('.learn-feedback',root).textContent='Play one of the two glowing notes in this chord.';
+   updateStats();
+   return;
+  }
+  if(state.chordHits.has(idx))return;
+  state.chordHits.add(idx);
+  state.scorer.hits++;
+  state.scorer.combo++;
+  state.scorer.bestCombo=Math.max(state.scorer.bestCombo,state.scorer.combo);
+  state.scorer.score+=100;
+  state.scorer.lastFeedback='PERFECT';
+  if(step.targets.every(target=>state.chordHits.has(target))){
+   state.practiceIndex++;
+   state.chordHits=new Set();
+   $('.learn-progress',root).textContent=state.practiceIndex+' / '+state.lesson.steps.length;
+   if(state.practiceIndex>=state.lesson.steps.length){
+    state.running=false;clearGlows();state.completed.add(state.lesson.id);
+    state.best[state.lesson.id]=Math.max(state.best[state.lesson.id]||0,state.scorer.score);
+    $('.learn-feedback',root).textContent='Lesson complete · '+state.scorer.score+' points. Let it settle.';
+    renderLessons(state.lesson.level);
+   }else{
+    $('.learn-feedback',root).textContent='Chord complete · follow the next pair.';
+    glowTargets(state.practiceIndex);
+   }
+  }else{
+   $('.learn-feedback',root).textContent='Good — now play the other glowing note.';
+   // Keep both notes of the current chord clearly highlighted.
+   glowTargets(stepIndex);
   }
   updateStats();
   return;
