@@ -10,6 +10,7 @@ function loadProgress(){
 const savedProgress=loadProgress();
 const state = { lesson:null, scorer:null, startedAt:0, running:false, mode:'guided', timer:null, demoTimers:[], completed:new Set(savedProgress.completed||[]), startedLessons:new Set(), best:savedProgress.best||{}, stars:savedProgress.stars||{}, selectedLevel:1, glowFrame:0, practiceIndex:0, chordHits:new Set(), wrongAttempts:0 };
 let root, list, stage;
+let rewardFrame=0, rewardResize=null;
 function mount(){
   if($('#learnMode')) return;
   root=document.createElement('section'); root.id='learnMode'; root.className='learn-mode'; root.hidden=true;
@@ -26,6 +27,7 @@ function mount(){
       </main></div>
     </div>
     <div class="learn-result" hidden role="dialog" aria-modal="true" aria-labelledby="learnResultTitle">
+      <canvas class="learn-reward-particles" aria-hidden="true"></canvas>
       <div class="learn-result-mandala" aria-hidden="true"><i></i><i></i><i></i></div>
       <div class="learn-result-card">
         <p class="learn-eyebrow">LESSON COMPLETE</p>
@@ -345,8 +347,50 @@ function showResult(){
  root.classList.remove('learn-practicing');
  root.classList.add('learn-complete');
  $('.learn-result',root).hidden=false;
+ startRewardParticles();
 }
-function hideResult(){if(root){$('.learn-result',root).hidden=true;root.classList.remove('learn-complete');}}
+function hideResult(){if(root){$('.learn-result',root).hidden=true;root.classList.remove('learn-complete');stopRewardParticles();}}
+function stopRewardParticles(){
+ cancelAnimationFrame(rewardFrame); rewardFrame=0;
+ if(rewardResize){window.removeEventListener('resize',rewardResize);rewardResize=null;}
+}
+function startRewardParticles(){
+ stopRewardParticles();
+ const canvas=$('.learn-reward-particles',root), ctx=canvas?.getContext('2d');
+ if(!canvas||!ctx)return;
+ let w=0,h=0,dpr=1,last=0;
+ const particles=Array.from({length:150},()=>({
+  angle:Math.random()*Math.PI*2, radius:.08+Math.random()*.62,
+  speed:(.00008+Math.random()*.00024)*(Math.random()<.5?-1:1),
+  size:.5+Math.random()*1.8, alpha:.15+Math.random()*.65,
+  drift:Math.random()*Math.PI*2, hue:Math.random()<.78?42:190
+ }));
+ const resize=()=>{
+  const rect=canvas.getBoundingClientRect(); dpr=Math.min(window.devicePixelRatio||1,2);
+  w=rect.width;h=rect.height;canvas.width=Math.max(1,Math.round(w*dpr));canvas.height=Math.max(1,Math.round(h*dpr));
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+ };
+ rewardResize=resize;window.addEventListener('resize',resize,{passive:true});resize();
+ const draw=now=>{
+  const dt=Math.min(40,now-(last||now));last=now;
+  ctx.clearRect(0,0,w,h);
+  const cx=w*.5,cy=h*.47,base=Math.min(w,h)*.47;
+  const halo=ctx.createRadialGradient(cx,cy,0,cx,cy,base);
+  halo.addColorStop(0,'rgba(215,174,83,.12)');halo.addColorStop(.45,'rgba(72,105,128,.045)');halo.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=halo;ctx.fillRect(0,0,w,h);
+  for(const p of particles){
+   p.angle+=p.speed*dt*60;p.drift+=dt*.0007;
+   const radius=base*p.radius*(.92+.035*Math.sin(p.drift));
+   const x=cx+Math.cos(p.angle)*radius,y=cy+Math.sin(p.angle)*radius;
+   const twinkle=.55+.45*Math.sin(now*.0015+p.drift);
+   ctx.beginPath();ctx.arc(x,y,p.size,0,Math.PI*2);
+   ctx.fillStyle='rgba('+(p.hue===42?'255,214,132':'130,205,231')+','+(p.alpha*twinkle*(p.hue===42?1:.65))+')';ctx.fill();
+   if(p.size>1.75){ctx.strokeStyle='rgba(255,221,153,'+(p.alpha*.22)+')';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(x-4,y);ctx.lineTo(x+4,y);ctx.moveTo(x,y-4);ctx.lineTo(x,y+4);ctx.stroke();}
+  }
+  rewardFrame=requestAnimationFrame(draw);
+ };
+ rewardFrame=requestAnimationFrame(draw);
+}
 function updateStats(){
  if(!root)return; const s=state.scorer;
  $('[data-stat="score"]',root).textContent=s?.score||0;
