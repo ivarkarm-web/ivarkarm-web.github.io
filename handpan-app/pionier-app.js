@@ -16,8 +16,8 @@ const HANDPAN_V = '1';
  */
 const CORE_PATCHES = [
   [
-    "   inst.noteOn(gesture, hit);\n   if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);",
-    "   inst.noteOn(gesture, hit);\n   window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now() } }));\n   if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);"
+    "  inst.noteOn(gesture, hit);\n  if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);",
+    "  inst.noteOn(gesture, hit);\n  window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now() } }));\n  if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);"
   ],
   // Keyboard keys for notes 10–13.
   [
