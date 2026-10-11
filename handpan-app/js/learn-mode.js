@@ -104,26 +104,18 @@ function glowTargets(stepIndex){
  };
  state.glowFrame=requestAnimationFrame(animate);
 }
-function wrongNoteHint(stepIndex, message){
+function wrongNoteHint(){
  state.wrongAttempts++;
- if(state.wrongAttempts<5){ $('.learn-feedback',root).textContent=message; return; }
+ if(state.wrongAttempts<5)return;
  state.wrongAttempts=0;
- const inst=active(), step=state.lesson?.steps[stepIndex];
- if(inst?.glow && step){
-  cancelAnimationFrame(state.glowFrame);
-  const targets=new Set(step.targets), start=performance.now(), duration=2200;
-  const animate=now=>{
-   const t=Math.min(1,(now-start)/duration);
-   const pulse=.22+.78*(.5+.5*Math.sin(t*Math.PI*6));
-   for(let i=0;i<inst.glow.length;i++)inst.glow[i]=targets.has(i)?pulse:0;
-   redraw();
-   if(t<1)state.glowFrame=requestAnimationFrame(animate);
-   else { for(let i=0;i<inst.glow.length;i++)inst.glow[i]=targets.has(i)?1:0; redraw(); }
-  };
-  state.glowFrame=requestAnimationFrame(animate);
- }else glowTargets(stepIndex);
- $('.learn-feedback',root).textContent='Extra LED hint — watch the pulsing note.';
+ const feedback=$('.learn-feedback',root);
+ if(!feedback)return;
+ feedback.textContent='Follow the light';
+ feedback.classList.remove('learn-hint-fade');
+ void feedback.offsetWidth;
+ feedback.classList.add('learn-hint-fade');
 }
+
 function startPractice(){
  if(!state.lesson)return;
  hideResult();
@@ -198,7 +190,7 @@ function onNote(e){
    state.scorer.misses++;
    state.scorer.combo=0;
    state.scorer.lastFeedback='MISS';
-   wrongNoteHint(stepIndex,'Follow the glowing tonefield.');
+   wrongNoteHint();
    updateStats();
    return;
   }
@@ -233,7 +225,7 @@ function onNote(e){
    state.scorer.misses++;
    state.scorer.combo=0;
    state.scorer.lastFeedback='MISS';
-   wrongNoteHint(stepIndex,'Play one of the two glowing notes in this chord.');
+   wrongNoteHint();
    updateStats();
    return;
   }
@@ -269,7 +261,7 @@ function onNote(e){
  const elapsed=((performance.now()-state.startedAt)/1000)*(state.lesson.bpm/60);
  const result=state.scorer.scoreNote(idx,elapsed);
  if(result.correct)state.wrongAttempts=0;
- if(!result.correct)wrongNoteHint(state.practiceIndex,'Not that note — find the glowing tonefield.');
+ if(!result.correct)wrongNoteHint();
  else $('.learn-feedback',root).textContent=result.feedback==='PERFECT'?'Perfect · stay with the pulse.':result.feedback==='GREAT'?'Beautifully placed.':result.feedback==='GOOD'?'Good — keep the phrase moving.':'A little late — keep going.';
  if(result.correct){
   const el=$(`[data-step="${result.stepIndex}"]`,root); el?.classList.add('is-hit');
