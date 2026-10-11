@@ -321,7 +321,7 @@ function demo(){
  },step.at*unit)));
  $('.learn-feedback',root).textContent='Listen closely…';
 }
-function open(){mount();root.hidden=false;root.classList.remove('learn-practicing');document.body.classList.add('learn-mode-open');if(!state.lesson)selectLesson(LESSONS[0].id);else $('.learn-actions [data-action="start"]',root).textContent='Start';}
-function close(){if(!root)return;state.demoTimers.forEach(clearTimeout);state.demoTimers=[];root.hidden=true;root.classList.remove('learn-practicing');document.body.classList.remove('learn-mode-open');}
+function open(){mount();root.hidden=false;root.classList.remove('learn-practicing','learn-complete');document.body.classList.add('learn-mode-open');if(!state.lesson)selectLesson(LESSONS[0].id);else $('.learn-actions [data-action="start"]',root).textContent='Start';}
+function close(){if(!root)return;state.demoTimers.forEach(clearTimeout);state.demoTimers=[];root.hidden=true;root.classList.remove('learn-practicing','learn-complete');document.body.classList.remove('learn-mode-open');}
 window.PionierLearn={open,close,lessons:LESSONS};
 document.addEventListener('DOMContentLoaded',mount);
