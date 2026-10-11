@@ -66,6 +66,8 @@ function startPractice(){
  $('.learn-actions [data-action="start"]',root).textContent='Restart practice';
  root.querySelectorAll('.learn-step').forEach((n,i)=>n.classList.toggle('is-current',i===0));
  if(state.mode==='memory')clearGlows();else glowTargets(0); updateStats();
+ // Keep the practice state active, but dismiss the sheet so the instrument is playable.
+ close();
 }
 function onNote(e){
  if(!state.running||!state.lesson)return;
