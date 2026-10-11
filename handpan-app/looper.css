@@ -28,9 +28,9 @@
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  border: 2px solid rgba(220, 60, 60, 0.9);
-  background: rgba(220, 60, 60, 0.22);
-  box-shadow: 0 0 12px rgba(220, 60, 60, 0.4);
+  border: 2px solid rgba(212, 176, 74, 0.58);
+  background: rgba(212, 176, 74, 0.07);
+  box-shadow: 0 0 8px rgba(212, 176, 74, 0.12);
   cursor: pointer;
   padding: 0;
   display: flex;
@@ -45,14 +45,17 @@
 }
 .looper-circle:hover {
   transform: scale(1.06);
-  border-color: #ff4d4d;
+  border-color: rgba(244, 207, 105, 0.95);
+  box-shadow: 0 0 12px rgba(212, 176, 74, 0.28);
 }
 .looper-circle:active {
   transform: scale(0.94);
 }
 .looper-circle.is-playing {
-  background: rgba(220, 60, 60, 0.3);
-  box-shadow: 0 0 14px rgba(220, 60, 60, 0.48);
+  border-color: #d4b04a;
+  background: rgba(212, 176, 74, 0.18);
+  box-shadow: 0 0 0 2px rgba(212, 176, 74, 0.12), 0 0 16px rgba(212, 176, 74, 0.38);
+  color: #f6dfa0;
 }
 .looper-circle.is-paused {
   opacity: 0.85;
@@ -140,6 +143,7 @@
 }
 .looper-circle.is-deleting {
   border-color: #ff4d4d !important;
+  background: rgba(220, 40, 40, 0.24) !important;
   box-shadow: 0 0 0 4px rgba(220, 60, 60, 0.25), 0 0 18px rgba(220, 60, 60, 0.45) !important;
   transform: scale(1.08);
 }
