@@ -2,7 +2,7 @@ const atBeats = (targets, spacing = 1) => targets.map((target, index) => ({ at: 
 const pattern = (entries) => entries.map(([at, targets]) => ({ at, targets: Array.isArray(targets) ? targets : [targets] }));
 
 export const LESSONS = [
-  { id:'first-touch', level:1, levelName:'First Notes', name:'First Touch', description:'Meet five notes one at a time.', bpm:64, steps:atBeats([0,1,2,3,2,1,0]) },
+  { id:'first-touch', level:1, levelName:'First Notes', name:'Up & Down the Scale', description:'Play every tonefield up the scale, then follow the lights back down.', bpm:64, steps:atBeats([0,1,2,3,2,1,0]) },
   { id:'home-away', level:1, levelName:'First Notes', name:'Home & Away', description:'Return to the home note between small steps.', bpm:66, steps:atBeats([0,1,0,2,0,3,0]) },
   { id:'small-arc', level:1, levelName:'First Notes', name:'Small Arc', description:'Trace a gentle rise and fall across the centre.', bpm:68, steps:atBeats([0,2,1,3,2,4,3,2]) },
   { id:'five-tone-path', level:1, levelName:'First Notes', name:'Five-Tone Path', description:'Walk up five notes, then return.', bpm:70, steps:atBeats([0,1,2,3,4,3,2,1,0]) },
