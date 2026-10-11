@@ -866,3 +866,122 @@
 @media(max-width:650px) {
   .learn-mode:not(.learn-practicing) .learn-actions { margin-top: 22px !important; padding-top: 0 !important; }
 }
+
+
+/* Lesson browser: fixed sheet, no visible scrollbar, expandable lesson-library area.
+   Keep the selected lesson details compact and anchor stats + Start to the bottom. */
+.learn-mode:not(.learn-practicing) {
+  overflow: hidden !important;
+}
+.learn-mode:not(.learn-practicing) .learn-shell {
+  display: flex !important;
+  flex-direction: column !important;
+  height: min(78vh, 760px) !important;
+  max-height: calc(100dvh - 92px) !important;
+  overflow: hidden !important;
+}
+.learn-mode:not(.learn-practicing) .learn-layout {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.12fr) minmax(250px, .88fr) !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+.learn-mode:not(.learn-practicing) .learn-library {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+.learn-mode:not(.learn-practicing) .learn-lessons {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.learn-mode:not(.learn-practicing) .learn-lessons::-webkit-scrollbar,
+.learn-mode:not(.learn-practicing) .learn-library::-webkit-scrollbar,
+.learn-mode:not(.learn-practicing) .learn-stage::-webkit-scrollbar,
+.learn-mode:not(.learn-practicing) .learn-layout::-webkit-scrollbar,
+.learn-mode:not(.learn-practicing) .learn-shell::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.learn-mode:not(.learn-practicing) .learn-stage {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  padding: 16px 18px !important;
+}
+.learn-mode:not(.learn-practicing) .learn-stats {
+  margin-top: auto !important;
+  margin-bottom: 0 !important;
+  flex: 0 0 auto !important;
+}
+.learn-mode:not(.learn-practicing) .learn-actions {
+  flex: 0 0 auto !important;
+  margin-top: 8px !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+.learn-mode:not(.learn-practicing) .learn-actions [data-action="start"] {
+  width: 100% !important;
+  min-height: 42px !important;
+  height: 42px !important;
+}
+@media (max-width: 650px) {
+  .learn-mode:not(.learn-practicing) {
+    height: min(76dvh, 680px) !important;
+    max-height: min(76dvh, 680px) !important;
+    overflow: hidden !important;
+  }
+  .learn-mode:not(.learn-practicing) .learn-shell {
+    height: 100% !important;
+    max-height: 100% !important;
+  }
+  .learn-mode:not(.learn-practicing) .learn-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+  .learn-mode:not(.learn-practicing) .learn-library {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 8px 10px !important;
+  }
+  .learn-mode:not(.learn-practicing) .learn-lessons {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    gap: 7px !important;
+  }
+  .learn-mode:not(.learn-practicing) .learn-stage {
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+    max-height: 43% !important;
+    overflow: hidden !important;
+    padding: 8px 12px max(10px, env(safe-area-inset-bottom)) !important;
+  }
+  .learn-mode:not(.learn-practicing) .learn-name { font-size: 15px !important; }
+  .learn-mode:not(.learn-practicing) .learn-description { max-height: 2.6em; overflow: hidden; }
+  .learn-mode:not(.learn-practicing) .learn-sequence { max-height: 28px; overflow: hidden; }
+  .learn-mode:not(.learn-practicing) .learn-feedback { margin: 3px 0 !important; }
+  .learn-mode:not(.learn-practicing) .learn-stats {
+    margin-top: auto !important;
+    padding: 5px 0 !important;
+    margin-bottom: 0 !important;
+  }
+  .learn-mode:not(.learn-practicing) .learn-actions { margin-top: 6px !important; }
+  .learn-mode:not(.learn-practicing) .learn-actions [data-action="start"] {
+    height: 38px !important;
+    min-height: 38px !important;
+  }
+}
