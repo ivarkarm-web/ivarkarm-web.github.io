@@ -23,24 +23,32 @@ test('boots the local core without runtime source-fetch errors', async ({ page }
   expect(boot.scrollWidth).toBeLessThanOrEqual(boot.clientWidth + 1);
 });
 
-test('every instrument selection activates the actual engine and returns to Handpan', async ({ page }) => {
+for (const [instrumentName, instrumentId] of [
+  ['Bird', 'bird'],
+  ['Kitchen', 'kitchen'],
+  ['Kalimba', 'kalimba'],
+  ['Tongue Drum', 'tongue-drum']
+]) {
+  test(`${instrumentName} selection activates its actual engine`, async ({ page }) => {
+    const trigger = page.locator('#instrumentDropdownToggle');
+    const menu = page.locator('#instrumentMenu');
+    await trigger.click();
+    await expect(menu).toBeVisible();
+    await menu.getByRole('button', { name: instrumentName, exact: true }).click();
+    await expect(trigger).toContainText(instrumentName);
+    await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe(instrumentId);
+    await expect.poll(() => page.evaluate(() => !!window.PionierCore?.activeInstrument?.()?.ready)).toBe(true);
+  });
+}
+
+test('Handpan can be reselected after switching to another instrument', async ({ page }) => {
   const trigger = page.locator('#instrumentDropdownToggle');
   const menu = page.locator('#instrumentMenu');
-  const choices = [
-    ['Bird', 'bird'],
-    ['Kitchen', 'kitchen'],
-    ['Kalimba', 'kalimba'],
-    ['Tongue Drum', 'tongue-drum']
-  ];
-  for (const [name, id] of choices) {
-    if (await menu.isHidden()) await trigger.click();
-    await expect(menu).toBeVisible();
-    await menu.getByRole('button', { name, exact: true }).click();
-    await expect(trigger).toContainText(name);
-    await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe(id);
-    await expect.poll(() => page.evaluate(() => !!window.PionierCore?.activeInstrument?.()?.ready)).toBe(true);
-  }
-  if (await menu.isHidden()) await trigger.click();
+  await trigger.click();
+  await menu.getByRole('button', { name: 'Bird', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('bird');
+  await trigger.click();
+  await expect(menu).toBeVisible();
   await menu.getByRole('button', { name: 'Handpan', exact: true }).click();
   await expect(trigger).toContainText('Handpan');
   await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('handpan');
