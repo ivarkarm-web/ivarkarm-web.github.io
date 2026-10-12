@@ -78,7 +78,7 @@ Scores do not increase merely because a PR merges. They move only when the rubri
 
 ## Change log
 
-- **2026-10-13 (PR #68, pending):** Add procedural storm, forest-wind and ocean beds; make looping noise boundaries click-safe; add explicit mute and fallback behavior; test the ambient transport. Scores remain unchanged pending CI and broader phase evidence.
+- **2026-10-13 (PR #68, pending):** Add procedural storm, forest-wind and ocean beds; make looping noise boundaries click-safe; add explicit mute and failure fallback. Evidence to be recorded after CI: `procedural ambience includes rain, storm, forest wind, and ocean beds`, `looping noise has eased boundaries and finite samples`, `every ambient bed builds a graph and returns a cleanup handler`, `noise-based beds use looping buffer sources`, plus Playwright transport/mute/fallback tests. Scores remain unchanged.
 
 - **2026-10-13 (PR #67, pending):** Inventory all previously bundled handpan samples, remove them because redistribution permission was not established, and test the procedural fallback. Scores remain unchanged: the fallback is safer from a licensing perspective but is not equivalent to real recorded handpan sound.
 
