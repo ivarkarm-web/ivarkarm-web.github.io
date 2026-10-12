@@ -1,0 +1,78 @@
+# Pionier Quality Scorecard
+
+**Last updated:** 2026-10-12  
+**Scope:** `handpan-app/` and its test/CI surface.  
+**Deployment baseline:** `91952fb5cfe2611662d7e69a9ef2ed5e391a497b` (ring-out change merged; deployment must be verified separately).
+
+This scorecard is deliberately conservative. A passing unit or browser suite is evidence for the behavior it exercises, not proof of real-device behavior, sound quality, offline support, or commercial licensing.
+
+## Current scores
+
+| Dimension | Score | Target | Evidence and reason |
+|---|---:|---:|---|
+| Reliability confidence | **4/10** | 8/10 | CI now covers smoke, unit and Playwright browser tests. Instrument activation failure recovery and handpan ring-out have regression coverage. However, there is no explicit boot state machine, optional-module isolation is not proven, the complete touch/interruption matrix and 200-strike node-leak test are absent, and sample/audio failure paths are not comprehensively tested. |
+| Product coherence | **5/10** | 8/10 | The app has a usable instrument registry, FX chain, Learn, Soundscapes and looper foundations. Controls/modes still have parallel wiring, the ambient bus and looper capture are not yet shown to be isolated, and `loop-core.js` is not proven to drive the live looper. No single state store or unified navigation has been verified. |
+| Production readiness | **4/10** | 8/10 | GitHub Actions runs smoke, app unit and Playwright checks on PRs. The service-worker/cache-clearing behavior prevents claiming offline readiness; docs are stale; mobile WebKit and real-device verification are not evidenced; performance budgets and audio-graph tests are missing. **Commercial release is blocked until sample redistribution rights are explicitly cleared or the samples are replaced.** |
+
+Scores do not increase merely because a PR merges. They move only when the rubric's exit criteria are evidenced by links to tests or measurements. Since Haganenote samples remain and their redistribution status is not cleared, production readiness is capped at 7 even after other work improves.
+
+## Verified evidence as of 2026-10-12
+
+- [PR #58 — Soundscapes loading/controls hardening](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/58) — merged earlier; see PR and its checks for the exact coverage.
+- [PR #59 — instrument activation ordering and mobile stuck-note release](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/59) — merged earlier.
+- [PR #60 — activation queue recovery regression test](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/60) — merged; reported test run passed.
+- [PR #61 — preserve the active instrument when a switch fails](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/61) — merged; reported CI passed.
+- [PR #62 — natural handpan note ring-out](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/62) — merged. [Its Handpan App Checks run passed](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38303784059).
+- The repository's current PR workflow runs `node scripts/smoke-test.mjs`, `npm run test:app`, and `npx playwright test`. It installs Chromium and runs these on GitHub Actions. The current workflow does not prove iOS Safari, mobile WebKit, actual hardware audio, or real-device offline behavior.
+- Deployment workflow for commit `91952fb5cfe2611662d7e69a9ef2ed5e391a497b`: [Deploy to GitHub Pages run](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38305779641). Check the run result before claiming deployment is complete.
+
+## Phase gates
+
+### P1 — Reliability
+
+- [x] Instrument activation failure preserves the previously active instrument (PR #61).
+- [x] Regression test for activation queue recovery (PR #60).
+- [x] Handpan finger-up no longer immediately fades the struck voice (PR #62).
+- [ ] Boot state machine and isolated optional subsystem initialization.
+- [ ] AudioContext lifecycle/interruption behavior covered by tests.
+- [ ] Full pointer/touch matrix at 360×640 and 390×844, including ten-finger input, glide, cancellation, capture loss and rotation.
+- [ ] Voice polyphony cap, rapid-strike node-leak test and hard-release coverage.
+- [ ] Failure-path tests for manifest/sample errors, unavailable AudioContext, optional import failure, storage failure and offline startup.
+- [ ] Real device checklist completed by owner; emulation and hardware results recorded separately.
+
+**P1 exit status: OPEN.** The current evidence does not meet the rubric for 6 or 8.
+
+### P2 — Product coherence
+
+- [ ] One navigation shell and one home per control.
+- [ ] One state model for mode, instrument, scale, root, octave, FX, ambient and loop.
+- [ ] Explicitly separated instrument, ambient and looper buses.
+- [ ] Live looper uses `loop-core.js`, with isolated layer capture, quantization and undo.
+- [ ] Ambient audio has measured phone-speaker audibility and documented, redistributable sources.
+- [ ] Instrument catalogue distinguishes real/sample-backed instruments from placeholders.
+
+**P2 exit status: NOT STARTED.** Reliability remains the priority.
+
+### P3 — Production readiness
+
+- [ ] Audio graph and node lifecycle tests.
+- [ ] Desktop Chromium, mobile Chromium and mobile WebKit Playwright projects.
+- [ ] Offline-capable service worker and safe cache/update flow.
+- [ ] Enforced payload, first-interactive and main-thread performance budgets.
+- [ ] Accessible keyboard controls, focus states and labelled modes.
+- [ ] Accurate docs, dead-code inventory and release checklist.
+- [ ] Asset provenance and redistribution rights documented for every shipped sound.
+- [ ] Manual device checklist with untested hardware steps explicitly pending.
+
+**P3 exit status: NOT STARTED.**
+
+## Owner inputs needed
+
+1. Owner-recorded handpan samples (each note, multiple velocities, full natural tails) to replace uncleared samples.
+2. Owner-recorded field loops, or approval of specific CC0 sources, for rain, storm, forest, birds and sea.
+3. Real-device results for the checklist (iPhone Safari/PWA, Android Chrome, tablet, desktop Safari/Firefox).
+4. Decision whether Bird and Kitchen remain placeholders, receive recorded sources, or are removed.
+
+## Change log
+
+- **2026-10-12:** Established conservative baseline after activation-failure recovery and natural ring-out changes. No score increased because the phase exit criteria remain unproven.
