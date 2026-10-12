@@ -6,6 +6,32 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator('#instrumentDropdownToggle')).toBeVisible();
 });
 
+
+test('viewport keeps browser zoom available while the instrument canvas owns gestures', async ({ page }) => {
+  const viewport = await page.locator('meta[name="viewport"]').getAttribute('content');
+  expect(viewport).toContain('width=device-width');
+  expect(viewport).not.toMatch(/user-scalable\s*=\s*no/i);
+  expect(viewport).not.toMatch(/maximum-scale\s*=\s*1(?:\.0)?/i);
+  const canvasTouchAction = await page.locator('#pan').evaluate((canvas) => getComputedStyle(canvas).touchAction);
+  expect(canvasTouchAction).toBe('none');
+});
+
+test('rapid touch taps on scale steppers are not swallowed', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith('mobile'), 'touchscreen emulation runs in the mobile projects');
+  await expect.poll(() => page.evaluate(() => !!window.PionierCore?.activeInstrument?.())).toBe(true);
+  await page.locator('#mobileControlsToggle').tap();
+  const next = page.locator('#scaleNext');
+  await expect(next).toBeVisible();
+  const before = await page.evaluate(() => window.PionierCore.activeInstrument().scaleIndex);
+  const scaleCount = await page.evaluate(async () => {
+    const { HANDPAN_SCALES } = await import('/handpan-app/js/instruments/handpan.js');
+    return HANDPAN_SCALES.length;
+  });
+  for (let i = 0; i < 4; i++) await next.tap();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.activeInstrument().scaleIndex))
+    .toBe((before + 4) % scaleCount);
+});
+
 test('boots the local core without runtime source-fetch errors', async ({ page }) => {
   await expect(page.locator('#instrumentMenu')).toBeAttached();
   await expect(page.locator('#mobileControlDrawer')).toBeAttached();

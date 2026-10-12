@@ -2,7 +2,7 @@
 <html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Handpan — Ivar Karm</title>
   <meta name="description" content="Playable virtual handpan — radial instrument that grows from 9 to 13 notes, with interval scales and dynamic transposition." />
   <meta name="theme-color" content="#070708" />
@@ -195,16 +195,6 @@
   </section>
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
 
-  <script>
-    document.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: false });
-    document.addEventListener('gesturechange', (e) => e.preventDefault(), { passive: false });
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', (e) => {
-      const now = Date.now();
-      if (now - lastTouchEnd <= 300) e.preventDefault();
-      lastTouchEnd = now;
-    }, { passive: false });
-  </script>
   <script type="module" src="./pionier-app.js?v=113"></script>
   <script type="module" src="./js/learn-mode.js?v=31"></script>
 </body>
