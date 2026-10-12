@@ -57,11 +57,14 @@ export const InstrumentRegistry = {
     const activate = async () => {
       const next = _registry.get(id);
       if (!next) throw new Error('Unknown instrument: ' + id);
-      if (_activeId && _activeId !== id) {
-        const prev = _registry.get(_activeId);
-        if (prev) prev.deactivate();
-      }
+      const previousId = _activeId;
+      const previous = previousId ? _registry.get(previousId) : null;
+
+      // Initialize the candidate before taking the current instrument offline.
+      // A failed activation must not leave the UI pointing at a deactivated voice.
       await next.activate(audioCtx, bus);
+
+      if (previous && previousId !== id) previous.deactivate();
       _activeId = id;
       return next;
     };

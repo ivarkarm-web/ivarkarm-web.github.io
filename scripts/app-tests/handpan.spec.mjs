@@ -320,8 +320,12 @@ test('instrument activation queue recovers after an instrument fails to initiali
     try {
       try { await InstrumentRegistry.setActive('bird', ctx, bus); }
       catch (error) { rejected = /simulated instrument initialization failure/.test(error.message); }
+      const afterFailure = {
+        activeId: InstrumentRegistry.activeId,
+        ready: InstrumentRegistry.active?.ready === true
+      };
       await InstrumentRegistry.setActive('kitchen', ctx, bus);
-      return { setup: true, rejected, activeId: InstrumentRegistry.activeId };
+      return { setup: true, rejected, afterFailure, activeId: InstrumentRegistry.activeId };
     } finally {
       bird.activate = originalBird;
       await InstrumentRegistry.setActive('handpan', ctx, bus);
@@ -329,6 +333,7 @@ test('instrument activation queue recovers after an instrument fails to initiali
   });
   expect(result.setup).toBe(true);
   expect(result.rejected).toBe(true);
+  expect(result.afterFailure).toEqual({ activeId: 'handpan', ready: true });
   expect(result.activeId).toBe('kitchen');
   await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('handpan');
 });
