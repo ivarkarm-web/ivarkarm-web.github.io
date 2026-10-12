@@ -465,6 +465,10 @@ test('real touch taps can be delivered in quick succession on mobile', async ({ 
 
 
 test('instrument activation queue recovers after an instrument fails to initialize', async ({ page }) => {
+  await expect.poll(() => page.evaluate(() => {
+    const active = window.PionierCore?.activeInstrument?.();
+    return !!active?.audioCtx && !!active?.bus;
+  })).toBe(true);
   const result = await page.evaluate(async () => {
     const { InstrumentRegistry } = await import('/handpan-app/js/instrument.js');
     const active = InstrumentRegistry.get('handpan');
