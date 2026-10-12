@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
 
 test('required core boot failure shows recovery UI and retry reloads successfully', async ({ page }) => {
   let failOnce = true;
-  await page.route(/pionier-core\\.js\\?v=1/, async (route) => {
+  await page.route(/pionier-core\.js\?v=1/, async (route) => {
     if (failOnce) {
       failOnce = false;
       await route.fulfill({ status: 503, contentType: 'text/javascript', body: '/* simulated temporary outage */' });
@@ -51,7 +51,7 @@ test('blocked storage is reported as degraded without breaking Handpan', async (
 
 test('optional soundscapes module failure leaves core playable and reports degraded state', async ({ page }) => {
   let failOnce = true;
-  await page.route(/soundscapes\\.js\\?v=5/, async (route) => {
+  await page.route(/soundscapes\.js\?v=5/, async (route) => {
     if (failOnce) {
       failOnce = false;
       await route.fulfill({ status: 503, contentType: 'text/javascript', body: '/* simulated optional module outage */' });
