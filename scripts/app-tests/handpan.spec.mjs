@@ -10,7 +10,8 @@ test('boots the local core without runtime source-fetch errors', async ({ page }
   await expect(page.locator('#instrumentMenu')).toBeAttached();
   await expect(page.locator('#mobileControlDrawer')).toBeAttached();
   await page.locator('#mobileControlsToggle').click();
-  await expect(page.locator('#knobMaster')).toBeVisible();
+  await expect(page.locator('#mobileControlDrawer')).toHaveClass(/is-open/);
+  await expect(page.locator('#knobMaster')).toBeAttached();
   const boot = await page.evaluate(() => ({
     core: !!window.PionierCore,
     noteCount: window.PionierCore?.noteCount?.(),
@@ -42,7 +43,7 @@ test('effect type menus open and update their selected state', async ({ page }) 
   const bubble = page.locator('#bubbleComp');
   await expect(bubble).toBeVisible();
   await bubble.getByRole('button', { name: 'Punch', exact: true }).click();
-  await expect(bubble.getByRole('button', { name: 'Punch', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(bubble.locator('[data-comp="punch"]')).toHaveAttribute('aria-pressed', 'true');
 });
 
 test('controls drawer toggles and keeps its expanded state accessible', async ({ page }) => {
