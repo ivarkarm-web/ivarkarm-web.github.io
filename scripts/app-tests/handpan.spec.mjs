@@ -2,106 +2,105 @@ import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/handpan-app/index.html');
-  await expect(page.locator('#hpStage')).toBeVisible();
-  await expect(page.locator('.app-modebar')).toBeVisible();
+  await expect(page.locator('#pan')).toBeVisible();
+  await expect(page.locator('#instrumentDropdownToggle')).toBeVisible();
 });
 
-test('play mode renders the handpan surface and navigation', async ({ page }) => {
-  await expect(page.locator('.hp-title')).toHaveText('Handpan');
-  await expect(page.locator('#hpStage')).toHaveAttribute('aria-label', /Handpan/);
-  await expect(page.locator('.app-mode[data-mode="play"]')).toHaveClass(/is-active/);
-});
-
-test('mode navigation opens learn and loop controls', async ({ page }) => {
-  await page.locator('.app-mode[data-mode="learn"]').click();
-  await expect(page.locator('#learnPanel')).toBeVisible();
-  await expect(page.locator('#lessonList')).toBeVisible();
-
-  await page.locator('.app-mode[data-mode="loop"]').click();
-  await expect(page.locator('#loopRecord')).toBeVisible();
-  await expect(page.locator('#loopPlay')).toBeVisible();
-});
-
-test('scale picker is keyboard accessible', async ({ page }) => {
-  const trigger = page.locator('#hpScaleMenuToggle');
-  await expect(trigger).toBeVisible();
-  await trigger.focus();
-  await expect(trigger).toBeFocused();
-  await trigger.press('Enter');
-  await expect(page.locator('#hpScaleSheet')).not.toHaveAttribute('hidden', '');
-});
-
-test('touch-sized layout keeps primary controls inside the viewport', async ({ page }) => {
-  const viewport = page.viewportSize();
-  expect(viewport).not.toBeNull();
-  const rect = await page.locator('#hpStage').boundingBox();
-  expect(rect).not.toBeNull();
-  expect(rect.width).toBeGreaterThanOrEqual(viewport.width);
-  expect(rect.height).toBeGreaterThanOrEqual(viewport.height);
-});
-
-
-test('loop uses a count-in and locks tempo and bars after the first layer', async ({ page }) => {
-  await page.locator('.app-mode[data-mode="loop"]').click();
-  const bpm = page.locator('#loopBpm');
-  const bars = page.locator('#loopBars');
-  await bpm.fill('180');
-  await bars.selectOption('1');
-  await bpm.dispatchEvent('change');
-  await bars.dispatchEvent('change');
-
-  await page.locator('#loopRecord').click();
-  await expect(page.locator('#loopOrbLabel')).toContainText('COUNT-IN');
-  await page.waitForTimeout(1500);
-  await expect(page.locator('#loopOrbLabel')).toContainText('RECORDING');
-
-  await page.evaluate(() => {
-    window.dispatchEvent(new CustomEvent('handpan:note', {
-      detail: { noteIndex: 0, velocity: 0.8 }
-    }));
-  });
-
-  await page.waitForTimeout(1700);
-  await expect(page.locator('#loopLayerCount')).toHaveText('1/7');
-  await expect(bpm).toBeDisabled();
-  await expect(bars).toBeDisabled();
-  await expect(page.locator('#loopConfigNote')).toHaveText('Tempo and bars locked until Clear.');
-});
-
-
-test('handpan and ambience share one AudioContext', async ({ page }) => {
-  await page.evaluate(() => window.HandpanGame.strike(0, 0.7));
-  await page.locator('.app-mode[data-mode="ambient"]').click();
-  await page.locator('#natureSelect').selectOption('stream');
-  const shared = await page.evaluate(() => ({
-    sameContext: window.HandpanGame.engine.ctx === window.HandpanAudio.getAudioContext(),
-    state: window.HandpanAudio.audioState()
+test('boots the local core without runtime source-fetch errors', async ({ page }) => {
+  await expect(page.locator('#instrumentMenu')).toBeAttached();
+  await expect(page.locator('#mobileControlDrawer')).toBeAttached();
+  await page.locator('#mobileControlsToggle').click();
+  await expect(page.locator('#mobileControlDrawer')).toHaveClass(/is-open/);
+  await expect(page.locator('#knobMaster')).toBeAttached();
+  const boot = await page.evaluate(() => ({
+    core: !!window.PionierCore,
+    noteCount: window.PionierCore?.noteCount?.(),
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth
   }));
-  expect(shared.sameContext).toBe(true);
-  expect(['running', 'suspended', 'interrupted']).toContain(shared.state);
+  expect(boot.core).toBe(true);
+  expect(boot.noteCount).toBeGreaterThanOrEqual(9);
+  expect(boot.scrollWidth).toBeLessThanOrEqual(boot.clientWidth + 1);
 });
 
+test('instrument menu switches away from Handpan and can return', async ({ page }) => {
+  const trigger = page.locator('#instrumentDropdownToggle');
+  await trigger.click();
+  const menu = page.locator('#instrumentMenu');
+  await expect(menu).toBeVisible();
+  await expect(menu.getByRole('button', { name: 'Tongue Drum', exact: true })).toBeVisible();
+  await expect(menu.getByRole('button', { name: 'Kalimba', exact: true })).toBeVisible();
+  await menu.getByRole('button', { name: 'Bird', exact: true }).click();
+  await expect(trigger).toContainText('Bird');
+  await trigger.click();
+  await menu.getByRole('button', { name: 'Handpan', exact: true }).click();
+  await expect(trigger).toContainText('Handpan');
+});
 
-test('voice browser surface exposes the five production presets and sample fallback', async ({ page }) => {
-  const info = await page.evaluate(async () => {
-    window.HandpanGame.strike(0, 0.7);
-    await window.HandpanGame.engine.sampleBank.loadManifest();
-    return {
-      voices: window.HandpanGame.instruments.map((voice) => voice.name),
-      sampleStatus: window.HandpanGame.engine.sampleBank.manifest.status
-    };
+test('effect type menus open and update their selected state', async ({ page }) => {
+  await page.locator('#mobileControlsToggle').click();
+  await page.locator('.knob-effect-trigger[aria-controls="bubbleComp"]').click();
+  const bubble = page.locator('#bubbleComp');
+  await expect(bubble).toBeVisible();
+  await bubble.getByRole('button', { name: 'Punch', exact: true }).click();
+  await expect(bubble.locator('[data-comp="punch"]')).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('controls drawer toggles and keeps its expanded state accessible', async ({ page }) => {
+  const toggle = page.locator('#mobileControlsToggle');
+  const drawer = page.locator('#mobileControlDrawer');
+  await toggle.click();
+  await expect(drawer).toHaveClass(/is-open/);
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  await toggle.click();
+  await expect(drawer).not.toHaveClass(/is-open/);
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+});
+
+test('note-count controls add and remove notes without losing the instrument core', async ({ page }) => {
+  await expect(page.locator('#notePlusCount')).toHaveText('9/13');
+  await page.locator('#notePlus').click();
+  await expect(page.locator('#notePlusCount')).toHaveText('10/13');
+  await expect(page.locator('#noteMinus')).toBeVisible();
+  await page.locator('#noteMinus').click();
+  await expect(page.locator('#notePlusCount')).toHaveText('9/13');
+  const core = await page.evaluate(() => window.PionierCore.noteCount());
+  expect(core).toBe(9);
+});
+
+test('rapid pointer strikes do not throw and canvas remains inside the viewport', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  const canvas = page.locator('#pan');
+  const rect = await canvas.boundingBox();
+  const viewport = page.viewportSize();
+  expect(rect).not.toBeNull();
+  expect(viewport).not.toBeNull();
+  expect(rect.x).toBeGreaterThanOrEqual(0);
+  expect(rect.x + rect.width).toBeLessThanOrEqual(viewport.width + 1);
+  const { x, y, width, height } = rect;
+  for (const [dx, dy] of [[0.5,0.5],[0.35,0.35],[0.65,0.35],[0.35,0.65],[0.65,0.65],[0.5,0.5]]) {
+    await page.mouse.click(x + width * dx, y + height * dy);
+  }
+  expect(errors).toEqual([]);
+});
+
+test('real touch taps can be delivered in quick succession on mobile', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith('mobile'), 'touchscreen emulation runs in the mobile project');
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.evaluate(() => {
+    window.__pionierStrikeCount = 0;
+    window.addEventListener('pionier:learn-note', () => { window.__pionierStrikeCount += 1; });
   });
-  expect(info.voices).toEqual(['Steel', 'Warm', 'Bell', 'Soft', 'Deep']);
-  expect(info.sampleStatus).toBe('fallback-synth');
-});
-
-
-test('learn mode exposes the four-level sixteen-lesson curriculum', async ({ page }) => {
-  await page.locator('.app-mode[data-mode="learn"]').click();
-  await expect(page.locator('.lesson-card')).toHaveCount(16);
-  await expect(page.locator('.lesson-level')).toHaveCount(4);
-  await page.locator('.lesson-card').first().click();
-  await expect(page.locator('#learnStage')).toBeVisible();
-  await expect(page.locator('#learnLevel')).toContainText('LEVEL 1');
-  await expect(page.locator('#learnTiming')).toBeVisible();
+  const canvas = page.locator('#pan');
+  const rect = await canvas.boundingBox();
+  expect(rect).not.toBeNull();
+  const points = [[0.5,0.5],[0.36,0.36],[0.64,0.36],[0.36,0.64],[0.64,0.64],[0.5,0.5]];
+  for (const [dx,dy] of points) {
+    await page.touchscreen.tap(rect.x + rect.width * dx, rect.y + rect.height * dy);
+  }
+  expect(errors).toEqual([]);
+  expect(await page.evaluate(() => window.__pionierStrikeCount)).toBeGreaterThan(0);
+  await expect(canvas).toBeVisible();
 });

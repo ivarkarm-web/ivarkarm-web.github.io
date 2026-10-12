@@ -1,109 +1,8 @@
 /**
- * pionier-app.js — load instrument core + scale selector + backdrop + looper
+ * Pionier app shell: load the vendored local core and optional UI modules.
+ * No CDN fetch, source rewriting, Blob module, or runtime string patches.
  */
-const GOOD = 'https://cdn.jsdelivr.net/gh/ivarkarm-web/ivarkarm-web.github.io@3984a53f1bdd04e93a9b4a8abf86a504fe78bf5f/handpan-app/pionier-app.js';
 const BASE = new URL('.', import.meta.url).href;
-
-// Cache-busting for the modules changed by the 9→13 note feature. Every
-// importer of a module must use the same query, or the browser would load two
-// separate copies of it.
-const SURFACE_V = '95';
-const HANDPAN_V = '1';
-
-/**
- * Changes applied to the pinned base app so it can run 9–13 notes.
- * Each anchor is matched exactly; a missing anchor is logged, not fatal.
- */
-const CORE_PATCHES = [
-  [
-    "  inst.noteOn(gesture, hit);\n  if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);",
-    "  inst.noteOn(gesture, hit);\n  window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now() } }));\n  if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);"
-  ],
-  [
-    "      inst.noteOn(gesture, hit);\n    }\n    app.pointers.set(e.pointerId, { index: hit.index, originY: y, originX: x });",
-    "      inst.noteOn(gesture, hit);\n    }\n    window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now(), instrument: inst.id || inst.name || 'handpan' } }));\n    app.pointers.set(e.pointerId, { index: hit.index, originY: y, originX: x });"
-  ],
-  [
-    "  inst.noteOn({ velocity: 0.75, pointerId: -1 - i }, hit);\n  draw();",
-    "  inst.noteOn({ velocity: 0.75, pointerId: -1 - i }, hit);\n  window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now(), instrument: inst.id || inst.name || 'handpan' } }));\n  draw();"
-  ],
-  // Keyboard keys for notes 10–13.
-  [
-    "const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'];",
-    "const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd'];"
-  ],
-  // Playable pads follow the handpan's current note count (other voices stay at 9).
-  [
-    'return fieldIndex >= 0 && fieldIndex <= 8;',
-    'return fieldIndex >= 0 && fieldIndex < padCount();'
-  ],
-  [
-    'surface.layoutHandpanFields(notes, isFieldPlayable);',
-    'surface.layoutHandpanFields(notes.slice(0, padCount()), isFieldPlayable);'
-  ],
-  [
-    'tap tonefields or Q–O (hold',
-    'tap tonefields or Q–O, P, A, S, D (hold'
-  ]
-];
-
-/** Appended to the base app so the "+" button can reach its internals. */
-const CORE_TAIL = `
-function padCount() {
-  // The plus/minus layout controls remain specific to the handpan.
-  return handpan.noteCount || 9;
-}
-function changeNoteCount(delta) {
-  const before = handpan.noteCount || 9;
-  const after = Math.max(9, Math.min(13, before + delta));
-  if (after === before) return false;
-  handpan.setNoteCount(after);
-  if (typeof surface.armTransition === 'function') surface.armTransition();
-  syncWorldPitch();
-  layoutFields();
-  const active = activeInstrument();
-  if (active && active.glow) {
-    for (let i = 0; i < active.glow.length; i++) active.glow[i] = i === after - 1 ? 1 : 0;
-  }
-  if (active && active.zoneFlash && after > before && after - 1 < active.zoneFlash.length) active.zoneFlash[after - 1] = 0.3;
-  updateLabels();
-  draw();
-  return true;
-}
-window.PionierCore = {
-  handpan,
-  surface,
-  activeInstrument: () => activeInstrument(),
-  draw() { draw(); },
-  addNote() { return changeNoteCount(1); },
-  removeNote() { return changeNoteCount(-1); },
-  noteCount: () => {
-    const inst = activeInstrument();
-    const notes = inst?.getNotes?.();
-    if (Array.isArray(notes) && notes.length) return notes.length;
-    if (Number.isFinite(inst?.noteCount) && inst.noteCount > 0) return inst.noteCount;
-    const fields = surface?.fields;
-    if (Array.isArray(fields) && fields.length) return fields.length;
-    return padCount();
-  }
-};
-`;
-
-function patchCore(src) {
-  for (const [from, to] of CORE_PATCHES) {
-    if (!src.includes(from)) {
-      console.warn('[pionier] core patch anchor not found:', from.slice(0, 48));
-      continue;
-    }
-    src = src.split(from).join(to);
-  }
-  if (/\nboot\(\);\s*$/.test(src)) {
-    src = src.replace(/\nboot\(\);\s*$/, '\n' + CORE_TAIL + '\nboot();\n');
-  } else {
-    console.warn('[pionier] core tail anchor not found; note button disabled');
-  }
-  return src;
-}
 
 function killCanvasGhosts(canvas) {
   if (!canvas || canvas.dataset.ghostKill === '1') return;
@@ -125,37 +24,16 @@ function killCanvasGhosts(canvas) {
   canvas.addEventListener('contextmenu', block, true);
 }
 
+
 async function boot() {
-  const res = await fetch(GOOD);
-  if (!res.ok) throw new Error('failed to load base app ' + res.status);
-  let src = await res.text();
-
-  src = patchCore(src);
-
-  src = src.split('tonal-family.js?v=5').join('tonal-family.js?v=6');
-  src = src.split('pionier-surface.js?v=28').join('pionier-surface.js?v=' + SURFACE_V);
-  src = src.split("'./js/pionier-surface.js'").join("'./js/pionier-surface.js?v=" + SURFACE_V + "'");
-  src = src.split('"./js/pionier-surface.js"').join('"./js/pionier-surface.js?v=' + SURFACE_V + '"');
-
-  src = src.replace(
-    /from\s+(['"])(\.?\/?[^'"]+)\1/g,
-    (m, q, path) => {
-      const abs = new URL(path, BASE);
-      if (String(path).includes('pionier-surface')) abs.searchParams.set('v', SURFACE_V);
-      if (String(path).includes('instruments/handpan.js')) abs.searchParams.set('v', HANDPAN_V);
-      return 'from ' + q + abs.href + q;
-    }
-  );
-
-  const blob = new Blob([src], { type: 'text/javascript' });
-  const url = URL.createObjectURL(blob);
-  await import(url);
+  // The core and its imports are served from this same deployed repository.
+  await import(new URL('./pionier-core.js?v=1', BASE).href);
 
   const pan = () => document.getElementById('pan');
   killCanvasGhosts(pan());
   requestAnimationFrame(() => killCanvasGhosts(pan()));
 
-  const { HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=' + HANDPAN_V, BASE).href);
+  const { HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js', BASE).href);
   const scaleLabel = document.getElementById('scaleLabel');
   const scaleMenu = document.getElementById('scaleMenu');
   if (scaleLabel && scaleMenu && HANDPAN_SCALES) {
@@ -262,4 +140,4 @@ async function boot() {
   }
 }
 
-boot().catch((err) => console.error('Pionier boot failed', err));
+await boot();
