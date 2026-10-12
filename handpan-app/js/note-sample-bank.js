@@ -71,10 +71,6 @@ export class NoteSampleBank {
     };
   }
 
-  /**
-   * Non-linear velocity curve (perceptual loudness-ish).
-   * v in 0..1 → shaped 0..1
-   */
   static velocityCurve(v) {
     v = Math.max(0, Math.min(1, v));
     const soft = Math.pow(v, 1.65);
@@ -82,10 +78,6 @@ export class NoteSampleBank {
     return soft * (1 - v) + hard * v;
   }
 
-  /**
-   * Multi-zone vector mapping → harmonic / brightness weights.
-   * radial: 0 at pad center → 1 near rim.
-   */
   static zoneWeights(radial = 0.4, angleRad = 0) {
     const r = Math.max(0, Math.min(1.25, radial));
     const center = Math.exp(-r * r * 3.2);
@@ -125,7 +117,6 @@ export class NoteSampleBank {
 
     const nodes = [];
 
-    // Layer A — body / fundamental (LP) — boosted
     const a = this._layer(hit, when + startSkew, {
       rate: hit.rate * detuneA,
       filterType: 'lowpass',
@@ -137,7 +128,6 @@ export class NoteSampleBank {
     a.gain.connect(bus);
     nodes.push(a.source, a.gain, a.filter);
 
-    // Layer B — partials / mid (BP) — boosted
     const b = this._layer(hit, when + startSkew + 0.0012, {
       rate: hit.rate * detuneB * (1 + z.partials * 0.002),
       filterType: 'bandpass',
@@ -149,7 +139,6 @@ export class NoteSampleBank {
     b.gain.connect(bus);
     nodes.push(b.source, b.gain, b.filter);
 
-    // Layer C — edge brightness (HP) — boosted
     const c = this._layer(hit, when + startSkew + 0.002, {
       rate: hit.rate * (1 + ((rr % 7) - 3) * 0.0015),
       filterType: 'highpass',
@@ -162,10 +151,12 @@ export class NoteSampleBank {
     nodes.push(c.source, c.gain, c.filter);
 
     const dur = hit.buffer.duration / Math.max(0.5, hit.rate);
-    const stop = (t = ctx.currentTime, tc = 0.06) => {
+    // Release when damped or replaced: short crossfade (100–300 ms time constant).
+    const stop = (t = ctx.currentTime, tc = 0.18) => {
+      const tau = Math.max(0.1, Math.min(0.3, tc));
       try {
         bus.gain.cancelScheduledValues(t);
-        bus.gain.setTargetAtTime(0, t, tc);
+        bus.gain.setTargetAtTime(0, t, tau);
       } catch (_) {}
     };
 
@@ -186,11 +177,15 @@ export class NoteSampleBank {
     filter.Q.value = p.filterQ;
     const gain = this.ctx.createGain();
     const peak = Math.max(0.0001, p.peak);
+    const dur = hit.buffer.duration / Math.max(0.5, p.rate);
+    // Recorded decay stays in the buffer. Only a short attack and a short end
+    // fade (~50–100 ms) are applied so the file is not double-faded.
+    const endFade = Math.min(0.08, Math.max(0.05, dur * 0.05));
+    const holdUntil = Math.max(p.attack + 0.01, dur - endFade);
     gain.gain.setValueAtTime(0.0001, when);
     gain.gain.linearRampToValueAtTime(peak, when + p.attack);
-    const dur = hit.buffer.duration / Math.max(0.5, p.rate);
-    gain.gain.setValueAtTime(peak, when + Math.max(p.attack + 0.02, dur * 0.55));
-    gain.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+    gain.gain.setValueAtTime(peak, when + holdUntil);
+    gain.gain.linearRampToValueAtTime(0.0001, when + dur);
     src.connect(filter);
     filter.connect(gain);
     src.start(when);
@@ -198,4 +193,3 @@ export class NoteSampleBank {
     return { source: src, filter, gain };
   }
 }
-
