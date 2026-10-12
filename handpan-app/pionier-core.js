@@ -441,6 +441,13 @@ function wireKnobs() {
 function setActivePage(which) {
   const page = document.getElementById('soundscapesPage');
   const showSS = which === 'soundscapes';
+  // Enter every page through a clean, collapsed controls state.
+  const drawer = document.getElementById('mobileControlDrawer');
+  const toggle = document.getElementById('mobileControlsToggle');
+  drawer?.classList.remove('is-open');
+  toggle?.setAttribute('aria-expanded', 'false');
+  const toggleLabel = toggle?.querySelector('.mobile-controls-label');
+  if (toggleLabel) toggleLabel.textContent = 'Controls';
   if (page) {
     page.classList.toggle('is-active', showSS);
     page.setAttribute('aria-hidden', showSS ? 'false' : 'true');
