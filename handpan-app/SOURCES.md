@@ -1,20 +1,18 @@
 # Pionier — Sample Sources & Licensing
 
-Every external audio asset used by Pionier must be listed here.
+Every external audio asset used by Pionier must be listed in [`docs/AUDIO-LICENSES.md`](../docs/AUDIO-LICENSES.md).
 
-## Handpan (shipped)
+## Current shipped audio
 
-| File pattern | Source | Creator | License | Status | Notes |
-|--------------|--------|---------|---------|--------|-------|
-| `sounds/notes/*.mp3` | haganenote/virtual-handpan (www.haganenote.com/vst) | Haganenote | See upstream project — used for virtual instrument playback | modified (one-shots, runtime pitch-shift) | Dry hits mapped by MIDI. Manifest: `sounds/notes/manifest.json` |
+No third-party audio files are shipped after the sample-removal change. Handpan playback uses the procedural synthesis fallback. Ambient beds are generated through Web Audio.
 
-Upstream: https://github.com/haganenote/virtual-handpan
+## Removed sample set
 
-These are **not** claimed as original Ivar Karm recordings. Attribution to Haganenote is required when redistributing.
+The previous `sounds/notes/*.mp3` set was attributed to the Haganenote virtual-handpan project, but an explicit license permitting redistribution in this app was not established. The files have been removed; per-file provenance and the upstream references remain documented in `docs/AUDIO-LICENSES.md`.
 
 ## Policy
 
 - Do **not** assume a free download is redistributable inside an app.
 - Prefer CC0, public domain, or licenses that explicitly allow redistribution in applications.
-- Temporary development placeholders must remain clearly marked.
-- Never ship test fixtures as production sounds.
+- Record source, creator, exact license, commercial-use permission, attribution, and the license URL/text for every external sound.
+- Keep test fixtures out of production assets.
