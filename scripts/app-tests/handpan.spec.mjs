@@ -163,8 +163,12 @@ test('a shared pad stays sounding until the final pointer releases it', async ({
     fire('pointerdown', 702);
     fire('pointerup', 701);
   });
-  const afterFirstRelease = await page.evaluate(() => window.PionierCore.activeInstrument().activeVoices.size);
-  expect(afterFirstRelease).toBeGreaterThan(0);
+  const afterFirstRelease = await page.evaluate(() => {
+    const voice = window.PionierCore.activeInstrument().activeVoices.values().next().value;
+    return { count: window.PionierCore.activeInstrument().activeVoices.size, released: voice?.released ?? true };
+  });
+  expect(afterFirstRelease.count).toBeGreaterThan(0);
+  expect(afterFirstRelease.released).toBe(false);
   await page.evaluate(() => window.__sharedPadTest.fire('pointerup', 702));
   await expect.poll(() => page.evaluate(() => window.PionierCore.activeInstrument().activeVoices.size)).toBe(0);
 });
