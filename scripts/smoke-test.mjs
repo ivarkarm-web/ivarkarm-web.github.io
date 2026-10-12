@@ -37,6 +37,13 @@ read('handpan-app/js/instruments/tonal-family.js');
 read('handpan-app/js/pionier-surface.js');
 const soundscapes = read('handpan-app/js/soundscapes.js');
 read('handpan-app/js/mandala-canvas.js');
+const noteSampleManifest = JSON.parse(read('handpan-app/sounds/notes/manifest.json'));
+const bundledNoteAudioDir = path.join(root, 'handpan-app/sounds/notes');
+const bundledNoteAudio = fs.existsSync(bundledNoteAudioDir)
+  ? fs.readdirSync(bundledNoteAudioDir).filter((name) => /\\.(mp3|wav|ogg|m4a|aac|flac)$/i.test(name))
+  : [];
+if (Array.isArray(noteSampleManifest.samples) && noteSampleManifest.samples.length === 0 && bundledNoteAudio.length === 0) ok('No third-party note audio is bundled; synth fallback remains available');
+else fail('Uncleared note audio is still bundled or referenced by the sample manifest');
 
 if (rootHtml.includes('<title>') && rootHtml.includes('</html>')) ok('Portfolio document is present');
 else fail('Portfolio HTML document is incomplete');
