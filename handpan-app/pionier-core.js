@@ -187,13 +187,20 @@ canvas?.addEventListener('pointerdown', (e) => {
   if (!hit) return;
   try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
   const inst = activeInstrument();
+  const alreadyHeld = Array.from(app.pointers.values()).some((rec) =>
+    (typeof rec === 'object' ? rec?.index : rec) === hit.index
+  );
   const gesture = gestureFromPointer(e, hit, app.gestureTracker.activeCount + 1, inst.lastStrikeAt);
   app.gestureTracker.down(gesture);
   app.pointers.set(e.pointerId, { index: hit.index, originY: y, originX: x });
   app.lastVelocity = gesture.velocity;
-  inst.noteOn(gesture, hit);
-  window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now() } }));
-  if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);
+  // One engine voice is keyed per pad; don't retrigger/release it while another
+  // pointer is already holding that pad.
+  if (!alreadyHeld) {
+    inst.noteOn(gesture, hit);
+    window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now() } }));
+    if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);
+  }
   draw();
 });
 
