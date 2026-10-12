@@ -65,7 +65,7 @@ test('note-count controls add and remove notes without losing the instrument cor
   expect(core).toBe(9);
 });
 
-test('rapid touch-sized strikes do not throw and canvas remains inside the viewport', async ({ page }) => {
+test('rapid pointer strikes do not throw and canvas remains inside the viewport', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
   const canvas = page.locator('#pan');
@@ -80,4 +80,19 @@ test('rapid touch-sized strikes do not throw and canvas remains inside the viewp
     await page.mouse.click(x + width * dx, y + height * dy);
   }
   expect(errors).toEqual([]);
+});
+
+test('real touch taps can be delivered in quick succession on mobile', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith('mobile'), 'touchscreen emulation runs in the mobile project');
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  const canvas = page.locator('#pan');
+  const rect = await canvas.boundingBox();
+  expect(rect).not.toBeNull();
+  const points = [[0.5,0.5],[0.36,0.36],[0.64,0.36],[0.36,0.64],[0.64,0.64],[0.5,0.5]];
+  for (const [dx,dy] of points) {
+    await page.touchscreen.tap(rect.x + rect.width * dx, rect.y + rect.height * dy);
+  }
+  expect(errors).toEqual([]);
+  await expect(canvas).toBeVisible();
 });
