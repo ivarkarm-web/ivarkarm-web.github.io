@@ -389,8 +389,11 @@ body::before {
 }
 
 @media (max-width: 380px) {
-  .bp-name { min-width: 0; max-width: 22vw; font-size: 11px; }
-  .bp-vol input[type="range"] { width: 64px; }
+  .bp-btn { width: 30px; height: 30px; }
+  .bp-play { width: 36px; height: 36px; }
+  .bp-name { min-width: 0; max-width: 15vw; font-size: 10px; margin-left: 2px; margin-right: 2px; }
+  .bp-vol { gap: 3px; margin-left: 0; }
+  .bp-vol input[type="range"] { width: 48px; }
 }
 
 /* Note-count controls — understated dark glass with restrained gold accents */
