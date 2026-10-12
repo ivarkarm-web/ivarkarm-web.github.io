@@ -140,4 +140,4 @@ async function boot() {
   }
 }
 
-boot().catch((err) => console.error('Pionier boot failed', err));
+await boot();
