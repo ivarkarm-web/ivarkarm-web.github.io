@@ -404,6 +404,58 @@ test('a shared pad stays sounding until the final pointer releases it', async ({
   expect(afterFinalRelease.voiceCount).toBeGreaterThan(0);
 });
 
+
+test('200 rapid strikes stop superseded oscillators and preserve the newest voice', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__voiceNodeAudit = { created: 0, ended: 0 };
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC?.prototype?.createOscillator) return;
+    const original = AC.prototype.createOscillator;
+    AC.prototype.createOscillator = function (...args) {
+      const node = original.apply(this, args);
+      window.__voiceNodeAudit.created++;
+      node.addEventListener('ended', () => { window.__voiceNodeAudit.ended++; });
+      return node;
+    };
+  });
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => {
+    const inst = window.PionierCore?.activeInstrument?.();
+    return !!inst?.audioCtx && !!inst?.bus && !!window.__voiceNodeAudit;
+  })).toBe(true);
+  await page.locator('#pan').click();
+  await expect.poll(() => page.evaluate(() => window.HandpanAudio?.audioState?.())).toBe('running');
+  const result = await page.evaluate(async () => {
+    const inst = window.PionierCore.activeInstrument();
+    const audit = window.__voiceNodeAudit;
+    const beforeCreated = audit.created;
+    const beforeEnded = audit.ended;
+    const zone = { index: 0, radial: 0.42, angleRad: 0 };
+    let newest = null;
+    for (let i = 0; i < 200; i++) {
+      inst.noteOn({ velocity: 0.65, pressure: 0.6, pointerId: i + 1000 }, zone);
+      newest = inst.activeVoices.get(0);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 160));
+    const newestPreserved = inst.activeVoices.get(0) === newest;
+    const peakVoices = inst.activeVoices.size;
+    inst.dampAll();
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    return {
+      newestPreserved,
+      peakVoices,
+      created: audit.created - beforeCreated,
+      ended: audit.ended - beforeEnded,
+      remainingVoices: inst.activeVoices.size
+    };
+  });
+  expect(result.newestPreserved).toBe(true);
+  expect(result.peakVoices).toBe(1);
+  expect(result.created).toBeGreaterThan(0);
+  expect(result.ended).toBe(result.created);
+  expect(result.remainingVoices).toBe(0);
+});
+
 test('window blur clears held pointers and prevents stuck notes', async ({ page }) => {
   await page.evaluate(() => {
     const canvas = document.getElementById('pan');
