@@ -186,7 +186,7 @@ if (page && app && pan && audio) {
     if (interactiveTarget(event.target) || (event.pointerType === 'mouse' && event.button !== 0)) return;
     const active = page.classList.contains('is-active');
     if (!active && !event.target.closest?.('#pan')) return;
-    if (active && event.target.closest?.('.soundscapes-stage') == null) return;
+    // Allow swipes anywhere on the non-interactive Soundscapes surface.
     swipeStart = { id: event.pointerId, x: event.clientX, y: event.clientY, active };
   }, { passive: true });
   window.addEventListener('pointerup', (event) => {
