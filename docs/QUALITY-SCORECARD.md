@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-10-13  
 **Scope:** `handpan-app/` and its test/CI surface.  
-**Deployment baseline:** `91952fb5cfe2611662d7e69a9ef2ed5e391a497b` (ring-out change merged; deployment must be verified separately).
+**Deployment baseline:** `6b6a1c921dbe2bce48169a8fcc1c7b615b7342d3` (audio provenance cleanup merged; [Pages deployment workflow passed](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38310436303); independent live URL smoke check remains unavailable in this environment).
 
 This scorecard is deliberately conservative. A passing unit or browser suite is evidence for the behavior it exercises, not proof of real-device behavior, sound quality, offline support, or commercial licensing.
 
@@ -25,6 +25,7 @@ Scores do not increase merely because a PR merges. They move only when the rubri
 - [PR #62 — natural handpan note ring-out](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/62) — merged. [Its Handpan App Checks run passed](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38303784059).
 - [PR #65 — Restore mobile zoom and protect rapid scale taps](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/65) — merged; [CI passed](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38309280959). Browser emulation covers 360×640, 390×844 and desktop Chromium; no physical-device verification.
 - [PR #66 — Remove retired placeholder instruments](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/66) — merged; [CI passed](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38309824592).
+- [PR #67 — Remove uncleared audio assets and audit provenance](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/67) — merged; [CI passed](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38310280889). The sample set was removed and the procedural fallback has a browser regression test.
 - The repository's current PR workflow runs `node scripts/smoke-test.mjs`, `npm run test:app`, and `npx playwright test`. It installs Chromium and runs these on GitHub Actions. The current workflow does not prove iOS Safari, mobile WebKit, actual hardware audio, or real-device offline behavior.
 - Deployment workflow for commit `91952fb5cfe2611662d7e69a9ef2ed5e391a497b`: [Deploy to GitHub Pages run](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38305779641). Check the run result before claiming deployment is complete.
 
@@ -76,6 +77,8 @@ Scores do not increase merely because a PR merges. They move only when the rubri
 4. Owner-provided or explicitly licensed handpan samples; current sample redistribution status remains uncleared.
 
 ## Change log
+
+- **2026-10-13 (PR #68, pending):** Add procedural storm, forest-wind and ocean beds; make looping noise boundaries click-safe; add explicit mute and fallback behavior; test the ambient transport. Scores remain unchanged pending CI and broader phase evidence.
 
 - **2026-10-13 (PR #67, pending):** Inventory all previously bundled handpan samples, remove them because redistribution permission was not established, and test the procedural fallback. Scores remain unchanged: the fallback is safer from a licensing perspective but is not equivalent to real recorded handpan sound.
 
