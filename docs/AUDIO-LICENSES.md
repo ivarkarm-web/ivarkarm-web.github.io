@@ -7,7 +7,11 @@
 
 ### Owner-recorded handpan prototype (2026-10-13)
 
-Source session: owner WAV recorded by **Ivar Karm** (`handpan settings - 13.10.2026, 02.28.wav`). Nine one-shots cut from an ascending pass (D Kurd layout). Ring-outs are truncated (~0.7s). **Prototype quality only** — replace with isolated full-decay takes when available. Synth fallback remains if a file is missing or fails to decode.
+Owner attestation. The nine handpan one-shots (D3–A4) were recorded by Ivar Karm and mixed in GarageBand using only its built-in effects (EQ, compression, reverb). No Apple Loops, Apple sampled instruments, third-party samples, loops or impulse responses are included. Ivar Karm holds all rights and permits embedding and distribution in this app.
+
+Ring-outs in this prototype pass are truncated (~0.7s sequential takes). Synth fallback remains if a file is missing or fails to decode.
+
+**Third-party plugin / impulse response / preset:** (none)
 
 | File | Note | MIDI | Creator | License | Commercial / redistribute |
 |---|---|---:|---|---|---|
