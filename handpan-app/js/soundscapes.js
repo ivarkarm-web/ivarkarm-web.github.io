@@ -185,8 +185,8 @@ if (page && app && pan && audio) {
     if (audio.paused && status && status.textContent === 'LOADING AUDIO...') status.textContent = 'TRACK LOADED - PRESS PLAY';
   });
   audio.addEventListener('error', () => {
-    if (status) status.textContent = 'COULD NOT DECODE AUDIO - TRY MP3 OR WAV';
     setPlaying(false);
+    if (status) status.textContent = 'COULD NOT DECODE AUDIO - TRY MP3 OR WAV';
   });
   audio.addEventListener('play', () => setPlaying(true));
   audio.addEventListener('pause', () => setPlaying(false));
