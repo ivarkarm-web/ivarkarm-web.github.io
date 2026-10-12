@@ -121,16 +121,24 @@ if (page && app && pan && audio) {
       file.type.startsWith('audio/') || /\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(file.name)
     );
     if (!files.length) return;
-    audio.pause();
-    objectUrls.forEach((url) => URL.revokeObjectURL(url));
-    objectUrls = [];
-    tracks = files.map((file) => {
+    const wasEmpty = tracks.length === 0;
+    const addedTracks = files.map((file) => {
       const url = URL.createObjectURL(file);
       objectUrls.push(url);
       return { name: file.name.replace(/\.[^.]+$/, ''), url };
     });
-    activeIndex = -1;
-    loadTrack(0, true);
+    tracks.push(...addedTracks);
+    if (wasEmpty) {
+      loadTrack(0, true);
+    } else {
+      // Adding files extends the playlist without interrupting the current track.
+      if (subtitle) {
+        subtitle.textContent = tracks.length > 1
+          ? 'TRACK ' + (activeIndex + 1) + ' / ' + tracks.length
+          : 'ONE TRACK LOADED';
+      }
+      if (status) status.textContent = addedTracks.length + (addedTracks.length === 1 ? ' TRACK ADDED' : ' TRACKS ADDED');
+    }
     fileInput.value = '';
   });
   play?.addEventListener('click', () => {
