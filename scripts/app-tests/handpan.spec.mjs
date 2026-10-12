@@ -254,17 +254,17 @@ test('procedural backdrop beds play, navigate, mute, and pause', async ({ page }
 });
 
 test('a failed ambient bed falls back to the safe default track', async ({ page }) => {
-  const state = await page.evaluate(async () => {
-    const { BACKDROP_TRACKS } = await import('/handpan-app/js/backdrop-player.js');
+  const state = await page.evaluate(() => {
     const player = window.PionierBackdropPlayer;
-    const original = BACKDROP_TRACKS[1].build;
-    BACKDROP_TRACKS[1].build = () => { throw new Error('simulated track failure'); };
+    const tracks = player.tracks;
+    const original = tracks[1].build;
+    tracks[1].build = () => { throw new Error('simulated track failure'); };
     try {
       player.next();
       player.play();
       return player.getState();
     } finally {
-      BACKDROP_TRACKS[1].build = original;
+      tracks[1].build = original;
       player.pause();
       player.prev();
     }
