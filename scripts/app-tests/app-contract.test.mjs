@@ -10,7 +10,7 @@ function read(rel) { return fs.readFileSync(path.join(root, rel), 'utf8'); }
 
 test('Pionier entry surface matches the deployed instrument UI', () => {
   const html = read('handpan-app/index.html');
-  for (const id of ['app','pan','instrumentDropdownToggle','instrumentMenu','mobileControlDrawer','mobileControlsToggle','mobileControlPanel','soundscapesPage','mandalaWrap','mandalaPlay','soundscapeAudio','scaleLabel','scaleMenu','knobCompress','knobDelay','knobReverb','knobFilter','knobBass','knobLow','knobMid','knobMaster','looperBtn']) {
+  for (const id of ['app','pan','instrumentDropdownToggle','instrumentMenu','mobileControlDrawer','mobileControlsToggle','mobileControlPanel','openSoundscapes','soundscapesPage','mandalaWrap','mandalaPlay','soundscapeAudio','scaleLabel','scaleMenu','knobCompress','knobDelay','knobReverb','knobFilter','knobBass','knobLow','knobMid','knobMaster','looperBtn']) {
     assert.match(html, new RegExp('id="' + id + '"'), 'missing #' + id);
   }
   assert.match(html, /id="pan"[^>]*aria-label="Handpan instrument"/);
