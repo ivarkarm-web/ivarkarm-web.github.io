@@ -23,18 +23,36 @@ test('boots the local core without runtime source-fetch errors', async ({ page }
   expect(boot.scrollWidth).toBeLessThanOrEqual(boot.clientWidth + 1);
 });
 
-test('instrument menu switches away from Handpan and can return', async ({ page }) => {
+for (const [instrumentName, instrumentId] of [
+  ['Bird', 'bird'],
+  ['Kitchen', 'kitchen'],
+  ['Kalimba', 'kalimba'],
+  ['Tongue Drum', 'tongue-drum']
+]) {
+  test(`${instrumentName} selection activates its actual engine`, async ({ page }) => {
+    const trigger = page.locator('#instrumentDropdownToggle');
+    const menu = page.locator('#instrumentMenu');
+    await trigger.click();
+    await expect(menu).toBeVisible();
+    await menu.getByRole('button', { name: instrumentName, exact: true }).click();
+    await expect(trigger).toContainText(instrumentName);
+    await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe(instrumentId);
+    await expect.poll(() => page.evaluate(() => !!window.PionierCore?.activeInstrument?.()?.ready)).toBe(true);
+  });
+}
+
+test('Handpan can be reselected after switching to another instrument', async ({ page }) => {
   const trigger = page.locator('#instrumentDropdownToggle');
-  await trigger.click();
   const menu = page.locator('#instrumentMenu');
-  await expect(menu).toBeVisible();
-  await expect(menu.getByRole('button', { name: 'Tongue Drum', exact: true })).toBeVisible();
-  await expect(menu.getByRole('button', { name: 'Kalimba', exact: true })).toBeVisible();
-  await menu.getByRole('button', { name: 'Bird', exact: true }).click();
-  await expect(trigger).toContainText('Bird');
   await trigger.click();
+  await menu.getByRole('button', { name: 'Bird', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('bird');
+  await trigger.click();
+  await expect(menu).toBeVisible();
   await menu.getByRole('button', { name: 'Handpan', exact: true }).click();
   await expect(trigger).toContainText('Handpan');
+  await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('handpan');
+  await expect.poll(() => page.evaluate(() => !!window.PionierCore?.activeInstrument?.()?.ready)).toBe(true);
 });
 
 test('effect type menus open and update their selected state', async ({ page }) => {
