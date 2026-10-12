@@ -31,6 +31,7 @@ if (page && app && pan && audio) {
   const total = document.getElementById('soundscapeTimeTotal');
   const playback = document.getElementById('soundscapePlayback');
   const back = document.getElementById('backToHandpan');
+  const openButton = document.getElementById('openSoundscapes');
   const renderer = createMandalaRenderer(mandala);
 
   let tracks = [];
@@ -146,6 +147,7 @@ if (page && app && pan && audio) {
   previous?.addEventListener('click', () => loadTrack(activeIndex - 1, true));
   next?.addEventListener('click', () => loadTrack(activeIndex + 1, true));
   back?.addEventListener('click', () => showSoundscapes(false));
+  openButton?.addEventListener('click', () => showSoundscapes(true));
   // The core owns the shared drawer toggle listener; do not toggle it twice.
   volume?.addEventListener('input', () => { audio.volume = Number(volume.value); });
   playback?.addEventListener('change', () => { audio.loop = playback.value !== 'once'; });
