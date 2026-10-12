@@ -3,6 +3,33 @@
  * No CDN fetch, source rewriting, Blob module, or runtime string patches.
  */
 const BASE = new URL('.', import.meta.url).href;
+const statusEl = document.getElementById('appStatus');
+const statusMessage = document.getElementById('appStatusMessage');
+const statusRetry = document.getElementById('appStatusRetry');
+
+function setBootStatus(state, message = '', retry = false) {
+  window.PionierBootState = state;
+  if (!statusEl) return;
+  statusEl.dataset.state = state;
+  statusEl.hidden = state === 'ready';
+  statusEl.setAttribute('role', state === 'failed' ? 'alert' : 'status');
+  if (statusMessage) statusMessage.textContent = message;
+  if (statusRetry) statusRetry.hidden = !retry;
+}
+
+statusRetry?.addEventListener('click', () => window.location.reload());
+window.addEventListener('error', (event) => {
+  if (!event.message || window.PionierBootState === 'failed') return;
+  console.error('[pionier] runtime error', event.error || event.message);
+  setBootStatus('degraded', 'A feature encountered an error. The instrument may still work; reload to retry.', true);
+});
+window.addEventListener('unhandledrejection', (event) => {
+  event.preventDefault();
+  console.error('[pionier] unhandled async error', event.reason);
+  if (window.PionierBootState !== 'failed') {
+    setBootStatus('degraded', 'A feature could not finish starting. The instrument may still work; reload to retry.', true);
+  }
+});
 
 function killCanvasGhosts(canvas) {
   if (!canvas || canvas.dataset.ghostKill === '1') return;
@@ -26,19 +53,36 @@ function killCanvasGhosts(canvas) {
 
 
 async function boot() {
-  // The core and its imports are served from this same deployed repository.
-  await import(new URL('./pionier-core.js?v=1', BASE).href);
+  setBootStatus('loading', 'Starting Pionier…');
+  const degraded = [];
+
+  // The core is required; if it cannot load, keep the recovery surface visible.
+  try {
+    await import(new URL('./pionier-core.js?v=1', BASE).href);
+  } catch (err) {
+    console.error('[pionier] required core failed to load', err);
+    setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
+    return false;
+  }
+
   try {
     await import(new URL('./js/soundscapes.js?v=5', BASE).href);
   } catch (err) {
     console.error('[soundscapes] module failed to initialize', err);
+    degraded.push('Soundscapes');
   }
 
   const pan = () => document.getElementById('pan');
   killCanvasGhosts(pan());
   requestAnimationFrame(() => killCanvasGhosts(pan()));
 
-  const { HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js', BASE).href);
+  let HANDPAN_SCALES = null;
+  try {
+    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js', BASE).href));
+  } catch (err) {
+    console.error('[scale-picker] module failed to initialize', err);
+    degraded.push('the scale picker');
+  }
   const scaleLabel = document.getElementById('scaleLabel');
   const scaleMenu = document.getElementById('scaleMenu');
   if (scaleLabel && scaleMenu && HANDPAN_SCALES) {
@@ -124,6 +168,7 @@ async function boot() {
     mountNotePlus();
   } catch (err) {
     console.warn('[note-plus] mount failed', err);
+    degraded.push('note-count controls');
   }
 
   try {
@@ -133,6 +178,7 @@ async function boot() {
     mountBackdropPlayer();
   } catch (err) {
     console.warn('[backdrop] mount failed', err);
+    degraded.push('the ambient player');
   }
 
   try {
@@ -142,7 +188,21 @@ async function boot() {
     mountLooper();
   } catch (err) {
     console.warn('[looper] mount failed', err);
+    degraded.push('the looper');
   }
+
+  const health = window.PionierCore?.health?.();
+  if (health && !health.audioAvailable) degraded.push('audio output');
+  if (health && !health.storageAvailable) degraded.push('saved settings');
+  if (degraded.length) {
+    setBootStatus('degraded', `Pionier is running with limited features: ${degraded.join(', ')}. Reload to retry.`, true);
+  } else {
+    setBootStatus('ready', '');
+  }
+  return true;
 }
 
-await boot();
+boot().catch((err) => {
+  console.error('[pionier] unexpected boot failure', err);
+  setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
+});
