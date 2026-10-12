@@ -260,7 +260,6 @@ function hasOtherPointerAt(index, pointerId) {
 }
 
 function releaseAllPointers() {
-  if (!app.pointers.size) return;
   const heldIndices = new Set();
   for (const [pointerId, rec] of app.pointers) {
     const index = typeof rec === 'object' ? rec?.index : rec;
@@ -270,8 +269,15 @@ function releaseAllPointers() {
   }
   app.pointers.clear();
   const inst = activeInstrument();
+  // Blur can arrive after a pointer was lost by the browser, leaving a voice
+  // active even when our pointer map is empty. Always hard-release the
+  // instrument's held voices when the app loses focus.
+  if (typeof inst?.dampAll === 'function') {
+    try { inst.dampAll(); } catch (_) {}
+    return;
+  }
   for (const index of heldIndices) {
-    try { inst.noteOff(index); } catch (_) {}
+    try { inst?.noteOff(index); } catch (_) {}
   }
 }
 
