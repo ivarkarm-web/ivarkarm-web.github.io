@@ -312,6 +312,7 @@ test('procedural backdrop beds play, navigate, mute, and pause', async ({ page }
 });
 
 test('a failed ambient bed falls back to the safe default track', async ({ page }) => {
+  await expect.poll(() => page.evaluate(() => !!window.PionierBackdropPlayer)).toBe(true);
   const state = await page.evaluate(() => {
     const player = window.PionierBackdropPlayer;
     const tracks = player.tracks;
