@@ -86,6 +86,10 @@ test('real touch taps can be delivered in quick succession on mobile', async ({ 
   test.skip(!testInfo.project.name.startsWith('mobile'), 'touchscreen emulation runs in the mobile project');
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
+  await page.evaluate(() => {
+    window.__pionierStrikeCount = 0;
+    window.addEventListener('pionier:learn-note', () => { window.__pionierStrikeCount += 1; });
+  });
   const canvas = page.locator('#pan');
   const rect = await canvas.boundingBox();
   expect(rect).not.toBeNull();
@@ -94,5 +98,6 @@ test('real touch taps can be delivered in quick succession on mobile', async ({ 
     await page.touchscreen.tap(rect.x + rect.width * dx, rect.y + rect.height * dy);
   }
   expect(errors).toEqual([]);
+  expect(await page.evaluate(() => window.__pionierStrikeCount)).toBeGreaterThan(0);
   await expect(canvas).toBeVisible();
 });
