@@ -77,16 +77,18 @@ if (page && app && pan && audio) {
     activeIndex = (index + tracks.length) % tracks.length;
     const track = tracks[activeIndex];
     audio.pause();
-    audio.src = track.url;
-    audio.load();
     audio.loop = playback?.value !== 'once';
     title.textContent = track.name;
     subtitle.textContent = tracks.length > 1 ? 'TRACK ' + (activeIndex + 1) + ' / ' + tracks.length : 'ONE TRACK LOADED';
-    if (status) status.textContent = 'TRACK LOADED';
+    if (status) status.textContent = 'LOADING AUDIO...';
+    // Load the selected object URL independently from autoplay. Browsers may
+    // reject autoplay after a file-picker interaction even when the file loads.
+    audio.src = track.url;
+    audio.load();
     if (autoplay) {
       audio.play().then(() => setPlaying(true)).catch(() => {
         setPlaying(false);
-        if (status) status.textContent = 'PRESS PLAY TO START';
+        if (status) status.textContent = 'TRACK LOADED - PRESS PLAY';
       });
     } else setPlaying(false);
   }
@@ -175,7 +177,17 @@ if (page && app && pan && audio) {
   progress?.addEventListener('change', seek);
   progress?.addEventListener('pointerup', seek);
   audio.addEventListener('timeupdate', syncProgress);
-  audio.addEventListener('loadedmetadata', syncProgress);
+  audio.addEventListener('loadedmetadata', () => {
+    syncProgress();
+    if (audio.paused && status && status.textContent === 'LOADING AUDIO...') status.textContent = 'TRACK LOADED - PRESS PLAY';
+  });
+  audio.addEventListener('canplay', () => {
+    if (audio.paused && status && status.textContent === 'LOADING AUDIO...') status.textContent = 'TRACK LOADED - PRESS PLAY';
+  });
+  audio.addEventListener('error', () => {
+    if (status) status.textContent = 'COULD NOT DECODE AUDIO - TRY MP3 OR WAV';
+    setPlaying(false);
+  });
   audio.addEventListener('play', () => setPlaying(true));
   audio.addEventListener('pause', () => setPlaying(false));
   audio.addEventListener('ended', () => {
