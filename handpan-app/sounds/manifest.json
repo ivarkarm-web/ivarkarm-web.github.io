@@ -1,9 +1,9 @@
 {
-  "version": 1,
-  "status": "fallback-synth",
+  "version": 2,
+  "status": "owner-prototype",
   "format": "wav",
-  "sampleRate": 48000,
+  "sampleRate": 44100,
   "channels": 1,
-  "notes": "Real handpan recordings will be added later. Empty sample map intentionally keeps the production app on its synthesized fallback voice.",
-  "samples": {}
+  "notes": "Owner-recorded D Kurd prototype one-shots in sounds/notes/. Missing or failed decode falls back to procedural synthesis.",
+  "samples": "see notes/manifest.json"
 }
