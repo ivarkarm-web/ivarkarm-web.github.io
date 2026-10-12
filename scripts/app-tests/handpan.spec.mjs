@@ -4,6 +4,10 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/handpan-app/index.html');
   await expect(page.locator('#pan')).toBeVisible();
   await expect(page.locator('#instrumentDropdownToggle')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => {
+    const active = window.PionierCore?.activeInstrument?.();
+    return !!active?.audioCtx && !!active?.bus && !!window.PionierCore?.surface?.fields?.length;
+  })).toBe(true);
 });
 
 
