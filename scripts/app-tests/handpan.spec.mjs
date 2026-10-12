@@ -83,6 +83,14 @@ test('Soundscapes swipe transition opens and returns without reloading the instr
   await expect(page.locator('#pan')).toBeVisible();
 });
 
+test('Soundscapes shortcut opens the player and the back control returns', async ({ page }) => {
+  await page.locator('#openSoundscapes').click();
+  await expect(page.locator('#soundscapesPage')).toHaveClass(/is-active/);
+  await page.locator('#backToHandpan').click();
+  await expect(page.locator('#soundscapesPage')).not.toHaveClass(/is-active/);
+  await expect(page.locator('#pan')).toBeVisible();
+});
+
 test('Soundscapes reuses the FX drawer and exposes track playback controls', async ({ page }) => {
   await page.locator('#mobileControlsToggle').click();
   await expect(page.locator('#mobileControlDrawer')).toHaveClass(/is-open/);
