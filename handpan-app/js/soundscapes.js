@@ -146,7 +146,7 @@ if (page && app && pan && audio) {
   previous?.addEventListener('click', () => loadTrack(activeIndex - 1, true));
   next?.addEventListener('click', () => loadTrack(activeIndex + 1, true));
   back?.addEventListener('click', () => showSoundscapes(false));
-  drawerToggle?.addEventListener('click', () => setControls(!drawer?.classList.contains('is-open')));
+  // The core owns the shared drawer toggle listener; do not toggle it twice.
   volume?.addEventListener('input', () => { audio.volume = Number(volume.value); });
   playback?.addEventListener('change', () => { audio.loop = playback.value !== 'once'; });
   progress?.addEventListener('pointerdown', () => { seeking = true; });
