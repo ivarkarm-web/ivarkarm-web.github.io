@@ -4,6 +4,23 @@
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js';
 
+/** Periodic noise with eased, zero-amplitude boundaries to avoid clicks at loop seams. */
+export function createLoopingNoiseBuffer(ctx, seconds = 4) {
+  const length = Math.max(8, Math.floor(ctx.sampleRate * seconds));
+  const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  const fade = Math.min(Math.floor(ctx.sampleRate * 0.12), Math.floor(length / 4));
+  for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
+  for (let i = 0; i < fade; i++) {
+    const ramp = Math.sin((i / Math.max(1, fade - 1)) * Math.PI / 2);
+    data[i] *= ramp;
+    data[length - 1 - i] *= ramp;
+  }
+  data[0] = 0;
+  data[length - 1] = 0;
+  return buffer;
+}
+
 const TRACKS = [
   {
     id: 'mist',
@@ -41,10 +58,7 @@ const TRACKS = [
       const g = ctx.createGain();
       g.gain.value = 0.028;
       g.connect(dest);
-      const bufSize = ctx.sampleRate * 2;
-      const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-      const data = buf.getChannelData(0);
-      for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+      const buf = createLoopingNoiseBuffer(ctx, 4);
       const src = ctx.createBufferSource();
       src.buffer = buf;
       src.loop = true;
@@ -171,7 +185,147 @@ const TRACKS = [
       return () => stops.forEach((s) => s());
     }
   }
+  ,
+  {
+    id: 'storm',
+    label: 'Storm Front',
+    build(ctx, dest) {
+      const out = ctx.createGain();
+      out.gain.value = 0.065;
+      out.connect(dest);
+      const rumbleBuffer = createLoopingNoiseBuffer(ctx, 6);
+      const rumbleSource = ctx.createBufferSource();
+      rumbleSource.buffer = rumbleBuffer;
+      rumbleSource.loop = true;
+      const rumbleFilter = ctx.createBiquadFilter();
+      rumbleFilter.type = 'lowpass';
+      rumbleFilter.frequency.value = 260;
+      const rumbleGain = ctx.createGain();
+      rumbleGain.gain.value = 0.8;
+      rumbleSource.connect(rumbleFilter);
+      rumbleFilter.connect(rumbleGain);
+      rumbleGain.connect(out);
+      rumbleSource.start();
+      const windBuffer = createLoopingNoiseBuffer(ctx, 5);
+      const windSource = ctx.createBufferSource();
+      windSource.buffer = windBuffer;
+      windSource.loop = true;
+      const windFilter = ctx.createBiquadFilter();
+      windFilter.type = 'bandpass';
+      windFilter.frequency.value = 420;
+      windFilter.Q.value = 0.35;
+      const windGain = ctx.createGain();
+      windGain.gain.value = 0.12;
+      windSource.connect(windFilter);
+      windFilter.connect(windGain);
+      windGain.connect(out);
+      windSource.start();
+      const sub = ctx.createOscillator();
+      sub.type = 'triangle';
+      sub.frequency.value = 38;
+      const subGain = ctx.createGain();
+      subGain.gain.value = 0.12;
+      sub.connect(subGain);
+      subGain.connect(out);
+      sub.start();
+      const lfo = ctx.createOscillator();
+      lfo.frequency.value = 0.07;
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.value = 22;
+      lfo.connect(lfoGain);
+      lfoGain.connect(sub.frequency);
+      lfo.start();
+      return () => {
+        for (const node of [rumbleSource, windSource, sub, lfo]) { try { node.stop(); } catch (_) {} }
+        try { out.disconnect(); } catch (_) {}
+      };
+    }
+  },
+  {
+    id: 'forest-wind',
+    label: 'Forest Wind',
+    build(ctx, dest) {
+      const out = ctx.createGain();
+      out.gain.value = 0.035;
+      out.connect(dest);
+      const source = ctx.createBufferSource();
+      source.buffer = createLoopingNoiseBuffer(ctx, 7);
+      source.loop = true;
+      const band = ctx.createBiquadFilter();
+      band.type = 'bandpass';
+      band.frequency.value = 650;
+      band.Q.value = 0.35;
+      const low = ctx.createBiquadFilter();
+      low.type = 'lowpass';
+      low.frequency.value = 1500;
+      source.connect(band);
+      band.connect(low);
+      low.connect(out);
+      source.start();
+      const gust = ctx.createOscillator();
+      gust.type = 'sine';
+      gust.frequency.value = 0.09;
+      const gustGain = ctx.createGain();
+      gustGain.gain.value = 0.022;
+      gust.connect(gustGain);
+      gustGain.connect(out.gain);
+      gust.start();
+      const lowWind = ctx.createOscillator();
+      lowWind.type = 'sine';
+      lowWind.frequency.value = 82;
+      const lowWindGain = ctx.createGain();
+      lowWindGain.gain.value = 0.12;
+      lowWind.connect(lowWindGain);
+      lowWindGain.connect(out);
+      lowWind.start();
+      return () => {
+        for (const node of [source, gust, lowWind]) { try { node.stop(); } catch (_) {} }
+        try { out.disconnect(); } catch (_) {}
+      };
+    }
+  },
+  {
+    id: 'ocean-shore',
+    label: 'Ocean Shore',
+    build(ctx, dest) {
+      const out = ctx.createGain();
+      out.gain.value = 0.04;
+      out.connect(dest);
+      const source = ctx.createBufferSource();
+      source.buffer = createLoopingNoiseBuffer(ctx, 8);
+      source.loop = true;
+      const low = ctx.createBiquadFilter();
+      low.type = 'lowpass';
+      low.frequency.value = 1800;
+      source.connect(low);
+      low.connect(out);
+      const foam = ctx.createBiquadFilter();
+      foam.type = 'highpass';
+      foam.frequency.value = 1400;
+      const foamGain = ctx.createGain();
+      foamGain.gain.value = 0.08;
+      source.connect(foam);
+      foam.connect(foamGain);
+      foamGain.connect(out);
+      source.start();
+      const swell = ctx.createOscillator();
+      swell.type = 'sine';
+      swell.frequency.value = 0.055;
+      const swellGain = ctx.createGain();
+      swellGain.gain.value = 0.018;
+      swell.connect(swellGain);
+      swellGain.connect(out.gain);
+      swell.start();
+      return () => {
+        for (const node of [source, swell]) { try { node.stop(); } catch (_) {} }
+        try { out.disconnect(); } catch (_) {}
+      };
+    }
+  }
+
 ];
+
+export const BACKDROP_TRACKS = TRACKS;
 
 export function mountBackdropPlayer({ root } = {}) {
   const el = root || document.getElementById('backdropPlayer');
@@ -183,9 +337,11 @@ export function mountBackdropPlayer({ root } = {}) {
   const btnNext = el.querySelector('[data-act="next"]');
   const nameEl = el.querySelector('[data-track-name]');
   const volEl = el.querySelector('[data-volume]');
+  const btnMute = el.querySelector('[data-act="mute"]');
 
   let index = 0;
   let playing = false;
+  let muted = false;
   let stopCurrent = null;
   let bus = null;
   let volGain = null;
@@ -207,6 +363,18 @@ export function mountBackdropPlayer({ root } = {}) {
 
   function setLabel() {
     if (nameEl) nameEl.textContent = TRACKS[index].label;
+    el.dataset.trackId = TRACKS[index].id;
+  }
+
+  function setVolume() {
+    const volume = volEl ? Number(volEl.value) / 100 : 0.55;
+    if (volGain) volGain.gain.value = muted ? 0 : volume;
+    el.dataset.muted = String(muted);
+    if (btnMute) {
+      btnMute.setAttribute('aria-pressed', String(muted));
+      btnMute.setAttribute('aria-label', muted ? 'Unmute background audio' : 'Mute background audio');
+      btnMute.textContent = muted ? '◌' : '♪';
+    }
   }
 
   function setPlayUI() {
@@ -214,6 +382,7 @@ export function mountBackdropPlayer({ root } = {}) {
     btnPlay.setAttribute('aria-label', playing ? 'Pause' : 'Play');
     btnPlay.textContent = playing ? '\u25AE\u25AE' : '\u25B6';
     btnPlay.classList.toggle('is-playing', playing);
+    el.dataset.playing = String(playing);
   }
 
   function stop() {
@@ -223,29 +392,53 @@ export function mountBackdropPlayer({ root } = {}) {
     }
   }
 
+  function buildTrack(trackIndex, ctx) {
+    try {
+      stopCurrent = TRACKS[trackIndex].build(ctx, bus) || null;
+      if (!stopCurrent) throw new Error('Track did not return a stop handler');
+      el.dataset.error = 'false';
+      return true;
+    } catch (err) {
+      console.warn('[backdrop] track failed', TRACKS[trackIndex]?.id, err);
+      stopCurrent = null;
+      return false;
+    }
+  }
+
   function startTrack() {
     stop();
     const ctx = ensureGraph();
-    if (!ctx || !bus) return;
-    resumeAudio();
-    try {
-      stopCurrent = TRACKS[index].build(ctx, bus) || null;
-    } catch (err) {
-      console.warn('[backdrop] track failed', err);
-      stopCurrent = null;
+    if (!ctx || !bus) {
+      el.dataset.error = 'true';
+      return false;
     }
+    resumeAudio();
+    if (buildTrack(index, ctx)) return true;
+    if (index !== 0) {
+      index = 0;
+      setLabel();
+      if (buildTrack(index, ctx)) return true;
+    }
+    el.dataset.error = 'true';
+    return false;
   }
 
   function play() {
     playing = true;
-    startTrack();
+    if (!startTrack()) playing = false;
     setPlayUI();
+    setVolume();
   }
 
   function pause() {
     playing = false;
     stop();
     setPlayUI();
+  }
+
+  function toggleMute() {
+    muted = !muted;
+    setVolume();
   }
 
   function toggle() {
@@ -256,25 +449,30 @@ export function mountBackdropPlayer({ root } = {}) {
   function next() {
     index = (index + 1) % TRACKS.length;
     setLabel();
-    if (playing) startTrack();
+    if (playing && !startTrack()) { playing = false; setPlayUI(); }
   }
 
   function prev() {
     index = (index - 1 + TRACKS.length) % TRACKS.length;
     setLabel();
-    if (playing) startTrack();
+    if (playing && !startTrack()) { playing = false; setPlayUI(); }
   }
 
   btnPrev?.addEventListener('click', (e) => { e.stopPropagation(); prev(); });
   btnPlay?.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
   btnNext?.addEventListener('click', (e) => { e.stopPropagation(); next(); });
-  volEl?.addEventListener('input', () => {
-    ensureGraph();
-    if (volGain) volGain.gain.value = Number(volEl.value) / 100;
-  });
+  btnMute?.addEventListener('click', (e) => { e.stopPropagation(); toggleMute(); });
+  volEl?.addEventListener('input', () => { ensureGraph(); setVolume(); });
 
   setLabel();
   setPlayUI();
+  setVolume();
+  el.dataset.error = 'false';
 
-  return { play, pause, next, prev, tracks: TRACKS };
+  const api = {
+    play, pause, next, prev, toggleMute, tracks: TRACKS,
+    getState: () => ({ playing, muted, trackId: TRACKS[index].id, volume: volEl ? Number(volEl.value) : 55, error: el.dataset.error === 'true' })
+  };
+  if (typeof window !== 'undefined') window.PionierBackdropPlayer = api;
+  return api;
 }
