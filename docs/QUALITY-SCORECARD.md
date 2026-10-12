@@ -1,6 +1,6 @@
 # Pionier Quality Scorecard
 
-**Last updated:** 2026-10-12  
+**Last updated:** 2026-10-13  
 **Scope:** `handpan-app/` and its test/CI surface.  
 **Deployment baseline:** `91952fb5cfe2611662d7e69a9ef2ed5e391a497b` (ring-out change merged; deployment must be verified separately).
 
@@ -14,15 +14,17 @@ This scorecard is deliberately conservative. A passing unit or browser suite is 
 | Product coherence | **5/10** | 8/10 | The app has a usable instrument registry, FX chain, Learn, Soundscapes and looper foundations. Controls/modes still have parallel wiring, the ambient bus and looper capture are not yet shown to be isolated, and `loop-core.js` is not proven to drive the live looper. No single state store or unified navigation has been verified. |
 | Production readiness | **4/10** | 8/10 | GitHub Actions runs smoke, app unit and Playwright checks on PRs. The service-worker/cache-clearing behavior prevents claiming offline readiness; docs are stale; mobile WebKit and real-device verification are not evidenced; performance budgets and audio-graph tests are missing. **Commercial release is blocked until sample redistribution rights are explicitly cleared or the samples are replaced.** |
 
-Scores do not increase merely because a PR merges. They move only when the rubric's exit criteria are evidenced by links to tests or measurements. Since Haganenote samples remain and their redistribution status is not cleared, production readiness is capped at 7 even after other work improves.
+Scores do not increase merely because a PR merges. They move only when the rubric's exit criteria are evidenced by links to tests or measurements. The previously bundled third-party handpan sample set is removed in PR #67 because redistribution rights were not established. The procedural fallback avoids shipping uncleared recordings but is not a substitute for owner-recorded or explicitly licensed samples; sound quality and remaining production gates still constrain the score.
 
-## Verified evidence as of 2026-10-12
+## Verified evidence as of 2026-10-13
 
 - [PR #58 — Soundscapes loading/controls hardening](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/58) — merged earlier; see PR and its checks for the exact coverage.
 - [PR #59 — instrument activation ordering and mobile stuck-note release](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/59) — merged earlier.
 - [PR #60 — activation queue recovery regression test](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/60) — merged; reported test run passed.
 - [PR #61 — preserve the active instrument when a switch fails](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/61) — merged; reported CI passed.
 - [PR #62 — natural handpan note ring-out](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/62) — merged. [Its Handpan App Checks run passed](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38303784059).
+- [PR #65 — Restore mobile zoom and protect rapid scale taps](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/65) — merged; [CI passed](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38309280959). Browser emulation covers 360×640, 390×844 and desktop Chromium; no physical-device verification.
+- [PR #66 — Remove retired placeholder instruments](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/66) — merged; [CI passed](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38309824592).
 - The repository's current PR workflow runs `node scripts/smoke-test.mjs`, `npm run test:app`, and `npx playwright test`. It installs Chromium and runs these on GitHub Actions. The current workflow does not prove iOS Safari, mobile WebKit, actual hardware audio, or real-device offline behavior.
 - Deployment workflow for commit `91952fb5cfe2611662d7e69a9ef2ed5e391a497b`: [Deploy to GitHub Pages run](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38305779641). Check the run result before claiming deployment is complete.
 
@@ -74,6 +76,8 @@ Scores do not increase merely because a PR merges. They move only when the rubri
 4. Owner-provided or explicitly licensed handpan samples; current sample redistribution status remains uncleared.
 
 ## Change log
+
+- **2026-10-13 (PR #67, pending):** Inventory all previously bundled handpan samples, remove them because redistribution permission was not established, and test the procedural fallback. Scores remain unchanged: the fallback is safer from a licensing perspective but is not equivalent to real recorded handpan sound.
 
 - **2026-10-13 (proposed in PR):** Remove two procedural placeholder instruments from the registry and add a regression test for stale saved instrument IDs falling back to Handpan. Scores remain unchanged until CI and broader phase gates justify a score change.
 

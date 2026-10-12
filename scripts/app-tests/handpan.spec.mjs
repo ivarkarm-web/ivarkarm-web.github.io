@@ -33,6 +33,32 @@ test('rapid touch taps on scale steppers are not swallowed', async ({ page }, te
 });
 
 
+
+test('handpan falls back to procedural synthesis when the licensed sample bank is empty', async ({ page }) => {
+  const result = await page.evaluate(async () => {
+    const instrument = window.PionierCore?.activeInstrument?.();
+    if (!instrument?.sampleBank) return { setup: false };
+    await instrument.sampleBank.load();
+    const firstZone = instrument.getZones?.()?.[0];
+    instrument.noteOn({ velocity: 0.8, pointerId: 9281 }, {
+      index: firstZone?.index ?? 0, radial: 0.35, angleRad: 0, nx: 0.5, ny: 0.5
+    });
+    const voice = instrument.activeVoices.values().next().value;
+    const result = {
+      setup: true,
+      sampleCount: instrument.sampleBank.byMidi.size,
+      sampleReady: instrument.sampleBank.ready,
+      voiceKind: voice?.kind
+    };
+    instrument.dampAll();
+    return result;
+  });
+  expect(result.setup).toBe(true);
+  expect(result.sampleCount).toBe(0);
+  expect(result.sampleReady).toBe(false);
+  expect(result.voiceKind).toBe('synth');
+});
+
 test('stale saved instrument selection safely falls back to Handpan', async ({ page }) => {
   await page.evaluate(() => localStorage.setItem('pionier.activeInstrument', 'legacy-removed-instrument'));
   await page.reload();
