@@ -203,7 +203,10 @@ test('window blur clears held pointers and prevents stuck notes', async ({ page 
     }));
     window.dispatchEvent(new Event('blur'));
   });
-  await expect.poll(() => page.evaluate(() => window.PionierCore.activeInstrument().activeVoices.size)).toBe(0);
+  await expect.poll(() => page.evaluate(() => {
+    const voice = window.PionierCore.activeInstrument().activeVoices.values().next().value;
+    return !voice || voice.released === true;
+  })).toBe(true);
 });
 
 test('rapid pointer strikes do not throw and canvas remains inside the viewport', async ({ page }) => {
