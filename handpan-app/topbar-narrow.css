@@ -1,0 +1,79 @@
+/* Narrow-phone topbar: keep play / instrument / learn from overlapping */
+.topbar {
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+.play-pill,
+.learn-launch {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+.center-nav {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+@media (max-width: 430px) {
+  .topbar {
+    gap: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .center-nav {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .instrument-nav {
+    max-width: 100%;
+  }
+  .instrument-name {
+    max-width: min(28vw, 120px);
+    font-size: 12px;
+    padding: 4px 2px;
+  }
+  .icon-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+  .pill,
+  .play-pill,
+  .learn-launch {
+    padding: 6px 10px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+  .pill .dot,
+  .pill .pill-dot {
+    width: 6px;
+    height: 6px;
+    margin-right: 5px;
+  }
+  .top-actions {
+    gap: 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .instrument-name {
+    max-width: min(24vw, 100px);
+    font-size: 11px;
+  }
+  .pill,
+  .play-pill,
+  .learn-launch {
+    padding: 5px 8px;
+    font-size: 9px;
+  }
+  .icon-btn {
+    width: 30px;
+    height: 30px;
+  }
+}
