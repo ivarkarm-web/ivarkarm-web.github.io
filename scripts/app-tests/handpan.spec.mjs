@@ -114,6 +114,20 @@ test('Soundscapes swipe transition opens and returns without reloading the instr
   await expect(page.locator('#pan')).toBeVisible();
 });
 
+test('adding Soundscapes audio appends to the playlist without replacing the current track', async ({ page }) => {
+  const input = page.locator('#soundscapeFile');
+  await input.setInputFiles([{ name: 'first.wav', mimeType: 'audio/wav', buffer: Buffer.from('not-a-real-wave-file') }]);
+  await expect(page.locator('#soundscapeTrackTitle')).toHaveText('first');
+  await expect(page.locator('#soundscapeTrackSubtitle')).toHaveText('ONE TRACK LOADED');
+  await input.setInputFiles([{ name: 'second.wav', mimeType: 'audio/wav', buffer: Buffer.from('not-a-real-wave-file') }]);
+  await expect(page.locator('#soundscapeTrackTitle')).toHaveText('first');
+  await expect(page.locator('#soundscapeTrackSubtitle')).toHaveText('TRACK 1 / 2');
+  await expect(page.locator('#soundscapeStatus')).toHaveText('1 TRACK ADDED');
+  await page.locator('#mandalaNextTrack').click();
+  await expect(page.locator('#soundscapeTrackTitle')).toHaveText('second');
+  await expect(page.locator('#soundscapeTrackSubtitle')).toHaveText('TRACK 2 / 2');
+});
+
 test('Soundscapes shortcut opens the player and the back control returns', async ({ page }) => {
   await page.locator('#openSoundscapes').click();
   await expect(page.locator('#soundscapesPage')).toHaveClass(/is-active/);
