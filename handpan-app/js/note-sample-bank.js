@@ -1,7 +1,7 @@
 /**
  * note-sample-bank.js
  *
- * Dry one-shot handpan hits mapped by MIDI (Haganenote recordings).
+ * Optional one-shot audio bank for properly licensed recordings; empty manifests use the procedural fallback.
  * Exposes multi-zone harmonic blend + non-linear velocity layering
  * without Flutter / React Native — pure Web Audio graph only.
  *
@@ -199,7 +199,3 @@ export class NoteSampleBank {
   }
 }
 
-export const HAGANE_REMOTE = {
-  base: 'https://www.haganenote.com/vst/',
-  files: []
-};
