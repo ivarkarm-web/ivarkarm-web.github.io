@@ -38,6 +38,19 @@ for (const [instrumentName, instrumentId] of [
     await expect(trigger).toContainText(instrumentName);
     await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe(instrumentId);
     await expect.poll(() => page.evaluate(() => !!window.PionierCore?.activeInstrument?.()?.ready)).toBe(true);
+    const voiceCount = await page.evaluate(() => {
+      const instrument = window.PionierCore?.activeInstrument?.();
+      if (!instrument?.audioCtx || !instrument?.bus) return 0;
+      const firstZone = instrument.getZones?.()?.[0];
+      const index = firstZone?.index ?? firstZone?.i ?? 0;
+      instrument.noteOn({ velocity: 0.8, pointerId: 9201 }, {
+        index, radial: 0.35, angleRad: 0, nx: 0.5, ny: 0.5
+      });
+      const count = instrument.activeVoices?.size ?? 0;
+      instrument.dampAll?.();
+      return count;
+    });
+    expect(voiceCount).toBeGreaterThan(0);
   });
 }
 
