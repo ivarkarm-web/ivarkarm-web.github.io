@@ -77,16 +77,18 @@ if (page && app && pan && audio) {
     activeIndex = (index + tracks.length) % tracks.length;
     const track = tracks[activeIndex];
     audio.pause();
-    audio.src = track.url;
-    audio.load();
     audio.loop = playback?.value !== 'once';
     title.textContent = track.name;
     subtitle.textContent = tracks.length > 1 ? 'TRACK ' + (activeIndex + 1) + ' / ' + tracks.length : 'ONE TRACK LOADED';
-    if (status) status.textContent = 'TRACK LOADED';
+    if (status) status.textContent = 'LOADING AUDIO...';
+    // Load the selected object URL independently from autoplay. Browsers may
+    // reject autoplay after a file-picker interaction even when the file loads.
+    audio.src = track.url;
+    audio.load();
     if (autoplay) {
       audio.play().then(() => setPlaying(true)).catch(() => {
         setPlaying(false);
-        if (status) status.textContent = 'PRESS PLAY TO START';
+        if (status) status.textContent = 'TRACK LOADED - PRESS PLAY';
       });
     } else setPlaying(false);
   }
@@ -121,16 +123,24 @@ if (page && app && pan && audio) {
       file.type.startsWith('audio/') || /\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(file.name)
     );
     if (!files.length) return;
-    audio.pause();
-    objectUrls.forEach((url) => URL.revokeObjectURL(url));
-    objectUrls = [];
-    tracks = files.map((file) => {
+    const wasEmpty = tracks.length === 0;
+    const addedTracks = files.map((file) => {
       const url = URL.createObjectURL(file);
       objectUrls.push(url);
       return { name: file.name.replace(/\.[^.]+$/, ''), url };
     });
-    activeIndex = -1;
-    loadTrack(0, true);
+    tracks.push(...addedTracks);
+    if (wasEmpty) {
+      loadTrack(0, true);
+    } else {
+      // Adding files extends the playlist without interrupting the current track.
+      if (subtitle) {
+        subtitle.textContent = tracks.length > 1
+          ? 'TRACK ' + (activeIndex + 1) + ' / ' + tracks.length
+          : 'ONE TRACK LOADED';
+      }
+      if (status) status.textContent = addedTracks.length + (addedTracks.length === 1 ? ' TRACK ADDED' : ' TRACKS ADDED');
+    }
     fileInput.value = '';
   });
   play?.addEventListener('click', () => {
@@ -167,7 +177,17 @@ if (page && app && pan && audio) {
   progress?.addEventListener('change', seek);
   progress?.addEventListener('pointerup', seek);
   audio.addEventListener('timeupdate', syncProgress);
-  audio.addEventListener('loadedmetadata', syncProgress);
+  audio.addEventListener('loadedmetadata', () => {
+    syncProgress();
+    if (audio.paused && status && status.textContent === 'LOADING AUDIO...') status.textContent = 'TRACK LOADED - PRESS PLAY';
+  });
+  audio.addEventListener('canplay', () => {
+    if (audio.paused && status && status.textContent === 'LOADING AUDIO...') status.textContent = 'TRACK LOADED - PRESS PLAY';
+  });
+  audio.addEventListener('error', () => {
+    setPlaying(false);
+    if (status) status.textContent = 'COULD NOT DECODE AUDIO - TRY MP3 OR WAV';
+  });
   audio.addEventListener('play', () => setPlaying(true));
   audio.addEventListener('pause', () => setPlaying(false));
   audio.addEventListener('ended', () => {
