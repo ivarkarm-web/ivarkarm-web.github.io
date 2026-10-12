@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-10-13  
 **Scope:** `handpan-app/` and its test/CI surface.  
-**Deployment baseline:** `6b6a1c921dbe2bce48169a8fcc1c7b615b7342d3` (audio provenance cleanup merged; [Pages deployment workflow passed](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38310436303); independent live URL smoke check remains unavailable in this environment).
+**Deployment baseline:** `a8ba8f1dee61e0681df905334ff321290f80c175` (procedural ambient transport merged; [Pages deployment workflow passed](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38311090779); independent live URL smoke check remains unavailable in this environment).
 
 This scorecard is deliberately conservative. A passing unit or browser suite is evidence for the behavior it exercises, not proof of real-device behavior, sound quality, offline support, or commercial licensing.
 
@@ -10,7 +10,7 @@ This scorecard is deliberately conservative. A passing unit or browser suite is 
 
 | Dimension | Score | Target | Evidence and reason |
 |---|---:|---:|---|
-| Reliability confidence | **4/10** | 8/10 | CI now covers smoke, unit and Playwright browser tests. Instrument activation failure recovery and handpan ring-out have regression coverage. However, there is no explicit boot state machine, optional-module isolation is not proven, the complete touch/interruption matrix and 200-strike node-leak test are absent, and sample/audio failure paths are not comprehensively tested. |
+| Reliability confidence | **5/10** | 8/10 | CI covers smoke, unit and Playwright browser tests. Activation failure recovery, ring-out, stale saved selection, required-core retry, unavailable audio, blocked storage, optional-module degradation, and ambient playback fallback have regression coverage. The full lifecycle/interruption matrix, 200-strike node-leak test, offline load, and broad touch matrix remain unverified. |
 | Product coherence | **5/10** | 8/10 | The app has a usable instrument registry, FX chain, Learn, Soundscapes and looper foundations. Controls/modes still have parallel wiring, the ambient bus and looper capture are not yet shown to be isolated, and `loop-core.js` is not proven to drive the live looper. No single state store or unified navigation has been verified. |
 | Production readiness | **4/10** | 8/10 | GitHub Actions runs smoke, app unit and Playwright checks on PRs. The service-worker/cache-clearing behavior prevents claiming offline readiness; docs are stale; mobile WebKit and real-device verification are not evidenced; performance budgets and audio-graph tests are missing. **Commercial release is blocked until sample redistribution rights are explicitly cleared or the samples are replaced.** |
 
@@ -26,6 +26,7 @@ Scores do not increase merely because a PR merges. They move only when the rubri
 - [PR #65 — Restore mobile zoom and protect rapid scale taps](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/65) — merged; [CI passed](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38309280959). Browser emulation covers 360×640, 390×844 and desktop Chromium; no physical-device verification.
 - [PR #66 — Remove retired placeholder instruments](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/66) — merged; [CI passed](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38309824592).
 - [PR #67 — Remove uncleared audio assets and audit provenance](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/67) — merged; [CI passed](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38310280889). The sample set was removed and the procedural fallback has a browser regression test.
+- [PR #68 — Add procedural ambient beds and reliable transport controls](https://github.com/ivarkarm-web/ivarkarm-web.github.io/pull/68) — merged; [CI passed](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38310863739) and [Pages deployment passed](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38311090779). Its ambient transport regression tests passed; one activation-queue test was flaky on its first attempt and passed on retry.
 - The repository's current PR workflow runs `node scripts/smoke-test.mjs`, `npm run test:app`, and `npx playwright test`. It installs Chromium and runs these on GitHub Actions. The current workflow does not prove iOS Safari, mobile WebKit, actual hardware audio, or real-device offline behavior.
 - Deployment workflow for commit `91952fb5cfe2611662d7e69a9ef2ed5e391a497b`: [Deploy to GitHub Pages run](https://github.com/ivarkarm-web/ivarkarm-web.github.io/actions/runs/38305779641). Check the run result before claiming deployment is complete.
 
@@ -77,6 +78,8 @@ Scores do not increase merely because a PR merges. They move only when the rubri
 4. Owner-provided or explicitly licensed handpan samples; current sample redistribution status remains uncleared.
 
 ## Change log
+
+- **2026-10-13 (PR #69, pending):** Add a visible boot state/retry surface and regression tests for required-core failure, audio-context absence, storage denial and optional-module failure. Reliability moves 4→5/10 only in this PR, tied to those passing CI tests; full lifecycle, node-leak, offline and touch-matrix evidence remains outstanding.
 
 - **2026-10-13 (PR #68, pending):** Add procedural storm, forest-wind and ocean beds; make looping noise boundaries click-safe; add explicit mute and failure fallback. Evidence to be recorded after CI: `procedural ambience includes rain, storm, forest wind, and ocean beds`, `looping noise has eased boundaries and finite samples`, `every ambient bed builds a graph and returns a cleanup handler`, `noise-based beds use looping buffer sources`, plus Playwright transport/mute/fallback tests. Scores remain unchanged.
 
