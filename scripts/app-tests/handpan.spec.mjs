@@ -303,3 +303,32 @@ test('real touch taps can be delivered in quick succession on mobile', async ({ 
   expect(await page.evaluate(() => window.__pionierStrikeCount)).toBe(points.length);
   await expect(canvas).toBeVisible();
 });
+
+
+test('instrument activation queue recovers after an instrument fails to initialize', async ({ page }) => {
+  const result = await page.evaluate(async () => {
+    const { InstrumentRegistry } = await import('/handpan-app/js/instrument.js');
+    const active = InstrumentRegistry.get('handpan');
+    const ctx = active?.audioCtx;
+    const bus = active?.bus;
+    const bird = InstrumentRegistry.get('bird');
+    const kitchen = InstrumentRegistry.get('kitchen');
+    if (!ctx || !bus || !bird || !kitchen) return { setup: false };
+    const originalBird = bird.activate;
+    bird.activate = async function () { throw new Error('simulated instrument initialization failure'); };
+    let rejected = false;
+    try {
+      try { await InstrumentRegistry.setActive('bird', ctx, bus); }
+      catch (error) { rejected = /simulated instrument initialization failure/.test(error.message); }
+      await InstrumentRegistry.setActive('kitchen', ctx, bus);
+      return { setup: true, rejected, activeId: InstrumentRegistry.activeId };
+    } finally {
+      bird.activate = originalBird;
+      await InstrumentRegistry.setActive('handpan', ctx, bus);
+    }
+  });
+  expect(result.setup).toBe(true);
+  expect(result.rejected).toBe(true);
+  expect(result.activeId).toBe('kitchen');
+  await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('handpan');
+});
