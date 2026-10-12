@@ -164,6 +164,37 @@
     </div>
   </div>
 
+  <section class="soundscapes-page" id="soundscapesPage" aria-hidden="true" aria-label="Soundscapes player">
+    <button type="button" class="soundscapes-back" id="backToHandpan" aria-label="Return to handpan">‹ <span>Handpan</span></button>
+    <main class="soundscapes-stage">
+      <div class="mandala-wrap" id="mandalaWrap" aria-label="Slowly moving resonance mandala">
+        <div class="mandala-center">
+          <div class="mandala-transport" aria-label="Track navigation">
+            <button type="button" class="mandala-track-step" id="mandalaPreviousTrack" aria-label="Previous track">‹</button>
+            <button type="button" class="mandala-play" id="mandalaPlay" aria-label="Play soundscape"><span id="mandalaPlayIcon" aria-hidden="true">▶</span></button>
+            <button type="button" class="mandala-track-step" id="mandalaNextTrack" aria-label="Next track">›</button>
+          </div>
+        </div>
+      </div>
+      <div class="soundscape-track-meta">
+        <div class="soundscape-track-title" id="soundscapeTrackTitle">Your soundscape</div>
+        <div class="soundscape-track-subtitle" id="soundscapeTrackSubtitle">Add an audio file to begin</div>
+        <div class="soundscape-progress-wrap">
+          <span class="soundscape-time" id="soundscapeTimeElapsed">0:00</span>
+          <input type="range" class="soundscape-progress" id="soundscapeProgress" min="0" max="1000" value="0" step="1" aria-label="Track progress">
+          <span class="soundscape-time" id="soundscapeTimeTotal">0:00</span>
+        </div>
+      </div>
+      <div class="soundscape-player-actions">
+        <button type="button" class="soundscape-secondary" id="addSoundscapeTrack">＋ Add audio</button>
+        <span class="soundscape-status" id="soundscapeStatus">READY WHEN YOU ARE</span>
+      </div>
+      <input type="file" id="soundscapeFile" accept="audio/*,.mp3,.wav,.m4a,.ogg,.aac,.flac" multiple hidden>
+    </main>
+    <div class="soundscape-swipe-hint" aria-hidden="true">SWIPE RIGHT TO RETURN</div>
+  </section>
+  <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
+
   <script>
     document.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: false });
     document.addEventListener('gesturechange', (e) => e.preventDefault(), { passive: false });
