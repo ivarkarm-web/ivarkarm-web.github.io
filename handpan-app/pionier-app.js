@@ -3,8 +3,6 @@
  * No CDN fetch, source rewriting, Blob module, or runtime string patches.
  */
 const BASE = new URL('.', import.meta.url).href;
-const SURFACE_V = '95';
-const HANDPAN_V = '1';
 
 function killCanvasGhosts(canvas) {
   if (!canvas || canvas.dataset.ghostKill === '1') return;
@@ -35,7 +33,7 @@ async function boot() {
   killCanvasGhosts(pan());
   requestAnimationFrame(() => killCanvasGhosts(pan()));
 
-  const { HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=' + HANDPAN_V, BASE).href);
+  const { HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js', BASE).href);
   const scaleLabel = document.getElementById('scaleLabel');
   const scaleMenu = document.getElementById('scaleMenu');
   if (scaleLabel && scaleMenu && HANDPAN_SCALES) {
