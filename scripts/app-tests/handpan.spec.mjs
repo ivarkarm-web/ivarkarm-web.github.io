@@ -57,6 +57,51 @@ test('controls drawer toggles and keeps its expanded state accessible', async ({
   await expect(toggle).toHaveAttribute('aria-expanded', 'false');
 });
 
+test('Soundscapes swipe transition opens and returns without reloading the instrument', async ({ page }) => {
+  const canvas = page.locator('#pan');
+  const rect = await canvas.boundingBox();
+  expect(rect).not.toBeNull();
+  const x = rect.x + rect.width * 0.72;
+  const y = rect.y + rect.height * 0.5;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x - 150, y + 2, { steps: 8 });
+  await page.mouse.up();
+  const soundscapes = page.locator('#soundscapesPage');
+  await expect(soundscapes).toHaveClass(/is-active/);
+  await expect(page.locator('#app')).toHaveClass(/soundscapes-away/);
+  await expect(page.locator('#mandalaWrap canvas')).toBeAttached();
+  const stage = await page.locator('.soundscapes-stage').boundingBox();
+  const sx = stage.x + stage.width * 0.5;
+  const sy = stage.y + stage.height * 0.18;
+  await page.mouse.move(sx, sy);
+  await page.mouse.down();
+  await page.mouse.move(sx + 150, sy + 2, { steps: 8 });
+  await page.mouse.up();
+  await expect(soundscapes).not.toHaveClass(/is-active/);
+  await expect(page.locator('#app')).not.toHaveClass(/soundscapes-away/);
+  await expect(page.locator('#pan')).toBeVisible();
+});
+
+test('Soundscapes shortcut opens the player and the back control returns', async ({ page }) => {
+  await page.locator('#openSoundscapes').click();
+  await expect(page.locator('#soundscapesPage')).toHaveClass(/is-active/);
+  await page.locator('#backToHandpan').click();
+  await expect(page.locator('#soundscapesPage')).not.toHaveClass(/is-active/);
+  await expect(page.locator('#pan')).toBeVisible();
+});
+
+test('Soundscapes reuses the FX drawer and exposes track playback controls', async ({ page }) => {
+  await page.locator('#mobileControlsToggle').click();
+  await expect(page.locator('#mobileControlDrawer')).toHaveClass(/is-open/);
+  await expect(page.locator('#knobMaster')).toBeAttached();
+  await expect(page.locator('#soundscapeVolume')).toBeAttached();
+  await expect(page.locator('#soundscapePlayback')).toBeAttached();
+  await expect(page.locator('#mandalaPreviousTrack')).toBeAttached();
+  await expect(page.locator('#mandalaNextTrack')).toBeAttached();
+  await expect(page.locator('#mandalaPlay')).toBeAttached();
+});
+
 test('note-count controls add and remove notes without losing the instrument core', async ({ page }) => {
   await expect(page.locator('#notePlusCount')).toHaveText('9/13');
   await page.locator('#notePlus').click();
@@ -94,13 +139,20 @@ test('real touch taps can be delivered in quick succession on mobile', async ({ 
     window.addEventListener('pionier:learn-note', () => { window.__pionierStrikeCount += 1; });
   });
   const canvas = page.locator('#pan');
-  const rect = await canvas.boundingBox();
-  expect(rect).not.toBeNull();
-  const points = [[0.5,0.5],[0.36,0.36],[0.64,0.36],[0.36,0.64],[0.64,0.64],[0.5,0.5]];
-  for (const [dx,dy] of points) {
-    await page.touchscreen.tap(rect.x + rect.width * dx, rect.y + rect.height * dy);
-  }
+  const points = await page.evaluate(() => {
+    const surface = window.PionierCore?.surface;
+    const canvasEl = document.getElementById('pan');
+    if (!surface || !canvasEl) return [];
+    const rect = canvasEl.getBoundingClientRect();
+    const metrics = surface.metrics;
+    return surface.fields.filter((field) => field.playable).slice(0, 6).map((field) => ({
+      x: rect.left + (field.x / metrics.W) * rect.width,
+      y: rect.top + (field.y / metrics.H) * rect.height
+    }));
+  });
+  expect(points.length).toBeGreaterThanOrEqual(5);
+  for (const point of points) await page.touchscreen.tap(point.x, point.y);
   expect(errors).toEqual([]);
-  expect(await page.evaluate(() => window.__pionierStrikeCount)).toBeGreaterThan(0);
+  expect(await page.evaluate(() => window.__pionierStrikeCount)).toBe(points.length);
   await expect(canvas).toBeVisible();
 });
