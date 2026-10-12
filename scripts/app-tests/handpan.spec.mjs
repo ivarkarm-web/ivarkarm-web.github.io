@@ -54,16 +54,15 @@ test('controls drawer toggles and keeps its expanded state accessible', async ({
   await expect(toggle).toHaveAttribute('aria-expanded', 'false');
 });
 
-test('soundscapes page can be entered and exited without reloading the instrument', async ({ page }) => {
-  const handpan = page.locator('#tabHandpan');
-  const soundscapes = page.locator('#tabSoundscapes');
-  const pageView = page.locator('#soundscapesPage');
-  await expect(handpan).toBeVisible();
-  await soundscapes.click();
-  await expect(pageView).toHaveClass(/is-active/);
-  await page.locator('#tabHandpanFromSS').click();
-  await expect(pageView).not.toHaveClass(/is-active/);
-  await expect(page.locator('#pan')).toBeVisible();
+test('note-count controls add and remove notes without losing the instrument core', async ({ page }) => {
+  await expect(page.locator('#notePlusCount')).toHaveText('9/13');
+  await page.locator('#notePlus').click();
+  await expect(page.locator('#notePlusCount')).toHaveText('10/13');
+  await expect(page.locator('#noteMinus')).toBeVisible();
+  await page.locator('#noteMinus').click();
+  await expect(page.locator('#notePlusCount')).toHaveText('9/13');
+  const core = await page.evaluate(() => window.PionierCore.noteCount());
+  expect(core).toBe(9);
 });
 
 test('rapid touch-sized strikes do not throw and canvas remains inside the viewport', async ({ page }) => {
