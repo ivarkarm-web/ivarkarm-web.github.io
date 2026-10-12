@@ -398,6 +398,7 @@ export class HandpanInstrument extends Instrument {
     out.connect(expressFilter);
     const T0 = Math.max(1.5, 5.5 - Math.log(f / 165) / Math.LN2);
     const oscs = [];
+    const gainNodes = [];
     const gains = [0.55 * z.fundamental, 0.32 * z.partials, 0.18 * z.partials, 0.1 * z.brightness, 0.05 * z.brightness];
     preset.partials.forEach((ratio, i) => {
       const osc = ctx.createOscillator();
@@ -412,18 +413,36 @@ export class HandpanInstrument extends Instrument {
       g.gain.exponentialRampToValueAtTime(0.0001, t + T0 * (preset.decay / 6.2) * (1 - i * 0.07));
       osc.connect(g);
       g.connect(out);
+      gainNodes.push(g);
       osc.start(t);
       osc.stop(t + T0 + 0.12);
       oscs.push(osc);
     });
     const voice = {
-      idx, out, oscs, released: false, expressGain, expressFilter, vibGain, lfo,
+      idx, out, oscs, gainNodes, released: false, expressGain, expressFilter, vibGain, lfo,
       kind: 'synth', baseGain: 0.88 + pc * 0.28, baseFreq: f,
-      stop: (tt, tc) => this._releaseVoice(voice, tt, tc)
+      stop: (tt, tc) => {
+        this._releaseVoice(voice, tt, tc);
+        // Re-strikes should stop the previous partial bank promptly, not leave
+        // silent oscillators scheduled for the full natural decay.
+        for (const osc of oscs) {
+          try { osc.stop(tt + Math.max(0.03, tc)); } catch (_) {}
+        }
+      }
     };
     oscs[0].onended = () => {
-      this.activeVoices.delete(idx);
-      try { out.disconnect(); expressFilter.disconnect(); expressGain.disconnect(); vibGain.disconnect(); lfo.stop(); } catch (_) {}
+      // A previous strike may finish after a newer strike on the same pad.
+      // Only the currently registered voice may remove that pad's entry.
+      if (this.activeVoices.get(idx) === voice) this.activeVoices.delete(idx);
+      for (const osc of oscs) { try { osc.disconnect(); } catch (_) {} }
+      for (const gain of gainNodes) { try { gain.disconnect(); } catch (_) {} }
+      try {
+        out.disconnect();
+        expressFilter.disconnect();
+        expressGain.disconnect();
+        vibGain.disconnect();
+        lfo.stop();
+      } catch (_) {}
     };
     this.activeVoices.set(idx, voice);
   }
