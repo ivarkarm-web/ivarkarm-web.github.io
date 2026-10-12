@@ -10,7 +10,7 @@ This scorecard is deliberately conservative. A passing unit or browser suite is 
 
 | Dimension | Score | Target | Evidence and reason |
 |---|---:|---:|---|
-| Reliability confidence | **5/10** | 8/10 | CI covers smoke, unit and Playwright browser tests. Activation failure recovery, ring-out, stale saved selection, required-core retry, unavailable audio, blocked storage, optional-module degradation, and ambient playback fallback have regression coverage. The full lifecycle/interruption matrix, 200-strike node-leak test, offline load, and broad touch matrix remain unverified. |
+| Reliability confidence | **6/10** | 8/10 | CI covers smoke, unit and Playwright browser tests. Activation failure recovery, ring-out, stale saved selection, required-core retry, unavailable audio, blocked storage, optional-module degradation, ambient playback fallback, and a 200-strike oscillator cleanup test have regression coverage. The full lifecycle/interruption matrix, offline load, and broad touch matrix remain unverified. |
 | Product coherence | **5/10** | 8/10 | The app has a usable instrument registry, FX chain, Learn, Soundscapes and looper foundations. Controls/modes still have parallel wiring, the ambient bus and looper capture are not yet shown to be isolated, and `loop-core.js` is not proven to drive the live looper. No single state store or unified navigation has been verified. |
 | Production readiness | **4/10** | 8/10 | GitHub Actions runs smoke, app unit and Playwright checks on PRs. The service-worker/cache-clearing behavior prevents claiming offline readiness; docs are stale; mobile WebKit and real-device verification are not evidenced; performance budgets and audio-graph tests are missing. **Commercial release is blocked until sample redistribution rights are explicitly cleared or the samples are replaced.** |
 
@@ -79,7 +79,8 @@ Scores do not increase merely because a PR merges. They move only when the rubri
 
 ## Change log
 
-- **2026-10-13 (PR #69, pending):** Add a visible boot state/retry surface and regression tests for required-core failure, audio-context absence, storage denial and optional-module failure. Reliability moves 4→5/10 only in this PR, tied to those passing CI tests; full lifecycle, node-leak, offline and touch-matrix evidence remains outstanding.
+- **2026-10-13 (PR #69):** Added the visible boot state/retry surface and regression tests for required-core failure, audio-context absence, storage denial and optional-module failure. Reliability moved 4→5/10 with passing CI.
+- **2026-10-13 (PR #70, pending):** Stop superseded synth oscillators early and guard voice-map cleanup by identity. The new test `200 rapid strikes stop superseded oscillators and preserve the newest voice` checks voice identity and verifies every tracked oscillator ends. Reliability moves 5→6/10 only if CI passes; full lifecycle/interruption, offline and broad touch matrix remain open.
 
 - **2026-10-13 (PR #68, pending):** Add procedural storm, forest-wind and ocean beds; make looping noise boundaries click-safe; add explicit mute and failure fallback. Evidence to be recorded after CI: `procedural ambience includes rain, storm, forest wind, and ocean beds`, `looping noise has eased boundaries and finite samples`, `every ambient bed builds a graph and returns a cleanup handler`, `noise-based beds use looping buffer sources`, plus Playwright transport/mute/fallback tests. Scores remain unchanged.
 
