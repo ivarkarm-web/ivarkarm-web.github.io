@@ -144,6 +144,48 @@ test('note-count controls add and remove notes without losing the instrument cor
   expect(core).toBe(9);
 });
 
+
+test('a shared pad stays sounding until the final pointer releases it', async ({ page }) => {
+  await page.evaluate(() => {
+    const canvas = document.getElementById('pan');
+    const surface = window.PionierCore.surface;
+    const field = surface.fields.find((item) => item.playable);
+    const rect = canvas.getBoundingClientRect();
+    const { W, H } = surface.metrics;
+    const x = rect.left + (field.x / W) * rect.width;
+    const y = rect.top + (field.y / H) * rect.height;
+    const fire = (type, pointerId) => canvas.dispatchEvent(new PointerEvent(type, {
+      bubbles: true, cancelable: true, pointerId, pointerType: 'touch',
+      isPrimary: pointerId === 701, clientX: x, clientY: y, pressure: type === 'pointerup' ? 0 : 0.7
+    }));
+    window.__sharedPadTest = { fire };
+    fire('pointerdown', 701);
+    fire('pointerdown', 702);
+    fire('pointerup', 701);
+  });
+  const afterFirstRelease = await page.evaluate(() => window.PionierCore.activeInstrument().activeVoices.size);
+  expect(afterFirstRelease).toBeGreaterThan(0);
+  await page.evaluate(() => window.__sharedPadTest.fire('pointerup', 702));
+  await expect.poll(() => page.evaluate(() => window.PionierCore.activeInstrument().activeVoices.size)).toBe(0);
+});
+
+test('window blur clears held pointers and prevents stuck notes', async ({ page }) => {
+  await page.evaluate(() => {
+    const canvas = document.getElementById('pan');
+    const surface = window.PionierCore.surface;
+    const field = surface.fields.find((item) => item.playable);
+    const rect = canvas.getBoundingClientRect();
+    const { W, H } = surface.metrics;
+    canvas.dispatchEvent(new PointerEvent('pointerdown', {
+      bubbles: true, cancelable: true, pointerId: 703, pointerType: 'touch',
+      isPrimary: true, clientX: rect.left + (field.x / W) * rect.width,
+      clientY: rect.top + (field.y / H) * rect.height, pressure: 0.7
+    }));
+    window.dispatchEvent(new Event('blur'));
+  });
+  await expect.poll(() => page.evaluate(() => window.PionierCore.activeInstrument().activeVoices.size)).toBe(0);
+});
+
 test('rapid pointer strikes do not throw and canvas remains inside the viewport', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
