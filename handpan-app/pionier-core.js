@@ -649,4 +649,4 @@ window.PionierCore = {
   }
 };
 
-boot();
+await boot();
