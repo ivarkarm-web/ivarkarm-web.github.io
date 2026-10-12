@@ -54,6 +54,41 @@ for (const [instrumentName, instrumentId] of [
   });
 }
 
+test('rapid instrument selections resolve in the order the user chose them', async ({ page }) => {
+  const result = await page.evaluate(async () => {
+    const { InstrumentRegistry } = await import('/handpan-app/js/instrument.js');
+    const ctx = window.PionierCore?.activeInstrument?.()?.audioCtx;
+    const bus = window.PionierCore?.activeInstrument?.()?.bus;
+    const bird = InstrumentRegistry.get('bird');
+    const kitchen = InstrumentRegistry.get('kitchen');
+    if (!ctx || !bus || !bird || !kitchen) return { setup: false };
+    const originalBird = bird.activate;
+    const originalKitchen = kitchen.activate;
+    bird.activate = async function (audioCtx, output) {
+      await new Promise((resolve) => setTimeout(resolve, 90));
+      return originalBird.call(this, audioCtx, output);
+    };
+    kitchen.activate = async function (audioCtx, output) {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      return originalKitchen.call(this, audioCtx, output);
+    };
+    try {
+      await Promise.all([
+        InstrumentRegistry.setActive('bird', ctx, bus),
+        InstrumentRegistry.setActive('kitchen', ctx, bus)
+      ]);
+      return { setup: true, activeId: InstrumentRegistry.activeId };
+    } finally {
+      bird.activate = originalBird;
+      kitchen.activate = originalKitchen;
+      await InstrumentRegistry.setActive('handpan', ctx, bus);
+    }
+  });
+  expect(result.setup).toBe(true);
+  expect(result.activeId).toBe('kitchen');
+  await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('handpan');
+});
+
 test('Handpan can be reselected after switching to another instrument', async ({ page }) => {
   const trigger = page.locator('#instrumentDropdownToggle');
   const menu = page.locator('#instrumentMenu');
