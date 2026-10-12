@@ -28,6 +28,11 @@ function killCanvasGhosts(canvas) {
 async function boot() {
   // The core and its imports are served from this same deployed repository.
   await import(new URL('./pionier-core.js?v=1', BASE).href);
+  try {
+    await import(new URL('./js/soundscapes.js?v=1', BASE).href);
+  } catch (err) {
+    console.error('[soundscapes] module failed to initialize', err);
+  }
 
   const pan = () => document.getElementById('pan');
   killCanvasGhosts(pan());
