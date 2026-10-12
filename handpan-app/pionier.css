@@ -796,7 +796,7 @@ html, body, #app, .app, .stage {
     #090a0c;
   opacity: .92; transform: translate3d(100%,0,0);
   transition: transform .46s cubic-bezier(.22,1,.36,1), opacity .46s ease;
-  pointer-events: none; visibility: hidden;
+  pointer-events: none; visibility: visible;
 }
 .soundscapes-page.is-active {
   opacity: 1; transform: translate3d(0,0,0); pointer-events: auto; visibility: visible;
