@@ -23,6 +23,7 @@ export default defineConfig({
   projects: [
     { name: 'mobile-360x640', use: { ...devices['Desktop Chrome'], viewport: { width: 360, height: 640 }, isMobile: true, hasTouch: true } },
     { name: 'mobile-390x844', use: { ...devices['Desktop Chrome'], viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
+    { name: 'mobile-750x1624', use: { ...devices['Desktop Chrome'], viewport: { width: 750, height: 1624 }, isMobile: true, hasTouch: true } },
     { name: 'desktop-1280x800', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } } }
   ]
 });

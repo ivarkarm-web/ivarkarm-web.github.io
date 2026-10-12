@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import path from 'node:path';
+import fs from 'node:fs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/handpan-app/index.html');
@@ -14,7 +16,7 @@ function overlapArea(a, b) {
   return ox * oy;
 }
 
-test('topbar controls do not overlap and stay inside the viewport', async ({ page }) => {
+test('topbar controls do not overlap, stay in viewport, meet touch targets, and are photographed', async ({ page }, testInfo) => {
   const ids = [
     '#modePlay',
     '#instrumentDropdownToggle',
@@ -48,4 +50,25 @@ test('topbar controls do not overlap and stay inside the viewport', async ({ pag
       expect(area, `${boxes[i].sel} overlaps ${boxes[j].sel}`).toBeLessThanOrEqual(2);
     }
   }
+
+  // Comfortable phone targets (Apple HIG ~44px). Report actual sizes in the failure message.
+  for (const box of boxes) {
+    expect(
+      box.width,
+      `${box.sel} width ${box.width.toFixed(1)}px (need >= 44)`
+    ).toBeGreaterThanOrEqual(44);
+    expect(
+      box.height,
+      `${box.sel} height ${box.height.toFixed(1)}px (need >= 44)`
+    ).toBeGreaterThanOrEqual(44);
+  }
+
+  const outDir = path.join('test-results', 'topbar');
+  fs.mkdirSync(outDir, { recursive: true });
+  const name = `topbar-${testInfo.project.name}.png`;
+  await page.locator('.topbar').screenshot({ path: path.join(outDir, name) });
+  await testInfo.attach(name, {
+    path: path.join(outDir, name),
+    contentType: 'image/png'
+  });
 });

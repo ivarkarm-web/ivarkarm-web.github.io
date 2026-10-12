@@ -7,6 +7,12 @@
 .learn-launch {
   flex: 0 0 auto;
   white-space: nowrap;
+  min-height: 44px;
+  min-width: 44px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .top-actions {
   display: flex;
@@ -18,6 +24,19 @@
 .center-nav {
   min-width: 0;
   flex: 1 1 auto;
+}
+.topbar .icon-btn {
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
+  box-sizing: border-box;
+}
+.topbar .instrument-name {
+  min-height: 44px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
 }
 
 @media (max-width: 430px) {
@@ -37,11 +56,6 @@
     max-width: min(28vw, 120px);
     font-size: 12px;
     padding: 4px 2px;
-  }
-  .icon-btn {
-    width: 32px;
-    height: 32px;
-    font-size: 16px;
   }
   .pill,
   .play-pill,
@@ -71,9 +85,5 @@
   .learn-launch {
     padding: 5px 8px;
     font-size: 9px;
-  }
-  .icon-btn {
-    width: 30px;
-    height: 30px;
   }
 }
