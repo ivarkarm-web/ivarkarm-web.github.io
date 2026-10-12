@@ -801,6 +801,8 @@ html, body, #app, .app, .stage {
 .soundscapes-page.is-active {
   opacity: 1; transform: translate3d(0,0,0); pointer-events: auto; visibility: visible;
 }
+.soundscapes-open-btn { color: rgba(201,162,39,.76); font-size: 17px; }
+.soundscapes-open-btn:hover { color: #f1d982; background: rgba(201,162,39,.08); }
 .soundscapes-back {
   position: absolute; top: max(14px, env(safe-area-inset-top)); left: 14px; z-index: 3;
   display: inline-flex; align-items: center; gap: 7px; min-height: 38px;
@@ -850,10 +852,6 @@ html, body, #app, .app, .stage {
 }
 .soundscape-secondary:hover { border-color: rgba(201,162,39,.45); color: #f0e8d1; }
 .soundscape-status { color: rgba(232,230,227,.34); font-size: 9px; letter-spacing: .13em; }
-.soundscape-swipe-hint {
-  position: absolute; bottom: max(24px, env(safe-area-inset-bottom)); left: 0; right: 0;
-  text-align: center; color: rgba(232,230,227,.22); font-size: 9px; letter-spacing: .2em; pointer-events: none;
-}
 .soundscape-only { display: none; border-top: 1px solid rgba(201,162,39,.18); padding-top: 10px; gap: 10px; }
 body.soundscapes-active .soundscape-only { display: grid; }
 .soundscape-only-heading { color: var(--muted); font-size: 9px; letter-spacing: .14em; }
