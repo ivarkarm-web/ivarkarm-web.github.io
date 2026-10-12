@@ -191,6 +191,7 @@ canvas?.addEventListener('pointerdown', (e) => {
   app.pointers.set(e.pointerId, { index: hit.index, originY: y, originX: x });
   app.lastVelocity = gesture.velocity;
   inst.noteOn(gesture, hit);
+  window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now() } }));
   if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);
   draw();
 });
@@ -224,6 +225,7 @@ canvas?.addEventListener('pointermove', (e) => {
       if (prevIdx != null) inst.noteOff(prevIdx);
       inst.noteOn(gesture, hit);
     }
+    window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now(), instrument: inst.id || inst.name || 'handpan' } }));
     app.pointers.set(e.pointerId, { index: hit.index, originY: y, originX: x });
     if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);
     draw();
@@ -574,6 +576,7 @@ window.addEventListener('keydown', (e) => {
   const inst = activeInstrument();
   const hit = { index: i, radial: 0.5, angleRad: 0 };
   inst.noteOn({ velocity: 0.75, pointerId: -1 - i }, hit);
+  window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now(), instrument: inst.id || inst.name || 'handpan' } }));
   draw();
 });
 window.addEventListener('keyup', (e) => {
@@ -610,4 +613,40 @@ async function boot() {
   window.addEventListener('pointerdown', unlock);
   if (isDebugEnabled?.()) mountDebugPanel?.({ setInstrument });
 }
+
+function padCount() { return handpan.noteCount || 9; }
+function changeNoteCount(delta) {
+  const before = handpan.noteCount || 9;
+  const after = Math.max(9, Math.min(13, before + delta));
+  if (after === before) return false;
+  handpan.setNoteCount(after);
+  if (typeof surface.armTransition === 'function') surface.armTransition();
+  syncWorldPitch();
+  layoutFields();
+  const active = activeInstrument();
+  if (active && active.glow) {
+    for (let i = 0; i < active.glow.length; i++) active.glow[i] = i === after - 1 ? 1 : 0;
+  }
+  if (active && active.zoneFlash && after > before && after - 1 < active.zoneFlash.length) active.zoneFlash[after - 1] = 0.3;
+  updateLabels();
+  draw();
+  return true;
+}
+window.PionierCore = {
+  handpan, surface,
+  activeInstrument: () => activeInstrument(),
+  draw() { draw(); },
+  addNote() { return changeNoteCount(1); },
+  removeNote() { return changeNoteCount(-1); },
+  noteCount: () => {
+    const inst = activeInstrument();
+    const notes = inst?.getNotes?.();
+    if (Array.isArray(notes) && notes.length) return notes.length;
+    if (Number.isFinite(inst?.noteCount) && inst.noteCount > 0) return inst.noteCount;
+    const fields = surface?.fields;
+    if (Array.isArray(fields) && fields.length) return fields.length;
+    return padCount();
+  }
+};
+
 boot();
