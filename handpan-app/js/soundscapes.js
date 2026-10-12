@@ -15,16 +15,23 @@ if (page && app && pan && audio) {
   const title = document.getElementById('soundscapeTrackTitle');
   const subtitle = document.getElementById('soundscapeTrackSubtitle');
   const status = document.getElementById('soundscapeStatus');
+  const drawer = document.getElementById('mobileControlDrawer');
+  const drawerToggle = document.getElementById('mobileControlsToggle');
+  const controlPanel = document.getElementById('mobileControlPanel');
+  if (drawer && drawer.parentElement !== document.body) document.body.appendChild(drawer);
+  if (controlPanel && !document.getElementById('soundscapeVolume')) {
+    const extra = document.createElement('section');
+    extra.className = 'soundscape-only';
+    extra.innerHTML = '<div class="soundscape-only-heading">SOUNDSCAPE PLAYBACK</div><label class="soundscape-control-row"><span>Track volume</span><input id="soundscapeVolume" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Soundscape volume"></label><label class="soundscape-control-row"><span>Playback</span><select id="soundscapePlayback" aria-label="Soundscape playback"><option value="loop">Loop track</option><option value="once">Play once</option></select></label>';
+    controlPanel.appendChild(extra);
+  }
   const volume = document.getElementById('soundscapeVolume');
   const progress = document.getElementById('soundscapeProgress');
   const elapsed = document.getElementById('soundscapeTimeElapsed');
   const total = document.getElementById('soundscapeTimeTotal');
   const playback = document.getElementById('soundscapePlayback');
-  const drawer = document.getElementById('soundscapeControlDrawer');
-  const drawerToggle = document.getElementById('soundscapeControlsToggle');
   const back = document.getElementById('backToHandpan');
   const renderer = createMandalaRenderer(mandala);
-  if (drawer && drawer.parentElement !== document.body) document.body.appendChild(drawer);
 
   let tracks = [];
   let activeIndex = -1;
