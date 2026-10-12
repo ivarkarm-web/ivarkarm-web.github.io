@@ -52,8 +52,9 @@ if (/pionier-core\.js/.test(shell) && !/cdn\.jsdelivr\.net|fetch\(GOOD\)|new Blo
 else fail('Pionier boot still depends on remote source rewriting');
 if (/window\.PionierCore/.test(core) && /pionier:learn-note/.test(core)) ok('Core API and lesson note events are exposed');
 else fail('Core API or lesson note events are missing');
-if (!/BirdInstrument|KitchenInstrument/.test(core)) ok('Instrument registry excludes retired placeholder engines');
-else fail('Instrument registry still imports retired placeholder engines');
+const instrumentFamilyImports = core.match(/from ['"]\.\/js\/instruments\/[^'"]+['"]/g) || [];
+if (instrumentFamilyImports.length === 2) ok('Instrument registry imports only the handpan and tonal families');
+else fail('Unexpected instrument-family imports in the core registry');
 if (!/ghp_[A-Za-z0-9]{20,}/.test(rootHtml + shell + core)) ok('No obvious GitHub token in entry source');
 else fail('Possible GitHub token in source');
 
