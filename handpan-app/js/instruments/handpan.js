@@ -112,8 +112,7 @@ export class HandpanInstrument extends Instrument {
     if (!this.sampleBank) {
       this.sampleBank = new NoteSampleBank(audioCtx, './sounds/notes/');
       try {
-        await this.sampleBank.load();
-        console.info('[handpan] samples', this.sampleBank.byMidi.size);
+        this.sampleBank.load().then(() => console.info('[handpan] samples', this.sampleBank.byMidi.size));
       } catch (e) {
         console.warn('[handpan] sample load failed, synth fallback active', e);
       }
