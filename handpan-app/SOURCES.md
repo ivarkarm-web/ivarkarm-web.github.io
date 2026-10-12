@@ -12,30 +12,6 @@ Upstream: https://github.com/haganenote/virtual-handpan
 
 These are **not** claimed as original Ivar Karm recordings. Attribution to Haganenote is required when redistributing.
 
-## Kitchen (current)
-
-All Kitchen objects currently use **internal synthesis** (status: `placeholder`).
-
-| Object | Status | Replacement target |
-|--------|--------|--------------------|
-| Glass | placeholder synth | Licensed / own recording of struck glass |
-| Ceramic Bowl | placeholder synth | Licensed / own recording of ceramic bowl |
-| Pot | placeholder synth | Licensed / own recording of metal pot |
-| Pan | placeholder synth | Licensed / own recording of frying pan |
-| Spoon | placeholder synth | Licensed / own recording of metal cutlery |
-
-## Bird (current)
-
-All Bird calls currently use **internal hybrid synthesis** (status: `placeholder`).
-
-| Call | Status | Replacement target |
-|------|--------|--------------------|
-| Chirp | placeholder synth | Field recording or granular layer |
-| Trill | placeholder synth | Field recording |
-| Whistle | placeholder synth | Field recording |
-| Click | placeholder synth | Field recording |
-| Call | placeholder synth | Field recording |
-
 ## Policy
 
 - Do **not** assume a free download is redistributable inside an app.
