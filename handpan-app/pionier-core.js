@@ -7,8 +7,6 @@ import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
 import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js';
 import { createTonalInstruments } from './js/instruments/tonal-family.js?v=6';
-import { BirdInstrument } from './js/instruments/bird.js';
-import { KitchenInstrument } from './js/instruments/kitchen.js';
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
@@ -20,8 +18,19 @@ const PITCH_BEND_PIXELS = 90;
 const handpan = new HandpanInstrument();
 InstrumentRegistry.register(handpan);
 for (const instrument of createTonalInstruments()) InstrumentRegistry.register(instrument);
-InstrumentRegistry.register(new BirdInstrument());
-InstrumentRegistry.register(new KitchenInstrument());
+
+const ACTIVE_INSTRUMENT_STORAGE_KEY = 'pionier.activeInstrument';
+function readSavedInstrumentId() {
+  try {
+    const saved = localStorage.getItem(ACTIVE_INSTRUMENT_STORAGE_KEY);
+    return saved && InstrumentRegistry.get(saved) ? saved : 'handpan';
+  } catch (_) {
+    return 'handpan';
+  }
+}
+function persistActiveInstrumentId(id) {
+  try { localStorage.setItem(ACTIVE_INSTRUMENT_STORAGE_KEY, id); } catch (_) {}
+}
 
 const app = {
   fxChain: null,
@@ -108,6 +117,7 @@ async function setInstrument(id) {
 
   const active = InstrumentRegistry.active;
   if (active) {
+    persistActiveInstrumentId(active.id);
     if (typeof active.setMusicalContext === 'function') active.setMusicalContext(notes);
     if (typeof active.setZones === 'function') active.setZones(surface.fields);
     if (!active.ready && active.audioCtx) active._ready = true;
@@ -588,7 +598,11 @@ function tick(now) {
 }
 
 async function boot() {
-  try { await setInstrument('handpan'); } catch (err) { console.error(err); }
+  try { await setInstrument(readSavedInstrumentId()); }
+  catch (err) {
+    console.error(err);
+    try { await setInstrument('handpan'); } catch (fallbackError) { console.error(fallbackError); }
+  }
   resize();
   window.addEventListener('resize', resize);
   requestAnimationFrame(tick);
