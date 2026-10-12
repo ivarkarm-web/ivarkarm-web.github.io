@@ -423,7 +423,7 @@ test('200 rapid strikes stop superseded oscillators and preserve the newest voic
     const inst = window.PionierCore?.activeInstrument?.();
     return !!inst?.audioCtx && !!inst?.bus && !!window.__voiceNodeAudit;
   })).toBe(true);
-  await page.locator('#pan').click();
+  await page.locator('#modePlay').click();
   await expect.poll(() => page.evaluate(() => window.HandpanAudio?.audioState?.())).toBe('running');
   const result = await page.evaluate(async () => {
     const inst = window.PionierCore.activeInstrument();
