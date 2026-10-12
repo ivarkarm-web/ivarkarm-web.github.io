@@ -29,6 +29,10 @@
   </script>
 </head>
 <body>
+  <div id="appStatus" class="app-status" data-state="loading" role="status" aria-live="polite">
+    <span id="appStatusMessage">Starting Pionier…</span>
+    <button type="button" id="appStatusRetry" class="app-status-retry" hidden>Retry</button>
+  </div>
   <div id="app" class="app">
     <header class="topbar">
       <button type="button" class="pill play-pill" id="modePlay" title="Play mode">
