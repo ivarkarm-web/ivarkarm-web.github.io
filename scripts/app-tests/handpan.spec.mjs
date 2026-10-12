@@ -7,6 +7,64 @@ test.beforeEach(async ({ page }) => {
 });
 
 
+
+test('required core boot failure shows recovery UI and retry reloads successfully', async ({ page }) => {
+  let failOnce = true;
+  await page.route(/pionier-core\\.js\\?v=1/, async (route) => {
+    if (failOnce) {
+      failOnce = false;
+      await route.fulfill({ status: 503, contentType: 'text/javascript', body: '/* simulated temporary outage */' });
+    } else {
+      await route.continue();
+    }
+  });
+  await page.reload();
+  await expect(page.locator('#appStatus')).toBeVisible();
+  await expect(page.locator('#appStatusMessage')).toContainText('could not start');
+  await page.locator('#appStatusRetry').click();
+  await expect.poll(() => page.evaluate(() => !!window.PionierCore)).toBe(true);
+  await expect(page.locator('#appStatus')).toBeHidden();
+});
+
+test('audio context unavailability is visible while the app shell remains present', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'AudioContext', { configurable: true, value: undefined });
+    Object.defineProperty(window, 'webkitAudioContext', { configurable: true, value: undefined });
+  });
+  await page.reload();
+  await expect(page.locator('#appStatus')).toBeVisible();
+  await expect(page.locator('#appStatusMessage')).toContainText('audio output');
+  await expect.poll(() => page.evaluate(() => window.PionierCore?.health?.().audioAvailable)).toBe(false);
+  await expect(page.locator('#pan')).toBeVisible();
+});
+
+test('blocked storage is reported as degraded without breaking Handpan', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'localStorage', { configurable: true, get() { throw new Error('storage blocked by test'); } });
+  });
+  await page.reload();
+  await expect(page.locator('#appStatus')).toBeVisible();
+  await expect(page.locator('#appStatusMessage')).toContainText('saved settings');
+  await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('handpan');
+  await expect.poll(() => page.evaluate(() => window.PionierCore?.health?.().storageAvailable)).toBe(false);
+});
+
+test('optional soundscapes module failure leaves core playable and reports degraded state', async ({ page }) => {
+  let failOnce = true;
+  await page.route(/soundscapes\\.js\\?v=5/, async (route) => {
+    if (failOnce) {
+      failOnce = false;
+      await route.fulfill({ status: 503, contentType: 'text/javascript', body: '/* simulated optional module outage */' });
+    } else {
+      await route.continue();
+    }
+  });
+  await page.reload();
+  await expect(page.locator('#appStatus')).toBeVisible();
+  await expect(page.locator('#appStatusMessage')).toContainText('Soundscapes');
+  await expect.poll(() => page.evaluate(() => !!window.PionierCore?.activeInstrument?.())).toBe(true);
+});
+
 test('viewport keeps browser zoom available while the instrument canvas owns gestures', async ({ page }) => {
   const viewport = await page.locator('meta[name="viewport"]').getAttribute('content');
   expect(viewport).toContain('width=device-width');
