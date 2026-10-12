@@ -57,7 +57,7 @@ Source references:
 | Engine / sound | Source / author | License | Commercial use | Notes |
 |---|---|---|---|---|
 | Handpan fallback synthesis | Original code in this repository; Ivar Karm project | No external audio asset | No third-party recording is bundled | Synthetic approximation; not equivalent to a real recorded handpan |
-| Backdrop ambient beds | Original Web Audio synthesis in `handpan-app/js/backdrop-player.js` | No external audio asset | No third-party recording is bundled | Noise and oscillator-based beds; quality and seamless-loop behavior still require dedicated tests |
+| Backdrop ambient beds | Original Web Audio synthesis in `handpan-app/js/backdrop-player.js` | No external audio asset | No third-party recording is bundled | Mist drone, soft rain, warm pulse, high shimmer, deep bed, storm front, forest wind, and ocean shore; generated noise loops use eased boundaries and automated tests |
 
 ## Release blockers and options
 
