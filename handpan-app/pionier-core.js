@@ -78,6 +78,7 @@ function isFieldPlayable(fieldIndex) {
 }
 
 async function setInstrument(id) {
+  releaseAllPointers();
   ensureAudio();
   const ctx = getAudioContext();
   if (!ctx) return;
@@ -218,11 +219,12 @@ canvas?.addEventListener('pointermove', (e) => {
     gesture.velocity = Math.min(1, (gesture.velocity || 0.65) * 0.85);
     // Prefer smooth MPE glide/portamento when instrument supports it
     let glided = false;
-    if (prevIdx != null && typeof inst.glideTo === 'function') {
+    const sharedPrev = prevIdx != null && hasOtherPointerAt(prevIdx, e.pointerId);
+    if (!sharedPrev && prevIdx != null && typeof inst.glideTo === 'function') {
       glided = !!inst.glideTo(prevIdx, hit.index, gesture, hit);
     }
     if (!glided) {
-      if (prevIdx != null) inst.noteOff(prevIdx);
+      if (prevIdx != null && !sharedPrev) inst.noteOff(prevIdx);
       inst.noteOn(gesture, hit);
     }
     window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now(), instrument: inst.id || inst.name || 'handpan' } }));
@@ -240,14 +242,44 @@ canvas?.addEventListener('pointermove', (e) => {
   }
 });
 
+function hasOtherPointerAt(index, pointerId) {
+  for (const [id, rec] of app.pointers) {
+    if (id !== pointerId && (typeof rec === 'object' ? rec?.index : rec) === index) return true;
+  }
+  return false;
+}
+
+function releaseAllPointers() {
+  if (!app.pointers.size) return;
+  const heldIndices = new Set();
+  for (const [pointerId, rec] of app.pointers) {
+    const index = typeof rec === 'object' ? rec?.index : rec;
+    if (index != null) heldIndices.add(index);
+    app.gestureTracker.up(pointerId);
+    try { canvas?.releasePointerCapture?.(pointerId); } catch (_) {}
+  }
+  app.pointers.clear();
+  const inst = activeInstrument();
+  for (const index of heldIndices) {
+    try { inst.noteOff(index); } catch (_) {}
+  }
+}
+
 function releasePointer(e) {
   const rec = app.pointers.get(e.pointerId);
+  if (!app.pointers.has(e.pointerId)) return;
   app.pointers.delete(e.pointerId);
   app.gestureTracker.up(e.pointerId);
   const idx = (typeof rec === 'object' && rec != null) ? rec.index : rec;
-  if (idx != null) activeInstrument().noteOff(idx);
+  // A pad remains held until its final pointer leaves it.
+  if (idx != null && !hasOtherPointerAt(idx, e.pointerId)) activeInstrument().noteOff(idx);
   try { canvas.releasePointerCapture?.(e.pointerId); } catch (_) {}
 }
+
+window.addEventListener('blur', releaseAllPointers);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) releaseAllPointers();
+});
 
 canvas?.addEventListener('pointerup', (e) => { e.preventDefault(); releasePointer(e); });
 canvas?.addEventListener('lostpointercapture', (e) => { releasePointer(e); });
