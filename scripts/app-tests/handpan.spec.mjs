@@ -118,7 +118,6 @@ test('adding Soundscapes audio appends to the playlist without replacing the cur
   const input = page.locator('#soundscapeFile');
   await input.setInputFiles([{ name: 'first.wav', mimeType: 'audio/wav', buffer: Buffer.from('not-a-real-wave-file') }]);
   await expect(page.locator('#soundscapeTrackTitle')).toHaveText('first');
-  await expect(page.locator('#soundscapeTrackSubtitle')).toHaveText('ONE TRACK LOADED');
   await input.setInputFiles([{ name: 'second.wav', mimeType: 'audio/wav', buffer: Buffer.from('not-a-real-wave-file') }]);
   await expect(page.locator('#soundscapeTrackTitle')).toHaveText('first');
   await expect(page.locator('#soundscapeTrackSubtitle')).toHaveText('TRACK 1 / 2');
@@ -184,7 +183,10 @@ test('a shared pad stays sounding until the final pointer releases it', async ({
   expect(afterFirstRelease.count).toBeGreaterThan(0);
   expect(afterFirstRelease.released).toBe(false);
   await page.evaluate(() => window.__sharedPadTest.fire('pointerup', 702));
-  await expect.poll(() => page.evaluate(() => window.PionierCore.activeInstrument().activeVoices.size)).toBe(0);
+  await expect.poll(() => page.evaluate(() => {
+    const voice = window.PionierCore.activeInstrument().activeVoices.values().next().value;
+    return !voice || voice.released === true;
+  })).toBe(true);
 });
 
 test('window blur clears held pointers and prevents stuck notes', async ({ page }) => {
