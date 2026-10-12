@@ -237,6 +237,44 @@ test('adding Soundscapes audio appends to the playlist without replacing the cur
   await expect(page.locator('#soundscapeTrackSubtitle')).toHaveText('TRACK 2 / 2');
 });
 
+
+test('procedural backdrop beds play, navigate, mute, and pause', async ({ page }) => {
+  const player = page.locator('#backdropPlayer');
+  await expect(player).toHaveAttribute('data-playing', 'false');
+  await player.getByRole('button', { name: 'Play', exact: true }).click();
+  await expect(player).toHaveAttribute('data-playing', 'true');
+  await player.getByRole('button', { name: 'Next track' }).click();
+  await expect(player.locator('[data-track-name]')).toHaveText('Soft Rain');
+  await player.getByRole('button', { name: 'Mute background audio' }).click();
+  await expect(player).toHaveAttribute('data-muted', 'true');
+  await player.getByRole('button', { name: 'Unmute background audio' }).click();
+  await expect(player).toHaveAttribute('data-muted', 'false');
+  await player.getByRole('button', { name: 'Pause', exact: true }).click();
+  await expect(player).toHaveAttribute('data-playing', 'false');
+});
+
+test('a failed ambient bed falls back to the safe default track', async ({ page }) => {
+  const state = await page.evaluate(async () => {
+    const { BACKDROP_TRACKS } = await import('/handpan-app/js/backdrop-player.js');
+    const player = window.PionierBackdropPlayer;
+    const original = BACKDROP_TRACKS[1].build;
+    BACKDROP_TRACKS[1].build = () => { throw new Error('simulated track failure'); };
+    try {
+      player.next();
+      player.play();
+      return player.getState();
+    } finally {
+      BACKDROP_TRACKS[1].build = original;
+      player.pause();
+      player.prev();
+    }
+  });
+  expect(state.trackId).toBe('mist');
+  expect(state.playing).toBe(true);
+  expect(state.error).toBe(false);
+  await page.evaluate(() => window.PionierBackdropPlayer?.pause());
+});
+
 test('Soundscapes shortcut opens the player and the back control returns', async ({ page }) => {
   await page.locator('#openSoundscapes').click();
   await expect(page.locator('#soundscapesPage')).toHaveClass(/is-active/);
