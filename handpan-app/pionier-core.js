@@ -20,16 +20,19 @@ InstrumentRegistry.register(handpan);
 for (const instrument of createTonalInstruments()) InstrumentRegistry.register(instrument);
 
 const ACTIVE_INSTRUMENT_STORAGE_KEY = 'pionier.activeInstrument';
+let storageAvailable = true;
 function readSavedInstrumentId() {
   try {
     const saved = localStorage.getItem(ACTIVE_INSTRUMENT_STORAGE_KEY);
     return saved && InstrumentRegistry.get(saved) ? saved : 'handpan';
   } catch (_) {
+    storageAvailable = false;
     return 'handpan';
   }
 }
 function persistActiveInstrumentId(id) {
-  try { localStorage.setItem(ACTIVE_INSTRUMENT_STORAGE_KEY, id); } catch (_) {}
+  try { localStorage.setItem(ACTIVE_INSTRUMENT_STORAGE_KEY, id); }
+  catch (_) { storageAvailable = false; }
 }
 
 const app = {
@@ -632,6 +635,12 @@ function changeNoteCount(delta) {
 window.PionierCore = {
   handpan, surface,
   activeInstrument: () => activeInstrument(),
+  health: () => ({
+    audioAvailable: !!getAudioContext(),
+    audioState: audioState(),
+    storageAvailable,
+    instrumentReady: !!InstrumentRegistry.active?.ready
+  }),
   draw() { draw(); },
   addNote() { return changeNoteCount(1); },
   removeNote() { return changeNoteCount(-1); },
