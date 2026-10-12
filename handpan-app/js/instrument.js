@@ -34,6 +34,8 @@ export class Instrument {
 
 const _registry = new Map();
 let _activeId = null;
+// Serialize async activations so rapid UI selections cannot finish out of order.
+let _activationQueue = Promise.resolve();
 
 export const InstrumentRegistry = {
   register(instrument) {
@@ -51,16 +53,23 @@ export const InstrumentRegistry = {
   },
   get activeId() { return _activeId; },
   get active() { return _activeId ? _registry.get(_activeId) : null; },
-  async setActive(id, audioCtx, bus) {
-    if (_activeId && _activeId !== id) {
-      const prev = _registry.get(_activeId);
-      if (prev) prev.deactivate();
-    }
-    const next = _registry.get(id);
-    if (!next) throw new Error('Unknown instrument: ' + id);
-    await next.activate(audioCtx, bus);
-    _activeId = id;
-    return next;
+  setActive(id, audioCtx, bus) {
+    const activate = async () => {
+      const next = _registry.get(id);
+      if (!next) throw new Error('Unknown instrument: ' + id);
+      if (_activeId && _activeId !== id) {
+        const prev = _registry.get(_activeId);
+        if (prev) prev.deactivate();
+      }
+      await next.activate(audioCtx, bus);
+      _activeId = id;
+      return next;
+    };
+    const result = _activationQueue.then(activate, activate);
+    // Keep the queue usable after a rejected activation while returning the
+    // original rejection to the caller.
+    _activationQueue = result.catch(() => {});
+    return result;
   },
   clear() {
     if (_activeId) {
