@@ -115,6 +115,8 @@ test('Soundscapes swipe transition opens and returns without reloading the instr
 });
 
 test('adding Soundscapes audio appends to the playlist without replacing the current track', async ({ page }) => {
+  await page.locator('#openSoundscapes').click();
+  await expect(page.locator('#soundscapesPage')).toHaveClass(/is-active/);
   const input = page.locator('#soundscapeFile');
   await input.setInputFiles([{ name: 'first.wav', mimeType: 'audio/wav', buffer: Buffer.from('not-a-real-wave-file') }]);
   await expect(page.locator('#soundscapeTrackTitle')).toHaveText('first');
