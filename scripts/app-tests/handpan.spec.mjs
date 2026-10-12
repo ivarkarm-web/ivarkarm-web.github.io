@@ -32,6 +32,15 @@ test('rapid touch taps on scale steppers are not swallowed', async ({ page }, te
     .toBe((before + 4) % scaleCount);
 });
 
+
+test('stale saved instrument selection safely falls back to Handpan', async ({ page }) => {
+  await page.evaluate(() => localStorage.setItem('pionier.activeInstrument', 'legacy-removed-instrument'));
+  await page.reload();
+  await expect(page.locator('#pan')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('handpan');
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('pionier.activeInstrument'))).toBe('handpan');
+});
+
 test('boots the local core without runtime source-fetch errors', async ({ page }) => {
   await expect(page.locator('#instrumentMenu')).toBeAttached();
   await expect(page.locator('#mobileControlDrawer')).toBeAttached();
@@ -50,8 +59,6 @@ test('boots the local core without runtime source-fetch errors', async ({ page }
 });
 
 for (const [instrumentName, instrumentId] of [
-  ['Bird', 'bird'],
-  ['Kitchen', 'kitchen'],
   ['Kalimba', 'kalimba'],
   ['Tongue Drum', 'tongue-drum']
 ]) {
@@ -85,33 +92,33 @@ test('rapid instrument selections resolve in the order the user chose them', asy
     const { InstrumentRegistry } = await import('/handpan-app/js/instrument.js');
     const ctx = window.PionierCore?.activeInstrument?.()?.audioCtx;
     const bus = window.PionierCore?.activeInstrument?.()?.bus;
-    const bird = InstrumentRegistry.get('bird');
-    const kitchen = InstrumentRegistry.get('kitchen');
-    if (!ctx || !bus || !bird || !kitchen) return { setup: false };
-    const originalBird = bird.activate;
-    const originalKitchen = kitchen.activate;
-    bird.activate = async function (audioCtx, output) {
+    const kalimba = InstrumentRegistry.get('kalimba');
+    const tongueDrum = InstrumentRegistry.get('tongue-drum');
+    if (!ctx || !bus || !kalimba || !tongueDrum) return { setup: false };
+    const originalKalimba = kalimba.activate;
+    const originalTongueDrum = tongueDrum.activate;
+    kalimba.activate = async function (audioCtx, output) {
       await new Promise((resolve) => setTimeout(resolve, 90));
-      return originalBird.call(this, audioCtx, output);
+      return originalKalimba.call(this, audioCtx, output);
     };
-    kitchen.activate = async function (audioCtx, output) {
+    tongueDrum.activate = async function (audioCtx, output) {
       await new Promise((resolve) => setTimeout(resolve, 10));
-      return originalKitchen.call(this, audioCtx, output);
+      return originalTongueDrum.call(this, audioCtx, output);
     };
     try {
       await Promise.all([
-        InstrumentRegistry.setActive('bird', ctx, bus),
-        InstrumentRegistry.setActive('kitchen', ctx, bus)
+        InstrumentRegistry.setActive('kalimba', ctx, bus),
+        InstrumentRegistry.setActive('tongue-drum', ctx, bus)
       ]);
       return { setup: true, activeId: InstrumentRegistry.activeId };
     } finally {
-      bird.activate = originalBird;
-      kitchen.activate = originalKitchen;
+      kalimba.activate = originalKalimba;
+      tongueDrum.activate = originalTongueDrum;
       await InstrumentRegistry.setActive('handpan', ctx, bus);
     }
   });
   expect(result.setup).toBe(true);
-  expect(result.activeId).toBe('kitchen');
+  expect(result.activeId).toBe('tongue-drum');
   await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('handpan');
 });
 
@@ -119,8 +126,8 @@ test('Handpan can be reselected after switching to another instrument', async ({
   const trigger = page.locator('#instrumentDropdownToggle');
   const menu = page.locator('#instrumentMenu');
   await trigger.click();
-  await menu.getByRole('button', { name: 'Bird', exact: true }).click();
-  await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('bird');
+  await menu.getByRole('button', { name: 'Kalimba', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('kalimba');
   await trigger.click();
   await expect(menu).toBeVisible();
   await menu.getByRole('button', { name: 'Handpan', exact: true }).click();
@@ -341,29 +348,29 @@ test('instrument activation queue recovers after an instrument fails to initiali
     const active = InstrumentRegistry.get('handpan');
     const ctx = active?.audioCtx;
     const bus = active?.bus;
-    const bird = InstrumentRegistry.get('bird');
-    const kitchen = InstrumentRegistry.get('kitchen');
-    if (!ctx || !bus || !bird || !kitchen) return { setup: false };
-    const originalBird = bird.activate;
-    bird.activate = async function () { throw new Error('simulated instrument initialization failure'); };
+    const kalimba = InstrumentRegistry.get('kalimba');
+    const tongueDrum = InstrumentRegistry.get('tongue-drum');
+    if (!ctx || !bus || !kalimba || !tongueDrum) return { setup: false };
+    const originalKalimba = kalimba.activate;
+    kalimba.activate = async function () { throw new Error('simulated instrument initialization failure'); };
     let rejected = false;
     try {
-      try { await InstrumentRegistry.setActive('bird', ctx, bus); }
+      try { await InstrumentRegistry.setActive('kalimba', ctx, bus); }
       catch (error) { rejected = /simulated instrument initialization failure/.test(error.message); }
       const afterFailure = {
         activeId: InstrumentRegistry.activeId,
         ready: InstrumentRegistry.active?.ready === true
       };
-      await InstrumentRegistry.setActive('kitchen', ctx, bus);
+      await InstrumentRegistry.setActive('tongue-drum', ctx, bus);
       return { setup: true, rejected, afterFailure, activeId: InstrumentRegistry.activeId };
     } finally {
-      bird.activate = originalBird;
+      kalimba.activate = originalKalimba;
       await InstrumentRegistry.setActive('handpan', ctx, bus);
     }
   });
   expect(result.setup).toBe(true);
   expect(result.rejected).toBe(true);
   expect(result.afterFailure).toEqual({ activeId: 'handpan', ready: true });
-  expect(result.activeId).toBe('kitchen');
+  expect(result.activeId).toBe('tongue-drum');
   await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('handpan');
 });

@@ -33,8 +33,7 @@ read('handpan-app/js/instrument.js');
 read('handpan-app/js/gesture.js');
 read('handpan-app/js/fx.js');
 read('handpan-app/js/instruments/handpan.js');
-read('handpan-app/js/instruments/bird.js');
-read('handpan-app/js/instruments/kitchen.js');
+read('handpan-app/js/instruments/tonal-family.js');
 read('handpan-app/js/pionier-surface.js');
 const soundscapes = read('handpan-app/js/soundscapes.js');
 read('handpan-app/js/mandala-canvas.js');
@@ -53,6 +52,9 @@ if (/pionier-core\.js/.test(shell) && !/cdn\.jsdelivr\.net|fetch\(GOOD\)|new Blo
 else fail('Pionier boot still depends on remote source rewriting');
 if (/window\.PionierCore/.test(core) && /pionier:learn-note/.test(core)) ok('Core API and lesson note events are exposed');
 else fail('Core API or lesson note events are missing');
+const instrumentFamilyImports = core.match(/from ['"]\.\/js\/instruments\/[^'"]+['"]/g) || [];
+if (instrumentFamilyImports.length === 2) ok('Instrument registry imports only the handpan and tonal families');
+else fail('Unexpected instrument-family imports in the core registry');
 if (!/ghp_[A-Za-z0-9]{20,}/.test(rootHtml + shell + core)) ok('No obvious GitHub token in entry source');
 else fail('Possible GitHub token in source');
 
