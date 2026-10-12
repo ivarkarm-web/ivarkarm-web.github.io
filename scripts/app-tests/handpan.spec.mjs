@@ -9,6 +9,7 @@ test.beforeEach(async ({ page }) => {
 test('boots the local core without runtime source-fetch errors', async ({ page }) => {
   await expect(page.locator('#instrumentMenu')).toBeAttached();
   await expect(page.locator('#mobileControlDrawer')).toBeAttached();
+  await page.locator('#mobileControlsToggle').click();
   await expect(page.locator('#knobMaster')).toBeVisible();
   const boot = await page.evaluate(() => ({
     core: !!window.PionierCore,
@@ -36,6 +37,7 @@ test('instrument menu switches away from Handpan and can return', async ({ page 
 });
 
 test('effect type menus open and update their selected state', async ({ page }) => {
+  await page.locator('#mobileControlsToggle').click();
   await page.locator('.knob-effect-trigger[aria-controls="bubbleComp"]').click();
   const bubble = page.locator('#bubbleComp');
   await expect(bubble).toBeVisible();
