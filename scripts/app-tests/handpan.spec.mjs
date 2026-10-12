@@ -139,13 +139,20 @@ test('real touch taps can be delivered in quick succession on mobile', async ({ 
     window.addEventListener('pionier:learn-note', () => { window.__pionierStrikeCount += 1; });
   });
   const canvas = page.locator('#pan');
-  const rect = await canvas.boundingBox();
-  expect(rect).not.toBeNull();
-  const points = [[0.5,0.5],[0.36,0.36],[0.64,0.36],[0.36,0.64],[0.64,0.64],[0.5,0.5]];
-  for (const [dx,dy] of points) {
-    await page.touchscreen.tap(rect.x + rect.width * dx, rect.y + rect.height * dy);
-  }
+  const points = await page.evaluate(() => {
+    const surface = window.PionierCore?.surface;
+    const canvasEl = document.getElementById('pan');
+    if (!surface || !canvasEl) return [];
+    const rect = canvasEl.getBoundingClientRect();
+    const metrics = surface.metrics;
+    return surface.fields.filter((field) => field.playable).slice(0, 6).map((field) => ({
+      x: rect.left + (field.x / metrics.W) * rect.width,
+      y: rect.top + (field.y / metrics.H) * rect.height
+    }));
+  });
+  expect(points.length).toBeGreaterThanOrEqual(5);
+  for (const point of points) await page.touchscreen.tap(point.x, point.y);
   expect(errors).toEqual([]);
-  expect(await page.evaluate(() => window.__pionierStrikeCount)).toBeGreaterThan(0);
+  expect(await page.evaluate(() => window.__pionierStrikeCount)).toBe(points.length);
   await expect(canvas).toBeVisible();
 });
