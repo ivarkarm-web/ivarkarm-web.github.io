@@ -3,7 +3,7 @@ let master = null;
 let compressor = null;
 
 function audioConstructor() {
-  return globalThis.AudioContext || globalThis.webkitAudioContext;
+  return globalThis.AudioContext || globalThis.webkitAudioContext || globalThis.window?.AudioContext || globalThis.window?.webkitAudioContext;
 }
 
 export function getAudioContext() {
