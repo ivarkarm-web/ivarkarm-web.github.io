@@ -133,6 +133,7 @@ test('adding Soundscapes audio appends to the playlist without replacing the cur
   await input.setInputFiles([{ name: 'first.wav', mimeType: 'audio/wav', buffer: makeWav() }]);
   await expect(page.locator('#soundscapeTrackTitle')).toHaveText('first');
   await expect.poll(() => page.locator('#soundscapeAudio').evaluate((audio) => audio.src.startsWith('blob:'))).toBe(true);
+  await expect.poll(() => page.locator('#soundscapeAudio').evaluate((audio) => audio.readyState >= 1)).toBe(true);
   await input.setInputFiles([{ name: 'second.wav', mimeType: 'audio/wav', buffer: makeWav() }]);
   await expect(page.locator('#soundscapeTrackTitle')).toHaveText('first');
   await expect(page.locator('#soundscapeTrackSubtitle')).toHaveText('TRACK 1 / 2');
