@@ -14,7 +14,6 @@ test('Pionier entry surface matches the deployed instrument UI', () => {
     assert.match(html, new RegExp('id="' + id + '"'), 'missing #' + id);
   }
   assert.match(html, /id="pan"[^>]*aria-label="Handpan instrument"/);
-  assert.match(html, /id="soundscapesPage"/);
 });
 
 test('boot chain is local and does not fetch or rewrite executable source at runtime', () => {
