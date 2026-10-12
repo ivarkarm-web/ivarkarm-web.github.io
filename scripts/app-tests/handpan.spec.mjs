@@ -26,7 +26,8 @@ test('instrument menu switches away from Handpan and can return', async ({ page 
   await trigger.click();
   const menu = page.locator('#instrumentMenu');
   await expect(menu).toBeVisible();
-  await expect(menu.locator('button')).toContainText(['Handpan', 'Tongue Drum', 'Kalimba']);
+  await expect(menu.getByRole('button', { name: 'Tongue Drum', exact: true })).toBeVisible();
+  await expect(menu.getByRole('button', { name: 'Kalimba', exact: true })).toBeVisible();
   await menu.getByRole('button', { name: 'Bird', exact: true }).click();
   await expect(trigger).toContainText('Bird');
   await trigger.click();
