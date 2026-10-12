@@ -71,8 +71,10 @@ Scores do not increase merely because a PR merges. They move only when the rubri
 1. Owner-recorded handpan samples (each note, multiple velocities, full natural tails) to replace uncleared samples.
 2. Owner-recorded field loops, or approval of specific CC0 sources, for rain, storm, forest, birds and sea.
 3. Real-device results for the checklist (iPhone Safari/PWA, Android Chrome, tablet, desktop Safari/Firefox).
-4. Decision whether Bird and Kitchen remain placeholders, receive recorded sources, or are removed.
+4. Owner-provided or explicitly licensed handpan samples; current sample redistribution status remains uncleared.
 
 ## Change log
+
+- **2026-10-13 (proposed in PR):** Remove two procedural placeholder instruments from the registry and add a regression test for stale saved instrument IDs falling back to Handpan. Scores remain unchanged until CI and broader phase gates justify a score change.
 
 - **2026-10-12:** Established conservative baseline after activation-failure recovery and natural ring-out changes. No score increased because the phase exit criteria remain unproven.
