@@ -227,16 +227,19 @@ canvas?.addEventListener('pointermove', (e) => {
     // Prefer smooth MPE glide/portamento when instrument supports it
     let glided = false;
     const sharedPrev = prevIdx != null && hasOtherPointerAt(prevIdx, e.pointerId);
-    if (!sharedPrev && prevIdx != null && typeof inst.glideTo === 'function') {
+    const sharedTarget = hasOtherPointerAt(hit.index, e.pointerId);
+    if (!sharedPrev && !sharedTarget && prevIdx != null && typeof inst.glideTo === 'function') {
       glided = !!inst.glideTo(prevIdx, hit.index, gesture, hit);
     }
     if (!glided) {
       if (prevIdx != null && !sharedPrev) inst.noteOff(prevIdx);
-      inst.noteOn(gesture, hit);
+      if (!sharedTarget) inst.noteOn(gesture, hit);
     }
-    window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now(), instrument: inst.id || inst.name || 'handpan' } }));
+    if (glided || !sharedTarget) {
+      window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now(), instrument: inst.id || inst.name || 'handpan' } }));
+      if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);
+    }
     app.pointers.set(e.pointerId, { index: hit.index, originY: y, originX: x });
-    if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);
     draw();
   } else if (hit && typeof inst.express === 'function' && moved) {
     const originY = (typeof rec === 'object' && rec?.originY != null) ? rec.originY : y;
