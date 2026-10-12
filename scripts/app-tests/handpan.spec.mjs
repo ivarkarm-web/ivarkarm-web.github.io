@@ -117,10 +117,23 @@ test('Soundscapes swipe transition opens and returns without reloading the instr
 test('adding Soundscapes audio appends to the playlist without replacing the current track', async ({ page }) => {
   await page.locator('#openSoundscapes').click();
   await expect(page.locator('#soundscapesPage')).toHaveClass(/is-active/);
+  await expect(page.locator('#mobileControlDrawer')).not.toHaveClass(/is-open/);
+  await expect(page.locator('#mobileControlsToggle')).toHaveAttribute('aria-expanded', 'false');
   const input = page.locator('#soundscapeFile');
-  await input.setInputFiles([{ name: 'first.wav', mimeType: 'audio/wav', buffer: Buffer.from('not-a-real-wave-file') }]);
+  const makeWav = () => {
+    const samples = 800;
+    const wav = Buffer.alloc(44 + samples * 2);
+    wav.write('RIFF', 0); wav.writeUInt32LE(36 + samples * 2, 4); wav.write('WAVE', 8);
+    wav.write('fmt ', 12); wav.writeUInt32LE(16, 16); wav.writeUInt16LE(1, 20); wav.writeUInt16LE(1, 22);
+    wav.writeUInt32LE(8000, 24); wav.writeUInt32LE(16000, 28); wav.writeUInt16LE(2, 32); wav.writeUInt16LE(16, 34);
+    wav.write('data', 36); wav.writeUInt32LE(samples * 2, 40);
+    for (let i = 0; i < samples; i++) wav.writeInt16LE(Math.round(Math.sin(i * Math.PI / 12) * 5000), 44 + i * 2);
+    return wav;
+  };
+  await input.setInputFiles([{ name: 'first.wav', mimeType: 'audio/wav', buffer: makeWav() }]);
   await expect(page.locator('#soundscapeTrackTitle')).toHaveText('first');
-  await input.setInputFiles([{ name: 'second.wav', mimeType: 'audio/wav', buffer: Buffer.from('not-a-real-wave-file') }]);
+  await expect.poll(() => page.locator('#soundscapeAudio').evaluate((audio) => audio.src.startsWith('blob:'))).toBe(true);
+  await input.setInputFiles([{ name: 'second.wav', mimeType: 'audio/wav', buffer: makeWav() }]);
   await expect(page.locator('#soundscapeTrackTitle')).toHaveText('first');
   await expect(page.locator('#soundscapeTrackSubtitle')).toHaveText('TRACK 1 / 2');
   await expect(page.locator('#soundscapeStatus')).toHaveText('1 TRACK ADDED');
