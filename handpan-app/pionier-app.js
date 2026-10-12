@@ -29,7 +29,7 @@ async function boot() {
   // The core and its imports are served from this same deployed repository.
   await import(new URL('./pionier-core.js?v=1', BASE).href);
   try {
-    await import(new URL('./js/soundscapes.js?v=2', BASE).href);
+    await import(new URL('./js/soundscapes.js?v=3', BASE).href);
   } catch (err) {
     console.error('[soundscapes] module failed to initialize', err);
   }
