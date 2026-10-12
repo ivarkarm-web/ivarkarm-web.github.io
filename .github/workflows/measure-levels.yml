@@ -26,7 +26,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run level measurement
-        run: npx playwright test scripts/app-tests/instrument-levels.spec.mjs --project=desktop-1280x800
+        run: npx playwright test scripts/measure/instrument-levels.spec.mjs --project=desktop-1280x800
 
       - name: Upload level table
         if: always()
