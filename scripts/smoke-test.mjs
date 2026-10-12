@@ -36,10 +36,16 @@ read('handpan-app/js/instruments/handpan.js');
 read('handpan-app/js/instruments/bird.js');
 read('handpan-app/js/instruments/kitchen.js');
 read('handpan-app/js/pionier-surface.js');
+const soundscapes = read('handpan-app/js/soundscapes.js');
+read('handpan-app/js/mandala-canvas.js');
 
 if (rootHtml.includes('<title>') && rootHtml.includes('</html>')) ok('Portfolio document is present');
 else fail('Portfolio HTML document is incomplete');
 if (appHtml.includes('id="pan"') && appHtml.includes('id="instrumentDropdownToggle"')) ok('Pionier has its real instrument entry surface');
+if (appHtml.includes('id="soundscapesPage"') && appHtml.includes('id="mandalaPlay"') && appHtml.includes('id="soundscapeAudio"')) ok('Soundscapes player markup is present');
+else fail('Soundscapes player markup is missing');
+if (/createMandalaRenderer/.test(soundscapes) && /pointerdown/.test(soundscapes) && /pointerup/.test(soundscapes)) ok('Soundscapes renderer and swipe navigation are present');
+else fail('Soundscapes renderer or swipe navigation is missing');
 else fail('Pionier instrument entry surface is missing');
 if (appHtml.includes('name="description"')) ok('Pionier description metadata is present');
 else fail('Pionier description metadata is missing');
