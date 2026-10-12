@@ -234,10 +234,14 @@ test('a shared pad stays sounding until the final pointer releases it', async ({
   expect(afterFirstRelease.count).toBeGreaterThan(0);
   expect(afterFirstRelease.released).toBe(false);
   await page.evaluate(() => window.__sharedPadTest.fire('pointerup', 702));
-  await expect.poll(() => page.evaluate(() => {
-    const voice = window.PionierCore.activeInstrument().activeVoices.values().next().value;
-    return !voice || voice.released === true;
-  })).toBe(true);
+  const afterFinalRelease = await page.evaluate(() => {
+    const instrument = window.PionierCore.activeInstrument();
+    const voice = instrument.activeVoices.values().next().value;
+    return { held: Array.from(instrument.held).some(Boolean), released: voice?.released ?? true, voiceCount: instrument.activeVoices.size };
+  });
+  expect(afterFinalRelease.held).toBe(false);
+  expect(afterFinalRelease.released).toBe(false);
+  expect(afterFinalRelease.voiceCount).toBeGreaterThan(0);
 });
 
 test('window blur clears held pointers and prevents stuck notes', async ({ page }) => {

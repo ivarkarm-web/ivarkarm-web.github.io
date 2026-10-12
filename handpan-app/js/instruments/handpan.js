@@ -343,7 +343,7 @@ export class HandpanInstrument extends Instrument {
             }
           }
         }
-        this.activeVoices.set(idx, {
+        const voice = {
           idx,
           stop: (tt, tc) => {
             played.stop(tt, tc);
@@ -360,7 +360,21 @@ export class HandpanInstrument extends Instrument {
           kind: 'sample',
           baseGain: 0.8 + pc * 0.4,
           baseFreq: note.freq
-        });
+        };
+        this.activeVoices.set(idx, voice);
+        // A one-shot should finish its natural decay after finger-up. Clean up
+        // its voice bookkeeping only when the source itself reaches its end.
+        const strikeSource = played.nodes?.find((node) =>
+          node && typeof node.start === 'function' && node.buffer
+        );
+        if (strikeSource) {
+          const onEnded = strikeSource.onended;
+          strikeSource.onended = (event) => {
+            try { onEnded?.call(strikeSource, event); } catch (_) {}
+            if (this.activeVoices.get(idx) === voice) this.activeVoices.delete(idx);
+            try { expressGain.disconnect(); } catch (_) {}
+          };
+        }
         return;
       }
     }
@@ -491,8 +505,10 @@ export class HandpanInstrument extends Instrument {
     this._smoothPressure[zoneId] = 0;
     const v = this.activeVoices.get(zoneId);
     if (!v || !this.audioCtx) return;
-    if (v.stop) v.stop(this.audioCtx.currentTime, 0.08);
-    else this._releaseVoice(v, this.audioCtx.currentTime, 0.08);
+    // Handpan notes are struck one-shots with their own decay envelope. Finger-up
+    // ends gesture expression, not the sound: let samples and synth partials ring
+    // naturally. dampAll() remains the explicit emergency/transition stop.
+    // Other instrument families can keep their own noteOff/release behavior.
   }
 
   dampAll() {
