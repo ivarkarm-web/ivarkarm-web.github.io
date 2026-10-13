@@ -1,4 +1,4 @@
-/* Looper v2 — record + layers, sync, mix sheet */
+/* Looper v3 — record + 4-mode sync dial + layers */
 .looper-rail {
   position: fixed;
   right: max(12px, env(safe-area-inset-right));
@@ -21,6 +21,105 @@
   max-width: min(52vw, 420px);
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.looper-record-cluster {
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.looper-sync-dial {
+  pointer-events: auto;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.looper-sync-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(22, 22, 26, 0.92);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+.looper-sync-seg {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  background: rgba(255, 255, 255, 0.04);
+}
+.looper-sync-seg[data-mode="free"] {
+  top: 0; right: 0; border-radius: 0 100% 0 0;
+}
+.looper-sync-seg[data-mode="loop"] {
+  bottom: 0; right: 0; border-radius: 0 0 100% 0;
+}
+.looper-sync-seg[data-mode="beat"] {
+  bottom: 0; left: 0; border-radius: 0 0 0 100%;
+}
+.looper-sync-seg[data-mode="serial"] {
+  top: 0; left: 0; border-radius: 100% 0 0 0;
+}
+.looper-sync-seg.is-lit {
+  background: rgba(212, 176, 74, 0.55);
+  box-shadow: inset 0 0 12px rgba(244, 207, 105, 0.35);
+}
+.looper-sync-dial[data-mode="free"] .looper-sync-seg.is-lit {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+}
+.looper-sync-dial[data-mode="loop"] .looper-sync-seg.is-lit {
+  background: rgba(212, 176, 74, 0.65);
+}
+.looper-sync-dial[data-mode="beat"] .looper-sync-seg.is-lit {
+  background: rgba(126, 200, 255, 0.55);
+}
+.looper-sync-dial[data-mode="serial"] .looper-sync-seg.is-lit {
+  background: rgba(180, 140, 255, 0.55);
+}
+.looper-sync-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border-radius: 50%;
+  background: rgba(12, 12, 14, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+.looper-sync-label {
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: rgba(240, 235, 227, 0.85);
+  line-height: 1;
+  pointer-events: none;
+}
+.looper-sync-dial.is-active .looper-sync-label { color: #f6dfa0; }
+.looper-sync-dial[data-mode="beat"].is-active .looper-sync-label { color: #b8e0ff; }
+.looper-sync-dial[data-mode="serial"].is-active .looper-sync-label { color: #d4c0ff; }
+.looper-sync-dial:hover .looper-sync-core {
+  border-color: rgba(212, 176, 74, 0.45);
 }
 
 .looper-circle {
@@ -209,37 +308,6 @@
   color: #ff8a8a;
 }
 
-.looper-sync-btn,
-.looper-pulse-btn {
-  pointer-events: auto;
-  appearance: none;
-  border: 1.5px solid rgba(255, 255, 255, 0.22);
-  background: rgba(22, 22, 26, 0.88);
-  color: rgba(232, 230, 227, 0.75);
-  border-radius: 999px;
-  height: 32px;
-  padding: 0 11px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
-  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
-}
-.looper-sync-btn.is-on {
-  border-color: #d4b04a;
-  background: rgba(212, 176, 74, 0.2);
-  color: #f6dfa0;
-  box-shadow: 0 0 0 2px rgba(212, 176, 74, 0.18);
-}
-.looper-pulse-btn.is-on {
-  border-color: rgba(126, 200, 255, 0.75);
-  background: rgba(126, 200, 255, 0.14);
-  color: #b8e0ff;
-}
-
 .looper-clear-btn {
   position: fixed;
   left: max(12px, env(safe-area-inset-left));
@@ -296,13 +364,9 @@
 }
 .looper-clear-x::before { transform: rotate(45deg); }
 .looper-clear-x::after { transform: rotate(-45deg); }
-.looper-clear-btn.is-fired .looper-clear-ring {
-  border-color: #ff6b6b;
-}
+.looper-clear-btn.is-fired .looper-clear-ring { border-color: #ff6b6b; }
 .looper-clear-btn.is-fired .looper-clear-x::before,
-.looper-clear-btn.is-fired .looper-clear-x::after {
-  background: #ff6b6b;
-}
+.looper-clear-btn.is-fired .looper-clear-x::after { background: #ff6b6b; }
 
 .looper-btn {
   pointer-events: auto;
@@ -324,6 +388,7 @@
   border-radius: 50%;
   border: 2.5px solid rgba(46, 204, 113, 0.95);
   box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.14), 0 6px 20px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .looper-btn-core {
   position: absolute;
@@ -340,6 +405,7 @@
 .looper-btn.is-recording .looper-btn-ring {
   animation: looper-pulse-rec 1s ease-in-out infinite;
   border-color: #ff3b3b;
+  box-shadow: 0 0 0 3px rgba(224, 54, 54, 0.22), 0 6px 20px rgba(0, 0, 0, 0.35);
 }
 .looper-btn.is-recording .looper-btn-core {
   width: 16px;
@@ -347,7 +413,21 @@
   margin: -8px 0 0 -8px;
   border-radius: 3px;
   background: #e03636;
+  box-shadow: 0 0 14px rgba(224, 54, 54, 0.55);
 }
+.looper-btn.is-pending-stop .looper-btn-ring {
+  border-color: #f4cf69;
+  animation: looper-pulse-rec 0.7s ease-in-out infinite;
+  box-shadow: 0 0 0 3px rgba(212, 176, 74, 0.25), 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+.looper-btn.is-pending-stop .looper-btn-core {
+  background: #d4b04a;
+  border-radius: 3px;
+}
+.looper-btn.is-cleared .looper-btn-ring {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
 @keyframes looper-pulse-rec {
   0%, 100% { box-shadow: 0 0 0 3px rgba(224, 54, 54, 0.25), 0 6px 20px rgba(0, 0, 0, 0.35); }
   50% { box-shadow: 0 0 0 8px rgba(224, 54, 54, 0.15), 0 6px 24px rgba(224, 54, 54, 0.3); }
@@ -356,10 +436,11 @@
 @media (max-width: 380px) {
   .looper-btn,
   .looper-clear-btn { width: 46px; height: 46px; }
+  .looper-sync-dial { width: 42px; height: 42px; }
+  .looper-sync-core { width: 24px; height: 24px; margin: -12px 0 0 -12px; }
+  .looper-sync-label { font-size: 6px; }
   .looper-circle { width: 36px; height: 36px; }
   .looper-rail { right: max(8px, env(safe-area-inset-right)); gap: 6px; }
   .looper-clear-btn { left: max(8px, env(safe-area-inset-left)); }
-  .looper-sync-btn,
-  .looper-pulse-btn { height: 28px; padding: 0 8px; font-size: 9px; }
   .looper-sheet { width: 168px; }
 }
