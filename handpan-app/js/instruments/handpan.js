@@ -167,6 +167,8 @@ export class HandpanInstrument extends Instrument {
   setScaleIndex(i) {
     this.scaleIndex = ((i % HANDPAN_SCALES.length) + HANDPAN_SCALES.length) % HANDPAN_SCALES.length;
     const s = HANDPAN_SCALES[this.scaleIndex];
+    // E Amara is a 14-note instrument; expose its full recorded range on selection.
+    if (s?.id === 'e-amara-recorded') this.noteCount = MAX_NOTES;
     if (s && typeof s.rootMidi === 'number') {
       const midi = s.rootMidi;
       let bestPc = 0, bestOct = 0, bestDist = 999;
