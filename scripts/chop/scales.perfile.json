@@ -1,0 +1,258 @@
+{
+ "_help": "Inferred from the audio by chop_handpan.py infer-dir. Rename labels freely; check the notes by ear or with a tuner.",
+ "scales": [
+  {
+   "id": "aminor",
+   "label": "Aminor (A2 root)",
+   "rootMidi": 45,
+   "intervals": [
+    0,
+    7,
+    9,
+    10,
+    12,
+    14,
+    15,
+    17,
+    19
+   ],
+   "file": "Aminor.wav"
+  },
+  {
+   "id": "c-pygmy",
+   "label": "C#pygmy (B2 root)",
+   "rootMidi": 47,
+   "intervals": [
+    0,
+    2,
+    3,
+    5,
+    7,
+    9,
+    10,
+    14,
+    17,
+    19,
+    22,
+    29
+   ],
+   "file": "C#pygmy.wav"
+  },
+  {
+   "id": "chijaz",
+   "label": "Chijaz (C3 root)",
+   "rootMidi": 48,
+   "intervals": [
+    0,
+    2,
+    3,
+    7,
+    8,
+    11,
+    12,
+    14,
+    15,
+    17,
+    19,
+    24
+   ],
+   "file": "Chijaz.wav"
+  },
+  {
+   "id": "eamara",
+   "label": "Eamara (D3 root)",
+   "rootMidi": 50,
+   "intervals": [
+    0,
+    2,
+    9,
+    12,
+    14,
+    16,
+    17,
+    19,
+    21,
+    24,
+    28,
+    29,
+    31
+   ],
+   "file": "Eamara.wav"
+  },
+  {
+   "id": "elasirena",
+   "label": "Elasirena (Eb3 root)",
+   "rootMidi": 51,
+   "intervals": [
+    0,
+    7,
+    9,
+    10,
+    12,
+    14,
+    15,
+    19,
+    21,
+    24,
+    27
+   ],
+   "file": "Elasirena.wav"
+  },
+  {
+   "id": "esabye",
+   "label": "Esabye (E3 root)",
+   "rootMidi": 52,
+   "intervals": [
+    0,
+    5,
+    7,
+    9,
+    11,
+    12,
+    14,
+    16,
+    19,
+    23
+   ],
+   "file": "Esabye.wav"
+  },
+  {
+   "id": "esabyeextended",
+   "label": "Esabyeextended (E3 root)",
+   "rootMidi": 52,
+   "intervals": [
+    0,
+    5,
+    7,
+    9,
+    11,
+    12,
+    14,
+    16,
+    19,
+    23,
+    24
+   ],
+   "file": "Esabyeextended.wav"
+  },
+  {
+   "id": "flowpygmy",
+   "label": "Flowpygmy (F3 root)",
+   "rootMidi": 53,
+   "intervals": [
+    0,
+    3,
+    7,
+    12,
+    14,
+    19,
+    26
+   ],
+   "file": "Flowpygmy.wav"
+  },
+  {
+   "id": "fmajor",
+   "label": "Fmajor (F3 root)",
+   "rootMidi": 53,
+   "intervals": [
+    0,
+    7,
+    9,
+    12,
+    14,
+    16,
+    19,
+    21,
+    24
+   ],
+   "file": "Fmajor.wav"
+  },
+  {
+   "id": "fminor",
+   "label": "Fminor (F3 root)",
+   "rootMidi": 53,
+   "intervals": [
+    0,
+    7,
+    9,
+    12,
+    16,
+    17,
+    19
+   ],
+   "file": "Fminor.wav"
+  },
+  {
+   "id": "gakebono",
+   "label": "Gakebono (G3 root)",
+   "rootMidi": 55,
+   "intervals": [
+    0,
+    5,
+    7,
+    8,
+    12,
+    13,
+    17,
+    19,
+    20
+   ],
+   "file": "Gakebono.wav"
+  },
+  {
+   "id": "gminor",
+   "label": "Gminor (E3 root)",
+   "rootMidi": 52,
+   "intervals": [
+    0,
+    3,
+    5,
+    7,
+    8,
+    10,
+    12,
+    14,
+    17,
+    19,
+    22,
+    24,
+    26,
+    27,
+    29,
+    34
+   ],
+   "file": "Gminor.wav"
+  },
+  {
+   "id": "unknownscale",
+   "label": "Unknownscale (Bb3 root)",
+   "rootMidi": 58,
+   "intervals": [
+    0,
+    2,
+    5,
+    7,
+    12,
+    14
+   ],
+   "file": "Unknownscale.wav"
+  },
+  {
+   "id": "dkurdextended",
+   "label": "dkurdextended (D3 root)",
+   "rootMidi": 50,
+   "intervals": [
+    0,
+    7,
+    8,
+    10,
+    12,
+    15,
+    19,
+    22,
+    24
+   ],
+   "file": "dkurdextended.wav"
+  }
+ ]
+}
