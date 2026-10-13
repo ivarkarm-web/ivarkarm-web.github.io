@@ -23,7 +23,7 @@
       after.insertAdjacentElement('afterend', backdrop);
     }
 
-    // 2) Scale chooser above handpan (reuse existing #scaleLabel / #scaleMenu if present)
+    // 2) Scale chooser above handpan
     if (stage && pan) {
       let bar = document.getElementById('stageScaleBar');
       if (!bar) {
@@ -50,9 +50,41 @@
       if (scaleBlock) scaleBlock.hidden = true;
     }
 
-    // 3) Ensure looper + clear sit just above the Controls drawer (CSS pins them)
+    // 3) Looper + clear above Controls drawer
     if (drawer && looperRail) drawer.insertAdjacentElement('beforebegin', looperRail);
     if (drawer && looperClear) drawer.insertAdjacentElement('beforebegin', looperClear);
+  }
+
+  function patchCore() {
+    const core = window.PionierCore;
+    if (!core || core.__scalePatched) return;
+    if (typeof core.setScaleIndex === 'function') {
+      core.__scalePatched = true;
+      return;
+    }
+    if (!core.handpan) return;
+    core.setScaleIndex = function (i) {
+      core.handpan.setScaleIndex(i);
+      try {
+        core.handpan.rebuildNotes?.();
+        const scaleEl = document.getElementById('scaleLabel');
+        const rootEl = document.getElementById('rootLabel');
+        const octEl = document.getElementById('octLabel');
+        if (scaleEl && core.handpan.scaleLabel) {
+          scaleEl.textContent = core.handpan.scaleLabel.replace(/\s*▾\s*$/, '') + ' ▾';
+        }
+        if (rootEl && core.handpan.rootLabel) rootEl.textContent = core.handpan.rootLabel;
+        if (octEl) {
+          const o = core.handpan.octaveOffset ?? 0;
+          octEl.textContent = o === 0 ? '0' : o > 0 ? '+' + o : String(o);
+        }
+        core.draw?.();
+        try { window.dispatchEvent(new Event('resize')); } catch (_) {}
+      } catch (err) {
+        console.warn('[layout-boot] setScaleIndex patch', err);
+      }
+    };
+    core.__scalePatched = true;
   }
 
   if (document.readyState === 'loading') {
@@ -62,4 +94,6 @@
   }
   setTimeout(run, 0);
   setTimeout(run, 300);
+  setTimeout(patchCore, 200);
+  setTimeout(patchCore, 800);
 })();
