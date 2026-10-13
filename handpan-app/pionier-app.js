@@ -57,7 +57,7 @@ async function boot() {
   const degraded = [];
 
   try {
-    await import(new URL('./pionier-core.js?v=9', BASE).href);
+    await import(new URL('./pionier-core.js?v=10', BASE).href);
   } catch (err) {
     console.error('[pionier] required core failed to load', err);
     setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
@@ -181,7 +181,7 @@ async function boot() {
 
   try {
     const { mountLooper } = await import(
-      new URL('./js/looper.js?v=106', BASE).href
+      new URL('./js/looper.js?v=200', BASE).href
     );
     mountLooper();
   } catch (err) {
