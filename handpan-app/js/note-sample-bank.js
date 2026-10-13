@@ -140,7 +140,9 @@ export class NoteSampleBank {
 
   async _loadPerScale() {
     this.perScale = true;
-    this.maxShift = 4;
+    // Preserve the character of Ivar's recordings: never stretch an E Amara sample
+    // by several semitones to fill a bad/missing pitch assignment.
+    this.maxShift = scaleId === 'e-amara-recorded' ? 1 : 4;
     for (const s of this.manifest.samples) {
       if (!s.scaleId || s.midi == null || !s.file) continue;
       if (!this._scaleFiles.has(s.scaleId)) this._scaleFiles.set(s.scaleId, []);
@@ -204,6 +206,7 @@ export class NoteSampleBank {
       return false;
     }
     this.activeScaleId = scaleId;
+    this.maxShift = scaleId === 'e-amara-recorded' ? 1 : 4;
     const have = this.byScale.get(scaleId);
     if (have && have.size) {
       this.byMidi = have;
@@ -303,16 +306,25 @@ export class NoteSampleBank {
    */
   static detectMidi(buffer) {
     const sampleRate = buffer.sampleRate;
+    // Do not average stereo channels: phase-opposed recordings can cancel their
+    // fundamental and make the pitch detector confidently choose the wrong note.
     const channels = Array.from({ length: buffer.numberOfChannels }, (_, i) => buffer.getChannelData(i));
-    const start = Math.min(Math.floor(sampleRate * 0.055), Math.max(0, buffer.length - 1));
-    const end = Math.min(buffer.length, start + Math.floor(sampleRate * 0.8));
+    const start = Math.min(Math.floor(sampleRate * 0.09), Math.max(0, buffer.length - 1));
+    const end = Math.min(buffer.length, start + Math.floor(sampleRate * 0.9));
     const stride = Math.max(1, Math.floor(sampleRate / 11025));
+    let selectedChannel = channels[0] || new Float32Array(0);
+    let strongestRms = -1;
+    for (const channel of channels) {
+      let sum = 0;
+      const stop = Math.min(end, start + Math.floor(sampleRate * 0.35));
+      for (let i = start; i < stop; i += stride) sum += (channel[i] || 0) ** 2;
+      const rms = sum / Math.max(1, Math.ceil((stop - start) / stride));
+      if (rms > strongestRms) { strongestRms = rms; selectedChannel = channel; }
+    }
     const data = [];
     let mean = 0;
     for (let i = start; i < end; i += stride) {
-      let value = 0;
-      for (const channel of channels) value += channel[i] || 0;
-      value /= Math.max(1, channels.length);
+      const value = selectedChannel[i] || 0;
       data.push(value);
       mean += value;
     }
