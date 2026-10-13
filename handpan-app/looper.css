@@ -13,6 +13,8 @@
 }
 
 .looper-layers {
+  max-width: min(58vw, 320px);
+  flex-wrap: wrap;
   display: flex;
   flex-direction: row-reverse;
   align-items: center;

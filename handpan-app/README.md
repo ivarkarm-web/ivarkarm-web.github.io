@@ -1,26 +1,28 @@
-# Handpan App — Prototype
+# PIONIER — Music-making instrument prototype
 
 This branch is the isolated development space for the future standalone handpan instrument app.
 
 ## Product direction
 
-The handpan Easter egg on the Ivar Karm website is the **prototype**, not the final architecture. The website should remain stable while this branch becomes the laboratory for the instrument.
+PIONIER is a pocket-sized, touch-responsive music-making instrument inspired by expressive experimental instruments. It is not a handpan clone, rhythm game, or guided-learning app.
 
-The future app combines:
+Priorities, in order:
 
-- playable virtual handpan
-- multiple scales / tunings
-- Guitar-Hero-style guided learning
-- lessons and note-by-note tutorials
-- recording and looping
-- overdub layers
-- ambient landscape / generative modes
-- scale-aware pattern suggestions
-- effects and spatial sound
-- performance mode
-- touch, mouse and keyboard input
-- eventually saved compositions / presets
+1. Reliable, centered, responsive instrument surface.
+2. Reliable audio engine and clear ownership of the active instrument/audio path.
+3. Musical multi-layer looper with stable synchronization, overdub, mute, undo/delete and clear.
+4. Focused, high-quality effects workflow.
+5. A small family of distinctive touch-responsive instruments, only after the foundation is reliable.
 
+Learning mechanics, lesson scoring, unlocks, and game modes are out of the main product scope. Do not add new features while stabilizing the existing system.
+
+## Recovery guardrails
+
+- Work on a dedicated recovery branch; never make speculative cleanup directly on `main`.
+- Do not delete legacy files until runtime references and history have been checked.
+- Keep the website Easter egg and its entry point untouched while working in `handpan-app/`.
+- Make one narrow change at a time and verify it before proceeding.
+- Do not claim device/browser verification unless it has actually been run on the target device/browser.
 
 ## Scale system (9-note dynamic)
 
@@ -97,26 +99,18 @@ The future standalone app should separate:
    - looping
    - overdubbing
 
-5. **Learning system**
-   - lessons
-   - note sequences
-   - visual timing cues
-   - progressive difficulty
-   - scoring / accuracy
-
-6. **Ambient system**
+5. **Ambient / soundscape system**
    - scale-constrained generators
    - drones
    - textures
    - evolving patterns
    - generative landscapes
 
-7. **UI / presentation**
+6. **UI / presentation**
    - instrument
    - transport
    - modes
-   - library
-   - tutorials
+   - instrument selection
    - presets
 
 The core should be reusable by both the standalone app and, where useful, the website Easter egg.
@@ -141,13 +135,13 @@ Turn the existing playable handpan into a proper **Play Mode** with:
 - undo/clear
 - layered playback
 
-Then build **Learn Mode** and **Ambient Mode** on top of the same audio/instrument core.
+Only add further production features after the instrument, looper, and effects have passed real-device regression checks.
 
 
 ## Sound architecture
 
 The app ships with five synthesized voices: Steel, Warm, Bell, Soft, and Deep. Voice selection accepts the previous preset names/indices and maps them to the new set so existing saved selections can migrate safely.
 
-Real recordings are supported behind the same voice interface through `sounds/manifest.json` and `js/sample-bank.js`. The production manifest currently contains no samples, so the synthesized voice remains the authoritative fallback. Real recordings should follow `SOUNDS.md`.
+The active handpan instrument uses `js/note-sample-bank.js` and loads the per-scale recordings from `sounds/notes/manifest.json`, with procedural synthesis as fallback when a matching sample is unavailable. The separate `js/sample-bank.js` is part of the legacy bundled engine and expects a different manifest schema; do not confuse it with the active runtime path.
 
 Synthetic WAV fixtures can be generated with `node scripts/generate-audio-fixtures.mjs`. The fixture directory is ignored by Git and is never a production sound asset.

@@ -86,8 +86,8 @@ if (appHtml.includes('name="description"')) ok('Pionier description metadata is 
 else fail('Pionier description metadata is missing');
 if (/pionier-core\.js/.test(shell) && !/cdn\.jsdelivr\.net|fetch\(GOOD\)|new Blob|CORE_PATCHES/.test(shell)) ok('Pionier boot uses the local core without runtime source rewriting');
 else fail('Pionier boot still depends on remote source rewriting');
-if (/window\.PionierCore/.test(core) && /pionier:learn-note/.test(core)) ok('Core API and lesson note events are exposed');
-else fail('Core API or lesson note events are missing');
+if (/window\.PionierCore/.test(core) && !/pionier:learn-note|CatchMode/.test(core) && !appHtml.includes('learnLaunch') && !/learn-mode\.js|learn-mode\.css/.test(appHtml)) ok('Core API is present and learning mechanics are disconnected from the production shell');
+else fail('Core API is missing or learning mechanics remain wired into the production shell');
 const instrumentFamilyImports = core.match(/from ['"]\.\/js\/instruments\/[^'"]+['"]/g) || [];
 if (instrumentFamilyImports.length === 2) ok('Instrument registry imports only the handpan and tonal families');
 else fail('Unexpected instrument-family imports in the core registry');

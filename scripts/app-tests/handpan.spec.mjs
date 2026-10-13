@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 
 test('required core boot failure shows recovery UI and retry reloads successfully', async ({ page }) => {
   let failOnce = true;
-  await page.route(/pionier-core\.js\?v=1/, async (route) => {
+  await page.route(/pionier-core\.js\?v=6/, async (route) => {
     if (failOnce) {
       failOnce = false;
       await route.fulfill({ status: 503, contentType: 'text/javascript', body: '/* simulated temporary outage */' });
@@ -374,4 +374,40 @@ test('note-count controls add and remove notes without losing the instrument cor
   await expect(page.locator('#notePlusCount')).toHaveText('9/13');
   const core = await page.evaluate(() => window.PionierCore.noteCount());
   expect(core).toBe(9);
+});
+
+
+test('looper records layered phrases, toggles playback, and clears safely', async ({ page }) => {
+  const record = page.locator('#looperBtn');
+  for (const expectedCount of [1, 2]) {
+    const box = await record.boundingBox();
+    expect(box).not.toBeNull();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.waitForTimeout(260);
+    await page.mouse.up();
+    await expect(page.locator('.looper-circle')).toHaveCount(expectedCount, { timeout: 4000 });
+  }
+
+  const firstLayer = page.locator('.looper-circle').first();
+  await firstLayer.click();
+  await expect(firstLayer).toHaveClass(/is-paused/);
+  await firstLayer.click();
+  await expect(firstLayer).toHaveClass(/is-playing/);
+
+  await page.locator('#looperClearBtn').click();
+  await expect(page.locator('.looper-circle')).toHaveCount(0);
+});
+
+
+test('instrument canvas stays horizontally centered and inside the viewport', async ({ page }) => {
+  const box = await page.locator('#pan').boundingBox();
+  const viewport = page.viewportSize();
+  expect(box).not.toBeNull();
+  expect(viewport).not.toBeNull();
+  expect(Math.abs((box.x + box.width / 2) - viewport.width / 2)).toBeLessThanOrEqual(3);
+  expect(box.x).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width).toBeLessThanOrEqual(viewport.width + 1);
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.y + box.height).toBeLessThanOrEqual(viewport.height + 1);
 });

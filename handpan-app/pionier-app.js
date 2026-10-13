@@ -58,7 +58,7 @@ async function boot() {
 
   // The core is required; if it cannot load, keep the recovery surface visible.
   try {
-    await import(new URL('./pionier-core.js?v=5', BASE).href);
+    await import(new URL('./pionier-core.js?v=6', BASE).href);
   } catch (err) {
     console.error('[pionier] required core failed to load', err);
     setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
@@ -181,7 +181,7 @@ async function boot() {
     const { mountLooper } = await import(
       new URL('./js/looper.js?v=106', BASE).href
     );
-    mountLooper();
+    mountLooper({ getRecordSource: () => window.PionierCore?.recordSource?.() });
   } catch (err) {
     console.warn('[looper] mount failed', err);
     degraded.push('the looper');

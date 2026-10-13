@@ -1,15 +1,15 @@
 /**
- * looper.js — multi-layer phrase looper (max 5)
+ * looper.js — multi-layer phrase looper (max 7)
  * Record (right): arm/stop layer
  * Track circles: tap play/pause · hold for X · tap again to delete
  * Clear (left): wipe all layers — always visible
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js';
 
-const MAX_LAYERS = 5;
+const MAX_LAYERS = 7;
 const LONG_MS = 550;
 
-export function mountLooper({ root } = {}) {
+export function mountLooper({ root, getRecordSource } = {}) {
   const rail = root || document.getElementById('looperRail');
   const btn = document.getElementById('looperBtn');
   const layersEl = document.getElementById('looperLayers');
@@ -48,9 +48,13 @@ export function mountLooper({ root } = {}) {
   let recChunks = null;
   let processor = null;
   let silent = null;
+  let tapSource = null;
   let pressTimer = null;
   let longFired = false;
   let pendingDelete = -1; // layer index armed for delete
+  let loopOrigin = null;
+  let loopDuration = 0;
+  let recordPhase = 0;
 
   function ensureTap() {
     const ctx = getAudioContext();
@@ -73,10 +77,14 @@ export function mountLooper({ root } = {}) {
       e.outputBuffer.getChannelData(0).fill(0);
       if (e.outputBuffer.numberOfChannels > 1) e.outputBuffer.getChannelData(1).fill(0);
     };
-    master.connect(processor);
-    processor.connect(silent);
-    silent.connect(ctx.destination);
     return ctx;
+  }
+
+  function stopTap() {
+    try { tapSource?.disconnect(processor); } catch (_) {}
+    try { processor?.disconnect(); } catch (_) {}
+    try { silent?.disconnect(); } catch (_) {}
+    tapSource = null;
   }
 
   function setBtnState() {
@@ -95,6 +103,17 @@ export function mountLooper({ root } = {}) {
     );
     clearBtn.classList.toggle('has-layers', hasLayers || recording);
     clearBtn.hidden = false;
+  }
+
+  function timelinePhase(at = getAudioContext()?.currentTime || 0) {
+    if (loopOrigin == null || !loopDuration) return 0;
+    return ((at - loopOrigin) % loopDuration + loopDuration) % loopDuration;
+  }
+
+  function layerOffsetAt(layer, at = getAudioContext()?.currentTime || 0) {
+    const duration = loopDuration || layer.buffer.duration || 1;
+    const phase = timelinePhase(at);
+    return ((phase - (layer.syncPhase || 0)) % duration + duration) % duration;
   }
 
   function startLayerSource(layer, offset) {
@@ -117,10 +136,7 @@ export function mountLooper({ root } = {}) {
     if (!layer || layer.paused) return;
     const ctx = getAudioContext();
     if (!ctx) return;
-    const now = ctx.currentTime;
-    const dur = layer.buffer.duration || 1;
-    const elapsed = ((now - (layer.startedAt || now)) % dur + dur) % dur;
-    layer.offset = elapsed;
+    layer.offset = layerOffsetAt(layer, ctx.currentTime);
     try { layer.source?.stop(); } catch (_) {}
     layer.source = null;
     layer.paused = true;
@@ -131,8 +147,10 @@ export function mountLooper({ root } = {}) {
     const layer = layers[index];
     if (!layer || !layer.paused) return;
     resumeAudio();
+    // Rejoin the shared loop timeline instead of resuming at an unrelated phase.
+    layer.offset = layerOffsetAt(layer, ctx.currentTime);
     layer.paused = false;
-    startLayerSource(layer, layer.offset || 0);
+    startLayerSource(layer, layer.offset);
     renderCircles();
   }
 
@@ -280,9 +298,22 @@ export function mountLooper({ root } = {}) {
   function startRecord() {
     if (layers.length >= MAX_LAYERS) return;
     const ctx = ensureTap();
-    if (!ctx) return;
+    const source = typeof getRecordSource === 'function' ? getRecordSource() : getAudioMaster();
+    if (!ctx || !source || !processor || !silent) return;
+    stopTap();
+    try {
+      source.connect(processor);
+      processor.connect(silent);
+      silent.connect(ctx.destination);
+      tapSource = source;
+    } catch (err) {
+      stopTap();
+      console.warn('[looper] could not connect record tap', err);
+      return;
+    }
     resumeAudio();
     recChunks = [];
+    recordPhase = timelinePhase(ctx.currentTime);
     recording = true;
     setBtnState();
   }
@@ -290,6 +321,7 @@ export function mountLooper({ root } = {}) {
   function stopRecordAndPlay() {
     if (!recording) return;
     recording = false;
+    stopTap();
     const ctx = getAudioContext();
     const master = getAudioMaster();
     const chunks = recChunks;
@@ -297,31 +329,46 @@ export function mountLooper({ root } = {}) {
     setBtnState();
     if (!ctx || !master || !chunks || chunks.length < 2) return;
 
-    const frameCount = chunks.reduce((n, c) => n + c.L.length, 0);
+    // The first phrase defines the transport length. Every overdub is padded or
+    // trimmed to exactly that duration so tracks cannot drift apart over time.
+    const capturedFrames = chunks.reduce((n, c) => n + c.L.length, 0);
+    const frameCount = layers.length && loopDuration
+      ? Math.max(1, Math.round(loopDuration * ctx.sampleRate))
+      : capturedFrames;
     const buffer = ctx.createBuffer(2, frameCount, ctx.sampleRate);
     const ch0 = buffer.getChannelData(0);
     const ch1 = buffer.getChannelData(1);
     let offset = 0;
     for (const c of chunks) {
-      ch0.set(c.L, offset);
-      ch1.set(c.R, offset);
-      offset += c.L.length;
+      if (offset >= frameCount) break;
+      const count = Math.min(c.L.length, frameCount - offset);
+      ch0.set(c.L.subarray(0, count), offset);
+      ch1.set(c.R.subarray(0, count), offset);
+      offset += count;
     }
 
     const gain = ctx.createGain();
     gain.gain.value = 0.92;
     gain.connect(master);
 
+    const isFirstLayer = layers.length === 0;
     const layer = {
       buffer,
       source: null,
       gain,
       startedAt: ctx.currentTime,
       offset: 0,
-      paused: false
+      paused: false,
+      syncPhase: isFirstLayer ? 0 : recordPhase
     };
+    if (isFirstLayer) {
+      loopDuration = buffer.duration;
+      loopOrigin = ctx.currentTime;
+    }
     layers.push(layer);
-    startLayerSource(layer, 0);
+    // Start at the point in the captured phrase that matches the current transport
+    // phase. This also makes a late stop land back on the shared loop grid.
+    startLayerSource(layer, layerOffsetAt(layer, ctx.currentTime));
 
     renderCircles();
     setBtnState();
@@ -329,6 +376,7 @@ export function mountLooper({ root } = {}) {
 
   function clearAll() {
     recording = false;
+    stopTap();
     recChunks = null;
     pendingDelete = -1;
     for (const layer of layers) {
@@ -336,6 +384,9 @@ export function mountLooper({ root } = {}) {
       try { layer.gain.disconnect(); } catch (_) {}
     }
     layers.length = 0;
+    loopOrigin = null;
+    loopDuration = 0;
+    recordPhase = 0;
     renderCircles();
     setBtnState();
   }
@@ -377,6 +428,7 @@ export function mountLooper({ root } = {}) {
   btn.addEventListener('pointercancel', () => {
     if (pressTimer) clearTimeout(pressTimer);
     pressTimer = null;
+    if (recording) stopRecordAndPlay();
   });
   btn.addEventListener('contextmenu', (e) => e.preventDefault());
 
