@@ -1,4 +1,4 @@
-/* Topbar: three zones — play | instrument | learn+icons — no overlap */
+/* Topbar: three zones — play | center | learn+icons — no overlap */
 .topbar {
   display: flex;
   align-items: center;
@@ -121,7 +121,7 @@
   }
 }
 
-/* ===== Layout: music under topbar, scale above pan, looper above controls ===== */
+/* ===== Layout: music under topbar, instrument + scale above pan ===== */
 
 .backdrop-player {
   position: relative !important;
@@ -161,12 +161,29 @@
   position: relative;
   z-index: 30;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 8px;
   flex: 0 0 auto;
   width: 100%;
   max-width: min(92vw, 420px);
   pointer-events: auto;
+  margin: 0 auto 6px;
+}
+.stage-instrument-nav {
+  pointer-events: auto;
+  flex: 0 0 auto;
+  max-width: min(90vw, 280px);
+}
+.stage-instrument-nav .instrument-name {
+  max-width: min(52vw, 180px);
+  font-size: 13px;
+}
+.stage-instrument-nav .icon-btn {
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
 }
 
 .stage-scale-btn {
@@ -235,4 +252,11 @@
   .looper-clear-btn {
     bottom: calc(52px + env(safe-area-inset-bottom, 0px)) !important;
   }
+}
+
+.app > .instrument-menu {
+  position: fixed;
+  top: max(72px, 18vh);
+  left: 50%;
+  transform: translateX(-50%);
 }
