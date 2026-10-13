@@ -140,9 +140,7 @@
       btn.id = 'createLaunch';
       btn.title = 'Build your own handpan';
       btn.textContent = 'create';
-      const learn = document.getElementById('learnLaunch');
-      if (learn) topActions.insertBefore(btn, learn);
-      else topActions.prepend(btn);
+      topActions.prepend(btn);
     }
     if (!document.getElementById('createPage')) {
       const page = document.createElement('section');
