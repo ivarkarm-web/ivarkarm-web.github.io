@@ -207,7 +207,7 @@ export class NoteSampleBank {
       return false;
     }
     this.activeScaleId = scaleId;
-    this.maxShift = scaleId === 'e-amara-recorded' ? 1 : 4;
+    this.maxShift = scaleId === 'e-amara-recorded' ? 0 : 4;
     const have = this.byScale.get(scaleId);
     if (have && have.size) {
       this.byMidi = have;
