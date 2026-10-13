@@ -1,5 +1,6 @@
 /**
  * scales.js — interval-based 9-note handpan scale system + transposition
+ * Only owner-sampled instruments from the multi-handpan recording.
  */
 export const KEYS = [
   { key: 'q', code: 'KeyQ' },
@@ -21,16 +22,18 @@ export const SHAPE = {
 };
 
 export const SCALES = [
-  { id: 'celtic-minor', label: 'Celtic Minor', intervals: [0, 7, 8, 10, 12, 14, 15, 17, 19], description: 'Enigmatic, deeply emotional, and popular among modern players.' },
-  { id: 'kurdan-integral', label: 'Kurdan / Integral', intervals: [0, 7, 8, 10, 12, 14, 15, 17, 19], description: 'A minor scale with a deep, traditional European handpan voice.' },
-  { id: 'hijaz', label: 'Hijaz', intervals: [0, 7, 8, 11, 12, 14, 15, 17, 19], description: 'Middle Eastern character with an exotic, dark, and tension-filled layout.' },
-  { id: 'pygmy', label: 'Pygmy', intervals: [0, 5, 7, 8, 12, 15, 17, 19, 24], description: 'An African-inspired scale, deeply meditative, grounding, and rhythmic.' },
-  { id: 'amara', label: 'Amara', intervals: [0, 7, 10, 12, 14, 15, 17, 19, 22], description: 'Open, highly resonant minor scale allowing for continuous melody flow.' },
-  { id: 'akebono', label: 'AkeBono', intervals: [0, 7, 8, 12, 13, 17, 19, 20, 24], description: 'Traditional Japanese pentatonic scale, deeply spiritual and calming.' },
-  { id: 'equinox', label: 'Equinox', intervals: [0, 5, 8, 12, 14, 15, 17, 19, 24], description: 'A highly balanced scale mixing major and minor emotional states.' },
-  { id: 'mixolydian', label: 'Mixolydian', intervals: [0, 7, 10, 12, 14, 16, 17, 19, 22], description: 'Bright, uplifting, and bluesy; excellent for high-energy looping.' },
-  { id: 'aeolian', label: 'Aeolian', intervals: [0, 7, 8, 10, 12, 13, 15, 17, 19], description: 'Natural minor scale providing melancholic, cinematic atmospheres.' },
-  { id: 'major-sabye', label: 'Major / Sabye', intervals: [0, 7, 11, 12, 14, 16, 17, 19, 23], description: 'Joyful, bright, and strictly harmonious; zero dissonance.' }
+  { id: 'd3-kurd', label: 'D3 Kurd', intervals: [0, 7, 8, 10, 12, 14, 15, 17, 19], description: 'Owner-sampled D3 Kurd (primary).' },
+  { id: 'd3-aeolian', label: 'D3 Aeolian', intervals: [0, 7, 8, 10, 12, 13, 15, 17, 19], description: 'Owner-sampled D3 Aeolian.' },
+  { id: 'd3-mixolydian', label: 'D3 Mixolydian', intervals: [0, 7, 10, 12, 14, 16, 17, 19, 22], description: 'Owner-sampled D3 Mixolydian.' },
+  { id: 'b2-lasirena', label: 'B2 LaSirena', intervals: [0, 7, 10, 12, 14, 15, 17, 19, 21], description: 'Owner-sampled B2 LaSirena.' },
+  { id: 'f3-amara', label: 'F3 Amara', intervals: [0, 7, 10, 12, 14, 15, 17, 19, 22], description: 'Owner-sampled F3 Amara.' },
+  { id: 'f3-mixolydian', label: 'F3 Mixolydian', intervals: [0, 7, 10, 12, 14, 16, 17, 19, 22], description: 'Owner-sampled F3 Mixolydian.' },
+  { id: 'c3-hijaz', label: 'C3 Hijaz', intervals: [0, 7, 8, 11, 12, 14, 15, 17, 19], description: 'Owner-sampled C3 Hijaz.' },
+  { id: 'd3-dorian', label: 'D3 Dorian', intervals: [0, 7, 9, 10, 12, 14, 16, 17, 19], description: 'Owner-sampled D3 Dorian.' },
+  { id: 'd3-amara', label: 'D3 Amara', intervals: [0, 7, 10, 12, 14, 15, 17, 19, 22], description: 'Owner-sampled D3 Amara.' },
+  { id: 'd3-lasirena', label: 'D3 LaSirena', intervals: [0, 7, 10, 12, 14, 15, 17, 19, 21], description: 'Owner-sampled D3 LaSirena.' },
+  { id: 'g3-lasirena', label: 'G3 LaSirena', intervals: [0, 7, 10, 12, 14, 15, 17, 19, 21], description: 'Owner-sampled G3 LaSirena.' },
+  { id: 'c4-dorian', label: 'C4 Dorian', intervals: [0, 7, 9, 10, 12, 14, 16, 17, 19], description: 'Owner-sampled C4 Dorian.' }
 ];
 
 const NOTE_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
@@ -75,18 +78,4 @@ export function buildNotes() {
     });
   }
   return list;
-}
-
-export function shiftRoot(delta) {
-  transpose.baseMidi = Math.max(36, Math.min(72, transpose.baseMidi + delta));
-}
-
-export function shiftOctave(delta) {
-  transpose.octaveOffset = Math.max(-1, Math.min(1, transpose.octaveOffset + delta));
-}
-
-export function setScaleIndex(idx) {
-  if (idx < 0) idx = SCALES.length - 1;
-  if (idx >= SCALES.length) idx = 0;
-  transpose.scaleIndex = idx;
 }
