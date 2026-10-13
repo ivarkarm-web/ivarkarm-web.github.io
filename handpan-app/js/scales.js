@@ -21,16 +21,7 @@ export const SHAPE = {
 };
 
 export const SCALES = [
-  { id: 'celtic-minor', label: 'Celtic Minor', intervals: [0, 7, 8, 10, 12, 14, 15, 17, 19], description: 'Enigmatic, deeply emotional, and popular among modern players.' },
-  { id: 'kurdan-integral', label: 'Kurdan / Integral', intervals: [0, 7, 8, 10, 12, 14, 15, 17, 19], description: 'A minor scale with a deep, traditional European handpan voice.' },
-  { id: 'hijaz', label: 'Hijaz', intervals: [0, 7, 8, 11, 12, 14, 15, 17, 19], description: 'Middle Eastern character with an exotic, dark, and tension-filled layout.' },
-  { id: 'pygmy', label: 'Pygmy', intervals: [0, 5, 7, 8, 12, 15, 17, 19, 24], description: 'An African-inspired scale, deeply meditative, grounding, and rhythmic.' },
-  { id: 'amara', label: 'Amara', intervals: [0, 7, 10, 12, 14, 15, 17, 19, 22], description: 'Open, highly resonant minor scale allowing for continuous melody flow.' },
-  { id: 'akebono', label: 'AkeBono', intervals: [0, 7, 8, 12, 13, 17, 19, 20, 24], description: 'Traditional Japanese pentatonic scale, deeply spiritual and calming.' },
-  { id: 'equinox', label: 'Equinox', intervals: [0, 5, 8, 12, 14, 15, 17, 19, 24], description: 'A highly balanced scale mixing major and minor emotional states.' },
-  { id: 'mixolydian', label: 'Mixolydian', intervals: [0, 7, 10, 12, 14, 16, 17, 19, 22], description: 'Bright, uplifting, and bluesy; excellent for high-energy looping.' },
-  { id: 'aeolian', label: 'Aeolian', intervals: [0, 7, 8, 10, 12, 13, 15, 17, 19], description: 'Natural minor scale providing melancholic, cinematic atmospheres.' },
-  { id: 'major-sabye', label: 'Major / Sabye', intervals: [0, 7, 11, 12, 14, 16, 17, 19, 23], description: 'Joyful, bright, and strictly harmonious; zero dissonance.' }
+  { id: 'celtic-minor', label: 'D Kurd (Celtic Minor)', intervals: [0, 7, 8, 10, 12, 14, 15, 17, 19], description: 'Owner-sampled D Kurd handpan. Nine notes on D3.' }
 ];
 
 const NOTE_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
@@ -51,42 +42,36 @@ export const transpose = {
   scaleIndex: 0
 };
 
-export function currentRootName() {
-  return midiToName(transpose.baseMidi + transpose.octaveOffset * 12);
-}
-
-export function buildNotes() {
-  const scale = SCALES[transpose.scaleIndex];
-  const list = [];
-  for (let i = 0; i < 9; i++) {
-    const midi = transpose.baseMidi + scale.intervals[i] + (transpose.octaveOffset * 12);
-    const isDing = i === 0;
-    const angle = isDing ? 0 : RING_ANGLES[i - 1];
-    list.push({
-      key: KEYS[i].key,
-      code: KEYS[i].code,
-      name: midiToName(midi),
+export function buildNotesFromScale(scale, baseMidi = transpose.baseMidi) {
+  const root = baseMidi + transpose.octaveOffset * 12;
+  return (scale.intervals || []).map((semi, i) => {
+    const midi = root + semi;
+    return {
+      index: i,
       midi,
-      interval: scale.intervals[i],
-      kind: isDing ? 'ding' : 'ring',
-      a: angle,
+      midiExact: midi,
+      name: midiToName(midi),
       freq: mtof(midi),
-      pan: isDing ? 0 : Math.max(-0.6, Math.min(0.6, Math.sin(angle * Math.PI / 180) * 0.55))
-    });
-  }
-  return list;
-}
-
-export function shiftRoot(delta) {
-  transpose.baseMidi = Math.max(36, Math.min(72, transpose.baseMidi + delta));
-}
-
-export function shiftOctave(delta) {
-  transpose.octaveOffset = Math.max(-1, Math.min(1, transpose.octaveOffset + delta));
+      isDing: i === 0
+    };
+  });
 }
 
 export function setScaleIndex(idx) {
   if (idx < 0) idx = SCALES.length - 1;
   if (idx >= SCALES.length) idx = 0;
   transpose.scaleIndex = idx;
+  return SCALES[idx];
+}
+
+export function cycleScale(dir = 1) {
+  return setScaleIndex(transpose.scaleIndex + dir);
+}
+
+export function currentScale() {
+  return SCALES[transpose.scaleIndex] || SCALES[0];
+}
+
+export function currentNotes() {
+  return buildNotesFromScale(currentScale());
 }
