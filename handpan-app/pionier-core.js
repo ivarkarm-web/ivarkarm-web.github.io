@@ -234,8 +234,6 @@ canvas?.addEventListener('pointermove', (e) => {
       if (prevIdx != null && !sharedPrev) inst.noteOff(prevIdx);
       if (!sharedTarget) inst.noteOn(gesture, hit);
     }
-    if (glided || !sharedTarget) {
-    }
     app.pointers.set(e.pointerId, { index: hit.index, originY: y, originX: x });
     draw();
   } else if (hit && typeof inst.express === 'function' && moved) {
@@ -591,6 +589,13 @@ async function boot() {
   }
   resize();
   window.addEventListener('resize', resize);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', resize);
+  }
+  if (typeof ResizeObserver === 'function' && canvas?.parentElement) {
+    app.resizeObserver = new ResizeObserver(() => resize());
+    app.resizeObserver.observe(canvas.parentElement);
+  }
   requestAnimationFrame(tick);
   const unlock = () => { ensureAudio(); window.removeEventListener('pointerdown', unlock); };
   window.addEventListener('pointerdown', unlock);
@@ -618,6 +623,8 @@ function changeNoteCount(delta) {
 window.PionierCore = {
   handpan, surface,
   activeInstrument: () => activeInstrument(),
+  // Pre-master instrument signal: looper taps here so existing loop playback is never re-recorded.
+  recordSource: () => app.fxChain?.master || null,
   health: () => ({
     audioAvailable: !!getAudioContext(),
     audioState: audioState(),
