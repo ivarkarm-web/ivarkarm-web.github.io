@@ -13,13 +13,13 @@
 import { Instrument } from '../instrument.js';
 import { NoteSampleBank } from '../note-sample-bank.js';
 import { VOICE_PRESETS } from '../voice-presets.js';
-import { HANDPAN_SCALES, scaleToCents } from './handpan-scales.js';
+import { HANDPAN_SCALES, scaleToCents } from './handpan-scales.js?v=2';
 import { MIN_NOTES, MAX_NOTES, ringAngles } from '../pad-layout.js';
 
 export { HANDPAN_SCALES, MIN_NOTES, MAX_NOTES };
 
 const NOTE_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
-const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd'];
+const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f'];
 
 export function extendScaleCents(baseCents, count) {
   const out = baseCents.slice(0, MIN_NOTES);
