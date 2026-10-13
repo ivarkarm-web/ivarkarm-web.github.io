@@ -8,7 +8,6 @@ import { GestureTracker, gestureFromPointer } from './js/gesture.js';
 import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js?v=5';
 import { createTonalInstruments } from './js/instruments/tonal-family.js?v=6';
 import { FxChain } from './js/fx.js';
-import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
 import { createSurface } from './js/pionier-surface.js?v=95';
 
@@ -41,7 +40,6 @@ const app = {
   gestureTracker: new GestureTracker(),
   pointers: new Map(),
   keysHeld: new Set(),
-  catchMode: null,
   lastVelocity: 0.75,
   fps: 0,
   _fpsFrames: 0,
@@ -131,16 +129,6 @@ async function setInstrument(id) {
   draw();
 }
 
-app.catchMode = new CatchMode({
-  getInstrument: () => activeInstrument(),
-  onStatus: (msg) => {
-    const el = document.getElementById('catchStatus');
-    if (el) el.textContent = msg || '';
-  },
-  onPhase: (phase) => { document.body.dataset.catchPhase = phase; }
-});
-app.catchMode.reducedMotion = app.reducedMotion;
-
 function updateLabels() {
   const scaleEl = document.getElementById('scaleLabel');
   const rootEl = document.getElementById('rootLabel');
@@ -211,8 +199,6 @@ canvas?.addEventListener('pointerdown', (e) => {
   // pointer is already holding that pad.
   if (!alreadyHeld) {
     inst.noteOn(gesture, hit);
-    window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now() } }));
-    if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);
   }
   draw();
 });
@@ -249,8 +235,6 @@ canvas?.addEventListener('pointermove', (e) => {
       if (!sharedTarget) inst.noteOn(gesture, hit);
     }
     if (glided || !sharedTarget) {
-      window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now(), instrument: inst.id || inst.name || 'handpan' } }));
-      if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);
     }
     app.pointers.set(e.pointerId, { index: hit.index, originY: y, originX: x });
     draw();
@@ -572,7 +556,6 @@ window.addEventListener('keydown', (e) => {
   const inst = activeInstrument();
   const hit = { index: i, radial: 0.5, angleRad: 0 };
   inst.noteOn({ velocity: 0.75, pointerId: -1 - i }, hit);
-  window.dispatchEvent(new CustomEvent('pionier:learn-note', { detail: { index: hit.index, at: performance.now(), instrument: inst.id || inst.name || 'handpan' } }));
   draw();
 });
 window.addEventListener('keyup', (e) => {
