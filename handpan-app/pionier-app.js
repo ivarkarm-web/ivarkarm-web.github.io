@@ -56,9 +56,8 @@ async function boot() {
   setBootStatus('loading', 'Starting Pionier…');
   const degraded = [];
 
-  // The core is required; if it cannot load, keep the recovery surface visible.
   try {
-    await import(new URL('./pionier-core.js?v=8', BASE).href);
+    await import(new URL('./pionier-core.js?v=9', BASE).href);
   } catch (err) {
     console.error('[pionier] required core failed to load', err);
     setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
@@ -115,8 +114,6 @@ async function boot() {
           e.stopPropagation();
           const idx = HANDPAN_SCALES.indexOf(scale);
           const core = window.PionierCore;
-          // Prefer core.setScaleIndex so library instruments (koto, harp, …)
-          // also receive the new scale via syncWorldPitch / refreshPitch.
           if (core?.setScaleIndex && idx >= 0) core.setScaleIndex(idx);
           else if (core?.handpan && idx >= 0) {
             core.handpan.setScaleIndex(idx);
@@ -164,7 +161,7 @@ async function boot() {
 
   try {
     const { mountNotePlus } = await import(
-      new URL('./js/note-plus.js?v=2', BASE).href
+      new URL('./js/note-plus.js?v=3', BASE).href
     );
     mountNotePlus();
   } catch (err) {
