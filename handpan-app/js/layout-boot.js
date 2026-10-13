@@ -3,6 +3,15 @@
  * Order: topbar → music player → stage (instrument + scale + pan) → looper/clear above controls.
  */
 (function layoutBoot() {
+  // Ensure extra layout stylesheet is loaded
+  if (!document.querySelector('link[data-ui-extras]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = './ui-layout-extras.css?v=1';
+    link.setAttribute('data-ui-extras', '1');
+    document.head.appendChild(link);
+  }
+
   function run() {
     const app = document.getElementById('app');
     if (!app) return;
@@ -16,7 +25,6 @@
     const drawer = document.getElementById('mobileControlDrawer');
     const pan = document.getElementById('pan');
 
-    // 1) Music player under topbar
     if (backdrop && topbar) {
       const after = instMenu && instMenu.parentElement === app ? instMenu : topbar;
       if (backdrop.previousElementSibling !== after) {
@@ -24,7 +32,6 @@
       }
     }
 
-    // 2) Stage stack: instrument switch above scale selector, above handpan
     if (stage && pan) {
       let bar = document.getElementById('stageScaleBar');
       if (!bar) {
@@ -63,7 +70,6 @@
         }
       }
 
-      // Note +/- on the left of the scale selector
       const noteWrap = document.getElementById('notePlusWrap');
       if (noteWrap && scaleLabel) {
         noteWrap.classList.add('stage-note-wrap');
@@ -84,15 +90,11 @@
 
       if (scaleMenu) {
         scaleMenu.classList.add('stage-scale-menu');
-        if (scaleMenu.parentElement !== bar) {
-          bar.appendChild(scaleMenu);
-        }
+        if (scaleMenu.parentElement !== bar) bar.appendChild(scaleMenu);
       }
-
       if (scaleBlock) scaleBlock.hidden = true;
     }
 
-    // 3) Looper + clear above controls drawer
     if (drawer && looperRail && looperRail.nextElementSibling !== drawer) {
       drawer.insertAdjacentElement('beforebegin', looperRail);
     }
