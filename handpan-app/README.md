@@ -99,19 +99,18 @@ The future standalone app should separate:
    - looping
    - overdubbing
 
-6. **Ambient system**
+5. **Ambient / soundscape system**
    - scale-constrained generators
    - drones
    - textures
    - evolving patterns
    - generative landscapes
 
-7. **UI / presentation**
+6. **UI / presentation**
    - instrument
    - transport
    - modes
-   - library
-   - tutorials
+   - instrument selection
    - presets
 
 The core should be reusable by both the standalone app and, where useful, the website Easter egg.
