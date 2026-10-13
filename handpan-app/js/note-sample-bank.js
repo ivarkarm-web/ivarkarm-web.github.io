@@ -13,7 +13,11 @@ export class NoteSampleBank {
   constructor(ctx, baseUrl = './sounds/notes/') {
     this.ctx = ctx;
     this.baseUrl = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
+    /** Active scale MIDI → AudioBuffer */
     this.byMidi = new Map();
+    /** scaleId → Map(midi → AudioBuffer) */
+    this.byScale = new Map();
+    this.activeScaleId = null;
     this.manifest = null;
     this.ready = false;
     this.loadPromise = null;
@@ -31,21 +35,52 @@ export class NoteSampleBank {
     const res = await fetch(this.baseUrl + 'manifest.json');
     if (!res.ok) throw new Error('Sample manifest missing: ' + res.status);
     this.manifest = await res.json();
+    const samples = this.manifest.samples || [];
     await Promise.all(
-      (this.manifest.samples || []).map(async (s) => {
+      samples.map(async (s) => {
         try {
           const r = await fetch(this.baseUrl + s.file);
           if (!r.ok) return;
           const ab = await r.arrayBuffer();
           const buf = await this.ctx.decodeAudioData(ab.slice(0));
-          this.byMidi.set(s.midi, buf);
+          const scaleId = s.scaleId || 'default';
+          if (!this.byScale.has(scaleId)) this.byScale.set(scaleId, new Map());
+          this.byScale.get(scaleId).set(s.midi, buf);
         } catch (e) {
           console.warn('Sample failed', s.file, e);
         }
       })
     );
-    this.ready = this.byMidi.size > 0;
+    const preferred = this.manifest.scales?.[0]?.id;
+    if (preferred && this.byScale.has(preferred)) {
+      this.setActiveScale(preferred);
+    } else if (this.byScale.size) {
+      this.setActiveScale(this.byScale.keys().next().value);
+    } else {
+      this.ready = false;
+    }
     return this;
+  }
+
+  /** Switch which scale pack is used for playback. Missing notes fall back to nearest or synth. */
+  setActiveScale(scaleId) {
+    if (!scaleId || !this.byScale.has(scaleId)) {
+      let found = null;
+      for (const k of this.byScale.keys()) {
+        if (k === scaleId || k.startsWith(scaleId) || scaleId.startsWith(k)) { found = k; break; }
+      }
+      if (!found) {
+        this.activeScaleId = null;
+        this.byMidi = new Map();
+        this.ready = false;
+        return false;
+      }
+      scaleId = found;
+    }
+    this.activeScaleId = scaleId;
+    this.byMidi = this.byScale.get(scaleId);
+    this.ready = this.byMidi.size > 0;
+    return this.ready;
   }
 
   resolve(midi) {
@@ -71,10 +106,6 @@ export class NoteSampleBank {
     };
   }
 
-  /**
-   * Non-linear velocity curve (perceptual loudness-ish).
-   * v in 0..1 → shaped 0..1
-   */
   static velocityCurve(v) {
     v = Math.max(0, Math.min(1, v));
     const soft = Math.pow(v, 1.65);
@@ -82,10 +113,6 @@ export class NoteSampleBank {
     return soft * (1 - v) + hard * v;
   }
 
-  /**
-   * Multi-zone vector mapping → harmonic / brightness weights.
-   * radial: 0 at pad center → 1 near rim.
-   */
   static zoneWeights(radial = 0.4, angleRad = 0) {
     const r = Math.max(0, Math.min(1.25, radial));
     const center = Math.exp(-r * r * 3.2);
@@ -125,7 +152,6 @@ export class NoteSampleBank {
 
     const nodes = [];
 
-    // Layer A — body / fundamental (LP) — boosted
     const a = this._layer(hit, when + startSkew, {
       rate: hit.rate * detuneA,
       filterType: 'lowpass',
@@ -137,7 +163,6 @@ export class NoteSampleBank {
     a.gain.connect(bus);
     nodes.push(a.source, a.gain, a.filter);
 
-    // Layer B — partials / mid (BP) — boosted
     const b = this._layer(hit, when + startSkew + 0.0012, {
       rate: hit.rate * detuneB * (1 + z.partials * 0.002),
       filterType: 'bandpass',
@@ -149,7 +174,6 @@ export class NoteSampleBank {
     b.gain.connect(bus);
     nodes.push(b.source, b.gain, b.filter);
 
-    // Layer C — edge brightness (HP) — boosted
     const c = this._layer(hit, when + startSkew + 0.002, {
       rate: hit.rate * (1 + ((rr % 7) - 3) * 0.0015),
       filterType: 'highpass',
@@ -198,4 +222,3 @@ export class NoteSampleBank {
     return { source: src, filter, gain };
   }
 }
-
