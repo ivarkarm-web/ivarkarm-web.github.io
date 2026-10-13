@@ -13,13 +13,13 @@
 import { Instrument } from '../instrument.js';
 import { NoteSampleBank } from '../note-sample-bank.js';
 import { VOICE_PRESETS } from '../voice-presets.js';
-import { HANDPAN_SCALES, scaleToCents } from './handpan-scales.js';
+import { HANDPAN_SCALES, scaleToCents } from './handpan-scales.js?v=2';
 import { MIN_NOTES, MAX_NOTES, ringAngles } from '../pad-layout.js';
 
 export { HANDPAN_SCALES, MIN_NOTES, MAX_NOTES };
 
 const NOTE_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
-const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd'];
+const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f'];
 
 export function extendScaleCents(baseCents, count) {
   const out = baseCents.slice(0, MIN_NOTES);
@@ -167,6 +167,8 @@ export class HandpanInstrument extends Instrument {
   setScaleIndex(i) {
     this.scaleIndex = ((i % HANDPAN_SCALES.length) + HANDPAN_SCALES.length) % HANDPAN_SCALES.length;
     const s = HANDPAN_SCALES[this.scaleIndex];
+    // E Amara is a 14-note instrument; expose its full recorded range on selection.
+    if (s?.id === 'e-amara-recorded') this.noteCount = MAX_NOTES;
     if (s && typeof s.rootMidi === 'number') {
       const midi = s.rootMidi;
       let bestPc = 0, bestOct = 0, bestDist = 999;

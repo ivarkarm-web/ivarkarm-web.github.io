@@ -45,7 +45,8 @@ export class NoteSampleBank {
 
   async _decodeFile(file, encoding) {
     if (this._fileCache.has(file)) return this._fileCache.get(file);
-    const r = await fetch(this.baseUrl + file);
+    const encodedFile = String(file).split('/').map((part) => encodeURIComponent(part)).join('/');
+    const r = await fetch(this.baseUrl + encodedFile, { cache: 'no-store' });
     if (!r.ok) return null;
     let ab;
     if (encoding === 'base64' || /\.b64$/i.test(file)) {
@@ -63,7 +64,7 @@ export class NoteSampleBank {
   }
 
   async _load() {
-    const res = await fetch(this.baseUrl + 'manifest.json');
+    const res = await fetch(this.baseUrl + 'manifest.json', { cache: 'no-store' });
     if (!res.ok) throw new Error('Sample manifest missing: ' + res.status);
     this.manifest = await res.json();
 
@@ -161,14 +162,32 @@ export class NoteSampleBank {
     const entries = this._scaleFiles.get(scaleId) || [];
     const p = (async () => {
       const map = new Map();
+      const pitchReport = [];
       await Promise.all(entries.map(async (s) => {
         try {
           const buf = await this._decodeFile(s.file, s.encoding);
-          if (buf) map.set(s.midi, buf);
+          if (!buf) return;
+          let midi = s.midi;
+          if (s.autoPitch) {
+            const detected = NoteSampleBank.detectMidi(buf);
+            pitchReport.push({ file: s.file, ...detected });
+            if (!Number.isFinite(detected.midi) || detected.confidence < 0.22) {
+              console.warn('[samples] pitch detection uncertain; skipping sample rather than assigning a possibly wrong note', s.file, detected);
+              return;
+            }
+            midi = detected.midi;
+          }
+          const previous = map.get(midi);
+          // If two files resolve to the same pitch, keep the longer natural recording.
+          if (!previous || buf.duration > previous.duration) map.set(midi, buf);
         } catch (e) {
           console.warn('Sample failed', s.file, e);
         }
       }));
+      if (pitchReport.length) {
+        this.autoPitchReport = pitchReport;
+        console.info('[samples] auto-pitched recording map', scaleId, pitchReport);
+      }
       this.byScale.set(scaleId, map);
       return map;
     })();
@@ -274,6 +293,83 @@ export class NoteSampleBank {
       buffer: this.byMidi.get(best),
       rate: Math.pow(2, (target - best) / 12),
       sourceMidi: best
+    };
+  }
+
+  /**
+   * Estimate the fundamental from a decoded one-shot using a YIN-style
+   * difference function. The filename and manifest's placeholder MIDI are
+   * intentionally ignored for autoPitch recordings.
+   */
+  static detectMidi(buffer) {
+    const sampleRate = buffer.sampleRate;
+    const channels = Array.from({ length: buffer.numberOfChannels }, (_, i) => buffer.getChannelData(i));
+    const start = Math.min(Math.floor(sampleRate * 0.055), Math.max(0, buffer.length - 1));
+    const end = Math.min(buffer.length, start + Math.floor(sampleRate * 0.8));
+    const stride = Math.max(1, Math.floor(sampleRate / 11025));
+    const data = [];
+    let mean = 0;
+    for (let i = start; i < end; i += stride) {
+      let value = 0;
+      for (const channel of channels) value += channel[i] || 0;
+      value /= Math.max(1, channels.length);
+      data.push(value);
+      mean += value;
+    }
+    if (data.length < 256) return { midi: null, hz: null, confidence: 0 };
+    mean /= data.length;
+    let energy = 0;
+    for (let i = 0; i < data.length; i++) {
+      data[i] -= mean;
+      energy += data[i] * data[i];
+    }
+    if (Math.sqrt(energy / data.length) < 1e-5) return { midi: null, hz: null, confidence: 0 };
+
+    const rate = sampleRate / stride;
+    const minLag = Math.max(2, Math.floor(rate / 1200));
+    const maxLag = Math.min(Math.floor(rate / 55), Math.floor(data.length / 3));
+    const difference = new Float64Array(maxLag + 1);
+    const usable = data.length - maxLag;
+    for (let lag = 1; lag <= maxLag; lag++) {
+      let sum = 0;
+      for (let i = 0; i < usable; i++) {
+        const delta = data[i] - data[i + lag];
+        sum += delta * delta;
+      }
+      difference[lag] = sum;
+    }
+    const normalized = new Float64Array(maxLag + 1);
+    let running = 0;
+    for (let lag = 1; lag <= maxLag; lag++) {
+      running += difference[lag];
+      normalized[lag] = running > 0 ? difference[lag] * lag / running : 1;
+    }
+
+    // Choose the first convincing period minimum to avoid preferring an octave
+    // subharmonic merely because it also correlates well over a longer lag.
+    let selected = 0;
+    for (let lag = minLag; lag <= maxLag; lag++) {
+      if (normalized[lag] < 0.18) {
+        while (lag + 1 <= maxLag && normalized[lag + 1] < normalized[lag]) lag++;
+        selected = lag;
+        break;
+      }
+    }
+    if (!selected) {
+      let best = Infinity;
+      for (let lag = minLag; lag <= maxLag; lag++) {
+        if (normalized[lag] < best) { best = normalized[lag]; selected = lag; }
+      }
+    }
+    if (!selected) return { midi: null, hz: null, confidence: 0 };
+    const confidence = Math.max(0, Math.min(1, 1 - normalized[selected]));
+    const hz = rate / selected;
+    const midiFloat = 69 + 12 * Math.log2(hz / 440);
+    return {
+      midi: Math.round(midiFloat),
+      hz: +hz.toFixed(2),
+      cents: Math.round((midiFloat - Math.round(midiFloat)) * 100),
+      confidence: +confidence.toFixed(3)
     };
   }
 

@@ -1,5 +1,5 @@
 {
- "description": "Per-scale owner handpan samples chopped from one multi-scale recording (scripts/chop/chop_handpan.py). Each scale plays only its own notes.",
+ "description": "Per-scale owner handpan samples chopped from one multi-scale recording (scripts/chop/chop_handpan.py). Each scale plays only its own notes. E Amara recordings are pitch-detected at load time because filenames may be inaccurate.",
  "status": "owner-prototype",
  "license_note": "Owner: Ivar Karm. Original recordings. See docs/AUDIO-LICENSES.md.",
  "sampleRate": 44100,
@@ -74,6 +74,11 @@
    "id": "dkurdextended",
    "label": "dkurdextended (D3 root)",
    "rootMidi": 50
+  },
+  {
+   "id": "e-amara-recorded",
+   "label": "E Amara · Ivar’s recordings",
+   "rootMidi": 52
   }
  ],
  "samples": [
@@ -1486,6 +1491,136 @@
    "type": "one-shot",
    "durationMs": 672,
    "truncated": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/E 3.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/a5.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/b.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/b4.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/b5.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/d.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/d4.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/d5.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/e4.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/e5.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/f#.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/f#3.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/g.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/g5.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/A4_v1.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true,
+   "fallback": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/Gb5_v1.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true,
+   "fallback": true
   }
  ],
  "version": 3,

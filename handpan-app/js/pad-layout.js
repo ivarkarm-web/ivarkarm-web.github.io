@@ -5,7 +5,7 @@
  * pads (9 notes) and grows one pad at a time up to MAX_NOTES.
  */
 export const MIN_NOTES = 9;
-export const MAX_NOTES = 13;
+export const MAX_NOTES = 14;
 
 /**
  * Order in which ring slots are filled from low pitch to high pitch:

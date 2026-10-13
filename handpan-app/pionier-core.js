@@ -5,14 +5,14 @@
 import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js';
 import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
-import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js';
+import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js?v=2';
 import { createTonalInstruments } from './js/instruments/tonal-family.js?v=6';
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
 import { createSurface } from './js/pionier-surface.js?v=95';
 
-const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd'];
+const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f'];
 const PITCH_BEND_PIXELS = 90;
 
 const handpan = new HandpanInstrument();
