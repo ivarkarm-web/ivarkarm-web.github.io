@@ -29,7 +29,7 @@ PIONIER is being refocused as a pocket-sized, expressive music-making instrument
 ## Remaining work / verification gates
 
 1. Active runtime and sample paths are now traced at the module level; legacy engine cleanup remains deferred until the old standalone page/entry references are located.
-2. A `ResizeObserver` and visual-viewport resize hook now complement window resize. Canvas centering and touch-zone behavior still require screenshot/browser checks at 390×844 and 1280×800.
+2. A `ResizeObserver` and visual-viewport resize hook now complement window resize. The canvas is centered by the stage's flex layout and its size is constrained by viewport width/height; geometry and touch-zone behavior still require screenshot/browser checks at 390×844 and 1280×800.
 3. The looper capture tap no longer captures already-playing loop layers and is disconnected outside recording. The first loop now establishes a shared duration/phase timeline; later overdubs are padded/trimmed to that duration and start/resume at the matching phase. This is a code-level correction, not yet validated in a browser. AudioWorklet migration and real-device checks remain open.
 4. The active FX chain routes instrument audio through the modular FX chain and then the shared master/compressor. Further gain-staging and parameter testing remain open.
 5. No automated browser suite or real mobile-device test has been run from this environment; this must be completed before calling the app production-ready.
