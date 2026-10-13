@@ -45,7 +45,8 @@ export class NoteSampleBank {
 
   async _decodeFile(file, encoding) {
     if (this._fileCache.has(file)) return this._fileCache.get(file);
-    const r = await fetch(this.baseUrl + file, { cache: 'no-store' });
+    const encodedFile = String(file).split('/').map((part) => encodeURIComponent(part)).join('/');
+    const r = await fetch(this.baseUrl + encodedFile, { cache: 'no-store' });
     if (!r.ok) return null;
     let ab;
     if (encoding === 'base64' || /\.b64$/i.test(file)) {
