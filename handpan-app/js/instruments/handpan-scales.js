@@ -115,6 +115,15 @@ export const HANDPAN_SCALES = [
     rootMidi: 50,
     rootPc: 2,
   },
+
+  {
+    id: 'e-amara-recorded',
+    label: 'E Amara · Ivar’s recordings',
+    tuning: '12-TET',
+    intervals: [0, 7, 10, 12, 14, 15, 17, 19, 22, 24, 26, 27, 29, 31],
+    rootMidi: 52,
+    rootPc: 4,
+  },
 ];
 
 export function scaleToCents(scale) {
