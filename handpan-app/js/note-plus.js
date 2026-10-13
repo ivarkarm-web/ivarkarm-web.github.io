@@ -1,4 +1,4 @@
-/** Shared 9–13 note-count controls for every Pionier instrument. */
+/** Shared 9–14 note-count controls for every Pionier instrument. */
 import { MIN_NOTES, MAX_NOTES } from './pad-layout.js';
 
 export function mountNotePlus() {
@@ -59,5 +59,6 @@ export function mountNotePlus() {
   if (voiceName && typeof MutationObserver === 'function') {
     new MutationObserver(sync).observe(voiceName, { childList: true, characterData: true, subtree: true });
   }
+  window.addEventListener('pionier:note-count', sync);
   sync();
 }
