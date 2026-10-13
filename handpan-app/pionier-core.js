@@ -624,7 +624,7 @@ window.PionierCore = {
   handpan, surface,
   activeInstrument: () => activeInstrument(),
   // Pre-master instrument signal: looper taps here so existing loop playback is never re-recorded.
-  recordSource: () => app.fxChain?.master || null,
+  recordSource: () => { ensureAudio(); return app.fxChain?.master || null; },
   health: () => ({
     audioAvailable: !!getAudioContext(),
     audioState: audioState(),
