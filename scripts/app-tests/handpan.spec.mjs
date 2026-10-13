@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 
 test('required core boot failure shows recovery UI and retry reloads successfully', async ({ page }) => {
   let failOnce = true;
-  await page.route(/pionier-core\.js\?v=1/, async (route) => {
+  await page.route(/pionier-core\.js\?v=6/, async (route) => {
     if (failOnce) {
       failOnce = false;
       await route.fulfill({ status: 503, contentType: 'text/javascript', body: '/* simulated temporary outage */' });
