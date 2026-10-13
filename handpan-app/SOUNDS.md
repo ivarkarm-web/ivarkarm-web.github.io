@@ -1,6 +1,6 @@
 # Handpan App — Recording Guide
 
-The production app currently uses its synthesized voices. Real handpan recordings can be added later through handpan-app/sounds/manifest.json.
+The app plays a built-in synthesis library (`js/sound/`) — eleven voices, no samples needed. Real recordings are only used for the recorded E Amara scale.
 
 ## Recording target
 
