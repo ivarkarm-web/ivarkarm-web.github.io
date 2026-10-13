@@ -58,7 +58,7 @@ async function boot() {
 
   // The core is required; if it cannot load, keep the recovery surface visible.
   try {
-    await import(new URL('./pionier-core.js?v=6', BASE).href);
+    await import(new URL('./pionier-core.js?v=7', BASE).href);
   } catch (err) {
     console.error('[pionier] required core failed to load', err);
     setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
@@ -115,8 +115,13 @@ async function boot() {
           e.stopPropagation();
           const idx = HANDPAN_SCALES.indexOf(scale);
           const core = window.PionierCore;
+          // Prefer core.setScaleIndex so library instruments (koto, harp, …)
+          // also receive the new scale via syncWorldPitch / refreshPitch.
           if (core?.setScaleIndex && idx >= 0) core.setScaleIndex(idx);
-          else if (core?.handpan && idx >= 0) core.handpan.setScaleIndex(idx);
+          else if (core?.handpan && idx >= 0) {
+            core.handpan.setScaleIndex(idx);
+            core.refreshPitch?.();
+          }
           scaleLabel.textContent = scale.label + ' ▾';
           scaleMenu.hidden = true;
           scaleLabel.setAttribute('aria-expanded', 'false');
