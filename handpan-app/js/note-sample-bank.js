@@ -18,6 +18,23 @@ export class NoteSampleBank {
     this.loadPromise = null;
     this._rr = new Map();
     this._fileCache = new Map();
+    /**
+     * Per-scale mode: switched on when manifest samples carry a scaleId (written by
+     * scripts/chop/chop_handpan.py). Each scale then plays only its own recordings,
+     * its files are fetched lazily the first time the scale is selected, and a note
+     * is only stretched a few semitones before the app falls back to synth.
+     * Without scaleIds the original shared-bank behaviour is unchanged.
+     */
+    this.perScale = false;
+    this.maxShift = 12;
+    this.fallbackScale = null;
+    this._scaleFiles = new Map();
+    this._scaleLoads = new Map();
+    /** Dry sample playback. Add ?layers=1 to the page URL to A/B against the old 3-layer filter blend. */
+    this.layered = false;
+    try {
+      this.layered = new URLSearchParams(globalThis.location?.search || '').get('layers') === '1';
+    } catch (_) {}
   }
 
   async load() {
@@ -49,6 +66,10 @@ export class NoteSampleBank {
     const res = await fetch(this.baseUrl + 'manifest.json');
     if (!res.ok) throw new Error('Sample manifest missing: ' + res.status);
     this.manifest = await res.json();
+
+    if ((this.manifest.samples || []).some((s) => s.scaleId)) {
+      return this._loadPerScale();
+    }
 
     const byMidiFile = new Map();
     const add = (s) => {
@@ -116,7 +137,74 @@ export class NoteSampleBank {
     return this;
   }
 
+  async _loadPerScale() {
+    this.perScale = true;
+    this.maxShift = 4;
+    for (const s of this.manifest.samples) {
+      if (!s.scaleId || s.midi == null || !s.file) continue;
+      if (!this._scaleFiles.has(s.scaleId)) this._scaleFiles.set(s.scaleId, []);
+      this._scaleFiles.get(s.scaleId).push(s);
+    }
+    const ids = [...this._scaleFiles.keys()];
+    this.fallbackScale = ids.includes(this.manifest.fallbackScale) ? this.manifest.fallbackScale : ids[0] || null;
+    // Only the starting scale blocks start-up; the rest load the first time they are picked.
+    if (this.fallbackScale) {
+      await this._loadScale(this.fallbackScale);
+      this.setActiveScale(this.fallbackScale);
+    }
+    console.info('[samples] per-scale mode, scales', ids.length, 'active', this.activeScaleId);
+    return this;
+  }
+
+  _loadScale(scaleId) {
+    if (this._scaleLoads.has(scaleId)) return this._scaleLoads.get(scaleId);
+    const entries = this._scaleFiles.get(scaleId) || [];
+    const p = (async () => {
+      const map = new Map();
+      await Promise.all(entries.map(async (s) => {
+        try {
+          const buf = await this._decodeFile(s.file, s.encoding);
+          if (buf) map.set(s.midi, buf);
+        } catch (e) {
+          console.warn('Sample failed', s.file, e);
+        }
+      }));
+      this.byScale.set(scaleId, map);
+      return map;
+    })();
+    this._scaleLoads.set(scaleId, p);
+    return p;
+  }
+
+  _setActivePerScale(scaleId) {
+    if (!scaleId || !this._scaleFiles.has(scaleId)) {
+      // Unknown scale: do not borrow another scale's notes, let the instrument use synth.
+      this.activeScaleId = null;
+      this.byMidi = new Map();
+      this.ready = false;
+      return false;
+    }
+    this.activeScaleId = scaleId;
+    const have = this.byScale.get(scaleId);
+    if (have && have.size) {
+      this.byMidi = have;
+      this.ready = true;
+      return true;
+    }
+    // Not fetched yet: synth covers the first moments, then this scale's samples take over.
+    this.byMidi = new Map();
+    this.ready = false;
+    this._loadScale(scaleId).then((map) => {
+      if (this.activeScaleId === scaleId && map.size) {
+        this.byMidi = map;
+        this.ready = true;
+      }
+    });
+    return false;
+  }
+
   setActiveScale(scaleId) {
+    if (this.perScale) return this._setActivePerScale(scaleId);
     let map = scaleId ? this.byScale.get(scaleId) : null;
 
     if (!map || !map.size) {
@@ -158,7 +246,7 @@ export class NoteSampleBank {
   }
 
   resolve(midi) {
-    if (!this.byMidi.size && this.allMidi.size) {
+    if (!this.perScale && !this.byMidi.size && this.allMidi.size) {
       this.byMidi = this.allMidi;
       this.ready = true;
     }
@@ -181,7 +269,7 @@ export class NoteSampleBank {
         best = k;
       }
     }
-    if (best == null || bestDist > 12) return null;
+    if (best == null || bestDist > this.maxShift) return null;
     return {
       buffer: this.byMidi.get(best),
       rate: Math.pow(2, (target - best) / 12),
@@ -219,6 +307,8 @@ export class NoteSampleBank {
 
     const hit = this.resolve(midi);
     if (!hit) return null;
+
+    if (this.perScale && !this.layered) return this._playDry(hit, dest, when, vel);
 
     const ctx = this.ctx;
     const key = hit.sourceMidi;
@@ -281,6 +371,42 @@ export class NoteSampleBank {
     };
 
     return { nodes, bus, stop, duration: dur };
+  }
+
+  /**
+   * Plain sample playback for per-scale packs: the recording as chopped (it already carries its
+   * own natural ring-out and fade), scaled by velocity, no filtering, no detuned copies.
+   */
+  _playDry(hit, dest, when, vel) {
+    const ctx = this.ctx;
+    const bus = ctx.createGain();
+    bus.gain.value = 1;
+    bus.connect(dest);
+
+    const src = ctx.createBufferSource();
+    src.buffer = hit.buffer;
+    src.playbackRate.value = hit.rate;
+    const gain = ctx.createGain();
+    const peak = 0.5 + 0.5 * vel;
+    gain.gain.setValueAtTime(0.0001, when);
+    gain.gain.linearRampToValueAtTime(peak, when + 0.002);
+    src.connect(gain);
+    gain.connect(bus);
+
+    const dur = hit.buffer.duration / Math.max(0.5, hit.rate);
+    src.start(when);
+    src.stop(when + dur + 0.05);
+    src.onended = () => {
+      try { bus.disconnect(); } catch (_) {}
+    };
+
+    const stop = (t = ctx.currentTime, tc = 0.06) => {
+      try {
+        bus.gain.cancelScheduledValues(t);
+        bus.gain.setTargetAtTime(0, t, tc);
+      } catch (_) {}
+    };
+    return { nodes: [src, gain], bus, stop, duration: dur };
   }
 
   _layer(hit, when, p) {

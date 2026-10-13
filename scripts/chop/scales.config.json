@@ -1,0 +1,17 @@
+{
+  "_help": "One entry per handpan in the recording. intervals = semitones above rootMidi (MIDI 50 = D3, 60 = C4). Leave start/end out and the tool matches each scale to the playing section whose notes fit best; if two scales share the same notes, or a match is wrong, set start/end (seconds) or ranges [[start,end],...] by hand using the timeline from the 'analyze' step.",
+  "scales": [
+    { "id": "d3-kurd",       "label": "D3 Kurd",       "rootMidi": 50, "intervals": [0, 7, 8, 10, 12, 14, 15, 17, 19] },
+    { "id": "d3-aeolian",    "label": "D3 Aeolian",    "rootMidi": 50, "intervals": [0, 7, 8, 10, 12, 13, 15, 17, 19] },
+    { "id": "d3-mixolydian", "label": "D3 Mixolydian", "rootMidi": 50, "intervals": [0, 7, 10, 12, 14, 16, 17, 19, 22] },
+    { "id": "b2-lasirena",   "label": "B2 LaSirena",   "rootMidi": 47, "intervals": [0, 7, 10, 12, 14, 15, 17, 19, 21] },
+    { "id": "f3-amara",      "label": "F3 Amara",      "rootMidi": 53, "intervals": [0, 7, 10, 12, 14, 15, 17, 19, 22] },
+    { "id": "f3-mixolydian", "label": "F3 Mixolydian", "rootMidi": 53, "intervals": [0, 7, 10, 12, 14, 16, 17, 19, 22] },
+    { "id": "c3-hijaz",      "label": "C3 Hijaz",      "rootMidi": 48, "intervals": [0, 7, 8, 11, 12, 14, 15, 17, 19] },
+    { "id": "d3-dorian",     "label": "D3 Dorian",     "rootMidi": 50, "intervals": [0, 7, 9, 10, 12, 14, 16, 17, 19] },
+    { "id": "d3-amara",      "label": "D3 Amara",      "rootMidi": 50, "intervals": [0, 7, 10, 12, 14, 15, 17, 19, 22] },
+    { "id": "d3-lasirena",   "label": "D3 LaSirena",   "rootMidi": 50, "intervals": [0, 7, 10, 12, 14, 15, 17, 19, 21] },
+    { "id": "g3-lasirena",   "label": "G3 LaSirena",   "rootMidi": 55, "intervals": [0, 7, 10, 12, 14, 15, 17, 19, 21] },
+    { "id": "c4-dorian",     "label": "C4 Dorian",     "rootMidi": 60, "intervals": [0, 7, 9, 10, 12, 14, 16, 17, 19] }
+  ]
+}

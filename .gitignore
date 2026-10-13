@@ -34,3 +34,7 @@ coverage/
 
 # Synthetic audio fixtures (never production assets)
 handpan-app/sounds/fixtures/
+
+# Chop tool scratch output
+scripts/chop/out/
+__pycache__/
