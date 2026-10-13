@@ -4,10 +4,6 @@
  * Optional one-shot audio bank for properly licensed recordings; empty manifests use the procedural fallback.
  * Exposes multi-zone harmonic blend + non-linear velocity layering
  * without Flutter / React Native — pure Web Audio graph only.
- *
- * Native path (optional): same bank interface can be driven from
- * CoreAudio (iOS) / AAudio (Android) via a thin JNI/Swift bridge;
- * see native/audio-bridge.md
  */
 export class NoteSampleBank {
   constructor(ctx, baseUrl = './sounds/notes/') {
@@ -17,11 +13,12 @@ export class NoteSampleBank {
     this.byMidi = new Map();
     /** scaleId → Map(midi → AudioBuffer) */
     this.byScale = new Map();
+    /** Union of all samples (fallback when a scale pack is missing) */
+    this.allMidi = new Map();
     this.activeScaleId = null;
     this.manifest = null;
     this.ready = false;
     this.loadPromise = null;
-    /** Round-robin / anti machine-gun state per MIDI */
     this._rr = new Map();
   }
 
@@ -35,7 +32,26 @@ export class NoteSampleBank {
     const res = await fetch(this.baseUrl + 'manifest.json');
     if (!res.ok) throw new Error('Sample manifest missing: ' + res.status);
     this.manifest = await res.json();
-    const samples = this.manifest.samples || [];
+
+    // Support both flat samples[] and nested scales[].samples
+    const flat = [];
+    for (const s of this.manifest.samples || []) {
+      flat.push({ ...s, scaleId: s.scaleId || 'default' });
+    }
+    for (const scale of this.manifest.scales || []) {
+      for (const s of scale.samples || []) {
+        flat.push({ ...s, scaleId: s.scaleId || scale.id || 'default' });
+      }
+    }
+    const seen = new Set();
+    const samples = [];
+    for (const s of flat) {
+      const key = (s.scaleId || 'default') + '|' + s.file;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      samples.push(s);
+    }
+
     await Promise.all(
       samples.map(async (s) => {
         try {
@@ -46,44 +62,80 @@ export class NoteSampleBank {
           const scaleId = s.scaleId || 'default';
           if (!this.byScale.has(scaleId)) this.byScale.set(scaleId, new Map());
           this.byScale.get(scaleId).set(s.midi, buf);
+          this.allMidi.set(s.midi, buf);
         } catch (e) {
           console.warn('Sample failed', s.file, e);
         }
       })
     );
-    const preferred = this.manifest.scales?.[0]?.id;
-    if (preferred && this.byScale.has(preferred)) {
-      this.setActiveScale(preferred);
-    } else if (this.byScale.size) {
-      this.setActiveScale(this.byScale.keys().next().value);
+
+    const preferred =
+      this.manifest.scales?.[0]?.id ||
+      (this.byScale.has('default') ? 'default' : null) ||
+      (this.byScale.size ? this.byScale.keys().next().value : null);
+
+    if (preferred) this.setActiveScale(preferred);
+    else if (this.allMidi.size) {
+      this.byMidi = new Map(this.allMidi);
+      this.activeScaleId = 'all';
+      this.ready = true;
     } else {
       this.ready = false;
     }
+    console.info('[samples] loaded scales', [...this.byScale.keys()], 'active', this.activeScaleId, 'notes', this.byMidi.size);
     return this;
   }
 
-  /** Switch which scale pack is used for playback. Missing notes fall back to nearest or synth. */
+  /**
+   * Switch which scale pack is used. If the pack is missing, fall back to
+   * default / any loaded samples so we never drop to synth when audio exists.
+   */
   setActiveScale(scaleId) {
-    if (!scaleId || !this.byScale.has(scaleId)) {
-      let found = null;
-      for (const k of this.byScale.keys()) {
-        if (k === scaleId || k.startsWith(scaleId) || scaleId.startsWith(k)) { found = k; break; }
+    let map = scaleId ? this.byScale.get(scaleId) : null;
+
+    if (!map || !map.size) {
+      if (scaleId) {
+        for (const k of this.byScale.keys()) {
+          if (k === scaleId || k.startsWith(scaleId) || scaleId.startsWith(k)) {
+            map = this.byScale.get(k);
+            scaleId = k;
+            break;
+          }
+        }
       }
-      if (!found) {
-        this.activeScaleId = null;
-        this.byMidi = new Map();
-        this.ready = false;
-        return false;
-      }
-      scaleId = found;
     }
+
+    if (!map || !map.size) {
+      if (this.byScale.has('default') && this.byScale.get('default').size) {
+        map = this.byScale.get('default');
+        scaleId = 'default';
+      } else if (this.allMidi.size) {
+        map = this.allMidi;
+        scaleId = 'all';
+      } else if (this.byScale.size) {
+        scaleId = this.byScale.keys().next().value;
+        map = this.byScale.get(scaleId);
+      }
+    }
+
+    if (!map || !map.size) {
+      this.activeScaleId = null;
+      this.byMidi = new Map();
+      this.ready = false;
+      return false;
+    }
+
     this.activeScaleId = scaleId;
-    this.byMidi = this.byScale.get(scaleId);
+    this.byMidi = map;
     this.ready = this.byMidi.size > 0;
     return this.ready;
   }
 
   resolve(midi) {
+    if (!this.byMidi.size && this.allMidi.size) {
+      this.byMidi = this.allMidi;
+      this.ready = true;
+    }
     if (!this.byMidi.size) return null;
     const m = Math.round(midi);
     if (this.byMidi.has(m)) {
@@ -98,7 +150,8 @@ export class NoteSampleBank {
         best = k;
       }
     }
-    if (best == null || bestDist > 4) return null;
+    // Allow up to an octave of pitch-shift so transposed roots still hit samples
+    if (best == null || bestDist > 12) return null;
     return {
       buffer: this.byMidi.get(best),
       rate: Math.pow(2, (m - best) / 12),
