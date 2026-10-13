@@ -1,26 +1,28 @@
-# Handpan App — Prototype
+# PIONIER — Music-making instrument prototype
 
 This branch is the isolated development space for the future standalone handpan instrument app.
 
 ## Product direction
 
-The handpan Easter egg on the Ivar Karm website is the **prototype**, not the final architecture. The website should remain stable while this branch becomes the laboratory for the instrument.
+PIONIER is a pocket-sized, touch-responsive music-making instrument inspired by expressive experimental instruments. It is not a handpan clone, rhythm game, or guided-learning app.
 
-The future app combines:
+Priorities, in order:
 
-- playable virtual handpan
-- multiple scales / tunings
-- Guitar-Hero-style guided learning
-- lessons and note-by-note tutorials
-- recording and looping
-- overdub layers
-- ambient landscape / generative modes
-- scale-aware pattern suggestions
-- effects and spatial sound
-- performance mode
-- touch, mouse and keyboard input
-- eventually saved compositions / presets
+1. Reliable, centered, responsive instrument surface.
+2. Reliable audio engine and clear ownership of the active instrument/audio path.
+3. Musical multi-layer looper with stable synchronization, overdub, mute, undo/delete and clear.
+4. Focused, high-quality effects workflow.
+5. A small family of distinctive touch-responsive instruments, only after the foundation is reliable.
 
+Learning mechanics, lesson scoring, unlocks, and game modes are out of the main product scope. Do not add new features while stabilizing the existing system.
+
+## Recovery guardrails
+
+- Work on a dedicated recovery branch; never make speculative cleanup directly on `main`.
+- Do not delete legacy files until runtime references and history have been checked.
+- Keep the website Easter egg and its entry point untouched while working in `handpan-app/`.
+- Make one narrow change at a time and verify it before proceeding.
+- Do not claim device/browser verification unless it has actually been run on the target device/browser.
 
 ## Scale system (9-note dynamic)
 
@@ -97,13 +99,6 @@ The future standalone app should separate:
    - looping
    - overdubbing
 
-5. **Learning system**
-   - lessons
-   - note sequences
-   - visual timing cues
-   - progressive difficulty
-   - scoring / accuracy
-
 6. **Ambient system**
    - scale-constrained generators
    - drones
@@ -141,7 +136,7 @@ Turn the existing playable handpan into a proper **Play Mode** with:
 - undo/clear
 - layered playback
 
-Then build **Learn Mode** and **Ambient Mode** on top of the same audio/instrument core.
+Only add further production features after the instrument, looper, and effects have passed real-device regression checks.
 
 
 ## Sound architecture
