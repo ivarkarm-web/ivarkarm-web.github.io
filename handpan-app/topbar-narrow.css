@@ -56,10 +56,6 @@
   flex: 0 0 auto;
 }
 
-.topbar .learn-launch {
-  padding-inline: 10px;
-}
-
 .topbar .soundscapes-open-btn,
 .topbar .exit-btn,
 .topbar #btnHelp {
@@ -82,11 +78,6 @@
     gap: 4px;
   }
 
-  .topbar .learn-launch {
-    padding-inline: 8px;
-    font-size: 11px;
-  }
-
   .topbar .soundscapes-open-btn,
   .topbar .exit-btn,
   .topbar #btnHelp {
@@ -98,11 +89,6 @@
 @media (max-width: 360px) {
   .topbar .instrument-name {
     max-width: min(28vw, 96px);
-  }
-
-  .topbar .learn-launch {
-    padding-inline: 7px;
-    letter-spacing: 0.04em;
   }
 }
 
