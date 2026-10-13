@@ -340,7 +340,11 @@ export class HandpanInstrument extends Instrument {
     this.held[idx] = 1;
     this.pitchBendCents[idx] = 0;
     this.lastStrikeAt.set(idx, performance.now());
+    const recordedScale = HANDPAN_SCALES[this.scaleIndex]?.id === 'e-amara-recorded';
     const preferSynth = note.microtonal && Math.abs((note.midiExact - note.midi) * 100) > 15;
+    // For Ivar's E Amara, preserve the actual recordings: do not silently replace
+    // a missing/mis-mapped sample with the synthetic oscillator voice.
+    if (recordedScale && (!this.sampleBank || !this.sampleBank.ready)) return;
     if (!preferSynth && this.sampleBank && this.sampleBank.ready) {
       const played = this.sampleBank.play(note.midiExact ?? note.midi, this.bus, t, { vel, radial, angleRad });
       if (played) {
@@ -393,6 +397,10 @@ export class HandpanInstrument extends Instrument {
         }
         return;
       }
+    }
+    if (recordedScale) {
+      console.warn('[handpan] no exact E Amara recording for pad', note.name, 'MIDI', note.midi, '— refusing synth fallback to preserve timbre');
+      return;
     }
     this._strikeSynth(note, idx, t, vel, radial, pressure);
   }
