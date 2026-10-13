@@ -45,7 +45,7 @@ export class NoteSampleBank {
 
   async _decodeFile(file, encoding) {
     if (this._fileCache.has(file)) return this._fileCache.get(file);
-    const r = await fetch(this.baseUrl + file);
+    const r = await fetch(this.baseUrl + file, { cache: 'no-store' });
     if (!r.ok) return null;
     let ab;
     if (encoding === 'base64' || /\.b64$/i.test(file)) {
@@ -63,7 +63,7 @@ export class NoteSampleBank {
   }
 
   async _load() {
-    const res = await fetch(this.baseUrl + 'manifest.json');
+    const res = await fetch(this.baseUrl + 'manifest.json', { cache: 'no-store' });
     if (!res.ok) throw new Error('Sample manifest missing: ' + res.status);
     this.manifest = await res.json();
 
@@ -161,14 +161,32 @@ export class NoteSampleBank {
     const entries = this._scaleFiles.get(scaleId) || [];
     const p = (async () => {
       const map = new Map();
+      const pitchReport = [];
       await Promise.all(entries.map(async (s) => {
         try {
           const buf = await this._decodeFile(s.file, s.encoding);
-          if (buf) map.set(s.midi, buf);
+          if (!buf) return;
+          let midi = s.midi;
+          if (s.autoPitch) {
+            const detected = NoteSampleBank.detectMidi(buf);
+            pitchReport.push({ file: s.file, ...detected });
+            if (!Number.isFinite(detected.midi) || detected.confidence < 0.22) {
+              console.warn('[samples] pitch detection uncertain; skipping sample rather than assigning a possibly wrong note', s.file, detected);
+              return;
+            }
+            midi = detected.midi;
+          }
+          const previous = map.get(midi);
+          // If two files resolve to the same pitch, keep the longer natural recording.
+          if (!previous || buf.duration > previous.duration) map.set(midi, buf);
         } catch (e) {
           console.warn('Sample failed', s.file, e);
         }
       }));
+      if (pitchReport.length) {
+        this.autoPitchReport = pitchReport;
+        console.info('[samples] auto-pitched recording map', scaleId, pitchReport);
+      }
       this.byScale.set(scaleId, map);
       return map;
     })();
@@ -275,6 +293,64 @@ export class NoteSampleBank {
       rate: Math.pow(2, (target - best) / 12),
       sourceMidi: best
     };
+  }
+
+  /**
+   * Estimate the fundamental pitch from a decoded one-shot using normalized
+   * autocorrelation. Filenames are deliberately ignored for autoPitch samples.
+   * The result is a nearest MIDI note plus a correlation confidence score.
+   */
+  static detectMidi(buffer) {
+    const sampleRate = buffer.sampleRate;
+    const channels = Array.from({ length: buffer.numberOfChannels }, (_, i) => buffer.getChannelData(i));
+    const start = Math.min(Math.floor(sampleRate * 0.055), Math.max(0, buffer.length - 1));
+    const end = Math.min(buffer.length, start + Math.floor(sampleRate * 0.8));
+    const stride = Math.max(1, Math.floor(sampleRate / 11025));
+    const data = [];
+    let mean = 0;
+    for (let i = start; i < end; i += stride) {
+      let v = 0;
+      for (const channel of channels) v += channel[i] || 0;
+      v /= Math.max(1, channels.length);
+      data.push(v);
+      mean += v;
+    }
+    if (data.length < 256) return { midi: null, hz: null, confidence: 0 };
+    mean /= data.length;
+    let rms = 0;
+    for (let i = 0; i < data.length; i++) {
+      data[i] -= mean;
+      rms += data[i] * data[i];
+    }
+    rms = Math.sqrt(rms / data.length);
+    if (rms < 1e-5) return { midi: null, hz: null, confidence: 0 };
+    const rate = sampleRate / stride;
+    const minLag = Math.max(2, Math.floor(rate / 1200));
+    const maxLag = Math.min(Math.floor(rate / 55), Math.floor(data.length / 3));
+    let bestLag = 0;
+    let bestScore = -1;
+    const scoreAt = (lag) => {
+      let cross = 0, a = 0, b = 0;
+      const n = data.length - lag;
+      for (let i = 0; i < n; i++) {
+        const x = data[i], y = data[i + lag];
+        cross += x * y; a += x * x; b += y * y;
+      }
+      return cross / Math.sqrt((a * b) || 1);
+    };
+    for (let lag = minLag; lag <= maxLag; lag++) {
+      const score = scoreAt(lag);
+      if (score > bestScore) { bestScore = score; bestLag = lag; }
+    }
+    if (!bestLag || bestScore < 0.12) return { midi: null, hz: null, confidence: bestScore };
+    const ym = scoreAt(Math.max(minLag, bestLag - 1));
+    const y0 = scoreAt(bestLag);
+    const yp = scoreAt(Math.min(maxLag, bestLag + 1));
+    const denominator = ym - 2 * y0 + yp;
+    const shift = Math.abs(denominator) > 1e-8 ? Math.max(-0.5, Math.min(0.5, 0.5 * (ym - yp) / denominator)) : 0;
+    const hz = rate / (bestLag + shift);
+    const midiFloat = 69 + 12 * Math.log2(hz / 440);
+    return { midi: Math.round(midiFloat), hz: +hz.toFixed(2), cents: Math.round((midiFloat - Math.round(midiFloat)) * 100), confidence: +bestScore.toFixed(3) };
   }
 
   static velocityCurve(v) {
