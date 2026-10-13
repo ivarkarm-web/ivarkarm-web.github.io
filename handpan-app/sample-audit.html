@@ -51,7 +51,7 @@ function hzToMidi(hz){return 69+12*Math.log2(hz/440)}
 function setStatus(s){statusEl.textContent=s}
 function rowFor(file){
  const tr=document.createElement("tr");
- tr.innerHTML='<td><div class="filename"></div><div class="meter"><span></span></div></td><td class="pitch">—</td><td>—</td><td><span class="flag">Not analyzed</span></td><td><button class="play">▶ Play</button></td>';
+ tr.innerHTML='<td><div class="filename"></div><div class="meter"><span></span></div></td><td><div class="pitch">—</div><div class="cents"></div></td><td>—</td><td><span class="flag">Not analyzed</span></td><td><button class="play">▶ Play</button></td>';
  tr.querySelector(".filename").textContent=file;
  tr.querySelector("button").addEventListener("click",()=>play(file));
  tbody.append(tr);
