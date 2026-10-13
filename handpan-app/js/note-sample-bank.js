@@ -1,25 +1,23 @@
 /**
  * note-sample-bank.js
  *
- * Optional one-shot audio bank for properly licensed recordings; empty manifests use the procedural fallback.
- * Exposes multi-zone harmonic blend + non-linear velocity layering
- * without Flutter / React Native — pure Web Audio graph only.
+ * Universal owner sample bank (owner-notes-9 + library-v1).
+ * Loads each unique audio file once, then maps the full pitch set onto every
+ * scale id so setActiveScale never drops the bank to synth fallback.
  */
 export class NoteSampleBank {
   constructor(ctx, baseUrl = './sounds/notes/') {
     this.ctx = ctx;
     this.baseUrl = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
-    /** Active scale MIDI → AudioBuffer */
     this.byMidi = new Map();
-    /** scaleId → Map(midi → AudioBuffer) */
     this.byScale = new Map();
-    /** Union of all samples (fallback when a scale pack is missing) */
     this.allMidi = new Map();
     this.activeScaleId = null;
     this.manifest = null;
     this.ready = false;
     this.loadPromise = null;
     this._rr = new Map();
+    this._fileCache = new Map();
   }
 
   async load() {
@@ -28,55 +26,68 @@ export class NoteSampleBank {
     return this.loadPromise;
   }
 
+  async _decodeFile(file, encoding) {
+    if (this._fileCache.has(file)) return this._fileCache.get(file);
+    const r = await fetch(this.baseUrl + file);
+    if (!r.ok) return null;
+    let ab;
+    if (encoding === 'base64' || /\.b64$/i.test(file)) {
+      const text = (await r.text()).replace(/\s+/g, '');
+      const bin = atob(text);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      ab = bytes.buffer;
+    } else {
+      ab = await r.arrayBuffer();
+    }
+    const buf = await this.ctx.decodeAudioData(ab.slice(0));
+    this._fileCache.set(file, buf);
+    return buf;
+  }
+
   async _load() {
     const res = await fetch(this.baseUrl + 'manifest.json');
     if (!res.ok) throw new Error('Sample manifest missing: ' + res.status);
     this.manifest = await res.json();
 
-    // Support both flat samples[] and nested scales[].samples
-    const flat = [];
-    for (const s of this.manifest.samples || []) {
-      flat.push({ ...s, scaleId: s.scaleId || 'default' });
-    }
-    for (const scale of this.manifest.scales || []) {
-      for (const s of scale.samples || []) {
-        flat.push({ ...s, scaleId: s.scaleId || scale.id || 'default' });
+    const byMidiFile = new Map();
+    const add = (s) => {
+      if (s.midi == null || !s.file) return;
+      const pri = /owner-notes-9/i.test(s.file) ? 2 : 1;
+      const prev = byMidiFile.get(s.midi);
+      if (!prev || pri > prev.priority) {
+        byMidiFile.set(s.midi, { file: s.file, encoding: s.encoding, priority: pri });
       }
-    }
-    const seen = new Set();
-    const samples = [];
-    for (const s of flat) {
-      const key = (s.scaleId || 'default') + '|' + s.file;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      samples.push(s);
+    };
+    for (const s of this.manifest.samples || []) add(s);
+    for (const scale of this.manifest.scales || []) {
+      for (const s of scale.samples || []) add(s);
     }
 
     await Promise.all(
-      samples.map(async (s) => {
+      [...byMidiFile.entries()].map(async ([midi, info]) => {
         try {
-          const r = await fetch(this.baseUrl + s.file);
-          if (!r.ok) return;
-          let ab;
-          if (s.encoding === 'base64' || /\.b64$/i.test(s.file)) {
-            const text = (await r.text()).replace(/\s+/g, '');
-            const bin = atob(text);
-            const bytes = new Uint8Array(bin.length);
-            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-            ab = bytes.buffer;
-          } else {
-            ab = await r.arrayBuffer();
-          }
-          const buf = await this.ctx.decodeAudioData(ab.slice(0));
-          const scaleId = s.scaleId || 'default';
-          if (!this.byScale.has(scaleId)) this.byScale.set(scaleId, new Map());
-          this.byScale.get(scaleId).set(s.midi, buf);
-          this.allMidi.set(s.midi, buf);
+          const buf = await this._decodeFile(info.file, info.encoding);
+          if (!buf) return;
+          this.allMidi.set(midi, buf);
         } catch (e) {
-          console.warn('Sample failed', s.file, e);
+          console.warn('Sample failed', info.file, e);
         }
       })
     );
+
+    const scaleIds = (this.manifest.scales || []).map((s) => s.id).filter(Boolean);
+    if (!scaleIds.length) scaleIds.push('default');
+    for (const s of this.manifest.samples || []) {
+      if (s.scaleId && !scaleIds.includes(s.scaleId)) scaleIds.push(s.scaleId);
+    }
+
+    for (const id of scaleIds) {
+      this.byScale.set(id, new Map(this.allMidi));
+    }
+    if (!this.byScale.has('default')) {
+      this.byScale.set('default', new Map(this.allMidi));
+    }
 
     const preferred =
       this.manifest.scales?.[0]?.id ||
@@ -91,14 +102,20 @@ export class NoteSampleBank {
     } else {
       this.ready = false;
     }
-    console.info('[samples] loaded scales', [...this.byScale.keys()], 'active', this.activeScaleId, 'notes', this.byMidi.size);
+
+    console.info(
+      '[samples] unique notes',
+      this.allMidi.size,
+      'scales',
+      [...this.byScale.keys()].length,
+      'active',
+      this.activeScaleId,
+      'files',
+      this._fileCache.size
+    );
     return this;
   }
 
-  /**
-   * Switch which scale pack is used. If the pack is missing, fall back to
-   * default / any loaded samples so we never drop to synth when audio exists.
-   */
   setActiveScale(scaleId) {
     let map = scaleId ? this.byScale.get(scaleId) : null;
 
@@ -115,12 +132,12 @@ export class NoteSampleBank {
     }
 
     if (!map || !map.size) {
-      if (this.byScale.has('default') && this.byScale.get('default').size) {
+      if (this.allMidi.size) {
+        map = this.allMidi;
+        scaleId = scaleId || 'all';
+      } else if (this.byScale.has('default') && this.byScale.get('default').size) {
         map = this.byScale.get('default');
         scaleId = 'default';
-      } else if (this.allMidi.size) {
-        map = this.allMidi;
-        scaleId = 'all';
       } else if (this.byScale.size) {
         scaleId = this.byScale.keys().next().value;
         map = this.byScale.get(scaleId);
@@ -146,24 +163,28 @@ export class NoteSampleBank {
       this.ready = true;
     }
     if (!this.byMidi.size) return null;
-    const m = Math.round(midi);
-    if (this.byMidi.has(m)) {
-      return { buffer: this.byMidi.get(m), rate: 1, sourceMidi: m };
+
+    const target = Number(midi);
+    if (!Number.isFinite(target)) return null;
+    const rounded = Math.round(target);
+
+    if (this.byMidi.has(rounded) && Math.abs(target - rounded) < 0.01) {
+      return { buffer: this.byMidi.get(rounded), rate: 1, sourceMidi: rounded };
     }
+
     let best = null;
     let bestDist = Infinity;
     for (const k of this.byMidi.keys()) {
-      const d = Math.abs(k - m);
+      const d = Math.abs(k - target);
       if (d < bestDist) {
         bestDist = d;
         best = k;
       }
     }
-    // Allow up to an octave of pitch-shift so transposed roots still hit samples
     if (best == null || bestDist > 12) return null;
     return {
       buffer: this.byMidi.get(best),
-      rate: Math.pow(2, (m - best) / 12),
+      rate: Math.pow(2, (target - best) / 12),
       sourceMidi: best
     };
   }
