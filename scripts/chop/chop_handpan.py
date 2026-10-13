@@ -490,6 +490,52 @@ def cmd_chop_dir(args) -> int:
     return 0
 
 
+def infer_notes(onsets: list[Onset]) -> list[int]:
+    """Guess a scale's notes from a run played up and down: keep pitches heard at least twice
+    (up and down), or seen in the first rising run. Drops one-off pitch-tracker slips."""
+    ons = [o for o in onsets if o.midi is not None and 43 <= o.midi <= 88]
+    if not ons:
+        return []
+    counts: dict[int, int] = {}
+    for o in ons:
+        counts[o.midi] = counts.get(o.midi, 0) + 1
+    run = [ons[0]]
+    for o in ons[1:]:
+        if o.midi > run[-1].midi:
+            run.append(o)
+        elif o.midi < run[-1].midi:
+            if len(run) >= 5:
+                break
+            run = [o]
+    if len(ons) <= 12:  # one single pass: nothing repeats, keep every strike
+        return sorted(counts)
+    rising = {o.midi for o in run}
+    return sorted(m for m, c in counts.items() if c >= 2 and (m in rising or c >= 3))
+
+
+def cmd_infer_dir(args) -> int:
+    """Write a scales config straight from the audio, one entry per WAV, labelled by its own notes."""
+    folder = Path(args.audio)
+    scales = []
+    for path in sorted(folder.glob("*.wav")):
+        x, sr, _ = read_audio(path)
+        notes = infer_notes(analyze_audio(x, sr, args.sens, args.min_gap))
+        if len(notes) < 4:
+            print(f"{path.name}: too few notes found ({len(notes)}), skipped")
+            continue
+        root = notes[0]
+        sid = re.sub(r"[^a-z0-9]+", "-", path.stem.lower()).strip("-")
+        scales.append({"id": sid, "label": f"{path.stem} ({note_name(root)} root)", "rootMidi": root,
+                       "intervals": [n - root for n in notes], "file": path.name})
+        print(f"{path.name}: {' '.join(note_name(n) for n in notes)}")
+    out = Path(args.out_config)
+    out.write_text(json.dumps({"_help": "Inferred from the audio by chop_handpan.py infer-dir. "
+                               "Rename labels freely; check the notes by ear or with a tuner.",
+                               "scales": scales}, indent=1) + "\n")
+    print(f"\nWrote {out} ({len(scales)} scales)")
+    return 0
+
+
 # --------------------------------------------------------------------------- #
 # App wiring
 # --------------------------------------------------------------------------- #
@@ -583,14 +629,16 @@ def write_app_files(cfg: dict, results: dict[str, list[dict]], app: Path, notes_
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for name in ("analyze", "chop", "chop-dir"):
+    for name in ("analyze", "chop", "chop-dir", "infer-dir"):
         p = sub.add_parser(name)
         p.add_argument("audio")
         p.add_argument("--config", default=str(DEFAULT_CONFIG))
         p.add_argument("--sens", type=float, default=0.18, help="strike threshold as a fraction of a hard strike (lower = detects softer strikes, risks false hits)")
         p.add_argument("--min-gap", type=float, default=0.15, help="min seconds between strikes")
         p.add_argument("--gap", type=float, default=3.0, help="pause (s) that separates playing sections")
-        if name == "analyze":
+        if name == "infer-dir":
+            p.add_argument("--out-config", default=str(HERE / "scales.perfile.json"))
+        elif name == "analyze":
             p.add_argument("--out", default=str(DEFAULT_OUT))
         else:
             p.add_argument("--app-dir", default=str(DEFAULT_APP))
@@ -600,7 +648,7 @@ def main(argv=None) -> int:
             p.add_argument("--write-app", action="store_true")
             p.add_argument("--dry-run", action="store_true")
     args = ap.parse_args(argv)
-    return {"analyze": cmd_analyze, "chop": cmd_chop, "chop-dir": cmd_chop_dir}[args.cmd](args)
+    return {"analyze": cmd_analyze, "chop": cmd_chop, "chop-dir": cmd_chop_dir, "infer-dir": cmd_infer_dir}[args.cmd](args)
 
 
 if __name__ == "__main__":
