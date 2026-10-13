@@ -142,7 +142,8 @@ export class NoteSampleBank {
     this.perScale = true;
     // Preserve the character of Ivar's recordings: never stretch an E Amara sample
     // by several semitones to fill a bad/missing pitch assignment.
-    this.maxShift = scaleId === 'e-amara-recorded' ? 1 : 4;
+    // A scale is not selected yet here; setActiveScale() applies its specific shift limit.
+    this.maxShift = 4;
     for (const s of this.manifest.samples) {
       if (!s.scaleId || s.midi == null || !s.file) continue;
       if (!this._scaleFiles.has(s.scaleId)) this._scaleFiles.set(s.scaleId, []);

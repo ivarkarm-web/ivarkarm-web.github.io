@@ -58,7 +58,7 @@ async function boot() {
 
   // The core is required; if it cannot load, keep the recovery surface visible.
   try {
-    await import(new URL('./pionier-core.js?v=3', BASE).href);
+    await import(new URL('./pionier-core.js?v=4', BASE).href);
   } catch (err) {
     console.error('[pionier] required core failed to load', err);
     setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
@@ -78,7 +78,7 @@ async function boot() {
 
   let HANDPAN_SCALES = null;
   try {
-    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=2', BASE).href));
+    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=4', BASE).href));
   } catch (err) {
     console.error('[scale-picker] module failed to initialize', err);
     degraded.push('the scale picker');
