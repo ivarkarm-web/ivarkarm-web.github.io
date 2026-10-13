@@ -1,1628 +1,1628 @@
 {
-  "description": "Per-scale owner handpan samples chopped from one multi-scale recording (scripts/chop/chop_handpan.py). Each scale plays only its own notes. New E Amara recordings are pitch-detected from audio at load time because filenames may be inaccurate.",
-  "status": "owner-prototype",
-  "license_note": "Owner: Ivar Karm. Original recordings. See docs/AUDIO-LICENSES.md.",
-  "sampleRate": 44100,
-  "channels": 1,
-  "scales": [
-    {
-      "id": "aminor",
-      "label": "Aminor (A2 root)",
-      "rootMidi": 45
-    },
-    {
-      "id": "c-pygmy",
-      "label": "C#pygmy (B2 root)",
-      "rootMidi": 47
-    },
-    {
-      "id": "chijaz",
-      "label": "Chijaz (C3 root)",
-      "rootMidi": 48
-    },
-    {
-      "id": "eamara",
-      "label": "Eamara (D3 root)",
-      "rootMidi": 50
-    },
-    {
-      "id": "elasirena",
-      "label": "Elasirena (Eb3 root)",
-      "rootMidi": 51
-    },
-    {
-      "id": "esabye",
-      "label": "Esabye (E3 root)",
-      "rootMidi": 52
-    },
-    {
-      "id": "esabyeextended",
-      "label": "Esabyeextended (E3 root)",
-      "rootMidi": 52
-    },
-    {
-      "id": "flowpygmy",
-      "label": "Flowpygmy (F3 root)",
-      "rootMidi": 53
-    },
-    {
-      "id": "fmajor",
-      "label": "Fmajor (F3 root)",
-      "rootMidi": 53
-    },
-    {
-      "id": "fminor",
-      "label": "Fminor (F3 root)",
-      "rootMidi": 53
-    },
-    {
-      "id": "gakebono",
-      "label": "Gakebono (G3 root)",
-      "rootMidi": 55
-    },
-    {
-      "id": "gminor",
-      "label": "Gminor (E3 root)",
-      "rootMidi": 52
-    },
-    {
-      "id": "unknownscale",
-      "label": "Unknownscale (Bb3 root)",
-      "rootMidi": 58
-    },
-    {
-      "id": "dkurdextended",
-      "label": "dkurdextended (D3 root)",
-      "rootMidi": 50
-    },
-    {
-      "id": "e-amara-recorded",
-      "label": "E Amara · Ivar’s recordings",
-      "rootMidi": 52
-    }
-  ],
-  "samples": [
-    {
-      "scaleId": "aminor",
-      "file": "aminor/A2_v1.wav",
-      "midi": 45,
-      "note": "A2",
-      "cents": -22.6,
-      "type": "one-shot",
-      "durationMs": 3847,
-      "truncated": false
-    },
-    {
-      "scaleId": "aminor",
-      "file": "aminor/E3_v1.wav",
-      "midi": 52,
-      "note": "E3",
-      "cents": -0.5,
-      "type": "one-shot",
-      "durationMs": 548,
-      "truncated": true
-    },
-    {
-      "scaleId": "aminor",
-      "file": "aminor/Gb3_v1.wav",
-      "midi": 54,
-      "note": "Gb3",
-      "cents": -6.3,
-      "type": "one-shot",
-      "durationMs": 491,
-      "truncated": true
-    },
-    {
-      "scaleId": "aminor",
-      "file": "aminor/G3_v1.wav",
-      "midi": 55,
-      "note": "G3",
-      "cents": 6.2,
-      "type": "one-shot",
-      "durationMs": 512,
-      "truncated": true
-    },
-    {
-      "scaleId": "aminor",
-      "file": "aminor/A3_v1.wav",
-      "midi": 57,
-      "note": "A3",
-      "cents": 8.4,
-      "type": "one-shot",
-      "durationMs": 517,
-      "truncated": true
-    },
-    {
-      "scaleId": "aminor",
-      "file": "aminor/B3_v1.wav",
-      "midi": 59,
-      "note": "B3",
-      "cents": -0.8,
-      "type": "one-shot",
-      "durationMs": 497,
-      "truncated": true
-    },
-    {
-      "scaleId": "aminor",
-      "file": "aminor/C4_v1.wav",
-      "midi": 60,
-      "note": "C4",
-      "cents": 11.2,
-      "type": "one-shot",
-      "durationMs": 493,
-      "truncated": true
-    },
-    {
-      "scaleId": "aminor",
-      "file": "aminor/D4_v1.wav",
-      "midi": 62,
-      "note": "D4",
-      "cents": -6.4,
-      "type": "one-shot",
-      "durationMs": 518,
-      "truncated": true
-    },
-    {
-      "scaleId": "aminor",
-      "file": "aminor/E4_v1.wav",
-      "midi": 64,
-      "note": "E4",
-      "cents": 2.4,
-      "type": "one-shot",
-      "durationMs": 492,
-      "truncated": true
-    },
-    {
-      "scaleId": "c-pygmy",
-      "file": "c-pygmy/B2_v1.wav",
-      "midi": 47,
-      "note": "B2",
-      "cents": 26.2,
-      "type": "one-shot",
-      "durationMs": 1317,
-      "truncated": true
-    },
-    {
-      "scaleId": "c-pygmy",
-      "file": "c-pygmy/Db3_v1.wav",
-      "midi": 49,
-      "note": "Db3",
-      "cents": 8.3,
-      "type": "one-shot",
-      "durationMs": 3616,
-      "truncated": true
-    },
-    {
-      "scaleId": "c-pygmy",
-      "file": "c-pygmy/D3_v1.wav",
-      "midi": 50,
-      "note": "D3",
-      "cents": 2.9,
-      "type": "one-shot",
-      "durationMs": 637,
-      "truncated": true
-    },
-    {
-      "scaleId": "c-pygmy",
-      "file": "c-pygmy/E3_v1.wav",
-      "midi": 52,
-      "note": "E3",
-      "cents": 10.5,
-      "type": "one-shot",
-      "durationMs": 554,
-      "truncated": true
-    },
-    {
-      "scaleId": "c-pygmy",
-      "file": "c-pygmy/Gb3_v1.wav",
-      "midi": 54,
-      "note": "Gb3",
-      "cents": 8,
-      "type": "one-shot",
-      "durationMs": 674,
-      "truncated": true
-    },
-    {
-      "scaleId": "c-pygmy",
-      "file": "c-pygmy/Ab3_v1.wav",
-      "midi": 56,
-      "note": "Ab3",
-      "cents": 6.5,
-      "type": "one-shot",
-      "durationMs": 659,
-      "truncated": true
-    },
-    {
-      "scaleId": "c-pygmy",
-      "file": "c-pygmy/A3_v1.wav",
-      "midi": 57,
-      "note": "A3",
-      "cents": 3.6,
-      "type": "one-shot",
-      "durationMs": 700,
-      "truncated": true
-    },
-    {
-      "scaleId": "c-pygmy",
-      "file": "c-pygmy/Db4_v1.wav",
-      "midi": 61,
-      "note": "Db4",
-      "cents": 17.2,
-      "type": "one-shot",
-      "durationMs": 650,
-      "truncated": true
-    },
-    {
-      "scaleId": "c-pygmy",
-      "file": "c-pygmy/E4_v1.wav",
-      "midi": 64,
-      "note": "E4",
-      "cents": 5.3,
-      "type": "one-shot",
-      "durationMs": 646,
-      "truncated": true
-    },
-    {
-      "scaleId": "c-pygmy",
-      "file": "c-pygmy/Gb4_v1.wav",
-      "midi": 66,
-      "note": "Gb4",
-      "cents": -4.4,
-      "type": "one-shot",
-      "durationMs": 616,
-      "truncated": true
-    },
-    {
-      "scaleId": "c-pygmy",
-      "file": "c-pygmy/A4_v1.wav",
-      "midi": 69,
-      "note": "A4",
-      "cents": 4.2,
-      "type": "one-shot",
-      "durationMs": 641,
-      "truncated": true
-    },
-    {
-      "scaleId": "c-pygmy",
-      "file": "c-pygmy/E5_v1.wav",
-      "midi": 76,
-      "note": "E5",
-      "cents": 6.9,
-      "type": "one-shot",
-      "durationMs": 1521,
-      "truncated": true
-    },
-    {
-      "scaleId": "chijaz",
-      "file": "chijaz/C3_v1.wav",
-      "midi": 48,
-      "note": "C3",
-      "cents": -0.1,
-      "type": "one-shot",
-      "durationMs": 2477,
-      "truncated": false
-    },
-    {
-      "scaleId": "chijaz",
-      "file": "chijaz/D3_v1.wav",
-      "midi": 50,
-      "note": "D3",
-      "cents": -3.5,
-      "type": "one-shot",
-      "durationMs": 1056,
-      "truncated": true
-    },
-    {
-      "scaleId": "chijaz",
-      "file": "chijaz/Eb3_v1.wav",
-      "midi": 51,
-      "note": "Eb3",
-      "cents": -2.1,
-      "type": "one-shot",
-      "durationMs": 728,
-      "truncated": true
-    },
-    {
-      "scaleId": "chijaz",
-      "file": "chijaz/G3_v1.wav",
-      "midi": 55,
-      "note": "G3",
-      "cents": -1.9,
-      "type": "one-shot",
-      "durationMs": 771,
-      "truncated": true
-    },
-    {
-      "scaleId": "chijaz",
-      "file": "chijaz/Ab3_v1.wav",
-      "midi": 56,
-      "note": "Ab3",
-      "cents": 13.3,
-      "type": "one-shot",
-      "durationMs": 513,
-      "truncated": true
-    },
-    {
-      "scaleId": "chijaz",
-      "file": "chijaz/B3_v1.wav",
-      "midi": 59,
-      "note": "B3",
-      "cents": 9.3,
-      "type": "one-shot",
-      "durationMs": 518,
-      "truncated": true
-    },
-    {
-      "scaleId": "chijaz",
-      "file": "chijaz/C4_v1.wav",
-      "midi": 60,
-      "note": "C4",
-      "cents": 0.2,
-      "type": "one-shot",
-      "durationMs": 513,
-      "truncated": true
-    },
-    {
-      "scaleId": "chijaz",
-      "file": "chijaz/D4_v1.wav",
-      "midi": 62,
-      "note": "D4",
-      "cents": 10.5,
-      "type": "one-shot",
-      "durationMs": 511,
-      "truncated": true
-    },
-    {
-      "scaleId": "chijaz",
-      "file": "chijaz/Eb4_v1.wav",
-      "midi": 63,
-      "note": "Eb4",
-      "cents": 8.3,
-      "type": "one-shot",
-      "durationMs": 501,
-      "truncated": true
-    },
-    {
-      "scaleId": "chijaz",
-      "file": "chijaz/F4_v1.wav",
-      "midi": 65,
-      "note": "F4",
-      "cents": 7.5,
-      "type": "one-shot",
-      "durationMs": 442,
-      "truncated": true
-    },
-    {
-      "scaleId": "chijaz",
-      "file": "chijaz/G4_v1.wav",
-      "midi": 67,
-      "note": "G4",
-      "cents": -0.7,
-      "type": "one-shot",
-      "durationMs": 463,
-      "truncated": true
-    },
-    {
-      "scaleId": "chijaz",
-      "file": "chijaz/C5_v1.wav",
-      "midi": 72,
-      "note": "C5",
-      "cents": 0.5,
-      "type": "one-shot",
-      "durationMs": 1075,
-      "truncated": true
-    },
-    {
-      "scaleId": "eamara",
-      "file": "eamara/D3_v1.wav",
-      "midi": 50,
-      "note": "D3",
-      "cents": 6.4,
-      "type": "one-shot",
-      "durationMs": 2395,
-      "truncated": false
-    },
-    {
-      "scaleId": "eamara",
-      "file": "eamara/E3_v1.wav",
-      "midi": 52,
-      "note": "E3",
-      "cents": 2.3,
-      "type": "one-shot",
-      "durationMs": 3897,
-      "truncated": false
-    },
-    {
-      "scaleId": "eamara",
-      "file": "eamara/B3_v1.wav",
-      "midi": 59,
-      "note": "B3",
-      "cents": 4.1,
-      "type": "one-shot",
-      "durationMs": 617,
-      "truncated": true
-    },
-    {
-      "scaleId": "eamara",
-      "file": "eamara/D4_v1.wav",
-      "midi": 62,
-      "note": "D4",
-      "cents": 2.9,
-      "type": "one-shot",
-      "durationMs": 490,
-      "truncated": true
-    },
-    {
-      "scaleId": "eamara",
-      "file": "eamara/E4_v1.wav",
-      "midi": 64,
-      "note": "E4",
-      "cents": 2.4,
-      "type": "one-shot",
-      "durationMs": 493,
-      "truncated": true
-    },
-    {
-      "scaleId": "eamara",
-      "file": "eamara/Gb4_v1.wav",
-      "midi": 66,
-      "note": "Gb4",
-      "cents": 5.1,
-      "type": "one-shot",
-      "durationMs": 512,
-      "truncated": true
-    },
-    {
-      "scaleId": "eamara",
-      "file": "eamara/G4_v1.wav",
-      "midi": 67,
-      "note": "G4",
-      "cents": -2.8,
-      "type": "one-shot",
-      "durationMs": 509,
-      "truncated": true
-    },
-    {
-      "scaleId": "eamara",
-      "file": "eamara/A4_v1.wav",
-      "midi": 69,
-      "note": "A4",
-      "cents": 7.6,
-      "type": "one-shot",
-      "durationMs": 471,
-      "truncated": true
-    },
-    {
-      "scaleId": "eamara",
-      "file": "eamara/B4_v1.wav",
-      "midi": 71,
-      "note": "B4",
-      "cents": 4.4,
-      "type": "one-shot",
-      "durationMs": 468,
-      "truncated": true
-    },
-    {
-      "scaleId": "eamara",
-      "file": "eamara/D5_v1.wav",
-      "midi": 74,
-      "note": "D5",
-      "cents": 5.6,
-      "type": "one-shot",
-      "durationMs": 494,
-      "truncated": true
-    },
-    {
-      "scaleId": "eamara",
-      "file": "eamara/Gb5_v1.wav",
-      "midi": 78,
-      "note": "Gb5",
-      "cents": 6.8,
-      "type": "one-shot",
-      "durationMs": 477,
-      "truncated": true
-    },
-    {
-      "scaleId": "eamara",
-      "file": "eamara/G5_v1.wav",
-      "midi": 79,
-      "note": "G5",
-      "cents": 1,
-      "type": "one-shot",
-      "durationMs": 457,
-      "truncated": true
-    },
-    {
-      "scaleId": "eamara",
-      "file": "eamara/A5_v1.wav",
-      "midi": 81,
-      "note": "A5",
-      "cents": 1.1,
-      "type": "one-shot",
-      "durationMs": 1543,
-      "truncated": true
-    },
-    {
-      "scaleId": "elasirena",
-      "file": "elasirena/Eb3_v1.wav",
-      "midi": 51,
-      "note": "Eb3",
-      "cents": 7.2,
-      "type": "one-shot",
-      "durationMs": 3595,
-      "truncated": true
-    },
-    {
-      "scaleId": "elasirena",
-      "file": "elasirena/Bb3_v1.wav",
-      "midi": 58,
-      "note": "Bb3",
-      "cents": 6.4,
-      "type": "one-shot",
-      "durationMs": 595,
-      "truncated": true
-    },
-    {
-      "scaleId": "elasirena",
-      "file": "elasirena/C4_v1.wav",
-      "midi": 60,
-      "note": "C4",
-      "cents": 7,
-      "type": "one-shot",
-      "durationMs": 655,
-      "truncated": true
-    },
-    {
-      "scaleId": "elasirena",
-      "file": "elasirena/Db4_v1.wav",
-      "midi": 61,
-      "note": "Db4",
-      "cents": 8,
-      "type": "one-shot",
-      "durationMs": 579,
-      "truncated": true
-    },
-    {
-      "scaleId": "elasirena",
-      "file": "elasirena/Eb4_v1.wav",
-      "midi": 63,
-      "note": "Eb4",
-      "cents": 18.8,
-      "type": "one-shot",
-      "durationMs": 487,
-      "truncated": true
-    },
-    {
-      "scaleId": "elasirena",
-      "file": "elasirena/F4_v1.wav",
-      "midi": 65,
-      "note": "F4",
-      "cents": 10.4,
-      "type": "one-shot",
-      "durationMs": 506,
-      "truncated": true
-    },
-    {
-      "scaleId": "elasirena",
-      "file": "elasirena/Gb4_v1.wav",
-      "midi": 66,
-      "note": "Gb4",
-      "cents": 6.4,
-      "type": "one-shot",
-      "durationMs": 504,
-      "truncated": true
-    },
-    {
-      "scaleId": "elasirena",
-      "file": "elasirena/Bb4_v1.wav",
-      "midi": 70,
-      "note": "Bb4",
-      "cents": 10.9,
-      "type": "one-shot",
-      "durationMs": 544,
-      "truncated": true
-    },
-    {
-      "scaleId": "elasirena",
-      "file": "elasirena/C5_v1.wav",
-      "midi": 72,
-      "note": "C5",
-      "cents": 8.4,
-      "type": "one-shot",
-      "durationMs": 510,
-      "truncated": true
-    },
-    {
-      "scaleId": "elasirena",
-      "file": "elasirena/Eb5_v1.wav",
-      "midi": 75,
-      "note": "Eb5",
-      "cents": 3,
-      "type": "one-shot",
-      "durationMs": 577,
-      "truncated": true
-    },
-    {
-      "scaleId": "elasirena",
-      "file": "elasirena/Gb5_v1.wav",
-      "midi": 78,
-      "note": "Gb5",
-      "cents": 2.7,
-      "type": "one-shot",
-      "durationMs": 1019,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabye",
-      "file": "esabye/E3_v1.wav",
-      "midi": 52,
-      "note": "E3",
-      "cents": 2.3,
-      "type": "one-shot",
-      "durationMs": 3772,
-      "truncated": false
-    },
-    {
-      "scaleId": "esabye",
-      "file": "esabye/A3_v1.wav",
-      "midi": 57,
-      "note": "A3",
-      "cents": -1,
-      "type": "one-shot",
-      "durationMs": 553,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabye",
-      "file": "esabye/B3_v1.wav",
-      "midi": 59,
-      "note": "B3",
-      "cents": 2.3,
-      "type": "one-shot",
-      "durationMs": 430,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabye",
-      "file": "esabye/Db4_v1.wav",
-      "midi": 61,
-      "note": "Db4",
-      "cents": 8.2,
-      "type": "one-shot",
-      "durationMs": 462,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabye",
-      "file": "esabye/Eb4_v1.wav",
-      "midi": 63,
-      "note": "Eb4",
-      "cents": 1.4,
-      "type": "one-shot",
-      "durationMs": 438,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabye",
-      "file": "esabye/E4_v1.wav",
-      "midi": 64,
-      "note": "E4",
-      "cents": 2.5,
-      "type": "one-shot",
-      "durationMs": 470,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabye",
-      "file": "esabye/Gb4_v1.wav",
-      "midi": 66,
-      "note": "Gb4",
-      "cents": 3.7,
-      "type": "one-shot",
-      "durationMs": 489,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabye",
-      "file": "esabye/Ab4_v1.wav",
-      "midi": 68,
-      "note": "Ab4",
-      "cents": -0.7,
-      "type": "one-shot",
-      "durationMs": 469,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabye",
-      "file": "esabye/B4_v1.wav",
-      "midi": 71,
-      "note": "B4",
-      "cents": -11.1,
-      "type": "one-shot",
-      "durationMs": 482,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabye",
-      "file": "esabye/Eb5_v1.wav",
-      "midi": 75,
-      "note": "Eb5",
-      "cents": 5.9,
-      "type": "one-shot",
-      "durationMs": 1014,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabyeextended",
-      "file": "esabyeextended/E3_v1.wav",
-      "midi": 52,
-      "note": "E3",
-      "cents": 0.8,
-      "type": "one-shot",
-      "durationMs": 2232,
-      "truncated": false
-    },
-    {
-      "scaleId": "esabyeextended",
-      "file": "esabyeextended/A3_v1.wav",
-      "midi": 57,
-      "note": "A3",
-      "cents": 10.1,
-      "type": "one-shot",
-      "durationMs": 419,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabyeextended",
-      "file": "esabyeextended/B3_v1.wav",
-      "midi": 59,
-      "note": "B3",
-      "cents": 5.1,
-      "type": "one-shot",
-      "durationMs": 406,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabyeextended",
-      "file": "esabyeextended/Db4_v1.wav",
-      "midi": 61,
-      "note": "Db4",
-      "cents": 6.8,
-      "type": "one-shot",
-      "durationMs": 447,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabyeextended",
-      "file": "esabyeextended/Eb4_v1.wav",
-      "midi": 63,
-      "note": "Eb4",
-      "cents": 5,
-      "type": "one-shot",
-      "durationMs": 368,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabyeextended",
-      "file": "esabyeextended/E4_v1.wav",
-      "midi": 64,
-      "note": "E4",
-      "cents": 4.5,
-      "type": "one-shot",
-      "durationMs": 382,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabyeextended",
-      "file": "esabyeextended/Gb4_v1.wav",
-      "midi": 66,
-      "note": "Gb4",
-      "cents": 5.2,
-      "type": "one-shot",
-      "durationMs": 423,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabyeextended",
-      "file": "esabyeextended/Ab4_v1.wav",
-      "midi": 68,
-      "note": "Ab4",
-      "cents": 2.4,
-      "type": "one-shot",
-      "durationMs": 379,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabyeextended",
-      "file": "esabyeextended/B4_v1.wav",
-      "midi": 71,
-      "note": "B4",
-      "cents": -6.2,
-      "type": "one-shot",
-      "durationMs": 423,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabyeextended",
-      "file": "esabyeextended/Eb5_v1.wav",
-      "midi": 75,
-      "note": "Eb5",
-      "cents": 4.4,
-      "type": "one-shot",
-      "durationMs": 446,
-      "truncated": true
-    },
-    {
-      "scaleId": "esabyeextended",
-      "file": "esabyeextended/E5_v1.wav",
-      "midi": 76,
-      "note": "E5",
-      "cents": 1.8,
-      "type": "one-shot",
-      "durationMs": 839,
-      "truncated": true
-    },
-    {
-      "scaleId": "flowpygmy",
-      "file": "flowpygmy/F3_v1.wav",
-      "midi": 53,
-      "note": "F3",
-      "cents": -4.9,
-      "type": "one-shot",
-      "durationMs": 5074,
-      "truncated": true
-    },
-    {
-      "scaleId": "flowpygmy",
-      "file": "flowpygmy/Ab3_v1.wav",
-      "midi": 56,
-      "note": "Ab3",
-      "cents": -6.3,
-      "type": "one-shot",
-      "durationMs": 755,
-      "truncated": true
-    },
-    {
-      "scaleId": "flowpygmy",
-      "file": "flowpygmy/C4_v1.wav",
-      "midi": 60,
-      "note": "C4",
-      "cents": -7.8,
-      "type": "one-shot",
-      "durationMs": 794,
-      "truncated": true
-    },
-    {
-      "scaleId": "flowpygmy",
-      "file": "flowpygmy/F4_v1.wav",
-      "midi": 65,
-      "note": "F4",
-      "cents": 1.7,
-      "type": "one-shot",
-      "durationMs": 759,
-      "truncated": true
-    },
-    {
-      "scaleId": "flowpygmy",
-      "file": "flowpygmy/G4_v1.wav",
-      "midi": 67,
-      "note": "G4",
-      "cents": 1.6,
-      "type": "one-shot",
-      "durationMs": 738,
-      "truncated": true
-    },
-    {
-      "scaleId": "flowpygmy",
-      "file": "flowpygmy/C5_v1.wav",
-      "midi": 72,
-      "note": "C5",
-      "cents": -2,
-      "type": "one-shot",
-      "durationMs": 702,
-      "truncated": true
-    },
-    {
-      "scaleId": "flowpygmy",
-      "file": "flowpygmy/G5_v1.wav",
-      "midi": 79,
-      "note": "G5",
-      "cents": 8.2,
-      "type": "one-shot",
-      "durationMs": 1543,
-      "truncated": true
-    },
-    {
-      "scaleId": "fmajor",
-      "file": "fmajor/F3_v1.wav",
-      "midi": 53,
-      "note": "F3",
-      "cents": -4,
-      "type": "one-shot",
-      "durationMs": 1902,
-      "truncated": false
-    },
-    {
-      "scaleId": "fmajor",
-      "file": "fmajor/C4_v1.wav",
-      "midi": 60,
-      "note": "C4",
-      "cents": 0.8,
-      "type": "one-shot",
-      "durationMs": 783,
-      "truncated": true
-    },
-    {
-      "scaleId": "fmajor",
-      "file": "fmajor/D4_v1.wav",
-      "midi": 62,
-      "note": "D4",
-      "cents": -3,
-      "type": "one-shot",
-      "durationMs": 601,
-      "truncated": true
-    },
-    {
-      "scaleId": "fmajor",
-      "file": "fmajor/F4_v1.wav",
-      "midi": 65,
-      "note": "F4",
-      "cents": 6.6,
-      "type": "one-shot",
-      "durationMs": 587,
-      "truncated": true
-    },
-    {
-      "scaleId": "fmajor",
-      "file": "fmajor/G4_v1.wav",
-      "midi": 67,
-      "note": "G4",
-      "cents": 3.8,
-      "type": "one-shot",
-      "durationMs": 573,
-      "truncated": true
-    },
-    {
-      "scaleId": "fmajor",
-      "file": "fmajor/A4_v1.wav",
-      "midi": 69,
-      "note": "A4",
-      "cents": 0.9,
-      "type": "one-shot",
-      "durationMs": 567,
-      "truncated": true
-    },
-    {
-      "scaleId": "fmajor",
-      "file": "fmajor/C5_v1.wav",
-      "midi": 72,
-      "note": "C5",
-      "cents": 3.5,
-      "type": "one-shot",
-      "durationMs": 572,
-      "truncated": true
-    },
-    {
-      "scaleId": "fmajor",
-      "file": "fmajor/D5_v1.wav",
-      "midi": 74,
-      "note": "D5",
-      "cents": 6.7,
-      "type": "one-shot",
-      "durationMs": 609,
-      "truncated": true
-    },
-    {
-      "scaleId": "fmajor",
-      "file": "fmajor/F5_v1.wav",
-      "midi": 77,
-      "note": "F5",
-      "cents": 3.3,
-      "type": "one-shot",
-      "durationMs": 1499,
-      "truncated": true
-    },
-    {
-      "scaleId": "fminor",
-      "file": "fminor/F3_v1.wav",
-      "midi": 53,
-      "note": "F3",
-      "cents": 10.8,
-      "type": "one-shot",
-      "durationMs": 510,
-      "truncated": true
-    },
-    {
-      "scaleId": "fminor",
-      "file": "fminor/C4_v1.wav",
-      "midi": 60,
-      "note": "C4",
-      "cents": -3.9,
-      "type": "one-shot",
-      "durationMs": 452,
-      "truncated": true
-    },
-    {
-      "scaleId": "fminor",
-      "file": "fminor/D4_v1.wav",
-      "midi": 62,
-      "note": "D4",
-      "cents": -0.6,
-      "type": "one-shot",
-      "durationMs": 418,
-      "truncated": true
-    },
-    {
-      "scaleId": "fminor",
-      "file": "fminor/F4_v1.wav",
-      "midi": 65,
-      "note": "F4",
-      "cents": 10.8,
-      "type": "one-shot",
-      "durationMs": 693,
-      "truncated": true
-    },
-    {
-      "scaleId": "fminor",
-      "file": "fminor/A4_v1.wav",
-      "midi": 69,
-      "note": "A4",
-      "cents": -3.3,
-      "type": "one-shot",
-      "durationMs": 443,
-      "truncated": true
-    },
-    {
-      "scaleId": "fminor",
-      "file": "fminor/Bb4_v1.wav",
-      "midi": 70,
-      "note": "Bb4",
-      "cents": -0.3,
-      "type": "one-shot",
-      "durationMs": 464,
-      "truncated": true
-    },
-    {
-      "scaleId": "fminor",
-      "file": "fminor/C5_v1.wav",
-      "midi": 72,
-      "note": "C5",
-      "cents": -6.5,
-      "type": "one-shot",
-      "durationMs": 1169,
-      "truncated": true
-    },
-    {
-      "scaleId": "gakebono",
-      "file": "gakebono/G3_v1.wav",
-      "midi": 55,
-      "note": "G3",
-      "cents": 16.9,
-      "type": "one-shot",
-      "durationMs": 701,
-      "truncated": true
-    },
-    {
-      "scaleId": "gakebono",
-      "file": "gakebono/C4_v1.wav",
-      "midi": 60,
-      "note": "C4",
-      "cents": 12.4,
-      "type": "one-shot",
-      "durationMs": 754,
-      "truncated": true
-    },
-    {
-      "scaleId": "gakebono",
-      "file": "gakebono/D4_v1.wav",
-      "midi": 62,
-      "note": "D4",
-      "cents": 19.7,
-      "type": "one-shot",
-      "durationMs": 726,
-      "truncated": true
-    },
-    {
-      "scaleId": "gakebono",
-      "file": "gakebono/Eb4_v1.wav",
-      "midi": 63,
-      "note": "Eb4",
-      "cents": 16.3,
-      "type": "one-shot",
-      "durationMs": 756,
-      "truncated": true
-    },
-    {
-      "scaleId": "gakebono",
-      "file": "gakebono/G4_v1.wav",
-      "midi": 67,
-      "note": "G4",
-      "cents": 18.8,
-      "type": "one-shot",
-      "durationMs": 743,
-      "truncated": true
-    },
-    {
-      "scaleId": "gakebono",
-      "file": "gakebono/Ab4_v1.wav",
-      "midi": 68,
-      "note": "Ab4",
-      "cents": 13.4,
-      "type": "one-shot",
-      "durationMs": 742,
-      "truncated": true
-    },
-    {
-      "scaleId": "gakebono",
-      "file": "gakebono/C5_v1.wav",
-      "midi": 72,
-      "note": "C5",
-      "cents": 9.7,
-      "type": "one-shot",
-      "durationMs": 724,
-      "truncated": true
-    },
-    {
-      "scaleId": "gakebono",
-      "file": "gakebono/D5_v1.wav",
-      "midi": 74,
-      "note": "D5",
-      "cents": 7,
-      "type": "one-shot",
-      "durationMs": 775,
-      "truncated": true
-    },
-    {
-      "scaleId": "gakebono",
-      "file": "gakebono/Eb5_v1.wav",
-      "midi": 75,
-      "note": "Eb5",
-      "cents": 12.8,
-      "type": "one-shot",
-      "durationMs": 1492,
-      "truncated": false
-    },
-    {
-      "scaleId": "gminor",
-      "file": "gminor/E3_v1.wav",
-      "midi": 52,
-      "note": "E3",
-      "cents": -14.8,
-      "type": "one-shot",
-      "durationMs": 1147,
-      "truncated": true
-    },
-    {
-      "scaleId": "gminor",
-      "file": "gminor/G3_v1.wav",
-      "midi": 55,
-      "note": "G3",
-      "cents": 1,
-      "type": "one-shot",
-      "durationMs": 4364,
-      "truncated": true
-    },
-    {
-      "scaleId": "gminor",
-      "file": "gminor/A3_v1.wav",
-      "midi": 57,
-      "note": "A3",
-      "cents": -1.9,
-      "type": "one-shot",
-      "durationMs": 578,
-      "truncated": true
-    },
-    {
-      "scaleId": "gminor",
-      "file": "gminor/B3_v1.wav",
-      "midi": 59,
-      "note": "B3",
-      "cents": -5.4,
-      "type": "one-shot",
-      "durationMs": 559,
-      "truncated": true
-    },
-    {
-      "scaleId": "gminor",
-      "file": "gminor/C4_v1.wav",
-      "midi": 60,
-      "note": "C4",
-      "cents": 0.6,
-      "type": "one-shot",
-      "durationMs": 562,
-      "truncated": true
-    },
-    {
-      "scaleId": "gminor",
-      "file": "gminor/D4_v1.wav",
-      "midi": 62,
-      "note": "D4",
-      "cents": -1.5,
-      "type": "one-shot",
-      "durationMs": 1342,
-      "truncated": false
-    },
-    {
-      "scaleId": "gminor",
-      "file": "gminor/E4_v1.wav",
-      "midi": 64,
-      "note": "E4",
-      "cents": 0.9,
-      "type": "one-shot",
-      "durationMs": 512,
-      "truncated": true
-    },
-    {
-      "scaleId": "gminor",
-      "file": "gminor/Gb4_v1.wav",
-      "midi": 66,
-      "note": "Gb4",
-      "cents": 3.9,
-      "type": "one-shot",
-      "durationMs": 514,
-      "truncated": true
-    },
-    {
-      "scaleId": "gminor",
-      "file": "gminor/A4_v1.wav",
-      "midi": 69,
-      "note": "A4",
-      "cents": -7.7,
-      "type": "one-shot",
-      "durationMs": 525,
-      "truncated": true
-    },
-    {
-      "scaleId": "gminor",
-      "file": "gminor/B4_v1.wav",
-      "midi": 71,
-      "note": "B4",
-      "cents": 4,
-      "type": "one-shot",
-      "durationMs": 512,
-      "truncated": true
-    },
-    {
-      "scaleId": "gminor",
-      "file": "gminor/D5_v1.wav",
-      "midi": 74,
-      "note": "D5",
-      "cents": 3.7,
-      "type": "one-shot",
-      "durationMs": 1274,
-      "truncated": true
-    },
-    {
-      "scaleId": "gminor",
-      "file": "gminor/E5_v1.wav",
-      "midi": 76,
-      "note": "E5",
-      "cents": 3.7,
-      "type": "one-shot",
-      "durationMs": 470,
-      "truncated": true
-    },
-    {
-      "scaleId": "gminor",
-      "file": "gminor/Gb5_v1.wav",
-      "midi": 78,
-      "note": "Gb5",
-      "cents": 8.5,
-      "type": "one-shot",
-      "durationMs": 458,
-      "truncated": true
-    },
-    {
-      "scaleId": "gminor",
-      "file": "gminor/G5_v1.wav",
-      "midi": 79,
-      "note": "G5",
-      "cents": -0.6,
-      "type": "one-shot",
-      "durationMs": 436,
-      "truncated": true
-    },
-    {
-      "scaleId": "gminor",
-      "file": "gminor/A5_v1.wav",
-      "midi": 81,
-      "note": "A5",
-      "cents": 6.5,
-      "type": "one-shot",
-      "durationMs": 472,
-      "truncated": true
-    },
-    {
-      "scaleId": "gminor",
-      "file": "gminor/D6_v1.wav",
-      "midi": 86,
-      "note": "D6",
-      "cents": 3.7,
-      "type": "one-shot",
-      "durationMs": 2102,
-      "truncated": true
-    },
-    {
-      "scaleId": "unknownscale",
-      "file": "unknownscale/Bb3_v1.wav",
-      "midi": 58,
-      "note": "Bb3",
-      "cents": -0.1,
-      "type": "one-shot",
-      "durationMs": 916,
-      "truncated": true
-    },
-    {
-      "scaleId": "unknownscale",
-      "file": "unknownscale/C4_v1.wav",
-      "midi": 60,
-      "note": "C4",
-      "cents": -4.6,
-      "type": "one-shot",
-      "durationMs": 882,
-      "truncated": true
-    },
-    {
-      "scaleId": "unknownscale",
-      "file": "unknownscale/Eb4_v1.wav",
-      "midi": 63,
-      "note": "Eb4",
-      "cents": 2.8,
-      "type": "one-shot",
-      "durationMs": 891,
-      "truncated": true
-    },
-    {
-      "scaleId": "unknownscale",
-      "file": "unknownscale/F4_v1.wav",
-      "midi": 65,
-      "note": "F4",
-      "cents": 8.7,
-      "type": "one-shot",
-      "durationMs": 893,
-      "truncated": true
-    },
-    {
-      "scaleId": "unknownscale",
-      "file": "unknownscale/Bb4_v1.wav",
-      "midi": 70,
-      "note": "Bb4",
-      "cents": 3.5,
-      "type": "one-shot",
-      "durationMs": 869,
-      "truncated": true
-    },
-    {
-      "scaleId": "unknownscale",
-      "file": "unknownscale/C5_v1.wav",
-      "midi": 72,
-      "note": "C5",
-      "cents": -4.5,
-      "type": "one-shot",
-      "durationMs": 883,
-      "truncated": true
-    },
-    {
-      "scaleId": "dkurdextended",
-      "file": "dkurdextended/D3_v1.wav",
-      "midi": 50,
-      "note": "D3",
-      "cents": -10.1,
-      "type": "one-shot",
-      "durationMs": 1405,
-      "truncated": true
-    },
-    {
-      "scaleId": "dkurdextended",
-      "file": "dkurdextended/A3_v1.wav",
-      "midi": 57,
-      "note": "A3",
-      "cents": -0.9,
-      "type": "one-shot",
-      "durationMs": 552,
-      "truncated": true
-    },
-    {
-      "scaleId": "dkurdextended",
-      "file": "dkurdextended/Bb3_v1.wav",
-      "midi": 58,
-      "note": "Bb3",
-      "cents": -7,
-      "type": "one-shot",
-      "durationMs": 543,
-      "truncated": true
-    },
-    {
-      "scaleId": "dkurdextended",
-      "file": "dkurdextended/C4_v1.wav",
-      "midi": 60,
-      "note": "C4",
-      "cents": -7.8,
-      "type": "one-shot",
-      "durationMs": 569,
-      "truncated": true
-    },
-    {
-      "scaleId": "dkurdextended",
-      "file": "dkurdextended/D4_v1.wav",
-      "midi": 62,
-      "note": "D4",
-      "cents": 0.1,
-      "type": "one-shot",
-      "durationMs": 566,
-      "truncated": true
-    },
-    {
-      "scaleId": "dkurdextended",
-      "file": "dkurdextended/F4_v1.wav",
-      "midi": 65,
-      "note": "F4",
-      "cents": -0.4,
-      "type": "one-shot",
-      "durationMs": 581,
-      "truncated": true
-    },
-    {
-      "scaleId": "dkurdextended",
-      "file": "dkurdextended/A4_v1.wav",
-      "midi": 69,
-      "note": "A4",
-      "cents": -2.7,
-      "type": "one-shot",
-      "durationMs": 547,
-      "truncated": true
-    },
-    {
-      "scaleId": "dkurdextended",
-      "file": "dkurdextended/C5_v1.wav",
-      "midi": 72,
-      "note": "C5",
-      "cents": 2.1,
-      "type": "one-shot",
-      "durationMs": 598,
-      "truncated": true
-    },
-    {
-      "scaleId": "dkurdextended",
-      "file": "dkurdextended/D5_v1.wav",
-      "midi": 74,
-      "note": "D5",
-      "cents": 7.6,
-      "type": "one-shot",
-      "durationMs": 672,
-      "truncated": true
-    },
-    {
-      "scaleId": "e-amara-recorded",
-      "file": "eamara/E 3.wav",
-      "midi": 52,
-      "note": "AUTO",
-      "type": "one-shot",
-      "autoPitch": true
-    },
-    {
-      "scaleId": "e-amara-recorded",
-      "file": "eamara/a5.wav",
-      "midi": 52,
-      "note": "AUTO",
-      "type": "one-shot",
-      "autoPitch": true
-    },
-    {
-      "scaleId": "e-amara-recorded",
-      "file": "eamara/b.wav",
-      "midi": 52,
-      "note": "AUTO",
-      "type": "one-shot",
-      "autoPitch": true
-    },
-    {
-      "scaleId": "e-amara-recorded",
-      "file": "eamara/b4.wav",
-      "midi": 52,
-      "note": "AUTO",
-      "type": "one-shot",
-      "autoPitch": true
-    },
-    {
-      "scaleId": "e-amara-recorded",
-      "file": "eamara/b5.wav",
-      "midi": 52,
-      "note": "AUTO",
-      "type": "one-shot",
-      "autoPitch": true
-    },
-    {
-      "scaleId": "e-amara-recorded",
-      "file": "eamara/d.wav",
-      "midi": 52,
-      "note": "AUTO",
-      "type": "one-shot",
-      "autoPitch": true
-    },
-    {
-      "scaleId": "e-amara-recorded",
-      "file": "eamara/d4.wav",
-      "midi": 52,
-      "note": "AUTO",
-      "type": "one-shot",
-      "autoPitch": true
-    },
-    {
-      "scaleId": "e-amara-recorded",
-      "file": "eamara/d5.wav",
-      "midi": 52,
-      "note": "AUTO",
-      "type": "one-shot",
-      "autoPitch": true
-    },
-    {
-      "scaleId": "e-amara-recorded",
-      "file": "eamara/e4.wav",
-      "midi": 52,
-      "note": "AUTO",
-      "type": "one-shot",
-      "autoPitch": true
-    },
-    {
-      "scaleId": "e-amara-recorded",
-      "file": "eamara/e5.wav",
-      "midi": 52,
-      "note": "AUTO",
-      "type": "one-shot",
-      "autoPitch": true
-    },
-    {
-      "scaleId": "e-amara-recorded",
-      "file": "eamara/f#.wav",
-      "midi": 52,
-      "note": "AUTO",
-      "type": "one-shot",
-      "autoPitch": true
-    },
-    {
-      "scaleId": "e-amara-recorded",
-      "file": "eamara/f#3.wav",
-      "midi": 52,
-      "note": "AUTO",
-      "type": "one-shot",
-      "autoPitch": true
-    },
-    {
-      "scaleId": "e-amara-recorded",
-      "file": "eamara/g.wav",
-      "midi": 52,
-      "note": "AUTO",
-      "type": "one-shot",
-      "autoPitch": true
-    },
-    {
-      "scaleId": "e-amara-recorded",
-      "file": "eamara/g5.wav",
-      "midi": 52,
-      "note": "AUTO",
-      "type": "one-shot",
-      "autoPitch": true
-    },
-    {
-      "scaleId": "e-amara-recorded",
-      "file": "eamara/A4_v1.wav",
-      "midi": 69,
-      "note": "A4",
-      "type": "one-shot",
-      "autoPitch": true,
-      "fallback": true
-    },
-    {
-      "scaleId": "e-amara-recorded",
-      "file": "eamara/Gb5_v1.wav",
-      "midi": 78,
-      "note": "F#5",
-      "type": "one-shot",
-      "autoPitch": true,
-      "fallback": true
-    }
-  ],
-  "version": 3,
-  "fallbackScale": "aminor"
+ "description": "Per-scale owner handpan samples chopped from one multi-scale recording (scripts/chop/chop_handpan.py). Each scale plays only its own notes. E Amara recordings are pitch-detected at load time because filenames may be inaccurate.",
+ "status": "owner-prototype",
+ "license_note": "Owner: Ivar Karm. Original recordings. See docs/AUDIO-LICENSES.md.",
+ "sampleRate": 44100,
+ "channels": 1,
+ "scales": [
+  {
+   "id": "aminor",
+   "label": "Aminor (A2 root)",
+   "rootMidi": 45
+  },
+  {
+   "id": "c-pygmy",
+   "label": "C#pygmy (B2 root)",
+   "rootMidi": 47
+  },
+  {
+   "id": "chijaz",
+   "label": "Chijaz (C3 root)",
+   "rootMidi": 48
+  },
+  {
+   "id": "eamara",
+   "label": "Eamara (D3 root)",
+   "rootMidi": 50
+  },
+  {
+   "id": "elasirena",
+   "label": "Elasirena (Eb3 root)",
+   "rootMidi": 51
+  },
+  {
+   "id": "esabye",
+   "label": "Esabye (E3 root)",
+   "rootMidi": 52
+  },
+  {
+   "id": "esabyeextended",
+   "label": "Esabyeextended (E3 root)",
+   "rootMidi": 52
+  },
+  {
+   "id": "flowpygmy",
+   "label": "Flowpygmy (F3 root)",
+   "rootMidi": 53
+  },
+  {
+   "id": "fmajor",
+   "label": "Fmajor (F3 root)",
+   "rootMidi": 53
+  },
+  {
+   "id": "fminor",
+   "label": "Fminor (F3 root)",
+   "rootMidi": 53
+  },
+  {
+   "id": "gakebono",
+   "label": "Gakebono (G3 root)",
+   "rootMidi": 55
+  },
+  {
+   "id": "gminor",
+   "label": "Gminor (E3 root)",
+   "rootMidi": 52
+  },
+  {
+   "id": "unknownscale",
+   "label": "Unknownscale (Bb3 root)",
+   "rootMidi": 58
+  },
+  {
+   "id": "dkurdextended",
+   "label": "dkurdextended (D3 root)",
+   "rootMidi": 50
+  },
+  {
+   "id": "e-amara-recorded",
+   "label": "E Amara · Ivar’s recordings",
+   "rootMidi": 52
+  }
+ ],
+ "samples": [
+  {
+   "scaleId": "aminor",
+   "file": "aminor/A2_v1.wav",
+   "midi": 45,
+   "note": "A2",
+   "cents": -22.6,
+   "type": "one-shot",
+   "durationMs": 3847,
+   "truncated": false
+  },
+  {
+   "scaleId": "aminor",
+   "file": "aminor/E3_v1.wav",
+   "midi": 52,
+   "note": "E3",
+   "cents": -0.5,
+   "type": "one-shot",
+   "durationMs": 548,
+   "truncated": true
+  },
+  {
+   "scaleId": "aminor",
+   "file": "aminor/Gb3_v1.wav",
+   "midi": 54,
+   "note": "Gb3",
+   "cents": -6.3,
+   "type": "one-shot",
+   "durationMs": 491,
+   "truncated": true
+  },
+  {
+   "scaleId": "aminor",
+   "file": "aminor/G3_v1.wav",
+   "midi": 55,
+   "note": "G3",
+   "cents": 6.2,
+   "type": "one-shot",
+   "durationMs": 512,
+   "truncated": true
+  },
+  {
+   "scaleId": "aminor",
+   "file": "aminor/A3_v1.wav",
+   "midi": 57,
+   "note": "A3",
+   "cents": 8.4,
+   "type": "one-shot",
+   "durationMs": 517,
+   "truncated": true
+  },
+  {
+   "scaleId": "aminor",
+   "file": "aminor/B3_v1.wav",
+   "midi": 59,
+   "note": "B3",
+   "cents": -0.8,
+   "type": "one-shot",
+   "durationMs": 497,
+   "truncated": true
+  },
+  {
+   "scaleId": "aminor",
+   "file": "aminor/C4_v1.wav",
+   "midi": 60,
+   "note": "C4",
+   "cents": 11.2,
+   "type": "one-shot",
+   "durationMs": 493,
+   "truncated": true
+  },
+  {
+   "scaleId": "aminor",
+   "file": "aminor/D4_v1.wav",
+   "midi": 62,
+   "note": "D4",
+   "cents": -6.4,
+   "type": "one-shot",
+   "durationMs": 518,
+   "truncated": true
+  },
+  {
+   "scaleId": "aminor",
+   "file": "aminor/E4_v1.wav",
+   "midi": 64,
+   "note": "E4",
+   "cents": 2.4,
+   "type": "one-shot",
+   "durationMs": 492,
+   "truncated": true
+  },
+  {
+   "scaleId": "c-pygmy",
+   "file": "c-pygmy/B2_v1.wav",
+   "midi": 47,
+   "note": "B2",
+   "cents": 26.2,
+   "type": "one-shot",
+   "durationMs": 1317,
+   "truncated": true
+  },
+  {
+   "scaleId": "c-pygmy",
+   "file": "c-pygmy/Db3_v1.wav",
+   "midi": 49,
+   "note": "Db3",
+   "cents": 8.3,
+   "type": "one-shot",
+   "durationMs": 3616,
+   "truncated": true
+  },
+  {
+   "scaleId": "c-pygmy",
+   "file": "c-pygmy/D3_v1.wav",
+   "midi": 50,
+   "note": "D3",
+   "cents": 2.9,
+   "type": "one-shot",
+   "durationMs": 637,
+   "truncated": true
+  },
+  {
+   "scaleId": "c-pygmy",
+   "file": "c-pygmy/E3_v1.wav",
+   "midi": 52,
+   "note": "E3",
+   "cents": 10.5,
+   "type": "one-shot",
+   "durationMs": 554,
+   "truncated": true
+  },
+  {
+   "scaleId": "c-pygmy",
+   "file": "c-pygmy/Gb3_v1.wav",
+   "midi": 54,
+   "note": "Gb3",
+   "cents": 8.0,
+   "type": "one-shot",
+   "durationMs": 674,
+   "truncated": true
+  },
+  {
+   "scaleId": "c-pygmy",
+   "file": "c-pygmy/Ab3_v1.wav",
+   "midi": 56,
+   "note": "Ab3",
+   "cents": 6.5,
+   "type": "one-shot",
+   "durationMs": 659,
+   "truncated": true
+  },
+  {
+   "scaleId": "c-pygmy",
+   "file": "c-pygmy/A3_v1.wav",
+   "midi": 57,
+   "note": "A3",
+   "cents": 3.6,
+   "type": "one-shot",
+   "durationMs": 700,
+   "truncated": true
+  },
+  {
+   "scaleId": "c-pygmy",
+   "file": "c-pygmy/Db4_v1.wav",
+   "midi": 61,
+   "note": "Db4",
+   "cents": 17.2,
+   "type": "one-shot",
+   "durationMs": 650,
+   "truncated": true
+  },
+  {
+   "scaleId": "c-pygmy",
+   "file": "c-pygmy/E4_v1.wav",
+   "midi": 64,
+   "note": "E4",
+   "cents": 5.3,
+   "type": "one-shot",
+   "durationMs": 646,
+   "truncated": true
+  },
+  {
+   "scaleId": "c-pygmy",
+   "file": "c-pygmy/Gb4_v1.wav",
+   "midi": 66,
+   "note": "Gb4",
+   "cents": -4.4,
+   "type": "one-shot",
+   "durationMs": 616,
+   "truncated": true
+  },
+  {
+   "scaleId": "c-pygmy",
+   "file": "c-pygmy/A4_v1.wav",
+   "midi": 69,
+   "note": "A4",
+   "cents": 4.2,
+   "type": "one-shot",
+   "durationMs": 641,
+   "truncated": true
+  },
+  {
+   "scaleId": "c-pygmy",
+   "file": "c-pygmy/E5_v1.wav",
+   "midi": 76,
+   "note": "E5",
+   "cents": 6.9,
+   "type": "one-shot",
+   "durationMs": 1521,
+   "truncated": true
+  },
+  {
+   "scaleId": "chijaz",
+   "file": "chijaz/C3_v1.wav",
+   "midi": 48,
+   "note": "C3",
+   "cents": -0.1,
+   "type": "one-shot",
+   "durationMs": 2477,
+   "truncated": false
+  },
+  {
+   "scaleId": "chijaz",
+   "file": "chijaz/D3_v1.wav",
+   "midi": 50,
+   "note": "D3",
+   "cents": -3.5,
+   "type": "one-shot",
+   "durationMs": 1056,
+   "truncated": true
+  },
+  {
+   "scaleId": "chijaz",
+   "file": "chijaz/Eb3_v1.wav",
+   "midi": 51,
+   "note": "Eb3",
+   "cents": -2.1,
+   "type": "one-shot",
+   "durationMs": 728,
+   "truncated": true
+  },
+  {
+   "scaleId": "chijaz",
+   "file": "chijaz/G3_v1.wav",
+   "midi": 55,
+   "note": "G3",
+   "cents": -1.9,
+   "type": "one-shot",
+   "durationMs": 771,
+   "truncated": true
+  },
+  {
+   "scaleId": "chijaz",
+   "file": "chijaz/Ab3_v1.wav",
+   "midi": 56,
+   "note": "Ab3",
+   "cents": 13.3,
+   "type": "one-shot",
+   "durationMs": 513,
+   "truncated": true
+  },
+  {
+   "scaleId": "chijaz",
+   "file": "chijaz/B3_v1.wav",
+   "midi": 59,
+   "note": "B3",
+   "cents": 9.3,
+   "type": "one-shot",
+   "durationMs": 518,
+   "truncated": true
+  },
+  {
+   "scaleId": "chijaz",
+   "file": "chijaz/C4_v1.wav",
+   "midi": 60,
+   "note": "C4",
+   "cents": 0.2,
+   "type": "one-shot",
+   "durationMs": 513,
+   "truncated": true
+  },
+  {
+   "scaleId": "chijaz",
+   "file": "chijaz/D4_v1.wav",
+   "midi": 62,
+   "note": "D4",
+   "cents": 10.5,
+   "type": "one-shot",
+   "durationMs": 511,
+   "truncated": true
+  },
+  {
+   "scaleId": "chijaz",
+   "file": "chijaz/Eb4_v1.wav",
+   "midi": 63,
+   "note": "Eb4",
+   "cents": 8.3,
+   "type": "one-shot",
+   "durationMs": 501,
+   "truncated": true
+  },
+  {
+   "scaleId": "chijaz",
+   "file": "chijaz/F4_v1.wav",
+   "midi": 65,
+   "note": "F4",
+   "cents": 7.5,
+   "type": "one-shot",
+   "durationMs": 442,
+   "truncated": true
+  },
+  {
+   "scaleId": "chijaz",
+   "file": "chijaz/G4_v1.wav",
+   "midi": 67,
+   "note": "G4",
+   "cents": -0.7,
+   "type": "one-shot",
+   "durationMs": 463,
+   "truncated": true
+  },
+  {
+   "scaleId": "chijaz",
+   "file": "chijaz/C5_v1.wav",
+   "midi": 72,
+   "note": "C5",
+   "cents": 0.5,
+   "type": "one-shot",
+   "durationMs": 1075,
+   "truncated": true
+  },
+  {
+   "scaleId": "eamara",
+   "file": "eamara/D3_v1.wav",
+   "midi": 50,
+   "note": "D3",
+   "cents": 6.4,
+   "type": "one-shot",
+   "durationMs": 2395,
+   "truncated": false
+  },
+  {
+   "scaleId": "eamara",
+   "file": "eamara/E3_v1.wav",
+   "midi": 52,
+   "note": "E3",
+   "cents": 2.3,
+   "type": "one-shot",
+   "durationMs": 3897,
+   "truncated": false
+  },
+  {
+   "scaleId": "eamara",
+   "file": "eamara/B3_v1.wav",
+   "midi": 59,
+   "note": "B3",
+   "cents": 4.1,
+   "type": "one-shot",
+   "durationMs": 617,
+   "truncated": true
+  },
+  {
+   "scaleId": "eamara",
+   "file": "eamara/D4_v1.wav",
+   "midi": 62,
+   "note": "D4",
+   "cents": 2.9,
+   "type": "one-shot",
+   "durationMs": 490,
+   "truncated": true
+  },
+  {
+   "scaleId": "eamara",
+   "file": "eamara/E4_v1.wav",
+   "midi": 64,
+   "note": "E4",
+   "cents": 2.4,
+   "type": "one-shot",
+   "durationMs": 493,
+   "truncated": true
+  },
+  {
+   "scaleId": "eamara",
+   "file": "eamara/Gb4_v1.wav",
+   "midi": 66,
+   "note": "Gb4",
+   "cents": 5.1,
+   "type": "one-shot",
+   "durationMs": 512,
+   "truncated": true
+  },
+  {
+   "scaleId": "eamara",
+   "file": "eamara/G4_v1.wav",
+   "midi": 67,
+   "note": "G4",
+   "cents": -2.8,
+   "type": "one-shot",
+   "durationMs": 509,
+   "truncated": true
+  },
+  {
+   "scaleId": "eamara",
+   "file": "eamara/A4_v1.wav",
+   "midi": 69,
+   "note": "A4",
+   "cents": 7.6,
+   "type": "one-shot",
+   "durationMs": 471,
+   "truncated": true
+  },
+  {
+   "scaleId": "eamara",
+   "file": "eamara/B4_v1.wav",
+   "midi": 71,
+   "note": "B4",
+   "cents": 4.4,
+   "type": "one-shot",
+   "durationMs": 468,
+   "truncated": true
+  },
+  {
+   "scaleId": "eamara",
+   "file": "eamara/D5_v1.wav",
+   "midi": 74,
+   "note": "D5",
+   "cents": 5.6,
+   "type": "one-shot",
+   "durationMs": 494,
+   "truncated": true
+  },
+  {
+   "scaleId": "eamara",
+   "file": "eamara/Gb5_v1.wav",
+   "midi": 78,
+   "note": "Gb5",
+   "cents": 6.8,
+   "type": "one-shot",
+   "durationMs": 477,
+   "truncated": true
+  },
+  {
+   "scaleId": "eamara",
+   "file": "eamara/G5_v1.wav",
+   "midi": 79,
+   "note": "G5",
+   "cents": 1.0,
+   "type": "one-shot",
+   "durationMs": 457,
+   "truncated": true
+  },
+  {
+   "scaleId": "eamara",
+   "file": "eamara/A5_v1.wav",
+   "midi": 81,
+   "note": "A5",
+   "cents": 1.1,
+   "type": "one-shot",
+   "durationMs": 1543,
+   "truncated": true
+  },
+  {
+   "scaleId": "elasirena",
+   "file": "elasirena/Eb3_v1.wav",
+   "midi": 51,
+   "note": "Eb3",
+   "cents": 7.2,
+   "type": "one-shot",
+   "durationMs": 3595,
+   "truncated": true
+  },
+  {
+   "scaleId": "elasirena",
+   "file": "elasirena/Bb3_v1.wav",
+   "midi": 58,
+   "note": "Bb3",
+   "cents": 6.4,
+   "type": "one-shot",
+   "durationMs": 595,
+   "truncated": true
+  },
+  {
+   "scaleId": "elasirena",
+   "file": "elasirena/C4_v1.wav",
+   "midi": 60,
+   "note": "C4",
+   "cents": 7.0,
+   "type": "one-shot",
+   "durationMs": 655,
+   "truncated": true
+  },
+  {
+   "scaleId": "elasirena",
+   "file": "elasirena/Db4_v1.wav",
+   "midi": 61,
+   "note": "Db4",
+   "cents": 8.0,
+   "type": "one-shot",
+   "durationMs": 579,
+   "truncated": true
+  },
+  {
+   "scaleId": "elasirena",
+   "file": "elasirena/Eb4_v1.wav",
+   "midi": 63,
+   "note": "Eb4",
+   "cents": 18.8,
+   "type": "one-shot",
+   "durationMs": 487,
+   "truncated": true
+  },
+  {
+   "scaleId": "elasirena",
+   "file": "elasirena/F4_v1.wav",
+   "midi": 65,
+   "note": "F4",
+   "cents": 10.4,
+   "type": "one-shot",
+   "durationMs": 506,
+   "truncated": true
+  },
+  {
+   "scaleId": "elasirena",
+   "file": "elasirena/Gb4_v1.wav",
+   "midi": 66,
+   "note": "Gb4",
+   "cents": 6.4,
+   "type": "one-shot",
+   "durationMs": 504,
+   "truncated": true
+  },
+  {
+   "scaleId": "elasirena",
+   "file": "elasirena/Bb4_v1.wav",
+   "midi": 70,
+   "note": "Bb4",
+   "cents": 10.9,
+   "type": "one-shot",
+   "durationMs": 544,
+   "truncated": true
+  },
+  {
+   "scaleId": "elasirena",
+   "file": "elasirena/C5_v1.wav",
+   "midi": 72,
+   "note": "C5",
+   "cents": 8.4,
+   "type": "one-shot",
+   "durationMs": 510,
+   "truncated": true
+  },
+  {
+   "scaleId": "elasirena",
+   "file": "elasirena/Eb5_v1.wav",
+   "midi": 75,
+   "note": "Eb5",
+   "cents": 3.0,
+   "type": "one-shot",
+   "durationMs": 577,
+   "truncated": true
+  },
+  {
+   "scaleId": "elasirena",
+   "file": "elasirena/Gb5_v1.wav",
+   "midi": 78,
+   "note": "Gb5",
+   "cents": 2.7,
+   "type": "one-shot",
+   "durationMs": 1019,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabye",
+   "file": "esabye/E3_v1.wav",
+   "midi": 52,
+   "note": "E3",
+   "cents": 2.3,
+   "type": "one-shot",
+   "durationMs": 3772,
+   "truncated": false
+  },
+  {
+   "scaleId": "esabye",
+   "file": "esabye/A3_v1.wav",
+   "midi": 57,
+   "note": "A3",
+   "cents": -1.0,
+   "type": "one-shot",
+   "durationMs": 553,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabye",
+   "file": "esabye/B3_v1.wav",
+   "midi": 59,
+   "note": "B3",
+   "cents": 2.3,
+   "type": "one-shot",
+   "durationMs": 430,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabye",
+   "file": "esabye/Db4_v1.wav",
+   "midi": 61,
+   "note": "Db4",
+   "cents": 8.2,
+   "type": "one-shot",
+   "durationMs": 462,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabye",
+   "file": "esabye/Eb4_v1.wav",
+   "midi": 63,
+   "note": "Eb4",
+   "cents": 1.4,
+   "type": "one-shot",
+   "durationMs": 438,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabye",
+   "file": "esabye/E4_v1.wav",
+   "midi": 64,
+   "note": "E4",
+   "cents": 2.5,
+   "type": "one-shot",
+   "durationMs": 470,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabye",
+   "file": "esabye/Gb4_v1.wav",
+   "midi": 66,
+   "note": "Gb4",
+   "cents": 3.7,
+   "type": "one-shot",
+   "durationMs": 489,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabye",
+   "file": "esabye/Ab4_v1.wav",
+   "midi": 68,
+   "note": "Ab4",
+   "cents": -0.7,
+   "type": "one-shot",
+   "durationMs": 469,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabye",
+   "file": "esabye/B4_v1.wav",
+   "midi": 71,
+   "note": "B4",
+   "cents": -11.1,
+   "type": "one-shot",
+   "durationMs": 482,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabye",
+   "file": "esabye/Eb5_v1.wav",
+   "midi": 75,
+   "note": "Eb5",
+   "cents": 5.9,
+   "type": "one-shot",
+   "durationMs": 1014,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabyeextended",
+   "file": "esabyeextended/E3_v1.wav",
+   "midi": 52,
+   "note": "E3",
+   "cents": 0.8,
+   "type": "one-shot",
+   "durationMs": 2232,
+   "truncated": false
+  },
+  {
+   "scaleId": "esabyeextended",
+   "file": "esabyeextended/A3_v1.wav",
+   "midi": 57,
+   "note": "A3",
+   "cents": 10.1,
+   "type": "one-shot",
+   "durationMs": 419,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabyeextended",
+   "file": "esabyeextended/B3_v1.wav",
+   "midi": 59,
+   "note": "B3",
+   "cents": 5.1,
+   "type": "one-shot",
+   "durationMs": 406,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabyeextended",
+   "file": "esabyeextended/Db4_v1.wav",
+   "midi": 61,
+   "note": "Db4",
+   "cents": 6.8,
+   "type": "one-shot",
+   "durationMs": 447,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabyeextended",
+   "file": "esabyeextended/Eb4_v1.wav",
+   "midi": 63,
+   "note": "Eb4",
+   "cents": 5.0,
+   "type": "one-shot",
+   "durationMs": 368,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabyeextended",
+   "file": "esabyeextended/E4_v1.wav",
+   "midi": 64,
+   "note": "E4",
+   "cents": 4.5,
+   "type": "one-shot",
+   "durationMs": 382,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabyeextended",
+   "file": "esabyeextended/Gb4_v1.wav",
+   "midi": 66,
+   "note": "Gb4",
+   "cents": 5.2,
+   "type": "one-shot",
+   "durationMs": 423,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabyeextended",
+   "file": "esabyeextended/Ab4_v1.wav",
+   "midi": 68,
+   "note": "Ab4",
+   "cents": 2.4,
+   "type": "one-shot",
+   "durationMs": 379,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabyeextended",
+   "file": "esabyeextended/B4_v1.wav",
+   "midi": 71,
+   "note": "B4",
+   "cents": -6.2,
+   "type": "one-shot",
+   "durationMs": 423,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabyeextended",
+   "file": "esabyeextended/Eb5_v1.wav",
+   "midi": 75,
+   "note": "Eb5",
+   "cents": 4.4,
+   "type": "one-shot",
+   "durationMs": 446,
+   "truncated": true
+  },
+  {
+   "scaleId": "esabyeextended",
+   "file": "esabyeextended/E5_v1.wav",
+   "midi": 76,
+   "note": "E5",
+   "cents": 1.8,
+   "type": "one-shot",
+   "durationMs": 839,
+   "truncated": true
+  },
+  {
+   "scaleId": "flowpygmy",
+   "file": "flowpygmy/F3_v1.wav",
+   "midi": 53,
+   "note": "F3",
+   "cents": -4.9,
+   "type": "one-shot",
+   "durationMs": 5074,
+   "truncated": true
+  },
+  {
+   "scaleId": "flowpygmy",
+   "file": "flowpygmy/Ab3_v1.wav",
+   "midi": 56,
+   "note": "Ab3",
+   "cents": -6.3,
+   "type": "one-shot",
+   "durationMs": 755,
+   "truncated": true
+  },
+  {
+   "scaleId": "flowpygmy",
+   "file": "flowpygmy/C4_v1.wav",
+   "midi": 60,
+   "note": "C4",
+   "cents": -7.8,
+   "type": "one-shot",
+   "durationMs": 794,
+   "truncated": true
+  },
+  {
+   "scaleId": "flowpygmy",
+   "file": "flowpygmy/F4_v1.wav",
+   "midi": 65,
+   "note": "F4",
+   "cents": 1.7,
+   "type": "one-shot",
+   "durationMs": 759,
+   "truncated": true
+  },
+  {
+   "scaleId": "flowpygmy",
+   "file": "flowpygmy/G4_v1.wav",
+   "midi": 67,
+   "note": "G4",
+   "cents": 1.6,
+   "type": "one-shot",
+   "durationMs": 738,
+   "truncated": true
+  },
+  {
+   "scaleId": "flowpygmy",
+   "file": "flowpygmy/C5_v1.wav",
+   "midi": 72,
+   "note": "C5",
+   "cents": -2.0,
+   "type": "one-shot",
+   "durationMs": 702,
+   "truncated": true
+  },
+  {
+   "scaleId": "flowpygmy",
+   "file": "flowpygmy/G5_v1.wav",
+   "midi": 79,
+   "note": "G5",
+   "cents": 8.2,
+   "type": "one-shot",
+   "durationMs": 1543,
+   "truncated": true
+  },
+  {
+   "scaleId": "fmajor",
+   "file": "fmajor/F3_v1.wav",
+   "midi": 53,
+   "note": "F3",
+   "cents": -4.0,
+   "type": "one-shot",
+   "durationMs": 1902,
+   "truncated": false
+  },
+  {
+   "scaleId": "fmajor",
+   "file": "fmajor/C4_v1.wav",
+   "midi": 60,
+   "note": "C4",
+   "cents": 0.8,
+   "type": "one-shot",
+   "durationMs": 783,
+   "truncated": true
+  },
+  {
+   "scaleId": "fmajor",
+   "file": "fmajor/D4_v1.wav",
+   "midi": 62,
+   "note": "D4",
+   "cents": -3.0,
+   "type": "one-shot",
+   "durationMs": 601,
+   "truncated": true
+  },
+  {
+   "scaleId": "fmajor",
+   "file": "fmajor/F4_v1.wav",
+   "midi": 65,
+   "note": "F4",
+   "cents": 6.6,
+   "type": "one-shot",
+   "durationMs": 587,
+   "truncated": true
+  },
+  {
+   "scaleId": "fmajor",
+   "file": "fmajor/G4_v1.wav",
+   "midi": 67,
+   "note": "G4",
+   "cents": 3.8,
+   "type": "one-shot",
+   "durationMs": 573,
+   "truncated": true
+  },
+  {
+   "scaleId": "fmajor",
+   "file": "fmajor/A4_v1.wav",
+   "midi": 69,
+   "note": "A4",
+   "cents": 0.9,
+   "type": "one-shot",
+   "durationMs": 567,
+   "truncated": true
+  },
+  {
+   "scaleId": "fmajor",
+   "file": "fmajor/C5_v1.wav",
+   "midi": 72,
+   "note": "C5",
+   "cents": 3.5,
+   "type": "one-shot",
+   "durationMs": 572,
+   "truncated": true
+  },
+  {
+   "scaleId": "fmajor",
+   "file": "fmajor/D5_v1.wav",
+   "midi": 74,
+   "note": "D5",
+   "cents": 6.7,
+   "type": "one-shot",
+   "durationMs": 609,
+   "truncated": true
+  },
+  {
+   "scaleId": "fmajor",
+   "file": "fmajor/F5_v1.wav",
+   "midi": 77,
+   "note": "F5",
+   "cents": 3.3,
+   "type": "one-shot",
+   "durationMs": 1499,
+   "truncated": true
+  },
+  {
+   "scaleId": "fminor",
+   "file": "fminor/F3_v1.wav",
+   "midi": 53,
+   "note": "F3",
+   "cents": 10.8,
+   "type": "one-shot",
+   "durationMs": 510,
+   "truncated": true
+  },
+  {
+   "scaleId": "fminor",
+   "file": "fminor/C4_v1.wav",
+   "midi": 60,
+   "note": "C4",
+   "cents": -3.9,
+   "type": "one-shot",
+   "durationMs": 452,
+   "truncated": true
+  },
+  {
+   "scaleId": "fminor",
+   "file": "fminor/D4_v1.wav",
+   "midi": 62,
+   "note": "D4",
+   "cents": -0.6,
+   "type": "one-shot",
+   "durationMs": 418,
+   "truncated": true
+  },
+  {
+   "scaleId": "fminor",
+   "file": "fminor/F4_v1.wav",
+   "midi": 65,
+   "note": "F4",
+   "cents": 10.8,
+   "type": "one-shot",
+   "durationMs": 693,
+   "truncated": true
+  },
+  {
+   "scaleId": "fminor",
+   "file": "fminor/A4_v1.wav",
+   "midi": 69,
+   "note": "A4",
+   "cents": -3.3,
+   "type": "one-shot",
+   "durationMs": 443,
+   "truncated": true
+  },
+  {
+   "scaleId": "fminor",
+   "file": "fminor/Bb4_v1.wav",
+   "midi": 70,
+   "note": "Bb4",
+   "cents": -0.3,
+   "type": "one-shot",
+   "durationMs": 464,
+   "truncated": true
+  },
+  {
+   "scaleId": "fminor",
+   "file": "fminor/C5_v1.wav",
+   "midi": 72,
+   "note": "C5",
+   "cents": -6.5,
+   "type": "one-shot",
+   "durationMs": 1169,
+   "truncated": true
+  },
+  {
+   "scaleId": "gakebono",
+   "file": "gakebono/G3_v1.wav",
+   "midi": 55,
+   "note": "G3",
+   "cents": 16.9,
+   "type": "one-shot",
+   "durationMs": 701,
+   "truncated": true
+  },
+  {
+   "scaleId": "gakebono",
+   "file": "gakebono/C4_v1.wav",
+   "midi": 60,
+   "note": "C4",
+   "cents": 12.4,
+   "type": "one-shot",
+   "durationMs": 754,
+   "truncated": true
+  },
+  {
+   "scaleId": "gakebono",
+   "file": "gakebono/D4_v1.wav",
+   "midi": 62,
+   "note": "D4",
+   "cents": 19.7,
+   "type": "one-shot",
+   "durationMs": 726,
+   "truncated": true
+  },
+  {
+   "scaleId": "gakebono",
+   "file": "gakebono/Eb4_v1.wav",
+   "midi": 63,
+   "note": "Eb4",
+   "cents": 16.3,
+   "type": "one-shot",
+   "durationMs": 756,
+   "truncated": true
+  },
+  {
+   "scaleId": "gakebono",
+   "file": "gakebono/G4_v1.wav",
+   "midi": 67,
+   "note": "G4",
+   "cents": 18.8,
+   "type": "one-shot",
+   "durationMs": 743,
+   "truncated": true
+  },
+  {
+   "scaleId": "gakebono",
+   "file": "gakebono/Ab4_v1.wav",
+   "midi": 68,
+   "note": "Ab4",
+   "cents": 13.4,
+   "type": "one-shot",
+   "durationMs": 742,
+   "truncated": true
+  },
+  {
+   "scaleId": "gakebono",
+   "file": "gakebono/C5_v1.wav",
+   "midi": 72,
+   "note": "C5",
+   "cents": 9.7,
+   "type": "one-shot",
+   "durationMs": 724,
+   "truncated": true
+  },
+  {
+   "scaleId": "gakebono",
+   "file": "gakebono/D5_v1.wav",
+   "midi": 74,
+   "note": "D5",
+   "cents": 7.0,
+   "type": "one-shot",
+   "durationMs": 775,
+   "truncated": true
+  },
+  {
+   "scaleId": "gakebono",
+   "file": "gakebono/Eb5_v1.wav",
+   "midi": 75,
+   "note": "Eb5",
+   "cents": 12.8,
+   "type": "one-shot",
+   "durationMs": 1492,
+   "truncated": false
+  },
+  {
+   "scaleId": "gminor",
+   "file": "gminor/E3_v1.wav",
+   "midi": 52,
+   "note": "E3",
+   "cents": -14.8,
+   "type": "one-shot",
+   "durationMs": 1147,
+   "truncated": true
+  },
+  {
+   "scaleId": "gminor",
+   "file": "gminor/G3_v1.wav",
+   "midi": 55,
+   "note": "G3",
+   "cents": 1.0,
+   "type": "one-shot",
+   "durationMs": 4364,
+   "truncated": true
+  },
+  {
+   "scaleId": "gminor",
+   "file": "gminor/A3_v1.wav",
+   "midi": 57,
+   "note": "A3",
+   "cents": -1.9,
+   "type": "one-shot",
+   "durationMs": 578,
+   "truncated": true
+  },
+  {
+   "scaleId": "gminor",
+   "file": "gminor/B3_v1.wav",
+   "midi": 59,
+   "note": "B3",
+   "cents": -5.4,
+   "type": "one-shot",
+   "durationMs": 559,
+   "truncated": true
+  },
+  {
+   "scaleId": "gminor",
+   "file": "gminor/C4_v1.wav",
+   "midi": 60,
+   "note": "C4",
+   "cents": 0.6,
+   "type": "one-shot",
+   "durationMs": 562,
+   "truncated": true
+  },
+  {
+   "scaleId": "gminor",
+   "file": "gminor/D4_v1.wav",
+   "midi": 62,
+   "note": "D4",
+   "cents": -1.5,
+   "type": "one-shot",
+   "durationMs": 1342,
+   "truncated": false
+  },
+  {
+   "scaleId": "gminor",
+   "file": "gminor/E4_v1.wav",
+   "midi": 64,
+   "note": "E4",
+   "cents": 0.9,
+   "type": "one-shot",
+   "durationMs": 512,
+   "truncated": true
+  },
+  {
+   "scaleId": "gminor",
+   "file": "gminor/Gb4_v1.wav",
+   "midi": 66,
+   "note": "Gb4",
+   "cents": 3.9,
+   "type": "one-shot",
+   "durationMs": 514,
+   "truncated": true
+  },
+  {
+   "scaleId": "gminor",
+   "file": "gminor/A4_v1.wav",
+   "midi": 69,
+   "note": "A4",
+   "cents": -7.7,
+   "type": "one-shot",
+   "durationMs": 525,
+   "truncated": true
+  },
+  {
+   "scaleId": "gminor",
+   "file": "gminor/B4_v1.wav",
+   "midi": 71,
+   "note": "B4",
+   "cents": 4.0,
+   "type": "one-shot",
+   "durationMs": 512,
+   "truncated": true
+  },
+  {
+   "scaleId": "gminor",
+   "file": "gminor/D5_v1.wav",
+   "midi": 74,
+   "note": "D5",
+   "cents": 3.7,
+   "type": "one-shot",
+   "durationMs": 1274,
+   "truncated": true
+  },
+  {
+   "scaleId": "gminor",
+   "file": "gminor/E5_v1.wav",
+   "midi": 76,
+   "note": "E5",
+   "cents": 3.7,
+   "type": "one-shot",
+   "durationMs": 470,
+   "truncated": true
+  },
+  {
+   "scaleId": "gminor",
+   "file": "gminor/Gb5_v1.wav",
+   "midi": 78,
+   "note": "Gb5",
+   "cents": 8.5,
+   "type": "one-shot",
+   "durationMs": 458,
+   "truncated": true
+  },
+  {
+   "scaleId": "gminor",
+   "file": "gminor/G5_v1.wav",
+   "midi": 79,
+   "note": "G5",
+   "cents": -0.6,
+   "type": "one-shot",
+   "durationMs": 436,
+   "truncated": true
+  },
+  {
+   "scaleId": "gminor",
+   "file": "gminor/A5_v1.wav",
+   "midi": 81,
+   "note": "A5",
+   "cents": 6.5,
+   "type": "one-shot",
+   "durationMs": 472,
+   "truncated": true
+  },
+  {
+   "scaleId": "gminor",
+   "file": "gminor/D6_v1.wav",
+   "midi": 86,
+   "note": "D6",
+   "cents": 3.7,
+   "type": "one-shot",
+   "durationMs": 2102,
+   "truncated": true
+  },
+  {
+   "scaleId": "unknownscale",
+   "file": "unknownscale/Bb3_v1.wav",
+   "midi": 58,
+   "note": "Bb3",
+   "cents": -0.1,
+   "type": "one-shot",
+   "durationMs": 916,
+   "truncated": true
+  },
+  {
+   "scaleId": "unknownscale",
+   "file": "unknownscale/C4_v1.wav",
+   "midi": 60,
+   "note": "C4",
+   "cents": -4.6,
+   "type": "one-shot",
+   "durationMs": 882,
+   "truncated": true
+  },
+  {
+   "scaleId": "unknownscale",
+   "file": "unknownscale/Eb4_v1.wav",
+   "midi": 63,
+   "note": "Eb4",
+   "cents": 2.8,
+   "type": "one-shot",
+   "durationMs": 891,
+   "truncated": true
+  },
+  {
+   "scaleId": "unknownscale",
+   "file": "unknownscale/F4_v1.wav",
+   "midi": 65,
+   "note": "F4",
+   "cents": 8.7,
+   "type": "one-shot",
+   "durationMs": 893,
+   "truncated": true
+  },
+  {
+   "scaleId": "unknownscale",
+   "file": "unknownscale/Bb4_v1.wav",
+   "midi": 70,
+   "note": "Bb4",
+   "cents": 3.5,
+   "type": "one-shot",
+   "durationMs": 869,
+   "truncated": true
+  },
+  {
+   "scaleId": "unknownscale",
+   "file": "unknownscale/C5_v1.wav",
+   "midi": 72,
+   "note": "C5",
+   "cents": -4.5,
+   "type": "one-shot",
+   "durationMs": 883,
+   "truncated": true
+  },
+  {
+   "scaleId": "dkurdextended",
+   "file": "dkurdextended/D3_v1.wav",
+   "midi": 50,
+   "note": "D3",
+   "cents": -10.1,
+   "type": "one-shot",
+   "durationMs": 1405,
+   "truncated": true
+  },
+  {
+   "scaleId": "dkurdextended",
+   "file": "dkurdextended/A3_v1.wav",
+   "midi": 57,
+   "note": "A3",
+   "cents": -0.9,
+   "type": "one-shot",
+   "durationMs": 552,
+   "truncated": true
+  },
+  {
+   "scaleId": "dkurdextended",
+   "file": "dkurdextended/Bb3_v1.wav",
+   "midi": 58,
+   "note": "Bb3",
+   "cents": -7.0,
+   "type": "one-shot",
+   "durationMs": 543,
+   "truncated": true
+  },
+  {
+   "scaleId": "dkurdextended",
+   "file": "dkurdextended/C4_v1.wav",
+   "midi": 60,
+   "note": "C4",
+   "cents": -7.8,
+   "type": "one-shot",
+   "durationMs": 569,
+   "truncated": true
+  },
+  {
+   "scaleId": "dkurdextended",
+   "file": "dkurdextended/D4_v1.wav",
+   "midi": 62,
+   "note": "D4",
+   "cents": 0.1,
+   "type": "one-shot",
+   "durationMs": 566,
+   "truncated": true
+  },
+  {
+   "scaleId": "dkurdextended",
+   "file": "dkurdextended/F4_v1.wav",
+   "midi": 65,
+   "note": "F4",
+   "cents": -0.4,
+   "type": "one-shot",
+   "durationMs": 581,
+   "truncated": true
+  },
+  {
+   "scaleId": "dkurdextended",
+   "file": "dkurdextended/A4_v1.wav",
+   "midi": 69,
+   "note": "A4",
+   "cents": -2.7,
+   "type": "one-shot",
+   "durationMs": 547,
+   "truncated": true
+  },
+  {
+   "scaleId": "dkurdextended",
+   "file": "dkurdextended/C5_v1.wav",
+   "midi": 72,
+   "note": "C5",
+   "cents": 2.1,
+   "type": "one-shot",
+   "durationMs": 598,
+   "truncated": true
+  },
+  {
+   "scaleId": "dkurdextended",
+   "file": "dkurdextended/D5_v1.wav",
+   "midi": 74,
+   "note": "D5",
+   "cents": 7.6,
+   "type": "one-shot",
+   "durationMs": 672,
+   "truncated": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/E 3.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/a5.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/b.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/b4.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/b5.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/d.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/d4.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/d5.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/e4.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/e5.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/f#.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/f#3.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/g.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/g5.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/A4_v1.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true,
+   "fallback": true
+  },
+  {
+   "scaleId": "e-amara-recorded",
+   "file": "eamara/Gb5_v1.wav",
+   "midi": 52,
+   "note": "AUTO",
+   "type": "one-shot",
+   "autoPitch": true,
+   "fallback": true
+  }
+ ],
+ "version": 3,
+ "fallbackScale": "aminor"
 }
