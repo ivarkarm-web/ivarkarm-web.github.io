@@ -78,7 +78,7 @@ async function boot() {
 
   let HANDPAN_SCALES = null;
   try {
-    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=4', BASE).href));
+    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=5', BASE).href));
   } catch (err) {
     console.error('[scale-picker] module failed to initialize', err);
     degraded.push('the scale picker');
