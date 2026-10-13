@@ -11,7 +11,7 @@
  *   - Microtonal via `cents` (absolute cents from root) or just ratios
  */
 import { Instrument } from '../instrument.js';
-import { NoteSampleBank } from '../note-sample-bank.js?v=3';
+import { NoteSampleBank } from '../note-sample-bank.js?v=4';
 import { VOICE_PRESETS } from '../voice-presets.js';
 import { HANDPAN_SCALES, scaleToCents } from './handpan-scales.js?v=2';
 import { MIN_NOTES, MAX_NOTES, ringAngles } from '../pad-layout.js';
