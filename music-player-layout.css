@@ -1,0 +1,30 @@
+/* Prevent music player from stretching on narrow viewports */
+.music-player {
+  max-width: min(420px, 100%) !important;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.music-player .mp-now,
+.music-player .mp-tracklist {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.music-player .mp-controls {
+  flex-wrap: nowrap;
+  justify-content: center;
+}
+@media (max-width: 480px) {
+  .music-player {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+  .mp-now {
+    padding: 0.85rem 0.9rem 0.75rem;
+  }
+  .mp-title {
+    font-size: 0.95rem;
+  }
+  .mp-tracklist {
+    max-height: 32vh;
+  }
+}
