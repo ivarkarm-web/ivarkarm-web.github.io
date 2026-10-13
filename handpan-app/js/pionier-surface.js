@@ -21,6 +21,18 @@ export function createSurface(canvas) {
     reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   } catch (_) {}
 
+  // Thin elegant rim particles — slow breathe in/out around the handpan edge
+  const RIM_COUNT = reducedMotion ? 28 : 48;
+  const rimParticles = Array.from({ length: RIM_COUNT }, (_, i) => ({
+    a: (i / RIM_COUNT) * Math.PI * 2 + Math.random() * 0.04,
+    rJ: (Math.random() - 0.5) * 0.012,
+    size: 0.55 + Math.random() * 0.55,
+    phase: Math.random() * Math.PI * 2,
+    speed: 0.18 + Math.random() * 0.12,
+    gold: Math.random() < 0.35
+  }));
+  let rimTime = 0;
+
   function pathPad(f) {
     ctx2.beginPath();
     ctx2.ellipse(f.x, f.y, f.rx, f.ry, f.rot || 0, 0, Math.PI * 2);
@@ -29,58 +41,58 @@ export function createSurface(canvas) {
   function drawSlit(f, glow, playable) {
     const isDing = f.kind === 'ding';
     const slitLen = isDing ? Math.min(f.rx, f.ry) * 0.42 : Math.min(f.rx, f.ry) * 0.55;
-    const slitW = Math.max(1.15, R * 0.0058);
+    const slitW = Math.max(1.05, R * 0.0052);
     const g = Math.max(0, Math.min(1, glow || 0));
-    const pulse = reducedMotion ? 0 : Math.sin(slitPhase + f.index * 0.7) * 0.5 + 0.5;
-    const idle = playable ? 1 : 0.16;
-    const coreAlpha = (0.28 + pulse * 0.035 + g * 0.58) * idle;
+    const idle = playable ? 1 : 0.14;
+    // Near-static core — no busy LED flicker; strike still lifts brightness
+    const coreAlpha = (0.22 + g * 0.55) * idle;
     const halfL = slitLen * 0.5;
     ctx2.save();
     ctx2.translate(f.x, f.y);
     ctx2.rotate(isDing ? 0 : (f.rot || 0) + Math.PI / 2);
     const recess = ctx2.createLinearGradient(0, -slitW * 2.7, 0, slitW * 2.7);
     recess.addColorStop(0, 'rgba(0,0,0,0)');
-    recess.addColorStop(0.28, `rgba(0,0,0,${0.24 * idle})`);
-    recess.addColorStop(0.5, `rgba(0,0,0,${0.78 * idle})`);
-    recess.addColorStop(0.72, `rgba(0,0,0,${0.24 * idle})`);
+    recess.addColorStop(0.28, `rgba(0,0,0,${0.2 * idle})`);
+    recess.addColorStop(0.5, `rgba(0,0,0,${0.72 * idle})`);
+    recess.addColorStop(0.72, `rgba(0,0,0,${0.2 * idle})`);
     recess.addColorStop(1, 'rgba(0,0,0,0)');
     ctx2.fillStyle = recess;
     ctx2.beginPath();
     ctx2.ellipse(0, 0, halfL * 1.05, slitW * 2.8, 0, 0, Math.PI * 2);
     ctx2.fill();
-    ctx2.strokeStyle = `rgba(218,226,236,${0.12 * idle + g * 0.22})`;
-    ctx2.lineWidth = Math.max(0.65, R * 0.0024);
+    ctx2.strokeStyle = `rgba(218,226,236,${0.1 * idle + g * 0.18})`;
+    ctx2.lineWidth = Math.max(0.6, R * 0.0022);
     ctx2.beginPath();
-    ctx2.ellipse(0, 0, halfL * 0.98, slitW * 1.08, 0, 0, Math.PI * 2);
+    ctx2.ellipse(0, 0, halfL * 0.98, slitW * 1.05, 0, 0, Math.PI * 2);
     ctx2.stroke();
     ctx2.fillStyle = `rgba(3,5,8,${0.78 * idle})`;
     ctx2.beginPath();
-    ctx2.ellipse(0, 0, halfL * 0.92, slitW * 0.78, 0, 0, Math.PI * 2);
+    ctx2.ellipse(0, 0, halfL * 0.92, slitW * 0.72, 0, 0, Math.PI * 2);
     ctx2.fill();
     ctx2.globalCompositeOperation = 'lighter';
     const core = ctx2.createLinearGradient(-halfL, 0, halfL, 0);
     core.addColorStop(0, 'rgba(242,248,255,0)');
-    core.addColorStop(0.16, `rgba(205,221,239,${coreAlpha * 0.38})`);
-    core.addColorStop(0.5, `rgba(255,255,255,${coreAlpha * 0.82})`);
-    core.addColorStop(0.84, `rgba(205,221,239,${coreAlpha * 0.38})`);
+    core.addColorStop(0.2, `rgba(205,221,239,${coreAlpha * 0.28})`);
+    core.addColorStop(0.5, `rgba(255,255,255,${coreAlpha * 0.72})`);
+    core.addColorStop(0.8, `rgba(205,221,239,${coreAlpha * 0.28})`);
     core.addColorStop(1, 'rgba(242,248,255,0)');
     ctx2.fillStyle = core;
     ctx2.beginPath();
-    ctx2.ellipse(0, 0, halfL * 0.88, slitW * 0.48, 0, 0, Math.PI * 2);
+    ctx2.ellipse(0, 0, halfL * 0.88, slitW * 0.42, 0, 0, Math.PI * 2);
     ctx2.fill();
-    if (g > 0.025 && playable) {
-      // Must be 6 args: x0,y0,r0,x1,y1,r1 (was missing y1 — crashed draw loop)
+    if (g > 0.03 && playable) {
       const bloom = ctx2.createRadialGradient(0, 0, 0, 0, 0, halfL * 1.05);
-      bloom.addColorStop(0, `rgba(238,246,255,${g * 0.2})`);
-      bloom.addColorStop(0.42, `rgba(177,204,232,${g * 0.09})`);
+      bloom.addColorStop(0, `rgba(238,246,255,${g * 0.16})`);
+      bloom.addColorStop(0.45, `rgba(177,204,232,${g * 0.07})`);
       bloom.addColorStop(1, 'rgba(177,204,232,0)');
       ctx2.fillStyle = bloom;
       ctx2.beginPath();
-      ctx2.ellipse(0, 0, halfL * 1.12, slitW * 3.8, 0, 0, Math.PI * 2);
+      ctx2.ellipse(0, 0, halfL * 1.08, slitW * 3.2, 0, 0, Math.PI * 2);
       ctx2.fill();
     }
     ctx2.restore();
   }
+
   /** Call right before relayout to glide existing pads and grow the new one. */
   function armTransition() {
     armed = true;
@@ -122,9 +134,6 @@ export function createSurface(canvas) {
       ? animatedView(performance.now()).map((f) => ({ ...f }))
       : null;
 
-    // Pad sizes follow pitch within the stock 9 notes; notes added beyond
-    // them are the highest, so they take the smallest size and never change
-    // how the original pads look.
     const stock = list.slice(0, MIN_NOTES);
     const stockMidis = stock.map((n) => n.midi);
     const midiMin = Math.min(...stockMidis);
@@ -136,7 +145,6 @@ export function createSurface(canvas) {
 
     fields = list.map((n, pos) => {
       const lowAmount = Math.max(0, Math.min(1, (midiMax - n.midi) / midiSpan));
-      // Keep higher notes a bit larger so they stay easy to hit
       const size = 1.12 + lowAmount * 0.36;
       const playable = isFieldPlayable(n.index);
       if (n.kind === 'ding') {
@@ -166,6 +174,56 @@ export function createSurface(canvas) {
       ? { t0: performance.now(), dur: ADD_NOTE_MS, from: new Map(previous.map((f) => [f.index, f])) }
       : null;
     return fields;
+  }
+
+  function drawRimGlow(t) {
+    if (R < 8) return;
+    rimTime = t || rimTime;
+    // Global breath ~0.12 Hz — whole ring eases in and out together
+    const breath = reducedMotion
+      ? 0.55
+      : 0.42 + 0.58 * (0.5 + 0.5 * Math.sin(rimTime * 0.75));
+    const rimR = R * 0.965;
+    ctx2.save();
+    ctx2.globalCompositeOperation = 'lighter';
+
+    // Soft continuous halo along the rim (cohesive base)
+    const halo = ctx2.createRadialGradient(CX, CY, rimR * 0.92, CX, CY, rimR * 1.06);
+    halo.addColorStop(0, 'rgba(200, 210, 230, 0)');
+    halo.addColorStop(0.55, `rgba(210, 220, 235, ${0.018 * breath})`);
+    halo.addColorStop(0.78, `rgba(230, 236, 248, ${0.045 * breath})`);
+    halo.addColorStop(0.92, `rgba(240, 244, 252, ${0.028 * breath})`);
+    halo.addColorStop(1, 'rgba(200, 210, 230, 0)');
+    ctx2.fillStyle = halo;
+    ctx2.beginPath();
+    ctx2.arc(CX, CY, rimR * 1.08, 0, Math.PI * 2);
+    ctx2.arc(CX, CY, rimR * 0.88, 0, Math.PI * 2, true);
+    ctx2.fill();
+
+    // Thin particle motes on the rim
+    for (const p of rimParticles) {
+      const local = 0.55 + 0.45 * Math.sin(rimTime * p.speed + p.phase);
+      const a = breath * local * 0.22;
+      if (a < 0.01) continue;
+      const rr = rimR * (1 + p.rJ);
+      const x = CX + Math.cos(p.a) * rr;
+      const y = CY + Math.sin(p.a) * rr;
+      const s = Math.max(0.6, R * 0.0045 * p.size);
+      const col = p.gold
+        ? `rgba(228, 205, 140, ${a})`
+        : `rgba(220, 230, 245, ${a})`;
+      const grad = ctx2.createRadialGradient(x, y, 0, x, y, s * 3.2);
+      grad.addColorStop(0, col);
+      grad.addColorStop(0.35, p.gold
+        ? `rgba(212, 180, 90, ${a * 0.35})`
+        : `rgba(190, 205, 225, ${a * 0.3})`);
+      grad.addColorStop(1, 'rgba(180, 190, 210, 0)');
+      ctx2.fillStyle = grad;
+      ctx2.beginPath();
+      ctx2.arc(x, y, s * 3.2, 0, Math.PI * 2);
+      ctx2.fill();
+    }
+    ctx2.restore();
   }
 
   function drawBody(inst, catchActive, waveTargets = null) {
@@ -243,6 +301,7 @@ export function createSurface(canvas) {
       drawSlit(f, Math.max(glow, approach * 0.9), playable);
     });
 
+    drawRimGlow(performance.now() * 0.001);
     ctx2.globalAlpha = 1;
   }
 
@@ -291,11 +350,10 @@ export function createSurface(canvas) {
       const lx = dx * cos - dy * sin;
       const ly = dx * sin + dy * cos;
       const d = Math.hypot(lx / f.rx, ly / f.ry);
-      // Smaller (higher) pads get a larger relative hit radius so they register reliably
       const minAxis = Math.min(f.rx, f.ry);
       const refAxis = R * 0.14;
       const expand = Math.max(0, Math.min(0.55, (refAxis - minAxis) / (R * 0.09)));
-      const hitLimit = 1.78 + expand; // Forgiving touch targets for fast playing, especially on small high notes
+      const hitLimit = 1.78 + expand;
       if (d <= hitLimit && d < bestD) {
         bestD = d;
         best = {
