@@ -58,7 +58,7 @@ async function boot() {
 
   // The core is required; if it cannot load, keep the recovery surface visible.
   try {
-    await import(new URL('./pionier-core.js?v=1', BASE).href);
+    await import(new URL('./pionier-core.js?v=2', BASE).href);
   } catch (err) {
     console.error('[pionier] required core failed to load', err);
     setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
@@ -113,14 +113,10 @@ async function boot() {
         }
         button.addEventListener('click', (e) => {
           e.stopPropagation();
-          const nextBtn = document.getElementById('scaleNext');
-          const target = scale.label;
-          let guard = 0;
-          while (guard++ < HANDPAN_SCALES.length + 2) {
-            const cur = (scaleLabel.textContent || '').replace(/\s*▾\s*$/, '').split('·')[0].trim();
-            if (cur === target || (scaleLabel.textContent || '').includes(target)) break;
-            nextBtn?.click();
-          }
+          const idx = HANDPAN_SCALES.indexOf(scale);
+          const core = window.PionierCore;
+          if (core?.setScaleIndex && idx >= 0) core.setScaleIndex(idx);
+          else if (core?.handpan && idx >= 0) core.handpan.setScaleIndex(idx);
           scaleLabel.textContent = scale.label + ' ▾';
           scaleMenu.hidden = true;
           scaleLabel.setAttribute('aria-expanded', 'false');
