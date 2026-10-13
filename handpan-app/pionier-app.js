@@ -181,7 +181,7 @@ async function boot() {
     const { mountLooper } = await import(
       new URL('./js/looper.js?v=106', BASE).href
     );
-    mountLooper();
+    mountLooper({ getRecordSource: () => window.PionierCore?.recordSource?.() });
   } catch (err) {
     console.warn('[looper] mount failed', err);
     degraded.push('the looper');
