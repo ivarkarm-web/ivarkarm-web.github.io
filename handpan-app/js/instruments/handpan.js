@@ -21,12 +21,6 @@ export { HANDPAN_SCALES, MIN_NOTES, MAX_NOTES };
 const NOTE_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd'];
 
-/**
- * Grow a scale's note list past its 9 stock notes by walking on up the same
- * scale: each new note is the next pitch class of the scale above the current
- * top note. Works in cents so 12-TET, maqam and just-intonation scales all
- * keep their own tuning. The first 9 notes are never changed.
- */
 export function extendScaleCents(baseCents, count) {
   const out = baseCents.slice(0, MIN_NOTES);
   if (count <= out.length) return out.slice(0, Math.max(1, count));
@@ -462,8 +456,9 @@ export class HandpanInstrument extends Instrument {
     this._smoothPressure[idx] = sp;
     const pc = pressureCurve(sp);
     const radial = Math.max(0, Math.min(1.2, zone.radial ?? gesture.radial ?? 0.4));
-    this.glow[idx] = Math.min(1, Math.max(this.glow[idx], 0.3 + pc * 0.65));
-    this.zoneFlash[idx] = radial;
+    // Handpan is a strike instrument: aftertouch shapes sound, not a stuck pad light
+    this.glow[idx] = Math.min(1, Math.max(this.glow[idx], 0.12 + pc * 0.18));
+    this.zoneFlash[idx] = radial * 0.55;
     if (voice.expressGain) {
       try {
         voice.expressGain.gain.cancelScheduledValues(t);
@@ -523,19 +518,60 @@ export class HandpanInstrument extends Instrument {
     this.held[zoneId] = 0;
     this.pitchBendCents[zoneId] = 0;
     this._smoothPressure[zoneId] = 0;
+    // Start visual fade immediately on finger-up (sound still rings out)
+    if (this.glow[zoneId] > 0.15) this.glow[zoneId] = Math.min(this.glow[zoneId], 0.35);
+    if (this.zoneFlash[zoneId] > 0.1) this.zoneFlash[zoneId] *= 0.5;
     const v = this.activeVoices.get(zoneId);
     if (!v || !this.audioCtx) return;
-    // Handpan notes are struck one-shots with their own decay envelope.
-    // Finger-up ends gesture expression, not the sound: let samples and synth partials ring.
-    if (v.kind === 'sample') return;
-    const t = this.audioCtx.currentTime;
-    this._releaseVoice(v, t, 0.12);
+    // Handpan notes are struck one-shots with their own decay envelope. Finger-up
+    // ends gesture expression, not the sound: let samples and synth partials ring
+    // naturally. dampAll() remains the explicit emergency/transition stop.
   }
 
-  tick(dt) {
-    for (let i = 0; i < this.noteCount; i++) {
-      this.glow[i] = Math.max(0, this.glow[i] - dt * 1.8);
-      this.zoneFlash[i] = Math.max(0, this.zoneFlash[i] - dt * 2.4);
+  dampAll() {
+    this.held.fill(0);
+    this.pitchBendCents.fill(0);
+    this._smoothPressure.fill(0);
+    const t = this.audioCtx ? this.audioCtx.currentTime : 0;
+    for (const [, v] of this.activeVoices) {
+      if (v.stop) v.stop(t, 0.05);
+      else this._releaseVoice(v, t, 0.05);
     }
+    this.activeVoices.clear();
+  }
+
+  tickGlow() {
+    // Strike flash only — pads must not stay lit after a hit.
+    // ~180ms to dark when released; slightly longer if still held for expression.
+    let any = false;
+    for (let i = 0; i < MAX_NOTES; i++) {
+      const decay = this.held[i] ? 0.92 : 0.82;
+      if (this.glow[i] > 0.001) {
+        this.glow[i] *= decay;
+        any = true;
+      } else {
+        this.glow[i] = 0;
+      }
+      if (this.zoneFlash[i] > 0.001) {
+        this.zoneFlash[i] *= this.held[i] ? 0.9 : 0.78;
+        any = true;
+      } else {
+        this.zoneFlash[i] = 0;
+      }
+    }
+    return any;
+  }
+
+  getPerformanceHints() {
+    return {
+      maxVoices: MAX_NOTES,
+      prefersSamples: !this.isMicrotonal,
+      supportsAftertouch: true,
+      supportsPitchBend: true,
+      supportsGlide: true,
+      supportsMicrotonal: true,
+      pitchBendRange: this.pitchBendRange,
+      glideTime: this.glideTime
+    };
   }
 }
