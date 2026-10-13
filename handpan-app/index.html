@@ -14,10 +14,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./pionier.css?v=117" />
-  <link rel="stylesheet" href="./topbar-narrow.css?v=4" />
+  <link rel="stylesheet" href="./topbar-narrow.css?v=5" />
   <link rel="stylesheet" href="./looper.css?v=109" />
   <link rel="stylesheet" href="./scale-menu.css?v=3" />
-  <link rel="stylesheet" href="./learn-mode.css?v=26" />
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
@@ -47,7 +46,6 @@
         </div>
       </div>
       <div class="top-actions">
-        <button type="button" class="pill learn-launch" id="learnLaunch" title="Guided lessons">learn</button>
         <button type="button" class="icon-btn soundscapes-open-btn" id="openSoundscapes" aria-label="Open Soundscapes" title="Soundscapes — or swipe left on the handpan">♫</button>
         <button type="button" class="icon-btn" id="btnHelp" aria-label="Help" title="Help">?</button>
         <button type="button" class="icon-btn exit-btn" id="btnExit" aria-label="Exit" title="Exit">×</button>
@@ -201,10 +199,9 @@
   </section>
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
 
-  <script src="./js/layout-boot.js?v=3"></script>
-  <script type="module" src="./pionier-app.js?v=121"></script>
+  <script src="./js/layout-boot.js?v=4"></script>
+  <script type="module" src="./pionier-app.js?v=122"></script>
   <script src="./js/scale-root-fix.js?v=1"></script>
-  <script type="module" src="./js/learn-mode.js?v=31"></script>
   <script src="./js/backdrop-soundscape-bridge.js?v=1" defer></script>
 </body>
 </html>
