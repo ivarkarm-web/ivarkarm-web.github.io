@@ -1,12 +1,11 @@
 /**
- * layout-boot.js — rearrange DOM to match the intended layout without a full HTML rewrite.
- * Order: topbar → music player → stage (scale + pan) → looper/clear above controls.
+ * layout-boot.js — rearrange DOM to match the intended layout.
+ * Order: topbar → music player → stage (instrument + scale + pan) → looper/clear above controls.
  */
 (function layoutBoot() {
   function run() {
     const app = document.getElementById('app');
-    if (!app || app.dataset.layoutBoot === '1') return;
-    app.dataset.layoutBoot = '1';
+    if (!app) return;
 
     const topbar = app.querySelector('.topbar');
     const instMenu = document.getElementById('instrumentMenu');
@@ -17,13 +16,15 @@
     const drawer = document.getElementById('mobileControlDrawer');
     const pan = document.getElementById('pan');
 
-    // 1) Move music player under topbar
+    // 1) Music player under topbar
     if (backdrop && topbar) {
       const after = instMenu && instMenu.parentElement === app ? instMenu : topbar;
-      after.insertAdjacentElement('afterend', backdrop);
+      if (backdrop.previousElementSibling !== after) {
+        after.insertAdjacentElement('afterend', backdrop);
+      }
     }
 
-    // 2) Scale chooser above handpan
+    // 2) Stage stack: instrument switch above scale selector, above handpan
     if (stage && pan) {
       let bar = document.getElementById('stageScaleBar');
       if (!bar) {
@@ -31,60 +32,55 @@
         bar.className = 'stage-scale-bar';
         bar.id = 'stageScaleBar';
         stage.insertBefore(bar, pan);
+      } else if (bar.parentElement !== stage) {
+        stage.insertBefore(bar, pan);
       }
-      const scaleBlock = document.querySelector('.control-scale');
+
+      const instNav = document.getElementById('instrumentNav');
       const scaleLabel = document.getElementById('scaleLabel');
       const scaleMenu = document.getElementById('scaleMenu');
-      if (scaleLabel && scaleLabel.parentElement !== bar) {
+      const scaleBlock = document.querySelector('.control-scale');
+
+      if (instNav) {
+        instNav.classList.add('stage-instrument-nav');
+        if (instNav.parentElement !== bar || bar.firstElementChild !== instNav) {
+          bar.insertBefore(instNav, bar.firstChild);
+        }
+      }
+
+      if (scaleLabel) {
         scaleLabel.classList.add('stage-scale-btn');
         const prev = document.getElementById('scalePrev');
         const next = document.getElementById('scaleNext');
         if (prev) prev.hidden = true;
         if (next) next.hidden = true;
-        bar.appendChild(scaleLabel);
+        if (scaleLabel.parentElement !== bar || (instNav && scaleLabel.previousElementSibling !== instNav)) {
+          if (instNav && instNav.parentElement === bar) {
+            instNav.insertAdjacentElement('afterend', scaleLabel);
+          } else {
+            bar.appendChild(scaleLabel);
+          }
+        }
       }
-      if (scaleMenu && scaleMenu.parentElement !== bar) {
+
+      if (scaleMenu) {
         scaleMenu.classList.add('stage-scale-menu');
-        bar.appendChild(scaleMenu);
+        if (scaleMenu.parentElement !== bar) {
+          bar.appendChild(scaleMenu);
+        }
       }
+
       if (scaleBlock) scaleBlock.hidden = true;
     }
 
-    // 3) Looper + clear above Controls drawer
-    if (drawer && looperRail) drawer.insertAdjacentElement('beforebegin', looperRail);
-    if (drawer && looperClear) drawer.insertAdjacentElement('beforebegin', looperClear);
-  }
-
-  function patchCore() {
-    const core = window.PionierCore;
-    if (!core || core.__scalePatched) return;
-    if (typeof core.setScaleIndex === 'function') {
-      core.__scalePatched = true;
-      return;
+    // 3) Looper + clear above controls drawer
+    if (drawer && looperRail && looperRail.nextElementSibling !== drawer) {
+      drawer.insertAdjacentElement('beforebegin', looperRail);
     }
-    if (!core.handpan) return;
-    core.setScaleIndex = function (i) {
-      core.handpan.setScaleIndex(i);
-      try {
-        core.handpan.rebuildNotes?.();
-        const scaleEl = document.getElementById('scaleLabel');
-        const rootEl = document.getElementById('rootLabel');
-        const octEl = document.getElementById('octLabel');
-        if (scaleEl && core.handpan.scaleLabel) {
-          scaleEl.textContent = core.handpan.scaleLabel.replace(/\s*▾\s*$/, '') + ' ▾';
-        }
-        if (rootEl && core.handpan.rootLabel) rootEl.textContent = core.handpan.rootLabel;
-        if (octEl) {
-          const o = core.handpan.octaveOffset ?? 0;
-          octEl.textContent = o === 0 ? '0' : o > 0 ? '+' + o : String(o);
-        }
-        core.draw?.();
-        try { window.dispatchEvent(new Event('resize')); } catch (_) {}
-      } catch (err) {
-        console.warn('[layout-boot] setScaleIndex patch', err);
-      }
-    };
-    core.__scalePatched = true;
+    if (drawer && looperClear && looperClear.nextElementSibling !== drawer &&
+        looperClear.previousElementSibling !== looperRail) {
+      drawer.insertAdjacentElement('beforebegin', looperClear);
+    }
   }
 
   if (document.readyState === 'loading') {
@@ -94,6 +90,5 @@
   }
   setTimeout(run, 0);
   setTimeout(run, 300);
-  setTimeout(patchCore, 200);
-  setTimeout(patchCore, 800);
+  setTimeout(run, 1000);
 })();
