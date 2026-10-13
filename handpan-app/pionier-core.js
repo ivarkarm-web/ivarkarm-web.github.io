@@ -1,6 +1,6 @@
 /**
- * pionier-app.js — restored working instrument surface (backup-compatible)
- * MPE pitch bend + smooth glide between pads + pressure expression
+ * pionier-core — instrument surface + audio graph
+ * Looper v2: exposes getInstrumentBus for pre-FX recording
  */
 import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js';
 import { InstrumentRegistry } from './js/instrument.js';
@@ -153,7 +153,7 @@ function updateLabels() {
   }
   const voiceEl = document.getElementById('instrumentDropdownToggle');
   const inst = activeInstrument();
-  if (voiceEl) voiceEl.textContent = (inst.name || inst.id) + ' ▾';
+  if (voiceEl) voiceEl.textContent = (inst.name || inst.id) + ' \u25be';
 }
 
 function updateInstrumentUI() {
@@ -485,7 +485,7 @@ function wire(id, fn) {
 }
 wire('btnExit', () => { window.location.href = '../'; });
 wire('btnHelp', () => {
-  alert('Play: tap tonefields or Q–O (hold to sustain).\nSlide across pads for smooth glide/portamento.\nHold + drag up/down for MPE pitch bend (±2 semitones).\nPressure = gain, vibrato depth, filter resonance.\nRadial position = brightness.\nMulti-touch polyphony supported.');
+  alert('Play: tap tonefields or Q-O (hold to sustain).\nSlide across pads for smooth glide/portamento.\nHold + drag up/down for MPE pitch bend (+/-2 semitones).\nPressure = gain, vibrato depth, filter resonance.\nRadial position = brightness.\nMulti-touch polyphony supported.');
 });
 
 function refreshPitch() {
@@ -507,100 +507,51 @@ wire('scaleNext', () => {
 });
 wire('rootDown', () => { handpan.setRootIndex((handpan.rootIndex - 1 + 12) % 12); refreshPitch(); });
 wire('rootUp', () => { handpan.setRootIndex((handpan.rootIndex + 1) % 12); refreshPitch(); });
-wire('octDown', () => { handpan.setOctaveOffset(Math.max(-1, (handpan.octaveOffset ?? 0) - 1)); refreshPitch(); });
-wire('octUp', () => { handpan.setOctaveOffset(Math.min(1, (handpan.octaveOffset ?? 0) + 1)); refreshPitch(); });
-
-function cycleInstrument(dir) {
-  const ids = InstrumentRegistry.list().map((x) => x.id);
-  const cur = ids.indexOf(activeInstrument().id);
-  setInstrument(ids[(cur + dir + ids.length) % ids.length]);
-}
-wire('voicePrev', () => cycleInstrument(-1));
-wire('voiceNext', () => cycleInstrument(1));
+wire('octDown', () => { handpan.setOctaveOffset((handpan.octaveOffset || 0) - 1); refreshPitch(); });
+wire('octUp', () => { handpan.setOctaveOffset((handpan.octaveOffset || 0) + 1); refreshPitch(); });
 
 function renderInstrumentMenu() {
   const menu = document.getElementById('instrumentMenu');
   if (!menu) return;
   menu.replaceChildren();
   for (const item of InstrumentRegistry.list()) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'instrument-menu-item' + (item.id === activeInstrument().id ? ' is-active' : '');
-    button.textContent = item.name;
-    button.addEventListener('click', () => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'instrument-menu-item';
+    btn.setAttribute('role', 'menuitem');
+    btn.textContent = item.name || item.id;
+    btn.addEventListener('click', () => {
       setInstrument(item.id);
       menu.hidden = true;
       document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false');
     });
-    menu.appendChild(button);
+    menu.appendChild(btn);
   }
 }
+
 document.getElementById('instrumentDropdownToggle')?.addEventListener('click', (e) => {
   e.stopPropagation();
   const menu = document.getElementById('instrumentMenu');
   if (!menu) return;
-  menu.hidden = !menu.hidden;
-  document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', menu.hidden ? 'false' : 'true');
+  const open = menu.hidden;
+  menu.hidden = !open;
+  e.currentTarget.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if (open) renderInstrumentMenu();
 });
-document.addEventListener('click', (e) => {
-  const menu = document.getElementById('instrumentMenu');
-  if (!menu || menu.hidden) return;
-  if (e.target.closest('#instrumentMenu') || e.target.closest('#instrumentDropdownToggle')) return;
-  menu.hidden = true;
+document.getElementById('voicePrev')?.addEventListener('click', () => {
+  const list = InstrumentRegistry.list();
+  const cur = InstrumentRegistry.active?.id || 'handpan';
+  const i = list.findIndex((x) => x.id === cur);
+  const next = list[(i - 1 + list.length) % list.length];
+  if (next) setInstrument(next.id);
 });
-
-window.addEventListener('keydown', (e) => {
-  if (e.target.matches?.('input, select, textarea')) return;
-  if (e.repeat) return;
-  const i = KEYS.indexOf(e.key.toLowerCase());
-  if (i < 0) return;
-  e.preventDefault();
-  if (app.keysHeld.has(i)) return;
-  app.keysHeld.add(i);
-  ensureAudio();
-  const inst = activeInstrument();
-  const hit = { index: i, radial: 0.5, angleRad: 0 };
-  inst.noteOn({ velocity: 0.75, pointerId: -1 - i }, hit);
-  draw();
+document.getElementById('voiceNext')?.addEventListener('click', () => {
+  const list = InstrumentRegistry.list();
+  const cur = InstrumentRegistry.active?.id || 'handpan';
+  const i = list.findIndex((x) => x.id === cur);
+  const next = list[(i + 1) % list.length];
+  if (next) setInstrument(next.id);
 });
-window.addEventListener('keyup', (e) => {
-  const i = KEYS.indexOf(e.key.toLowerCase());
-  if (i < 0) return;
-  app.keysHeld.delete(i);
-  activeInstrument().noteOff(i);
-});
-window.addEventListener('blur', () => {
-  for (const i of app.keysHeld) activeInstrument().noteOff(i);
-  app.keysHeld.clear();
-});
-
-function tick(now) {
-  app._fpsFrames++;
-  if (now - app._fpsLast >= 1000) {
-    app.fps = app._fpsFrames;
-    app._fpsFrames = 0;
-    app._fpsLast = now;
-  }
-  surface.setSlitPhase?.(now * 0.0015);
-  let dirty = !app.reducedMotion;
-  if (activeInstrument().tickGlow?.()) dirty = true;
-  if (dirty) draw();
-  requestAnimationFrame(tick);
-}
-
-async function boot() {
-  try { await setInstrument(readSavedInstrumentId()); }
-  catch (err) {
-    console.error(err);
-    try { await setInstrument('handpan'); } catch (fallbackError) { console.error(fallbackError); }
-  }
-  resize();
-  window.addEventListener('resize', resize);
-  requestAnimationFrame(tick);
-  const unlock = () => { ensureAudio(); window.removeEventListener('pointerdown', unlock); };
-  window.addEventListener('pointerdown', unlock);
-  if (isDebugEnabled?.()) mountDebugPanel?.({ setInstrument });
-}
 
 function padCount() { return handpan.noteCount || 9; }
 function changeNoteCount(delta) {
@@ -622,9 +573,15 @@ function changeNoteCount(delta) {
   draw();
   return true;
 }
+
 window.PionierCore = {
   handpan, surface,
   activeInstrument: () => activeInstrument(),
+  ensureAudio: () => ensureAudio(),
+  getInstrumentBus: () => {
+    if (!app.instrumentBus) ensureAudio();
+    return app.instrumentBus;
+  },
   health: () => ({
     audioAvailable: !!getAudioContext(),
     audioState: audioState(),
@@ -646,5 +603,17 @@ window.PionierCore = {
     return padCount();
   }
 };
+
+async function boot() {
+  ensureAudio();
+  const saved = readSavedInstrumentId();
+  await setInstrument(saved);
+  refreshPitch();
+  resize();
+  window.addEventListener('resize', resize);
+  const unlock = () => { ensureAudio(); window.removeEventListener('pointerdown', unlock); };
+  window.addEventListener('pointerdown', unlock);
+  if (isDebugEnabled?.()) mountDebugPanel?.({ setInstrument });
+}
 
 await boot();
