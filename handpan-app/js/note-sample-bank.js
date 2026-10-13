@@ -297,9 +297,9 @@ export class NoteSampleBank {
   }
 
   /**
-   * Estimate the fundamental pitch from a decoded one-shot using normalized
-   * autocorrelation. Filenames are deliberately ignored for autoPitch samples.
-   * The result is a nearest MIDI note plus a correlation confidence score.
+   * Estimate the fundamental from a decoded one-shot using a YIN-style
+   * difference function. The filename and manifest's placeholder MIDI are
+   * intentionally ignored for autoPitch recordings.
    */
   static detectMidi(buffer) {
     const sampleRate = buffer.sampleRate;
@@ -310,48 +310,67 @@ export class NoteSampleBank {
     const data = [];
     let mean = 0;
     for (let i = start; i < end; i += stride) {
-      let v = 0;
-      for (const channel of channels) v += channel[i] || 0;
-      v /= Math.max(1, channels.length);
-      data.push(v);
-      mean += v;
+      let value = 0;
+      for (const channel of channels) value += channel[i] || 0;
+      value /= Math.max(1, channels.length);
+      data.push(value);
+      mean += value;
     }
     if (data.length < 256) return { midi: null, hz: null, confidence: 0 };
     mean /= data.length;
-    let rms = 0;
+    let energy = 0;
     for (let i = 0; i < data.length; i++) {
       data[i] -= mean;
-      rms += data[i] * data[i];
+      energy += data[i] * data[i];
     }
-    rms = Math.sqrt(rms / data.length);
-    if (rms < 1e-5) return { midi: null, hz: null, confidence: 0 };
+    if (Math.sqrt(energy / data.length) < 1e-5) return { midi: null, hz: null, confidence: 0 };
+
     const rate = sampleRate / stride;
     const minLag = Math.max(2, Math.floor(rate / 1200));
     const maxLag = Math.min(Math.floor(rate / 55), Math.floor(data.length / 3));
-    let bestLag = 0;
-    let bestScore = -1;
-    const scoreAt = (lag) => {
-      let cross = 0, a = 0, b = 0;
-      const n = data.length - lag;
-      for (let i = 0; i < n; i++) {
-        const x = data[i], y = data[i + lag];
-        cross += x * y; a += x * x; b += y * y;
+    const difference = new Float64Array(maxLag + 1);
+    const usable = data.length - maxLag;
+    for (let lag = 1; lag <= maxLag; lag++) {
+      let sum = 0;
+      for (let i = 0; i < usable; i++) {
+        const delta = data[i] - data[i + lag];
+        sum += delta * delta;
       }
-      return cross / Math.sqrt((a * b) || 1);
-    };
-    for (let lag = minLag; lag <= maxLag; lag++) {
-      const score = scoreAt(lag);
-      if (score > bestScore) { bestScore = score; bestLag = lag; }
+      difference[lag] = sum;
     }
-    if (!bestLag || bestScore < 0.12) return { midi: null, hz: null, confidence: bestScore };
-    const ym = scoreAt(Math.max(minLag, bestLag - 1));
-    const y0 = scoreAt(bestLag);
-    const yp = scoreAt(Math.min(maxLag, bestLag + 1));
-    const denominator = ym - 2 * y0 + yp;
-    const shift = Math.abs(denominator) > 1e-8 ? Math.max(-0.5, Math.min(0.5, 0.5 * (ym - yp) / denominator)) : 0;
-    const hz = rate / (bestLag + shift);
+    const normalized = new Float64Array(maxLag + 1);
+    let running = 0;
+    for (let lag = 1; lag <= maxLag; lag++) {
+      running += difference[lag];
+      normalized[lag] = running > 0 ? difference[lag] * lag / running : 1;
+    }
+
+    // Choose the first convincing period minimum to avoid preferring an octave
+    // subharmonic merely because it also correlates well over a longer lag.
+    let selected = 0;
+    for (let lag = minLag; lag <= maxLag; lag++) {
+      if (normalized[lag] < 0.18) {
+        while (lag + 1 <= maxLag && normalized[lag + 1] < normalized[lag]) lag++;
+        selected = lag;
+        break;
+      }
+    }
+    if (!selected) {
+      let best = Infinity;
+      for (let lag = minLag; lag <= maxLag; lag++) {
+        if (normalized[lag] < best) { best = normalized[lag]; selected = lag; }
+      }
+    }
+    if (!selected) return { midi: null, hz: null, confidence: 0 };
+    const confidence = Math.max(0, Math.min(1, 1 - normalized[selected]));
+    const hz = rate / selected;
     const midiFloat = 69 + 12 * Math.log2(hz / 440);
-    return { midi: Math.round(midiFloat), hz: +hz.toFixed(2), cents: Math.round((midiFloat - Math.round(midiFloat)) * 100), confidence: +bestScore.toFixed(3) };
+    return {
+      midi: Math.round(midiFloat),
+      hz: +hz.toFixed(2),
+      cents: Math.round((midiFloat - Math.round(midiFloat)) * 100),
+      confidence: +confidence.toFixed(3)
+    };
   }
 
   static velocityCurve(v) {
