@@ -12,7 +12,7 @@ import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
 import { createSurface } from './js/pionier-surface.js?v=95';
 
-const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd'];
+const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f'];
 const PITCH_BEND_PIXELS = 90;
 
 const handpan = new HandpanInstrument();
