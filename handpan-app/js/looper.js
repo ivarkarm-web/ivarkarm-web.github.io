@@ -106,7 +106,7 @@ export function mountLooper({ root, getRecordSource } = {}) {
   }
 
   function timelinePhase(at = getAudioContext()?.currentTime || 0) {
-    if (!loopOrigin || !loopDuration) return 0;
+    if (loopOrigin == null || !loopDuration) return 0;
     return ((at - loopOrigin) % loopDuration + loopDuration) % loopDuration;
   }
 
