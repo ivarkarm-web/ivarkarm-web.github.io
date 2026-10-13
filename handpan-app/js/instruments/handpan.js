@@ -12,7 +12,7 @@
  */
 import { Instrument } from '../instrument.js';
 import { NoteSampleBank } from '../note-sample-bank.js?v=4';
-import { VOICE_PRESETS } from '../voice-presets.js';
+import { getSoundLibrary } from './library-family.js?v=1';
 import { HANDPAN_SCALES, scaleToCents } from './handpan-scales.js?v=2';
 import { MIN_NOTES, MAX_NOTES, ringAngles } from '../pad-layout.js';
 
@@ -79,7 +79,7 @@ export class HandpanInstrument extends Instrument {
     super({
       id: 'handpan',
       name: 'Handpan',
-      description: 'Radial steel handpan, 9 to 13 notes, with microtonal scales, aftertouch, MPE bend, and glide.',
+      description: 'Radial steel handpan, 9 to 14 notes, with microtonal scales, aftertouch and MPE pitch bend.',
       category: 'handpan',
       polyphony: MAX_NOTES,
       compatibleFx: ['compressor', 'delay', 'reverb', 'warmth', 'air', 'chorus', 'shimmer']
@@ -103,21 +103,40 @@ export class HandpanInstrument extends Instrument {
 
   async activate(audioCtx, bus) {
     await super.activate(audioCtx, bus);
-    if (!this.sampleBank) {
-      this.sampleBank = new NoteSampleBank(audioCtx, './sounds/notes/');
-      try {
-        this.sampleBank.load()
-          .then(() => {
-            const s = HANDPAN_SCALES[this.scaleIndex];
-            if (s?.id) this.sampleBank.setActiveScale(s.id);
-            console.info('[handpan] samples', this.sampleBank.activeScaleId, this.sampleBank.byMidi.size);
-          })
-          .catch((e) => console.warn('[handpan] sample load failed, synth fallback active', e));
-      } catch (e) {
-        console.warn('[handpan] sample load failed, synth fallback active', e);
-      }
-    }
+    this.lib = getSoundLibrary(audioCtx, bus);
+    this._ensureSampleBank();
     this.rebuildNotes();
+  }
+
+  _isRecordedScale() {
+    return HANDPAN_SCALES[this.scaleIndex]?.id === 'e-amara-recorded';
+  }
+
+  // Real recordings are only used for Ivar's E Amara scale; everything else is
+  // played by the synthesis library, so the sample bank loads on demand only.
+  _ensureSampleBank() {
+    if (!this._isRecordedScale() || !this.audioCtx || this.sampleBank) return;
+    this.sampleBank = new NoteSampleBank(this.audioCtx, './sounds/notes/');
+    try {
+      this.sampleBank.load()
+        .then(() => {
+          const sc = HANDPAN_SCALES[this.scaleIndex];
+          if (sc?.id) this.sampleBank.setActiveScale(sc.id);
+          console.info('[handpan] recorded samples', this.sampleBank.activeScaleId, this.sampleBank.byMidi.size);
+        })
+        .catch((e) => console.warn('[handpan] recorded sample load failed', e));
+    } catch (e) {
+      console.warn('[handpan] recorded sample load failed', e);
+    }
+  }
+
+  // Render the current layout in the background so first hits don't stall.
+  _prewarm() {
+    if (!this.lib || !this.ready || this._isRecordedScale()) return;
+    const freqs = this.notes.map((n) => n.freq);
+    this._prewarmToken = (this._prewarmToken || 0) + 1;
+    const token = this._prewarmToken;
+    this.lib.prewarm(['handpan'], freqs, [0.65], () => token === this._prewarmToken).catch(() => {});
   }
 
   deactivate() {
@@ -148,6 +167,7 @@ export class HandpanInstrument extends Instrument {
         microtonal: isMicro
       };
     });
+    this._prewarm();
   }
 
   getNotes() { return this.notes.slice(); }
@@ -184,6 +204,7 @@ export class HandpanInstrument extends Instrument {
     } else if (s && typeof s.rootPc === 'number') {
       this.rootIndex = ((s.rootPc % 12) + 12) % 12;
     }
+    this._ensureSampleBank();
     if (this.sampleBank && s?.id && typeof this.sampleBank.setActiveScale === 'function') {
       this.sampleBank.setActiveScale(s.id);
     }
@@ -198,7 +219,8 @@ export class HandpanInstrument extends Instrument {
     this.rebuildNotes();
   }
   setVoiceIndex(i) {
-    this.voiceIndex = ((i % VOICE_PRESETS.length) + VOICE_PRESETS.length) % VOICE_PRESETS.length;
+    // Voices are separate instruments in the sound library now; kept for API compatibility.
+    this.voiceIndex = 0;
   }
   setPitchBendRange(semitones) {
     this.pitchBendRange = Math.max(0.25, Math.min(48, semitones));
@@ -213,34 +235,16 @@ export class HandpanInstrument extends Instrument {
     return s.tuning && s.tuning !== '12-TET' ? `${s.label} · ${s.tuning}` : s.label;
   }
   get rootLabel() { return NOTE_NAMES[this.rootIndex]; }
-  get voiceName() { return VOICE_PRESETS[this.voiceIndex]?.name || 'Steel'; }
+  get voiceName() { return 'Handpan'; }
   get isMicrotonal() {
     const s = HANDPAN_SCALES[this.scaleIndex];
     return !!(s && s.cents && s.cents.length);
   }
 
-  _makeExpressNodes(ctx, dest, t) {
-    const expressFilter = ctx.createBiquadFilter();
-    expressFilter.type = 'lowpass';
-    expressFilter.frequency.setValueAtTime(12000, t);
-    expressFilter.Q.value = 0.7;
-    const expressGain = ctx.createGain();
-    expressGain.gain.setValueAtTime(1, t);
-    const vibGain = ctx.createGain();
-    vibGain.gain.setValueAtTime(0, t);
-    const lfo = ctx.createOscillator();
-    lfo.type = 'sine';
-    lfo.frequency.setValueAtTime(5.2, t);
-    lfo.connect(vibGain);
-    lfo.start(t);
-    expressFilter.connect(expressGain);
-    expressGain.connect(dest);
-    return { expressFilter, expressGain, vibGain, lfo };
-  }
-
   _applyPitchBend(voice, cents, t, smooth = BEND_SMOOTH) {
     if (!voice || voice.released) return;
     const clamped = Math.max(-this.pitchBendRange * 100, Math.min(this.pitchBendRange * 100, cents));
+    if (voice.handle) { voice.handle.detune(clamped, smooth); return; }
     if (voice.oscs) {
       for (const osc of voice.oscs) {
         try {
@@ -266,56 +270,9 @@ export class HandpanInstrument extends Instrument {
     }
   }
 
-  glideTo(fromIdx, toIdx, gesture, zone) {
-    if (!this.ready || !this.audioCtx) return false;
-    if (fromIdx == null || toIdx == null || fromIdx === toIdx) return false;
-    if (toIdx < 0 || toIdx >= this.noteCount) return false;
-    const voice = this.activeVoices.get(fromIdx);
-    const note = this.notes[toIdx];
-    if (!voice || voice.released || !note) return false;
-    if (voice.kind === 'sample' || !voice.oscs) return false;
-    const ctx = this.audioCtx;
-    const t = ctx.currentTime;
-    const glide = this.glideTime;
-    const preset = VOICE_PRESETS[this.voiceIndex] || VOICE_PRESETS[0];
-    const f = note.freq;
-    this.activeVoices.delete(fromIdx);
-    this.held[fromIdx] = 0;
-    this.pitchBendCents[fromIdx] = 0;
-    voice.idx = toIdx;
-    voice.baseFreq = f;
-    this.activeVoices.set(toIdx, voice);
-    this.held[toIdx] = 1;
-    this.pitchBendCents[toIdx] = 0;
-    this.glow[toIdx] = Math.min(1, 0.5 + (gesture?.velocity ?? 0.5) * 0.4);
-    this.zoneFlash[toIdx] = zone?.radial ?? 0.4;
-    preset.partials.forEach((ratio, i) => {
-      const osc = voice.oscs[i];
-      if (!osc) return;
-      const target = f * ratio * (1 + ((i % 2) ? -1 : 1) * (preset.spread || 0.005));
-      try {
-        osc.frequency.cancelScheduledValues(t);
-        osc.frequency.setValueAtTime(osc.frequency.value, t);
-        osc.frequency.exponentialRampToValueAtTime(Math.max(20, target), t + glide);
-        osc.detune.cancelScheduledValues(t);
-        osc.detune.setTargetAtTime(0, t, 0.04);
-      } catch (_) {
-        try { osc.frequency.value = target; } catch (_) {}
-      }
-    });
-    if (voice.expressGain) {
-      const g = voice.expressGain.gain;
-      try {
-        const cur = g.value;
-        g.cancelScheduledValues(t);
-        g.setValueAtTime(cur, t);
-        g.linearRampToValueAtTime(Math.min(1.2, cur * 1.08), t + 0.03);
-        g.setTargetAtTime(voice.baseGain ?? 1, t + 0.03, 0.08);
-      } catch (_) {}
-    }
-    this.lastStrikeAt.set(toIdx, performance.now());
-    return true;
-  }
+  // Library voices are pre-rendered strikes, so moving between pads re-strikes
+  // instead of sliding (the app falls back to noteOff + noteOn when this returns false).
+  glideTo() { return false; }
 
   noteOn(gesture, zone) {
     if (!this.ready || !this.audioCtx || !this.bus) return;
@@ -341,11 +298,10 @@ export class HandpanInstrument extends Instrument {
     this.pitchBendCents[idx] = 0;
     this.lastStrikeAt.set(idx, performance.now());
     const recordedScale = HANDPAN_SCALES[this.scaleIndex]?.id === 'e-amara-recorded';
-    const preferSynth = note.microtonal && Math.abs((note.midiExact - note.midi) * 100) > 15;
     // For Ivar's E Amara, preserve the actual recordings: do not silently replace
-    // a missing/mis-mapped sample with the synthetic oscillator voice.
+    // a missing/mis-mapped sample with the synthesised voice.
     if (recordedScale && (!this.sampleBank || !this.sampleBank.ready)) return;
-    if (!preferSynth && this.sampleBank && this.sampleBank.ready) {
+    if (recordedScale && this.sampleBank && this.sampleBank.ready) {
       const played = this.sampleBank.play(note.midiExact ?? note.midi, this.bus, t, { vel, radial, angleRad });
       if (played) {
         const expressGain = ctx.createGain();
@@ -402,54 +358,24 @@ export class HandpanInstrument extends Instrument {
       console.warn('[handpan] no exact E Amara recording for pad', note.name, 'MIDI', note.midi, '— refusing synth fallback to preserve timbre');
       return;
     }
-    this._strikeSynth(note, idx, t, vel, radial, pressure);
+    this._strikeLibrary(note, idx, vel, angleRad, pressure);
   }
 
-  _strikeSynth(note, idx, t, vel, radial, pressure = 0.5) {
-    const ctx = this.audioCtx;
-    const preset = VOICE_PRESETS[this.voiceIndex] || VOICE_PRESETS[0];
-    const f = note.freq;
-    const z = NoteSampleBank.zoneWeights(radial);
-    const pc = pressureCurve(pressure);
-    const { expressFilter, expressGain, vibGain, lfo } = this._makeExpressNodes(ctx, this.bus, t);
-    const bright = Math.max(0, Math.min(1, radial));
-    expressFilter.frequency.setValueAtTime(1800 + bright * 10000 + vel * 2000, t);
-    expressFilter.Q.setValueAtTime(0.6 + pc * 0.8, t);
-    expressGain.gain.setValueAtTime(0.88 + pc * 0.28, t);
-    vibGain.gain.setValueAtTime(pc * 6, t);
-    const out = ctx.createGain();
-    out.gain.value = 1;
-    out.connect(expressFilter);
-    const T0 = Math.max(1.5, 5.5 - Math.log(f / 165) / Math.LN2);
-    const oscs = [];
-    const gains = [0.55 * z.fundamental, 0.32 * z.partials, 0.18 * z.partials, 0.1 * z.brightness, 0.05 * z.brightness];
-    preset.partials.forEach((ratio, i) => {
-      const osc = ctx.createOscillator();
-      osc.type = preset.wave || 'sine';
-      osc.frequency.value = f * ratio * (1 + ((i % 2) ? -1 : 1) * (preset.spread || 0.005));
-      osc.detune.value = 0;
-      try { vibGain.connect(osc.detune); } catch (_) {}
-      const g = ctx.createGain();
-      const peak = (0.32 + 0.28 * vel) * (gains[i] || 0.06);
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.linearRampToValueAtTime(peak, t + 0.004 + (1 - vel) * 0.01);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + T0 * (preset.decay / 6.2) * (1 - i * 0.07));
-      osc.connect(g);
-      g.connect(out);
-      osc.start(t);
-      osc.stop(t + T0 + 0.12);
-      oscs.push(osc);
-    });
+  _strikeLibrary(note, idx, vel, angleRad, pressure = 0.5) {
+    if (!this.lib) return;
+    const handle = this.lib.play('handpan', note.freq, { vel, pan: Math.sin(angleRad || 0) * 0.3 });
+    if (!handle) return;
+    handle.level(0.85 + pressureCurve(pressure) * 0.3, 0.01);
     const voice = {
-      idx, out, oscs, released: false, expressGain, expressFilter, vibGain, lfo,
-      kind: 'synth', baseGain: 0.88 + pc * 0.28, baseFreq: f,
-      stop: (tt, tc) => this._releaseVoice(voice, tt, tc)
-    };
-    oscs[0].onended = () => {
-      this.activeVoices.delete(idx);
-      try { out.disconnect(); expressFilter.disconnect(); expressGain.disconnect(); vibGain.disconnect(); lfo.stop(); } catch (_) {}
+      idx, handle, kind: 'lib', released: false, baseFreq: note.freq,
+      stop: (tt, tc) => {
+        if (voice.released) return;
+        voice.released = true;
+        handle.stop(Math.max(0.03, tc || 0.05));
+      }
     };
     this.activeVoices.set(idx, voice);
+    setTimeout(() => { if (this.activeVoices.get(idx) === voice) this.activeVoices.delete(idx); }, 6000);
   }
 
   express(gesture, zone) {
@@ -469,6 +395,7 @@ export class HandpanInstrument extends Instrument {
     // Handpan is a strike instrument: aftertouch shapes sound, not a stuck pad light
     this.glow[idx] = Math.min(1, Math.max(this.glow[idx], 0.12 + pc * 0.18));
     this.zoneFlash[idx] = radial * 0.55;
+    if (voice.handle) voice.handle.level(0.82 + pc * 0.4, PRESSURE_SMOOTH);
     if (voice.expressGain) {
       try {
         voice.expressGain.gain.cancelScheduledValues(t);
@@ -575,7 +502,7 @@ export class HandpanInstrument extends Instrument {
   getPerformanceHints() {
     return {
       maxVoices: MAX_NOTES,
-      prefersSamples: !this.isMicrotonal,
+      prefersSamples: false,
       supportsAftertouch: true,
       supportsPitchBend: true,
       supportsGlide: true,

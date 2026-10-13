@@ -19,18 +19,17 @@ Master → AudioContext destination
 ```
 
 ### Registered instruments
-- **Handpan** (default) — sample-bank-first + synth fallback, full scales/root/octave/voices
-- **Kitchen** — 5 objects, synthesis placeholders
-- **Bird** — 5 calls, hybrid FM/noise placeholders
+- **Handpan** (default) — scale / layout owner, played by the `handpan` voice of the sound library. Ivar's recorded E Amara scale still plays his real recordings.
+- **Library voices** — Koto, Harp, Kalimba, Singing Bowl, Breath Flute, Tine Piano, Music Box, Choir, Open-Fifth Drone, Grain Cloud. Each inherits the handpan's current scale and pad layout.
 
 ### Modules
 | Path | Role |
 |------|------|
 | `js/instrument.js` | Instrument base + registry |
 | `js/gesture.js` | Gesture model + tracker |
-| `js/instruments/handpan.js` | HandpanInstrument |
-| `js/instruments/kitchen.js` | KitchenInstrument |
-| `js/instruments/bird.js` | BirdInstrument |
+| `js/instruments/handpan.js` | HandpanInstrument (scales, layout, expression) |
+| `js/instruments/library-family.js` | One Instrument per sound-library voice + shared `SoundLibrary` |
+| `js/sound/` | Sound library: `dsp.js`, `voices.js`, `library.js`, `space.js`; see `js/sound/INTEGRATION.md` |
 | `js/fx.js` | FxChain + modules |
 | `js/catch-mode.js` | Catch phase machine + waves |
 | `js/debug.js` | `?debug=1` panel |

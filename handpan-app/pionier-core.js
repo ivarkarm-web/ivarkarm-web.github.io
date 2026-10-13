@@ -5,8 +5,8 @@
 import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js';
 import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
-import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js?v=5';
-import { createTonalInstruments } from './js/instruments/tonal-family.js?v=6';
+import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js?v=6';
+import { createLibraryInstruments } from './js/instruments/library-family.js?v=1';
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
@@ -17,7 +17,7 @@ const PITCH_BEND_PIXELS = 90;
 
 const handpan = new HandpanInstrument();
 InstrumentRegistry.register(handpan);
-for (const instrument of createTonalInstruments()) InstrumentRegistry.register(instrument);
+for (const instrument of createLibraryInstruments()) InstrumentRegistry.register(instrument);
 
 const ACTIVE_INSTRUMENT_STORAGE_KEY = 'pionier.activeInstrument';
 let storageAvailable = true;

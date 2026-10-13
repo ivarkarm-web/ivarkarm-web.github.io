@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pionier sound library — listening room</title>
+<style>
+  :root { color-scheme: dark; --bg:#0d0f12; --fg:#e8e4da; --mut:#8b8678; --acc:#d9b26a; --card:#161a1f; --line:#2a2f36; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:20px 16px 60px; background:var(--bg); color:var(--fg); font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif; max-width:760px; margin-inline:auto; }
+  h1 { font-size:20px; font-weight:600; margin:0 0 4px; } p.sub { color:var(--mut); margin:0 0 18px; }
+  h2 { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--mut); margin:22px 0 8px; font-weight:600; }
+  .voices { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; }
+  button, select { font:inherit; color:var(--fg); background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+  .v { text-align:left; cursor:pointer; } .v small { display:block; color:var(--mut); font-size:11px; }
+  .v[aria-pressed="true"] { border-color:var(--acc); background:#1d1b15; }
+  .pads { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .pad { aspect-ratio:1; border-radius:50%; font-size:13px; cursor:pointer; touch-action:manipulation; }
+  .pad:active { background:#2a2417; border-color:var(--acc); }
+  .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; } label { color:var(--mut); font-size:13px; display:flex; gap:8px; align-items:center; }
+  input[type=range] { accent-color:var(--acc); }
+  #desc { color:var(--mut); font-size:13px; min-height:2.6em; margin:8px 0 0; }
+  #status { color:var(--mut); font-size:12px; margin-top:10px; min-height:1.4em; }
+  .go { background:var(--acc); color:#1a1408; border-color:var(--acc); font-weight:600; cursor:pointer; }
+</style>
+</head>
+<body>
+<h1>Listening room</h1>
+<p class="sub">Eleven voices, one shared room. Everything is synthesised in your browser — no samples.</p>
+
+<h2>Voice</h2>
+<div class="voices" id="voices"></div>
+<p id="desc"></p>
+
+<h2>Play</h2>
+<div class="row" style="margin-bottom:12px">
+  <label>Scale <select id="scale"></select></label>
+  <label>Root <select id="root"></select></label>
+  <label>Octave <select id="oct"><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option></select></label>
+</div>
+<div class="pads" id="pads"></div>
+
+<h2>Room</h2>
+<div class="row">
+  <label>Reverb <input id="rev" type="range" min="0" max="1.5" step="0.05" value="0.9"></label>
+  <label>Delay <input id="dly" type="range" min="0" max="1.5" step="0.05" value="0.7"></label>
+</div>
+
+<h2>Soundscape</h2>
+<div class="row">
+  <button class="go" id="land">Start generative soundscape</button>
+  <button id="prewarm">Pre-render all voices</button>
+</div>
+<div id="status"></div>
+
+<script type="module">
+import { SoundLibrary, listVoices } from './library.js';
+
+const SCALES = {
+  'Kurd (D minor)':       [0, 200, 300, 500, 700, 800, 1000],
+  'Hijaz':                [0, 100, 400, 500, 700, 800, 1000],
+  'Pygmy':                [0, 200, 300, 700, 900],
+  'Major pentatonic':     [0, 200, 400, 700, 900],
+  'Hirajoshi (koto)':     [0, 200, 300, 700, 800],
+  'Just minor (microtonal)': [0, 203.9, 315.6, 498, 702, 813.7, 1017.6]
+};
+const NAMES = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+const $ = (id) => document.getElementById(id);
+let lib = null, voice = 'handpan', landTimer = null;
+
+const ensure = () => {
+  if (!lib) { const ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' }); lib = new SoundLibrary(ctx); }
+  if (lib.ctx.state !== 'running') lib.ctx.resume();
+  return lib;
+};
+
+const voices = listVoices();
+const vEl = $('voices');
+voices.forEach((v) => {
+  const b = document.createElement('button');
+  b.className = 'v'; b.innerHTML = `${v.name}<small>${v.family}</small>`; b.setAttribute('aria-pressed', v.id === voice);
+  b.onclick = () => { voice = v.id; [...vEl.children].forEach((c) => c.setAttribute('aria-pressed', c === b)); $('desc').textContent = v.desc; play(0); };
+  vEl.appendChild(b);
+});
+$('desc').textContent = voices[0].desc;
+
+Object.keys(SCALES).forEach((n) => $('scale').add(new Option(n, n)));
+NAMES.forEach((n, i) => $('root').add(new Option(n, i, false, i === 2)));
+
+const baseHz = () => 440 * Math.pow(2, (12 * (+$('oct').value + 1) + (+$('root').value) - 69) / 12);
+const scaleCents = () => SCALES[$('scale').value];
+const noteHz = (i) => {
+  const c = scaleCents(); const oct = Math.floor(i / c.length);
+  return baseHz() * Math.pow(2, (c[i % c.length] + oct * 1200) / 1200);
+};
+
+const pads = $('pads');
+for (let i = 0; i < 8; i++) {
+  const b = document.createElement('button'); b.className = 'pad'; b.textContent = i + 1;
+  b.addEventListener('pointerdown', (e) => { e.preventDefault(); play(i); });
+  pads.appendChild(b);
+}
+function play(i, v = voice, vel = 0.5 + Math.random() * 0.4) { ensure().play(v, noteHz(i), { vel, pan: (i - 3.5) * 0.08 }); }
+
+$('rev').oninput = () => ensure().setSpace({ reverb: +$('rev').value });
+$('dly').oninput = () => ensure().setSpace({ delay: +$('dly').value });
+
+$('prewarm').onclick = async () => {
+  const l = ensure(); const freqs = [0, 2, 4].map(noteHz);
+  const t = performance.now();
+  await l.prewarm(voices.map((v) => v.id), freqs, [0.65], (p, id) => { $('status').textContent = `Rendering ${id}… ${Math.round(p * 100)}%`; });
+  $('status').textContent = `Rendered ${voices.length * freqs.length} notes in ${((performance.now() - t) / 1000).toFixed(1)} s`;
+};
+
+$('land').onclick = () => {
+  if (landTimer) { clearTimeout(landTimer); landTimer = null; ensure().stopAll(1.5); $('land').textContent = 'Start generative soundscape'; $('status').textContent = ''; return; }
+  const l = ensure(); $('land').textContent = 'Stop soundscape'; $('status').textContent = 'Drifting…';
+  const weights = { handpan: 5, koto: 3, harp: 2, kalimba: 3, bowl: 1.5, breath: 1.5, tine: 2.5, musicbox: 1.5, choir: 1, cloud: 0.8, drone: 0.4 };
+  const bag = Object.entries(weights).flatMap(([id, w]) => Array(Math.round(w * 2)).fill(id));
+  let lastDrone = 0;
+  const step = () => {
+    const now = performance.now();
+    if (now - lastDrone > 14000) { l.play('drone', noteHz(0) / 2, { vel: 0.5 }); lastDrone = now; }
+    const id = bag[Math.floor(Math.random() * bag.length)];
+    const idx = Math.floor(Math.random() * 10) - (id === 'bowl' || id === 'choir' ? 4 : 0);
+    const f = noteHz(Math.max(0, idx));
+    l.play(id, id === 'cloud' ? f : f, { vel: 0.35 + Math.random() * 0.5, pan: Math.random() * 1.2 - 0.6 });
+    landTimer = setTimeout(step, 500 + Math.random() * (id === 'cloud' || id === 'choir' ? 4000 : 1900));
+  };
+  step();
+};
+</script>
+</body>
+</html>
