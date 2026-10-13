@@ -23,7 +23,9 @@ test('boot chain is local and does not fetch or rewrite executable source at run
   assert.doesNotMatch(shell, /cdn\.jsdelivr\.net|fetch\(GOOD\)|new Blob|CORE_PATCHES/);
   assert.match(core, /from ['"]\.\/js\/audio-core\.js['"]/);
   assert.match(core, /window\.PionierCore/);
-  assert.match(core, /pionier:learn-note/);
+  assert.doesNotMatch(core, /pionier:learn-note|CatchMode/);
+  const html = read('handpan-app/index.html');
+  assert.doesNotMatch(html, /learnLaunch|learn-mode\.js|learn-mode\.css/);
   assert.ok(fs.existsSync(path.join(app, 'js/audio-core.js')));
   assert.ok(fs.existsSync(path.join(app, 'js/pionier-surface.js')));
   assert.ok(fs.existsSync(path.join(app, 'js/instruments/handpan.js')));
