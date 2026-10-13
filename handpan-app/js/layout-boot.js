@@ -63,6 +63,25 @@
         }
       }
 
+      // Note +/- on the left of the scale selector
+      const noteWrap = document.getElementById('notePlusWrap');
+      if (noteWrap && scaleLabel) {
+        noteWrap.classList.add('stage-note-wrap');
+        let row = document.getElementById('stageScaleRow');
+        if (!row) {
+          row = document.createElement('div');
+          row.id = 'stageScaleRow';
+          row.className = 'stage-scale-row';
+          if (scaleLabel.parentElement === bar) {
+            scaleLabel.insertAdjacentElement('beforebegin', row);
+          } else {
+            bar.appendChild(row);
+          }
+        }
+        if (noteWrap.parentElement !== row) row.appendChild(noteWrap);
+        if (scaleLabel.parentElement !== row) row.appendChild(scaleLabel);
+      }
+
       if (scaleMenu) {
         scaleMenu.classList.add('stage-scale-menu');
         if (scaleMenu.parentElement !== bar) {
@@ -91,4 +110,78 @@
   setTimeout(run, 0);
   setTimeout(run, 300);
   setTimeout(run, 1000);
+
+  function ensureCreateUI() {
+    const topActions = document.querySelector('.topbar .top-actions');
+    if (topActions && !document.getElementById('createLaunch')) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pill create-launch';
+      btn.id = 'createLaunch';
+      btn.title = 'Build your own handpan';
+      btn.textContent = 'create';
+      const learn = document.getElementById('learnLaunch');
+      if (learn) topActions.insertBefore(btn, learn);
+      else topActions.prepend(btn);
+    }
+    if (!document.getElementById('createPage')) {
+      const page = document.createElement('section');
+      page.className = 'create-page';
+      page.id = 'createPage';
+      page.setAttribute('aria-hidden', 'true');
+      page.setAttribute('aria-label', 'Create your handpan');
+      page.innerHTML = '<div class="create-page-inner"><div class="create-page-kicker">Concept</div><h1>Build your own handpan</h1><p>A future workspace where you shape tonefields, pick scales, and design a handpan that feels like yours. This page is a placeholder for that studio.</p><button type="button" class="create-page-back" id="createPageBack">← Back to play</button></div>';
+      document.body.appendChild(page);
+    }
+  }
+
+  function wireCreate() {
+    const page = document.getElementById('createPage');
+    const openBtn = document.getElementById('createLaunch');
+    const backBtn = document.getElementById('createPageBack');
+    if (!page || !openBtn || openBtn.dataset.wired === '1') return;
+    openBtn.dataset.wired = '1';
+    const open = () => {
+      page.classList.add('is-active');
+      page.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('create-active');
+      document.getElementById('app')?.classList.add('create-away');
+    };
+    const close = () => {
+      page.classList.remove('is-active');
+      page.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('create-active');
+      document.getElementById('app')?.classList.remove('create-away');
+    };
+    openBtn.addEventListener('click', (e) => { e.preventDefault(); open(); });
+    backBtn?.addEventListener('click', close);
+  }
+  ensureCreateUI();
+  wireCreate();
+  setTimeout(() => { ensureCreateUI(); wireCreate(); }, 200);
+  setTimeout(() => { ensureCreateUI(); wireCreate(); }, 600);
+
+  function positionEffectBubbles() {
+    document.querySelectorAll('.knob-effect-trigger').forEach((btn) => {
+      if (btn.dataset.bubbleWired === '1') return;
+      btn.dataset.bubbleWired = '1';
+      btn.addEventListener('click', () => {
+        setTimeout(() => {
+          const id = btn.getAttribute('aria-controls');
+          const bubble = id ? document.getElementById(id) : null;
+          if (!bubble || bubble.hasAttribute('hidden')) return;
+          const r = btn.getBoundingClientRect();
+          bubble.style.position = 'fixed';
+          bubble.style.left = Math.round(r.left + r.width / 2) + 'px';
+          bubble.style.top = Math.max(12, Math.round(r.top - 8)) + 'px';
+          bubble.style.bottom = 'auto';
+          bubble.style.transform = 'translate(-50%, -100%)';
+          bubble.style.zIndex = '2500';
+        }, 0);
+      });
+    });
+  }
+  positionEffectBubbles();
+  setTimeout(positionEffectBubbles, 500);
+  setTimeout(positionEffectBubbles, 1500);
 })();
