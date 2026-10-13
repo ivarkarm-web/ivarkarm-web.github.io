@@ -17,7 +17,7 @@ main{max-width:1050px;margin:0 auto;padding:32px 18px 70px}header{margin-bottom:
 <header>
 <div class="eyebrow">Pionier · instrument engineering</div>
 <h1>E Amara sample audit</h1>
-<p>Measure the actual pitch of each newly uploaded WAV instead of trusting its filename. This page reads the recordings directly from the repository, estimates their fundamental frequency, and lets you audition each file. It does not alter the app or rename anything.</p>
+<p>Measure the actual pitch of each newly uploaded WAV instead of trusting its filename. This page reads the recordings directly from the repository, estimates their fundamental frequency using the same detector as the instrument, and lets you audition each file. It does not alter the app or rename anything.</p>
 </header>
 <div class="note"><strong>Important:</strong> pitch detection is a guide, not proof. A handpan note has strong overtones and sometimes a quieter fundamental, so listen to each file and treat octave estimates cautiously. The production manifest will not be changed until the mapping is verified.</div>
 <div class="actions">
@@ -35,6 +35,7 @@ main{max-width:1050px;margin:0 auto;padding:32px 18px 70px}header{margin-bottom:
 <footer>Expected E Amara notes to check against: E3, B3, D4, E4, F♯4, G4, A4, B4, D5, E5, F♯5, G5, A5, B5. Extra lower notes such as D3 or F♯3 may be valid recordings, but do not assign them to the main scale unless they are actually part of your instrument. The recordings may include extra notes; do not force a match if the measurement disagrees.</footer>
 </main>
 <script type="module">
+import { NoteSampleBank } from "./js/note-sample-bank.js?v=3";
 const files = [
   "E 3.wav","a5.wav","b.wav","b4.wav","b5.wav","d.wav","d4.wav",
   "d5.wav","e4.wav","e5.wav","f#.wav","f#3.wav","g.wav","g5.wav"
@@ -59,38 +60,13 @@ function rowFor(file){
 }
 const rowMap=new Map(files.map(f=>[f,rowFor(f)]));
 function estimatePitch(buffer){
- // Average channels, inspect multiple short windows to reduce dependence on attack noise.
- const sr=buffer.sampleRate, length=Math.min(buffer.length,Math.floor(sr*1.5));
- const channels=Array.from({length:buffer.numberOfChannels},(_,i)=>buffer.getChannelData(i));
- const start=Math.min(Math.floor(sr*.045),Math.max(0,buffer.length-length));
- const raw=new Float32Array(length);
- for(let i=0;i<length;i++){let s=0;for(const ch of channels)s+=ch[start+i]||0;raw[i]=s/channels.length}
- let mean=0;for(const x of raw)mean+=x;mean/=raw.length;
- const step=Math.max(1,Math.floor(sr/11025)), x=[];
- for(let i=0;i<raw.length;i+=step)x.push(raw[i]-mean);
- const rate=sr/step;
- // RMS gate avoids returning a random pitch from a silent tail.
- let rms=0;for(const v of x)rms+=v*v;rms=Math.sqrt(rms/x.length);
- if(rms<1e-5)return {error:"Too quiet"};
- const minLag=Math.max(2,Math.floor(rate/1100)),maxLag=Math.min(Math.floor(rate/65),Math.floor(x.length/3));
- let bestLag=0,best=-1;
- // Normalized autocorrelation: tolerant of harmonics and room noise.
- for(let lag=minLag;lag<=maxLag;lag++){
-   let cross=0,a=0,b=0;
-   const n=x.length-lag;
-   for(let i=0;i<n;i++){const u=x[i],v=x[i+lag];cross+=u*v;a+=u*u;b+=v*v}
-   const score=cross/Math.sqrt((a*b)||1);
-   if(score>best){best=score;bestLag=lag}
+ // Use the same estimator as production playback so this audit reports the
+ // exact pitch assignment the app will attempt, not a competing algorithm.
+ const measured=NoteSampleBank.detectMidi(buffer);
+ if(!Number.isFinite(measured.midi)||!Number.isFinite(measured.hz)){
+   return {error:"No stable pitch",confidence:measured.confidence||0};
  }
- if(!bestLag||best<.12)return {error:"No stable pitch",confidence:best};
- // Parabolic interpolation around the best lag.
- const corr=lag=>{let c=0,a=0,b=0;const n=x.length-lag;for(let i=0;i<n;i++){const u=x[i],v=x[i+lag];c+=u*v;a+=u*u;b+=v*v}return c/Math.sqrt((a*b)||1)};
- const ym=corr(Math.max(minLag,bestLag-1)), y0=corr(bestLag), yp=corr(Math.min(maxLag,bestLag+1));
- const denom=ym-2*y0+yp;
- const shift=Math.abs(denom)>1e-8?.5*(ym-yp)/denom:0;
- const hz=rate/(bestLag+Math.max(-.5,Math.min(.5,shift)));
- const midi=hzToMidi(hz), nearest=Math.round(midi);
- return {hz,midi:nearest,note:midiName(nearest),cents:Math.round((midi-nearest)*100),confidence:best};
+ return {...measured,note:midiName(measured.midi)};
 }
 async function audioContext(){if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==="suspended")await ctx.resume();return ctx}
 async function loadFile(file){
@@ -143,7 +119,7 @@ document.querySelector("#analyze").addEventListener("click",async()=>{
 });
 document.querySelector("#stop").addEventListener("click",()=>{if(activeSource){try{activeSource.stop()}catch{}activeSource=null}setStatus("Playback stopped.")});
 exportButton.addEventListener("click",()=>{
- const blob=new Blob([JSON.stringify({generatedAt:new Date().toISOString(),warning:"Pitch estimates are provisional; verify by ear before updating the production manifest.",samples:[...results.values()]},null,2)],{type:"application/json"});
+ const blob=new Blob([JSON.stringify({generatedAt:new Date().toISOString(),warning:"Pitch estimates use the production detector but remain provisional; verify by ear before updating the production manifest.",samples:[...results.values()]},null,2)],{type:"application/json"});
  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="eamara-sample-audit.json";a.click();URL.revokeObjectURL(url);
 });
 </script>
