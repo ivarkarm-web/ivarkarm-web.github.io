@@ -375,3 +375,26 @@ test('note-count controls add and remove notes without losing the instrument cor
   const core = await page.evaluate(() => window.PionierCore.noteCount());
   expect(core).toBe(9);
 });
+
+
+test('looper records layered phrases, toggles playback, and clears safely', async ({ page }) => {
+  const record = page.locator('#looperBtn');
+  for (const expectedCount of [1, 2]) {
+    const box = await record.boundingBox();
+    expect(box).not.toBeNull();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.waitForTimeout(260);
+    await page.mouse.up();
+    await expect(page.locator('.looper-circle')).toHaveCount(expectedCount, { timeout: 4000 });
+  }
+
+  const firstLayer = page.locator('.looper-circle').first();
+  await firstLayer.click();
+  await expect(firstLayer).toHaveClass(/is-paused/);
+  await firstLayer.click();
+  await expect(firstLayer).toHaveClass(/is-playing/);
+
+  await page.locator('#looperClearBtn').click();
+  await expect(page.locator('.looper-circle')).toHaveCount(0);
+});
