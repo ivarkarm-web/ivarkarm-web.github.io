@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Handpan — Ivar Karm</title>
-  <meta name="description" content="Playable virtual handpan — radial instrument that grows from 9 to 13 notes, with sampled notes, interval scales, and expressive effects." />
+  <meta name="description" content="Playable virtual handpan — radial instrument that grows from 9 to 14 notes, with sampled notes, interval scales, and expressive effects." />
   <meta name="theme-color" content="#070708" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -164,7 +164,7 @@
         <button type="button" class="note-plus" id="notePlus" aria-label="Add the next scale note" title="Add the next scale note">
           <span class="note-plus-icon" aria-hidden="true"></span>
         </button>
-        <span class="note-plus-count" id="notePlusCount" aria-live="polite">9/13</span>
+        <span class="note-plus-count" id="notePlusCount" aria-live="polite">9/14</span>
       </div>
     </div>
   </div>
@@ -200,8 +200,9 @@
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
 
   <script src="./js/layout-boot.js?v=4"></script>
-  <script type="module" src="./pionier-app.js?v=122"></script>
+  <script type="module" src="./pionier-app.js?v=124"></script>
   <script src="./js/scale-root-fix.js?v=1"></script>
+  <script src="./js/note-count-fix.js?v=1"></script>
   <script src="./js/backdrop-soundscape-bridge.js?v=1" defer></script>
 </body>
 </html>
