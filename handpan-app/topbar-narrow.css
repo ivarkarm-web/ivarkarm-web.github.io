@@ -87,3 +87,29 @@
     font-size: 9px;
   }
 }
+
+/* Backdrop player: never stretch beyond content / viewport */
+.backdrop-player {
+  max-width: min(420px, calc(100vw - 24px)) !important;
+  width: max-content;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  flex-wrap: nowrap;
+}
+.backdrop-player .bp-name {
+  min-width: 0;
+  max-width: min(28vw, 9rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 380px) {
+  .backdrop-player {
+    gap: 4px;
+    padding: 6px 10px;
+  }
+  .backdrop-player .bp-name {
+    max-width: 15vw;
+    font-size: 10px;
+  }
+}
