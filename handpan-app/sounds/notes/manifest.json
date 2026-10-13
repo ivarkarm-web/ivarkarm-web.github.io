@@ -1603,6 +1603,24 @@
       "note": "AUTO",
       "type": "one-shot",
       "autoPitch": true
+    },
+    {
+      "scaleId": "e-amara-recorded",
+      "file": "eamara/A4_v1.wav",
+      "midi": 69,
+      "note": "A4",
+      "type": "one-shot",
+      "autoPitch": true,
+      "fallback": true
+    },
+    {
+      "scaleId": "e-amara-recorded",
+      "file": "eamara/Gb5_v1.wav",
+      "midi": 78,
+      "note": "F#5",
+      "type": "one-shot",
+      "autoPitch": true,
+      "fallback": true
     }
   ],
   "version": 3,
