@@ -398,3 +398,16 @@ test('looper records layered phrases, toggles playback, and clears safely', asyn
   await page.locator('#looperClearBtn').click();
   await expect(page.locator('.looper-circle')).toHaveCount(0);
 });
+
+
+test('instrument canvas stays horizontally centered and inside the viewport', async ({ page }) => {
+  const box = await page.locator('#pan').boundingBox();
+  const viewport = page.viewportSize();
+  expect(box).not.toBeNull();
+  expect(viewport).not.toBeNull();
+  expect(Math.abs((box.x + box.width / 2) - viewport.width / 2)).toBeLessThanOrEqual(3);
+  expect(box.x).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width).toBeLessThanOrEqual(viewport.width + 1);
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.y + box.height).toBeLessThanOrEqual(viewport.height + 1);
+});
