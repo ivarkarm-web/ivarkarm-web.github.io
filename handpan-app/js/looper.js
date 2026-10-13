@@ -1,15 +1,15 @@
 /**
- * looper.js — multi-layer phrase looper (max 5)
+ * looper.js — multi-layer phrase looper (max 7)
  * Record (right): arm/stop layer
  * Track circles: tap play/pause · hold for X · tap again to delete
  * Clear (left): wipe all layers — always visible
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js';
 
-const MAX_LAYERS = 5;
+const MAX_LAYERS = 7;
 const LONG_MS = 550;
 
-export function mountLooper({ root } = {}) {
+export function mountLooper({ root, getRecordSource } = {}) {
   const rail = root || document.getElementById('looperRail');
   const btn = document.getElementById('looperBtn');
   const layersEl = document.getElementById('looperLayers');
@@ -48,6 +48,7 @@ export function mountLooper({ root } = {}) {
   let recChunks = null;
   let processor = null;
   let silent = null;
+  let tapSource = null;
   let pressTimer = null;
   let longFired = false;
   let pendingDelete = -1; // layer index armed for delete
@@ -73,10 +74,14 @@ export function mountLooper({ root } = {}) {
       e.outputBuffer.getChannelData(0).fill(0);
       if (e.outputBuffer.numberOfChannels > 1) e.outputBuffer.getChannelData(1).fill(0);
     };
-    master.connect(processor);
-    processor.connect(silent);
-    silent.connect(ctx.destination);
     return ctx;
+  }
+
+  function stopTap() {
+    try { tapSource?.disconnect(processor); } catch (_) {}
+    try { processor?.disconnect(); } catch (_) {}
+    try { silent?.disconnect(); } catch (_) {}
+    tapSource = null;
   }
 
   function setBtnState() {
@@ -280,7 +285,19 @@ export function mountLooper({ root } = {}) {
   function startRecord() {
     if (layers.length >= MAX_LAYERS) return;
     const ctx = ensureTap();
-    if (!ctx) return;
+    const source = typeof getRecordSource === 'function' ? getRecordSource() : getAudioMaster();
+    if (!ctx || !source || !processor || !silent) return;
+    stopTap();
+    try {
+      source.connect(processor);
+      processor.connect(silent);
+      silent.connect(ctx.destination);
+      tapSource = source;
+    } catch (err) {
+      stopTap();
+      console.warn('[looper] could not connect record tap', err);
+      return;
+    }
     resumeAudio();
     recChunks = [];
     recording = true;
@@ -290,6 +307,7 @@ export function mountLooper({ root } = {}) {
   function stopRecordAndPlay() {
     if (!recording) return;
     recording = false;
+    stopTap();
     const ctx = getAudioContext();
     const master = getAudioMaster();
     const chunks = recChunks;
@@ -329,6 +347,7 @@ export function mountLooper({ root } = {}) {
 
   function clearAll() {
     recording = false;
+    stopTap();
     recChunks = null;
     pendingDelete = -1;
     for (const layer of layers) {
@@ -377,6 +396,7 @@ export function mountLooper({ root } = {}) {
   btn.addEventListener('pointercancel', () => {
     if (pressTimer) clearTimeout(pressTimer);
     pressTimer = null;
+    if (recording) stopRecordAndPlay();
   });
   btn.addEventListener('contextmenu', (e) => e.preventDefault());
 
