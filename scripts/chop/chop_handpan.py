@@ -394,6 +394,43 @@ def extract(x: np.ndarray, sr: int, o: Onset, onsets: list[Onset], max_s: float)
     return seg, truncated
 
 
+def chop_one_scale(sc, x, sr, onsets, in_range, args, notes_dir, results, report):
+    """Pick the best strike for each note of one scale from `in_range`, cut it, record manifest entries."""
+    scale_peak = max((o.peak_db for o in in_range), default=-20.0)
+    chosen: list[tuple[int, Onset]] = []
+    missing: list[str] = []
+    for iv in sorted(set(sc["intervals"])):
+        m = sc["rootMidi"] + iv
+        cands = [o for o in in_range if o.midi_exact is not None and abs(o.midi_exact - m) <= args.tol
+                 and o.clean_ms >= args.min_ring_ms]
+        if not cands:
+            missing.append(note_name(m))
+            continue
+        chosen.append((m, pick_best(cands, scale_peak, args.max_seconds * 1000.0 * 0.6)))
+    if not chosen:
+        report.append(f"  - {sc['id']}: no matching notes ({', '.join(missing)} missing)")
+        return
+    cuts = [(m, o, *extract(x, sr, o, onsets, args.max_seconds)) for m, o in chosen]
+    peak = max(float(np.max(np.abs(c[2]))) for c in cuts)
+    gain = min(0.891 / max(peak, 1e-6), 15.0)
+    entries = []
+    for m, o, seg, trunc in cuts:
+        rel = f"{sc['id']}/{note_name(m)}_v1.wav"
+        if not args.dry_run and args.write_app:
+            write_wav16(notes_dir / rel, seg * gain, sr)
+        entries.append({"scaleId": sc["id"], "file": rel, "midi": m, "note": note_name(m),
+                        "cents": round(o.cents or 0.0, 1), "type": "one-shot",
+                        "durationMs": int(len(seg) / sr * 1000), "truncated": bool(trunc)})
+    results[sc["id"]] = entries
+    short = [e["note"] for e in entries if e["truncated"]]
+    line = f"  - {sc['id']}: {len(entries)}/{len(set(sc['intervals']))} notes"
+    if missing:
+        line += f", MISSING {', '.join(missing)}"
+    if short:
+        line += f", cut short by next strike: {', '.join(short)}"
+    report.append(line)
+
+
 def cmd_chop(args) -> int:
     cfg = load_config(Path(args.config))
     x, sr, orig = read_audio(Path(args.audio))
@@ -411,42 +448,41 @@ def cmd_chop(args) -> int:
             report.append(f"  - {sc['id']}: no section found (add start/end or ranges to the config)")
             continue
         in_range = [o for o in onsets if any(a <= o.t < b for a, b in rs)]
-        scale_peak = max((o.peak_db for o in in_range), default=-20.0)
-        chosen: list[tuple[int, Onset]] = []
-        missing: list[str] = []
-        for iv in sorted(set(sc["intervals"])):
-            m = sc["rootMidi"] + iv
-            cands = [o for o in in_range if o.midi_exact is not None and abs(o.midi_exact - m) <= args.tol
-                     and o.clean_ms >= args.min_ring_ms]
-            if not cands:
-                missing.append(note_name(m))
-                continue
-            chosen.append((m, pick_best(cands, scale_peak, args.max_seconds * 1000.0 * 0.6)))
-        if not chosen:
-            report.append(f"  - {sc['id']}: section found but no matching notes ({', '.join(missing)} missing)")
-            continue
-        cuts = [(m, o, *extract(x, sr, o, onsets, args.max_seconds)) for m, o in chosen]
-        peak = max(float(np.max(np.abs(c[2]))) for c in cuts)
-        gain = min(0.891 / max(peak, 1e-6), 15.0)
-        entries = []
-        for m, o, seg, trunc in cuts:
-            rel = f"{sc['id']}/{note_name(m)}_v1.wav"
-            if not args.dry_run and args.write_app:
-                write_wav16(notes_dir / rel, seg * gain, sr)
-            entries.append({"scaleId": sc["id"], "file": rel, "midi": m, "note": note_name(m),
-                            "cents": round(o.cents or 0.0, 1), "type": "one-shot",
-                            "durationMs": int(len(seg) / sr * 1000), "truncated": bool(trunc)})
-        results[sc["id"]] = entries
-        short = [e["note"] for e in entries if e["truncated"]]
-        line = f"  - {sc['id']}: {len(entries)}/{len(set(sc['intervals']))} notes"
-        if missing:
-            line += f", MISSING {', '.join(missing)}"
-        if short:
-            line += f", cut short by next strike: {', '.join(short)}"
-        report.append(line)
+        chop_one_scale(sc, x, sr, onsets, in_range, args, notes_dir, results, report)
     print("\nResult per scale:")
     print("\n".join(report))
     if args.dry_run or not args.write_app:
+        print("\nNothing written (use --write-app to write samples + app files; --dry-run to only preview).")
+        return 0
+    write_app_files(cfg, results, app, notes_dir)
+    print(f"\nWrote {sum(len(v) for v in results.values())} wavs under {notes_dir}")
+    return 0
+
+
+def cmd_chop_dir(args) -> int:
+    """One recording per scale. Each scale in the config names its own `file` inside the audio folder;
+    every strike in that file belongs to that scale (up/down runs give several takes per note, the
+    cleanest one wins)."""
+    cfg = load_config(Path(args.config))
+    folder = Path(args.audio)
+    app = Path(args.app_dir)
+    notes_dir = app / "sounds" / "notes"
+    results: dict[str, list[dict]] = {}
+    report: list[str] = []
+    for sc in cfg["scales"]:
+        if not sc.get("file"):
+            continue
+        path = folder / sc["file"]
+        if not path.exists():
+            report.append(f"  - {sc['id']}: file {sc['file']} not found in {folder}")
+            continue
+        x, sr, orig = read_audio(path)
+        onsets = analyze_audio(x, sr, args.sens, args.min_gap)
+        print(f"{sc['file']}: {len(x) / sr:.1f}s, {len(onsets)} strikes")
+        chop_one_scale(sc, x, sr, onsets, onsets, args, notes_dir, results, report)
+    print("\nResult per scale:")
+    print("\n".join(report) or "  (no scale in the config has a \"file\" entry)")
+    if args.dry_run or not args.write_app or not results:
         print("\nNothing written (use --write-app to write samples + app files; --dry-run to only preview).")
         return 0
     write_app_files(cfg, results, app, notes_dir)
@@ -547,7 +583,7 @@ def write_app_files(cfg: dict, results: dict[str, list[dict]], app: Path, notes_
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for name in ("analyze", "chop"):
+    for name in ("analyze", "chop", "chop-dir"):
         p = sub.add_parser(name)
         p.add_argument("audio")
         p.add_argument("--config", default=str(DEFAULT_CONFIG))
@@ -564,7 +600,7 @@ def main(argv=None) -> int:
             p.add_argument("--write-app", action="store_true")
             p.add_argument("--dry-run", action="store_true")
     args = ap.parse_args(argv)
-    return cmd_analyze(args) if args.cmd == "analyze" else cmd_chop(args)
+    return {"analyze": cmd_analyze, "chop": cmd_chop, "chop-dir": cmd_chop_dir}[args.cmd](args)
 
 
 if __name__ == "__main__":
