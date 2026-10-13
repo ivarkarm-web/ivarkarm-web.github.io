@@ -42,36 +42,42 @@ export const transpose = {
   scaleIndex: 0
 };
 
-export function buildNotesFromScale(scale, baseMidi = transpose.baseMidi) {
-  const root = baseMidi + transpose.octaveOffset * 12;
-  return (scale.intervals || []).map((semi, i) => {
-    const midi = root + semi;
-    return {
-      index: i,
-      midi,
-      midiExact: midi,
+export function currentRootName() {
+  return midiToName(transpose.baseMidi + transpose.octaveOffset * 12);
+}
+
+export function buildNotes() {
+  const scale = SCALES[transpose.scaleIndex];
+  const list = [];
+  for (let i = 0; i < 9; i++) {
+    const midi = transpose.baseMidi + scale.intervals[i] + (transpose.octaveOffset * 12);
+    const isDing = i === 0;
+    const angle = isDing ? 0 : RING_ANGLES[i - 1];
+    list.push({
+      key: KEYS[i].key,
+      code: KEYS[i].code,
       name: midiToName(midi),
+      midi,
+      interval: scale.intervals[i],
+      kind: isDing ? 'ding' : 'ring',
+      a: angle,
       freq: mtof(midi),
-      isDing: i === 0
-    };
-  });
+      pan: isDing ? 0 : Math.max(-0.6, Math.min(0.6, Math.sin(angle * Math.PI / 180) * 0.55))
+    });
+  }
+  return list;
+}
+
+export function shiftRoot(delta) {
+  transpose.baseMidi = Math.max(36, Math.min(72, transpose.baseMidi + delta));
+}
+
+export function shiftOctave(delta) {
+  transpose.octaveOffset = Math.max(-1, Math.min(1, transpose.octaveOffset + delta));
 }
 
 export function setScaleIndex(idx) {
   if (idx < 0) idx = SCALES.length - 1;
   if (idx >= SCALES.length) idx = 0;
   transpose.scaleIndex = idx;
-  return SCALES[idx];
-}
-
-export function cycleScale(dir = 1) {
-  return setScaleIndex(transpose.scaleIndex + dir);
-}
-
-export function currentScale() {
-  return SCALES[transpose.scaleIndex] || SCALES[0];
-}
-
-export function currentNotes() {
-  return buildNotesFromScale(currentScale());
 }
