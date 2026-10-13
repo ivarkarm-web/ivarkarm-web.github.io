@@ -113,7 +113,11 @@ export class HandpanInstrument extends Instrument {
       this.sampleBank = new NoteSampleBank(audioCtx, './sounds/notes/');
       try {
         this.sampleBank.load()
-          .then(() => console.info('[handpan] samples', this.sampleBank.byMidi.size))
+          .then(() => {
+            const s = HANDPAN_SCALES[this.scaleIndex];
+            if (s?.id) this.sampleBank.setActiveScale(s.id);
+            console.info('[handpan] samples', this.sampleBank.activeScaleId, this.sampleBank.byMidi.size);
+          })
           .catch((e) => console.warn('[handpan] sample load failed, synth fallback active', e));
       } catch (e) {
         console.warn('[handpan] sample load failed, synth fallback active', e);
@@ -155,7 +159,6 @@ export class HandpanInstrument extends Instrument {
   getNotes() { return this.notes.slice(); }
   getZones() { return this._zones || []; }
 
-  /** Add the next note of the current scale. Returns false at the maximum. */
   addNote() {
     if (this.noteCount >= MAX_NOTES) return false;
     this.noteCount += 1;
@@ -169,6 +172,25 @@ export class HandpanInstrument extends Instrument {
 
   setScaleIndex(i) {
     this.scaleIndex = ((i % HANDPAN_SCALES.length) + HANDPAN_SCALES.length) % HANDPAN_SCALES.length;
+    const s = HANDPAN_SCALES[this.scaleIndex];
+    if (s && typeof s.rootMidi === 'number') {
+      const midi = s.rootMidi;
+      let bestPc = 0, bestOct = 0, bestDist = 999;
+      for (let oct = -1; oct <= 1; oct++) {
+        for (let pc = 0; pc < 12; pc++) {
+          const m = 48 + pc + oct * 12;
+          const d = Math.abs(m - midi);
+          if (d < bestDist) { bestDist = d; bestPc = pc; bestOct = oct; }
+        }
+      }
+      this.rootIndex = bestPc;
+      this.octaveOffset = bestOct;
+    } else if (s && typeof s.rootPc === 'number') {
+      this.rootIndex = ((s.rootPc % 12) + 12) % 12;
+    }
+    if (this.sampleBank && s?.id && typeof this.sampleBank.setActiveScale === 'function') {
+      this.sampleBank.setActiveScale(s.id);
+    }
     this.rebuildNotes();
   }
   setRootIndex(i) {
@@ -362,8 +384,6 @@ export class HandpanInstrument extends Instrument {
           baseFreq: note.freq
         };
         this.activeVoices.set(idx, voice);
-        // A one-shot should finish its natural decay after finger-up. Clean up
-        // its voice bookkeeping only when the source itself reaches its end.
         const strikeSource = played.nodes?.find((node) =>
           node && typeof node.start === 'function' && node.buffer
         );
@@ -505,45 +525,17 @@ export class HandpanInstrument extends Instrument {
     this._smoothPressure[zoneId] = 0;
     const v = this.activeVoices.get(zoneId);
     if (!v || !this.audioCtx) return;
-    // Handpan notes are struck one-shots with their own decay envelope. Finger-up
-    // ends gesture expression, not the sound: let samples and synth partials ring
-    // naturally. dampAll() remains the explicit emergency/transition stop.
-    // Other instrument families can keep their own noteOff/release behavior.
+    // Handpan notes are struck one-shots with their own decay envelope.
+    // Finger-up ends gesture expression, not the sound: let samples and synth partials ring.
+    if (v.kind === 'sample') return;
+    const t = this.audioCtx.currentTime;
+    this._releaseVoice(v, t, 0.12);
   }
 
-  dampAll() {
-    this.held.fill(0);
-    this.pitchBendCents.fill(0);
-    this._smoothPressure.fill(0);
-    const t = this.audioCtx ? this.audioCtx.currentTime : 0;
-    for (const [, v] of this.activeVoices) {
-      if (v.stop) v.stop(t, 0.05);
-      else this._releaseVoice(v, t, 0.05);
+  tick(dt) {
+    for (let i = 0; i < this.noteCount; i++) {
+      this.glow[i] = Math.max(0, this.glow[i] - dt * 1.8);
+      this.zoneFlash[i] = Math.max(0, this.zoneFlash[i] - dt * 2.4);
     }
-    this.activeVoices.clear();
-  }
-
-  tickGlow() {
-    let any = false;
-    for (let i = 0; i < MAX_NOTES; i++) {
-      if (this.glow[i] > 0.001) {
-        this.glow[i] *= this.held[i] ? 0.97 : 0.9;
-        any = true;
-      } else this.glow[i] = 0;
-    }
-    return any;
-  }
-
-  getPerformanceHints() {
-    return {
-      maxVoices: MAX_NOTES,
-      prefersSamples: !this.isMicrotonal,
-      supportsAftertouch: true,
-      supportsPitchBend: true,
-      supportsGlide: true,
-      supportsMicrotonal: true,
-      pitchBendRange: this.pitchBendRange,
-      glideTime: this.glideTime
-    };
   }
 }
