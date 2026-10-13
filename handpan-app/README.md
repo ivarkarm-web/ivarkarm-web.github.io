@@ -143,6 +143,6 @@ Only add further production features after the instrument, looper, and effects h
 
 The app ships with five synthesized voices: Steel, Warm, Bell, Soft, and Deep. Voice selection accepts the previous preset names/indices and maps them to the new set so existing saved selections can migrate safely.
 
-Real recordings are supported behind the same voice interface through `sounds/manifest.json` and `js/sample-bank.js`. The production manifest currently contains no samples, so the synthesized voice remains the authoritative fallback. Real recordings should follow `SOUNDS.md`.
+The active handpan instrument uses `js/note-sample-bank.js` and loads the per-scale recordings from `sounds/notes/manifest.json`, with procedural synthesis as fallback when a matching sample is unavailable. The separate `js/sample-bank.js` is part of the legacy bundled engine and expects a different manifest schema; do not confuse it with the active runtime path.
 
 Synthetic WAV fixtures can be generated with `node scripts/generate-audio-fixtures.mjs`. The fixture directory is ignored by Git and is never a production sound asset.
