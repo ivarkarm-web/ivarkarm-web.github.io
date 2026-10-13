@@ -1,1 +1,101 @@
-PLACEHOLDER_EXTRAS
+/* Extra layout styles loaded after topbar-narrow */
+.topbar .create-launch {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 7px 12px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  min-height: 36px;
+  min-width: 0;
+}
+@media (max-width: 430px) {
+  .topbar .create-launch { padding: 6px 9px; font-size: 10px; letter-spacing: 0.08em; }
+}
+@media (max-width: 360px) {
+  .topbar .create-launch { padding: 5px 7px; font-size: 9px; }
+}
+
+.stage-scale-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: min(92vw, 420px);
+}
+.stage-note-wrap.note-plus-wrap {
+  position: static !important;
+  left: auto !important;
+  bottom: auto !important;
+  flex: 0 0 auto;
+}
+.stage-scale-row .stage-scale-nav {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.stage-scale-row .stage-scale-btn {
+  flex: 0 1 auto;
+}
+
+.create-page {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: radial-gradient(ellipse at 50% 30%, rgba(30, 28, 24, 0.98), rgba(6, 6, 8, 0.99));
+  color: var(--fg, #eceae6);
+}
+.create-page.is-active { display: flex; }
+.create-page-inner { max-width: 420px; text-align: center; }
+.create-page-kicker {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(212, 176, 74, 0.75);
+  margin-bottom: 12px;
+}
+.create-page h1 {
+  font-size: clamp(22px, 5vw, 30px);
+  font-weight: 500;
+  margin: 0 0 12px;
+}
+.create-page p {
+  color: rgba(232, 230, 227, 0.7);
+  line-height: 1.55;
+  font-size: 14px;
+  margin: 0 0 20px;
+}
+.create-page-back {
+  appearance: none;
+  border: 1px solid rgba(212, 176, 74, 0.35);
+  background: rgba(212, 176, 74, 0.08);
+  color: #f0e6c8;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+.create-page-back:hover { border-color: rgba(212, 176, 74, 0.55); }
+
+.mobile-control-drawer { overflow: visible !important; }
+.mobile-control-panel {
+  overflow: visible !important;
+  position: relative;
+  z-index: 2;
+}
+.mobile-controls-toggle { position: relative; z-index: 1; }
+.effect-bubble { z-index: 1800 !important; }
+.mobile-control-drawer.is-open .effect-bubble:not([hidden]) {
+  position: fixed !important;
+  z-index: 2500 !important;
+  pointer-events: auto;
+}
