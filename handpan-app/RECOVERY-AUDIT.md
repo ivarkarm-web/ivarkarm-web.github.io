@@ -21,18 +21,18 @@ PIONIER is being refocused as a pocket-sized, expressive music-making instrument
 - `pionier-core.js` owns pointer input, instrument selection, the shared instrument bus, an `FxChain`, and the `#pan` surface.
 - The same shell independently mounts the ambient backdrop player and looper.
 - `js/learn-mode.js` was a separately loaded module listening for `pionier:learn-note`; the core emitted this event on direct touch, glide, and keyboard/demo note paths. Those hooks have now been removed from the active runtime.
-- `js/looper.js` currently declares a five-layer maximum and captures the master output using `ScriptProcessorNode`. This is deprecated and requires redesign/testing for a reliable production looper.
-- `sounds/manifest.json` is a small metadata document whose `samples` field is a string pointing at `sounds/notes/manifest.json`; it is not itself the sample map shape expected by the legacy `js/sample-bank.js`.
-- `SOUNDS.md` and the README describe synthesized voices as authoritative. The active handpan instrument module separately attempts to load `sounds/notes/` samples via its own `NoteSampleBank`. The actual runtime usage and compatibility of both sample systems still need tracing before consolidating anything.
+- `js/looper.js` now supports seven layers. Its recording tap is connected only while recording and takes its signal from the instrument FX output rather than the shared master output, so existing loop playback is no longer deliberately fed back into new recordings. The capture still uses deprecated `ScriptProcessorNode`; a modern AudioWorklet path and shared loop timeline remain open work.
+- The active handpan instrument imports `NoteSampleBank` from `js/note-sample-bank.js` and loads `sounds/notes/manifest.json`. That manifest has the per-scale recording metadata the active bank expects. The top-level `sounds/manifest.json` is only a metadata pointer and is not the active bank's sample map.
+- The separate legacy `js/sample-bank.js` expects a key-indexed `samples` object from the top-level manifest; that shape does not match the pointer document. It is imported by the legacy `js/handpan.bundle.js`, not by the active `pionier-core.js` instrument path. Treat it as legacy and do not consolidate until standalone route references are fully mapped.
 - `js/handpan.bundle.js` and `js/handpan-src-*.js` represent a legacy bundled engine/source-template arrangement. Do not delete them until all references and the standalone Easter egg route are mapped.
 
 ## Remaining work / verification gates
 
-1. Trace the full runtime import graph and identify active versus legacy engines and sample banks.
-2. Inspect and stabilize canvas geometry and responsive sizing at 390×844 and 1280×800; check every playable zone, pointer capture/release, and multi-touch.
-3. Rework the looper around an explicit shared transport/loop timeline; verify synchronization, overdub, mute, deletion, clear, cancellation and layer limits.
-4. Audit FX signal routing, parameter ranges, gain staging, and mobile interaction. Avoid changing the current visual layout until the instrument geometry is stable.
-5. Run automated checks and real mobile browser tests. No real-device tests have been performed as part of this audit yet.
+1. Active runtime and sample paths are now traced at the module level; legacy engine cleanup remains deferred until the old standalone page/entry references are located.
+2. A `ResizeObserver` and visual-viewport resize hook now complement window resize. Canvas centering and touch-zone behavior still require screenshot/browser checks at 390×844 and 1280×800.
+3. The looper capture tap no longer captures already-playing loop layers and is disconnected outside recording. Loop duration/phase synchronization, AudioWorklet migration, and real-device checks remain unfinished.
+4. The active FX chain routes instrument audio through the modular FX chain and then the shared master/compressor. Further gain-staging and parameter testing remain open.
+5. No automated browser suite or real mobile-device test has been run from this environment; this must be completed before calling the app production-ready.
 
 ## Safety
 
