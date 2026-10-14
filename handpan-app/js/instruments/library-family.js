@@ -70,6 +70,7 @@ export class LibraryInstrument extends Instrument {
     if (!freqs.length) return;
     this._prewarmToken = (this._prewarmToken || 0) + 1;
     const token = this._prewarmToken;
+    // prewarm() yields between notes; a newer call (layout change) supersedes this one
     this.lib.prewarm([this.id], freqs, [0.65], () => (token === this._prewarmToken)).catch(() => {});
   }
 
@@ -116,6 +117,7 @@ export class LibraryInstrument extends Instrument {
     this.heldPad[idx] = 1;
     this.lastStrikeAt.set(idx, performance.now());
 
+    // pads around the ring sit left/right in the stereo field
     const handle = this.lib.play(this.id, note.freq, { vel, pan: Math.sin(angle) * 0.35 });
     if (!handle) return;
     const voice = { idx, handle, kind: 'lib', baseFreq: note.freq, released: false };
@@ -134,6 +136,17 @@ export class LibraryInstrument extends Instrument {
     if (this.heldPad[idx]) {
       this.glow[idx] = Math.min(1, Math.max(this.glow[idx], 0.25 + this._smoothPressure[idx] * 0.5));
     }
+    const voice = this.activeVoices.get(idx);
+    if (!voice?.handle?.detune) return;
+    let bendSemi = gesture.pitchBend;
+    if (bendSemi == null && typeof gesture.pitchBendNorm === 'number') {
+      const n = gesture.pitchBendNorm;
+      bendSemi = Math.sign(n) * Math.pow(Math.abs(n), 1.35) * this.pitchBendRange;
+    }
+    if (typeof bendSemi === 'number' && Number.isFinite(bendSemi)) {
+      const cents = Math.max(-this.pitchBendRange * 100, Math.min(this.pitchBendRange * 100, bendSemi * 100));
+      voice.handle.detune(cents, BEND_SMOOTH);
+    }
   }
 
   noteOff(idx) {
@@ -141,6 +154,7 @@ export class LibraryInstrument extends Instrument {
     this._smoothPressure[idx] = 0;
     if (this.glow[idx] > 0.15) this.glow[idx] = Math.min(this.glow[idx], 0.35);
     const voice = this.activeVoices.get(idx);
+    // Struck voices ring out on their own; held voices fade when the finger lifts.
     if (voice && this.held && this.audioCtx) voice.stop(this.audioCtx.currentTime, 0.9);
   }
 
