@@ -25,6 +25,7 @@
 
     .stage {
       padding: 0 !important;
+      padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)) !important;
       flex-direction: column;
       position: relative !important;
       align-items: center !important;
@@ -32,13 +33,14 @@
       overflow: hidden !important;
       min-height: 0 !important;
       flex: 1 1 auto !important;
+      box-sizing: border-box !important;
     }
     #pan {
       position: absolute !important;
       left: 50% !important;
       top: 50% !important;
       transform: translate(-50%, -50%) translateZ(0) !important;
-      width: min(86vw, calc(100dvh - 220px), 680px) !important;
+      width: min(86vw, calc(100dvh - 240px), 680px) !important;
       max-width: 86vw !important;
       margin: 0 !important;
       display: block !important;
@@ -49,8 +51,8 @@
       left: 50% !important;
       top: 50% !important;
       transform: translate(-50%, -50%) !important;
-      width: min(80vw, calc(100dvh - 230px), 640px) !important;
-      height: min(80vw, calc(100dvh - 230px), 640px) !important;
+      width: min(80vw, calc(100dvh - 250px), 640px) !important;
+      height: min(80vw, calc(100dvh - 250px), 640px) !important;
     }
   </style>
   <script>
@@ -217,8 +219,8 @@
   </section>
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
 
-  <script src="./js/layout-boot.js?v=9"></script>
-  <script type="module" src="./pionier-app.js?v=138"></script>
+  <script src="./js/layout-boot.js?v=10"></script>
+  <script type="module" src="./pionier-app.js?v=139"></script>
   <script src="./js/scale-root-fix.js?v=1"></script>
   <script src="./js/note-count-fix.js?v=1"></script>
 </body>
