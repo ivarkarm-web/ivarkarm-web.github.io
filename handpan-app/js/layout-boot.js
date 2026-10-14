@@ -32,7 +32,11 @@
     const bar = document.getElementById('stageScaleBar');
     const topDock = document.getElementById('pionierTopDock');
     const stageRect = stage.getBoundingClientRect();
-    const topEdge = topDock ? topDock.getBoundingClientRect().bottom : stageRect.top;
+    // Anchor to the fixed FX toggle, not the expanding drawer, so opening FX
+    // never recenters or jumps the handpan.
+    const drawer = document.getElementById('mobileControlDrawer');
+    const toggle = drawer && drawer.querySelector('.mobile-controls-toggle');
+    const topEdge = toggle ? toggle.getBoundingClientRect().bottom : (topDock ? topDock.getBoundingClientRect().bottom : stageRect.top);
     const botEdge = bar ? bar.getBoundingClientRect().top - 8 : window.innerHeight - 24;
 
     const span = botEdge - topEdge;
@@ -143,14 +147,13 @@
       topDock.setAttribute('aria-label', 'Effects and looper');
       app.insertBefore(topDock, stage);
     }
-    // Move controls only when needed. Re-appending on every delayed boot
-    // causes visible jumps; correct order in place without unnecessary moves.
+    // FX drawer stays in the top dock. Put the looper in the bottom control
+    // bar, immediately above the instrument selector; never move it with FX.
     if (drawer && drawer.parentElement !== topDock) topDock.appendChild(drawer);
-    if (looperRail && looperRail.parentElement !== topDock) topDock.appendChild(looperRail);
-    if (drawer && looperRail && drawer.parentElement === topDock &&
-        looperRail.parentElement === topDock &&
-        drawer.compareDocumentPosition(looperRail) & Node.DOCUMENT_POSITION_PRECEDING) {
-      topDock.insertBefore(drawer, looperRail);
+    if (looperRail && looperRail.parentElement !== bar) {
+      bar.insertBefore(looperRail, bar.firstChild);
+    } else if (looperRail && bar.firstElementChild !== looperRail) {
+      bar.insertBefore(looperRail, bar.firstChild);
     }
     if (looperClear && looperRail && looperClear.parentElement !== looperRail) looperRail.appendChild(looperClear);
     if (bar && (bar.parentElement !== app || bar.nextElementSibling !== null)) app.appendChild(bar);
@@ -242,18 +245,6 @@
   setTimeout(centerPan, 100);
   setTimeout(centerPan, 400);
   setTimeout(centerPan, 1200);
-  const drawerObserver = new MutationObserver(() => requestAnimationFrame(centerPan));
-  const observeDrawer = () => {
-    const drawer = document.getElementById('mobileControlDrawer');
-    if (drawer && !drawer.dataset.panObserved) {
-      drawer.dataset.panObserved = '1';
-      drawerObserver.observe(drawer, { attributes: true, attributeFilter: ['class'] });
-    }
-  };
-  observeDrawer();
-  setTimeout(observeDrawer, 250);
-  setTimeout(observeDrawer, 900);
-
   window.addEventListener('resize', () => {
     clearTimeout(window.__panCenterT);
     window.__panCenterT = setTimeout(centerPan, 50);
