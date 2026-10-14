@@ -8,12 +8,12 @@
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=26';
+    link.href = './ui-layout-extras.css?v=27';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
   } else {
     const link = document.querySelector('link[data-ui-extras]');
-    if (link) link.href = './ui-layout-extras.css?v=25';
+    if (link) link.href = './ui-layout-extras.css?v=27';
   }
 
   function purgeCreate() {
@@ -178,7 +178,17 @@
         justifyContent: 'center', zIndex: '3000'
       });
     }
-    if (looperClear && looperRail && looperClear.parentElement !== looperRail) looperRail.appendChild(looperClear);
+    // The looper module deliberately keeps Clear as a body-level sibling.
+    // Align it with the looper rail instead of reparenting it into the rail.
+    if (looperClear) {
+      Object.assign(looperClear.style, {
+        position: 'fixed', top: 'auto',
+        bottom: 'calc(118px + env(safe-area-inset-bottom, 0px))',
+        left: 'max(8px, env(safe-area-inset-left, 0px))',
+        right: 'auto', transform: 'none', zIndex: '4501',
+        width: '32px', height: '32px', pointerEvents: 'auto'
+      });
+    }
     if (bar && (bar.parentElement !== app || bar.nextElementSibling !== null)) app.appendChild(bar);
 
     centerPan();
