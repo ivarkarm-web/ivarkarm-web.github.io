@@ -1,16 +1,14 @@
 /**
  * layout-boot.js — app chrome layout
- * Top bar: two stacked rows
- *   1) instrument selector
- *   2) scale selector + note count
- * Center: handpan (JS-centered in open play area, +5% down)
- * Bottom: looper above FX controls
+ * Top: revealing FX/customization drawer, then looper
+ * Bottom: instrument row + scale row
+ * Center: handpan in the remaining play area
  */
 (function layoutBoot() {
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=13';
+    link.href = './ui-layout-extras.css?v=14';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
   } else {
@@ -157,14 +155,6 @@
       topbar.setAttribute('aria-hidden', 'true');
     }
 
-    if (drawer && looperRail && looperRail.nextElementSibling !== drawer) {
-      drawer.insertAdjacentElement('beforebegin', looperRail);
-    }
-    if (drawer && looperClear && looperClear.nextElementSibling !== drawer &&
-        looperClear.previousElementSibling !== looperRail) {
-      drawer.insertAdjacentElement('beforebegin', looperClear);
-    }
-
     let topDock = document.getElementById('pionierTopDock');
     if (!topDock) {
       topDock = document.createElement('section');
@@ -173,8 +163,9 @@
       topDock.setAttribute('aria-label', 'Effects and looper');
       app.insertBefore(topDock, stage);
     }
-    const knobs = app.querySelector('.sidebar.right.knobs-panel');
-    if (knobs && knobs.parentElement !== topDock) topDock.appendChild(knobs);
+    // Keep the entire reveal drawer intact: its FX knobs and the customization
+    // gear/sheet must travel together rather than extracting the knobs from it.
+    if (drawer && drawer.parentElement !== topDock) topDock.appendChild(drawer);
     if (looperRail && looperRail.parentElement !== topDock) topDock.appendChild(looperRail);
     if (looperClear && looperRail && looperClear.parentElement !== looperRail) looperRail.appendChild(looperClear);
     if (bar && (bar.parentElement !== app || bar.nextElementSibling !== null)) app.appendChild(bar);
