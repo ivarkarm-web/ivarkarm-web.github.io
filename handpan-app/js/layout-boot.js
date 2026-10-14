@@ -89,29 +89,16 @@
     const next = document.getElementById('scaleNext');
     const scaleBlock = document.querySelector('.control-scale');
 
-    let scaleNav = document.getElementById('stageScaleNav');
-    if (scaleLabel) {
-      scaleLabel.classList.add('stage-scale-btn');
-      if (!scaleNav) {
-        scaleNav = document.createElement('div');
-        scaleNav.id = 'stageScaleNav';
-        scaleNav.className = 'stage-scale-nav';
-        scaleNav.setAttribute('role', 'group');
-        scaleNav.setAttribute('aria-label', 'Scale');
-      }
-      if (prev) {
-        prev.hidden = false;
-        prev.classList.add('icon-btn', 'stage-scale-step');
-        prev.classList.remove('step');
-      }
-      if (next) {
-        next.hidden = false;
-        next.classList.add('icon-btn', 'stage-scale-step');
-        next.classList.remove('step');
-      }
-      if (prev && prev.parentElement !== scaleNav) scaleNav.appendChild(prev);
-      if (scaleLabel.parentElement !== scaleNav) scaleNav.appendChild(scaleLabel);
-      if (next && next.parentElement !== scaleNav) scaleNav.appendChild(next);
+    if (scaleLabel) scaleLabel.classList.add('stage-scale-btn');
+    if (prev) {
+      prev.hidden = false;
+      prev.classList.add('icon-btn', 'stage-scale-step');
+      prev.classList.remove('step');
+    }
+    if (next) {
+      next.hidden = false;
+      next.classList.add('icon-btn', 'stage-scale-step');
+      next.classList.remove('step');
     }
 
     let row = document.getElementById('stageScaleRow');
@@ -124,31 +111,24 @@
 
     const noteWrap = document.getElementById('notePlusWrap');
 
-    if (scaleNav) {
-      scaleNav.classList.add('stage-scale-nav');
-      if (scaleNav.parentElement !== row || row.firstElementChild !== scaleNav) {
-        row.insertBefore(scaleNav, row.firstChild);
-      }
+    // Keep the complete scale control (including its menu) together. The picker
+    // relies on its original .control-scale ancestry for open/close behavior.
+    if (scaleBlock) {
+      scaleBlock.hidden = false;
+      scaleBlock.classList.add('stage-control-scale');
+      if (scaleBlock.parentElement !== row) row.insertBefore(scaleBlock, row.firstChild);
     }
+    if (scaleMenu) scaleMenu.classList.add('stage-scale-menu');
     if (noteWrap) {
       noteWrap.classList.add('stage-note-wrap');
-      if (noteWrap.parentElement !== row) {
-        row.appendChild(noteWrap);
-      } else if (scaleNav && noteWrap.previousElementSibling !== scaleNav) {
-        row.appendChild(noteWrap);
-      }
+      if (noteWrap.parentElement !== row) row.appendChild(noteWrap);
+      else if (scaleBlock && noteWrap.previousElementSibling !== scaleBlock) row.appendChild(noteWrap);
     }
 
     if (instNav && row && instNav.nextElementSibling !== row) {
       bar.appendChild(instNav);
       bar.appendChild(row);
     }
-
-    if (scaleMenu) {
-      scaleMenu.classList.add('stage-scale-menu');
-      if (scaleMenu.parentElement !== bar) bar.appendChild(scaleMenu);
-    }
-    if (scaleBlock) scaleBlock.hidden = true;
 
     if (topbar) {
       topbar.classList.add('topbar-collapsed');
@@ -194,7 +174,57 @@
     });
   }
 
-  const boot = () => { run(); positionEffectBubbles(); };
+  function positionPickerMenus() {
+    const instrumentToggle = document.getElementById('instrumentDropdownToggle');
+    const instrumentMenu = document.getElementById('instrumentMenu');
+    if (instrumentToggle && instrumentMenu && !instrumentMenu.hidden) {
+      const r = instrumentToggle.getBoundingClientRect();
+      const width = Math.min(320, window.innerWidth - 24);
+      const left = Math.max(12, Math.min(r.left, window.innerWidth - width - 12));
+      const below = window.innerHeight - r.bottom - 12;
+      const above = r.top - 12;
+      const openUp = below < 180 && above > below;
+      instrumentMenu.style.setProperty('position', 'fixed', 'important');
+      instrumentMenu.style.setProperty('left', left + 'px', 'important');
+      instrumentMenu.style.setProperty('right', 'auto', 'important');
+      instrumentMenu.style.setProperty('width', width + 'px', 'important');
+      instrumentMenu.style.setProperty('top', openUp ? 'auto' : (r.bottom + 6) + 'px', 'important');
+      instrumentMenu.style.setProperty('bottom', openUp ? (window.innerHeight - r.top + 6) + 'px' : 'auto', 'important');
+      instrumentMenu.style.setProperty('max-height', Math.max(120, Math.min(430, openUp ? above : below)) + 'px', 'important');
+      instrumentMenu.style.setProperty('z-index', '3201', 'important');
+    }
+    const scaleToggle = document.getElementById('scaleLabel');
+    const scaleMenu = document.getElementById('scaleMenu');
+    if (scaleToggle && scaleMenu && !scaleMenu.hidden) {
+      const r = scaleToggle.getBoundingClientRect();
+      const width = Math.min(320, window.innerWidth - 24);
+      const left = Math.max(12, Math.min(r.left + r.width / 2 - width / 2, window.innerWidth - width - 12));
+      const above = r.top - 12;
+      scaleMenu.style.setProperty('position', 'fixed', 'important');
+      scaleMenu.style.setProperty('left', left + 'px', 'important');
+      scaleMenu.style.setProperty('right', 'auto', 'important');
+      scaleMenu.style.setProperty('width', width + 'px', 'important');
+      scaleMenu.style.setProperty('top', 'auto', 'important');
+      scaleMenu.style.setProperty('bottom', Math.max(12, window.innerHeight - r.top + 6) + 'px', 'important');
+      scaleMenu.style.setProperty('max-height', Math.max(120, Math.min(360, above)) + 'px', 'important');
+      scaleMenu.style.setProperty('z-index', '3201', 'important');
+    }
+  }
+
+  const boot = () => { run(); positionEffectBubbles(); positionPickerMenus(); };
+  const pickerObserver = new MutationObserver(() => requestAnimationFrame(positionPickerMenus));
+  const observePickerMenus = () => {
+    ['instrumentMenu', 'scaleMenu'].forEach((id) => {
+      const menu = document.getElementById(id);
+      if (menu && menu.dataset.positionObserved !== '1') {
+        menu.dataset.positionObserved = '1';
+        pickerObserver.observe(menu, { attributes: true, attributeFilter: ['hidden', 'class'] });
+      }
+    });
+  };
+  observePickerMenus();
+  setTimeout(observePickerMenus, 250);
+  setTimeout(observePickerMenus, 900);
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);
   } else {
