@@ -14,7 +14,7 @@ let src = await res.text();
 src = src.replace(/library-family\.js\?v=\d+/g, 'library-family.js?v=3');
 
 // Surface: on-handpan circular mandalas under tonefields
-src = src.replace(/pionier-surface\.js\?v=\d+/g, 'pionier-surface.js?v=119');
+src = src.replace(/pionier-surface\.js\?v=\d+/g, 'pionier-surface.js?v=120');
 
 // Disable vertical pitch-bend drag (was detuning held notes)
 src = src.replace(/moved\.pitchBendNorm = bendNorm;/g, 'moved.pitchBendNorm = 0;');
