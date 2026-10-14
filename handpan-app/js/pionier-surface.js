@@ -59,7 +59,7 @@ export function createSurface(canvas) {
     const style=mandalaStyle();
     const col=theme.skin.rim||[230,236,248];
     const lip=theme.skin.lip||col;
-    const t=performance.now()*0.00018;
+    const t=performance.now()*0.000095;
     const breath=0.5+0.5*Math.sin(t*1.1);
     ctx2.save();
     ctx2.beginPath();
@@ -442,23 +442,36 @@ export function createSurface(canvas) {
   }
   let _lastInst=null,_lastCatch=false,_mandalaRaf=0,_mandalaLast=0;
   const _origDrawBody=drawBody;
+  function stopMandalaFrame(){
+    if(_mandalaRaf) cancelAnimationFrame(_mandalaRaf);
+    _mandalaRaf=0;
+  }
+  function scheduleMandalaFrame(){
+    if(_mandalaRaf||reducedMotion||!mandalaEnabled()||document.hidden)return;
+    _mandalaRaf=requestAnimationFrame(tickMandalaFrame);
+  }
+  function tickMandalaFrame(now){
+    _mandalaRaf=0;
+    if(reducedMotion||!mandalaEnabled()||document.hidden)return;
+    // A single 30 fps loop is enough for the slow metallic movement and avoids
+    // stacking duplicate RAF chains on every redraw.
+    if(now-_mandalaLast>=33){
+      _mandalaLast=now;
+      if(_lastInst!=null)_origDrawBody(_lastInst,_lastCatch);
+    }
+    scheduleMandalaFrame();
+  }
   drawBody=function(inst,catchActive){
     _lastInst=inst;_lastCatch=!!catchActive;
     _origDrawBody(inst,catchActive);
-    if(mandalaEnabled()&&!_mandalaRaf&&!reducedMotion){
-      _mandalaLast=performance.now();
-      const tick=(now)=>{
-        _mandalaRaf=requestAnimationFrame(tick);
-        if(!mandalaEnabled()){cancelAnimationFrame(_mandalaRaf);_mandalaRaf=0;return;}
-        if(now-_mandalaLast<55) return;
-        _mandalaLast=now;
-        // Redraw only the canvas surface. Calling the whole core draw() here
-        // duplicates application work and can recurse through patched renderers.
-        if(_lastInst!=null) _origDrawBody(_lastInst,_lastCatch);
-      };
-      _mandalaRaf=requestAnimationFrame(tick);
-    }
+    scheduleMandalaFrame();
   };
+  if(typeof document!=='undefined'){
+    document.addEventListener('visibilitychange',()=>{
+      if(document.hidden)stopMandalaFrame();
+      else if(_lastInst!=null)drawBody(_lastInst,_lastCatch);
+    });
+  }
   return{resize,layoutHandpanFields,armTransition,drawBody,drawCatchWaves,hitVector,canvasCoords,
     get fields(){return fields},set fields(v){fields=v},setSlitPhase(){},get metrics(){return{W,H,R,CX,CY}}};
 }
