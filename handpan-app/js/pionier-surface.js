@@ -230,7 +230,7 @@ export function createSurface(canvas) {
   }
   function layoutHandpanFields(handpanNotes,isFieldPlayable){
     const list=handpanNotes||[];const wasArmed=armed;armed=false;
-    const previous=wasArmed&&fields.length?fields.map(f=>({...f})):null;
+    const previous=wasArmed&&fields.length?animatedView(performance.now()).map(f=>({...f})):null;
     const stock=list.slice(0,MIN_NOTES||9);
     const midis=stock.map(n=>n.midi).filter(m=>m!=null);
     const midiMin=midis.length?Math.min(...midis):48,midiMax=midis.length?Math.max(...midis):72;
@@ -371,9 +371,12 @@ export function createSurface(canvas) {
     }
     return best;
   }
-  function canvasCoords(clientX,clientY){
+  function canvasCoords(a,b){
+    // Accepts a pointer event (what pionier-core passes) OR (clientX, clientY)
+    const cx=(a&&typeof a==='object')?a.clientX:a;
+    const cy=(a&&typeof a==='object')?a.clientY:b;
     const r=canvas.getBoundingClientRect();
-    return{x:(clientX-r.left)*(W/r.width),y:(clientY-r.top)*(H/r.height)};
+    return{x:(cx-r.left)*(W/r.width),y:(cy-r.top)*(H/r.height)};
   }
   let _lastInst=null,_lastCatch=false,_mandalaRaf=0,_mandalaLast=0;
   const _origDrawBody=drawBody;
@@ -396,5 +399,5 @@ export function createSurface(canvas) {
     }
   };
   return{resize,layoutHandpanFields,armTransition,drawBody,drawCatchWaves,hitVector,canvasCoords,
-    get fields(){return fields},get metrics(){return{W,H,R,CX,CY}}};
+    get fields(){return fields},set fields(v){fields=v},setSlitPhase(){},get metrics(){return{W,H,R,CX,CY}}};
 }
