@@ -13,8 +13,18 @@ let src = await res.text();
 // Use the live library-family (includes metallic batch 1 voices)
 src = src.replace(/library-family\.js\?v=\d+/g, 'library-family.js?v=3');
 
-// Surface with skins + LED tint
-src = src.replace(/pionier-surface\.js\?v=\d+/g, 'pionier-surface.js?v=100');
+// Surface with skins + LED + richer glow
+src = src.replace(/pionier-surface\.js\?v=\d+/g, 'pionier-surface.js?v=101');
+
+// Disable vertical pitch-bend drag (was detuning held notes)
+src = src.replace(/moved\.pitchBendNorm = bendNorm;/g, 'moved.pitchBendNorm = 0;');
+src = src.replace(/moved\.pitchBend = bendNorm \* range;/g, 'moved.pitchBend = 0;');
+
+// Disable slide portamento/glide between pads (stable pitch per strike)
+src = src.replace(
+  /if \(!sharedPrev && !sharedTarget && prevIdx != null && typeof inst\.glideTo === 'function'\) \{[\s\S]*?\}/,
+  'if (false) { /* glide disabled */ }'
+);
 
 // Resolve relative imports against the live handpan-app origin (not the CDN)
 const base = new URL('.', import.meta.url).href;
