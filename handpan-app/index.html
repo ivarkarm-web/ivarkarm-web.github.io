@@ -5,28 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Handpan — Ivar Karm</title>
   <meta name="theme-color" content="#070708" />
-  <style>body{margin:0;background:#070708;color:#ccc;font-family:system-ui;display:grid;place-items:center;min-height:100dvh}</style>
+  <style>html,body{margin:0;background:#070708;color:#aaa;font:15px/1.4 system-ui;min-height:100%}</style>
 </head>
 <body>
-  <div id="appBoot">Loading handpan…</div>
+  <p id="appBoot" style="padding:2rem;text-align:center">Loading handpan…</p>
   <script>
-  (async () => {
-    const url = 'https://raw.githubusercontent.com/ivarkarm-web/ivarkarm-web.github.io/033ec0faf1/handpan-app/index.html';
-    const r = await fetch(url);
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    let html = await r.text();
-    html = html
-      .replace('settings-panel.css?v=1', 'settings-panel.css?v=4')
-      .replace(
-        /<script src=".\/js\/layout-boot\.js\?v=13"><\/script>[\s\S]*?<script src=".\/js\/note-count-fix\.js\?v=1"><\/script>/,
-        '<script src="./js/customization-catalog.js?v=2"></script>\n  <script src="./js/layout-boot.js?v=13"></script>\n  <script src="./js/settings-panel.js?v=4"></script>\n  <script src="./js/ambient-fx.js?v=8"></script>\n  <script src="./js/skin-mandala.js?v=2"></script>\n  <script type="module" src="./pionier-app.js?v=153"></script>\n  <script src="./js/scale-root-fix.js?v=1"></script>\n  <script src="./js/note-count-fix.js?v=1"></script>'
+  (async function () {
+    try {
+      var url = 'https://cdn.jsdelivr.net/gh/ivarkarm-web/ivarkarm-web.github.io@033ec0faf1/handpan-app/index.html';
+      var r = await fetch(url);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      var html = await r.text();
+      // Point CSS/JS at current origin with new versions
+      html = html.replace(/settings-panel\.css\?v=\d+/g, 'settings-panel.css?v=4');
+      html = html.replace(
+        '<script src="./js/layout-boot.js?v=13"><\/script>\n  <script src="./js/settings-panel.js?v=1"><\/script>\n  <script type="module" src="./pionier-app.js?v=143"><\/script>',
+        '<script src="./js/customization-catalog.js?v=2"><\/script>\n  <script src="./js/layout-boot.js?v=13"><\/script>\n  <script src="./js/settings-panel.js?v=4"><\/script>\n  <script src="./js/ambient-fx.js?v=8"><\/script>\n  <script src="./js/skin-mandala.js?v=2"><\/script>\n  <script type="module" src="./pionier-app.js?v=153"><\/script>'
       );
-    document.open();
-    document.write(html);
-    document.close();
-  })().catch(e => {
-    document.getElementById('appBoot').textContent = 'Failed to load: ' + e;
-  });
+      document.open();
+      document.write(html);
+      document.close();
+    } catch (e) {
+      var el = document.getElementById('appBoot');
+      if (el) el.textContent = 'Failed to load: ' + e;
+      console.error(e);
+    }
+  })();
   </script>
 </body>
 </html>
