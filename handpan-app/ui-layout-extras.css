@@ -962,7 +962,7 @@ html body #looperRail {
 .stage-scale-row .stage-scale-btn,
 .stage-scale-row #scaleLabel,
 .stage-scale-row button.stage-scale-btn,
-.stage-control-scale button {
+.stage-control-scale #scaleLabel {
   box-sizing:border-box!important;
   display:inline-flex!important; align-items:center!important; justify-content:center!important;
   height:42px!important; min-height:42px!important; max-height:42px!important;
@@ -976,7 +976,7 @@ html body #looperRail {
 .stage-instrument-nav .instrument-name,
 .stage-scale-row .stage-scale-btn,
 .stage-scale-row #scaleLabel,
-.stage-control-scale button {
+.stage-control-scale #scaleLabel {
   width:clamp(120px,38vw,190px)!important; min-width:0!important; max-width:42vw!important;
 }
 .stage-instrument-nav .icon-btn,.stage-instrument-nav .soundscapes-open-btn,
@@ -990,9 +990,70 @@ html body #looperRail {
   .stage-instrument-nav .instrument-name,
   .stage-scale-row .stage-scale-btn,
   .stage-scale-row #scaleLabel,
-  .stage-control-scale button {
+  .stage-control-scale #scaleLabel {
     width:clamp(112px,38vw,170px)!important; max-width:42vw!important;
     height:40px!important; min-height:40px!important; max-height:40px!important;
     padding:0 10px!important; font-size:12px!important;
+  }
+}
+
+
+/* Runtime-stable control alignment: only the scale picker gets picker sizing;
+   its previous broad button selector also resized the previous/next arrows. */
+html body #stageScaleBar .stage-instrument-nav #instrumentDropdownToggle,
+html body #stageScaleBar #stageScaleRow #scaleLabel {
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  width: clamp(120px, 38vw, 190px) !important;
+  min-width: 0 !important;
+  max-width: 42vw !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  border: 1px solid rgba(212,176,74,.22) !important;
+  border-radius: 12px !important;
+  background: linear-gradient(180deg,rgba(29,29,32,.98),rgba(17,17,20,.98)) !important;
+  color: rgba(245,239,224,.92) !important;
+  font: 500 12px/1.2 system-ui,sans-serif !important;
+  letter-spacing: .035em !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+html body #stageScaleBar #stageScaleRow #scalePrev,
+html body #stageScaleBar #stageScaleRow #scaleNext {
+  flex: 0 0 36px !important;
+  width: 36px !important;
+  min-width: 36px !important;
+  max-width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+}
+html body #pionierTopDock #looperRail #looperClearBtn {
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+  z-index: auto !important;
+  align-self: center !important;
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+}
+@media (max-width: 700px) {
+  html body #stageScaleBar .stage-instrument-nav #instrumentDropdownToggle,
+  html body #stageScaleBar #stageScaleRow #scaleLabel {
+    width: clamp(112px, 38vw, 170px) !important;
+    max-width: 42vw !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
   }
 }
