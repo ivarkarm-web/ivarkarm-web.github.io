@@ -1,6 +1,6 @@
 /**
  * Customization catalog — skins, ambients, tonefields.
- * Premium editorial palette; IDs consumed by settings, surface, ambient-fx, mandala.
+ * Soft circular tonefields only (no sharp edges).
  */
 (function catalog() {
   const SKINS = [
@@ -51,15 +51,12 @@
     { id: 'haze', label: 'Warm Haze', group: 'Light' },
   ];
 
+  // Soft circular tonefields only — no sharp edges (diamond/hex/wave/crescent removed)
   const TONEFIELDS = [
     { id: 'classic', label: 'Classic Oval' },
     { id: 'round', label: 'Soft Round' },
     { id: 'petal', label: 'Petal' },
-    { id: 'diamond', label: 'Soft Diamond' },
-    { id: 'hex', label: 'Gentle Hex' },
     { id: 'teardrop', label: 'Teardrop' },
-    { id: 'wave', label: 'Wave Edge' },
-    { id: 'crescent', label: 'Crescent' },
     { id: 'seed', label: 'Seed' },
     { id: 'halo', label: 'Halo Ring' },
   ];
