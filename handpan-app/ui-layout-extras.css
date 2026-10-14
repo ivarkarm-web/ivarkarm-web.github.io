@@ -218,12 +218,15 @@
 }
 
 
-/* Keep handpan geometrically centered in the stage */
+/* Center handpan in the visible play area (above bottom chrome) */
 .stage {
   position: relative !important;
   align-items: center !important;
   justify-content: center !important;
   overflow: hidden !important;
+  /* Leave room for looper + CONTROLS so 50% is the true visual center */
+  padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)) !important;
+  box-sizing: border-box !important;
 }
 .stage::before {
   left: 50% !important;
@@ -236,7 +239,7 @@
   top: 50% !important;
   transform: translate(-50%, -50%) translateZ(0) !important;
   margin: 0 !important;
-  width: min(86vw, calc(100dvh - 220px), 680px) !important;
+  width: min(86vw, calc(100dvh - 240px), 680px) !important;
   max-width: 86vw !important;
   height: auto !important;
   aspect-ratio: 1 !important;
