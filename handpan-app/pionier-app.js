@@ -62,9 +62,9 @@ async function boot() {
     return false;
   }
 
-  // Arpeggiator family: look-ahead scheduler + 5 cinematic ambient arps
+  // Arpeggiator family: look-ahead scheduler + 10 cinematic ambient arps
   try {
-    const { createArpInstruments } = await import(new URL('./js/instruments/arp-family.js?v=2', BASE).href);
+    const { createArpInstruments } = await import(new URL('./js/instruments/arp-family.js?v=3', BASE).href);
     const { InstrumentRegistry } = await import(new URL('./js/instrument.js', BASE).href);
     for (const inst of createArpInstruments()) {
       try { InstrumentRegistry.register(inst); } catch (e) { console.warn('[arp] register', inst?.id, e); }
