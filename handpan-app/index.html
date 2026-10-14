@@ -26,14 +26,21 @@
     .stage {
       padding: 0 4px 4px !important;
       flex-direction: column;
+      align-items: center !important;
+      justify-content: center !important;
     }
     #pan {
-      width: min(96vw, calc(100dvh - 150px), 800px) !important;
-      max-width: 96vw !important;
+      width: min(92vw, calc(100dvh - 180px), 720px) !important;
+      max-width: 92vw !important;
+      margin: 0 auto !important;
+      display: block !important;
     }
     .stage::before {
-      width: min(88vw, calc(100dvh - 160px), 700px) !important;
-      height: min(88vw, calc(100dvh - 160px), 700px) !important;
+      left: 50% !important;
+      top: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      width: min(84vw, calc(100dvh - 190px), 680px) !important;
+      height: min(84vw, calc(100dvh - 190px), 680px) !important;
     }
   </style>
   <script>
@@ -200,8 +207,8 @@
   </section>
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
 
-  <script src="./js/layout-boot.js?v=7"></script>
-  <script type="module" src="./pionier-app.js?v=136"></script>
+  <script src="./js/layout-boot.js?v=8"></script>
+  <script type="module" src="./pionier-app.js?v=137"></script>
   <script src="./js/scale-root-fix.js?v=1"></script>
   <script src="./js/note-count-fix.js?v=1"></script>
 </body>
