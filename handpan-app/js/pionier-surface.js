@@ -7,11 +7,6 @@ export function createSurface(canvas) {
   let W=800,H=800,R=0,CX=0,CY=0,fields=[],anim=null,armed=false,rimTime=0;
   let reducedMotion=false;
   try{reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches}catch(_){}
-  const rimParticles=Array.from({length:reducedMotion?24:40},(_,i)=>({
-    a:(i/40)*Math.PI*2+Math.random()*0.04,rJ:(Math.random()-0.5)*0.012,
-    size:0.55+Math.random()*0.55,phase:Math.random()*Math.PI*2,
-    speed:0.18+Math.random()*0.12,gold:Math.random()<0.35
-  }));
   function getTheme(){
     const s=(typeof window!=='undefined'&&window.PionierSettings)||{};
     const led=s.led||{r:110,g:200,b:255};
@@ -364,16 +359,6 @@ export function createSurface(canvas) {
     const halo=ctx2.createRadialGradient(CX,CY,rimR*0.96,CX,CY,rimR*1.035);
     halo.addColorStop(0,rgba(lc,0));halo.addColorStop(0.62,rgba(mixLed([230,236,248],th.led,0.5),0.012*breath));halo.addColorStop(1,rgba(lc,0));
     ctx2.fillStyle=halo;ctx2.beginPath();ctx2.arc(CX,CY,rimR*1.08,0,Math.PI*2);ctx2.arc(CX,CY,rimR*0.88,0,Math.PI*2,true);ctx2.fill();
-    for(const p of []){
-      const a=breath*(0.55+0.45*Math.sin(rimTime*p.speed+p.phase))*0.22;
-      if(a<0.01)continue;
-      const x=CX+Math.cos(p.a)*rimR*(1+p.rJ),y=CY+Math.sin(p.a)*rimR*(1+p.rJ);
-      const s=Math.max(0.6,R*0.0045*p.size);
-      const col=p.gold?rgba(mixLed([228,205,140],th.led,0.35),a):rgba(mixLed(lc,th.led,0.15),a);
-      const grad=ctx2.createRadialGradient(x,y,0,x,y,s*3.2);
-      grad.addColorStop(0,col);grad.addColorStop(1,rgba(lc,0));
-      ctx2.fillStyle=grad;ctx2.beginPath();ctx2.arc(x,y,s*3.2,0,Math.PI*2);ctx2.fill();
-    }
     ctx2.restore();
   }
   function drawBody(inst,catchActive){
