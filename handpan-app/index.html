@@ -17,6 +17,19 @@
   <link rel="stylesheet" href="./topbar-narrow.css?v=5" />
   <link rel="stylesheet" href="./looper.css?v=201" />
   <link rel="stylesheet" href="./scale-menu.css?v=3" />
+  <style>
+    /* Main-page music player removed — note-count sits fixed at bottom center */
+    .backdrop-player { display: none !important; }
+    .note-plus-wrap {
+      position: fixed !important;
+      left: 50% !important;
+      right: auto !important;
+      transform: translateX(-50%) !important;
+      bottom: calc(52px + env(safe-area-inset-bottom, 0px)) !important;
+      z-index: 50;
+      pointer-events: auto;
+    }
+  </style>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
@@ -150,22 +163,11 @@
       <span class="looper-clear-core" aria-hidden="true"><span class="looper-clear-x"></span></span>
     </button>
 
-    <div class="backdrop-player" id="backdropPlayer" aria-label="Background music">
-      <button type="button" class="bp-btn" data-act="prev" aria-label="Previous track">‹</button>
-      <button type="button" class="bp-btn bp-play" data-act="play" aria-label="Play">▶</button>
-      <button type="button" class="bp-btn" data-act="next" aria-label="Next track">›</button>
-      <button type="button" class="bp-btn bp-mute" data-act="mute" aria-label="Mute background audio" aria-pressed="false">♪</button>
-      <span class="bp-name" data-track-name>Mist Drone</span>
-      <label class="bp-vol" title="Volume">
-        <span class="bp-vol-icon" aria-hidden="true">♪</span>
-        <input type="range" data-volume min="0" max="100" value="55" aria-label="Background volume" />
-      </label>
-      <div class="note-plus-wrap" id="notePlusWrap">
-        <button type="button" class="note-plus" id="notePlus" aria-label="Add the next scale note" title="Add the next scale note">
-          <span class="note-plus-icon" aria-hidden="true"></span>
-        </button>
-        <span class="note-plus-count" id="notePlusCount" aria-live="polite">9/14</span>
-      </div>
+    <div class="note-plus-wrap" id="notePlusWrap">
+      <button type="button" class="note-plus" id="notePlus" aria-label="Add the next scale note" title="Add the next scale note">
+        <span class="note-plus-icon" aria-hidden="true"></span>
+      </button>
+      <span class="note-plus-count" id="notePlusCount" aria-live="polite">9/14</span>
     </div>
   </div>
 
@@ -200,9 +202,8 @@
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
 
   <script src="./js/layout-boot.js?v=4"></script>
-  <script type="module" src="./pionier-app.js?v=130"></script>
+  <script type="module" src="./pionier-app.js?v=131"></script>
   <script src="./js/scale-root-fix.js?v=1"></script>
   <script src="./js/note-count-fix.js?v=1"></script>
-  <script src="./js/backdrop-soundscape-bridge.js?v=1" defer></script>
 </body>
 </html>
