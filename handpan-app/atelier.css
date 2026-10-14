@@ -318,3 +318,38 @@ html body #stageScaleBar #scaleLabel {
 html body #stageScaleBar #looperRail #looperClearBtn {
   border-radius: 12px !important;
 }
+
+
+/* Quiet, rounded controls: no decorative glow or bright hover halo. */
+html body button,
+html body .app button,
+html body #stageScaleBar button,
+html body #pionierTopDock button,
+html body .instrument-menu button,
+html body .scale-menu button,
+html body .mobile-control-panel button,
+html body .settings-panel button {
+  border-radius: 999px !important;
+  border-color: rgba(230,224,210,.10) !important;
+  box-shadow: none !important;
+}
+html body button:hover:not(:disabled),
+html body .app button:hover:not(:disabled),
+html body #stageScaleBar button:hover:not(:disabled),
+html body #pionierTopDock button:hover:not(:disabled) {
+  border-color: rgba(230,224,210,.16) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+html body #stageScaleBar #instrumentDropdownToggle,
+html body #stageScaleBar #scaleLabel,
+html body #stageScaleBar #looperRail,
+html body #stageScaleBar #looperRail #looperClearBtn {
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+html body .loop-orb,
+html body .loop-orb:hover,
+html body .loop-orb.is-recording {
+  box-shadow: none !important;
+}
