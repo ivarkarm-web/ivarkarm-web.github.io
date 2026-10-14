@@ -13,9 +13,11 @@
   }
 
   function forcePointerEvents() {
+    const drawer = document.getElementById('mobileControlDrawer');
     const bar = document.querySelector('.mobile-controls-bar');
     const gear = document.getElementById('settingsOpenBtn');
     const toggle = document.getElementById('mobileControlsToggle');
+    // Drawer stays pointer-events:none when collapsed, but children with auto receive clicks
     if (bar) {
       bar.style.pointerEvents = 'auto';
       bar.style.position = bar.style.position || 'relative';
@@ -26,6 +28,24 @@
       gear.style.pointerEvents = 'auto';
       gear.style.zIndex = '6';
     }
+  }
+
+  function forceRedraw() {
+    try {
+      if (window.PionierCore && typeof window.PionierCore.draw === 'function') {
+        window.PionierCore.draw();
+      }
+    } catch (_) {}
+    // Fallback: request a frame in case core isn't ready yet
+    try {
+      requestAnimationFrame(function () {
+        try {
+          if (window.PionierCore && typeof window.PionierCore.draw === 'function') {
+            window.PionierCore.draw();
+          }
+        } catch (_) {}
+      });
+    } catch (_) {}
   }
 
   function onSettings(e) {
@@ -59,9 +79,12 @@
     if (d.tonefield != null) root.dataset.tonefield = d.tonefield;
     if (d.ambient != null) root.dataset.ambient = d.ambient;
     if (d.transparency != null) root.style.setProperty('--handpan-alpha', String(d.transparency));
+    // Force ambient engine immediately
     if (d.ambient != null && window.PionierAmbient && typeof window.PionierAmbient.setMode === 'function') {
       window.PionierAmbient.setMode(d.ambient);
     }
+    // Redraw handpan so skin / tonefield / transparency update without needing a note hit
+    forceRedraw();
     syncControlsLabel();
   }
 
@@ -86,6 +109,7 @@
           ev.preventDefault();
           ev.stopPropagation();
           forceApplyFromSettings();
+          // also re-read localStorage in case panel state differs
           try {
             var raw = localStorage.getItem('pionier.settings.v2');
             if (raw) {
@@ -144,35 +168,17 @@
   if (!document.getElementById('settingsApplyStyles')) {
     var st = document.createElement('style');
     st.id = 'settingsApplyStyles';
-    st.textContent = [
-      '.settings-sheet-actions{display:flex;align-items:center;gap:8px}',
-      '.settings-apply-btn{min-height:32px;padding:6px 14px;border-radius:999px;border:1px solid rgba(212,176,74,.45);background:rgba(212,176,74,.18);color:#e8c86a;font-size:13px;font-weight:600;cursor:pointer}',
-      '.settings-apply-btn:hover{background:rgba(212,176,74,.28)}',
-      'html.theme-light .settings-apply-btn{background:rgba(212,176,74,.22);color:#7a5c12;border-color:rgba(180,140,40,.45)}',
-      '.mobile-control-drawer .mobile-controls-bar{pointer-events:auto !important;position:relative;z-index:5}',
-      '.mobile-control-drawer .mobile-controls-toggle{pointer-events:auto !important}',
-      '.mobile-control-drawer .settings-open-btn{pointer-events:auto !important;z-index:6}',
-      '.mobile-control-drawer:not(.is-open){pointer-events:none}',
-      '.mobile-control-drawer:not(.is-open) .mobile-controls-bar,',
-      '.mobile-control-drawer:not(.is-open) .mobile-controls-toggle,',
-      '.mobile-control-drawer:not(.is-open) .settings-open-btn{pointer-events:auto !important}',
-    ].join('');
+    st.textContent = '.settings-sheet-actions{display:flex;align-items:center;gap:8px}.settings-apply-btn{min-height:32px;padding:6px 14px;border-radius:999px;border:1px solid rgba(212,176,74,.45);background:rgba(212,176,74,.18);color:#e8c86a;font-size:13px;font-weight:600;cursor:pointer}.settings-apply-btn:hover{background:rgba(212,176,74,.28)}html.theme-light .settings-apply-btn{background:rgba(212,176,74,.22);color:#7a5c12;border-color:rgba(180,140,40,.45)}.mobile-control-drawer:not(.is-open) .mobile-controls-bar,.mobile-control-drawer:not(.is-open) .mobile-controls-toggle,.mobile-control-drawer:not(.is-open) .settings-open-btn{pointer-events:auto!important}.mobile-control-drawer .mobile-controls-bar{pointer-events:auto!important;position:relative;z-index:5}.mobile-control-drawer .settings-open-btn{pointer-events:auto!important;z-index:6}';
     (document.head || document.documentElement).appendChild(st);
   }
 
   window.addEventListener('pionier:settings', onSettings);
-  setInterval(function () {
+  setInterval(function () { syncControlsLabel(); ensureApplyBtn(); forcePointerEvents(); }, 800);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { syncControlsLabel(); ensureApplyBtn(); forcePointerEvents(); });
+  } else {
     syncControlsLabel();
     ensureApplyBtn();
     forcePointerEvents();
-  }, 600);
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
-      syncControlsLabel(); ensureApplyBtn(); forcePointerEvents();
-    });
-  } else {
-    syncControlsLabel(); ensureApplyBtn(); forcePointerEvents();
   }
-  setTimeout(function () { forcePointerEvents(); ensureApplyBtn(); }, 200);
-  setTimeout(function () { forcePointerEvents(); ensureApplyBtn(); }, 800);
 })();
