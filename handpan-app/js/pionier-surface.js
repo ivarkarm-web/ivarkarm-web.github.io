@@ -265,6 +265,35 @@ export function createSurface(canvas) {
       return{...f,x:mix(from.x,f.x),y:mix(from.y,f.y),rx:mix(from.rx,f.rx),ry:mix(from.ry,f.ry),rot:(from.rot||0)+dr*e};
     });
   }
+  // Premium shell finish: restrained radial sheen + full-disc micro-engraving.
+  // Drawn beneath tonefields; this does not change field geometry or hit testing.
+  function drawSurfaceFinish(theme){
+    if(R<20)return;
+    const lip=theme.skin.lip||theme.skin.rim||[230,236,248];
+    const phase=reducedMotion?0.5:0.5+0.5*Math.sin(performance.now()*0.00022);
+    ctx2.save();
+    ctx2.beginPath();ctx2.arc(CX,CY,R*0.925,0,Math.PI*2);ctx2.clip();
+    ctx2.globalCompositeOperation='screen';
+    const sheen=ctx2.createRadialGradient(CX-R*0.34,CY-R*0.42,R*0.025,CX-R*0.18,CY-R*0.12,R*1.12);
+    sheen.addColorStop(0,rgba([255,248,232],0.055+phase*0.012));
+    sheen.addColorStop(0.36,rgba(lip,0.018));
+    sheen.addColorStop(1,rgba(lip,0));
+    ctx2.fillStyle=sheen;ctx2.beginPath();ctx2.arc(CX,CY,R*0.925,0,Math.PI*2);ctx2.fill();
+
+    // Fine concentric lathe marks read as brushed metal, not a bright overlay.
+    ctx2.globalCompositeOperation='source-over';
+    ctx2.lineWidth=Math.max(0.45,R*0.00105);
+    for(let i=0;i<11;i++){
+      const rr=R*(0.17+i*0.068);
+      ctx2.strokeStyle=rgba(lip,0.012+(i%3===0?0.012:0)+phase*0.004);
+      ctx2.beginPath();ctx2.arc(CX,CY,rr,0,Math.PI*2);ctx2.stroke();
+    }
+    // A broken specular arc catches the upper shoulder of the shell.
+    ctx2.strokeStyle=rgba([255,248,232],0.035+phase*0.025);
+    ctx2.lineWidth=Math.max(0.7,R*0.0022);
+    ctx2.beginPath();ctx2.arc(CX,CY,R*0.905,Math.PI*1.13,Math.PI*1.78);ctx2.stroke();
+    ctx2.restore();
+  }
   function drawSlit(f,glow,playable){
     const isDing=f.kind==='ding';
     const slitLen=isDing?Math.min(f.rx,f.ry)*0.42:Math.min(f.rx,f.ry)*0.55;
@@ -311,6 +340,7 @@ export function createSurface(canvas) {
     g.addColorStop(0,theme.skin.body[0]);g.addColorStop(0.5,theme.skin.body[1]);g.addColorStop(1,theme.skin.body[2]);
     ctx2.fillStyle=g;ctx2.beginPath();ctx2.arc(CX,CY,R,0,Math.PI*2);ctx2.fill();
     drawHandpanMandala(theme);
+    drawSurfaceFinish(theme);
     ctx2.strokeStyle=rgba(theme.skin.rim,0.28);ctx2.lineWidth=Math.max(2,R*0.013);
     ctx2.beginPath();ctx2.arc(CX,CY,R*0.93,0,Math.PI*2);ctx2.stroke();
     const view=animatedView(performance.now());
