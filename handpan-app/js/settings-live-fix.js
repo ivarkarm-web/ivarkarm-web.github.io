@@ -13,11 +13,9 @@
   }
 
   function forcePointerEvents() {
-    const drawer = document.getElementById('mobileControlDrawer');
     const bar = document.querySelector('.mobile-controls-bar');
     const gear = document.getElementById('settingsOpenBtn');
     const toggle = document.getElementById('mobileControlsToggle');
-    // Drawer stays pointer-events:none when collapsed, but children with auto receive clicks
     if (bar) {
       bar.style.pointerEvents = 'auto';
       bar.style.position = bar.style.position || 'relative';
@@ -36,7 +34,6 @@
         window.PionierCore.draw();
       }
     } catch (_) {}
-    // Fallback: request a frame in case core isn't ready yet
     try {
       requestAnimationFrame(function () {
         try {
@@ -79,12 +76,15 @@
     if (d.tonefield != null) root.dataset.tonefield = d.tonefield;
     if (d.ambient != null) root.dataset.ambient = d.ambient;
     if (d.transparency != null) root.style.setProperty('--handpan-alpha', String(d.transparency));
-    // Force ambient engine immediately
     if (d.ambient != null && window.PionierAmbient && typeof window.PionierAmbient.setMode === 'function') {
       window.PionierAmbient.setMode(d.ambient);
     }
-    // Redraw handpan so skin / tonefield / transparency update without needing a note hit
     forceRedraw();
+    try {
+      if (window.PionierMandala && typeof window.PionierMandala.setFromSettings === 'function') {
+        window.PionierMandala.setFromSettings(d);
+      }
+    } catch (_) {}
     syncControlsLabel();
   }
 
@@ -109,7 +109,6 @@
           ev.preventDefault();
           ev.stopPropagation();
           forceApplyFromSettings();
-          // also re-read localStorage in case panel state differs
           try {
             var raw = localStorage.getItem('pionier.settings.v2');
             if (raw) {
