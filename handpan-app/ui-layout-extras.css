@@ -1390,3 +1390,59 @@ html body #stageScaleBar #looperRail #looperRecordCluster {
     min-height: 30px !important;
   }
 }
+
+
+/* Focused correction: make loop-layer controls open above all app chrome,
+   remove the note-count badge, and center both selector rows independently. */
+html body .looper-sheet {
+  position: fixed !important;
+  z-index: 6000 !important;
+  box-sizing: border-box !important;
+  width: min(220px, calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+  max-height: min(70dvh, 520px) !important;
+  overflow-y: auto !important;
+  border-radius: 20px !important;
+  background: rgba(18,18,22,.98) !important;
+  border: 1px solid rgba(230,224,210,.16) !important;
+  box-shadow: 0 16px 48px rgba(0,0,0,.58) !important;
+}
+html body .looper-sheet .looper-sheet-actions {
+  display: flex !important;
+  gap: 6px !important;
+}
+html body .looper-sheet .looper-sheet-btn {
+  min-width: 0 !important;
+  border-radius: 999px !important;
+}
+html body #stageScaleBar #notePlusCount,
+html body #stageScaleBar .note-plus-count {
+  display: none !important;
+}
+html body #stageScaleBar > .stage-instrument-nav,
+html body #stageScaleBar > #stageScaleRow {
+  width: max-content !important;
+  max-width: 100% !important;
+  margin-inline: auto !important;
+  align-self: center !important;
+  justify-content: center !important;
+}
+html body #stageScaleBar > #stageScaleRow {
+  gap: 7px !important;
+}
+html body #stageScaleBar .stage-control-scale,
+html body #stageScaleBar .stage-control-scale .scale-stepper {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-inline: auto !important;
+}
+@media (max-width: 420px) {
+  html body #stageScaleBar > .stage-instrument-nav,
+  html body #stageScaleBar > #stageScaleRow {
+    width: 100% !important;
+  }
+  html body .looper-sheet {
+    width: min(210px, calc(100vw - 20px)) !important;
+  }
+}
