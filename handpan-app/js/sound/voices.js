@@ -37,7 +37,6 @@ function pluck(f, vel, sr, rnd, o) {
   const comb = new Float32Array(M);
   for (let i = 0; i < M; i++) comb[i] = ex[i] - (i >= pk ? ex[i - pk] : 0) * 0.6;
   removeDC(comb);
-  // low notes ring longer, high notes need a lighter loop filter so they don't die instantly
   const t60 = o.t60 * clamp(Math.pow(220 / f, 0.25), 0.6, 1.4);
   const s = o.s * clamp(500 / f, 0.3, 1);
   return delayLoop(frames(sr, o.len), sr, f, { init: comb, s, t60 });
@@ -120,7 +119,6 @@ export const VOICES = [
     render({ f, vel, sr, rnd }) {
       const n = frames(sr, 4.6);
       const nz = biquad(whiteNoise(n, rnd), 'bp', clamp(f * 2.5, 300, 6000), 0.6, sr);
-      // slow breath swell with flutter
       const fl = biquad(whiteNoise(n, rnd), 'lp', 7, 0.7, sr);
       let flMax = 1e-6;
       for (let i = 0; i < n; i++) flMax = Math.max(flMax, Math.abs(fl[i]));
@@ -130,7 +128,6 @@ export const VOICES = [
         nz[i] *= swell * (0.75 + 0.35 * fl[i] / flMax) * 0.03;
       }
       const tube = delayLoop(n, sr, f, { mult: 2, sign: -1, s: 0.35, t60: 1.2, input: nz });
-      // a little pure tone under the noise gives the note a stable core
       let r = 0;
       for (let i = 0; i < n; i++) r += tube[i] * tube[i];
       r = Math.sqrt(r / n);
@@ -214,7 +211,7 @@ export const VOICES = [
           for (let k = 1; k <= K; k++) {
             const nr = re * c - im * sn;
             im = re * sn + im * c; re = nr;
-            acc += amp[k] * (im * cphi[k] + re * sphi[k]);   // sin(kθ + φk)
+            acc += amp[k] * (im * cphi[k] + re * sphi[k]);
           }
           y[i] += acc;
         }
@@ -280,6 +277,113 @@ export const VOICES = [
         }
       }
       return y;
+    }
+  },
+  /* ---- BATCH 1: Core Metallic Textures ---- */
+  {
+    id: 'tibetan', name: 'Tibetan Singing Bowl', family: 'traditional',
+    desc: 'Deep bronze bowl with inharmonic beating partials and a long glassy bloom; harder strikes brighten the upper rim modes.',
+    sr: 32000, tail: 9.0, fade: [0.04, 1.6], trim: 0, send: { rev: 0.62, dly: 0.08 }, pan: 0,
+    render({ f, vel, sr, rnd }) {
+      const y = new Float32Array(frames(sr, 9.0));
+      const R = [1, 2.76, 5.40, 8.93, 12.6, 17.1];
+      const A = [1, 0.72, 0.38, 0.18, 0.08, 0.03];
+      const T = [8.6, 6.4, 4.4, 2.8, 1.7, 0.9];
+      const b = 0.35 + 0.65 * vel;
+      const modes = [];
+      R.forEach((r, k) => {
+        const a = A[k] * (k === 0 ? 1 : b);
+        const beat = 0.12 + 0.1 * k + rnd() * 0.04;
+        modes.push([f * r - beat, a, T[k]]);
+        modes.push([f * r + beat, a * 0.82, T[k] * 0.92]);
+      });
+      const atk = 0.45 - 0.32 * vel;
+      addModes(y, sr, modes, atk);
+      click(y, sr, rnd, 9, f * 2.2 + 400, 1.6, 0.18 * vel);
+      return biquad(y, 'lp', 1800 + 5200 * vel, 0.65, sr);
+    }
+  },
+  {
+    id: 'tongue', name: 'Steel Tongue Drum', family: 'traditional',
+    desc: 'Boxier cousin of the handpan: fewer high partials, shorter decay, contained shell resonance.',
+    sr: 44100, tail: 3.8, fade: [0.001, 0.35], trim: 0, send: { rev: 0.28, dly: 0.14 }, pan: 0.04,
+    render({ f, vel, sr, rnd }) {
+      const y = new Float32Array(frames(sr, 3.8));
+      const b = 0.4 + 0.6 * vel;
+      addModes(y, sr, [
+        [f - 0.15, 1.0, 3.4],
+        [f + 0.15, 0.88, 3.1],
+        [f * 2.002, 0.32 * b + 0.05, 2.0],
+        [f * 2.99, 0.14 * b, 1.15],
+        [f * 4.02, 0.05 * b, 0.55]
+      ], 0.002);
+      click(y, sr, rnd, 5, f * 1.5 + 280, 1.2, 0.28 * vel);
+      return biquad(y, 'lp', 1400 + 4200 * vel, 0.75, sr);
+    }
+  },
+  {
+    id: 'crystal_kalimba', name: 'Crystal Kalimba', family: 'traditional',
+    desc: 'Pure glassy tine pluck — sine-led fundamental with brief crystalline partials and rapid decay.',
+    sr: 44100, tail: 2.8, fade: [0.001, 0.22], trim: 0, send: { rev: 0.3, dly: 0.22 }, pan: 0.1,
+    render({ f, vel, sr, rnd }) {
+      const y = new Float32Array(frames(sr, 2.8));
+      const b = 0.35 + 0.65 * vel;
+      addModes(y, sr, [
+        [f, 1.0, 2.2],
+        [f * 2.0, 0.12 * b, 0.9],
+        [f * 6.27, 0.22 * b, 0.45],
+        [f * 12.3, 0.06 * b, 0.12]
+      ], 0.0008);
+      click(y, sr, rnd, 2.5, 3800 + 1200 * vel, 1.1, 0.16 * vel);
+      return biquad(y, 'lp', 2200 + 7000 * vel, 0.6, sr);
+    }
+  },
+  {
+    id: 'ice_chime', name: 'Ice Chime', family: 'hybrid',
+    desc: 'Fragile glass-like strike: sharp transient, sparse high-Q partials, short cold sustain.',
+    sr: 44100, tail: 2.4, fade: [0.0005, 0.18], trim: 0, send: { rev: 0.4, dly: 0.28 }, pan: 0.18,
+    render({ f, vel, sr, rnd }) {
+      const y = new Float32Array(frames(sr, 2.4));
+      const b = 0.3 + 0.7 * vel;
+      addModes(y, sr, [
+        [f, 1.0, 1.6],
+        [f * 2.41, 0.45 * b, 0.7],
+        [f * 3.92, 0.22 * b, 0.35],
+        [f * 6.15, 0.1 * b, 0.18],
+        [f * 9.4, 0.04 * b, 0.08]
+      ], 0.0004);
+      click(y, sr, rnd, 2, 5200 + 2000 * vel, 2.2, 0.35 * vel);
+      return biquad(y, 'lp', 2800 + 9000 * vel, 0.55, sr);
+    }
+  },
+  {
+    id: 'windchimes', name: 'Zen Windchimes', family: 'experimental',
+    desc: 'Primary pitch plus scattered ultra-high metallic transients that drift around the struck note.',
+    sr: 44100, tail: 4.2, fade: [0.002, 0.5], trim: 0, send: { rev: 0.5, dly: 0.25 }, pan: 0,
+    render({ f, vel, sr, rnd }) {
+      const y = new Float32Array(frames(sr, 4.2));
+      const b = 0.4 + 0.6 * vel;
+      addModes(y, sr, [
+        [f, 0.7, 3.2],
+        [f * 2.01, 0.2 * b, 1.6],
+        [f * 3.05, 0.08 * b, 0.7]
+      ], 0.003);
+      click(y, sr, rnd, 3, f * 3 + 600, 1.5, 0.12 * vel);
+      const count = 4 + Math.floor(6 * vel);
+      for (let g = 0; g < count; g++) {
+        const t0 = Math.floor((0.02 + rnd() * 2.8) * sr);
+        const len = Math.floor((0.08 + rnd() * 0.35) * sr);
+        const fr = f * (2.5 + rnd() * 6.5) * Math.pow(2, (rnd() * 20 - 10) / 1200);
+        if (fr > sr * 0.44) continue;
+        const a = (0.12 + 0.25 * rnd()) * b;
+        const w = TAU * fr / sr;
+        const p = rnd() * TAU;
+        for (let i = 0; i < len && t0 + i < y.length; i++) {
+          const h = Math.exp(-i / (sr * 0.08));
+          y[t0 + i] += a * h * Math.sin(w * i + p);
+        }
+      }
+      return biquad(y, 'lp', 3000 + 8000 * vel, 0.5, sr);
     }
   }
 ];
