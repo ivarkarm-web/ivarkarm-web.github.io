@@ -179,14 +179,6 @@ async function boot() {
   }
 
   try {
-    const { mountBackdropPlayer } = await import(new URL('./js/backdrop-player.js?v=96', BASE).href);
-    mountBackdropPlayer();
-  } catch (err) {
-    console.warn('[backdrop] mount failed', err);
-    degraded.push('the ambient player');
-  }
-
-  try {
     const { mountLooper } = await import(new URL('./js/looper.js?v=201', BASE).href);
     mountLooper();
   } catch (err) {
