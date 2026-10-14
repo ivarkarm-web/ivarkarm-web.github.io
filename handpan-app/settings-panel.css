@@ -179,7 +179,7 @@
   gap: 6px 10px;
   align-items: center;
   font-size: 12px;
-  color: rgba(245, 242, 236, 0.55);
+  color: rgba: rgba(245, 242, 236, 0.55);
 }
 .settings-rgb-grid input[type="range"] {
   width: 100%;
@@ -198,10 +198,8 @@
   box-shadow: 0 0 16px rgb(110, 200, 255);
 }
 
-/* Dropdowns — match instrument picker size/feel */
-.settings-dd {
-  margin-bottom: 12px;
-}
+/* Dropdowns */
+.settings-dd { margin-bottom: 12px; }
 .settings-dd-label {
   font-size: 11px;
   font-weight: 600;
@@ -281,9 +279,7 @@
   font-size: 14px;
   cursor: pointer;
 }
-.settings-dd-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-}
+.settings-dd-item:hover { background: rgba(255, 255, 255, 0.06); }
 .settings-dd-item.is-active {
   background: rgba(212, 176, 74, 0.16);
   color: #e8c86a;
@@ -291,26 +287,19 @@
 
 /* ---- Light theme ---- */
 html.theme-light,
+html.theme-light body { color-scheme: light; }
 html.theme-light body {
-  color-scheme: light;
-}
-html.theme-light body {
-  background: #e8e6e1;
-  color: #1a1a1c;
+  background: #e8e6e1 !important;
+  color: #1a1a1c !important;
 }
 html.theme-light body::before {
   background:
     radial-gradient(ellipse 90% 60% at 50% 42%, rgba(255, 255, 255, 0.7) 0%, transparent 62%),
     radial-gradient(ellipse 50% 40% at 50% 100%, rgba(212, 176, 74, 0.08) 0%, transparent 55%),
-    linear-gradient(180deg, #f2f0eb 0%, #e4e1da 100%);
+    linear-gradient(180deg, #f2f0eb 0%, #e4e1da 100%) !important;
 }
 html.theme-light .stage-scale-bar {
-  background: linear-gradient(
-    to bottom,
-    rgba(242, 240, 235, 0.96) 0%,
-    rgba(242, 240, 235, 0.7) 70%,
-    transparent 100%
-  );
+  background: linear-gradient(to bottom, rgba(242,240,235,0.96) 0%, rgba(242,240,235,0.7) 70%, transparent 100%);
   border-bottom-color: rgba(0, 0, 0, 0.06);
 }
 html.theme-light .stage-instrument-nav .instrument-name,
@@ -330,9 +319,7 @@ html.theme-light .mobile-control-drawer {
   border-color: rgba(0, 0, 0, 0.1);
   box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.12);
 }
-html.theme-light .mobile-controls-toggle {
-  color: rgba(40, 40, 44, 0.65);
-}
+html.theme-light .mobile-controls-toggle { color: rgba(40, 40, 44, 0.65); }
 html.theme-light .mobile-controls-grip {
   background: rgba(0, 0, 0, 0.2);
   box-shadow: 0 6px 0 rgba(0, 0, 0, 0.1);
@@ -348,34 +335,43 @@ html.theme-light .settings-sheet {
   box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.15);
 }
 html.theme-light .settings-sheet-title,
-html.theme-light .settings-row-label {
-  color: rgba(30, 30, 34, 0.9);
-}
-html.theme-light .settings-section-label {
-  color: rgba(30, 30, 34, 0.45);
-}
-html.theme-light .settings-chip {
-  background: rgba(255, 255, 255, 0.7);
-  color: rgba(30, 30, 34, 0.8);
-  border-color: rgba(0, 0, 0, 0.1);
-}
-html.theme-light .settings-chip.is-active {
-  background: rgba(212, 176, 74, 0.2);
-  border-color: rgba(180, 140, 40, 0.5);
-  color: #7a5c12;
-}
+html.theme-light .settings-row-label { color: rgba(30, 30, 34, 0.9); }
+html.theme-light .settings-section-label { color: rgba(30, 30, 34, 0.45); }
 html.theme-light .settings-sheet-close {
   background: rgba(0, 0, 0, 0.04);
   color: rgba(30, 30, 34, 0.65);
   border-color: rgba(0, 0, 0, 0.1);
 }
-html.theme-light .looper-btn,
-html.theme-light .looper-clear-btn {
-  filter: none;
-}
 html.theme-light .app-status {
   background: rgba(242, 240, 235, 0.95);
   color: #1a1a1c;
+}
+html.theme-light .settings-dd-toggle {
+  background: rgba(255, 255, 255, 0.9);
+  color: rgba(30, 30, 34, 0.9);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+html.theme-light .settings-dd-menu {
+  background: linear-gradient(180deg, #faf9f6, #eceae4);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+html.theme-light .settings-dd-item { color: rgba(30, 30, 34, 0.88); }
+html.theme-light .settings-dd-item:hover { background: rgba(0, 0, 0, 0.05); }
+html.theme-light .settings-dd-item.is-active {
+  background: rgba(212, 176, 74, 0.18);
+  color: #7a5c12;
+}
+html.theme-light .settings-dd-group { color: rgba(30, 30, 34, 0.4); }
+html.theme-light .settings-dd-label { color: rgba(30, 30, 34, 0.45); }
+html.theme-light .instrument-name {
+  background: rgba(255, 255, 255, 0.85);
+  color: rgba(30, 30, 34, 0.9);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+html.theme-light .icon-btn { color: rgba(30, 30, 34, 0.7); }
+html.theme-light .bottom-bar {
+  background: linear-gradient(180deg, transparent, rgba(232, 230, 225, 0.92));
 }
 
 /* LED glow on stage */
@@ -396,52 +392,4 @@ html.theme-light .app-status {
     color-mix(in srgb, var(--led-color, #6ec8ff) 45%, transparent) 0%,
     transparent 68%
   );
-}
-
-/* Light theme — dropdown menus */
-html.theme-light .settings-dd-toggle {
-  background: rgba(255, 255, 255, 0.9);
-  color: rgba(30, 30, 34, 0.9);
-  border-color: rgba(0, 0, 0, 0.12);
-}
-html.theme-light .settings-dd-toggle:hover,
-html.theme-light .settings-dd-toggle[aria-expanded="true"] {
-  border-color: rgba(180, 140, 40, 0.45);
-  background: rgba(255, 255, 255, 0.98);
-}
-html.theme-light .settings-dd-menu {
-  background: linear-gradient(180deg, #faf9f6, #eceae4);
-  border-color: rgba(0, 0, 0, 0.12);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-}
-html.theme-light .settings-dd-item {
-  color: rgba(30, 30, 34, 0.88);
-}
-html.theme-light .settings-dd-item:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-html.theme-light .settings-dd-item.is-active {
-  background: rgba(212, 176, 74, 0.18);
-  color: #7a5c12;
-}
-html.theme-light .settings-dd-group {
-  color: rgba(30, 30, 34, 0.4);
-}
-html.theme-light .settings-dd-label {
-  color: rgba(30, 30, 34, 0.45);
-}
-html.theme-light .topbar,
-html.theme-light .topbar-minimal {
-  color: rgba(30, 30, 34, 0.85);
-}
-html.theme-light .instrument-name {
-  background: rgba(255, 255, 255, 0.85);
-  color: rgba(30, 30, 34, 0.9);
-  border-color: rgba(0, 0, 0, 0.1);
-}
-html.theme-light .icon-btn {
-  color: rgba(30, 30, 34, 0.7);
-}
-html.theme-light .bottom-bar {
-  background: linear-gradient(180deg, transparent, rgba(232, 230, 225, 0.92));
 }
