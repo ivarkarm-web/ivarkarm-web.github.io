@@ -8,12 +8,12 @@
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=17';
+    link.href = './ui-layout-extras.css?v=18';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
   } else {
     const link = document.querySelector('link[data-ui-extras]');
-    if (link) link.href = './ui-layout-extras.css?v=17';
+    if (link) link.href = './ui-layout-extras.css?v=18';
   }
 
   function purgeCreate() {
@@ -145,8 +145,10 @@
     }
     // Keep the entire reveal drawer intact: its FX knobs and the customization
     // gear/sheet must travel together rather than extracting the knobs from it.
-    if (drawer && drawer.parentElement !== topDock) topDock.appendChild(drawer);
-    if (looperRail && looperRail.parentElement !== topDock) topDock.appendChild(looperRail);
+    // Re-append on every boot, even when already docked: an earlier run may
+    // have left the looper before the FX drawer in DOM order.
+    if (drawer) topDock.appendChild(drawer);
+    if (looperRail) topDock.appendChild(looperRail);
     if (looperClear && looperRail && looperClear.parentElement !== looperRail) looperRail.appendChild(looperClear);
     if (bar && (bar.parentElement !== app || bar.nextElementSibling !== null)) app.appendChild(bar);
 
