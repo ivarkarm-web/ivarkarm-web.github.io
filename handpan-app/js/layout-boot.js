@@ -3,19 +3,19 @@
  * Top bar: two stacked rows
  *   1) instrument selector
  *   2) scale selector + note count
- * Center: handpan
+ * Center: handpan (JS-centered in open play area)
  * Bottom: looper above FX controls
  */
 (function layoutBoot() {
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=11';
+    link.href = './ui-layout-extras.css?v=12';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
   } else {
     const link = document.querySelector('link[data-ui-extras]');
-    if (link) link.href = './ui-layout-extras.css?v=11';
+    if (link) link.href = './ui-layout-extras.css?v=12';
   }
 
   function purgeCreate() {
@@ -23,6 +23,44 @@
     document.getElementById('createLaunch')?.remove();
     document.body.classList.remove('create-active');
     document.getElementById('app')?.classList.remove('create-away');
+  }
+
+  /** Place #pan in the vertical midpoint between top chrome and bottom chrome. */
+  function centerPan() {
+    const pan = document.getElementById('pan');
+    const stage = document.querySelector('.stage');
+    if (!pan || !stage) return;
+
+    const bar = document.getElementById('stageScaleBar');
+    const drawer = document.getElementById('mobileControlDrawer');
+    const looper = document.getElementById('looperRail');
+
+    const stageRect = stage.getBoundingClientRect();
+    const topEdge = bar ? bar.getBoundingClientRect().bottom : stageRect.top;
+
+    // Prefer looper top if present, else drawer, else a safe reserve above viewport bottom
+    let botEdge = window.innerHeight - 100;
+    if (looper) {
+      const lr = looper.getBoundingClientRect();
+      if (lr.top > 0 && lr.top < window.innerHeight) botEdge = Math.min(botEdge, lr.top - 8);
+    }
+    if (drawer) {
+      const dr = drawer.getBoundingClientRect();
+      if (dr.top > 0 && dr.top < window.innerHeight) botEdge = Math.min(botEdge, dr.top - 8);
+    }
+
+    const midY = (topEdge + botEdge) / 2;
+    // Position relative to stage (pan is absolute inside stage)
+    const topInStage = midY - stageRect.top;
+
+    pan.style.position = 'absolute';
+    pan.style.left = '50%';
+    pan.style.top = topInStage + 'px';
+    pan.style.transform = 'translate(-50%, -50%) translateZ(0)';
+    pan.style.margin = '0';
+
+    // Match glow
+    // ::before can't be styled from here easily; size is fine from CSS
   }
 
   function run() {
@@ -140,6 +178,8 @@
         looperClear.previousElementSibling !== looperRail) {
       drawer.insertAdjacentElement('beforebegin', looperClear);
     }
+
+    centerPan();
   }
 
   function positionEffectBubbles() {
@@ -173,4 +213,12 @@
   setTimeout(boot, 300);
   setTimeout(boot, 1000);
   setTimeout(positionEffectBubbles, 1500);
+  setTimeout(centerPan, 100);
+  setTimeout(centerPan, 400);
+  setTimeout(centerPan, 1200);
+  window.addEventListener('resize', () => {
+    clearTimeout(window.__panCenterT);
+    window.__panCenterT = setTimeout(centerPan, 50);
+  });
+  window.addEventListener('orientationchange', () => setTimeout(centerPan, 200));
 })();
