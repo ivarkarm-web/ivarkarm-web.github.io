@@ -18,55 +18,32 @@
   <link rel="stylesheet" href="./looper.css?v=201" />
   <link rel="stylesheet" href="./scale-menu.css?v=3" />
   <style>
-    /* Slim chrome — max space for tonefields */
+    /* Slim chrome — stage bar holds instrument/scale; max tonefield space */
     .backdrop-player { display: none !important; }
-    .play-pill, #modePlay, #btnHelp, #btnExit, .top-actions { display: none !important; }
+    .play-pill, #modePlay, #btnHelp, #btnExit, .top-actions,
+    #createLaunch, .create-launch, #createPage, .create-page { display: none !important; }
 
-    .topbar.topbar-minimal {
-      display: flex !important;
+    .topbar.topbar-minimal:not(.topbar-collapsed) {
+      display: flex;
       justify-content: center;
       align-items: center;
-      padding: max(6px, env(safe-area-inset-top)) 10px 6px !important;
+      padding: max(6px, env(safe-area-inset-top)) 10px 4px;
       min-height: 0;
       border-bottom: none;
-      background: linear-gradient(to bottom, rgba(7,7,8,0.75) 0%, transparent 100%) !important;
-    }
-    .topbar.topbar-minimal .center-nav {
-      width: auto;
-      max-width: 100%;
-    }
-    .topbar.topbar-minimal .instrument-nav {
-      max-width: min(92vw, 320px);
-      gap: 4px;
-      display: inline-flex;
-      align-items: center;
-    }
-    .topbar.topbar-minimal .soundscapes-open-btn {
-      width: 36px;
-      height: 36px;
-      margin-left: 4px;
+      background: transparent;
     }
 
     .stage {
-      padding: 2px 4px 4px !important;
+      padding: 0 4px 4px !important;
+      flex-direction: column;
     }
     #pan {
-      width: min(96vw, calc(100dvh - 120px), 780px) !important;
-      max-width: 96vw !important;
+      width: min(94vw, calc(100dvh - 160px), 760px) !important;
+      max-width: 94vw !important;
     }
     .stage::before {
-      width: min(86vw, calc(100dvh - 130px), 680px) !important;
-      height: min(86vw, calc(100dvh - 130px), 680px) !important;
-    }
-
-    .note-plus-wrap {
-      position: fixed !important;
-      left: 50% !important;
-      right: auto !important;
-      transform: translateX(-50%) !important;
-      bottom: calc(52px + env(safe-area-inset-bottom, 0px)) !important;
-      z-index: 50;
-      pointer-events: auto;
+      width: min(84vw, calc(100dvh - 170px), 660px) !important;
+      height: min(84vw, calc(100dvh - 170px), 660px) !important;
     }
   </style>
   <script>
@@ -233,8 +210,8 @@
   </section>
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
 
-  <script src="./js/layout-boot.js?v=4"></script>
-  <script type="module" src="./pionier-app.js?v=132"></script>
+  <script src="./js/layout-boot.js?v=5"></script>
+  <script type="module" src="./pionier-app.js?v=133"></script>
   <script src="./js/scale-root-fix.js?v=1"></script>
   <script src="./js/note-count-fix.js?v=1"></script>
 </body>
