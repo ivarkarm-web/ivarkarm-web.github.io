@@ -1,17 +1,27 @@
 /**
- * looper.js — multi-layer phrase looper v2 (max 8)
+ * looper.js — multi-layer phrase looper v3 (max 8)
  * Record: arm/stop layer (pre-FX instrument bus)
- * SYNC: optional lock to layer-1 cycle (default off)
+ * SYNC modes (cycle button, 4 segments above record):
+ *   FREE  — independent lengths
+ *   LOOP  — secondary tracks snap to exact multiples of layer-1 duration
+ *   BEAT  — start/stop quantized to beat grid derived from layer 1
+ *   SERIAL — tracks play one after another (song sections)
  * Circles: tap play/pause · long-press layer sheet (level/pan/mute/solo/delete)
  * Clear: wipe all layers
- * Soft pulse: optional quiet tick on cycle boundaries while recording with SYNC
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js';
 
 const MAX_LAYERS = 8;
 const LONG_MS = 480;
 const DEFAULT_LEVEL = 0.92;
-const PULSE_GAIN = 0.045;
+const BEATS_PER_BAR = 4;
+
+const SYNC_MODES = [
+  { id: 'free', label: 'FREE', title: 'Free — each layer independent' },
+  { id: 'loop', label: 'LOOP', title: 'Loop sync — multiples of master length' },
+  { id: 'beat', label: 'BEAT', title: 'Beat sync — quantize to master grid' },
+  { id: 'serial', label: 'SERIAL', title: 'Serial — sections play in sequence' }
+];
 
 export function mountLooper({ root } = {}) {
   const rail = root || document.getElementById('looperRail');
@@ -26,6 +36,15 @@ export function mountLooper({ root } = {}) {
   if (legacyPlay) {
     legacyPlay.hidden = true;
     legacyPlay.style.display = 'none';
+  }
+
+  let cluster = document.getElementById('looperRecordCluster');
+  if (!cluster) {
+    cluster = document.createElement('div');
+    cluster.id = 'looperRecordCluster';
+    cluster.className = 'looper-record-cluster';
+    btn.parentElement?.insertBefore(cluster, btn);
+    cluster.appendChild(btn);
   }
 
   if (!clearBtn) {
@@ -48,30 +67,29 @@ export function mountLooper({ root } = {}) {
   clearBtn.hidden = false;
   clearBtn.disabled = false;
 
+  const oldPulse = document.getElementById('looperPulseBtn');
+  if (oldPulse) oldPulse.remove();
+
   if (!syncBtn) {
     syncBtn = document.createElement('button');
     syncBtn.type = 'button';
     syncBtn.id = 'looperSyncBtn';
-    rail.insertBefore(syncBtn, btn);
   }
-  syncBtn.className = 'looper-sync-btn';
-  syncBtn.innerHTML = '<span class="looper-sync-label">SYNC</span>';
-  syncBtn.setAttribute('aria-pressed', 'false');
-  syncBtn.setAttribute('aria-label', 'Sync layers to first loop (off)');
-  syncBtn.title = 'Sync off — layers free length';
-
-  let pulseBtn = document.getElementById('looperPulseBtn');
-  if (!pulseBtn) {
-    pulseBtn = document.createElement('button');
-    pulseBtn.type = 'button';
-    pulseBtn.id = 'looperPulseBtn';
-    pulseBtn.className = 'looper-pulse-btn';
-    pulseBtn.innerHTML = '<span class="looper-pulse-label">PULSE</span>';
-    pulseBtn.setAttribute('aria-pressed', 'false');
-    pulseBtn.setAttribute('aria-label', 'Soft pulse metronome (off)');
-    pulseBtn.title = 'Soft pulse off';
-    rail.insertBefore(pulseBtn, syncBtn);
+  syncBtn.className = 'looper-sync-dial';
+  syncBtn.innerHTML =
+    '<span class="looper-sync-ring" aria-hidden="true">' +
+    SYNC_MODES.map((m, i) =>
+      `<span class="looper-sync-seg" data-mode="${m.id}" style="--seg:${i}"></span>`
+    ).join('') +
+    '</span>' +
+    '<span class="looper-sync-core">' +
+    '<span class="looper-sync-label" id="looperSyncLabel">FREE</span>' +
+    '</span>';
+  if (syncBtn.parentElement !== cluster) {
+    cluster.insertBefore(syncBtn, btn);
   }
+  syncBtn.setAttribute('aria-label', 'Sync mode: Free');
+  syncBtn.title = SYNC_MODES[0].title;
 
   const layers = [];
   let recording = false;
@@ -83,10 +101,13 @@ export function mountLooper({ root } = {}) {
   let longFired = false;
   let openSheetIndex = -1;
   let sheetEl = null;
-  let syncEnabled = false;
-  let pulseEnabled = false;
-  let pulseTimer = null;
+  let syncModeIndex = 0;
+  let pendingLoopStop = false;
   let progressRaf = 0;
+
+  function syncMode() {
+    return SYNC_MODES[syncModeIndex].id;
+  }
 
   function getRecordBus() {
     try {
@@ -140,6 +161,12 @@ export function mountLooper({ root } = {}) {
     return layers[0].buffer.duration || 0;
   }
 
+  function beatDuration() {
+    const d = cycleDuration();
+    if (d <= 0) return 0;
+    return d / BEATS_PER_BAR;
+  }
+
   function cyclePhase(now) {
     const L0 = layers[0];
     if (!L0 || !L0.buffer) return 0;
@@ -151,7 +178,9 @@ export function mountLooper({ root } = {}) {
     return ((t - (L0.startedAt || t)) % dur + dur) % dur;
   }
 
-  function anySolo() { return layers.some((l) => l.solo); }
+  function anySolo() {
+    return layers.some((l) => l.solo);
+  }
 
   function effectiveMuted(layer) {
     if (layer.muted) return true;
@@ -177,8 +206,9 @@ export function mountLooper({ root } = {}) {
     const hasLayers = layers.length > 0;
     btn.classList.toggle('is-recording', recording);
     btn.classList.toggle('has-layers', hasLayers);
+    btn.classList.toggle('is-pending-stop', pendingLoopStop);
     btn.title = recording
-      ? 'Stop recording layer'
+      ? (pendingLoopStop ? 'Waiting for cycle end…' : 'Stop recording layer')
       : layers.length >= MAX_LAYERS
         ? 'Max layers (' + MAX_LAYERS + ')'
         : hasLayers
@@ -187,14 +217,17 @@ export function mountLooper({ root } = {}) {
     btn.setAttribute('aria-label', btn.title);
     clearBtn.classList.toggle('has-layers', hasLayers || recording);
     clearBtn.hidden = false;
-    syncBtn.classList.toggle('is-on', syncEnabled);
-    syncBtn.setAttribute('aria-pressed', syncEnabled ? 'true' : 'false');
-    syncBtn.setAttribute('aria-label', syncEnabled ? 'Sync on — lock new layers to first loop' : 'Sync off — free length layers');
-    syncBtn.title = syncEnabled ? 'Sync on — new layers match layer 1' : 'Sync off — layers free length';
-    pulseBtn.classList.toggle('is-on', pulseEnabled);
-    pulseBtn.setAttribute('aria-pressed', pulseEnabled ? 'true' : 'false');
-    pulseBtn.setAttribute('aria-label', pulseEnabled ? 'Soft pulse on' : 'Soft pulse off');
-    pulseBtn.title = pulseEnabled ? 'Soft pulse on — quiet tick while recording with sync' : 'Soft pulse off';
+
+    const mode = SYNC_MODES[syncModeIndex];
+    syncBtn.dataset.mode = mode.id;
+    syncBtn.classList.toggle('is-active', mode.id !== 'free');
+    const label = syncBtn.querySelector('.looper-sync-label');
+    if (label) label.textContent = mode.label;
+    syncBtn.querySelectorAll('.looper-sync-seg').forEach((seg, i) => {
+      seg.classList.toggle('is-lit', i === syncModeIndex);
+    });
+    syncBtn.setAttribute('aria-label', 'Sync mode: ' + mode.label);
+    syncBtn.title = mode.title + ' · tap to change';
   }
 
   function startLayerSource(layer, offset) {
@@ -203,13 +236,29 @@ export function mountLooper({ root } = {}) {
     try { layer.source?.stop(); } catch (_) {}
     const source = ctx.createBufferSource();
     source.buffer = layer.buffer;
-    source.loop = true;
+    source.loop = syncMode() !== 'serial';
     source.connect(layer.gain);
     const off = Math.max(0, offset || 0) % (layer.buffer.duration || 1);
     source.start(0, off);
     layer.source = source;
     layer.offset = off;
     layer.startedAt = ctx.currentTime - off;
+
+    if (syncMode() === 'serial') {
+      source.loop = false;
+      source.onended = () => {
+        const idx = layers.indexOf(layer);
+        if (idx < 0) return;
+        layer.paused = true;
+        layer.source = null;
+        const next = (idx + 1) % layers.length;
+        if (layers[next] && !layers[next].muted) {
+          layers[next].paused = false;
+          startLayerSource(layers[next], 0);
+        }
+        renderCircles();
+      };
+    }
   }
 
   function pauseLayer(index) {
@@ -230,8 +279,17 @@ export function mountLooper({ root } = {}) {
     const layer = layers[index];
     if (!layer || !layer.paused) return;
     resumeAudio();
+    if (syncMode() === 'serial') {
+      layers.forEach((l, i) => {
+        if (i !== index && !l.paused) pauseLayer(i);
+      });
+    }
     layer.paused = false;
-    const off = syncEnabled && layers[0] && index > 0 ? cyclePhase() : (layer.offset || 0);
+    const mode = syncMode();
+    let off = layer.offset || 0;
+    if ((mode === 'loop' || mode === 'beat') && layers[0] && index > 0) {
+      off = cyclePhase();
+    }
     startLayerSource(layer, off);
     renderCircles();
   }
@@ -278,52 +336,29 @@ export function mountLooper({ root } = {}) {
     return out;
   }
 
-  function fireSoftPulse() {
-    if (!pulseEnabled) return;
-    const ctx = getAudioContext();
-    if (!ctx) return;
-    try {
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.type = 'sine';
-      o.frequency.value = 880;
-      g.gain.value = 0;
-      o.connect(g);
-      g.connect(getAudioMaster() || ctx.destination);
-      const t = ctx.currentTime;
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(PULSE_GAIN, t + 0.008);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
-      o.start(t);
-      o.stop(t + 0.07);
-    } catch (_) {}
+  function snapToLoopMultiple(dur) {
+    const master = cycleDuration();
+    if (master <= 0.05) return dur;
+    const n = Math.max(1, Math.round(dur / master));
+    return n * master;
   }
 
-  function stopPulseScheduler() {
-    if (pulseTimer) { clearInterval(pulseTimer); pulseTimer = null; }
-  }
-
-  function startPulseScheduler() {
-    stopPulseScheduler();
-    if (!pulseEnabled || !recording || !syncEnabled) return;
-    if (cycleDuration() < 0.2) return;
-    let lastBucket = -1;
-    pulseTimer = setInterval(() => {
-      if (!recording || !pulseEnabled || !syncEnabled) { stopPulseScheduler(); return; }
-      const d = cycleDuration();
-      if (d < 0.2) return;
-      const ph = cyclePhase();
-      if (ph < 0.08 || ph > d - 0.04) {
-        const b = Math.floor(getAudioContext()?.currentTime * 4 || 0);
-        if (b !== lastBucket) { lastBucket = b; fireSoftPulse(); }
-      }
-    }, 40);
+  function snapToBeats(dur) {
+    const beat = beatDuration();
+    if (beat <= 0.02) return dur;
+    const n = Math.max(1, Math.round(dur / beat));
+    return n * beat;
   }
 
   function closeSheet() {
-    if (sheetEl) { try { sheetEl.remove(); } catch (_) {} sheetEl = null; }
+    if (sheetEl) {
+      try { sheetEl.remove(); } catch (_) {}
+      sheetEl = null;
+    }
     openSheetIndex = -1;
-    document.querySelectorAll('.looper-circle.is-sheet-open').forEach((el) => el.classList.remove('is-sheet-open'));
+    document.querySelectorAll('.looper-circle.is-sheet-open').forEach((el) => {
+      el.classList.remove('is-sheet-open');
+    });
   }
 
   function openSheet(index, anchorEl) {
@@ -332,13 +367,16 @@ export function mountLooper({ root } = {}) {
     if (!layer || !anchorEl) return;
     openSheetIndex = index;
     anchorEl.classList.add('is-sheet-open');
+
     const sheet = document.createElement('div');
     sheet.className = 'looper-sheet';
     sheet.setAttribute('role', 'dialog');
     sheet.setAttribute('aria-label', 'Layer ' + (index + 1) + ' controls');
+
     const title = document.createElement('div');
     title.className = 'looper-sheet-title';
     title.textContent = 'Layer ' + (index + 1);
+
     const levelRow = document.createElement('label');
     levelRow.className = 'looper-sheet-row';
     levelRow.innerHTML = '<span>Level</span>';
@@ -353,6 +391,7 @@ export function mountLooper({ root } = {}) {
       applyLayerGain(layer);
     });
     levelRow.appendChild(levelInput);
+
     const panRow = document.createElement('label');
     panRow.className = 'looper-sheet-row';
     panRow.innerHTML = '<span>Pan</span>';
@@ -364,11 +403,15 @@ export function mountLooper({ root } = {}) {
     panInput.setAttribute('aria-label', 'Layer pan');
     panInput.addEventListener('input', () => {
       layer.pan = Number(panInput.value) / 100;
-      if (layer.panner) { try { layer.panner.pan.value = layer.pan; } catch (_) {} }
+      if (layer.panner) {
+        try { layer.panner.pan.value = layer.pan; } catch (_) {}
+      }
     });
     panRow.appendChild(panInput);
+
     const actions = document.createElement('div');
     actions.className = 'looper-sheet-actions';
+
     const muteBtn = document.createElement('button');
     muteBtn.type = 'button';
     muteBtn.className = 'looper-sheet-btn' + (layer.muted ? ' is-active' : '');
@@ -408,12 +451,14 @@ export function mountLooper({ root } = {}) {
     actions.appendChild(muteBtn);
     actions.appendChild(soloBtn);
     actions.appendChild(delBtn);
+
     sheet.appendChild(title);
     sheet.appendChild(levelRow);
     sheet.appendChild(panRow);
     sheet.appendChild(actions);
     document.body.appendChild(sheet);
     sheetEl = sheet;
+
     const rect = anchorEl.getBoundingClientRect();
     const sw = sheet.offsetWidth || 180;
     const sh = sheet.offsetHeight || 160;
@@ -423,6 +468,7 @@ export function mountLooper({ root } = {}) {
     top = Math.max(8, Math.min(window.innerHeight - sh - 8, top));
     sheet.style.left = left + 'px';
     sheet.style.top = top + 'px';
+
     const onDoc = (e) => {
       if (sheet.contains(e.target) || anchorEl.contains(e.target)) return;
       closeSheet();
@@ -433,6 +479,14 @@ export function mountLooper({ root } = {}) {
 
   function updateProgressRings() {
     const ctx = getAudioContext();
+    if (recording && pendingLoopStop && layers.length) {
+      const ph = cyclePhase();
+      const d = cycleDuration();
+      if (d > 0 && (ph < 0.05 || ph > d - 0.04)) {
+        pendingLoopStop = false;
+        finishRecord();
+      }
+    }
     if (!ctx || !layers.length) {
       progressRaf = requestAnimationFrame(updateProgressRings);
       return;
@@ -463,6 +517,7 @@ export function mountLooper({ root } = {}) {
         ? 'Play layer ' + (i + 1) + ' · hold for mix'
         : 'Pause layer ' + (i + 1) + ' · hold for mix';
       c.setAttribute('aria-label', c.title);
+
       const ring = document.createElement('span');
       ring.className = 'looper-circle-progress';
       ring.setAttribute('aria-hidden', 'true');
@@ -472,14 +527,24 @@ export function mountLooper({ root } = {}) {
       const icon = document.createElement('span');
       icon.className = 'looper-circle-icon ' + (layer.paused ? 'is-play' : 'is-pause');
       icon.setAttribute('aria-hidden', 'true');
-      if (layer.paused) icon.innerHTML = '<span class="looper-glyph-play"></span>';
-      else icon.innerHTML = '<span class="looper-glyph-pause"><i></i><i></i></span>';
+      if (layer.paused) {
+        icon.innerHTML = '<span class="looper-glyph-play"></span>';
+      } else {
+        icon.innerHTML = '<span class="looper-glyph-pause"><i></i><i></i></span>';
+      }
       c.appendChild(ring);
       c.appendChild(num);
       c.appendChild(icon);
+
       let holdTimer = null;
       let holdArmed = false;
-      const clearHold = () => { if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; } };
+      const clearHold = () => {
+        if (holdTimer) {
+          clearTimeout(holdTimer);
+          holdTimer = null;
+        }
+      };
+
       c.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -489,7 +554,9 @@ export function mountLooper({ root } = {}) {
         holdTimer = setTimeout(() => {
           holdArmed = true;
           openSheet(i, c);
-          try { if (navigator.vibrate) navigator.vibrate(12); } catch (_) {}
+          try {
+            if (navigator.vibrate) navigator.vibrate(12);
+          } catch (_) {}
         }, LONG_MS);
       });
       c.addEventListener('pointerup', (e) => {
@@ -497,14 +564,25 @@ export function mountLooper({ root } = {}) {
         e.stopPropagation();
         clearHold();
         try { c.releasePointerCapture(e.pointerId); } catch (_) {}
-        if (holdArmed) { holdArmed = false; return; }
+        if (holdArmed) {
+          holdArmed = false;
+          return;
+        }
         if (openSheetIndex === i) return;
         toggleLayer(i);
       });
-      c.addEventListener('pointercancel', () => { clearHold(); holdArmed = false; });
-      c.addEventListener('pointerleave', () => { if (!holdArmed) clearHold(); });
+      c.addEventListener('pointercancel', () => {
+        clearHold();
+        holdArmed = false;
+      });
+      c.addEventListener('pointerleave', () => {
+        if (!holdArmed) clearHold();
+      });
       c.addEventListener('contextmenu', (e) => e.preventDefault());
-      c.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
+      c.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
       layersEl.appendChild(c);
     });
   }
@@ -518,20 +596,32 @@ export function mountLooper({ root } = {}) {
     ensureTap();
     recChunks = [];
     recording = true;
+    pendingLoopStop = false;
     setBtnState();
-    if (pulseEnabled && syncEnabled && layers.length) startPulseScheduler();
   }
 
-  function stopRecordAndPlay() {
+  function requestStopRecord() {
     if (!recording) return;
+    const mode = syncMode();
+    if (mode === 'loop' && layers.length > 0 && cycleDuration() > 0.2) {
+      pendingLoopStop = true;
+      setBtnState();
+      return;
+    }
+    finishRecord();
+  }
+
+  function finishRecord() {
+    if (!recording && !pendingLoopStop) return;
     recording = false;
-    stopPulseScheduler();
+    pendingLoopStop = false;
     const ctx = getAudioContext();
     const master = getAudioMaster();
     const chunks = recChunks;
     recChunks = null;
     setBtnState();
     if (!ctx || !master || !chunks || chunks.length < 2) return;
+
     let frameCount = chunks.reduce((n, c) => n + c.L.length, 0);
     let buffer = ctx.createBuffer(2, frameCount, ctx.sampleRate);
     const ch0 = buffer.getChannelData(0);
@@ -542,24 +632,49 @@ export function mountLooper({ root } = {}) {
       ch1.set(c.R, offset);
       offset += c.L.length;
     }
+
+    const mode = syncMode();
     let startOff = 0;
-    if (syncEnabled && layers.length > 0) {
-      const target = cycleDuration();
-      if (target > 0.05) {
-        buffer = trimOrPadBuffer(ctx, buffer, target);
-        startOff = cyclePhase(ctx.currentTime);
+    const rawDur = buffer.duration;
+
+    if (mode === 'loop' && layers.length > 0) {
+      const target = snapToLoopMultiple(rawDur);
+      buffer = trimOrPadBuffer(ctx, buffer, target);
+      startOff = cyclePhase(ctx.currentTime);
+    } else if (mode === 'beat' && layers.length > 0) {
+      const target = snapToBeats(rawDur);
+      buffer = trimOrPadBuffer(ctx, buffer, target);
+      const beat = beatDuration();
+      const ph = cyclePhase(ctx.currentTime);
+      if (beat > 0) {
+        startOff = Math.round(ph / beat) * beat;
+        startOff = startOff % (cycleDuration() || target || 1);
       }
+    } else if (mode === 'serial' && layers.length > 0) {
+      layers.forEach((l, i) => {
+        if (!l.paused) pauseLayer(i);
+      });
     }
+
     const panner = ctx.createStereoPanner();
     panner.pan.value = 0;
     const gain = ctx.createGain();
     gain.gain.value = DEFAULT_LEVEL;
     gain.connect(panner);
     panner.connect(master);
+
     const layer = {
-      buffer, source: null, gain, panner,
-      level: DEFAULT_LEVEL, pan: 0, muted: false, solo: false,
-      startedAt: ctx.currentTime, offset: 0, paused: false
+      buffer,
+      source: null,
+      gain,
+      panner,
+      level: DEFAULT_LEVEL,
+      pan: 0,
+      muted: false,
+      solo: false,
+      startedAt: ctx.currentTime,
+      offset: 0,
+      paused: false
     };
     layers.push(layer);
     applyLayerGain(layer);
@@ -570,8 +685,8 @@ export function mountLooper({ root } = {}) {
 
   function clearAll() {
     recording = false;
+    pendingLoopStop = false;
     recChunks = null;
-    stopPulseScheduler();
     closeSheet();
     for (const layer of layers) disconnectLayer(layer);
     layers.length = 0;
@@ -602,10 +717,38 @@ export function mountLooper({ root } = {}) {
   function onPressEnd(e) {
     e.preventDefault();
     e.stopPropagation();
-    if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    }
     if (longFired) return;
-    if (recording) stopRecordAndPlay();
+    if (recording || pendingLoopStop) requestStopRecord();
     else startRecord();
+  }
+
+  function cycleSyncMode() {
+    syncModeIndex = (syncModeIndex + 1) % SYNC_MODES.length;
+    if (syncMode() === 'serial' && layers.length) {
+      let found = false;
+      layers.forEach((l, i) => {
+        if (!l.paused && !found) {
+          found = true;
+        } else if (!l.paused) {
+          pauseLayer(i);
+        }
+      });
+    } else {
+      layers.forEach((l, i) => {
+        if (!l.paused) {
+          const off = cyclePhase();
+          startLayerSource(l, i === 0 ? (l.offset || 0) : off);
+        }
+      });
+    }
+    setBtnState();
+    try {
+      if (navigator.vibrate) navigator.vibrate(10);
+    } catch (_) {}
   }
 
   btn.addEventListener('pointerdown', onPressStart);
@@ -615,24 +758,18 @@ export function mountLooper({ root } = {}) {
     pressTimer = null;
   });
   btn.addEventListener('contextmenu', (e) => e.preventDefault());
-  clearBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); });
+
+  clearBtn.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  });
   clearBtn.addEventListener('pointerup', onClear);
   clearBtn.addEventListener('click', onClear);
+
   syncBtn.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
-    syncEnabled = !syncEnabled;
-    setBtnState();
-    if (recording && pulseEnabled && syncEnabled) startPulseScheduler();
-    else stopPulseScheduler();
-  });
-  pulseBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    pulseEnabled = !pulseEnabled;
-    setBtnState();
-    if (recording && pulseEnabled && syncEnabled) startPulseScheduler();
-    else stopPulseScheduler();
+    cycleSyncMode();
   });
 
   setBtnState();
@@ -644,8 +781,14 @@ export function mountLooper({ root } = {}) {
     toggleLayer,
     deleteLayer,
     get layerCount() { return layers.length; },
-    get syncEnabled() { return syncEnabled; },
-    setSync(on) { syncEnabled = !!on; setBtnState(); },
+    get syncMode() { return syncMode(); },
+    setSyncMode(id) {
+      const i = SYNC_MODES.findIndex((m) => m.id === id);
+      if (i >= 0) {
+        syncModeIndex = i;
+        setBtnState();
+      }
+    },
     get cycleDuration() { return cycleDuration(); }
   };
 }
