@@ -1,4 +1,8 @@
-/* Stage-first layout — instrument / scale / notes above the pan */
+/* Stage-first layout
+ * Top: instrument + scale (fixed-size buttons) centered above handpan
+ * Center: handpan
+ * Bottom: looper above FX controls drawer
+ */
 
 .topbar.topbar-collapsed {
   display: none !important;
@@ -10,6 +14,7 @@
   pointer-events: none !important;
 }
 
+/* ---- Stage chrome bar (above pan) ---- */
 .stage-scale-bar {
   position: relative;
   z-index: 12;
@@ -17,11 +22,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
   max-width: min(96vw, 520px);
   margin: 0 auto;
-  padding: max(4px, env(safe-area-inset-top)) 8px 4px;
+  padding: max(6px, env(safe-area-inset-top)) 8px 6px;
   flex: 0 0 auto;
   pointer-events: auto;
 }
@@ -31,49 +36,69 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
   max-width: 100%;
+  flex-wrap: nowrap;
 }
 
+/* Fixed pill size — shape never changes; long names ellipsize */
 .stage-instrument-nav .instrument-name,
 .stage-scale-btn {
   appearance: none;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(14, 14, 16, 0.82);
-  color: rgba(232, 230, 227, 0.9);
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(14, 14, 16, 0.88);
+  color: rgba(232, 230, 227, 0.92);
   border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 12px;
+  /* static footprint */
+  width: 148px;
+  min-width: 148px;
+  max-width: 148px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.02em;
-  max-width: min(46vw, 180px);
+  line-height: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
 }
 
 .stage-instrument-nav .icon-btn,
 .stage-scale-step {
-  width: 32px;
-  height: 32px;
+  box-sizing: border-box;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
   flex: 0 0 auto;
+  border-radius: 50%;
 }
 
 .stage-instrument-nav .soundscapes-open-btn {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
   margin-left: 2px;
-  color: rgba(212, 176, 74, 0.9);
+  color: rgba(212, 176, 74, 0.95);
+  border-color: rgba(212, 176, 74, 0.28);
 }
 
 .stage-scale-row {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  max-width: min(96vw, 420px);
+  max-width: min(96vw, 440px);
   flex-wrap: nowrap;
 }
 
@@ -88,13 +113,13 @@
 }
 
 .stage-scale-row .stage-scale-nav {
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   min-width: 0;
 }
 
 .stage-scale-menu {
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 40;
@@ -106,6 +131,42 @@
   z-index: 45;
 }
 
+/* Slightly smaller pills on very narrow phones — still fixed, not content-sized */
+@media (max-width: 360px) {
+  .stage-instrument-nav .instrument-name,
+  .stage-scale-btn {
+    width: 128px;
+    min-width: 128px;
+    max-width: 128px;
+    height: 38px;
+    min-height: 38px;
+    font-size: 12px;
+    padding: 0 10px;
+  }
+  .stage-instrument-nav .icon-btn,
+  .stage-scale-step,
+  .stage-instrument-nav .soundscapes-open-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+}
+
+/* ---- Looper sits above the bottom FX controls ---- */
+.looper-rail {
+  top: auto !important;
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
+  transform: none !important;
+}
+
+.looper-clear-btn {
+  top: auto !important;
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
+  transform: none !important;
+}
+
+/* Drawer + effect bubbles */
 .mobile-control-drawer { overflow: visible !important; }
 .mobile-control-panel {
   overflow: visible !important;
@@ -120,6 +181,7 @@
   pointer-events: auto;
 }
 
+/* Legacy create UI — force hidden */
 .create-page,
 .create-launch,
 #createPage,

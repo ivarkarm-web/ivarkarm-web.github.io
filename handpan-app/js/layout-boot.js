@@ -1,16 +1,21 @@
 /**
- * layout-boot.js — stage-first layout (minimal chrome, max tonefield space)
- * - Instrument + Soundscapes + Scale live in a compact bar above the pan
- * - Create page / play / help / exit removed
- * - Topbar collapses once nav is moved into the stage
+ * layout-boot.js — stage-first layout
+ * Top: instrument + ♫ + scale (fixed buttons) above handpan
+ * Center: handpan
+ * Bottom: looper above FX controls
  */
 (function layoutBoot() {
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=3';
+    link.href = './ui-layout-extras.css?v=4';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
+  } else {
+    const link = document.querySelector('link[data-ui-extras]');
+    if (link && !/v=4/.test(link.href)) {
+      link.href = './ui-layout-extras.css?v=4';
+    }
   }
 
   function purgeCreate() {
@@ -44,6 +49,7 @@
       stage.insertBefore(bar, pan);
     }
 
+    // Row 1: instrument selector + soundscapes
     const instNav = document.getElementById('instrumentNav');
     if (instNav) {
       instNav.classList.add('stage-instrument-nav');
@@ -52,6 +58,7 @@
       }
     }
 
+    // Row 2: note count + scale selector
     const scaleLabel = document.getElementById('scaleLabel');
     const scaleMenu = document.getElementById('scaleMenu');
     const prev = document.getElementById('scalePrev');
@@ -107,6 +114,7 @@
     }
     if (scaleBlock) scaleBlock.hidden = true;
 
+    // Collapse empty topbar
     if (topbar) {
       const stillHasChrome = topbar.querySelector('#instrumentNav, .instrument-nav, #openSoundscapes');
       if (!stillHasChrome) {
@@ -118,6 +126,7 @@
       }
     }
 
+    // Looper stays above the controls drawer in DOM order
     if (drawer && looperRail && looperRail.nextElementSibling !== drawer) {
       drawer.insertAdjacentElement('beforebegin', looperRail);
     }
