@@ -8,12 +8,12 @@
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=21';
+    link.href = './ui-layout-extras.css?v=22';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
   } else {
     const link = document.querySelector('link[data-ui-extras]');
-    if (link) link.href = './ui-layout-extras.css?v=21';
+    if (link) link.href = './ui-layout-extras.css?v=22';
   }
 
   function purgeCreate() {
@@ -147,9 +147,23 @@
       topDock.setAttribute('aria-label', 'Effects and looper');
       app.insertBefore(topDock, stage);
     }
+    // Defeat legacy bottom-sheet inline positioning: the FX dock is always
+    // pinned to the viewport top, regardless of open/closed drawer state.
+    Object.assign(topDock.style, {
+      position: 'fixed', top: 'max(4px, env(safe-area-inset-top, 0px))',
+      right: '0', bottom: 'auto', left: '0', transform: 'none',
+      zIndex: '4000', width: '100%', boxSizing: 'border-box'
+    });
     // FX drawer stays in the top dock. Put the looper in the bottom control
     // bar, immediately above the instrument selector; never move it with FX.
     if (drawer && drawer.parentElement !== topDock) topDock.appendChild(drawer);
+    if (drawer) {
+      Object.assign(drawer.style, {
+        position: 'relative', top: 'auto', right: 'auto', bottom: 'auto',
+        left: 'auto', transform: 'none', width: '100%', margin: '0',
+        zIndex: '4001'
+      });
+    }
     if (looperRail && looperRail.parentElement !== bar) {
       bar.insertBefore(looperRail, bar.firstChild);
     } else if (looperRail && bar.firstElementChild !== looperRail) {
