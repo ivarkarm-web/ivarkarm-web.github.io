@@ -209,7 +209,7 @@
       stabilizeFxDock();
     });
   });
-  fxDockObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+  fxDockObserver.observe(document.body, { childList: true, subtree: true });
 
   function positionEffectBubbles() {
     document.querySelectorAll('.knob-effect-trigger').forEach((btn) => {
