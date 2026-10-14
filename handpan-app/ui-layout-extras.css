@@ -331,3 +331,51 @@
   .pionier-top-dock #mobileControlDrawer .sidebar.right.knobs-panel>.effect-knob-wrap{flex-basis:60px!important;width:60px!important;max-width:60px!important}
   .stage-instrument-nav .instrument-name,.stage-scale-btn{width:clamp(108px,38vw,160px)!important;font-size:12px!important}
 }
+
+
+/* Dropdown recovery: keep picker DOM intact and anchor menus to their live controls. */
+.stage-control-scale {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 0 !important;
+  min-width: 0 !important;
+}
+.stage-control-scale > .control-label { display: none !important; }
+.stage-control-scale .scale-stepper {
+  display: flex !important;
+  align-items: center !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+}
+.stage-control-scale .scale-name { min-width: 0 !important; }
+.stage-scale-row { position: relative !important; overflow: visible !important; }
+.stage-scale-menu {
+  position: fixed !important;
+  z-index: 3201 !important;
+  max-width: calc(100vw - 24px) !important;
+  max-height: min(45dvh, 360px) !important;
+  overflow-y: auto !important;
+}
+.instrument-menu {
+  position: fixed !important;
+  z-index: 3201 !important;
+  max-width: calc(100vw - 24px) !important;
+}
+
+/* The opened controls sheet overlays the looper instead of appearing behind it. */
+.pionier-top-dock #mobileControlDrawer { z-index: 4 !important; }
+.pionier-top-dock #mobileControlDrawer.is-open { z-index: 4 !important; }
+.pionier-top-dock #mobileControlDrawer .mobile-control-panel {
+  position: absolute !important;
+  top: calc(100% + 5px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  margin-top: 0 !important;
+  z-index: 5 !important;
+}
+.pionier-top-dock .looper-rail { position: relative !important; z-index: 1 !important; }
