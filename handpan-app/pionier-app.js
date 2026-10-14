@@ -50,76 +50,22 @@ function killCanvasGhosts(canvas) {
   canvas.addEventListener('contextmenu', block, true);
 }
 
-async function boot() {
-  setBootStatus('loading', 'Starting Pionier…');
-  const degraded = [];
-
+async function bootApp() {
+  setBootStatus('loading', 'Starting handpan…');
   try {
-    await import(new URL('./pionier-core.js?v=23', BASE).href);
-  } catch (err) {
-    console.error('[pionier] required core failed to load', err);
-    setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
-    return false;
-  }
-
-  try {
-    const { createArpInstruments } = await import(new URL('./js/instruments/arp-family.js?v=3', BASE).href);
-    const { InstrumentRegistry } = await import(new URL('./js/instrument.js', BASE).href);
-    for (const inst of createArpInstruments()) {
-      try { InstrumentRegistry.register(inst); } catch (e) { console.warn('[arp] register', inst?.id, e); }
-    }
-    try { window.PionierCore?.syncWorldPitch?.(); } catch (_) {}
-  } catch (err) {
-    console.warn('[arp] failed to load arpeggiators', err);
-    degraded.push('arpeggiators');
-  }
-
-  try {
-    await import(new URL('./js/soundscapes.js?v=5', BASE).href);
-  } catch (err) {
-    console.error('[soundscapes] module failed to initialize', err);
-    degraded.push('soundscapes');
-  }
-
-  try {
-    let HANDPAN_SCALES;
-    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=5', BASE).href));
-    window.HANDPAN_SCALES = HANDPAN_SCALES;
-  } catch (err) {
-    console.warn('[handpan] scales module', err);
-  }
-
-  try {
-    const canvas = document.getElementById('pan');
+    const canvas = document.getElementById('handpanCanvas') || document.querySelector('canvas#surface') || document.querySelector('canvas');
     if (canvas) killCanvasGhosts(canvas);
-  } catch (_) {}
-
-  try {
-    const { mountNotePlus } = await import(new URL('./js/note-plus.js?v=3', BASE).href);
-    mountNotePlus();
-  } catch (err) {
-    console.warn('[note-plus] mount failed', err);
-    degraded.push('note-plus');
-  }
-
-  try {
-    const { mountLooper } = await import(new URL('./js/looper.js?v=201', BASE).href);
-    mountLooper();
-  } catch (err) {
-    console.warn('[looper] mount failed', err);
-    degraded.push('looper');
-  }
-
-  if (degraded.length) {
-    setBootStatus('degraded', 'Some features unavailable: ' + degraded.join(', '), true);
-  } else {
+    await import(new URL('./pionier-core.js?v=24', BASE).href);
+    try { window.PionierCore?.syncWorldPitch?.(); } catch (_) {}
     setBootStatus('ready');
+  } catch (err) {
+    console.error('[pionier] boot failed', err);
+    setBootStatus('failed', 'Could not start the instrument. Check your connection and reload.', true);
   }
-  return true;
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { boot().catch(console.error); });
+  document.addEventListener('DOMContentLoaded', bootApp);
 } else {
-  boot().catch(console.error);
+  bootApp();
 }
