@@ -463,12 +463,18 @@ export function mountLooper({ root } = {}) {
     const rect = anchorEl.getBoundingClientRect();
     const sw = sheet.offsetWidth || 180;
     const sh = sheet.offsetHeight || 160;
-    let left = rect.left - sw - 10;
-    if (left < 8) left = rect.right + 10;
+    // Keep the layer mixer fully inside the viewport. The previous
+    // left/right flip could push the sheet off-screen on narrow phones.
+    const margin = 10;
+    const maxLeft = Math.max(margin, window.innerWidth - sw - margin);
+    let left = rect.left - sw - margin;
+    if (left < margin) left = rect.right + margin;
+    left = Math.max(margin, Math.min(maxLeft, left));
+    const maxTop = Math.max(margin, window.innerHeight - sh - margin);
     let top = rect.top + rect.height / 2 - sh / 2;
-    top = Math.max(8, Math.min(window.innerHeight - sh - 8, top));
-    sheet.style.left = left + 'px';
-    sheet.style.top = top + 'px';
+    top = Math.max(margin, Math.min(maxTop, top));
+    sheet.style.left = Math.round(left) + 'px';
+    sheet.style.top = Math.round(top) + 'px';
 
     const onDoc = (e) => {
       if (sheet.contains(e.target) || anchorEl.contains(e.target)) return;
