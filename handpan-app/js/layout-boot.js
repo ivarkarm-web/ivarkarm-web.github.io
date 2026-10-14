@@ -167,10 +167,11 @@
         zIndex: '4001'
       });
     }
-    // Keep the FX drawer and looper in one stable top stack. The looper
-    // must live in the dock so no competing viewport/bottom positioning can
-    // move it after the first paint.
-    if (looperRail && looperRail.parentElement !== topDock) topDock.appendChild(looperRail);
+    // The FX drawer belongs in the top dock. The looper belongs in the
+    // bottom control stack, directly above the instrument selector.
+    if (looperRail && looperRail.parentElement !== bar) {
+      bar.insertBefore(looperRail, instNav && instNav.parentElement === bar ? instNav : bar.firstChild);
+    }
     if (looperRail) {
       Object.assign(looperRail.style, {
         position: 'relative', top: 'auto', right: 'auto', bottom: 'auto',
@@ -203,11 +204,15 @@
     if (!dock) return;
     if (dock.parentElement !== document.body) document.body.appendChild(dock);
     if (drawer && drawer.parentElement !== dock) dock.appendChild(drawer);
-    // The looper and its Clear action must stay in the same rail. Reassert
-    // this after late module mounts or legacy scripts mutate the DOM.
+    // Keep FX at the top, but dock the looper above the instrument selector.
+    // This guard also corrects late mounts without relocating it to the viewport top.
     const rail = document.getElementById('looperRail');
     const clear = document.getElementById('looperClearBtn');
-    if (rail && rail.parentElement !== dock) dock.appendChild(rail);
+    const bar = document.getElementById('stageScaleBar');
+    const instrumentNav = document.getElementById('instrumentNav');
+    if (rail && bar && rail.parentElement !== bar) {
+      bar.insertBefore(rail, instrumentNav && instrumentNav.parentElement === bar ? instrumentNav : bar.firstChild);
+    }
     if (rail) {
       rail.style.setProperty('position', 'relative', 'important');
       rail.style.setProperty('inset', 'auto', 'important');
