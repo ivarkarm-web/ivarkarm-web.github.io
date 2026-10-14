@@ -2,6 +2,7 @@
  * pionier-surface.js — shared handpan visual surface for all instruments
  * Layout, drawing (body + tonefields + slits), hit testing.
  * Skins + LED color read from window.PionierSettings each frame.
+ * Two-pass draw: solid pads first, then glow — notes never disappear on hit.
  */
 import { MIN_NOTES, ringAngles, ringPadScale } from './pad-layout.js';
 
@@ -17,36 +18,36 @@ export function createSurface(canvas) {
     const led = s.led || { r: 110, g: 200, b: 255 };
     const skins = {
       classic: {
-        body: ['#3a3c44', '#1a1b20', '#08090b'],
-        rim: [230, 238, 250],
-        pad: [[96, 100, 112], [48, 50, 58], [24, 25, 30]],
-        stroke: [230, 238, 250],
-        glow: [[240, 248, 255], [180, 210, 240]],
-        sheen: 0.12,
+        body: ['#4a4e58', '#22252c', '#0c0d10'],
+        rim: [235, 242, 255],
+        pad: [[140, 148, 165], [70, 74, 86], [32, 34, 40]],
+        stroke: [210, 220, 235],
+        glow: [[245, 250, 255], [190, 215, 245]],
+        sheen: 0.14,
       },
       bronze: {
-        body: ['#6a4524', '#3a2410', '#140c06'],
-        rim: [255, 210, 140],
-        pad: [[168, 118, 62], [98, 64, 32], [48, 30, 14]],
-        stroke: [255, 220, 160],
-        glow: [[255, 230, 170], [230, 160, 70]],
-        sheen: 0.18,
+        body: ['#8a5a28', '#4a2e12', '#1a1006'],
+        rim: [255, 214, 130],
+        pad: [[210, 150, 75], [130, 85, 40], [60, 38, 16]],
+        stroke: [255, 220, 150],
+        glow: [[255, 235, 175], [240, 170, 70]],
+        sheen: 0.22,
       },
       steel: {
-        body: ['#3a4a5c', '#182230', '#060a10'],
-        rim: [190, 220, 255],
-        pad: [[100, 122, 145], [48, 62, 78], [20, 28, 36]],
-        stroke: [200, 230, 255],
-        glow: [[220, 240, 255], [130, 185, 240]],
-        sheen: 0.16,
+        body: ['#4a6080', '#1c2a3c', '#060a12'],
+        rim: [200, 230, 255],
+        pad: [[150, 180, 210], [70, 95, 120], [28, 40, 52]],
+        stroke: [210, 235, 255],
+        glow: [[230, 245, 255], [140, 195, 250]],
+        sheen: 0.2,
       },
       obsidian: {
-        body: ['#2a1e32', '#100c16', '#030206'],
-        rim: [220, 190, 255],
-        pad: [[70, 52, 88], [34, 26, 44], [14, 10, 18]],
-        stroke: [230, 200, 255],
-        glow: [[240, 210, 255], [170, 120, 230]],
-        sheen: 0.14,
+        body: ['#3a2848', '#14101c', '#050308'],
+        rim: [230, 195, 255],
+        pad: [[100, 70, 130], [48, 34, 64], [18, 12, 26]],
+        stroke: [220, 190, 250],
+        glow: [[245, 220, 255], [180, 130, 240]],
+        sheen: 0.16,
       },
     };
     const skin = skins[s.skin] || skins.classic;
@@ -103,6 +104,7 @@ export function createSurface(canvas) {
     ctx2.save();
     ctx2.translate(f.x, f.y);
     ctx2.rotate(isDing ? 0 : (f.rot || 0) + Math.PI / 2);
+    ctx2.globalCompositeOperation = 'source-over';
     const recess = ctx2.createLinearGradient(0, -slitW * 2.7, 0, slitW * 2.7);
     recess.addColorStop(0, 'rgba(0,0,0,0)');
     recess.addColorStop(0.28, 'rgba(0,0,0,' + (0.2 * idle) + ')');
@@ -281,15 +283,16 @@ export function createSurface(canvas) {
     ctx2.beginPath();
     ctx2.arc(CX, CY, R, 0, Math.PI * 2);
     ctx2.fill();
-    ctx2.strokeStyle = rgba(theme.skin.rim, 0.22);
-    ctx2.lineWidth = Math.max(1.8, R * 0.012);
+
+    ctx2.strokeStyle = rgba(theme.skin.rim, 0.28);
+    ctx2.lineWidth = Math.max(2, R * 0.013);
     ctx2.beginPath();
     ctx2.arc(CX, CY, R * 0.93, 0, Math.PI * 2);
     ctx2.stroke();
-    // soft metal sheen
-    const sheen = ctx2.createRadialGradient(CX - R * 0.25, CY - R * 0.3, 0, CX, CY, R * 0.85);
-    sheen.addColorStop(0, rgba(theme.skin.rim, theme.skin.sheen || 0.1));
-    sheen.addColorStop(0.45, rgba(theme.skin.rim, 0.02));
+
+    const sheen = ctx2.createRadialGradient(CX - R * 0.28, CY - R * 0.32, 0, CX, CY, R * 0.9);
+    sheen.addColorStop(0, rgba(theme.skin.rim, theme.skin.sheen || 0.12));
+    sheen.addColorStop(0.4, rgba(theme.skin.rim, 0.03));
     sheen.addColorStop(1, rgba(theme.skin.rim, 0));
     ctx2.fillStyle = sheen;
     ctx2.beginPath();
@@ -299,14 +302,38 @@ export function createSurface(canvas) {
     if (catchActive) ctx2.globalAlpha = 0.78;
 
     const view = animatedView(performance.now());
+
+    // PASS 1: solid pads + lips — always drawn so notes never vanish under glow
+    view.forEach((f) => {
+      const isDing = f.kind === 'ding';
+      const playable = f.playable !== false;
+      const dim = (playable ? 1 : 0.32) * (f.appear ?? 1);
+      const hlx = f.ux != null ? f.ux : -0.35;
+      const hly = f.uy != null ? f.uy : -0.45;
+
+      const pad = ctx2.createRadialGradient(
+        f.x + hlx * f.rx * 0.35, f.y + hly * f.ry * 0.35, 0,
+        f.x, f.y, Math.max(f.rx, f.ry)
+      );
+      pad.addColorStop(0, rgba(theme.skin.pad[0], 1 * dim));
+      pad.addColorStop(0.55, rgba(theme.skin.pad[1], 1 * dim));
+      pad.addColorStop(1, rgba(theme.skin.pad[2], 1 * dim));
+      ctx2.globalCompositeOperation = 'source-over';
+      ctx2.fillStyle = pad;
+      pathPad(f);
+      ctx2.fill();
+
+      ctx2.strokeStyle = rgba(theme.skin.stroke, (playable ? 0.22 : 0.08) * dim);
+      ctx2.lineWidth = isDing ? 2 : 1.4;
+      pathPad(f);
+      ctx2.stroke();
+    });
+
+    // PASS 2: hit glow + slits on top
     view.forEach((f) => {
       const glow = inst.glow?.[f.index] || 0;
       const radial = inst.zoneFlash?.[f.index] || 0;
-      const isDing = f.kind === 'ding';
       const playable = f.playable !== false;
-      const dim = (playable ? 1 : 0.26) * (f.appear ?? 1);
-      const hlx = f.ux != null ? f.ux : -0.35;
-      const hly = f.uy != null ? f.uy : -0.45;
       const wp = waveTargets?.get?.(f.index);
       let approach = 0;
       if (wp != null && playable) {
@@ -314,62 +341,34 @@ export function createSurface(canvas) {
         approach = Math.min(1, approach * (0.25 + Math.min(1, wp) * 0.8));
       }
 
-      const pad = ctx2.createRadialGradient(
-        f.x + hlx * f.rx * 0.35, f.y + hly * f.ry * 0.35, 0,
-        f.x, f.y, Math.max(f.rx, f.ry)
-      );
-      pad.addColorStop(0, rgba(theme.skin.pad[0], 0.98 * dim));
-      pad.addColorStop(0.5, rgba(theme.skin.pad[1], 0.97 * dim));
-      pad.addColorStop(1, rgba(theme.skin.pad[2], 1 * dim));
-      ctx2.fillStyle = pad;
-      pathPad(f);
-      ctx2.fill();
-
-      const strokeLight = Math.max(
-        glow > 0.035 && playable ? 0.16 + glow * 0.42 : 0,
-        approach * 0.72
-      );
-      {
-        const hi = mixLed(theme.skin.glow[0], theme.led, 0.55);
-        const lo = theme.skin.stroke;
-        ctx2.strokeStyle = strokeLight > 0.04 ? rgba(hi, strokeLight) : rgba(lo, 0.09 * dim);
-      }
-      ctx2.lineWidth = isDing ? 1.8 : 1.2;
-      pathPad(f);
-      ctx2.stroke();
-
-      if ((glow > 0.015 || approach > 0.06) && playable) {
+      if ((glow > 0.02 || approach > 0.06) && playable) {
         ctx2.save();
         ctx2.globalCompositeOperation = 'lighter';
-        const gAmt = Math.max(glow, approach * 0.9);
-        const g0 = mixLed(theme.skin.glow[0], theme.led, 0.7);
-        const g1 = mixLed(theme.skin.glow[1], theme.led, 0.6);
+        const gAmt = Math.min(1, Math.max(glow, approach * 0.85));
+        const g0 = mixLed(theme.skin.glow[0], theme.led, 0.65);
+        const g1 = mixLed(theme.skin.glow[1], theme.led, 0.5);
         const baseR = Math.max(f.rx, f.ry);
 
-        // soft expanding outer halo
-        const outer = baseR * (1.25 + radial * 0.55 + gAmt * 0.25);
-        const hg = ctx2.createRadialGradient(f.x, f.y, baseR * 0.15, f.x, f.y, outer);
-        hg.addColorStop(0, rgba(g0, gAmt * 0.34));
-        hg.addColorStop(0.4, rgba(g1, gAmt * 0.16));
+        const outer = baseR * (1.08 + radial * 0.35 + gAmt * 0.12);
+        const hg = ctx2.createRadialGradient(f.x, f.y, 0, f.x, f.y, outer);
+        hg.addColorStop(0, rgba(g0, gAmt * 0.28));
+        hg.addColorStop(0.55, rgba(g1, gAmt * 0.12));
         hg.addColorStop(1, rgba(g1, 0));
         ctx2.fillStyle = hg;
-        pathPad({ x: f.x, y: f.y, rx: f.rx * 1.35, ry: f.ry * 1.35, rot: f.rot });
+        pathPad({ x: f.x, y: f.y, rx: f.rx * 1.15, ry: f.ry * 1.15, rot: f.rot });
         ctx2.fill();
 
-        // bright core wash over the pad
-        const core = ctx2.createRadialGradient(f.x, f.y, 0, f.x, f.y, baseR * 0.85);
-        core.addColorStop(0, rgba([255, 255, 255], gAmt * 0.22));
-        core.addColorStop(0.5, rgba(g0, gAmt * 0.12));
+        const core = ctx2.createRadialGradient(f.x, f.y, 0, f.x, f.y, baseR * 0.75);
+        core.addColorStop(0, rgba([255, 255, 255], gAmt * 0.18));
+        core.addColorStop(0.6, rgba(g0, gAmt * 0.1));
         core.addColorStop(1, rgba(g0, 0));
         ctx2.fillStyle = core;
         pathPad(f);
         ctx2.fill();
 
-        // thin elegant ring pulse
-        const ringA = gAmt * (0.35 + radial * 0.4);
-        ctx2.strokeStyle = rgba(g0, ringA);
-        ctx2.lineWidth = Math.max(1.2, R * 0.0045);
-        pathPad({ x: f.x, y: f.y, rx: f.rx * (1.08 + radial * 0.12), ry: f.ry * (1.08 + radial * 0.12), rot: f.rot });
+        ctx2.strokeStyle = rgba(g0, gAmt * 0.4);
+        ctx2.lineWidth = Math.max(1.1, R * 0.004);
+        pathPad({ x: f.x, y: f.y, rx: f.rx * 1.04, ry: f.ry * 1.04, rot: f.rot });
         ctx2.stroke();
         ctx2.restore();
       }
@@ -378,6 +377,7 @@ export function createSurface(canvas) {
     });
 
     drawRimGlow(performance.now() * 0.001);
+    ctx2.globalCompositeOperation = 'source-over';
     ctx2.globalAlpha = 1;
   }
 
