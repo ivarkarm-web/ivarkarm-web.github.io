@@ -13,8 +13,8 @@ let src = await res.text();
 // Use the live library-family (includes metallic batch 1 voices)
 src = src.replace(/library-family\.js\?v=\d+/g, 'library-family.js?v=3');
 
-// Surface with skins + LED + richer glow
-src = src.replace(/pionier-surface\.js\?v=\d+/g, 'pionier-surface.js?v=101');
+// Surface: two-pass pads + stronger skins + LED
+src = src.replace(/pionier-surface\.js\?v=\d+/g, 'pionier-surface.js?v=102');
 
 // Disable vertical pitch-bend drag (was detuning held notes)
 src = src.replace(/moved\.pitchBendNorm = bendNorm;/g, 'moved.pitchBendNorm = 0;');
