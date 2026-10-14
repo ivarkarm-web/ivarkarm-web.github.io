@@ -244,3 +244,32 @@
   height: auto !important;
   aspect-ratio: 1 !important;
 }
+
+/* PIONIER layout pass: playable surface first, effects + looper above it,
+   instrument and scale selection at the bottom. */
+.pionier-top-dock{position:fixed;inset:max(4px,env(safe-area-inset-top,0px)) 0 auto;z-index:900;display:flex;flex-direction:column;align-items:stretch;gap:3px;padding:4px max(8px,env(safe-area-inset-right,0px)) 5px max(8px,env(safe-area-inset-left,0px));background:linear-gradient(180deg,rgba(9,9,11,.94),rgba(9,9,11,.76) 78%,transparent);pointer-events:none}
+.pionier-top-dock>*{pointer-events:auto}
+.pionier-top-dock .knobs-panel{display:flex!important;flex:0 0 auto;flex-wrap:nowrap!important;justify-content:flex-start!important;align-items:center!important;gap:6px!important;width:100%;max-width:100%;min-width:0;overflow-x:auto;overflow-y:visible;padding:3px 2px 5px!important;border:0!important;border-radius:14px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.pionier-top-dock .knobs-panel::-webkit-scrollbar{display:none}
+.pionier-top-dock .knobs-panel>.effect-knob-wrap{flex:0 0 68px!important;width:68px;min-width:68px;max-width:68px;gap:1px}
+.pionier-top-dock .knobs-panel>.effect-knob-wrap .knob,.pionier-top-dock .knobs-panel>.effect-knob-wrap .knob-canvas{width:54px!important;height:54px!important}
+.pionier-top-dock .knobs-panel .knob-name-row{min-height:14px}
+.pionier-top-dock .knobs-panel .knob-effect-trigger{padding:2px 4px!important;min-height:20px;font-size:10px;white-space:nowrap}
+.pionier-top-dock .knobs-panel>.tone-knobs{flex:0 0 auto!important;width:auto!important;display:flex;flex-wrap:nowrap;gap:6px;padding:0!important;margin:0!important;border:0!important}
+.pionier-top-dock .knobs-panel>.tone-knobs .knob-wrap{flex:0 0 58px;width:58px}
+.pionier-top-dock .knobs-panel>.tone-knobs .knob,.pionier-top-dock .knobs-panel>.tone-knobs .knob-canvas{width:46px!important;height:46px!important}
+.pionier-top-dock .knobs-panel>.tone-knobs .knob-name-row{font-size:9px}
+.pionier-top-dock .looper-rail{position:relative!important;inset:auto!important;transform:none!important;z-index:auto;display:flex;justify-content:center;align-self:stretch;min-height:44px;max-width:100%;gap:8px;overflow:visible;pointer-events:auto}
+.pionier-top-dock .looper-layers{order:1;flex:1 1 auto;min-width:0;max-width:none;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-end;scrollbar-width:none}
+.pionier-top-dock .looper-rail>.looper-clear-btn{position:relative!important;inset:auto!important;transform:none!important;order:0;flex:0 0 42px;align-self:center;width:42px;height:42px}
+.pionier-top-dock .looper-rail>#looperBtn{order:2;flex:0 0 48px;align-self:center}
+.stage-scale-bar{position:fixed!important;inset:auto 0 0!important;z-index:1000!important;width:100%!important;max-width:none!important;margin:0!important;padding:8px max(10px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))!important;flex-direction:row!important;justify-content:center!important;gap:8px!important;background:linear-gradient(0deg,rgba(9,9,11,.97),rgba(9,9,11,.9) 76%,rgba(9,9,11,.5))!important;border-top:1px solid rgba(230,224,210,.12);border-bottom:0!important;backdrop-filter:blur(20px) saturate(125%);-webkit-backdrop-filter:blur(20px) saturate(125%)}
+.stage-instrument-nav{order:1}.stage-scale-row{order:2}
+.stage-instrument-nav .instrument-name,.stage-scale-btn{width:clamp(128px,38vw,210px)!important;max-width:min(42vw,210px)!important;height:46px!important;min-height:46px!important;font-size:13px!important}
+.stage-scale-menu{top:auto!important;bottom:calc(100% + 8px)!important;max-height:min(45vh,360px)!important}
+#mobileControlDrawer{z-index:700!important;bottom:calc(76px + env(safe-area-inset-bottom,0px))!important;width:min(100vw,440px)}
+#mobileControlDrawer.is-open .mobile-control-panel{max-height:min(45dvh,380px)}
+.stage{--stage-bottom-reserve:calc(110px + env(safe-area-inset-bottom,0px))}
+#pan{width:min(96vw,calc(100dvh - 245px),760px)!important;max-width:96vw!important}
+@media(min-width:701px){.pionier-top-dock{padding-inline:max(18px,env(safe-area-inset-left,0px)) max(18px,env(safe-area-inset-right,0px))}.pionier-top-dock .knobs-panel{justify-content:center!important}.pionier-top-dock .knobs-panel>.effect-knob-wrap{flex-basis:76px!important;width:76px;max-width:76px}.pionier-top-dock .knobs-panel>.effect-knob-wrap .knob,.pionier-top-dock .knobs-panel>.effect-knob-wrap .knob-canvas{width:60px!important;height:60px!important}.stage-scale-bar{padding-block:10px!important}}
+@media(max-height:650px){.pionier-top-dock .knobs-panel>.effect-knob-wrap .knob,.pionier-top-dock .knobs-panel>.effect-knob-wrap .knob-canvas{width:44px!important;height:44px!important}.pionier-top-dock .knobs-panel>.effect-knob-wrap{flex-basis:60px!important;width:60px;max-width:60px}.pionier-top-dock .knobs-panel .knob-effect-trigger{min-height:16px;font-size:9px}#pan{width:min(94vw,calc(100dvh - 190px),680px)!important}}
