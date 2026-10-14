@@ -1,14 +1,15 @@
 /**
  * instruments/library-family.js — the Pionier sound library as playable instruments.
  *
- * One Instrument per library voice (koto, harp, kalimba, bowl, breath, tine,
- * musicbox, choir, drone, cloud). The handpan voice itself is played by
- * HandpanInstrument, which owns the scale / layout logic. Every instrument here
- * inherits the nine-to-fourteen pitches of the selected handpan scale through
- * setMusicalContext(), so all voices always play the same layout.
+ * One Instrument per library voice (koto, harp, kalimba, bowl, tibetan, tongue,
+ * crystal_kalimba, ice_chime, windchimes, breath, tine, musicbox, choir, drone, cloud).
+ * The handpan voice itself is played by HandpanInstrument, which owns the scale /
+ * layout logic. Every instrument here inherits the nine-to-fourteen pitches of the
+ * selected handpan scale through setMusicalContext(), so all voices always play
+ * the same layout.
  */
 import { Instrument } from '../instrument.js';
-import { SoundLibrary, listVoices } from '../sound/library.js?v=1';
+import { SoundLibrary, listVoices } from '../sound/library.js?v=2';
 
 const MAX_PADS = 14;
 const PITCH_BEND_RANGE = 2;
@@ -16,7 +17,7 @@ const BEND_SMOOTH = 0.055;
 const PRESSURE_SMOOTH = 0.06;
 
 // Voices that keep sounding while the finger is down and fade out on release.
-const HELD_VOICES = new Set(['bowl', 'breath', 'choir', 'drone', 'cloud']);
+const HELD_VOICES = new Set(['bowl', 'tibetan', 'breath', 'choir', 'drone', 'cloud']);
 
 let shared = null;
 
@@ -69,7 +70,6 @@ export class LibraryInstrument extends Instrument {
     if (!freqs.length) return;
     this._prewarmToken = (this._prewarmToken || 0) + 1;
     const token = this._prewarmToken;
-    // prewarm() yields between notes; a newer call (layout change) supersedes this one
     this.lib.prewarm([this.id], freqs, [0.65], () => (token === this._prewarmToken)).catch(() => {});
   }
 
@@ -116,7 +116,6 @@ export class LibraryInstrument extends Instrument {
     this.heldPad[idx] = 1;
     this.lastStrikeAt.set(idx, performance.now());
 
-    // pads around the ring sit left/right in the stereo field
     const handle = this.lib.play(this.id, note.freq, { vel, pan: Math.sin(angle) * 0.35 });
     if (!handle) return;
     const voice = { idx, handle, kind: 'lib', baseFreq: note.freq, released: false };
@@ -124,29 +123,16 @@ export class LibraryInstrument extends Instrument {
       if (voice.released) return;
       voice.released = true;
       handle.stop(Math.max(0.03, release));
-      setTimeout(() => { if (this.activeVoices.get(idx) === voice) this.activeVoices.delete(idx); }, (release + 0.1) * 1000);
     };
     this.activeVoices.set(idx, voice);
   }
 
-  express(gesture, zone) {
-    if (!this.ready) return;
-    const idx = zone?.index ?? zone?.i;
-    if (idx == null || idx < 0 || idx >= MAX_PADS || !this.heldPad[idx]) return;
-    const voice = this.activeVoices.get(idx);
-    if (!voice || voice.released) return;
-    const rawP = Math.max(0, Math.min(1, gesture.pressure || gesture.force || gesture.intensity || 0.5));
-    const sp = this._smoothPressure[idx] + (rawP - this._smoothPressure[idx]) * 0.22;
-    this._smoothPressure[idx] = sp;
-    voice.handle.level(0.82 + pressureCurve(sp) * 0.4, PRESSURE_SMOOTH);
-    let bendSemi = gesture.pitchBend;
-    if (bendSemi == null && typeof gesture.pitchBendNorm === 'number') {
-      const n = gesture.pitchBendNorm;
-      bendSemi = Math.sign(n) * Math.pow(Math.abs(n), 1.35) * this.pitchBendRange;
-    }
-    if (typeof bendSemi === 'number' && Number.isFinite(bendSemi)) {
-      const cents = Math.max(-this.pitchBendRange * 100, Math.min(this.pitchBendRange * 100, bendSemi * 100));
-      voice.handle.detune(cents, BEND_SMOOTH);
+  noteMove(idx, gesture = {}, zone = {}) {
+    if (idx < 0 || idx >= MAX_PADS) return;
+    const pressure = Math.max(0, Math.min(1, gesture.pressure || gesture.force || 0));
+    this._smoothPressure[idx] = this._smoothPressure[idx] * (1 - PRESSURE_SMOOTH) + pressure * PRESSURE_SMOOTH;
+    if (this.heldPad[idx]) {
+      this.glow[idx] = Math.min(1, Math.max(this.glow[idx], 0.25 + this._smoothPressure[idx] * 0.5));
     }
   }
 
@@ -155,7 +141,6 @@ export class LibraryInstrument extends Instrument {
     this._smoothPressure[idx] = 0;
     if (this.glow[idx] > 0.15) this.glow[idx] = Math.min(this.glow[idx], 0.35);
     const voice = this.activeVoices.get(idx);
-    // Struck voices ring out on their own; held voices fade when the finger lifts.
     if (voice && this.held && this.audioCtx) voice.stop(this.audioCtx.currentTime, 0.9);
   }
 
