@@ -15,7 +15,8 @@ const PRESSURE_SMOOTH = 0.06;
 // Voices that keep sounding while the finger is down and fade out on release.
 const HELD_VOICES = new Set([
   'bowl', 'tibetan', 'breath', 'choir', 'drone', 'cloud',
-  'mist_drone', 'aether', 'aurora', 'celestial_bow', 'sub_hum'
+  'mist_drone', 'aether', 'aurora', 'celestial_bow', 'sub_hum',
+  'ambient_cello', 'sitar_air', 'silk_violin'
 ]);
 
 let shared = null;
