@@ -17,32 +17,36 @@ export function createSurface(canvas) {
     const led = s.led || { r: 110, g: 200, b: 255 };
     const skins = {
       classic: {
-        body: ['#2c2d32', '#16171b', '#0a0a0c'],
-        rim: [220, 232, 246],
-        pad: [[78, 80, 88], [40, 42, 48], [22, 23, 27]],
-        stroke: [220, 230, 242],
-        glow: [[226, 239, 255], [166, 198, 230]],
+        body: ['#3a3c44', '#1a1b20', '#08090b'],
+        rim: [230, 238, 250],
+        pad: [[96, 100, 112], [48, 50, 58], [24, 25, 30]],
+        stroke: [230, 238, 250],
+        glow: [[240, 248, 255], [180, 210, 240]],
+        sheen: 0.12,
       },
       bronze: {
-        body: ['#3a2a1c', '#221810', '#100c08'],
-        rim: [232, 196, 140],
-        pad: [[120, 88, 52], [72, 50, 30], [40, 28, 16]],
-        stroke: [240, 210, 150],
-        glow: [[255, 220, 150], [210, 150, 70]],
+        body: ['#6a4524', '#3a2410', '#140c06'],
+        rim: [255, 210, 140],
+        pad: [[168, 118, 62], [98, 64, 32], [48, 30, 14]],
+        stroke: [255, 220, 160],
+        glow: [[255, 230, 170], [230, 160, 70]],
+        sheen: 0.18,
       },
       steel: {
-        body: ['#2a323c', '#141a22', '#080b10'],
-        rim: [180, 210, 240],
-        pad: [[70, 88, 104], [36, 48, 58], [18, 24, 30]],
-        stroke: [190, 220, 250],
-        glow: [[200, 230, 255], [120, 170, 220]],
+        body: ['#3a4a5c', '#182230', '#060a10'],
+        rim: [190, 220, 255],
+        pad: [[100, 122, 145], [48, 62, 78], [20, 28, 36]],
+        stroke: [200, 230, 255],
+        glow: [[220, 240, 255], [130, 185, 240]],
+        sheen: 0.16,
       },
       obsidian: {
-        body: ['#1a1520', '#0c0a10', '#050408'],
-        rim: [200, 180, 230],
-        pad: [[48, 40, 58], [26, 22, 32], [12, 10, 16]],
-        stroke: [210, 190, 240],
-        glow: [[220, 190, 255], [140, 100, 200]],
+        body: ['#2a1e32', '#100c16', '#030206'],
+        rim: [220, 190, 255],
+        pad: [[70, 52, 88], [34, 26, 44], [14, 10, 18]],
+        stroke: [230, 200, 255],
+        glow: [[240, 210, 255], [170, 120, 230]],
+        sheen: 0.14,
       },
     };
     const skin = skins[s.skin] || skins.classic;
@@ -277,11 +281,20 @@ export function createSurface(canvas) {
     ctx2.beginPath();
     ctx2.arc(CX, CY, R, 0, Math.PI * 2);
     ctx2.fill();
-    ctx2.strokeStyle = rgba(theme.skin.rim, 0.13);
-    ctx2.lineWidth = Math.max(1.5, R * 0.01);
+    ctx2.strokeStyle = rgba(theme.skin.rim, 0.22);
+    ctx2.lineWidth = Math.max(1.8, R * 0.012);
     ctx2.beginPath();
     ctx2.arc(CX, CY, R * 0.93, 0, Math.PI * 2);
     ctx2.stroke();
+    // soft metal sheen
+    const sheen = ctx2.createRadialGradient(CX - R * 0.25, CY - R * 0.3, 0, CX, CY, R * 0.85);
+    sheen.addColorStop(0, rgba(theme.skin.rim, theme.skin.sheen || 0.1));
+    sheen.addColorStop(0.45, rgba(theme.skin.rim, 0.02));
+    sheen.addColorStop(1, rgba(theme.skin.rim, 0));
+    ctx2.fillStyle = sheen;
+    ctx2.beginPath();
+    ctx2.arc(CX, CY, R * 0.92, 0, Math.PI * 2);
+    ctx2.fill();
 
     if (catchActive) ctx2.globalAlpha = 0.78;
 
@@ -305,9 +318,9 @@ export function createSurface(canvas) {
         f.x + hlx * f.rx * 0.35, f.y + hly * f.ry * 0.35, 0,
         f.x, f.y, Math.max(f.rx, f.ry)
       );
-      pad.addColorStop(0, rgba(theme.skin.pad[0], 0.95 * dim));
-      pad.addColorStop(0.55, rgba(theme.skin.pad[1], 0.95 * dim));
-      pad.addColorStop(1, rgba(theme.skin.pad[2], 0.98 * dim));
+      pad.addColorStop(0, rgba(theme.skin.pad[0], 0.98 * dim));
+      pad.addColorStop(0.5, rgba(theme.skin.pad[1], 0.97 * dim));
+      pad.addColorStop(1, rgba(theme.skin.pad[2], 1 * dim));
       ctx2.fillStyle = pad;
       pathPad(f);
       ctx2.fill();
@@ -325,20 +338,39 @@ export function createSurface(canvas) {
       pathPad(f);
       ctx2.stroke();
 
-      if ((glow > 0.02 || approach > 0.08) && playable) {
+      if ((glow > 0.015 || approach > 0.06) && playable) {
         ctx2.save();
         ctx2.globalCompositeOperation = 'lighter';
-        const gAmt = Math.max(glow, approach * 0.85);
-        const gr = Math.max(f.rx, f.ry) * (0.95 + radial * 0.45 + approach * 0.2);
-        const hg = ctx2.createRadialGradient(f.x, f.y, 0, f.x, f.y, gr);
-        const g0 = mixLed(theme.skin.glow[0], theme.led, 0.65);
-        const g1 = mixLed(theme.skin.glow[1], theme.led, 0.55);
-        hg.addColorStop(0, rgba(g0, gAmt * (0.19 + (1 - radial) * 0.12)));
-        hg.addColorStop(0.5, rgba(g1, gAmt * (radial * 0.14 + approach * 0.1)));
+        const gAmt = Math.max(glow, approach * 0.9);
+        const g0 = mixLed(theme.skin.glow[0], theme.led, 0.7);
+        const g1 = mixLed(theme.skin.glow[1], theme.led, 0.6);
+        const baseR = Math.max(f.rx, f.ry);
+
+        // soft expanding outer halo
+        const outer = baseR * (1.25 + radial * 0.55 + gAmt * 0.25);
+        const hg = ctx2.createRadialGradient(f.x, f.y, baseR * 0.15, f.x, f.y, outer);
+        hg.addColorStop(0, rgba(g0, gAmt * 0.34));
+        hg.addColorStop(0.4, rgba(g1, gAmt * 0.16));
         hg.addColorStop(1, rgba(g1, 0));
         ctx2.fillStyle = hg;
-        pathPad({ x: f.x, y: f.y, rx: f.rx * 1.12, ry: f.ry * 1.12, rot: f.rot });
+        pathPad({ x: f.x, y: f.y, rx: f.rx * 1.35, ry: f.ry * 1.35, rot: f.rot });
         ctx2.fill();
+
+        // bright core wash over the pad
+        const core = ctx2.createRadialGradient(f.x, f.y, 0, f.x, f.y, baseR * 0.85);
+        core.addColorStop(0, rgba([255, 255, 255], gAmt * 0.22));
+        core.addColorStop(0.5, rgba(g0, gAmt * 0.12));
+        core.addColorStop(1, rgba(g0, 0));
+        ctx2.fillStyle = core;
+        pathPad(f);
+        ctx2.fill();
+
+        // thin elegant ring pulse
+        const ringA = gAmt * (0.35 + radial * 0.4);
+        ctx2.strokeStyle = rgba(g0, ringA);
+        ctx2.lineWidth = Math.max(1.2, R * 0.0045);
+        pathPad({ x: f.x, y: f.y, rx: f.rx * (1.08 + radial * 0.12), ry: f.ry * (1.08 + radial * 0.12), rot: f.rot });
+        ctx2.stroke();
         ctx2.restore();
       }
 
