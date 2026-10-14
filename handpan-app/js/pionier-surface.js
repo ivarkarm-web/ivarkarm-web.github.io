@@ -36,20 +36,93 @@ export function createSurface(canvas) {
     const tt=Number.isFinite(t)?t:0;
     return[Math.round(p(base,0,'r')*(1-tt)+p(led,0,'r')*tt),Math.round(p(base,1,'g')*(1-tt)+p(led,1,'g')*tt),Math.round(p(base,2,'b')*(1-tt)+p(led,2,'b')*tt)];
   }
+  function softTone(st){
+    const ok={classic:1,round:1,petal:1,teardrop:1,seed:1,halo:1};
+    return ok[st]?st:'classic';
+  }
   function pathPad(f,st){
-    st=st||window.PionierSettings?.tonefield||'classic';
+    st=softTone(st||window.PionierSettings?.tonefield||'classic');
     const{x,y,rx,ry}=f;const rot=f.rot||0;
     ctx2.beginPath();
     if(st==='round'){const r=Math.max(rx,ry)*0.92;ctx2.ellipse(x,y,r,r,0,0,Math.PI*2)}
     else if(st==='petal')ctx2.ellipse(x,y,rx*0.75,ry*1.25,rot,0,Math.PI*2);
-    else if(st==='diamond'){const c=Math.cos(rot),s=Math.sin(rot);[[0,-ry],[rx,0],[0,ry],[-rx,0]].forEach((p,i)=>{const px=x+p[0]*c-p[1]*s,py=y+p[0]*s+p[1]*c;i?ctx2.lineTo(px,py):ctx2.moveTo(px,py)});ctx2.closePath()}
-    else if(st==='hex'){const c=Math.cos(rot),s=Math.sin(rot);for(let i=0;i<6;i++){const a=(i/6)*Math.PI*2-Math.PI/6;const px=x+Math.cos(a)*rx*c-Math.sin(a)*ry*s,py=y+Math.cos(a)*rx*s+Math.sin(a)*ry*c;i?ctx2.lineTo(px,py):ctx2.moveTo(px,py)}ctx2.closePath()}
     else if(st==='teardrop')ctx2.ellipse(x,y-ry*0.15,rx*0.85,ry*1.1,rot,0,Math.PI*2);
-    else if(st==='wave'){const c=Math.cos(rot),s=Math.sin(rot);for(let i=0;i<=28;i++){const a=(i/28)*Math.PI*2,w=1+0.12*Math.sin(a*5);const lx=Math.cos(a)*rx*w,ly=Math.sin(a)*ry*w;const px=x+lx*c-ly*s,py=y+lx*s+ly*c;i?ctx2.lineTo(px,py):ctx2.moveTo(px,py)}ctx2.closePath()}
-    else if(st==='crescent'){ctx2.ellipse(x,y,rx,ry,rot,0.4,Math.PI*2-0.4);ctx2.ellipse(x+rx*0.28,y,rx*0.65,ry*0.7,rot,Math.PI*2-0.4,0.4,true)}
     else if(st==='seed')ctx2.ellipse(x,y,rx*0.7,ry*1.28,rot,0,Math.PI*2);
     else if(st==='halo'){ctx2.ellipse(x,y,rx,ry,rot,0,Math.PI*2);ctx2.ellipse(x,y,rx*0.5,ry*0.5,rot,0,Math.PI*2,true)}
     else ctx2.ellipse(x,y,rx,ry,rot,0,Math.PI*2);
+  }
+  function drawBodyEngraving(theme){
+    const cat=window.PionierCatalog;
+    const skinId=(window.PionierSettings&&window.PionierSettings.skin)||document.documentElement?.dataset?.skin||'classic';
+    const entry=cat&&cat.SKINS?cat.SKINS.find(s=>s.id===skinId):null;
+    const style=(entry&&entry.mandala)||'orbit';
+    const col=theme.skin.rim||[230,236,248];
+    const aBase=0.07;
+    ctx2.save();
+    ctx2.globalCompositeOperation='source-over';
+    ctx2.lineCap='round';
+    ctx2.lineJoin='round';
+    const t=performance.now()*0.00025;
+    if(style==='rings'||style==='orbit'){
+      for(let i=0;i<5;i++){
+        const rr=R*(0.28+i*0.12);
+        ctx2.strokeStyle=rgba(col,aBase*(0.6+i*0.08));
+        ctx2.lineWidth=Math.max(0.6,R*0.0022);
+        ctx2.beginPath();ctx2.arc(CX,CY,rr,0,Math.PI*2);ctx2.stroke();
+      }
+    } else if(style==='petal'||style==='bloom'){
+      const petals=8;
+      for(let i=0;i<petals;i++){
+        const a=(i/petals)*Math.PI*2+t;
+        ctx2.strokeStyle=rgba(col,aBase*0.9);
+        ctx2.lineWidth=Math.max(0.55,R*0.002);
+        ctx2.beginPath();
+        ctx2.ellipse(CX+Math.cos(a)*R*0.12,CY+Math.sin(a)*R*0.12,R*0.18,R*0.38,a,0,Math.PI*2);
+        ctx2.stroke();
+      }
+    } else if(style==='star'){
+      for(let layer=0;layer<2;layer++){
+        const outer=R*(0.55+layer*0.12),inner=outer*0.42,pts=8;
+        ctx2.beginPath();
+        for(let i=0;i<pts*2;i++){
+          const a=(i/(pts*2))*Math.PI*2-Math.PI/2+t*(layer%2?-1:1);
+          const r=i%2===0?outer:inner;
+          const x=CX+Math.cos(a)*r,y=CY+Math.sin(a)*r;
+          i?ctx2.lineTo(x,y):ctx2.moveTo(x,y);
+        }
+        ctx2.closePath();
+        ctx2.strokeStyle=rgba(col,aBase*0.85);
+        ctx2.lineWidth=Math.max(0.55,R*0.002);ctx2.stroke();
+      }
+    } else if(style==='spiral'){
+      for(let arm=0;arm<3;arm++){
+        ctx2.beginPath();
+        const base=(arm/3)*Math.PI*2+t;
+        for(let i=0;i<60;i++){
+          const p=i/60,a=base+p*Math.PI*2.8,r=R*0.15+p*R*0.62;
+          const x=CX+Math.cos(a)*r,y=CY+Math.sin(a)*r;
+          i?ctx2.lineTo(x,y):ctx2.moveTo(x,y);
+        }
+        ctx2.strokeStyle=rgba(col,aBase*0.9);
+        ctx2.lineWidth=Math.max(0.55,R*0.0022);ctx2.stroke();
+      }
+    } else {
+      for(let ring=0;ring<4;ring++){
+        const baseR=R*(0.32+ring*0.12);
+        ctx2.beginPath();
+        for(let i=0;i<=48;i++){
+          const a=(i/48)*Math.PI*2;
+          const wave=Math.sin(a*4+t*3+ring)*R*0.012;
+          const r=baseR+wave;
+          const x=CX+Math.cos(a)*r,y=CY+Math.sin(a)*r;
+          i?ctx2.lineTo(x,y):ctx2.moveTo(x,y);
+        }
+        ctx2.closePath();
+        ctx2.strokeStyle=rgba(col,aBase*(0.7+ring*0.08));
+        ctx2.lineWidth=Math.max(0.55,R*0.002);ctx2.stroke();
+      }
+    }
+    ctx2.restore();
   }
   function layoutHandpanFields(handpanNotes,isFieldPlayable){
     const list=handpanNotes||[];const wasArmed=armed;armed=false;
@@ -133,6 +206,7 @@ export function createSurface(canvas) {
     const g=ctx2.createRadialGradient(CX-R*0.2,CY-R*0.28,R*0.04,CX,CY,R);
     g.addColorStop(0,theme.skin.body[0]);g.addColorStop(0.5,theme.skin.body[1]);g.addColorStop(1,theme.skin.body[2]);
     ctx2.fillStyle=g;ctx2.beginPath();ctx2.arc(CX,CY,R,0,Math.PI*2);ctx2.fill();
+    drawBodyEngraving(theme);
     ctx2.strokeStyle=rgba(theme.skin.rim,0.28);ctx2.lineWidth=Math.max(2,R*0.013);
     ctx2.beginPath();ctx2.arc(CX,CY,R*0.93,0,Math.PI*2);ctx2.stroke();
     const view=animatedView(performance.now());
@@ -149,58 +223,54 @@ export function createSurface(canvas) {
       pad.addColorStop(0,rgba(theme.skin.pad[0],dim));pad.addColorStop(0.45,rgba(theme.skin.pad[1],dim));
       pad.addColorStop(0.85,rgba(theme.skin.pad[2],dim));pad.addColorStop(1,rgba(theme.skin.pad[2],0.92*dim));
       ctx2.fillStyle=pad;pathPad(f,tf);ctx2.fill();
-      ctx2.strokeStyle=rgba(lipCol,(playable?0.55:0.18)*dim);ctx2.lineWidth=isDing?2.4:1.7;
+      ctx2.strokeStyle=rgba(lipCol,0.55*dim);ctx2.lineWidth=Math.max(1.2,R*0.0045);
       pathPad(f,tf);ctx2.stroke();
-    });
-    view.forEach(f=>{
-      const glow=inst?.glow?.[f.index]||0,radial=inst?.zoneFlash?.[f.index]||0,playable=f.playable!==false;
-      if(glow>0.02&&playable){
-        ctx2.save();ctx2.globalCompositeOperation='lighter';
-        const gAmt=Math.min(1,glow),g0=mixLed(theme.skin.glow[0],theme.led,0.65),g1=mixLed(theme.skin.glow[1],theme.led,0.5);
-        const baseR=Math.max(f.rx,f.ry),outer=baseR*(1.02+radial*0.22+gAmt*0.08);
-        const hg=ctx2.createRadialGradient(f.x,f.y,0,f.x,f.y,outer);
-        hg.addColorStop(0,rgba(g0,gAmt*0.32));hg.addColorStop(0.5,rgba(g1,gAmt*0.14));hg.addColorStop(1,rgba(g1,0));
+      const glow=inst&&inst.glow?inst.glow[f.index]||0:0;
+      if(glow>0.02){
+        const hg=ctx2.createRadialGradient(f.x,f.y,0,f.x,f.y,baseR*1.4);
+        const gc=theme.skin.glow||[[250,252,255],[200,220,250]];
+        hg.addColorStop(0,rgba(mixLed(gc[0],theme.led,0.5),0.35*glow));hg.addColorStop(1,rgba(gc[1],0));
         ctx2.fillStyle=hg;pathPad({x:f.x,y:f.y,rx:f.rx*1.08,ry:f.ry*1.08,rot:f.rot},tf);ctx2.fill();
-        ctx2.restore();
       }
       drawSlit(f,glow,playable);
     });
+    ctx2.globalAlpha=1;
     drawRimGlow(performance.now()*0.001);
-    ctx2.globalCompositeOperation='source-over';ctx2.globalAlpha=1;
   }
   function drawCatchWaves(waves){
     if(!waves)return;
     for(const w of waves){
-      const target=fields.find(f=>f.index===w.targetIndex)||fields[w.targetIndex];
-      if(!target)continue;
-      const p=Math.min(1.2,w.progress),x=CX+(target.x-CX)*p,y=CY+(target.y-CY)*p;
-      const rr=R*0.065+p*Math.max(target.rx,target.ry)*1.22;
-      const alpha=Math.max(0,0.88*(1-Math.abs(p-0.92)*2));
-      if(alpha<0.04)continue;
-      ctx2.save();ctx2.globalCompositeOperation='lighter';
-      const bloom=ctx2.createRadialGradient(x,y,rr*0.2,x,y,rr*1.35);
-      bloom.addColorStop(0,'rgba(255,230,160,'+(alpha*0.55)+')');bloom.addColorStop(1,'rgba(201,162,39,0)');
-      ctx2.fillStyle=bloom;ctx2.beginPath();ctx2.arc(x,y,rr*1.35,0,Math.PI*2);ctx2.fill();ctx2.restore();
+      const a=Math.max(0,1-(w.t||0));
+      if(a<=0)continue;
+      ctx2.strokeStyle=rgba([180,210,255],0.15*a);
+      ctx2.lineWidth=2;
+      ctx2.beginPath();ctx2.arc(w.x,w.y,(w.r||40)*(0.5+0.5*(w.t||0)),0,Math.PI*2);ctx2.stroke();
     }
   }
-  function hitVector(cx,cy){
-    let best=null,bestD=Infinity;
+  function resize(w,h){
+    W=w||canvas.clientWidth||800;H=h||canvas.clientHeight||800;
+    const dpr=Math.min(2,window.devicePixelRatio||1);
+    canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);
+    ctx2.setTransform(dpr,0,0,dpr,0,0);
+    const m=Math.min(W,H);R=m*0.42;CX=W*0.5;CY=H*0.46;
+  }
+  function armTransition(){armed=true}
+  function hitVector(x,y){
+    let best=null,bestD=1e9;
     for(const f of fields){
-      if(f.playable===false)continue;
-      const dx=cx-f.x,dy=cy-f.y,rot=f.rot||0,c=Math.cos(-rot),s=Math.sin(-rot);
-      const lx=dx*c-dy*s,ly=dx*s+dy*c,d=Math.hypot(lx/f.rx,ly/f.ry);
-      const expand=Math.max(0,Math.min(0.55,(R*0.14-Math.min(f.rx,f.ry))/(R*0.09)));
-      if(d<=1.78+expand&&d<bestD){bestD=d;best={idx:f.index,index:f.index,radial:d,angleRad:Math.atan2(dy,dx),nx:0.5+(f.x-CX)/(R*2),ny:0.5+(f.y-CY)/(R*2),x:cx,y:cy}}
+      const dx=x-f.x,dy=y-f.y;
+      const c=Math.cos(-(f.rot||0)),s=Math.sin(-(f.rot||0));
+      const lx=dx*c-dy*s,ly=dx*s+dy*c;
+      const nx=lx/(f.rx||1),ny=ly/(f.ry||1);
+      const d=nx*nx+ny*ny;
+      if(d<1.15&&d<bestD){bestD=d;best=f}
     }
     return best;
   }
-  function resize(){
-    const rect=canvas.getBoundingClientRect(),dpr=Math.min(2.5,window.devicePixelRatio||1);
-    W=Math.max(1,Math.round(rect.width*dpr));H=Math.max(1,Math.round(rect.height*dpr));
-    canvas.width=W;canvas.height=H;CX=W/2;CY=H/2;R=Math.min(W,H)*0.48;
+  function canvasCoords(clientX,clientY){
+    const r=canvas.getBoundingClientRect();
+    return{x:(clientX-r.left)*(W/r.width),y:(clientY-r.top)*(H/r.height)};
   }
-  function canvasCoords(e){const rect=canvas.getBoundingClientRect(),dpr=W/rect.width;return{x:(e.clientX-rect.left)*dpr,y:(e.clientY-rect.top)*dpr}}
-  function armTransition(){armed=true}
   return{resize,layoutHandpanFields,armTransition,drawBody,drawCatchWaves,hitVector,canvasCoords,
-    get fields(){return fields},set fields(v){fields=v||[]},setSlitPhase(){},get metrics(){return{W,H,R,CX,CY}}};
+    get fields(){return fields},get metrics(){return{W,H,R,CX,CY}}};
 }
