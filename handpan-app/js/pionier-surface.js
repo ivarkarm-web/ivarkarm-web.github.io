@@ -235,7 +235,7 @@ export function createSurface(canvas) {
     catch(_){angles=Array.from({length:ringCount},(_,i)=>(i/ringCount)*360);padScale=1}
     fields=list.map((n,pos)=>{
       const low=Math.max(0,Math.min(1,(midiMax-(n.midi||60))/midiSpan));
-      const size=1.12+low*0.36;
+      const size=(1.12+low*0.36)*1.08;
       const playable=typeof isFieldPlayable==='function'?isFieldPlayable(n.index):true;
       if(n.kind==='ding'){const rr=R*0.185*size;return{i:n.index,index:n.index,x:CX,y:CY,rx:rr,ry:rr,rot:0,label:n.name,playable,kind:'ding'}}
       const slot=(n.index!=null?n.index:pos)-1;
