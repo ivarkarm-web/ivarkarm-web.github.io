@@ -1251,3 +1251,142 @@ html body #stageScaleBar #stageScaleRow #scaleLabel {
   border-radius: 999px !important;
   box-shadow: none !important;
 }
+
+
+/* FX drawer + looper repair (final override).
+   Keep the FX surface genuinely rounded and keep the entire looper in the
+   bottom control stack; neutralize legacy fixed-position rules. */
+html body > #pionierTopDock #mobileControlDrawer,
+html body > #pionierTopDock #mobileControlDrawer.is-open {
+  border: 0 !important;
+  border-radius: 24px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+html body > #pionierTopDock #mobileControlDrawer .mobile-controls-toggle,
+html body > #pionierTopDock #mobileControlDrawer .mobile-controls-toggle:hover {
+  border-radius: 999px !important;
+  border: 1px solid rgba(230,224,210,.11) !important;
+  background: rgba(19,19,22,.88) !important;
+  box-shadow: none !important;
+}
+html body > #pionierTopDock #mobileControlDrawer .mobile-control-panel,
+html body > #pionierTopDock #mobileControlDrawer.is-open .mobile-control-panel {
+  box-sizing: border-box !important;
+  border: 1px solid rgba(230,224,210,.12) !important;
+  border-radius: 24px !important;
+  background: linear-gradient(145deg,rgba(30,29,31,.98),rgba(9,9,11,.98)) !important;
+  box-shadow: 0 14px 38px rgba(0,0,0,.32) !important;
+  clip-path: inset(0 round 24px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+html body > #pionierTopDock #mobileControlDrawer .sidebar.right.knobs-panel {
+  box-sizing: border-box !important;
+  border: 0 !important;
+  border-radius: 18px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow-x: auto !important;
+}
+html body > #pionierTopDock #mobileControlDrawer button,
+html body > #pionierTopDock #mobileControlDrawer .knob-effect-trigger {
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+html body #stageScaleBar.stage-scale-bar {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 7px !important;
+  padding: 8px max(10px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px)) !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+}
+html body #stageScaleBar > #looperRail,
+html body #stageScaleBar #looperRail {
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+  order: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  width: min(520px,calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+  min-width: 0 !important;
+  min-height: 42px !important;
+  height: auto !important;
+  margin: 0 auto 1px !important;
+  padding: 4px 7px !important;
+  box-sizing: border-box !important;
+  border: 1px solid rgba(230,224,210,.10) !important;
+  border-radius: 999px !important;
+  background: rgba(17,17,20,.94) !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+  pointer-events: auto !important;
+}
+html body #stageScaleBar #looperRail .looper-layers {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: none !important;
+}
+html body #stageScaleBar #looperRail .looper-layers::-webkit-scrollbar { display:none !important; }
+html body #stageScaleBar #looperRail #looperClearBtn,
+html body #stageScaleBar #looperRail .looper-btn,
+html body #stageScaleBar #looperRail .looper-sync-dial,
+html body #stageScaleBar #looperRail #looperBtn,
+html body #stageScaleBar #looperRail #looperSyncBtn {
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+html body #stageScaleBar #looperRail .looper-record-cluster,
+html body #stageScaleBar #looperRail #looperRecordCluster {
+  display: flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+@media (max-width: 420px) {
+  html body #stageScaleBar #looperRail {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    gap: 3px !important;
+    padding-inline: 4px !important;
+  }
+  html body #stageScaleBar #looperRail #looperClearBtn,
+  html body #stageScaleBar #looperRail .looper-btn,
+  html body #stageScaleBar #looperRail .looper-sync-dial,
+  html body #stageScaleBar #looperRail #looperBtn,
+  html body #stageScaleBar #looperRail #looperSyncBtn {
+    flex-basis: 30px !important;
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+  }
+}
