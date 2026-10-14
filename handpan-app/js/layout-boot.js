@@ -8,12 +8,12 @@
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=24';
+    link.href = './ui-layout-extras.css?v=25';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
   } else {
     const link = document.querySelector('link[data-ui-extras]');
-    if (link) link.href = './ui-layout-extras.css?v=24';
+    if (link) link.href = './ui-layout-extras.css?v=25';
   }
 
   function purgeCreate() {
@@ -177,6 +177,39 @@
 
     centerPan();
   }
+
+  // Keep the FX dock anchored to the viewport even if legacy UI code tries to
+  // restore the drawer's old bottom-sheet position or reparent it.
+  function stabilizeFxDock() {
+    const dock = document.getElementById('pionierTopDock');
+    const drawer = document.getElementById('mobileControlDrawer');
+    if (!dock || !drawer) return;
+    if (dock.parentElement !== document.body) document.body.appendChild(dock);
+    if (drawer.parentElement !== dock) dock.appendChild(drawer);
+    dock.style.setProperty('position', 'fixed', 'important');
+    dock.style.setProperty('top', 'max(4px, env(safe-area-inset-top, 0px))', 'important');
+    dock.style.setProperty('right', '0', 'important');
+    dock.style.setProperty('bottom', 'auto', 'important');
+    dock.style.setProperty('left', '0', 'important');
+    dock.style.setProperty('transform', 'none', 'important');
+    dock.style.setProperty('z-index', '4000', 'important');
+    drawer.style.setProperty('position', 'relative', 'important');
+    drawer.style.setProperty('top', 'auto', 'important');
+    drawer.style.setProperty('right', 'auto', 'important');
+    drawer.style.setProperty('bottom', 'auto', 'important');
+    drawer.style.setProperty('left', 'auto', 'important');
+    drawer.style.setProperty('transform', 'none', 'important');
+    drawer.style.setProperty('width', '100%', 'important');
+  }
+
+  const fxDockObserver = new MutationObserver(() => {
+    if (window.__fxDockGuardFrame) return;
+    window.__fxDockGuardFrame = requestAnimationFrame(() => {
+      window.__fxDockGuardFrame = 0;
+      stabilizeFxDock();
+    });
+  });
+  fxDockObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
 
   function positionEffectBubbles() {
     document.querySelectorAll('.knob-effect-trigger').forEach((btn) => {
