@@ -8,12 +8,12 @@
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=33';
+    link.href = './ui-layout-extras.css?v=34';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
   } else {
     const link = document.querySelector('link[data-ui-extras]');
-    if (link) link.href = './ui-layout-extras.css?v=33';
+    if (link) link.href = './ui-layout-extras.css?v=34';
   }
 
   function purgeCreate() {
@@ -348,3 +348,5 @@
   });
   window.addEventListener('orientationchange', () => setTimeout(centerPan, 200));
 })();
+
+/* Keep the published control layer aligned with the current rounded layout. */
