@@ -1222,3 +1222,32 @@ html body #stageScaleBar #looperRail .loop-orb {
   html body #stageScaleBar #looperRail #looperBtn,
   html body #stageScaleBar #looperRail #looperSyncBtn { width: 32px !important; min-width:32px !important; height:32px !important; min-height:32px !important; flex-basis:32px !important; }
 }
+
+
+/* Fix scale picker double-box: only the actual scale button should read as a
+   capsule; its legacy wrapper and stepper must remain visually transparent. */
+html body #stageScaleBar .stage-control-scale,
+html body #stageScaleBar .stage-control-scale.control-scale,
+html body #stageScaleBar .stage-control-scale .scale-stepper {
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+}
+html body #stageScaleBar .stage-control-scale::before,
+html body #stageScaleBar .stage-control-scale::after,
+html body #stageScaleBar .stage-control-scale .scale-stepper::before,
+html body #stageScaleBar .stage-control-scale .scale-stepper::after {
+  content: none !important;
+  display: none !important;
+}
+html body #stageScaleBar #stageScaleRow #scaleLabel {
+  border: 1px solid rgba(230,224,210,.12) !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
