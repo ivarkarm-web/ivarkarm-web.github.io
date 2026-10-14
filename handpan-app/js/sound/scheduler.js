@@ -1,9 +1,12 @@
 /**
- * sound/scheduler.js — Look-Ahead Web Audio musical clock (ambient-grade)
- * Drift-free vs audioContext.currentTime. Wide schedule-ahead for overlapping voices.
+ * sound/scheduler.js — Look-Ahead clock with asymmetric / polyrhythmic steps
+ *
+ * Supports per-subscriber custom step durations (seconds) so arps can float
+ * on dotted, triplet, or free-form phrasing instead of rigid 16ths.
  */
+
 const DEFAULT_LOOKAHEAD_MS = 25;
-const DEFAULT_SCHEDULE_AHEAD = 0.12;
+const DEFAULT_SCHEDULE_AHEAD = 0.15;
 const DEFAULT_BPM = 72;
 
 export class LookAheadScheduler {
@@ -12,6 +15,7 @@ export class LookAheadScheduler {
     this.bpm = opts.bpm ?? DEFAULT_BPM;
     this.lookaheadMs = opts.lookaheadMs ?? DEFAULT_LOOKAHEAD_MS;
     this.scheduleAhead = opts.scheduleAhead ?? DEFAULT_SCHEDULE_AHEAD;
+
     this._running = false;
     this._timerId = null;
     this._nextNoteTime = 0;
@@ -20,11 +24,21 @@ export class LookAheadScheduler {
     this._subscribers = new Set();
   }
 
-  get secondsPerStep() { return 60 / this.bpm / 4; }
-  get isRunning() { return this._running; }
+  /** Default 16th at current BPM (fallback when a voice has no custom rhythm). */
+  get secondsPerStep() {
+    return 60 / this.bpm / 4;
+  }
+
+  beatSec(beats) {
+    return (60 / this.bpm) * beats;
+  }
+
+  get isRunning() {
+    return this._running;
+  }
 
   setBpm(bpm) {
-    this.bpm = Math.max(40, Math.min(180, Number(bpm) || DEFAULT_BPM));
+    this.bpm = Math.max(40, Math.min(160, Number(bpm) || DEFAULT_BPM));
   }
 
   onTick(fn) {
@@ -48,7 +62,9 @@ export class LookAheadScheduler {
     }
   }
 
-  resetSteps() { this._currentStep = 0; }
+  resetSteps() {
+    this._currentStep = 0;
+  }
 
   _scheduler() {
     if (!this._running || !this.ctx) return;
@@ -57,10 +73,18 @@ export class LookAheadScheduler {
       const step = this._currentStep;
       const bar = Math.floor(step / this._stepsPerBar);
       const beat = step % this._stepsPerBar;
-      const ev = { time: this._nextNoteTime, step, bar, beat };
+      const ev = {
+        time: this._nextNoteTime,
+        step,
+        bar,
+        beat,
+        bpm: this.bpm,
+        beatSec: (b) => (60 / this.bpm) * b
+      };
       for (const fn of this._subscribers) {
-        try { fn(ev); } catch (e) { console.warn('[scheduler] tick error', e); }
+        try { fn(ev); } catch (e) { console.warn('[scheduler] tick', e); }
       }
+      // Base grid advances at 16th resolution; arps decide when to actually fire
       this._nextNoteTime += this.secondsPerStep;
       this._currentStep += 1;
     }
