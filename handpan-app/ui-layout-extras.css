@@ -461,3 +461,62 @@
   overflow: visible !important;
   max-height: none !important;
 }
+
+
+/* Stable FX dock + bottom looper row.
+   Opening FX overlays the play area without changing handpan geometry. */
+#pionierTopDock { z-index: 4000 !important; }
+#pionierTopDock #mobileControlDrawer,
+#pionierTopDock #mobileControlDrawer.is-open {
+  z-index: 4001 !important;
+}
+#pionierTopDock #mobileControlDrawer .mobile-control-panel {
+  position: absolute !important;
+  top: calc(100% + 5px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: auto !important;
+  width: 100% !important;
+  max-height: none !important;
+  overflow: visible !important;
+  transform: none !important;
+  z-index: 4002 !important;
+}
+#pionierTopDock #mobileControlDrawer.is-open .mobile-control-panel {
+  display: flex !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+#pionierTopDock #mobileControlDrawer .sidebar.right.knobs-panel {
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  overflow: visible !important;
+  max-height: none !important;
+}
+#stageScaleBar {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 5px !important;
+  z-index: 1000 !important;
+}
+#stageScaleBar > #looperRail {
+  order: 0 !important;
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+  width: 100% !important;
+  min-height: 40px !important;
+  margin: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 1 !important;
+}
+#stageScaleBar > .stage-instrument-nav { order: 1 !important; }
+#stageScaleBar > #stageScaleRow { order: 2 !important; }
+#stageScaleBar > #looperRail .looper-clear-btn {
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+}
