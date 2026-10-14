@@ -55,9 +55,10 @@ export function mountLooper({ root } = {}) {
     clearBtn.setAttribute('aria-label', 'Clear all loops');
     clearBtn.title = 'Clear all loops';
     document.body.appendChild(clearBtn);
-  } else if (clearBtn.parentElement === rail) {
-    document.body.appendChild(clearBtn);
   }
+  // Keep Clear inside the looper rail; independent body-level positioning
+  // caused it to snap away from the record/layer controls after mounting.
+  if (clearBtn.parentElement !== rail) rail.insertBefore(clearBtn, rail.firstChild);
   clearBtn.className = 'looper-clear-btn';
   clearBtn.innerHTML =
     '<span class="looper-clear-ring" aria-hidden="true"></span>' +
