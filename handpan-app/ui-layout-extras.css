@@ -1,5 +1,7 @@
 /* App chrome layout
- * Top full-width bar: instrument (left) · scale (right)
+ * Top bar: two stacked rows
+ *   1) instrument selector
+ *   2) note count + scale selector
  * Center: handpan
  * Bottom: looper above FX controls
  */
@@ -14,24 +16,24 @@
   pointer-events: none !important;
 }
 
-/* ---- Full-width top app bar ---- */
+/* ---- Full-width top app bar (two rows) ---- */
 .stage-scale-bar {
   position: relative;
   z-index: 12;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: nowrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 6px;
   width: 100%;
   max-width: none;
   margin: 0;
   padding:
     max(8px, env(safe-area-inset-top))
-    max(8px, env(safe-area-inset-right))
-    8px
-    max(8px, env(safe-area-inset-left));
+    max(10px, env(safe-area-inset-right))
+    10px
+    max(10px, env(safe-area-inset-left));
   flex: 0 0 auto;
   pointer-events: auto;
   box-sizing: border-box;
@@ -42,29 +44,30 @@
     transparent 100%
   );
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  overflow: hidden; /* prevent any residual overflow */
+  overflow: visible;
 }
 
-/* Instrument cluster — left edge */
+/* Instrument cluster — top row, centered */
 .stage-instrument-nav {
   display: inline-flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 4px;
-  flex: 0 1 auto;
+  justify-content: center;
+  gap: 6px;
+  flex: 0 0 auto;
   min-width: 0;
-  max-width: 52%;
+  max-width: 100%;
+  width: auto;
 }
 
-/* Scale + note cluster — right edge */
+/* Scale + note cluster — second row, centered */
 .stage-scale-row {
   display: inline-flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 4px;
-  flex: 0 1 auto;
+  justify-content: center;
+  gap: 8px;
+  flex: 0 0 auto;
   min-width: 0;
-  max-width: 52%;
+  max-width: 100%;
   width: auto;
   flex-wrap: nowrap;
 }
@@ -73,12 +76,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  flex: 0 1 auto;
+  gap: 6px;
+  flex: 0 0 auto;
   min-width: 0;
 }
 
-/* Fluid name pills — shrink on narrow screens, long text → … */
+/* Name pills — comfortable size, ellipsis if needed */
 .stage-instrument-nav .instrument-name,
 .stage-scale-btn {
   appearance: none;
@@ -87,12 +90,12 @@
   background: rgba(14, 14, 16, 0.9);
   color: rgba(232, 230, 227, 0.94);
   border-radius: 999px;
-  width: clamp(86px, 24vw, 152px);
+  width: clamp(120px, 42vw, 180px);
   min-width: 0;
-  max-width: 152px;
+  max-width: 180px;
   height: 42px;
   min-height: 42px;
-  padding: 0 10px;
+  padding: 0 14px;
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -112,8 +115,8 @@
   box-sizing: border-box;
   width: 40px;
   height: 40px;
-  min-width: 36px;
-  min-height: 36px;
+  min-width: 40px;
+  min-height: 40px;
   flex: 0 0 auto;
   border-radius: 50%;
 }
@@ -121,9 +124,9 @@
 .stage-instrument-nav .soundscapes-open-btn {
   width: 40px;
   height: 40px;
-  min-width: 36px;
-  min-height: 36px;
-  margin-left: 0;
+  min-width: 40px;
+  min-height: 40px;
+  margin-left: 2px;
   color: rgba(212, 176, 74, 0.95);
   border-color: rgba(212, 176, 74, 0.3);
 }
@@ -141,9 +144,9 @@
 .stage-scale-menu {
   position: absolute;
   top: calc(100% + 4px);
-  right: max(10px, env(safe-area-inset-right));
-  left: auto;
-  transform: none;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
   z-index: 40;
   max-height: min(42vh, 320px);
   overflow-y: auto;
@@ -153,53 +156,28 @@
   z-index: 45;
 }
 
-/* Narrow phones */
-@media (max-width: 420px) {
+/* Narrow phones — slightly tighter */
+@media (max-width: 400px) {
   .stage-instrument-nav .instrument-name,
   .stage-scale-btn {
-    width: clamp(72px, 22vw, 120px);
-    max-width: 120px;
-    height: 38px;
-    min-height: 38px;
+    width: clamp(100px, 38vw, 150px);
+    max-width: 150px;
+    height: 40px;
+    min-height: 40px;
     font-size: 12px;
-    padding: 0 8px;
+    padding: 0 12px;
   }
   .stage-instrument-nav .icon-btn,
   .stage-scale-step,
   .stage-instrument-nav .soundscapes-open-btn {
-    width: 36px;
-    height: 36px;
-    min-width: 34px;
-    min-height: 34px;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
   }
   .stage-scale-bar {
-    gap: 3px;
-    padding-inline: max(4px, env(safe-area-inset-left)) max(4px, env(safe-area-inset-right));
-  }
-  .stage-instrument-nav,
-  .stage-scale-row {
-    gap: 2px;
-  }
-}
-
-/* Very narrow phones */
-@media (max-width: 360px) {
-  .stage-instrument-nav .instrument-name,
-  .stage-scale-btn {
-    width: clamp(64px, 20vw, 100px);
-    max-width: 100px;
-    height: 36px;
-    min-height: 36px;
-    font-size: 11px;
-    padding: 0 6px;
-  }
-  .stage-instrument-nav .icon-btn,
-  .stage-scale-step,
-  .stage-instrument-nav .soundscapes-open-btn {
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-    min-height: 32px;
+    gap: 5px;
+    padding-inline: max(8px, env(safe-area-inset-left)) max(8px, env(safe-area-inset-right));
   }
 }
 
