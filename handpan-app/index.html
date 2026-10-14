@@ -14,12 +14,51 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./pionier.css?v=117" />
-  <link rel="stylesheet" href="./topbar-narrow.css?v=5" />
+  <link rel="stylesheet" href="./topbar-narrow.css?v=6" />
   <link rel="stylesheet" href="./looper.css?v=201" />
   <link rel="stylesheet" href="./scale-menu.css?v=3" />
   <style>
-    /* Main-page music player removed — note-count sits fixed at bottom center */
+    /* Slim chrome — max space for tonefields */
     .backdrop-player { display: none !important; }
+    .play-pill, #modePlay, #btnHelp, #btnExit, .top-actions { display: none !important; }
+
+    .topbar.topbar-minimal {
+      display: flex !important;
+      justify-content: center;
+      align-items: center;
+      padding: max(6px, env(safe-area-inset-top)) 10px 6px !important;
+      min-height: 0;
+      border-bottom: none;
+      background: linear-gradient(to bottom, rgba(7,7,8,0.75) 0%, transparent 100%) !important;
+    }
+    .topbar.topbar-minimal .center-nav {
+      width: auto;
+      max-width: 100%;
+    }
+    .topbar.topbar-minimal .instrument-nav {
+      max-width: min(92vw, 320px);
+      gap: 4px;
+      display: inline-flex;
+      align-items: center;
+    }
+    .topbar.topbar-minimal .soundscapes-open-btn {
+      width: 36px;
+      height: 36px;
+      margin-left: 4px;
+    }
+
+    .stage {
+      padding: 2px 4px 4px !important;
+    }
+    #pan {
+      width: min(96vw, calc(100dvh - 120px), 780px) !important;
+      max-width: 96vw !important;
+    }
+    .stage::before {
+      width: min(86vw, calc(100dvh - 130px), 680px) !important;
+      height: min(86vw, calc(100dvh - 130px), 680px) !important;
+    }
+
     .note-plus-wrap {
       position: fixed !important;
       left: 50% !important;
@@ -47,21 +86,14 @@
     <button type="button" id="appStatusRetry" class="app-status-retry" hidden>Retry</button>
   </div>
   <div id="app" class="app">
-    <header class="topbar">
-      <button type="button" class="pill play-pill" id="modePlay" title="Play mode">
-        <span class="dot"></span> play
-      </button>
+    <header class="topbar topbar-minimal">
       <div class="center-nav">
         <div class="instrument-nav" id="instrumentNav">
           <button type="button" class="icon-btn" id="voicePrev" aria-label="Previous voice">‹</button>
           <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Handpan ▾</button>
           <button type="button" class="icon-btn" id="voiceNext" aria-label="Next voice">›</button>
+          <button type="button" class="icon-btn soundscapes-open-btn" id="openSoundscapes" aria-label="Open Soundscapes" title="Soundscapes">♫</button>
         </div>
-      </div>
-      <div class="top-actions">
-        <button type="button" class="icon-btn soundscapes-open-btn" id="openSoundscapes" aria-label="Open Soundscapes" title="Soundscapes — or swipe left on the handpan">♫</button>
-        <button type="button" class="icon-btn" id="btnHelp" aria-label="Help" title="Help">?</button>
-        <button type="button" class="icon-btn exit-btn" id="btnExit" aria-label="Exit" title="Exit">×</button>
       </div>
     </header>
     <div class="instrument-menu" id="instrumentMenu" role="menu" aria-label="Choose instrument" hidden></div>
@@ -202,7 +234,7 @@
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
 
   <script src="./js/layout-boot.js?v=4"></script>
-  <script type="module" src="./pionier-app.js?v=131"></script>
+  <script type="module" src="./pionier-app.js?v=132"></script>
   <script src="./js/scale-root-fix.js?v=1"></script>
   <script src="./js/note-count-fix.js?v=1"></script>
 </body>
