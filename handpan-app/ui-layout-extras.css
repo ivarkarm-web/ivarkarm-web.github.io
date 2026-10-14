@@ -273,3 +273,61 @@
 #pan{width:min(96vw,calc(100dvh - 245px),760px)!important;max-width:96vw!important}
 @media(min-width:701px){.pionier-top-dock{padding-inline:max(18px,env(safe-area-inset-left,0px)) max(18px,env(safe-area-inset-right,0px))}.pionier-top-dock .knobs-panel{justify-content:center!important}.pionier-top-dock .knobs-panel>.effect-knob-wrap{flex-basis:76px!important;width:76px;max-width:76px}.pionier-top-dock .knobs-panel>.effect-knob-wrap .knob,.pionier-top-dock .knobs-panel>.effect-knob-wrap .knob-canvas{width:60px!important;height:60px!important}.stage-scale-bar{padding-block:10px!important}}
 @media(max-height:650px){.pionier-top-dock .knobs-panel>.effect-knob-wrap .knob,.pionier-top-dock .knobs-panel>.effect-knob-wrap .knob-canvas{width:44px!important;height:44px!important}.pionier-top-dock .knobs-panel>.effect-knob-wrap{flex-basis:60px!important;width:60px;max-width:60px}.pionier-top-dock .knobs-panel .knob-effect-trigger{min-height:16px;font-size:9px}#pan{width:min(94vw,calc(100dvh - 190px),680px)!important}}
+
+
+
+/* Recovery: preserve the original reveal drawer and its customization gear.
+   The drawer is docked at the top and expands downward when opened. */
+.pionier-top-dock{gap:2px!important;padding-top:max(4px,env(safe-area-inset-top,0px))!important}
+.pionier-top-dock #mobileControlDrawer{
+  position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  transform:none!important;width:100%!important;max-width:none!important;margin:0!important;
+  border:0!important;border-radius:14px!important;background:transparent!important;box-shadow:none!important;
+  pointer-events:auto!important;transition:none!important;z-index:2!important;overflow:visible!important
+}
+.pionier-top-dock #mobileControlDrawer.is-open{transform:none!important;box-shadow:none!important}
+.pionier-top-dock #mobileControlDrawer::before{display:none!important}
+.pionier-top-dock .mobile-controls-toggle{
+  height:36px!important;min-height:36px!important;width:100%!important;
+  justify-content:center!important;border:1px solid rgba(230,224,210,.12)!important;
+  border-radius:12px!important;background:rgba(20,20,23,.78)!important;
+  letter-spacing:.12em!important
+}
+.pionier-top-dock .mobile-controls-grip{width:22px!important;height:2px!important;box-shadow:none!important}
+.pionier-top-dock #mobileControlDrawer .mobile-control-panel{
+  display:none;max-height:min(42dvh,340px)!important;overflow-y:auto!important;
+  padding:8px 10px 12px!important;margin-top:5px!important;border:1px solid rgba(230,224,210,.12)!important;
+  border-radius:16px!important;background:linear-gradient(145deg,rgba(30,29,31,.98),rgba(9,9,11,.98))!important;
+  box-shadow:0 18px 50px rgba(0,0,0,.48)!important
+}
+.pionier-top-dock #mobileControlDrawer.is-open .mobile-control-panel{display:flex!important}
+.pionier-top-dock #mobileControlDrawer .sidebar.right.knobs-panel{
+  display:flex!important;flex-wrap:nowrap!important;justify-content:flex-start!important;align-items:flex-start!important;
+  gap:6px!important;width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:visible!important;
+  padding:5px 2px 8px!important;border:0!important;border-top:1px solid rgba(230,224,210,.08)!important;
+  border-radius:0!important;scrollbar-width:none!important
+}
+.pionier-top-dock #mobileControlDrawer .sidebar.right.knobs-panel::-webkit-scrollbar{display:none}
+.pionier-top-dock #mobileControlDrawer .sidebar.right.knobs-panel>.effect-knob-wrap{flex:0 0 66px!important;width:66px!important;max-width:66px!important}
+.pionier-top-dock #mobileControlDrawer .sidebar.right.knobs-panel>.tone-knobs{flex:0 0 auto!important;width:auto!important;display:flex!important;flex-wrap:nowrap!important;gap:5px!important}
+.pionier-top-dock #mobileControlDrawer .sidebar.left{display:none!important}
+.pionier-top-dock .looper-rail{margin-top:1px!important}
+.stage-scale-bar{
+  flex-direction:column!important;align-items:center!important;justify-content:center!important;
+  gap:6px!important;padding:7px max(10px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))!important
+}
+.stage-instrument-nav,.stage-scale-row{display:flex!important;width:100%!important;justify-content:center!important;align-items:center!important;gap:7px!important}
+.stage-instrument-nav{order:1!important}
+.stage-scale-row{order:2!important}
+.stage-instrument-nav .instrument-name,.stage-scale-btn{width:clamp(120px,40vw,210px)!important;max-width:44vw!important;height:40px!important;min-height:40px!important}
+.stage-instrument-nav .icon-btn,.stage-scale-step,.stage-instrument-nav .soundscapes-open-btn{width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important}
+.stage-scale-menu{z-index:3201!important}
+.settings-sheet-backdrop{z-index:3000!important}
+.settings-sheet{z-index:3100!important;max-height:min(78dvh,680px)!important}
+.settings-sheet-body{overflow-y:auto!important;overscroll-behavior:contain}
+.settings-dd-menu{z-index:3300!important;max-height:min(48dvh,360px)!important;overflow-y:auto!important;overscroll-behavior:contain}
+.settings-dd-menu[hidden]{display:none!important}
+@media(max-width:400px){
+  .pionier-top-dock #mobileControlDrawer .sidebar.right.knobs-panel>.effect-knob-wrap{flex-basis:60px!important;width:60px!important;max-width:60px!important}
+  .stage-instrument-nav .instrument-name,.stage-scale-btn{width:clamp(108px,38vw,160px)!important;font-size:12px!important}
+}
