@@ -1,7 +1,6 @@
 /**
  * settings-panel.js — premium customization sheet
- * Dropdown menus (scale-selector style) for skins, ambients, tonefields.
- * Transparency slider. Persists to localStorage + PionierSettings.
+ * Dropdowns match instrument/scale pickers (large, clear, reliable).
  */
 (function settingsPanel() {
   const STORAGE_KEY = 'pionier.settings.v2';
@@ -42,7 +41,7 @@
   }
 
   function save(state) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
   }
 
   function apply(state) {
@@ -80,33 +79,76 @@
     return hit ? hit.label : id;
   }
 
-  function closeAllMenus(except) {
-    document.querySelectorAll('.settings-dd-menu').forEach((m) => {
-      if (m !== except) m.hidden = true;
+  let openMenuEl = null;
+  let openToggleEl = null;
+
+  function closeMenus() {
+    if (openMenuEl) {
+      openMenuEl.hidden = true;
+      openMenuEl.classList.remove('is-open');
+      openMenuEl = null;
+    }
+    if (openToggleEl) {
+      openToggleEl.setAttribute('aria-expanded', 'false');
+      openToggleEl = null;
+    }
+    document.querySelectorAll('.settings-dd-toggle[aria-expanded="true"]').forEach((t) => {
+      t.setAttribute('aria-expanded', 'false');
     });
-    document.querySelectorAll('.settings-dd-toggle').forEach((t) => {
-      if (!except || t.getAttribute('aria-controls') !== except.id) {
-        t.setAttribute('aria-expanded', 'false');
-      }
+    document.querySelectorAll('.settings-dd-menu.is-open').forEach((m) => {
+      m.hidden = true;
+      m.classList.remove('is-open');
     });
+  }
+
+  function positionMenu(menu, toggle) {
+    const rect = toggle.getBoundingClientRect();
+    const maxH = Math.min(window.innerHeight * 0.5, 360);
+    const spaceBelow = window.innerHeight - rect.bottom - 12;
+    const spaceAbove = rect.top - 12;
+    const openUp = spaceBelow < 180 && spaceAbove > spaceBelow;
+    const width = Math.max(rect.width, Math.min(320, window.innerWidth - 24));
+    let left = rect.left;
+    if (left + width > window.innerWidth - 12) left = window.innerWidth - 12 - width;
+    if (left < 12) left = 12;
+
+    menu.style.position = 'fixed';
+    menu.style.zIndex = '3200';
+    menu.style.width = width + 'px';
+    menu.style.left = left + 'px';
+    menu.style.maxHeight = Math.min(maxH, openUp ? spaceAbove : spaceBelow) + 'px';
+    if (openUp) {
+      menu.style.bottom = (window.innerHeight - rect.top + 6) + 'px';
+      menu.style.top = 'auto';
+    } else {
+      menu.style.top = (rect.bottom + 6) + 'px';
+      menu.style.bottom = 'auto';
+    }
   }
 
   function buildDropdown(sectionEl, { id, label, items, activeId, onPick }) {
     const row = document.createElement('div');
     row.className = 'settings-dd';
     row.innerHTML =
-      '<span class="settings-row-label">' + label + '</span>' +
-      '<div class="settings-dd-wrap">' +
-      '  <button type="button" class="settings-dd-toggle" id="' + id + 'Toggle" aria-haspopup="listbox" aria-expanded="false" aria-controls="' + id + 'Menu">' +
-      '    <span class="settings-dd-value" id="' + id + 'Value">' + labelFor(items, activeId) + '</span>' +
-      '    <span class="settings-dd-chevron" aria-hidden="true">▾</span>' +
-      '  </button>' +
-      '  <div class="settings-dd-menu scale-menu" id="' + id + 'Menu" role="listbox" hidden></div>' +
-      '</div>';
+      '<div class="settings-dd-label">' + label + '</div>' +
+      '<button type="button" class="settings-dd-toggle" id="' + id + 'Toggle" ' +
+      'aria-haspopup="listbox" aria-expanded="false" aria-controls="' + id + 'Menu">' +
+      '<span class="settings-dd-value" id="' + id + 'Value">' + labelFor(items, activeId) + '</span>' +
+      '<span class="settings-dd-chevron" aria-hidden="true">▾</span>' +
+      '</button>';
     sectionEl.appendChild(row);
 
+    let menu = document.getElementById(id + 'Menu');
+    if (!menu) {
+      menu = document.createElement('div');
+      menu.id = id + 'Menu';
+      menu.className = 'settings-dd-menu';
+      menu.setAttribute('role', 'listbox');
+      menu.hidden = true;
+      document.body.appendChild(menu);
+    }
+
     const toggle = row.querySelector('.settings-dd-toggle');
-    const menu = row.querySelector('.settings-dd-menu');
     const valueEl = row.querySelector('.settings-dd-value');
 
     function renderMenu() {
@@ -116,41 +158,48 @@
         if (item.group && item.group !== lastGroup) {
           lastGroup = item.group;
           const g = document.createElement('div');
-          g.className = 'scale-menu-group';
+          g.className = 'settings-dd-group';
           g.textContent = item.group;
           menu.appendChild(g);
         }
         const b = document.createElement('button');
         b.type = 'button';
-        b.className = 'scale-menu-item' + (item.id === activeId ? ' is-active' : '');
+        b.className = 'settings-dd-item' + (item.id === activeId ? ' is-active' : '');
         b.setAttribute('role', 'option');
         b.textContent = item.label;
-        b.addEventListener('click', () => {
+        b.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
           activeId = item.id;
           valueEl.textContent = item.label;
           onPick(item.id);
-          closeAllMenus();
-          renderMenu();
+          closeMenus();
         });
         menu.appendChild(b);
       });
     }
 
     toggle.addEventListener('click', (e) => {
+      e.preventDefault();
       e.stopPropagation();
-      const open = menu.hidden;
-      closeAllMenus(open ? menu : null);
-      menu.hidden = !open;
-      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-      if (open) renderMenu();
+      const wasOpen = openMenuEl === menu && !menu.hidden;
+      closeMenus();
+      if (wasOpen) return;
+      renderMenu();
+      positionMenu(menu, toggle);
+      menu.hidden = false;
+      menu.classList.add('is-open');
+      toggle.setAttribute('aria-expanded', 'true');
+      openMenuEl = menu;
+      openToggleEl = toggle;
     });
 
-    renderMenu();
-    return { setActive(id) {
-      activeId = id;
-      valueEl.textContent = labelFor(items, id);
-      renderMenu();
-    }};
+    return {
+      setActive(idNext) {
+        activeId = idNext;
+        valueEl.textContent = labelFor(items, idNext);
+      },
+    };
   }
 
   function ensureDom() {
@@ -178,6 +227,7 @@
       btn.innerHTML = '⚙';
       bar.appendChild(btn);
     }
+    const bottomBtn = document.getElementById('btnSettings');
 
     let backdrop = document.getElementById('settingsSheetBackdrop');
     if (!backdrop) {
@@ -206,10 +256,10 @@
       document.body.appendChild(sheet);
     }
 
-    return { bar, btn, sheet, backdrop };
+    return { bar, btn, sheet, backdrop, bottomBtn };
   }
 
-  function buildBody(state, els) {
+  function buildBody(state) {
     const body = document.getElementById('settingsSheetBody');
     if (!body) return;
     body.innerHTML = '';
@@ -308,32 +358,29 @@
       });
     }
 
-    const setRange = (id, valId, val, fmt) => {
+    const bindLed = (id, key, scale) => {
       const input = document.getElementById(id);
-      const label = document.getElementById(valId);
-      if (input) {
-        input.value = String(val);
-        input.oninput = () => {
-          const v = Number(input.value);
-          if (id === 'ledR') state.led.r = v;
-          if (id === 'ledG') state.led.g = v;
-          if (id === 'ledB') state.led.b = v;
-          if (id === 'ledStrength') state.led.strength = v / 100;
-          if (label) label.textContent = fmt ? fmt(v) : String(v);
-          const preview = document.getElementById('settingLedPreview');
-          if (preview) {
-            preview.style.background = 'rgb(' + state.led.r + ',' + state.led.g + ',' + state.led.b + ')';
-            preview.style.boxShadow = '0 0 16px rgb(' + state.led.r + ',' + state.led.g + ',' + state.led.b + ')';
-          }
-          save(state); apply(state);
-        };
-      }
-      if (label) label.textContent = fmt ? fmt(val) : String(val);
+      const label = document.getElementById(id + 'Val');
+      if (!input) return;
+      const val = scale ? Math.round(state.led[key] * 100) : state.led[key];
+      input.value = String(val);
+      if (label) label.textContent = scale ? val + '%' : String(val);
+      input.addEventListener('input', () => {
+        const n = Number(input.value);
+        state.led[key] = scale ? n / 100 : n;
+        if (label) label.textContent = scale ? n + '%' : String(n);
+        const preview = document.getElementById('settingLedPreview');
+        if (preview) {
+          preview.style.background = 'rgb(' + state.led.r + ',' + state.led.g + ',' + state.led.b + ')';
+          preview.style.boxShadow = '0 0 16px rgb(' + state.led.r + ',' + state.led.g + ',' + state.led.b + ')';
+        }
+        save(state); apply(state);
+      });
     };
-    setRange('ledR', 'ledRVal', state.led.r);
-    setRange('ledG', 'ledGVal', state.led.g);
-    setRange('ledB', 'ledBVal', state.led.b);
-    setRange('ledStrength', 'ledStrengthVal', Math.round(state.led.strength * 100), (v) => v + '%');
+    bindLed('ledR', 'r');
+    bindLed('ledG', 'g');
+    bindLed('ledB', 'b');
+    bindLed('ledStrength', 'strength', true);
     const preview = document.getElementById('settingLedPreview');
     if (preview) {
       preview.style.background = 'rgb(' + state.led.r + ',' + state.led.g + ',' + state.led.b + ')';
@@ -342,7 +389,7 @@
   }
 
   function openSheet(els, state) {
-    buildBody(state, els);
+    buildBody(state);
     els.sheet.hidden = false;
     els.backdrop.hidden = false;
     requestAnimationFrame(() => {
@@ -353,7 +400,7 @@
   }
 
   function closeSheet(els) {
-    closeAllMenus();
+    closeMenus();
     els.sheet.classList.remove('is-open');
     els.backdrop.classList.remove('is-open');
     if (els.btn) els.btn.setAttribute('aria-expanded', 'false');
@@ -366,24 +413,41 @@
   }
 
   function wire(state, els) {
+    const open = (e) => {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      const drawer = document.getElementById('mobileControlDrawer');
+      if (drawer && drawer.classList.contains('is-open')) {
+        drawer.classList.remove('is-open');
+        document.getElementById('mobileControlsToggle')?.setAttribute('aria-expanded', 'false');
+      }
+      if (els.sheet.classList.contains('is-open')) closeSheet(els);
+      else openSheet(els, state);
+    };
+
     if (els.btn && !els.btn.dataset.wired) {
       els.btn.dataset.wired = '1';
-      els.btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const drawer = document.getElementById('mobileControlDrawer');
-        if (drawer && drawer.classList.contains('is-open')) {
-          drawer.classList.remove('is-open');
-          document.getElementById('mobileControlsToggle')?.setAttribute('aria-expanded', 'false');
-        }
-        if (els.sheet.classList.contains('is-open')) closeSheet(els);
-        else openSheet(els, state);
-      });
+      els.btn.addEventListener('click', open);
     }
+    if (els.bottomBtn && !els.bottomBtn.dataset.wired) {
+      els.bottomBtn.dataset.wired = '1';
+      els.bottomBtn.addEventListener('click', open);
+    }
+
     document.getElementById('settingsSheetClose')?.addEventListener('click', () => closeSheet(els));
     els.backdrop.addEventListener('click', () => closeSheet(els));
+
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('.settings-dd')) closeAllMenus();
+      if (!e.target.closest('.settings-dd-toggle') && !e.target.closest('.settings-dd-menu')) {
+        closeMenus();
+      }
     });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (openMenuEl) closeMenus();
+        else if (els.sheet.classList.contains('is-open')) closeSheet(els);
+      }
+    });
+    window.addEventListener('resize', () => closeMenus());
   }
 
   function boot() {
