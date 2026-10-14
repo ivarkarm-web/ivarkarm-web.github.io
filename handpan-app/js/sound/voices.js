@@ -385,6 +385,120 @@ export const VOICES = [
       }
       return biquad(y, 'lp', 3000 + 8000 * vel, 0.5, sr);
     }
+  },
+  /* ---- BATCH 2: Ambient Soundscapes & Synth Pads ---- */
+  {
+    id: 'mist_drone', name: 'Mist Drone', family: 'experimental',
+    desc: 'Deep undulating sub-bass pad with a slow automated low-pass sweep — morning fog under the handpan.',
+    sr: 22050, tail: 8.0, fade: [1.2, 2.0], trim: 0, send: { rev: 0.7, dly: 0.08 }, pan: 0,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 8.0);
+      const y = new Float32Array(n);
+      const b = 0.45 + 0.55 * vel;
+      addModes(y, sr, [
+        [f * 0.5, 0.9, 7.5],
+        [f, 1.0, 7.0],
+        [f * 1.498, 0.28 * b, 5.5],
+        [f * 2.0, 0.12 * b, 4.0]
+      ], 1.0);
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        const lfo = 0.72 + 0.28 * Math.sin(TAU * 0.07 * t);
+        y[i] *= lfo;
+      }
+      return biquad(y, 'lp', 180 + 480 * vel, 0.6, sr);
+    }
+  },
+  {
+    id: 'aether', name: 'Aether Shimmer', family: 'experimental',
+    desc: 'High glassy string-like pad with subtle LFO detune — floating overtones above the layout.',
+    sr: 32000, tail: 7.0, fade: [0.9, 1.8], trim: 0, send: { rev: 0.65, dly: 0.22 }, pan: 0.05,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 7.0);
+      const y = new Float32Array(n);
+      const b = 0.4 + 0.6 * vel;
+      for (const cents of [-8, 0, 7]) {
+        const det = Math.pow(2, cents / 1200);
+        addModes(y, sr, [
+          [f * det, 0.55, 6.2],
+          [f * 2.003 * det, 0.28 * b, 4.5],
+          [f * 3.01 * det, 0.1 * b, 2.8]
+        ], 0.85);
+      }
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        y[i] *= 1 + 0.04 * Math.sin(TAU * 5.5 * t) * Math.min(1, t / 1.5);
+      }
+      return biquad(y, 'lp', 2400 + 5000 * vel, 0.55, sr);
+    }
+  },
+  {
+    id: 'aurora', name: 'Aurora Borealis', family: 'experimental',
+    desc: 'Warm shifting triangle pad with a gentle high-pass — moving light across the sky.',
+    sr: 24000, tail: 7.5, fade: [1.0, 1.9], trim: 0, send: { rev: 0.68, dly: 0.15 }, pan: -0.04,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 7.5);
+      const y = new Float32Array(n);
+      const b = 0.35 + 0.65 * vel;
+      const modes = [];
+      for (let k = 1; k <= 7; k += 2) {
+        const a = (1 / (k * k)) * (k === 1 ? 1 : b);
+        modes.push([f * k, a, 7.2 - k * 0.5]);
+      }
+      modes.push([f * 1.498, 0.2 * b, 5.0]);
+      addModes(y, sr, modes, 0.95);
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        y[i] *= 0.75 + 0.25 * Math.sin(TAU * 0.04 * t + 1.2);
+      }
+      let out = biquad(y, 'hp', 80 + 40 * vel, 0.7, sr);
+      return biquad(out, 'lp', 1600 + 3200 * vel, 0.65, sr);
+    }
+  },
+  {
+    id: 'celestial_bow', name: 'Celestial Bow', family: 'experimental',
+    desc: 'Slowly evolving swell — infinite bow against a metallic crystal sheet.',
+    sr: 32000, tail: 8.5, fade: [1.5, 2.2], trim: 0, send: { rev: 0.72, dly: 0.18 }, pan: 0,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 8.5);
+      const y = new Float32Array(n);
+      const b = 0.4 + 0.6 * vel;
+      addModes(y, sr, [
+        [f, 1.0, 8.0],
+        [f * 2.005, 0.35 * b, 6.0],
+        [f * 3.01, 0.14 * b, 4.0],
+        [f * 4.98, 0.06 * b, 2.5]
+      ], 1.6);
+      const nz = biquad(whiteNoise(n, rnd), 'bp', clamp(f * 1.8, 200, 4000), 2.5, sr);
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        const swell = Math.min(1, t / 1.8);
+        const bow = 0.08 * b * swell * (0.6 + 0.4 * Math.sin(TAU * 3.2 * t));
+        y[i] = y[i] * swell + nz[i] * bow;
+      }
+      return biquad(y, 'lp', 2000 + 4500 * vel, 0.6, sr);
+    }
+  },
+  {
+    id: 'sub_hum', name: 'Subterranean Hum', family: 'experimental',
+    desc: 'Ultra-low sine drone (root-centered) — cinematic depth anchoring the ding.',
+    sr: 22050, tail: 9.0, fade: [1.6, 2.4], trim: 0, send: { rev: 0.55, dly: 0.04 }, pan: 0,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 9.0);
+      const y = new Float32Array(n);
+      const root = Math.min(f, f * 0.5);
+      const sub = Math.max(30, root * 0.5);
+      addModes(y, sr, [
+        [sub, 1.0, 8.5],
+        [root, 0.7, 7.5],
+        [root * 1.5, 0.18 * vel, 5.0]
+      ], 1.4);
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        y[i] *= 0.85 + 0.15 * Math.sin(TAU * 0.06 * t);
+      }
+      return biquad(y, 'lp', 120 + 280 * vel, 0.8, sr);
+    }
   }
 ];
 
