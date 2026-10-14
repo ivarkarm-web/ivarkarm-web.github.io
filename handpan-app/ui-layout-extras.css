@@ -584,3 +584,53 @@ html body > #pionierTopDock #mobileControlDrawer .mobile-control-panel {
   transform: none !important;
   width: 100% !important;
 }
+
+
+/* Compact looper strip: keep the controls usable without stealing play space. */
+#stageScaleBar > #looperRail {
+  min-height: 32px !important;
+  height: 34px !important;
+  flex: 0 0 34px !important;
+  gap: 5px !important;
+  padding: 0 4px !important;
+  overflow: hidden !important;
+}
+#stageScaleBar > #looperRail .looper-layers {
+  min-height: 28px !important;
+  height: 28px !important;
+  gap: 4px !important;
+  align-items: center !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+#stageScaleBar > #looperRail .looper-clear-btn,
+#stageScaleBar > #looperRail #looperBtn {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  flex: 0 0 32px !important;
+  align-self: center !important;
+  margin: 0 !important;
+}
+#stageScaleBar > #looperRail .looper-layers > * {
+  min-height: 26px !important;
+  max-height: 28px !important;
+  padding-block: 2px !important;
+  font-size: 11px !important;
+  line-height: 1.1 !important;
+}
+@media (max-width: 420px) {
+  #stageScaleBar > #looperRail {
+    gap: 3px !important;
+    padding-inline: 2px !important;
+  }
+  #stageScaleBar > #looperRail .looper-clear-btn,
+  #stageScaleBar > #looperRail #looperBtn {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+    flex-basis: 30px !important;
+  }
+}
