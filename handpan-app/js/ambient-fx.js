@@ -2,6 +2,7 @@
  * ambient-fx.js — editorial ambient particle fields
  * Full-viewport canvas BEHIND the app (z-index 0).
  * Modes: none | forest | rain | night | fire
+ * Rain & fire: sparse, slow, full-canvas, low distraction, premium.
  */
 (function ambientFx() {
   let canvas, ctx, raf = 0, mode = 'none';
@@ -25,7 +26,7 @@
       pointerEvents: 'none',
       zIndex: '0',
       opacity: '0',
-      transition: 'opacity 0.6s ease',
+      transition: 'opacity 0.8s ease',
     });
     ctx = canvas.getContext('2d', { alpha: true });
     resize();
@@ -45,119 +46,161 @@
   const rnd = (a, b) => a + Math.random() * (b - a);
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
+  /* ── RAIN: sparse vertical atmosphere, full height, almost still ── */
   function buildRain() {
-    const drops = [], mist = [];
-    for (let i = 0; i < 36; i++) {
-      drops.push({
-        x: rnd(0, w), y: rnd(-h, h),
-        len: rnd(8, 16), vy: rnd(70, 110),
-        a: rnd(0.025, 0.055), drift: rnd(3, 8), w: rnd(0.5, 0.85),
+    const streaks = [];
+    const veils = [];
+    for (let i = 0; i < 22; i++) {
+      streaks.push({
+        x: rnd(0, w),
+        y: rnd(-h, h),
+        len: rnd(18, 42),
+        vy: rnd(38, 62),
+        a: rnd(0.018, 0.038),
+        drift: rnd(-4, 6),
+        w: rnd(0.4, 0.7),
       });
     }
-    for (let i = 0; i < 10; i++) {
-      mist.push({
-        x: rnd(0, w), y: rnd(0, h), r: rnd(80, 200),
-        a: rnd(0.015, 0.035), vx: rnd(-3, 3), vy: rnd(-2, 2),
+    for (let i = 0; i < 7; i++) {
+      veils.push({
+        x: rnd(0, w),
+        y: rnd(0, h),
+        r: rnd(120, 280),
+        a: rnd(0.012, 0.028),
+        vx: rnd(-2.5, 2.5),
+        vy: rnd(-1.5, 1.5),
       });
     }
-    return { type: 'rain', drops, mist };
+    return { type: 'rain', streaks, veils };
   }
 
   function tickRain(sys, dt) {
-    const wash = ctx.createLinearGradient(0, 0, 0, h);
-    wash.addColorStop(0, 'rgba(100,120,145,0.02)');
-    wash.addColorStop(0.5, 'rgba(90,110,135,0.015)');
-    wash.addColorStop(1, 'rgba(80,100,125,0.03)');
-    ctx.fillStyle = wash;
+    ctx.fillStyle = 'rgba(95,115,140,0.018)';
     ctx.fillRect(0, 0, w, h);
 
-    for (const m of sys.mist) {
-      m.x += m.vx * dt; m.y += m.vy * dt;
+    for (const m of sys.veils) {
+      m.x += m.vx * dt;
+      m.y += m.vy * dt;
       if (m.x < -m.r) m.x = w + m.r;
       if (m.x > w + m.r) m.x = -m.r;
       if (m.y < -m.r) m.y = h + m.r;
       if (m.y > h + m.r) m.y = -m.r;
       const mg = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.r);
-      mg.addColorStop(0, 'rgba(145,165,190,' + m.a + ')');
-      mg.addColorStop(1, 'rgba(145,165,190,0)');
+      mg.addColorStop(0, 'rgba(150,170,195,' + m.a + ')');
+      mg.addColorStop(1, 'rgba(150,170,195,0)');
       ctx.fillStyle = mg;
-      ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath();
+      ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
+      ctx.fill();
     }
 
-    for (const p of sys.drops) {
+    for (const p of sys.streaks) {
       p.y += p.vy * dt;
-      p.x += p.drift * dt * 0.1;
-      if (p.y > h + 20) { p.y = rnd(-60, -8); p.x = rnd(0, w); }
-      ctx.strokeStyle = 'rgba(175,195,220,' + p.a + ')';
+      p.x += p.drift * dt * 0.08;
+      if (p.y > h + 30) {
+        p.y = rnd(-80, -10);
+        p.x = rnd(0, w);
+      }
+      if (p.x < -20) p.x = w + 10;
+      if (p.x > w + 20) p.x = -10;
+      const g = ctx.createLinearGradient(p.x, p.y, p.x - p.drift * 0.03, p.y + p.len);
+      g.addColorStop(0, 'rgba(185,205,230,' + (p.a * 0.35) + ')');
+      g.addColorStop(0.35, 'rgba(175,195,220,' + p.a + ')');
+      g.addColorStop(1, 'rgba(160,180,205,0)');
+      ctx.strokeStyle = g;
       ctx.lineWidth = p.w;
       ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.moveTo(p.x, p.y);
-      ctx.lineTo(p.x - p.drift * 0.04, p.y + p.len);
+      ctx.lineTo(p.x - p.drift * 0.03, p.y + p.len);
       ctx.stroke();
     }
   }
 
+  /* ── FIRE: slow embers across FULL height + soft warm haze ── */
   function buildFire() {
-    const embers = [], haze = [];
-    for (let i = 0; i < 40; i++) {
+    const embers = [];
+    const haze = [];
+    for (let i = 0; i < 28; i++) {
       embers.push({
-        x: rnd(0, w), y: rnd(0, h),
-        r: rnd(1.2, 3.8),
-        vy: rnd(-28, -10), vx: rnd(-8, 8),
-        hue: rnd(12, 30), life: rnd(0, 1), max: rnd(2.8, 5),
-        wob: rnd(0.3, 1), phase: rnd(0, Math.PI * 2),
+        x: rnd(0, w),
+        y: rnd(0, h),
+        r: rnd(1.0, 2.8),
+        vy: rnd(-18, -6),
+        vx: rnd(-5, 5),
+        hue: rnd(14, 32),
+        life: rnd(0, 1),
+        max: rnd(3.5, 6.5),
+        wob: rnd(0.25, 0.9),
+        phase: rnd(0, Math.PI * 2),
       });
     }
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 6; i++) {
       haze.push({
-        x: rnd(0, w), y: rnd(0, h), r: rnd(100, 220),
-        a: rnd(0.012, 0.028), vx: rnd(-4, 4), vy: rnd(-3, 1),
+        x: rnd(0, w),
+        y: rnd(0, h),
+        r: rnd(140, 300),
+        a: rnd(0.01, 0.022),
+        vx: rnd(-3, 3),
+        vy: rnd(-2.5, 1.5),
       });
     }
     return { type: 'fire', embers, haze };
   }
 
   function tickFire(sys, dt, now) {
-    const wash = ctx.createRadialGradient(w * 0.5, h * 0.55, 0, w * 0.5, h * 0.55, Math.max(w, h) * 0.75);
-    wash.addColorStop(0, 'rgba(255,90,25,0.025)');
-    wash.addColorStop(0.5, 'rgba(200,50,15,0.012)');
+    const wash = ctx.createRadialGradient(w * 0.5, h * 0.5, 0, w * 0.5, h * 0.5, Math.max(w, h) * 0.85);
+    wash.addColorStop(0, 'rgba(255,95,30,0.018)');
+    wash.addColorStop(0.55, 'rgba(200,55,18,0.01)');
     wash.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = wash;
     ctx.fillRect(0, 0, w, h);
 
     for (const m of sys.haze) {
-      m.x += m.vx * dt; m.y += m.vy * dt;
+      m.x += m.vx * dt;
+      m.y += m.vy * dt;
       if (m.x < -m.r) m.x = w + m.r;
       if (m.x > w + m.r) m.x = -m.r;
       if (m.y < -m.r) m.y = h + m.r;
       if (m.y > h + m.r) m.y = -m.r;
       const mg = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.r);
-      mg.addColorStop(0, 'rgba(220,80,25,' + m.a + ')');
-      mg.addColorStop(1, 'rgba(220,80,25,0)');
+      mg.addColorStop(0, 'rgba(230,85,28,' + m.a + ')');
+      mg.addColorStop(1, 'rgba(230,85,28,0)');
       ctx.fillStyle = mg;
-      ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath();
+      ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
+      ctx.fill();
     }
 
     for (const p of sys.embers) {
       p.life += dt;
       if (p.life > p.max) {
-        p.life = 0; p.max = rnd(2.8, 5);
-        p.x = rnd(0, w); p.y = rnd(h * 0.3, h + 20);
-        p.r = rnd(1.2, 3.8); p.vy = rnd(-28, -10); p.vx = rnd(-8, 8); p.hue = rnd(12, 30);
+        p.life = 0;
+        p.max = rnd(3.5, 6.5);
+        p.x = rnd(0, w);
+        p.y = rnd(0, h);
+        p.r = rnd(1.0, 2.8);
+        p.vy = rnd(-18, -6);
+        p.vx = rnd(-5, 5);
+        p.hue = rnd(14, 32);
       }
       const t = p.life / p.max;
       const fade = Math.sin(t * Math.PI);
-      p.x += (p.vx + Math.sin(now * 0.0005 * p.wob + p.phase) * 8) * dt;
+      p.x += (p.vx + Math.sin(now * 0.0004 * p.wob + p.phase) * 6) * dt;
       p.y += p.vy * dt;
-      if (p.y < -20) p.y = h + 10;
-      const r = p.r * (1 - t * 0.4);
-      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 3.5);
-      g.addColorStop(0, 'hsla(' + p.hue + ',90%,68%,' + (0.22 * fade) + ')');
-      g.addColorStop(0.45, 'hsla(' + (p.hue + 6) + ',85%,50%,' + (0.1 * fade) + ')');
+      if (p.y < -30) p.y = h + 15;
+      if (p.x < -20) p.x = w + 10;
+      if (p.x > w + 20) p.x = -10;
+
+      const r = p.r * (1 - t * 0.35);
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 4);
+      g.addColorStop(0, 'hsla(' + p.hue + ',92%,70%,' + (0.2 * fade) + ')');
+      g.addColorStop(0.4, 'hsla(' + (p.hue + 8) + ',85%,52%,' + (0.08 * fade) + ')');
       g.addColorStop(1, 'hsla(' + p.hue + ',80%,40%,0)');
       ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(p.x, p.y, r * 3.5, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r * 4, 0, Math.PI * 2);
+      ctx.fill();
     }
   }
 
