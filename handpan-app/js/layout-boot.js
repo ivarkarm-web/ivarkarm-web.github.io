@@ -3,7 +3,7 @@
  * Top bar: two stacked rows
  *   1) instrument selector
  *   2) scale selector + note count
- * Center: handpan (JS-centered in open play area)
+ * Center: handpan (JS-centered in open play area, +5% down)
  * Bottom: looper above FX controls
  */
 (function layoutBoot() {
@@ -25,7 +25,7 @@
     document.getElementById('app')?.classList.remove('create-away');
   }
 
-  /** Place #pan in the vertical midpoint between top chrome and bottom chrome. */
+  /** Place #pan in the open play area (midpoint + 5% down). */
   function centerPan() {
     const pan = document.getElementById('pan');
     const stage = document.querySelector('.stage');
@@ -38,7 +38,6 @@
     const stageRect = stage.getBoundingClientRect();
     const topEdge = bar ? bar.getBoundingClientRect().bottom : stageRect.top;
 
-    // Prefer looper top if present, else drawer, else a safe reserve above viewport bottom
     let botEdge = window.innerHeight - 100;
     if (looper) {
       const lr = looper.getBoundingClientRect();
@@ -49,8 +48,9 @@
       if (dr.top > 0 && dr.top < window.innerHeight) botEdge = Math.min(botEdge, dr.top - 8);
     }
 
-    const midY = (topEdge + botEdge) / 2;
-    // Position relative to stage (pan is absolute inside stage)
+    const span = botEdge - topEdge;
+    // 50% center + 5% of the open span downward
+    const midY = topEdge + span * 0.55;
     const topInStage = midY - stageRect.top;
 
     pan.style.position = 'absolute';
@@ -58,9 +58,6 @@
     pan.style.top = topInStage + 'px';
     pan.style.transform = 'translate(-50%, -50%) translateZ(0)';
     pan.style.margin = '0';
-
-    // Match glow
-    // ::before can't be styled from here easily; size is fine from CSS
   }
 
   function run() {
