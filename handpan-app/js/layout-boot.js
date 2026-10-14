@@ -10,12 +10,12 @@
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=8';
+    link.href = './ui-layout-extras.css?v=9';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
   } else {
     const link = document.querySelector('link[data-ui-extras]');
-    if (link) link.href = './ui-layout-extras.css?v=8';
+    if (link) link.href = './ui-layout-extras.css?v=9';
   }
 
   function purgeCreate() {
@@ -39,18 +39,13 @@
 
     if (!stage || !pan) return;
 
-    // Prefer placing the chrome bar as first child of #app (true top of screen),
-    // not only above the pan inside .stage — looks more like a native app header.
     let bar = document.getElementById('stageScaleBar');
     if (!bar) {
       bar = document.createElement('div');
       bar.className = 'stage-scale-bar';
       bar.id = 'stageScaleBar';
     }
-    // Insert at top of app, before stage
     if (bar.parentElement !== app || app.firstElementChild !== bar) {
-      const afterStatus = null;
-      // Keep topbar in DOM but collapsed; bar is the real chrome
       if (topbar && topbar.parentElement === app) {
         topbar.insertAdjacentElement('afterend', bar);
       } else {
@@ -58,7 +53,6 @@
       }
     }
 
-    // Row 1: instrument + soundscapes
     const instNav = document.getElementById('instrumentNav');
     if (instNav) {
       instNav.classList.add('stage-instrument-nav');
@@ -67,7 +61,6 @@
       }
     }
 
-    // Row 2: scale (left) + note count (right)
     const scaleLabel = document.getElementById('scaleLabel');
     const scaleMenu = document.getElementById('scaleMenu');
     const prev = document.getElementById('scalePrev');
@@ -109,7 +102,6 @@
 
     const noteWrap = document.getElementById('notePlusWrap');
 
-    // Order: scale selector first, then note +/- (switched sides)
     if (scaleNav) {
       scaleNav.classList.add('stage-scale-nav');
       if (scaleNav.parentElement !== row || row.firstElementChild !== scaleNav) {
@@ -125,7 +117,6 @@
       }
     }
 
-    // Order in bar: instrumentNav (row 1), scale row (row 2)
     if (instNav && row && instNav.nextElementSibling !== row) {
       bar.appendChild(instNav);
       bar.appendChild(row);
