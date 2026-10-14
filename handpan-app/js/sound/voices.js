@@ -499,6 +499,125 @@ export const VOICES = [
       }
       return biquad(y, 'lp', 120 + 280 * vel, 0.8, sr);
     }
+  },
+  /* ---- BATCH 3: Strings ---- */
+  {
+    id: 'ambient_cello', name: 'Ambient Cello', family: 'traditional',
+    desc: 'Dark sustained cello pad — rich low partials with a soft bow grain and slow vibrato.',
+    sr: 32000, tail: 7.5, fade: [0.9, 1.8], trim: 0, send: { rev: 0.58, dly: 0.12 }, pan: -0.06,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 7.5);
+      const y = new Float32Array(n);
+      const b = 0.4 + 0.6 * vel;
+      addModes(y, sr, [
+        [f, 1.0, 7.0],
+        [f * 2.002, 0.55 * b, 5.5],
+        [f * 3.01, 0.28 * b, 4.0],
+        [f * 4.02, 0.12 * b, 2.8],
+        [f * 5.05, 0.05 * b, 1.6]
+      ], 1.1);
+      const nz = biquad(whiteNoise(n, rnd), 'bp', clamp(f * 2.2, 180, 3500), 1.4, sr);
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        const swell = Math.min(1, t / 0.7);
+        const vib = 1 + 0.004 * Math.sin(TAU * 5.1 * t) * Math.min(1, t / 1.0);
+        const bow = 0.06 * b * swell * (0.55 + 0.45 * Math.sin(TAU * 2.8 * t));
+        y[i] = y[i] * swell * vib + nz[i] * bow;
+      }
+      return biquad(y, 'lp', 900 + 2800 * vel, 0.7, sr);
+    }
+  },
+  {
+    id: 'pizzicato', name: 'Pizzicato Dream', family: 'traditional',
+    desc: 'Soft plucked string with a rounded body resonance and short woody tail — dreamy pizz.',
+    sr: 44100, tail: 3.2, fade: [0.001, 0.28], trim: 0, send: { rev: 0.35, dly: 0.2 }, pan: 0.08,
+    render({ f, vel, sr, rnd }) {
+      const y = pluck(f, vel, sr, rnd, {
+        bright: 0.22 + 0.28 * vel,
+        pos: 0.28,
+        t60: 2.6,
+        s: 0.48,
+        len: 3.2
+      });
+      click(y, sr, rnd, 6, clamp(f * 0.9, 90, 400), 0.9, 0.14 * vel);
+      return biquad(y, 'lp', 1600 + 3600 * vel, 0.65, sr);
+    }
+  },
+  {
+    id: 'guzheng', name: 'Guzheng', family: 'traditional',
+    desc: 'Chinese zither pluck — bright attack, cascading partials, and a quick silvery bloom.',
+    sr: 44100, tail: 4.2, fade: [0.001, 0.35], trim: 0, send: { rev: 0.3, dly: 0.22 }, pan: -0.1,
+    render({ f, vel, sr, rnd }) {
+      const y = pluck(f, vel, sr, rnd, {
+        bright: 0.5 + 0.45 * vel,
+        pos: 0.09,
+        t60: 3.8,
+        s: 0.38,
+        len: 4.2
+      });
+      const spark = new Float32Array(y.length);
+      addModes(spark, sr, [
+        [f * 2.01, 0.18 * vel, 1.2],
+        [f * 3.02, 0.08 * vel, 0.6]
+      ], 0.002);
+      for (let i = 0; i < y.length; i++) y[i] += spark[i];
+      click(y, sr, rnd, 3, 2800 + 1500 * vel, 1.3, 0.16 * vel);
+      return biquad(y, 'lp', 2200 + 6000 * vel, 0.55, sr);
+    }
+  },
+  {
+    id: 'sitar_air', name: 'Sitar Air', family: 'traditional',
+    desc: 'Sympathetic buzz drone under a sustained sitar-like fundamental — airy Indian string texture.',
+    sr: 32000, tail: 6.5, fade: [0.5, 1.4], trim: 0, send: { rev: 0.5, dly: 0.18 }, pan: 0.04,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 6.5);
+      const y = new Float32Array(n);
+      const b = 0.4 + 0.6 * vel;
+      addModes(y, sr, [
+        [f, 1.0, 6.0],
+        [f * 2.01, 0.4 * b, 4.0],
+        [f * 3.05, 0.18 * b, 2.5],
+        [f * 4.12, 0.08 * b, 1.4],
+        [f * 5.2, 0.04 * b, 0.8]
+      ], 0.4);
+      addModes(y, sr, [
+        [f * 1.5, 0.12 * b, 5.0],
+        [f * 2.0, 0.1 * b, 4.5],
+        [f * 2.25, 0.06 * b, 3.0]
+      ], 0.8);
+      const nz = biquad(whiteNoise(n, rnd), 'bp', clamp(f * 4, 400, 5000), 3.0, sr);
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        const swell = Math.min(1, t / 0.45);
+        const jawari = 0.04 * b * swell * Math.exp(-t / 2.5);
+        y[i] = y[i] * swell + nz[i] * jawari;
+      }
+      return biquad(y, 'lp', 1800 + 4200 * vel, 0.6, sr);
+    }
+  },
+  {
+    id: 'silk_violin', name: 'Silk Violin', family: 'traditional',
+    desc: 'Soft high string pad — silk-smooth bow, delicate upper partials, intimate close-mic feel.',
+    sr: 32000, tail: 6.0, fade: [0.7, 1.5], trim: 0, send: { rev: 0.55, dly: 0.16 }, pan: 0.1,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 6.0);
+      const y = new Float32Array(n);
+      const b = 0.35 + 0.65 * vel;
+      addModes(y, sr, [
+        [f, 1.0, 5.5],
+        [f * 2.003, 0.48 * b, 4.2],
+        [f * 3.01, 0.2 * b, 2.8],
+        [f * 4.02, 0.08 * b, 1.6]
+      ], 0.9);
+      const nz = biquad(whiteNoise(n, rnd), 'bp', clamp(f * 3.5, 500, 6000), 1.8, sr);
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        const swell = Math.min(1, t / 0.55);
+        const vib = 1 + 0.005 * Math.sin(TAU * 5.8 * t) * Math.min(1, t / 0.9);
+        y[i] = y[i] * swell * vib + nz[i] * (0.035 * b * swell);
+      }
+      return biquad(y, 'lp', 2200 + 5000 * vel, 0.55, sr);
+    }
   }
 ];
 
