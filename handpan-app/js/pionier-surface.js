@@ -356,8 +356,8 @@ export function createSurface(canvas) {
     const breath=reducedMotion?0.55:0.42+0.58*(0.5+0.5*Math.sin(rimTime*0.75));
     const rimR=R*0.965,th=getTheme(),lc=[th.led.r,th.led.g,th.led.b];
     ctx2.save();ctx2.globalCompositeOperation='lighter';
-    const halo=ctx2.createRadialGradient(CX,CY,rimR*0.96,CX,CY,rimR*1.035);
-    halo.addColorStop(0,rgba(lc,0));halo.addColorStop(0.62,rgba(mixLed([230,236,248],th.led,0.5),0.012*breath));halo.addColorStop(1,rgba(lc,0));
+    const halo=ctx2.createRadialGradient(CX,CY,rimR*0.985,CX,CY,rimR*1.018);
+    halo.addColorStop(0,rgba(lc,0));halo.addColorStop(0.62,rgba(mixLed([230,236,248],th.led,0.5),0.004*breath));halo.addColorStop(1,rgba(lc,0));
     ctx2.fillStyle=halo;ctx2.beginPath();ctx2.arc(CX,CY,rimR*1.08,0,Math.PI*2);ctx2.arc(CX,CY,rimR*0.88,0,Math.PI*2,true);ctx2.fill();
     ctx2.restore();
   }
@@ -375,8 +375,6 @@ export function createSurface(canvas) {
     ctx2.fillStyle=g;ctx2.beginPath();ctx2.arc(CX,CY,R,0,Math.PI*2);ctx2.fill();
     drawHandpanMandala(theme);
     drawSurfaceFinish(theme, materialTime);
-    ctx2.strokeStyle=rgba(theme.skin.rim,0.065);ctx2.lineWidth=Math.max(0.8,R*0.0022);
-    ctx2.beginPath();ctx2.arc(CX,CY,R*0.93,0,Math.PI*2);ctx2.stroke();
     const view=animatedView(performance.now());
     ctx2.globalCompositeOperation='source-over';
     ctx2.globalAlpha=(theme.alpha!=null?theme.alpha:1)*(catchActive?0.88:1);
@@ -454,10 +452,9 @@ export function createSurface(canvas) {
         if(!mandalaEnabled()){cancelAnimationFrame(_mandalaRaf);_mandalaRaf=0;return;}
         if(now-_mandalaLast<55) return;
         _mandalaLast=now;
-        try{
-          if(window.PionierCore&&typeof window.PionierCore.draw==='function') window.PionierCore.draw();
-          else if(_lastInst!=null) _origDrawBody(_lastInst,_lastCatch);
-        }catch(_){}
+        // Redraw only the canvas surface. Calling the whole core draw() here
+        // duplicates application work and can recurse through patched renderers.
+        if(_lastInst!=null) _origDrawBody(_lastInst,_lastCatch);
       };
       _mandalaRaf=requestAnimationFrame(tick);
     }
