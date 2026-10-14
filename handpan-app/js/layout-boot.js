@@ -8,12 +8,12 @@
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=5';
+    link.href = './ui-layout-extras.css?v=6';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
   } else {
     const link = document.querySelector('link[data-ui-extras]');
-    if (link) link.href = './ui-layout-extras.css?v=5';
+    if (link) link.href = './ui-layout-extras.css?v=6';
   }
 
   function purgeCreate() {
