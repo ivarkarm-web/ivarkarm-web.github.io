@@ -11,11 +11,16 @@
   <div id="appBoot">Loading handpan…</div>
   <script>
   (async () => {
-    const parts = await Promise.all([0,1,2].map(i => fetch('./shell-part-'+i+'.txt?v=1').then(r => {
-      if (!r.ok) throw new Error('part '+i+' HTTP '+r.status);
-      return r.text();
-    })));
-    const html = parts.join('');
+    const url = 'https://raw.githubusercontent.com/ivarkarm-web/ivarkarm-web.github.io/033ec0faf1/handpan-app/index.html';
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    let html = await r.text();
+    html = html
+      .replace('settings-panel.css?v=1', 'settings-panel.css?v=4')
+      .replace(
+        /<script src=".\/js\/layout-boot\.js\?v=13"><\/script>[\s\S]*?<script src=".\/js\/note-count-fix\.js\?v=1"><\/script>/,
+        '<script src="./js/customization-catalog.js?v=2"></script>\n  <script src="./js/layout-boot.js?v=13"></script>\n  <script src="./js/settings-panel.js?v=4"></script>\n  <script src="./js/ambient-fx.js?v=8"></script>\n  <script src="./js/skin-mandala.js?v=2"></script>\n  <script type="module" src="./pionier-app.js?v=153"></script>\n  <script src="./js/scale-root-fix.js?v=1"></script>\n  <script src="./js/note-count-fix.js?v=1"></script>'
+      );
     document.open();
     document.write(html);
     document.close();
