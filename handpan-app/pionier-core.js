@@ -19,9 +19,12 @@ src = src.replace(/from (['"])\.\//g, (m, q) => 'from ' + q + base);
 
 const blob = new Blob([src], { type: 'text/javascript' });
 const url = URL.createObjectURL(blob);
+let mod;
 try {
-  const mod = await import(/* webpackIgnore: true */ url);
-  export default mod.default || window.PionierCore;
+  mod = await import(/* webpackIgnore: true */ url);
 } finally {
   URL.revokeObjectURL(url);
 }
+
+const core = mod?.default || window.PionierCore;
+export default core;
