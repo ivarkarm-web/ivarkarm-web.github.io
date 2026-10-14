@@ -737,3 +737,128 @@ html body > #looperRail .looper-clear-btn { opacity: 1 !important; }
   html body > #looperRail { gap: 3px !important; padding-inline: 4px !important; }
   html body > #looperRail .looper-layers { max-width: calc(100vw - 100px) !important; }
 }
+
+
+/* Final looper layout: one readable, opaque control strip above the bottom selectors.
+   Clear stays a body-level sibling because looper.js intentionally manages it there. */
+html body > #looperRail {
+  position: fixed !important;
+  top: auto !important;
+  right: 0 !important;
+  bottom: calc(118px + env(safe-area-inset-bottom, 0px)) !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 4px 48px 4px 48px !important;
+  overflow: visible !important;
+  background: rgba(8, 8, 10, .96) !important;
+  border: 1px solid rgba(212, 176, 74, .22) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 18px rgba(0,0,0,.42) !important;
+  z-index: 4500 !important;
+  pointer-events: auto !important;
+}
+html body > #looperRail .looper-layers {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  flex-wrap: nowrap !important;
+  gap: 5px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  pointer-events: auto !important;
+}
+html body > #looperRail #looperRecordCluster {
+  display: flex !important;
+  flex: 0 0 auto !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  pointer-events: auto !important;
+}
+html body > #looperRail .looper-btn,
+html body > #looperRail .looper-sync-dial,
+html body > #looperRail .looper-record-cluster .looper-btn,
+html body > #looperRail .looper-record-cluster .looper-sync-dial {
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+  flex: 0 0 32px !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+html body > #looperRail .looper-sync-core {
+  width: 20px !important;
+  height: 20px !important;
+  margin: -10px 0 0 -10px !important;
+}
+html body > #looperRail .looper-sync-label {
+  font-size: 6px !important;
+}
+html body > #looperRail .looper-circle {
+  flex: 0 0 30px !important;
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+}
+html body > #looperClearBtn.looper-clear-btn {
+  position: fixed !important;
+  top: auto !important;
+  bottom: calc(123px + env(safe-area-inset-bottom, 0px)) !important;
+  left: max(8px, env(safe-area-inset-left, 0px)) !important;
+  right: auto !important;
+  transform: none !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  z-index: 4501 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  border-radius: 50% !important;
+  background: rgba(8,8,10,.96) !important;
+}
+html body > #looperClearBtn .looper-clear-ring {
+  border-width: 1.5px !important;
+  border-color: rgba(255,255,255,.38) !important;
+}
+html body > #looperClearBtn .looper-clear-core {
+  width: 18px !important;
+  height: 18px !important;
+  margin: -9px 0 0 -9px !important;
+}
+html body > #looperClearBtn .looper-clear-x,
+html body > #looperClearBtn .looper-clear-x::before,
+html body > #looperClearBtn .looper-clear-x::after {
+  width: 12px !important;
+}
+@media (max-width: 420px) {
+  html body > #looperRail {
+    bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;
+    gap: 4px !important;
+    padding-inline: 44px !important;
+  }
+  html body > #looperClearBtn.looper-clear-btn {
+    bottom: calc(117px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
