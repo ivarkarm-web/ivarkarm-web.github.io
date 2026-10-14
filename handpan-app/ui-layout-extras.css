@@ -220,8 +220,10 @@
 
 /* Keep handpan geometrically centered in the stage */
 .stage {
+  position: relative !important;
   align-items: center !important;
   justify-content: center !important;
+  overflow: hidden !important;
 }
 .stage::before {
   left: 50% !important;
@@ -229,6 +231,13 @@
   transform: translate(-50%, -50%) !important;
 }
 #pan {
-  margin-left: auto !important;
-  margin-right: auto !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) translateZ(0) !important;
+  margin: 0 !important;
+  width: min(86vw, calc(100dvh - 220px), 680px) !important;
+  max-width: 86vw !important;
+  height: auto !important;
+  aspect-ratio: 1 !important;
 }
