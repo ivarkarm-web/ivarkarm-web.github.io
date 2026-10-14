@@ -8,7 +8,7 @@
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=25';
+    link.href = './ui-layout-extras.css?v=26';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
   } else {
@@ -167,10 +167,16 @@
         zIndex: '4001'
       });
     }
-    if (looperRail && looperRail.parentElement !== bar) {
-      bar.insertBefore(looperRail, bar.firstChild);
-    } else if (looperRail && bar.firstElementChild !== looperRail) {
-      bar.insertBefore(looperRail, bar.firstChild);
+    // The looper is a viewport-level bottom control, not part of the top
+    // instrument/scale selector stack.
+    if (looperRail && looperRail.parentElement !== document.body) document.body.appendChild(looperRail);
+    if (looperRail) {
+      Object.assign(looperRail.style, {
+        position: 'fixed', top: 'auto', right: '0',
+        bottom: 'calc(8px + env(safe-area-inset-bottom, 0px))',
+        left: '0', transform: 'none', width: '100%',
+        justifyContent: 'center', zIndex: '3000'
+      });
     }
     if (looperClear && looperRail && looperClear.parentElement !== looperRail) looperRail.appendChild(looperClear);
     if (bar && (bar.parentElement !== app || bar.nextElementSibling !== null)) app.appendChild(bar);
