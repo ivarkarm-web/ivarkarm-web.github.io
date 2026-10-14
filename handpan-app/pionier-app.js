@@ -1,6 +1,5 @@
 /**
  * Pionier app shell: load the vendored local core and optional UI modules.
- * No CDN fetch, source rewriting, Blob module, or runtime string patches.
  */
 const BASE = new URL('.', import.meta.url).href;
 const statusEl = document.getElementById('appStatus');
@@ -51,17 +50,29 @@ function killCanvasGhosts(canvas) {
   canvas.addEventListener('contextmenu', block, true);
 }
 
-
 async function boot() {
   setBootStatus('loading', 'Starting Pionier…');
   const degraded = [];
 
   try {
-    await import(new URL('./pionier-core.js?v=12', BASE).href);
+    await import(new URL('./pionier-core.js?v=13', BASE).href);
   } catch (err) {
     console.error('[pionier] required core failed to load', err);
     setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
     return false;
+  }
+
+  // Arpeggiator family: look-ahead scheduler + 5 arp instruments
+  try {
+    const { createArpInstruments } = await import(new URL('./js/instruments/arp-family.js?v=1', BASE).href);
+    const { InstrumentRegistry } = await import(new URL('./js/instrument.js', BASE).href);
+    for (const inst of createArpInstruments()) {
+      try { InstrumentRegistry.register(inst); } catch (e) { console.warn('[arp] register', inst?.id, e); }
+    }
+    try { window.PionierCore?.syncWorldPitch?.(); } catch (_) {}
+  } catch (err) {
+    console.warn('[arp] failed to load arpeggiators', err);
+    degraded.push('arpeggiators');
   }
 
   try {
@@ -160,9 +171,7 @@ async function boot() {
   }
 
   try {
-    const { mountNotePlus } = await import(
-      new URL('./js/note-plus.js?v=3', BASE).href
-    );
+    const { mountNotePlus } = await import(new URL('./js/note-plus.js?v=3', BASE).href);
     mountNotePlus();
   } catch (err) {
     console.warn('[note-plus] mount failed', err);
@@ -170,9 +179,7 @@ async function boot() {
   }
 
   try {
-    const { mountBackdropPlayer } = await import(
-      new URL('./js/backdrop-player.js?v=96', BASE).href
-    );
+    const { mountBackdropPlayer } = await import(new URL('./js/backdrop-player.js?v=96', BASE).href);
     mountBackdropPlayer();
   } catch (err) {
     console.warn('[backdrop] mount failed', err);
@@ -180,9 +187,7 @@ async function boot() {
   }
 
   try {
-    const { mountLooper } = await import(
-      new URL('./js/looper.js?v=201', BASE).href
-    );
+    const { mountLooper } = await import(new URL('./js/looper.js?v=201', BASE).href);
     mountLooper();
   } catch (err) {
     console.warn('[looper] mount failed', err);
