@@ -437,3 +437,20 @@
 }
 #pionierTopDock > #looperRail { z-index:2 !important; }
 
+
+
+/* Recovery: the drawer is docked at the top, so disable its legacy
+   bottom-sheet positioning/translation in both closed and open states. */
+#pionierTopDock #mobileControlDrawer {
+  position:relative!important;
+  top:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  left:auto!important;
+  transform:none!important;
+  width:100%!important;
+  margin:0!important;
+}
+#pionierTopDock #mobileControlDrawer.is-open {
+  transform:none!important;
+}
