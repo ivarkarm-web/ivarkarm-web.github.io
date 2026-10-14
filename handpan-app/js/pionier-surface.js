@@ -1,10 +1,7 @@
-/**
- * pionier-surface — palette skins, tonefields, two-pass pads
- */
+
 import { MIN_NOTES, ringAngles, ringPadScale } from './pad-layout.js';
 export const WORLD_ZONE_INDICES = [0, 1, 3, 5, 7];
 const ADD_NOTE_MS = 520;
-
 export function createSurface(canvas) {
   const ctx2 = canvas.getContext('2d');
   let W=800,H=800,R=0,CX=0,CY=0,fields=[],anim=null,armed=false,rimTime=0;
@@ -15,7 +12,6 @@ export function createSurface(canvas) {
     size:0.55+Math.random()*0.55,phase:Math.random()*Math.PI*2,
     speed:0.18+Math.random()*0.12,gold:Math.random()<0.35
   }));
-
   function getTheme(){
     const s=(typeof window!=='undefined'&&window.PionierSettings)||{};
     const led=s.led||{r:110,g:200,b:255};
@@ -51,75 +47,183 @@ export function createSurface(canvas) {
     else if(st==='halo'){ctx2.ellipse(x,y,rx,ry,rot,0,Math.PI*2);ctx2.ellipse(x,y,rx*0.5,ry*0.5,rot,0,Math.PI*2,true)}
     else ctx2.ellipse(x,y,rx,ry,rot,0,Math.PI*2);
   }
-  function drawBodyEngraving(theme){
+  function mandalaStyle(){
     const cat=window.PionierCatalog;
     const skinId=(window.PionierSettings&&window.PionierSettings.skin)||document.documentElement?.dataset?.skin||'classic';
     const entry=cat&&cat.SKINS?cat.SKINS.find(s=>s.id===skinId):null;
-    const style=(entry&&entry.mandala)||'orbit';
+    let style=(entry&&entry.mandala)||'orbit';
+    if(style==='star') style='lotus';
+    return style;
+  }
+  function mandalaEnabled(){
+    const s=window.PionierSettings;
+    return !(s&&s.mandala===false);
+  }
+  function drawHandpanMandala(theme){
+    if(!mandalaEnabled()||R<20) return;
+    const style=mandalaStyle();
     const col=theme.skin.rim||[230,236,248];
-    const aBase=0.07;
+    const lip=theme.skin.lip||col;
+    const t=performance.now()*0.00018;
+    const breath=0.5+0.5*Math.sin(t*1.1);
     ctx2.save();
-    ctx2.globalCompositeOperation='source-over';
+    ctx2.beginPath();
+    ctx2.arc(CX,CY,R*0.92,0,Math.PI*2);
+    ctx2.clip();
     ctx2.lineCap='round';
     ctx2.lineJoin='round';
-    const t=performance.now()*0.00025;
-    if(style==='rings'||style==='orbit'){
-      for(let i=0;i<5;i++){
-        const rr=R*(0.28+i*0.12);
-        ctx2.strokeStyle=rgba(col,aBase*(0.6+i*0.08));
-        ctx2.lineWidth=Math.max(0.6,R*0.0022);
+    ctx2.globalCompositeOperation='source-over';
+    const stroke=(a,w)=>{ ctx2.strokeStyle=rgba(col,a); ctx2.lineWidth=Math.max(0.45,R*w); };
+    const fillSoft=(a)=>{ ctx2.fillStyle=rgba(col,a); };
+    {
+      const g=ctx2.createRadialGradient(CX,CY,0,CX,CY,R*0.22);
+      g.addColorStop(0,rgba(lip,0.04+breath*0.02));
+      g.addColorStop(1,rgba(col,0));
+      ctx2.fillStyle=g;
+      ctx2.beginPath();ctx2.arc(CX,CY,R*0.22,0,Math.PI*2);ctx2.fill();
+    }
+    if(style==='orbit'){
+      for(let ring=0;ring<7;ring++){
+        const rr=R*(0.22+ring*0.09)*(0.98+breath*0.02);
+        stroke(0.045+ring*0.008,0.0018);
+        ctx2.beginPath();ctx2.arc(CX,CY,rr,0,Math.PI*2);ctx2.stroke();
+        const n=6+ring*2;
+        const spin=t*(0.3+ring*0.05)*(ring%2?-1:1);
+        for(let i=0;i<n;i++){
+          const a=spin+(i/n)*Math.PI*2;
+          const x=CX+Math.cos(a)*rr,y=CY+Math.sin(a)*rr;
+          const pr=Math.max(0.8,R*0.006);
+          const dg=ctx2.createRadialGradient(x,y,0,x,y,pr*3);
+          dg.addColorStop(0,rgba(col,0.08));
+          dg.addColorStop(1,rgba(col,0));
+          ctx2.fillStyle=dg;
+          ctx2.beginPath();ctx2.arc(x,y,pr*3,0,Math.PI*2);ctx2.fill();
+        }
+      }
+    } else if(style==='rings'){
+      for(let i=0;i<9;i++){
+        const rr=R*(0.18+i*0.075)*(0.97+breath*0.03);
+        stroke(0.035+(i%3)*0.015,0.0016+(i%2)*0.0006);
         ctx2.beginPath();ctx2.arc(CX,CY,rr,0,Math.PI*2);ctx2.stroke();
       }
+      const rr=R*0.55;
+      const n=18,spin=t*0.25;
+      for(let i=0;i<n;i++){
+        const a=spin+(i/n)*Math.PI*2;
+        fillSoft(0.06);
+        ctx2.beginPath();ctx2.arc(CX+Math.cos(a)*rr,CY+Math.sin(a)*rr,Math.max(0.7,R*0.005),0,Math.PI*2);ctx2.fill();
+      }
     } else if(style==='petal'||style==='bloom'){
-      const petals=8;
-      for(let i=0;i<petals;i++){
-        const a=(i/petals)*Math.PI*2+t;
-        ctx2.strokeStyle=rgba(col,aBase*0.9);
-        ctx2.lineWidth=Math.max(0.55,R*0.002);
+      const layers=style==='bloom'?3:2;
+      for(let L=0;L<layers;L++){
+        const petals=6+L*2;
+        const spin=t*0.22*(L%2?-1:1);
+        const reach=R*(0.28+L*0.12)*(0.96+breath*0.04);
+        for(let i=0;i<petals;i++){
+          const a=spin+(i/petals)*Math.PI*2;
+          stroke(0.05+L*0.015,0.0017);
+          ctx2.beginPath();
+          ctx2.ellipse(CX+Math.cos(a)*reach*0.35,CY+Math.sin(a)*reach*0.35,reach*0.22,reach*0.48,a,0,Math.PI*2);
+          ctx2.stroke();
+        }
+      }
+      stroke(0.05,0.0018);
+      ctx2.beginPath();ctx2.arc(CX,CY,R*0.16*(0.95+breath*0.05),0,Math.PI*2);ctx2.stroke();
+    } else if(style==='spiral'){
+      for(let arm=0;arm<4;arm++){
         ctx2.beginPath();
-        ctx2.ellipse(CX+Math.cos(a)*R*0.12,CY+Math.sin(a)*R*0.12,R*0.18,R*0.38,a,0,Math.PI*2);
+        const base=(arm/4)*Math.PI*2+t*0.35;
+        for(let i=0;i<90;i++){
+          const p=i/90;
+          const a=base+p*Math.PI*3.2;
+          const r=R*0.12+p*R*0.68;
+          const x=CX+Math.cos(a)*r,y=CY+Math.sin(a)*r;
+          i?ctx2.lineTo(x,y):ctx2.moveTo(x,y);
+        }
+        stroke(0.055,0.002);
         ctx2.stroke();
       }
-    } else if(style==='star'){
-      for(let layer=0;layer<2;layer++){
-        const outer=R*(0.55+layer*0.12),inner=outer*0.42,pts=8;
-        ctx2.beginPath();
-        for(let i=0;i<pts*2;i++){
-          const a=(i/(pts*2))*Math.PI*2-Math.PI/2+t*(layer%2?-1:1);
-          const r=i%2===0?outer:inner;
-          const x=CX+Math.cos(a)*r,y=CY+Math.sin(a)*r;
-          i?ctx2.lineTo(x,y):ctx2.moveTo(x,y);
-        }
-        ctx2.closePath();
-        ctx2.strokeStyle=rgba(col,aBase*0.85);
-        ctx2.lineWidth=Math.max(0.55,R*0.002);ctx2.stroke();
+      for(let i=0;i<4;i++){
+        stroke(0.03,0.0015);
+        ctx2.beginPath();ctx2.arc(CX,CY,R*(0.25+i*0.14),0,Math.PI*2);ctx2.stroke();
       }
-    } else if(style==='spiral'){
-      for(let arm=0;arm<3;arm++){
+    } else if(style==='wave'){
+      for(let ring=0;ring<6;ring++){
+        const baseR=R*(0.24+ring*0.1);
         ctx2.beginPath();
-        const base=(arm/3)*Math.PI*2+t;
-        for(let i=0;i<60;i++){
-          const p=i/60,a=base+p*Math.PI*2.8,r=R*0.15+p*R*0.62;
-          const x=CX+Math.cos(a)*r,y=CY+Math.sin(a)*r;
-          i?ctx2.lineTo(x,y):ctx2.moveTo(x,y);
-        }
-        ctx2.strokeStyle=rgba(col,aBase*0.9);
-        ctx2.lineWidth=Math.max(0.55,R*0.0022);ctx2.stroke();
-      }
-    } else {
-      for(let ring=0;ring<4;ring++){
-        const baseR=R*(0.32+ring*0.12);
-        ctx2.beginPath();
-        for(let i=0;i<=48;i++){
-          const a=(i/48)*Math.PI*2;
-          const wave=Math.sin(a*4+t*3+ring)*R*0.012;
+        for(let i=0;i<=64;i++){
+          const a=(i/64)*Math.PI*2;
+          const wave=Math.sin(a*5+t*2.2+ring*0.7)*R*0.014*(0.7+breath*0.3);
           const r=baseR+wave;
           const x=CX+Math.cos(a)*r,y=CY+Math.sin(a)*r;
           i?ctx2.lineTo(x,y):ctx2.moveTo(x,y);
         }
         ctx2.closePath();
-        ctx2.strokeStyle=rgba(col,aBase*(0.7+ring*0.08));
-        ctx2.lineWidth=Math.max(0.55,R*0.002);ctx2.stroke();
+        stroke(0.04+ring*0.008,0.0017);
+        ctx2.stroke();
+      }
+    } else if(style==='lotus'){
+      for(let L=0;L<4;L++){
+        const petals=8;
+        const spin=t*0.18*(L%2?-1:1)+L*0.2;
+        const reach=R*(0.2+L*0.14);
+        for(let i=0;i<petals;i++){
+          const a=spin+(i/petals)*Math.PI*2;
+          stroke(0.04+L*0.01,0.0016);
+          ctx2.beginPath();
+          ctx2.ellipse(CX+Math.cos(a)*reach*0.28,CY+Math.sin(a)*reach*0.28,reach*0.2,reach*0.42,a,0,Math.PI*2);
+          ctx2.stroke();
+        }
+      }
+      stroke(0.055,0.002);
+      ctx2.beginPath();ctx2.arc(CX,CY,R*0.12,0,Math.PI*2);ctx2.stroke();
+    } else if(style==='vesica'){
+      for(let ring=1;ring<=3;ring++){
+        if(ring===1){
+          stroke(0.06,0.0018);
+          ctx2.beginPath();ctx2.arc(CX,CY,R*0.18,0,Math.PI*2);ctx2.stroke();
+        } else {
+          const spin=t*0.12*(ring%2?-1:1);
+          for(let i=0;i<6;i++){
+            const a=spin+(i/6)*Math.PI*2;
+            const x=CX+Math.cos(a)*R*0.18*(ring-1);
+            const y=CY+Math.sin(a)*R*0.18*(ring-1);
+            stroke(0.04+ring*0.008,0.0015);
+            ctx2.beginPath();ctx2.arc(x,y,R*0.18,0,Math.PI*2);ctx2.stroke();
+          }
+        }
+      }
+      stroke(0.05,0.0017);
+      ctx2.beginPath();ctx2.arc(CX,CY,R*0.54,0,Math.PI*2);ctx2.stroke();
+    } else if(style==='halo'){
+      for(let i=0;i<8;i++){
+        const rr=R*(0.2+i*0.08);
+        const pulse=0.03+0.025*Math.sin(t*1.4+i*0.5);
+        stroke(pulse,0.002+0.0004*(i%2));
+        ctx2.beginPath();ctx2.arc(CX,CY,rr*(0.98+breath*0.02),0,Math.PI*2);ctx2.stroke();
+      }
+    } else if(style==='beads'){
+      for(let ring=0;ring<5;ring++){
+        const rr=R*(0.28+ring*0.12);
+        stroke(0.03,0.0014);
+        ctx2.beginPath();ctx2.arc(CX,CY,rr,0,Math.PI*2);ctx2.stroke();
+        const n=8+ring*4;
+        const spin=t*0.2*(ring%2?-1:1);
+        for(let i=0;i<n;i++){
+          const a=spin+(i/n)*Math.PI*2;
+          const x=CX+Math.cos(a)*rr,y=CY+Math.sin(a)*rr;
+          const pr=Math.max(0.9,R*(0.008-ring*0.0006));
+          const dg=ctx2.createRadialGradient(x,y,0,x,y,pr*2.5);
+          dg.addColorStop(0,rgba(col,0.09));
+          dg.addColorStop(1,rgba(col,0));
+          ctx2.fillStyle=dg;
+          ctx2.beginPath();ctx2.arc(x,y,pr*2.5,0,Math.PI*2);ctx2.fill();
+        }
+      }
+    } else {
+      for(let i=0;i<6;i++){
+        stroke(0.04+i*0.006,0.0016);
+        ctx2.beginPath();ctx2.arc(CX,CY,R*(0.25+i*0.1),0,Math.PI*2);ctx2.stroke();
       }
     }
     ctx2.restore();
@@ -206,7 +310,7 @@ export function createSurface(canvas) {
     const g=ctx2.createRadialGradient(CX-R*0.2,CY-R*0.28,R*0.04,CX,CY,R);
     g.addColorStop(0,theme.skin.body[0]);g.addColorStop(0.5,theme.skin.body[1]);g.addColorStop(1,theme.skin.body[2]);
     ctx2.fillStyle=g;ctx2.beginPath();ctx2.arc(CX,CY,R,0,Math.PI*2);ctx2.fill();
-    drawBodyEngraving(theme);
+    drawHandpanMandala(theme);
     ctx2.strokeStyle=rgba(theme.skin.rim,0.28);ctx2.lineWidth=Math.max(2,R*0.013);
     ctx2.beginPath();ctx2.arc(CX,CY,R*0.93,0,Math.PI*2);ctx2.stroke();
     const view=animatedView(performance.now());
@@ -271,6 +375,26 @@ export function createSurface(canvas) {
     const r=canvas.getBoundingClientRect();
     return{x:(clientX-r.left)*(W/r.width),y:(clientY-r.top)*(H/r.height)};
   }
+  let _lastInst=null,_lastCatch=false,_mandalaRaf=0,_mandalaLast=0;
+  const _origDrawBody=drawBody;
+  drawBody=function(inst,catchActive){
+    _lastInst=inst;_lastCatch=!!catchActive;
+    _origDrawBody(inst,catchActive);
+    if(mandalaEnabled()&&!_mandalaRaf&&!reducedMotion){
+      _mandalaLast=performance.now();
+      const tick=(now)=>{
+        _mandalaRaf=requestAnimationFrame(tick);
+        if(!mandalaEnabled()){cancelAnimationFrame(_mandalaRaf);_mandalaRaf=0;return;}
+        if(now-_mandalaLast<55) return;
+        _mandalaLast=now;
+        try{
+          if(window.PionierCore&&typeof window.PionierCore.draw==='function') window.PionierCore.draw();
+          else if(_lastInst!=null) _origDrawBody(_lastInst,_lastCatch);
+        }catch(_){}
+      };
+      _mandalaRaf=requestAnimationFrame(tick);
+    }
+  };
   return{resize,layoutHandpanFields,armTransition,drawBody,drawCatchWaves,hitVector,canvasCoords,
     get fields(){return fields},get metrics(){return{W,H,R,CX,CY}}};
 }
