@@ -1,9 +1,9 @@
-/* Atelier visual system, step 1: palette tokens, backdrop, grain.
-   Loaded after every other stylesheet (injected by index.html), so it can
-   restyle the page without touching the older CSS. Visual only: no pointer
-   handling, no layout changes. */
+/* PIONIER ATELIER — premium visual layer.
+   Intentionally presentation-only: audio, pointer handling, hit testing and
+   the legacy surface API remain untouched. */
 
 :root {
+  color-scheme: dark;
   --ink-0: #09090b;
   --ink-1: #0f0f12;
   --ink-2: #17171b;
@@ -16,43 +16,211 @@
   --amber: #c8a472;
   --ember: #d9a066;
   --slate-teal: #6f8a94;
-  --hairline: rgba(230, 224, 210, 0.10);
-  --hairline-hi: rgba(230, 224, 210, 0.18);
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --hairline: rgba(230, 224, 210, .10);
+  --hairline-hi: rgba(230, 224, 210, .18);
+  --glass: rgba(15, 15, 18, .72);
+  --glass-strong: rgba(10, 10, 12, .9);
+  --atelier-shadow: 0 24px 70px rgba(0, 0, 0, .42), inset 0 1px 0 rgba(255,255,255,.035);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-spring: cubic-bezier(.2, .8, .2, 1);
 }
 
-/* Backdrop: one warm source upper-left, a faint teal pool lower-right.
-   Oversized and moved with transform only, so the slow drift costs no repaint. */
+/* Atmospheric stage: warm key light, cool reflected fill, deep edge falloff. */
 body::before {
   inset: -8%;
   background:
-    radial-gradient(70% 55% at 22% 12%, rgba(200, 164, 114, 0.16) 0%, rgba(200, 164, 114, 0) 70%),
-    radial-gradient(60% 50% at 82% 88%, rgba(111, 138, 148, 0.10) 0%, rgba(111, 138, 148, 0) 72%),
-    radial-gradient(90% 70% at 50% 50%, rgba(43, 43, 49, 0.55) 0%, rgba(15, 15, 18, 0) 80%),
-    radial-gradient(120% 90% at 50% 120%, rgba(9, 9, 11, 0.9) 0%, rgba(9, 9, 11, 0) 60%),
+    radial-gradient(70% 55% at 22% 12%, rgba(200,164,114,.16), transparent 70%),
+    radial-gradient(60% 50% at 82% 88%, rgba(111,138,148,.10), transparent 72%),
+    radial-gradient(90% 70% at 50% 50%, rgba(43,43,49,.55), transparent 80%),
+    radial-gradient(120% 90% at 50% 120%, rgba(9,9,11,.9), transparent 60%),
     linear-gradient(180deg, #121215 0%, #0f0f12 55%, #0b0b0d 100%);
   animation: atelierSourceDrift 60s ease-in-out infinite;
   will-change: transform;
 }
-
 @keyframes atelierSourceDrift {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(2.5%, 1.8%, 0); }
+  0%, 100% { transform: translate3d(0,0,0) scale(1); }
+  50% { transform: translate3d(1.5%,1%,0) scale(1.025); }
 }
 
-/* Grain / dither: hides banding in the dark gradient and adds a filmic feel. */
+/* Fine analog grain masks gradient banding without an image request. */
 body::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  opacity: 0.045;
+  opacity: .032;
   mix-blend-mode: soft-light;
   background-size: 220px 220px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .9 0 0 0 0 .88 0 0 0 0 .82 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
+/* Keep the legacy application as the interaction authority; this layer only
+   upgrades the surface language of its existing DOM. */
+#app, .app {
+  isolation: isolate;
+}
+.topbar {
+  border: 1px solid rgba(230,224,210,.105) !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, rgba(27,27,31,.84), rgba(10,10,12,.74)) !important;
+  box-shadow: 0 12px 42px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.055) !important;
+  backdrop-filter: blur(28px) saturate(135%);
+  -webkit-backdrop-filter: blur(28px) saturate(135%);
+}
+.topbar button, .icon-btn, .pill, .instrument-name {
+  transition:
+    color .22s ease,
+    border-color .28s ease,
+    background-color .28s ease,
+    box-shadow .32s ease,
+    transform .32s var(--ease-out) !important;
+}
+.icon-btn, .pill, .instrument-name {
+  border-color: rgba(230,224,210,.12) !important;
+}
+.icon-btn:hover, .icon-btn:focus-visible,
+.pill:hover, .pill:focus-visible,
+.instrument-name:hover, .instrument-name:focus-visible {
+  border-color: rgba(200,164,114,.42) !important;
+  background-color: rgba(200,164,114,.09) !important;
+  box-shadow: 0 0 0 3px rgba(200,164,114,.045), 0 6px 22px rgba(0,0,0,.18);
+  outline: none;
+}
+button:active { transition-duration: .08s !important; }
+button:focus-visible, [role="button"]:focus-visible, [role="slider"]:focus-visible {
+  outline: 2px solid rgba(200,164,114,.72) !important;
+  outline-offset: 3px;
+}
+
+/* Shared material recipe for existing menus, drawers and floating panels. */
+.sidebar, .mobile-control-panel, .instrument-menu, .scale-menu,
+.effect-bubble, .sound-dock, .learn-panel, .loop-controls,
+.settings-panel, .settings-sheet, .control-panel {
+  border-color: rgba(230,224,210,.12) !important;
+  background:
+    linear-gradient(145deg, rgba(35,34,35,.76), rgba(10,10,12,.91)) !important;
+  box-shadow: var(--atelier-shadow) !important;
+  backdrop-filter: blur(26px) saturate(125%);
+  -webkit-backdrop-filter: blur(26px) saturate(125%);
+}
+.sidebar, .mobile-control-panel, .instrument-menu, .scale-menu,
+.effect-bubble, .sound-dock, .learn-panel {
+  border-radius: 20px !important;
+}
+.control-label, .dock-kicker, .knob-name-row, .knob-name-row span {
+  color: rgba(230,224,210,.56) !important;
+  letter-spacing: .13em;
+}
+.step, .step-value, .scale-dropdown-toggle, .knob-effect-trigger,
+.effect-choice-list button, .fx-type-btn {
+  transition: background .24s ease, color .24s ease, border-color .24s ease,
+    transform .24s var(--ease-out), box-shadow .24s ease !important;
+}
+.step, .step-value, .scale-dropdown-toggle, .knob-effect-trigger {
+  border-color: rgba(230,224,210,.12) !important;
+  background: rgba(255,255,255,.025) !important;
+  border-radius: 10px !important;
+}
+.step:hover, .scale-dropdown-toggle:hover, .knob-effect-trigger:hover,
+.effect-choice-list button:hover, .fx-type-btn:hover {
+  border-color: rgba(200,164,114,.36) !important;
+  background: rgba(200,164,114,.085) !important;
+}
+.step:active, .effect-choice-list button:active, .fx-type-btn:active {
+  transform: scale(.96);
+}
+.step-value, .scale-name, .instrument-name {
+  color: var(--bone) !important;
+}
+.scale-menu [role="menuitem"], .instrument-menu [role="menuitem"],
+.scale-menu button, .instrument-menu button {
+  border-radius: 10px;
+  transition: background .2s ease, color .2s ease, transform .2s var(--ease-out);
+}
+.scale-menu button:hover, .instrument-menu button:hover,
+.scale-menu [role="menuitem"]:hover, .instrument-menu [role="menuitem"]:hover {
+  background: rgba(200,164,114,.1) !important;
+}
+
+/* The instrument stays visually dominant: ambient halos live behind it,
+   never on top of the touch target or its canvas hit regions. */
+#ambientFxCanvas { filter: saturate(.82); }
+.knob {
+  transition: filter .3s ease, transform .3s var(--ease-out);
+}
+.knob:hover, .knob:focus-visible {
+  filter: drop-shadow(0 0 12px rgba(200,164,114,.14));
+}
+.knob-value {
+  color: rgba(230,224,210,.9) !important;
+}
+.knob-canvas { filter: drop-shadow(0 4px 10px rgba(0,0,0,.28)); }
+
+/* More intentional state language for the looper and mode controls. */
+.loop-orb {
+  border-color: rgba(220,190,125,.42) !important;
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255,246,214,.2), transparent 35%),
+    radial-gradient(circle at 50% 52%, rgba(200,164,114,.13), rgba(10,10,12,.35) 68%) !important;
+  box-shadow: 0 0 0 1px rgba(200,164,114,.055), 0 0 32px rgba(200,164,114,.1),
+    inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+.loop-orb:hover { transform: translateY(-2px) scale(1.025); }
+.loop-orb.is-recording {
+  border-color: rgba(255,113,94,.62) !important;
+  box-shadow: 0 0 42px rgba(255,95,76,.18), inset 0 0 24px rgba(255,95,76,.09) !important;
+}
+.app-modebar {
+  border-color: rgba(230,224,210,.13) !important;
+  background: rgba(13,13,15,.82) !important;
+  box-shadow: 0 18px 55px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.04) !important;
+  backdrop-filter: blur(24px) saturate(130%);
+  -webkit-backdrop-filter: blur(24px) saturate(130%);
+}
+.app-mode {
+  transition: background .25s ease, color .25s ease, transform .25s var(--ease-out) !important;
+}
+.app-mode.is-active {
+  color: #f4ead5 !important;
+  background: linear-gradient(135deg, rgba(200,164,114,.2), rgba(111,138,148,.09)) !important;
+  box-shadow: inset 0 0 0 1px rgba(200,164,114,.18), 0 4px 18px rgba(0,0,0,.15) !important;
+}
+
+/* Refined edges, typography and selection states in utility panels. */
+input, select, textarea {
+  accent-color: var(--amber);
+}
+select, input:not([type="range"]), textarea {
+  border-color: rgba(230,224,210,.14);
+}
+hr, .divider, .dock-section {
+  border-color: rgba(230,224,210,.085) !important;
+}
+[hidden] { display: none !important; }
+
+/* On smaller screens: less chrome, more instrument, respect device safe areas. */
+@media (max-width: 700px) {
+  .topbar {
+    border-radius: 18px !important;
+    background: linear-gradient(145deg, rgba(28,28,31,.88), rgba(9,9,11,.84)) !important;
+    backdrop-filter: blur(22px) saturate(125%);
+    -webkit-backdrop-filter: blur(22px) saturate(125%);
+  }
+  .sidebar, .mobile-control-panel, .instrument-menu, .scale-menu,
+  .effect-bubble, .sound-dock, .learn-panel {
+    border-radius: 16px !important;
+  }
+}
+@media (max-height: 560px) and (orientation: landscape) {
+  body::before { animation-duration: 100s; }
+}
 @media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
   body::before { animation: none; }
 }
