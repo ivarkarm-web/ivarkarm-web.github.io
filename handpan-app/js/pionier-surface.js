@@ -1,9 +1,6 @@
 /**
- * pionier-surface.js — shared handpan visual surface for all instruments
- * Layout, drawing (body + tonefields + slits), hit testing.
- * Skins + LED color read from window.PionierSettings each frame.
- * Two-pass draw: solid pads first, then glow — notes never disappear on hit.
- * NaN-hardened rgba/mixLed so color stops never crash the core.
+ * pionier-surface.js — shared handpan visual surface
+ * Two-pass pads, NaN-safe colors, full API for pionier-core.
  */
 import { MIN_NOTES, ringAngles, ringPadScale } from './pad-layout.js';
 
@@ -36,8 +33,9 @@ export function createSurface(canvas) {
       },
     };
     const skin = skins[s.skin] || skins.classic;
-    return { skin, led: { r: led.r | 0, g: led.g | 0, b: led.b | 0 } };
+    return { skin, led: { r: (led.r | 0), g: (led.g | 0), b: (led.b | 0) } };
   }
+
   function rgba(c, a) {
     if (Array.isArray(c)) {
       const r = Number.isFinite(c[0]) ? c[0] : 0;
@@ -46,15 +44,26 @@ export function createSurface(canvas) {
       const alpha = Number.isFinite(a) ? a : 0;
       return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
     }
-    return c;
+    if (c && typeof c === 'object' && ('r' in c || 'g' in c)) {
+      const r = Number.isFinite(c.r) ? c.r : 0;
+      const g = Number.isFinite(c.g) ? c.g : 0;
+      const b = Number.isFinite(c.b) ? c.b : 0;
+      const alpha = Number.isFinite(a) ? a : 0;
+      return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+    }
+    return typeof c === 'string' ? c : 'rgba(0,0,0,0)';
   }
+
   function mixLed(base, led, t) {
-    const b0 = Array.isArray(base) ? (Number.isFinite(base[0]) ? base[0] : 0) : 0;
-    const b1 = Array.isArray(base) ? (Number.isFinite(base[1]) ? base[1] : 0) : 0;
-    const b2 = Array.isArray(base) ? (Number.isFinite(base[2]) ? base[2] : 0) : 0;
-    const lr = (led && Number.isFinite(led.r != null ? led.r : led[0])) ? (led.r != null ? led.r : led[0]) : 0;
-    const lg = (led && Number.isFinite(led.g != null ? led.g : led[1])) ? (led.g != null ? led.g : led[1]) : 0;
-    const lb = (led && Number.isFinite(led.b != null ? led.b : led[2])) ? (led.b != null ? led.b : led[2]) : 0;
+    const b0 = Array.isArray(base) ? (Number.isFinite(base[0]) ? base[0] : 0) : (Number.isFinite(base && base.r) ? base.r : 0);
+    const b1 = Array.isArray(base) ? (Number.isFinite(base[1]) ? base[1] : 0) : (Number.isFinite(base && base.g) ? base.g : 0);
+    const b2 = Array.isArray(base) ? (Number.isFinite(base[2]) ? base[2] : 0) : (Number.isFinite(base && base.b) ? base.b : 0);
+    let lr = 0, lg = 0, lb = 0;
+    if (led) {
+      if (Number.isFinite(led.r)) lr = led.r; else if (Array.isArray(led) && Number.isFinite(led[0])) lr = led[0];
+      if (Number.isFinite(led.g)) lg = led.g; else if (Array.isArray(led) && Number.isFinite(led[1])) lg = led[1];
+      if (Number.isFinite(led.b)) lb = led.b; else if (Array.isArray(led) && Number.isFinite(led[2])) lb = led[2];
+    }
     const tt = Number.isFinite(t) ? t : 0;
     return [
       Math.round(b0 * (1 - tt) + lr * tt),
@@ -66,12 +75,9 @@ export function createSurface(canvas) {
   let W = 800, H = 800, R = 0, CX = 0, CY = 0;
   let fields = [];
   let anim = null;
-  let armed = false;
   let slitPhase = 0;
   let reducedMotion = false;
-  try {
-    reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  } catch (_) {}
+  try { reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) {}
 
   const RIM_COUNT = reducedMotion ? 28 : 48;
   const rimParticles = Array.from({ length: RIM_COUNT }, (_, i) => ({
@@ -84,40 +90,52 @@ export function createSurface(canvas) {
   }));
   let rimTime = 0;
 
-  function layout(n) {
-    const count = Math.max(MIN_NOTES, Math.min(14, n | 0));
+  function layoutHandpanFields(handpanNotes, isFieldPlayable) {
+    const count = Math.max(MIN_NOTES || 9, Math.min(14, (handpanNotes && handpanNotes.length) || 9));
     fields = [];
-    const angles = ringAngles(count);
-    const scale = ringPadScale(count);
+    let angles, scale;
+    try {
+      angles = ringAngles(count);
+      scale = ringPadScale(count);
+    } catch (_) {
+      angles = Array.from({ length: count }, (_, i) => (i / count) * Math.PI * 2 - Math.PI / 2);
+      scale = 1;
+    }
     for (let i = 0; i < count; i++) {
-      const a = angles[i];
+      const a = angles[i] != null ? angles[i] : (i / count) * Math.PI * 2 - Math.PI / 2;
       const isCenter = i === 0;
-      const pr = isCenter ? R * 0.16 : R * 0.13 * scale;
+      const pr = isCenter ? R * 0.16 : R * 0.13 * (scale || 1);
       const dist = isCenter ? 0 : R * 0.58;
+      const playable = typeof isFieldPlayable === 'function' ? !!isFieldPlayable(i) : true;
       fields.push({
         index: i,
         cx: CX + Math.cos(a) * dist,
         cy: CY + Math.sin(a) * dist,
         r: pr,
+        rx: pr,
+        ry: pr * 0.72,
         angle: a,
         isCenter,
+        playable,
+        appear: 1,
       });
     }
     return fields;
   }
 
-  function hitTest(x, y) {
+  function hitVector(x, y) {
     for (const f of fields) {
+      if (f.playable === false) continue;
       const dx = x - f.cx, dy = y - f.cy;
-      if (dx * dx + dy * dy <= f.r * f.r * 1.15) return f;
+      const rr = (f.rx || f.r) * 1.15;
+      if (dx * dx + dy * dy <= rr * rr) return { index: f.index, field: f, x, y };
     }
     return null;
   }
 
   function drawPadSolid(f, idle, g, th) {
-    const { cx, cy, r } = f;
+    const cx = f.cx, cy = f.cy, r = f.r || f.rx || 20;
     const pad = th.skin.pad;
-    // recess
     const recess = ctx2.createRadialGradient(cx, cy, r * 0.2, cx, cy, r * 1.05);
     recess.addColorStop(0, 'rgba(0,0,0,0)');
     recess.addColorStop(0.28, 'rgba(0,0,0,' + (0.2 * idle) + ')');
@@ -127,25 +145,17 @@ export function createSurface(canvas) {
     ctx2.fillStyle = recess;
     ctx2.beginPath(); ctx2.arc(cx, cy, r * 1.08, 0, Math.PI * 2); ctx2.fill();
 
-    // solid pad body
     const body = ctx2.createRadialGradient(cx - r * 0.25, cy - r * 0.3, r * 0.1, cx, cy, r);
     body.addColorStop(0, rgba(pad.highlight, 0.95));
     body.addColorStop(0.45, rgba(pad.base, 1));
     body.addColorStop(1, rgba([pad.base[0] * 0.55, pad.base[1] * 0.55, pad.base[2] * 0.55], 1));
     ctx2.fillStyle = body;
-    ctx2.beginPath(); ctx2.arc(cx, cy, r * 0.92, 0, Math.PI * 2); ctx2.fill();
+    ctx2.beginPath(); ctx2.ellipse(cx, cy, r * 0.92, r * 0.92 * 0.72, 0, 0, Math.PI * 2); ctx2.fill();
 
-    // metallic lip ring
     ctx2.strokeStyle = rgba(mixLed(pad.lip, th.led, 0.25), 0.55 + g * 0.25);
     ctx2.lineWidth = Math.max(1.2, r * 0.06);
-    ctx2.beginPath(); ctx2.arc(cx, cy, r * 0.92, 0, Math.PI * 2); ctx2.stroke();
+    ctx2.beginPath(); ctx2.ellipse(cx, cy, r * 0.92, r * 0.92 * 0.72, 0, 0, Math.PI * 2); ctx2.stroke();
 
-    // inner highlight arc
-    ctx2.strokeStyle = rgba(mixLed([218, 226, 236], th.led, 0.3), 0.1 * idle + g * 0.18);
-    ctx2.lineWidth = Math.max(0.8, r * 0.035);
-    ctx2.beginPath(); ctx2.arc(cx, cy, r * 0.72, -2.4, -0.6); ctx2.stroke();
-
-    // LED core
     const ledMix = mixLed([205, 221, 239], th.led, 0.45);
     const coreAlpha = 0.12 * idle + g * 0.55;
     const core = ctx2.createRadialGradient(cx, cy, 0, cx, cy, r * 0.55);
@@ -155,7 +165,7 @@ export function createSurface(canvas) {
     core.addColorStop(0.8, rgba(ledMix, coreAlpha * 0.28));
     core.addColorStop(1, rgba(ledMix, 0));
     ctx2.fillStyle = core;
-    ctx2.beginPath(); ctx2.arc(cx, cy, r * 0.55, 0, Math.PI * 2); ctx2.fill();
+    ctx2.beginPath(); ctx2.arc(cx, cy, r * 0.45, 0, Math.PI * 2); ctx2.fill();
 
     if (g > 0.05) {
       const bloom = ctx2.createRadialGradient(cx, cy, 0, cx, cy, r * 1.4);
@@ -169,15 +179,12 @@ export function createSurface(canvas) {
 
   function drawRimGlow(t) {
     rimTime = t || rimTime;
-    const breath = reducedMotion
-      ? 0.55
-      : 0.42 + 0.58 * (0.5 + 0.5 * Math.sin(rimTime * 0.75));
+    const breath = reducedMotion ? 0.55 : 0.42 + 0.58 * (0.5 + 0.5 * Math.sin(rimTime * 0.75));
     const rimR = R * 0.965;
     const th = getTheme();
     const lc = [th.led.r, th.led.g, th.led.b];
     ctx2.save();
     ctx2.globalCompositeOperation = 'lighter';
-
     const halo = ctx2.createRadialGradient(CX, CY, rimR * 0.92, CX, CY, rimR * 1.06);
     halo.addColorStop(0, rgba(lc, 0));
     halo.addColorStop(0.55, rgba(mixLed([210, 220, 235], th.led, 0.5), 0.018 * breath));
@@ -189,7 +196,6 @@ export function createSurface(canvas) {
     ctx2.arc(CX, CY, rimR * 1.08, 0, Math.PI * 2);
     ctx2.arc(CX, CY, rimR * 0.88, 0, Math.PI * 2, true);
     ctx2.fill();
-
     for (const p of rimParticles) {
       const local = 0.55 + 0.45 * Math.sin(rimTime * p.speed + p.phase);
       const a = breath * local * 0.22;
@@ -215,11 +221,9 @@ export function createSurface(canvas) {
     ctx2.restore();
   }
 
-  function drawBody(inst, catchActive, waveTargets = null) {
+  function drawBody(inst, catchActive, waveTargets) {
     ctx2.clearRect(0, 0, W, H);
     const theme = getTheme();
-
-    // body disc
     const g = ctx2.createRadialGradient(CX - R * 0.2, CY - R * 0.25, R * 0.1, CX, CY, R);
     g.addColorStop(0, theme.skin.body[0]);
     g.addColorStop(0.5, theme.skin.body[1]);
@@ -227,7 +231,6 @@ export function createSurface(canvas) {
     ctx2.fillStyle = g;
     ctx2.beginPath(); ctx2.arc(CX, CY, R * 0.98, 0, Math.PI * 2); ctx2.fill();
 
-    // rim sheen
     const sheen = ctx2.createRadialGradient(CX, CY, R * 0.88, CX, CY, R * 1.02);
     sheen.addColorStop(0, rgba(theme.skin.rim, theme.skin.sheen || 0.12));
     sheen.addColorStop(0.4, rgba(theme.skin.rim, 0.03));
@@ -235,36 +238,51 @@ export function createSurface(canvas) {
     ctx2.fillStyle = sheen;
     ctx2.beginPath(); ctx2.arc(CX, CY, R * 1.02, 0, Math.PI * 2); ctx2.fill();
 
-    // PASS 1: solid pads + lips (always visible)
     for (const f of fields) {
       const idle = 0.85;
       const hit = (anim && anim[f.index]) || 0;
       drawPadSolid(f, idle, hit, theme);
     }
-
-    // PASS 2: tight outer glow only (does not cover pads)
     drawRimGlow(performance.now() / 1000);
   }
 
+  function drawCatchWaves() {}
+  function armTransition() {}
+
   function resize(w, h) {
-    W = w; H = h;
+    if (typeof w === 'object' && w) { h = w.height; w = w.width; }
+    W = w || canvas.clientWidth || 800;
+    H = h || canvas.clientHeight || 800;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
-    canvas.width = Math.round(w * dpr);
-    canvas.height = Math.round(h * dpr);
-    canvas.style.width = w + 'px';
-    canvas.style.height = h + 'px';
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
     ctx2.setTransform(dpr, 0, 0, dpr, 0, 0);
-    R = Math.min(w, h) * 0.46;
-    CX = w / 2; CY = h / 2;
+    R = Math.min(W, H) * 0.46;
+    CX = W / 2; CY = H / 2;
+  }
+
+  function canvasCoords(e) {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = W / (rect.width || 1);
+    return { x: (e.clientX - rect.left) * dpr, y: (e.clientY - rect.top) * dpr };
   }
 
   function setAnim(map) { anim = map; }
-  function setArmed(v) { armed = !!v; }
-  function setSlitPhase(t) { slitPhase = t; }
 
   return {
-    layout, hitTest, drawBody, resize,
-    setAnim, setArmed, setSlitPhase,
+    resize,
+    layoutHandpanFields,
+    armTransition,
+    drawBody,
+    drawCatchWaves,
+    hitVector,
+    canvasCoords,
+    setAnim,
+    get fields() { return fields; },
+    set fields(v) { fields = v || []; },
+    setSlitPhase(t) { slitPhase = t; },
     get metrics() { return { W, H, R, CX, CY }; }
   };
 }
