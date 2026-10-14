@@ -8,7 +8,7 @@
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=29';
+    link.href = './ui-layout-extras.css?v=30';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
   } else {
@@ -203,6 +203,28 @@
     if (!dock || !drawer) return;
     if (dock.parentElement !== document.body) document.body.appendChild(dock);
     if (drawer.parentElement !== dock) dock.appendChild(drawer);
+    // The looper and its Clear action must stay in the same rail. Reassert
+    // this after late module mounts or legacy scripts mutate the DOM.
+    const rail = document.getElementById('looperRail');
+    const clear = document.getElementById('looperClearBtn');
+    if (rail && rail.parentElement !== dock) dock.appendChild(rail);
+    if (rail) {
+      rail.style.setProperty('position', 'relative', 'important');
+      rail.style.setProperty('inset', 'auto', 'important');
+      rail.style.setProperty('transform', 'none', 'important');
+      rail.style.setProperty('width', '100%', 'important');
+      rail.style.setProperty('margin', '0', 'important');
+    }
+    if (rail && clear && clear.parentElement !== rail) rail.insertBefore(clear, rail.firstChild);
+    if (clear) {
+      ['position','top','right','bottom','left','transform','z-index'].forEach((p) => clear.style.setProperty(p, p === 'position' ? 'relative' : (p === 'z-index' ? 'auto' : 'auto'), 'important'));
+      clear.style.setProperty('width', '34px', 'important');
+      clear.style.setProperty('height', '34px', 'important');
+      clear.style.setProperty('min-width', '34px', 'important');
+      clear.style.setProperty('min-height', '34px', 'important');
+      clear.style.setProperty('flex', '0 0 34px', 'important');
+      clear.style.setProperty('margin', '0', 'important');
+    }
     dock.style.setProperty('position', 'fixed', 'important');
     dock.style.setProperty('top', 'max(4px, env(safe-area-inset-top, 0px))', 'important');
     dock.style.setProperty('right', '0', 'important');
