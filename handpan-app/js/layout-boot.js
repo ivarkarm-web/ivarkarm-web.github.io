@@ -8,12 +8,12 @@
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=30';
+    link.href = './ui-layout-extras.css?v=31';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
   } else {
     const link = document.querySelector('link[data-ui-extras]');
-    if (link) link.href = './ui-layout-extras.css?v=29';
+    if (link) link.href = './ui-layout-extras.css?v=31';
   }
 
   function purgeCreate() {
@@ -200,9 +200,9 @@
   function stabilizeFxDock() {
     const dock = document.getElementById('pionierTopDock');
     const drawer = document.getElementById('mobileControlDrawer');
-    if (!dock || !drawer) return;
+    if (!dock) return;
     if (dock.parentElement !== document.body) document.body.appendChild(dock);
-    if (drawer.parentElement !== dock) dock.appendChild(drawer);
+    if (drawer && drawer.parentElement !== dock) dock.appendChild(drawer);
     // The looper and its Clear action must stay in the same rail. Reassert
     // this after late module mounts or legacy scripts mutate the DOM.
     const rail = document.getElementById('looperRail');
@@ -232,13 +232,15 @@
     dock.style.setProperty('left', '0', 'important');
     dock.style.setProperty('transform', 'none', 'important');
     dock.style.setProperty('z-index', '4000', 'important');
-    drawer.style.setProperty('position', 'relative', 'important');
-    drawer.style.setProperty('top', 'auto', 'important');
-    drawer.style.setProperty('right', 'auto', 'important');
-    drawer.style.setProperty('bottom', 'auto', 'important');
-    drawer.style.setProperty('left', 'auto', 'important');
-    drawer.style.setProperty('transform', 'none', 'important');
-    drawer.style.setProperty('width', '100%', 'important');
+    if (drawer) {
+      drawer.style.setProperty('position', 'relative', 'important');
+      drawer.style.setProperty('top', 'auto', 'important');
+      drawer.style.setProperty('right', 'auto', 'important');
+      drawer.style.setProperty('bottom', 'auto', 'important');
+      drawer.style.setProperty('left', 'auto', 'important');
+      drawer.style.setProperty('transform', 'none', 'important');
+      drawer.style.setProperty('width', '100%', 'important');
+    }
   }
 
   const fxDockObserver = new MutationObserver(() => {
@@ -329,9 +331,8 @@
   } else {
     boot();
   }
-  // One delayed retry is enough if the app shell is still mounting.
-  // Re-running the full layout at 300/1000ms caused visible snap/reparenting.
-  setTimeout(boot, 0);
+  // Run the full layout once only. Duplicate boot passes were reparenting
+  // the same controls twice and causing visible startup jumps.
   setTimeout(positionEffectBubbles, 1500);
   setTimeout(centerPan, 100);
   setTimeout(centerPan, 400);
