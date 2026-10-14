@@ -10,12 +10,12 @@
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=12';
+    link.href = './ui-layout-extras.css?v=13';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
   } else {
     const link = document.querySelector('link[data-ui-extras]');
-    if (link) link.href = './ui-layout-extras.css?v=12';
+    if (link) link.href = './ui-layout-extras.css?v=13';
   }
 
   function purgeCreate() {
@@ -32,21 +32,10 @@
     if (!pan || !stage) return;
 
     const bar = document.getElementById('stageScaleBar');
-    const drawer = document.getElementById('mobileControlDrawer');
-    const looper = document.getElementById('looperRail');
-
+    const topDock = document.getElementById('pionierTopDock');
     const stageRect = stage.getBoundingClientRect();
-    const topEdge = bar ? bar.getBoundingClientRect().bottom : stageRect.top;
-
-    let botEdge = window.innerHeight - 100;
-    if (looper) {
-      const lr = looper.getBoundingClientRect();
-      if (lr.top > 0 && lr.top < window.innerHeight) botEdge = Math.min(botEdge, lr.top - 8);
-    }
-    if (drawer) {
-      const dr = drawer.getBoundingClientRect();
-      if (dr.top > 0 && dr.top < window.innerHeight) botEdge = Math.min(botEdge, dr.top - 8);
-    }
+    const topEdge = topDock ? topDock.getBoundingClientRect().bottom : stageRect.top;
+    const botEdge = bar ? bar.getBoundingClientRect().top - 8 : window.innerHeight - 24;
 
     const span = botEdge - topEdge;
     // 50% center + 5% of the open span downward
@@ -55,7 +44,7 @@
 
     pan.style.position = 'absolute';
     pan.style.left = '50%';
-    pan.style.top = topInStage + 'px';
+    pan.style.setProperty('top', topInStage + 'px', 'important');
     pan.style.transform = 'translate(-50%, -50%) translateZ(0)';
     pan.style.margin = '0';
   }
@@ -175,6 +164,20 @@
         looperClear.previousElementSibling !== looperRail) {
       drawer.insertAdjacentElement('beforebegin', looperClear);
     }
+
+    let topDock = document.getElementById('pionierTopDock');
+    if (!topDock) {
+      topDock = document.createElement('section');
+      topDock.id = 'pionierTopDock';
+      topDock.className = 'pionier-top-dock';
+      topDock.setAttribute('aria-label', 'Effects and looper');
+      app.insertBefore(topDock, stage);
+    }
+    const knobs = app.querySelector('.sidebar.right.knobs-panel');
+    if (knobs && knobs.parentElement !== topDock) topDock.appendChild(knobs);
+    if (looperRail && looperRail.parentElement !== topDock) topDock.appendChild(looperRail);
+    if (looperClear && looperRail && looperClear.parentElement !== looperRail) looperRail.appendChild(looperClear);
+    if (bar && (bar.parentElement !== app || bar.nextElementSibling !== null)) app.appendChild(bar);
 
     centerPan();
   }
