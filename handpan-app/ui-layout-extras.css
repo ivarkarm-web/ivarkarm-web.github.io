@@ -634,3 +634,54 @@ html body > #pionierTopDock #mobileControlDrawer .mobile-control-panel {
     flex-basis: 30px !important;
   }
 }
+
+
+/* Authoritative FX dock fix: keep the handle pinned; open controls below it.
+   The panel overlays the playing area and never moves the dock or looper. */
+html body > #pionierTopDock.pionier-top-dock {
+  position: fixed !important;
+  top: max(4px, env(safe-area-inset-top, 0px)) !important;
+  right: 0 !important;
+  bottom: auto !important;
+  left: 0 !important;
+  transform: none !important;
+  z-index: 4000 !important;
+}
+html body > #pionierTopDock #mobileControlDrawer,
+html body > #pionierTopDock #mobileControlDrawer.is-open {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  transition: none !important;
+}
+html body > #pionierTopDock #mobileControlDrawer .mobile-control-panel,
+html body > #pionierTopDock #mobileControlDrawer.is-open .mobile-control-panel {
+  position: absolute !important;
+  top: calc(100% + 5px) !important;
+  right: 0 !important;
+  bottom: auto !important;
+  left: 0 !important;
+  width: 100% !important;
+  max-height: min(45dvh, 360px) !important;
+  overflow-y: auto !important;
+  transform: none !important;
+  z-index: 4002 !important;
+  margin: 0 !important;
+}
+html body > #pionierTopDock #mobileControlDrawer:not(.is-open) .mobile-control-panel {
+  display: none !important;
+}
+html body > #pionierTopDock #mobileControlDrawer.is-open .mobile-control-panel {
+  display: flex !important;
+}
+html body > #pionierTopDock #mobileControlDrawer .sidebar.right.knobs-panel {
+  flex-wrap: nowrap !important;
+  justify-content: flex-start !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+}
