@@ -145,8 +145,11 @@
       topDock.id = 'pionierTopDock';
       topDock.className = 'pionier-top-dock';
       topDock.setAttribute('aria-label', 'Effects and looper');
-      app.insertBefore(topDock, stage);
+      document.body.appendChild(topDock);
     }
+    // Keep the fixed dock outside #app so transformed app/stage containers
+    // cannot turn viewport positioning into bottom-relative positioning.
+    if (topDock.parentElement !== document.body) document.body.appendChild(topDock);
     // Defeat legacy bottom-sheet inline positioning: the FX dock is always
     // pinned to the viewport top, regardless of open/closed drawer state.
     Object.assign(topDock.style, {
