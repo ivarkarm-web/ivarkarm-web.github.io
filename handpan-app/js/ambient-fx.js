@@ -1,6 +1,6 @@
 /**
  * ambient-fx.js — editorial ambient particle fields
- * Full-viewport canvas BEHIND the app (z-index 0), never over the handpan.
+ * Full-viewport canvas BEHIND the app (z-index 0).
  * Modes: none | forest | rain | night | fire
  */
 (function ambientFx() {
@@ -46,126 +46,118 @@
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
   function buildRain() {
-    const far = [], mid = [], mist = [];
-    for (let i = 0; i < 48; i++) {
-      far.push({ x: rnd(0, w), y: rnd(-h, h), len: rnd(10, 18), vy: rnd(90, 130), a: rnd(0.03, 0.07), drift: rnd(4, 10) });
+    const drops = [], mist = [];
+    for (let i = 0; i < 36; i++) {
+      drops.push({
+        x: rnd(0, w), y: rnd(-h, h),
+        len: rnd(8, 16), vy: rnd(70, 110),
+        a: rnd(0.025, 0.055), drift: rnd(3, 8), w: rnd(0.5, 0.85),
+      });
     }
-    for (let i = 0; i < 28; i++) {
-      mid.push({ x: rnd(0, w), y: rnd(-h, h), len: rnd(16, 28), vy: rnd(150, 210), a: rnd(0.06, 0.12), drift: rnd(8, 14) });
+    for (let i = 0; i < 10; i++) {
+      mist.push({
+        x: rnd(0, w), y: rnd(0, h), r: rnd(80, 200),
+        a: rnd(0.015, 0.035), vx: rnd(-3, 3), vy: rnd(-2, 2),
+      });
     }
-    for (let i = 0; i < 14; i++) {
-      mist.push({ x: rnd(0, w), y: rnd(h * 0.5, h), r: rnd(60, 160), a: rnd(0.025, 0.055), vx: rnd(-4, 4) });
-    }
-    return { type: 'rain', far, mid, near: [], mist, splash: [] };
+    return { type: 'rain', drops, mist };
   }
 
   function tickRain(sys, dt) {
     const wash = ctx.createLinearGradient(0, 0, 0, h);
-    wash.addColorStop(0, 'rgba(110,130,155,0.025)');
-    wash.addColorStop(0.6, 'rgba(90,110,140,0.018)');
-    wash.addColorStop(1, 'rgba(70,90,120,0.05)');
+    wash.addColorStop(0, 'rgba(100,120,145,0.02)');
+    wash.addColorStop(0.5, 'rgba(90,110,135,0.015)');
+    wash.addColorStop(1, 'rgba(80,100,125,0.03)');
     ctx.fillStyle = wash;
     ctx.fillRect(0, 0, w, h);
 
-    const drawStreak = (p, width, color) => {
-      const dx = p.drift * 0.03;
-      ctx.strokeStyle = color;
-      ctx.lineWidth = width;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(p.x, p.y);
-      ctx.lineTo(p.x - dx * (p.len * 0.06), p.y + p.len);
-      ctx.stroke();
-    };
-
-    for (const p of sys.far) {
-      p.y += p.vy * dt; p.x += p.drift * dt * 0.12;
-      if (p.y > h + 20) { p.y = rnd(-80, -10); p.x = rnd(0, w); }
-      drawStreak(p, 0.65, 'rgba(170,190,215,' + p.a + ')');
-    }
-    for (const p of sys.mid) {
-      p.y += p.vy * dt; p.x += p.drift * dt * 0.16;
-      if (p.y > h + 20) {
-        p.y = rnd(-80, -10); p.x = rnd(0, w);
-        if (Math.random() < 0.06) sys.splash.push({ x: p.x, y: h - rnd(6, 28), life: 0, max: rnd(0.4, 0.7) });
-      }
-      drawStreak(p, 0.9, 'rgba(185,205,225,' + p.a + ')');
-    }
     for (const m of sys.mist) {
-      m.x += m.vx * dt;
+      m.x += m.vx * dt; m.y += m.vy * dt;
       if (m.x < -m.r) m.x = w + m.r;
       if (m.x > w + m.r) m.x = -m.r;
+      if (m.y < -m.r) m.y = h + m.r;
+      if (m.y > h + m.r) m.y = -m.r;
       const mg = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.r);
-      mg.addColorStop(0, 'rgba(150,170,195,' + m.a + ')');
-      mg.addColorStop(1, 'rgba(150,170,195,0)');
+      mg.addColorStop(0, 'rgba(145,165,190,' + m.a + ')');
+      mg.addColorStop(1, 'rgba(145,165,190,0)');
       ctx.fillStyle = mg;
       ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2); ctx.fill();
     }
-    sys.splash = sys.splash.filter((s) => {
-      s.life += dt;
-      const t = s.life / s.max;
-      if (t >= 1) return false;
-      const a = (1 - t) * 0.22;
-      const r = 3 + t * 16;
-      ctx.strokeStyle = 'rgba(195,215,235,' + a + ')';
-      ctx.lineWidth = 0.8;
+
+    for (const p of sys.drops) {
+      p.y += p.vy * dt;
+      p.x += p.drift * dt * 0.1;
+      if (p.y > h + 20) { p.y = rnd(-60, -8); p.x = rnd(0, w); }
+      ctx.strokeStyle = 'rgba(175,195,220,' + p.a + ')';
+      ctx.lineWidth = p.w;
+      ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.ellipse(s.x, s.y, r, r * 0.26, 0, 0, Math.PI * 2);
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x - p.drift * 0.04, p.y + p.len);
       ctx.stroke();
-      return true;
-    });
+    }
   }
 
   function buildFire() {
-    const embers = [], ash = [];
-    for (let i = 0; i < 28; i++) {
+    const embers = [], haze = [];
+    for (let i = 0; i < 40; i++) {
       embers.push({
-        x: rnd(w * 0.18, w * 0.82), y: rnd(h * 0.55, h + 30),
-        r: rnd(2, 5.5), vy: rnd(-32, -16), vx: rnd(-6, 6),
-        hue: rnd(14, 32), life: rnd(0, 1), max: rnd(2.4, 4.2),
-        wob: rnd(0.4, 1.2), phase: rnd(0, Math.PI * 2),
+        x: rnd(0, w), y: rnd(0, h),
+        r: rnd(1.2, 3.8),
+        vy: rnd(-28, -10), vx: rnd(-8, 8),
+        hue: rnd(12, 30), life: rnd(0, 1), max: rnd(2.8, 5),
+        wob: rnd(0.3, 1), phase: rnd(0, Math.PI * 2),
       });
     }
-    for (let i = 0; i < 16; i++) {
-      ash.push({ x: rnd(0, w), y: rnd(0, h), r: rnd(0.4, 1.1), vy: rnd(-12, -4), vx: rnd(-6, 6), a: rnd(0.05, 0.14) });
+    for (let i = 0; i < 8; i++) {
+      haze.push({
+        x: rnd(0, w), y: rnd(0, h), r: rnd(100, 220),
+        a: rnd(0.012, 0.028), vx: rnd(-4, 4), vy: rnd(-3, 1),
+      });
     }
-    return { type: 'fire', embers, sparks: [], ash };
+    return { type: 'fire', embers, haze };
   }
 
   function tickFire(sys, dt, now) {
-    const bloom = ctx.createRadialGradient(w * 0.5, h * 1.05, 0, w * 0.5, h, h * 0.65);
-    bloom.addColorStop(0, 'rgba(255,100,30,0.055)');
-    bloom.addColorStop(0.4, 'rgba(200,50,15,0.025)');
-    bloom.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = bloom;
+    const wash = ctx.createRadialGradient(w * 0.5, h * 0.55, 0, w * 0.5, h * 0.55, Math.max(w, h) * 0.75);
+    wash.addColorStop(0, 'rgba(255,90,25,0.025)');
+    wash.addColorStop(0.5, 'rgba(200,50,15,0.012)');
+    wash.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = wash;
     ctx.fillRect(0, 0, w, h);
+
+    for (const m of sys.haze) {
+      m.x += m.vx * dt; m.y += m.vy * dt;
+      if (m.x < -m.r) m.x = w + m.r;
+      if (m.x > w + m.r) m.x = -m.r;
+      if (m.y < -m.r) m.y = h + m.r;
+      if (m.y > h + m.r) m.y = -m.r;
+      const mg = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.r);
+      mg.addColorStop(0, 'rgba(220,80,25,' + m.a + ')');
+      mg.addColorStop(1, 'rgba(220,80,25,0)');
+      ctx.fillStyle = mg;
+      ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2); ctx.fill();
+    }
 
     for (const p of sys.embers) {
       p.life += dt;
       if (p.life > p.max) {
-        p.life = 0; p.max = rnd(2.4, 4.2);
-        p.x = rnd(w * 0.18, w * 0.82); p.y = h + rnd(0, 24);
-        p.r = rnd(2, 5.5); p.vy = rnd(-32, -16); p.vx = rnd(-6, 6); p.hue = rnd(14, 32);
+        p.life = 0; p.max = rnd(2.8, 5);
+        p.x = rnd(0, w); p.y = rnd(h * 0.3, h + 20);
+        p.r = rnd(1.2, 3.8); p.vy = rnd(-28, -10); p.vx = rnd(-8, 8); p.hue = rnd(12, 30);
       }
       const t = p.life / p.max;
       const fade = Math.sin(t * Math.PI);
-      p.x += (p.vx + Math.sin(now * 0.0006 * p.wob + p.phase) * 10) * dt;
+      p.x += (p.vx + Math.sin(now * 0.0005 * p.wob + p.phase) * 8) * dt;
       p.y += p.vy * dt;
-      const r = p.r * (1 - t * 0.45);
-      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 3.8);
-      g.addColorStop(0, 'hsla(' + p.hue + ',95%,70%,' + (0.32 * fade) + ')');
-      g.addColorStop(0.4, 'hsla(' + (p.hue + 6) + ',90%,50%,' + (0.14 * fade) + ')');
-      g.addColorStop(1, 'hsla(' + p.hue + ',85%,40%,0)');
+      if (p.y < -20) p.y = h + 10;
+      const r = p.r * (1 - t * 0.4);
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 3.5);
+      g.addColorStop(0, 'hsla(' + p.hue + ',90%,68%,' + (0.22 * fade) + ')');
+      g.addColorStop(0.45, 'hsla(' + (p.hue + 6) + ',85%,50%,' + (0.1 * fade) + ')');
+      g.addColorStop(1, 'hsla(' + p.hue + ',80%,40%,0)');
       ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(p.x, p.y, r * 3.8, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = 'hsla(' + (p.hue + 12) + ',100%,88%,' + (0.4 * fade) + ')';
-      ctx.beginPath(); ctx.arc(p.x, p.y, r * 0.35, 0, Math.PI * 2); ctx.fill();
-    }
-    for (const p of sys.ash) {
-      p.x += p.vx * dt; p.y += p.vy * dt;
-      if (p.y < -10) { p.y = h + 10; p.x = rnd(0, w); }
-      ctx.fillStyle = 'rgba(50,34,28,' + p.a + ')';
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x, p.y, r * 3.5, 0, Math.PI * 2); ctx.fill();
     }
   }
 
