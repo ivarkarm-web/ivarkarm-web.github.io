@@ -422,3 +422,17 @@
   margin-top: 2px !important;
   flex: 0 0 auto !important;
 }
+
+
+/* Explicit dock order; FX is always first, looper always below it. */
+#pionierTopDock { display:flex !important; flex-direction:column !important; }
+#pionierTopDock > #mobileControlDrawer { order:0 !important; }
+#pionierTopDock > #looperRail { order:1 !important; }
+#pionierTopDock > #mobileControlDrawer.is-open { z-index:30 !important; }
+#pionierTopDock > #mobileControlDrawer.is-open .mobile-control-panel {
+  position:relative !important;
+  inset:auto !important;
+  display:flex !important;
+  margin-top:5px !important;
+}
+#pionierTopDock > #looperRail { z-index:2 !important; }
