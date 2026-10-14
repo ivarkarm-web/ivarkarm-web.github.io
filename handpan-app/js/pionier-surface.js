@@ -283,11 +283,54 @@ export function createSurface(canvas) {
     // Fine concentric lathe marks read as brushed metal, not a bright overlay.
     ctx2.globalCompositeOperation='source-over';
     ctx2.lineWidth=Math.max(0.45,R*0.00105);
-    for(let i=0;i<11;i++){
-      const rr=R*(0.17+i*0.068);
+    for(let i=0;i<13;i++){
+      const rr=R*(0.13+i*0.059);
       ctx2.strokeStyle=rgba(lip,0.012+(i%3===0?0.012:0)+phase*0.004);
       ctx2.beginPath();ctx2.arc(CX,CY,rr,0,Math.PI*2);ctx2.stroke();
     }
+
+    // Precision perimeter etching: radial index marks and a quiet guilloche band
+    // extend the engraved language across the shoulder without crossing touch pads.
+    const tickCount=48;
+    for(let i=0;i<tickCount;i++){
+      const a=(i/tickCount)*Math.PI*2;
+      const major=i%4===0;
+      const inner=R*(major?0.805:0.825);
+      const outer=R*(major?0.875:0.855);
+      ctx2.strokeStyle=rgba(lip,major?0.065:0.028);
+      ctx2.lineWidth=Math.max(0.45,R*(major?0.0022:0.00125));
+      ctx2.beginPath();
+      ctx2.moveTo(CX+Math.cos(a)*inner,CY+Math.sin(a)*inner);
+      ctx2.lineTo(CX+Math.cos(a)*outer,CY+Math.sin(a)*outer);
+      ctx2.stroke();
+    }
+    for(let i=0;i<24;i++){
+      const a=(i/24)*Math.PI*2;
+      const x=CX+Math.cos(a)*R*0.755;
+      const y=CY+Math.sin(a)*R*0.755;
+      ctx2.save();ctx2.translate(x,y);ctx2.rotate(a+Math.PI/2);
+      ctx2.strokeStyle=rgba(lip,0.022+phase*0.008);
+      ctx2.lineWidth=Math.max(0.45,R*0.0014);
+      ctx2.beginPath();
+      ctx2.ellipse(0,0,R*0.023,R*0.058,0,0,Math.PI*2);
+      ctx2.stroke();
+      ctx2.restore();
+    }
+
+    // A soft moving sheen creates a living metallic finish; movement is tiny,
+    // slow, and suppressed for reduced-motion preferences.
+    if(!reducedMotion){
+      const sweep=(Math.sin(materialTime*1.7)+1)*0.5;
+      const sheenX=CX-R*0.45+sweep*R*0.9;
+      const sheenY=CY-R*0.55;
+      const gloss=ctx2.createRadialGradient(sheenX,sheenY,0,sheenX,sheenY,R*0.72);
+      gloss.addColorStop(0,rgba([255,248,232],0.018));
+      gloss.addColorStop(0.42,rgba(lip,0.012));
+      gloss.addColorStop(1,rgba(lip,0));
+      ctx2.fillStyle=gloss;
+      ctx2.beginPath();ctx2.arc(CX,CY,R*0.925,0,Math.PI*2);ctx2.fill();
+    }
+
     // A broken specular arc catches the upper shoulder of the shell.
     ctx2.strokeStyle=rgba([255,248,232],0.035+phase*0.025);
     ctx2.lineWidth=Math.max(0.7,R*0.0022);
@@ -336,8 +379,14 @@ export function createSurface(canvas) {
   function drawBody(inst,catchActive){
     ctx2.clearRect(0,0,W,H);
     const theme=getTheme(),tf=theme.tonefield||'classic';
-    const g=ctx2.createRadialGradient(CX-R*0.2,CY-R*0.28,R*0.04,CX,CY,R);
-    g.addColorStop(0,theme.skin.body[0]);g.addColorStop(0.5,theme.skin.body[1]);g.addColorStop(1,theme.skin.body[2]);
+    const materialTime=reducedMotion?0:performance.now()*0.00011;
+    const lightX=CX-R*(0.2+Math.sin(materialTime)*0.045);
+    const lightY=CY-R*(0.28+Math.cos(materialTime*0.83)*0.035);
+    const g=ctx2.createRadialGradient(lightX,lightY,R*0.025,CX+R*0.04,CY+R*0.02,R*1.02);
+    g.addColorStop(0,theme.skin.body[0]);
+    g.addColorStop(0.36,theme.skin.body[0]);
+    g.addColorStop(0.67,theme.skin.body[1]);
+    g.addColorStop(1,theme.skin.body[2]);
     ctx2.fillStyle=g;ctx2.beginPath();ctx2.arc(CX,CY,R,0,Math.PI*2);ctx2.fill();
     drawHandpanMandala(theme);
     drawSurfaceFinish(theme);
