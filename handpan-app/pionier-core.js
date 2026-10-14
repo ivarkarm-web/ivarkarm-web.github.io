@@ -13,8 +13,8 @@ let src = await res.text();
 // Use the live library-family (includes metallic batch 1 voices)
 src = src.replace(/library-family\.js\?v=\d+/g, 'library-family.js?v=3');
 
-// Live surface geometry (restored drawing + modest pad size)
-src = src.replace(/pionier-surface\.js\?v=\d+/g, 'pionier-surface.js?v=97');
+// Fully restored original surface
+src = src.replace(/pionier-surface\.js\?v=\d+/g, 'pionier-surface.js?v=98');
 
 // Resolve relative imports against the live handpan-app origin (not the CDN)
 const base = new URL('.', import.meta.url).href;
