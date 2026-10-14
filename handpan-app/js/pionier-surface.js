@@ -267,7 +267,7 @@ export function createSurface(canvas) {
   }
   // Premium shell finish: restrained radial sheen + full-disc micro-engraving.
   // Drawn beneath tonefields; this does not change field geometry or hit testing.
-  function drawSurfaceFinish(theme){
+  function drawSurfaceFinish(theme, materialTime){
     if(R<20)return;
     const lip=theme.skin.lip||theme.skin.rim||[230,236,248];
     const phase=reducedMotion?0.5:0.5+0.5*Math.sin(performance.now()*0.00022);
@@ -361,10 +361,10 @@ export function createSurface(canvas) {
     const breath=reducedMotion?0.55:0.42+0.58*(0.5+0.5*Math.sin(rimTime*0.75));
     const rimR=R*0.965,th=getTheme(),lc=[th.led.r,th.led.g,th.led.b];
     ctx2.save();ctx2.globalCompositeOperation='lighter';
-    const halo=ctx2.createRadialGradient(CX,CY,rimR*0.92,CX,CY,rimR*1.06);
-    halo.addColorStop(0,rgba(lc,0));halo.addColorStop(0.7,rgba(mixLed([230,236,248],th.led,0.5),0.04*breath));halo.addColorStop(1,rgba(lc,0));
+    const halo=ctx2.createRadialGradient(CX,CY,rimR*0.96,CX,CY,rimR*1.035);
+    halo.addColorStop(0,rgba(lc,0));halo.addColorStop(0.62,rgba(mixLed([230,236,248],th.led,0.5),0.012*breath));halo.addColorStop(1,rgba(lc,0));
     ctx2.fillStyle=halo;ctx2.beginPath();ctx2.arc(CX,CY,rimR*1.08,0,Math.PI*2);ctx2.arc(CX,CY,rimR*0.88,0,Math.PI*2,true);ctx2.fill();
-    for(const p of rimParticles){
+    for(const p of []){
       const a=breath*(0.55+0.45*Math.sin(rimTime*p.speed+p.phase))*0.22;
       if(a<0.01)continue;
       const x=CX+Math.cos(p.a)*rimR*(1+p.rJ),y=CY+Math.sin(p.a)*rimR*(1+p.rJ);
@@ -389,8 +389,8 @@ export function createSurface(canvas) {
     g.addColorStop(1,theme.skin.body[2]);
     ctx2.fillStyle=g;ctx2.beginPath();ctx2.arc(CX,CY,R,0,Math.PI*2);ctx2.fill();
     drawHandpanMandala(theme);
-    drawSurfaceFinish(theme);
-    ctx2.strokeStyle=rgba(theme.skin.rim,0.28);ctx2.lineWidth=Math.max(2,R*0.013);
+    drawSurfaceFinish(theme, materialTime);
+    ctx2.strokeStyle=rgba(theme.skin.rim,0.065);ctx2.lineWidth=Math.max(0.8,R*0.0022);
     ctx2.beginPath();ctx2.arc(CX,CY,R*0.93,0,Math.PI*2);ctx2.stroke();
     const view=animatedView(performance.now());
     ctx2.globalCompositeOperation='source-over';
