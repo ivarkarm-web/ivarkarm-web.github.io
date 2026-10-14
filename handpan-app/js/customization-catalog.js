@@ -1,29 +1,29 @@
 /**
  * Customization catalog — skins, ambients, tonefields.
- * Soft circular tonefields only (no sharp edges).
+ * Soft circular tonefields + circular-only mandala styles.
  */
 (function catalog() {
   const SKINS = [
     { id: 'classic', label: 'Classic Steel', group: 'Metal', mandala: 'orbit', hue: 210 },
     { id: 'bronze', label: 'Warm Bronze', group: 'Metal', mandala: 'petal', hue: 32 },
     { id: 'steel', label: 'Arctic Steel', group: 'Metal', mandala: 'rings', hue: 200 },
-    { id: 'obsidian', label: 'Obsidian', group: 'Metal', mandala: 'star', hue: 280 },
+    { id: 'obsidian', label: 'Obsidian', group: 'Metal', mandala: 'lotus', hue: 280 },
     { id: 'copper', label: 'Aged Copper', group: 'Metal', mandala: 'spiral', hue: 18 },
-    { id: 'silver', label: 'Moon Silver', group: 'Metal', mandala: 'orbit', hue: 220 },
+    { id: 'silver', label: 'Moon Silver', group: 'Metal', mandala: 'beads', hue: 220 },
     { id: 'gold', label: 'Soft Gold', group: 'Metal', mandala: 'petal', hue: 42 },
     { id: 'rose', label: 'Rose Alloy', group: 'Metal', mandala: 'bloom', hue: 350 },
     { id: 'jade', label: 'Jade Mist', group: 'Earth', mandala: 'rings', hue: 150 },
     { id: 'emerald', label: 'Deep Emerald', group: 'Earth', mandala: 'spiral', hue: 160 },
     { id: 'sand', label: 'Desert Sand', group: 'Earth', mandala: 'wave', hue: 38 },
-    { id: 'terracotta', label: 'Terracotta', group: 'Earth', mandala: 'bloom', hue: 12 },
-    { id: 'indigo', label: 'Indigo Night', group: 'Sky', mandala: 'star', hue: 245 },
+    { id: 'terracotta', label: 'Terracotta', group: 'Earth', mandala: 'vesica', hue: 12 },
+    { id: 'indigo', label: 'Indigo Night', group: 'Sky', mandala: 'lotus', hue: 245 },
     { id: 'aurora', label: 'Aurora', group: 'Sky', mandala: 'wave', hue: 170 },
-    { id: 'twilight', label: 'Twilight', group: 'Sky', mandala: 'orbit', hue: 265 },
+    { id: 'twilight', label: 'Twilight', group: 'Sky', mandala: 'halo', hue: 265 },
     { id: 'lavender', label: 'Lavender Dusk', group: 'Sky', mandala: 'petal', hue: 270 },
     { id: 'ink', label: 'Ink Black', group: 'Dark', mandala: 'rings', hue: 230 },
-    { id: 'void', label: 'Void', group: 'Dark', mandala: 'star', hue: 260 },
+    { id: 'void', label: 'Void', group: 'Dark', mandala: 'vesica', hue: 260 },
     { id: 'pearl', label: 'Pearl', group: 'Light', mandala: 'bloom', hue: 40 },
-    { id: 'opal', label: 'Opal Shift', group: 'Light', mandala: 'wave', hue: 190 },
+    { id: 'opal', label: 'Opal Shift', group: 'Light', mandala: 'beads', hue: 190 },
   ];
 
   const AMBIENTS = [
@@ -51,7 +51,6 @@
     { id: 'haze', label: 'Warm Haze', group: 'Light' },
   ];
 
-  // Soft circular tonefields only — no sharp edges (diamond/hex/wave/crescent removed)
   const TONEFIELDS = [
     { id: 'classic', label: 'Classic Oval' },
     { id: 'round', label: 'Soft Round' },
