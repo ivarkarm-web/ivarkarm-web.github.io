@@ -81,7 +81,7 @@ export function createSurface(canvas) {
     ctx2.ellipse(0, 0, halfL * 0.88, slitW * 0.42, 0, 0, Math.PI * 2);
     ctx2.fill();
     if (g > 0.03 && playable) {
-      const bloom = ctx2.createRadialGradient(0, 0, 0, 0, 0, halfL * 1.05);
+      const bloom = ctx2.createRadialGradient(0, 0, 0, 0, halfL * 1.05);
       bloom.addColorStop(0, `rgba(238,246,255,${g * 0.16})`);
       bloom.addColorStop(0.45, `rgba(177,204,232,${g * 0.07})`);
       bloom.addColorStop(1, 'rgba(177,204,232,0)');
@@ -148,7 +148,7 @@ export function createSurface(canvas) {
       const size = 1.12 + lowAmount * 0.36;
       const playable = isFieldPlayable(n.index);
       if (n.kind === 'ding') {
-        const rr = R * 0.185 * size;
+        const rr = R * 0.195 * size;
         return {
           i: n.index, index: n.index, x: CX, y: CY,
           rx: rr, ry: rr, rot: 0, label: n.name, playable, kind: 'ding'
@@ -156,9 +156,9 @@ export function createSurface(canvas) {
       }
       const slot = (n.index != null ? n.index : pos) - 1;
       const a = ((angles[slot] ?? n.angle) * Math.PI) / 180;
-      const d = R * 0.58;
-      const radial = R * 0.155 * size * padScale;
-      const tangential = R * 0.112 * size * padScale;
+      const d = R * 0.64;
+      const radial = R * 0.175 * size * padScale;
+      const tangential = R * 0.128 * size * padScale;
       const ux = Math.sin(a);
       const uy = -Math.cos(a);
       return {
@@ -249,18 +249,11 @@ export function createSurface(canvas) {
     view.forEach((f) => {
       const glow = inst.glow?.[f.index] || 0;
       const radial = inst.zoneFlash?.[f.index] || 0;
-      const isDing = f.kind === 'ding';
-      const playable = f.playable !== false;
-      const dim = (playable ? 1 : 0.26) * (f.appear ?? 1);
-      const hlx = f.ux != null ? f.ux : -0.35;
-      const hly = f.uy != null ? f.uy : -0.45;
-      const wp = waveTargets?.get?.(f.index);
-      let approach = 0;
-      if (wp != null && playable) {
-        approach = Math.max(0, 1 - Math.abs(wp - 0.92) * 2.4);
-        approach = Math.min(1, approach * (0.25 + Math.min(1, wp) * 0.8));
-      }
+      const dim = f.playable ? 1 : 0.35;
+      const approach = f.appear != null ? f.appear : 1;
 
+      const hlx = -0.35;
+      const hly = -0.4;
       const pad = ctx2.createRadialGradient(
         f.x + hlx * f.rx * 0.35, f.y + hly * f.ry * 0.35, 0,
         f.x, f.y, Math.max(f.rx, f.ry)
@@ -272,100 +265,42 @@ export function createSurface(canvas) {
       pathPad(f);
       ctx2.fill();
 
-      const strokeLight = Math.max(
-        glow > 0.035 && playable ? 0.16 + glow * 0.42 : 0,
-        approach * 0.72
-      );
-      ctx2.strokeStyle = strokeLight > 0.04
-        ? `rgba(224,236,250,${strokeLight})`
-        : `rgba(220,230,242,${0.09 * dim})`;
-      ctx2.lineWidth = isDing ? 1.8 : 1.2;
+      ctx2.strokeStyle = `rgba(200,210,225,${0.12 * dim})`;
+      ctx2.lineWidth = Math.max(1, R * 0.004);
       pathPad(f);
       ctx2.stroke();
 
-      if ((glow > 0.02 || approach > 0.08) && playable) {
-        ctx2.save();
-        ctx2.globalCompositeOperation = 'lighter';
-        const gAmt = Math.max(glow, approach * 0.85);
+      if (glow > 0.02 && f.playable) {
         const gr = Math.max(f.rx, f.ry) * (0.95 + radial * 0.45 + approach * 0.2);
-        const hg = ctx2.createRadialGradient(f.x, f.y, 0, f.x, f.y, gr);
-        hg.addColorStop(0, `rgba(226,239,255,${gAmt * (0.19 + (1 - radial) * 0.12)})`);
-        hg.addColorStop(0.5, `rgba(166,198,230,${gAmt * (radial * 0.14 + approach * 0.1)})`);
-        hg.addColorStop(1, 'rgba(166,198,230,0)');
-        ctx2.fillStyle = hg;
+        const gg = ctx2.createRadialGradient(f.x, f.y, 0, f.x, f.y, gr);
+        gg.addColorStop(0, `rgba(230,240,255,${glow * 0.22})`);
+        gg.addColorStop(0.55, `rgba(180,200,230,${glow * 0.08})`);
+        gg.addColorStop(1, 'rgba(180,200,230,0)');
+        ctx2.fillStyle = gg;
         pathPad({ x: f.x, y: f.y, rx: f.rx * 1.12, ry: f.ry * 1.12, rot: f.rot });
         ctx2.fill();
-        ctx2.restore();
       }
 
-      drawSlit(f, Math.max(glow, approach * 0.9), playable);
+      drawSlit(f, glow, f.playable);
     });
 
+    if (catchActive) ctx2.globalAlpha = 1;
     drawRimGlow(performance.now() * 0.001);
-    ctx2.globalAlpha = 1;
   }
 
-  function drawCatchWaves(waves) {
-    for (const w of waves) {
-      const target =
-        fields.find((f) => f.index === w.targetIndex) || fields[w.targetIndex];
-      if (!target) continue;
-      const p = Math.min(1.2, w.progress);
-      const x = CX + (target.x - CX) * p;
-      const y = CY + (target.y - CY) * p;
-      const padR = Math.max(target.rx, target.ry);
-      const rr = R * 0.065 + p * padR * 1.22;
-      const windowDist = Math.abs(p - 0.92);
-      const alpha = Math.max(0, 0.88 * (1 - windowDist * 2.0));
-      if (alpha < 0.04) continue;
-      ctx2.save();
-      ctx2.globalCompositeOperation = 'lighter';
-      const bloom = ctx2.createRadialGradient(x, y, rr * 0.2, x, y, rr * 1.35);
-      bloom.addColorStop(0, `rgba(255,230,160,${alpha * 0.55})`);
-      bloom.addColorStop(0.4, `rgba(228,195,90,${alpha * 0.28})`);
-      bloom.addColorStop(1, 'rgba(201,162,39,0)');
-      ctx2.fillStyle = bloom;
-      ctx2.beginPath();
-      ctx2.arc(x, y, rr * 1.35, 0, Math.PI * 2);
-      ctx2.fill();
-      ctx2.strokeStyle = `rgba(255,242,190,${alpha * 0.95})`;
-      ctx2.lineWidth = Math.max(2.2, R * 0.011);
-      ctx2.beginPath();
-      ctx2.arc(x, y, rr * 0.78, 0, Math.PI * 2);
-      ctx2.stroke();
-      ctx2.restore();
-    }
-  }
-
-  function hitVector(cx, cy) {
+  function hitTest(lx, ly) {
+    const view = animatedView(performance.now());
     let best = null;
-    let bestD = Infinity;
-    for (const f of fields) {
-      if (f.playable === false) continue;
-      const dx = cx - f.x;
-      const dy = cy - f.y;
-      const rot = f.rot || 0;
-      const cos = Math.cos(-rot);
-      const sin = Math.sin(-rot);
-      const lx = dx * cos - dy * sin;
-      const ly = dx * sin + dy * cos;
-      const d = Math.hypot(lx / f.rx, ly / f.ry);
+    let bestScore = Infinity;
+    for (const f of view) {
+      if (!f.playable) continue;
+      const dx = lx - f.x;
+      const dy = ly - f.y;
+      const d = Math.hypot(dx / f.rx, dy / f.ry);
       const minAxis = Math.min(f.rx, f.ry);
-      const refAxis = R * 0.14;
-      const expand = Math.max(0, Math.min(0.55, (refAxis - minAxis) / (R * 0.09)));
-      const hitLimit = 1.78 + expand;
-      if (d <= hitLimit && d < bestD) {
-        bestD = d;
-        best = {
-          idx: f.index,
-          index: f.index,
-          radial: d,
-          angleRad: Math.atan2(dy, dx),
-          nx: 0.5 + (f.x - CX) / (R * 2),
-          ny: 0.5 + (f.y - CY) / (R * 2),
-          x: cx,
-          y: cy
-        };
+      if (d <= 1.08 && d < bestScore) {
+        bestScore = d;
+        best = f;
       }
     }
     return best;
@@ -373,33 +308,35 @@ export function createSurface(canvas) {
 
   function resize() {
     const rect = canvas.getBoundingClientRect();
-    const dpr = Math.min(2.5, window.devicePixelRatio || 1);
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
     W = Math.max(1, Math.round(rect.width * dpr));
     H = Math.max(1, Math.round(rect.height * dpr));
     canvas.width = W;
     canvas.height = H;
     CX = W / 2;
     CY = H / 2;
-    R = Math.min(W, H) * 0.48;
+    R = Math.min(W, H) * 0.52;
   }
 
   function canvasCoords(e) {
     const rect = canvas.getBoundingClientRect();
-    const dpr = W / rect.width;
-    return { x: (e.clientX - rect.left) * dpr, y: (e.clientY - rect.top) * dpr };
+    const dpr = canvas.width / Math.max(1, rect.width);
+    return {
+      x: (e.clientX - rect.left) * dpr,
+      y: (e.clientY - rect.top) * dpr
+    };
   }
 
   return {
-    resize,
+    get fields() { return fields; },
     layoutHandpanFields,
     armTransition,
     drawBody,
-    drawCatchWaves,
-    hitVector,
+    hitTest,
+    resize,
     canvasCoords,
-    get fields() { return fields; },
-    set fields(v) { fields = v; },
-    setSlitPhase(t) { slitPhase = t; },
-    get metrics() { return { W, H, R, CX, CY }; }
+    get R() { return R; },
+    get CX() { return CX; },
+    get CY() { return CY; }
   };
 }
