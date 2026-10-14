@@ -16,7 +16,8 @@ const PRESSURE_SMOOTH = 0.06;
 const HELD_VOICES = new Set([
   'bowl', 'tibetan', 'breath', 'choir', 'drone', 'cloud',
   'mist_drone', 'aether', 'aurora', 'celestial_bow', 'sub_hum',
-  'ambient_cello', 'sitar_air', 'silk_violin'
+  'ambient_cello', 'sitar_air', 'silk_violin',
+  'shakuhachi', 'duduk', 'native_flute'
 ]);
 
 let shared = null;
