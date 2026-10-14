@@ -454,3 +454,10 @@
 #pionierTopDock #mobileControlDrawer.is-open {
   transform:none!important;
 }
+
+#pionierTopDock #mobileControlDrawer .sidebar.right.knobs-panel {
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  overflow: visible !important;
+  max-height: none !important;
+}
