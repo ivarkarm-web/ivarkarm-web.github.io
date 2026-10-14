@@ -179,6 +179,7 @@ export function createSurface(canvas) {
   function drawRimGlow(t) {
     if (R < 8) return;
     rimTime = t || rimTime;
+    // Global breath ~0.12 Hz — whole ring eases in and out together
     const breath = reducedMotion
       ? 0.55
       : 0.42 + 0.58 * (0.5 + 0.5 * Math.sin(rimTime * 0.75));
@@ -186,11 +187,12 @@ export function createSurface(canvas) {
     ctx2.save();
     ctx2.globalCompositeOperation = 'lighter';
 
+    // Soft continuous halo along the rim (cohesive base)
     const halo = ctx2.createRadialGradient(CX, CY, rimR * 0.92, CX, CY, rimR * 1.06);
     halo.addColorStop(0, 'rgba(200, 210, 230, 0)');
-    halo.addColorStop(0.55, `rgba(210, 220, 235, ${0.018 * breath})`);
-    halo.addColorStop(0.78, `rgba(230, 236, 248, ${0.045 * breath})`);
-    halo.addColorStop(0.92, `rgba(240, 244, 252, ${0.028 * breath})`);
+    halo.addColorStop(0.55, 'rgba(210, 220, 235, ' + (0.018 * breath) + ')');
+    halo.addColorStop(0.78, 'rgba(230, 236, 248, ' + (0.045 * breath) + ')');
+    halo.addColorStop(0.92, 'rgba(240, 244, 252, ' + (0.028 * breath) + ')');
     halo.addColorStop(1, 'rgba(200, 210, 230, 0)');
     ctx2.fillStyle = halo;
     ctx2.beginPath();
@@ -198,6 +200,7 @@ export function createSurface(canvas) {
     ctx2.arc(CX, CY, rimR * 0.88, 0, Math.PI * 2, true);
     ctx2.fill();
 
+    // Thin particle motes on the rim
     for (const p of rimParticles) {
       const local = 0.55 + 0.45 * Math.sin(rimTime * p.speed + p.phase);
       const a = breath * local * 0.22;
@@ -262,7 +265,7 @@ export function createSurface(canvas) {
         f.x + hlx * f.rx * 0.35, f.y + hly * f.ry * 0.35, 0,
         f.x, f.y, Math.max(f.rx, f.ry)
       );
-      pad.addColorStop(0, `rgba(78,80,88,${0.95 * dim})`;
+      pad.addColorStop(0, `rgba(78,80,88,${0.95 * dim})`);
       pad.addColorStop(0.55, `rgba(40,42,48,${0.95 * dim})`);
       pad.addColorStop(1, `rgba(22,23,27,${0.98 * dim})`);
       ctx2.fillStyle = pad;
