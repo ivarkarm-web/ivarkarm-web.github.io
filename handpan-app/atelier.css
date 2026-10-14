@@ -37,8 +37,6 @@ body::before {
   animation: none;
 }
 
-}
-
 /* Keep the backdrop deliberately quiet: no synthetic noise layer or
    full-screen animation competing with the instrument. */
 /* Keep the legacy application as the interaction authority; this layer only
