@@ -8,12 +8,12 @@
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=27';
+    link.href = './ui-layout-extras.css?v=28';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
   } else {
     const link = document.querySelector('link[data-ui-extras]');
-    if (link) link.href = './ui-layout-extras.css?v=27';
+    if (link) link.href = './ui-layout-extras.css?v=28';
   }
 
   function purgeCreate() {
@@ -173,7 +173,7 @@
     if (looperRail) {
       Object.assign(looperRail.style, {
         position: 'fixed', top: 'auto', right: '0',
-        bottom: 'calc(8px + env(safe-area-inset-bottom, 0px))',
+        bottom: 'calc(118px + env(safe-area-inset-bottom, 0px))',
         left: '0', transform: 'none', width: '100%',
         justifyContent: 'center', zIndex: '3000'
       });
@@ -304,9 +304,9 @@
   } else {
     boot();
   }
+  // One delayed retry is enough if the app shell is still mounting.
+  // Re-running the full layout at 300/1000ms caused visible snap/reparenting.
   setTimeout(boot, 0);
-  setTimeout(boot, 300);
-  setTimeout(boot, 1000);
   setTimeout(positionEffectBubbles, 1500);
   setTimeout(centerPan, 100);
   setTimeout(centerPan, 400);
