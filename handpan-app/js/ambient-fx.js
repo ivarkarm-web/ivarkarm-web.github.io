@@ -46,73 +46,58 @@
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
   function buildRain() {
-    const far = [], mid = [], near = [], mist = [];
-    for (let i = 0; i < 90; i++) {
-      far.push({ x: rnd(0, w), y: rnd(-h, h), len: rnd(8, 16), vy: rnd(140, 200), a: rnd(0.04, 0.1), drift: rnd(6, 14) });
+    const far = [], mid = [], mist = [];
+    for (let i = 0; i < 48; i++) {
+      far.push({ x: rnd(0, w), y: rnd(-h, h), len: rnd(10, 18), vy: rnd(90, 130), a: rnd(0.03, 0.07), drift: rnd(4, 10) });
     }
-    for (let i = 0; i < 70; i++) {
-      mid.push({ x: rnd(0, w), y: rnd(-h, h), len: rnd(14, 26), vy: rnd(260, 360), a: rnd(0.1, 0.2), drift: rnd(12, 22) });
+    for (let i = 0; i < 28; i++) {
+      mid.push({ x: rnd(0, w), y: rnd(-h, h), len: rnd(16, 28), vy: rnd(150, 210), a: rnd(0.06, 0.12), drift: rnd(8, 14) });
     }
-    for (let i = 0; i < 35; i++) {
-      near.push({ x: rnd(0, w), y: rnd(-h, h), len: rnd(22, 38), vy: rnd(420, 560), a: rnd(0.16, 0.28), drift: rnd(18, 30) });
+    for (let i = 0; i < 14; i++) {
+      mist.push({ x: rnd(0, w), y: rnd(h * 0.5, h), r: rnd(60, 160), a: rnd(0.025, 0.055), vx: rnd(-4, 4) });
     }
-    for (let i = 0; i < 18; i++) {
-      mist.push({ x: rnd(0, w), y: rnd(h * 0.55, h), r: rnd(40, 120), a: rnd(0.02, 0.06), vx: rnd(-8, 8) });
-    }
-    return { type: 'rain', far, mid, near, mist, splash: [] };
+    return { type: 'rain', far, mid, near: [], mist, splash: [] };
   }
 
   function tickRain(sys, dt) {
+    const wash = ctx.createLinearGradient(0, 0, 0, h);
+    wash.addColorStop(0, 'rgba(110,130,155,0.025)');
+    wash.addColorStop(0.6, 'rgba(90,110,140,0.018)');
+    wash.addColorStop(1, 'rgba(70,90,120,0.05)');
+    ctx.fillStyle = wash;
+    ctx.fillRect(0, 0, w, h);
+
     const drawStreak = (p, width, color) => {
-      const dx = p.drift * 0.04;
+      const dx = p.drift * 0.03;
       ctx.strokeStyle = color;
       ctx.lineWidth = width;
       ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.moveTo(p.x, p.y);
-      ctx.lineTo(p.x - dx * (p.len * 0.08), p.y + p.len);
+      ctx.lineTo(p.x - dx * (p.len * 0.06), p.y + p.len);
       ctx.stroke();
     };
-    const wash = ctx.createLinearGradient(0, 0, 0, h);
-    wash.addColorStop(0, 'rgba(120,140,170,0.03)');
-    wash.addColorStop(0.55, 'rgba(100,120,150,0.02)');
-    wash.addColorStop(1, 'rgba(80,100,130,0.06)');
-    ctx.fillStyle = wash;
-    ctx.fillRect(0, 0, w, h);
 
     for (const p of sys.far) {
-      p.y += p.vy * dt; p.x += p.drift * dt * 0.15;
+      p.y += p.vy * dt; p.x += p.drift * dt * 0.12;
       if (p.y > h + 20) { p.y = rnd(-80, -10); p.x = rnd(0, w); }
-      drawStreak(p, 0.7, 'rgba(170,190,215,' + p.a + ')');
+      drawStreak(p, 0.65, 'rgba(170,190,215,' + p.a + ')');
     }
     for (const p of sys.mid) {
-      p.y += p.vy * dt; p.x += p.drift * dt * 0.2;
+      p.y += p.vy * dt; p.x += p.drift * dt * 0.16;
       if (p.y > h + 20) {
         p.y = rnd(-80, -10); p.x = rnd(0, w);
-        if (Math.random() < 0.12) sys.splash.push({ x: p.x, y: h - rnd(4, 24), life: 0, max: rnd(0.25, 0.45) });
+        if (Math.random() < 0.06) sys.splash.push({ x: p.x, y: h - rnd(6, 28), life: 0, max: rnd(0.4, 0.7) });
       }
-      drawStreak(p, 1.05, 'rgba(190,210,230,' + p.a + ')');
-    }
-    for (const p of sys.near) {
-      p.y += p.vy * dt; p.x += p.drift * dt * 0.25;
-      if (p.y > h + 30) {
-        p.y = rnd(-100, -10); p.x = rnd(0, w);
-        if (Math.random() < 0.22) sys.splash.push({ x: p.x, y: h - rnd(2, 18), life: 0, max: rnd(0.3, 0.55) });
-      }
-      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 3);
-      g.addColorStop(0, 'rgba(220,235,250,' + (p.a * 0.5) + ')');
-      g.addColorStop(1, 'rgba(220,235,250,0)');
-      ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill();
-      drawStreak(p, 1.35, 'rgba(210,225,245,' + p.a + ')');
+      drawStreak(p, 0.9, 'rgba(185,205,225,' + p.a + ')');
     }
     for (const m of sys.mist) {
       m.x += m.vx * dt;
       if (m.x < -m.r) m.x = w + m.r;
       if (m.x > w + m.r) m.x = -m.r;
       const mg = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.r);
-      mg.addColorStop(0, 'rgba(160,180,200,' + m.a + ')');
-      mg.addColorStop(1, 'rgba(160,180,200,0)');
+      mg.addColorStop(0, 'rgba(150,170,195,' + m.a + ')');
+      mg.addColorStop(1, 'rgba(150,170,195,0)');
       ctx.fillStyle = mg;
       ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2); ctx.fill();
     }
@@ -120,81 +105,66 @@
       s.life += dt;
       const t = s.life / s.max;
       if (t >= 1) return false;
-      const a = (1 - t) * 0.35;
-      const r = 2 + t * 14;
-      ctx.strokeStyle = 'rgba(200,220,240,' + a + ')';
-      ctx.lineWidth = 1;
+      const a = (1 - t) * 0.22;
+      const r = 3 + t * 16;
+      ctx.strokeStyle = 'rgba(195,215,235,' + a + ')';
+      ctx.lineWidth = 0.8;
       ctx.beginPath();
-      ctx.ellipse(s.x, s.y, r, r * 0.28, 0, 0, Math.PI * 2);
+      ctx.ellipse(s.x, s.y, r, r * 0.26, 0, 0, Math.PI * 2);
       ctx.stroke();
       return true;
     });
   }
 
   function buildFire() {
-    const embers = [], sparks = [], ash = [];
-    for (let i = 0; i < 55; i++) {
-      embers.push({ x: rnd(w * 0.12, w * 0.88), y: rnd(h * 0.45, h + 40), r: rnd(2.5, 7), vy: rnd(-55, -25), vx: rnd(-12, 12), hue: rnd(12, 38), life: rnd(0, 1), max: rnd(1.8, 3.4), wob: rnd(0.8, 2.2), phase: rnd(0, Math.PI * 2) });
+    const embers = [], ash = [];
+    for (let i = 0; i < 28; i++) {
+      embers.push({
+        x: rnd(w * 0.18, w * 0.82), y: rnd(h * 0.55, h + 30),
+        r: rnd(2, 5.5), vy: rnd(-32, -16), vx: rnd(-6, 6),
+        hue: rnd(14, 32), life: rnd(0, 1), max: rnd(2.4, 4.2),
+        wob: rnd(0.4, 1.2), phase: rnd(0, Math.PI * 2),
+      });
     }
-    for (let i = 0; i < 40; i++) {
-      sparks.push({ x: rnd(w * 0.2, w * 0.8), y: rnd(h * 0.5, h), r: rnd(0.6, 1.8), vy: rnd(-140, -70), vx: rnd(-30, 30), life: rnd(0, 1), max: rnd(0.7, 1.5) });
+    for (let i = 0; i < 16; i++) {
+      ash.push({ x: rnd(0, w), y: rnd(0, h), r: rnd(0.4, 1.1), vy: rnd(-12, -4), vx: rnd(-6, 6), a: rnd(0.05, 0.14) });
     }
-    for (let i = 0; i < 25; i++) {
-      ash.push({ x: rnd(0, w), y: rnd(0, h), r: rnd(0.5, 1.4), vy: rnd(-18, -6), vx: rnd(-10, 10), a: rnd(0.08, 0.22) });
-    }
-    return { type: 'fire', embers, sparks, ash };
+    return { type: 'fire', embers, sparks: [], ash };
   }
 
   function tickFire(sys, dt, now) {
-    const bloom = ctx.createRadialGradient(w * 0.5, h, 0, w * 0.5, h, h * 0.7);
-    bloom.addColorStop(0, 'rgba(255,90,20,0.09)');
-    bloom.addColorStop(0.35, 'rgba(220,50,10,0.045)');
+    const bloom = ctx.createRadialGradient(w * 0.5, h * 1.05, 0, w * 0.5, h, h * 0.65);
+    bloom.addColorStop(0, 'rgba(255,100,30,0.055)');
+    bloom.addColorStop(0.4, 'rgba(200,50,15,0.025)');
     bloom.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = bloom;
-    ctx.fillRect(0, 0, w, h);
-    const side = ctx.createLinearGradient(0, h, 0, h * 0.35);
-    side.addColorStop(0, 'rgba(180,40,10,0.05)');
-    side.addColorStop(1, 'rgba(180,40,10,0)');
-    ctx.fillStyle = side;
     ctx.fillRect(0, 0, w, h);
 
     for (const p of sys.embers) {
       p.life += dt;
       if (p.life > p.max) {
-        p.life = 0; p.max = rnd(1.8, 3.4);
-        p.x = rnd(w * 0.12, w * 0.88); p.y = h + rnd(0, 30);
-        p.r = rnd(2.5, 7); p.vy = rnd(-55, -25); p.vx = rnd(-12, 12); p.hue = rnd(12, 38);
+        p.life = 0; p.max = rnd(2.4, 4.2);
+        p.x = rnd(w * 0.18, w * 0.82); p.y = h + rnd(0, 24);
+        p.r = rnd(2, 5.5); p.vy = rnd(-32, -16); p.vx = rnd(-6, 6); p.hue = rnd(14, 32);
       }
       const t = p.life / p.max;
       const fade = Math.sin(t * Math.PI);
-      p.x += (p.vx + Math.sin(now * 0.001 * p.wob + p.phase) * 18) * dt;
+      p.x += (p.vx + Math.sin(now * 0.0006 * p.wob + p.phase) * 10) * dt;
       p.y += p.vy * dt;
-      const r = p.r * (1 - t * 0.55);
-      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 3.2);
-      g.addColorStop(0, 'hsla(' + p.hue + ',100%,72%,' + (0.55 * fade) + ')');
-      g.addColorStop(0.35, 'hsla(' + (p.hue + 8) + ',95%,55%,' + (0.28 * fade) + ')');
-      g.addColorStop(1, 'hsla(' + p.hue + ',90%,40%,0)');
+      const r = p.r * (1 - t * 0.45);
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 3.8);
+      g.addColorStop(0, 'hsla(' + p.hue + ',95%,70%,' + (0.32 * fade) + ')');
+      g.addColorStop(0.4, 'hsla(' + (p.hue + 6) + ',90%,50%,' + (0.14 * fade) + ')');
+      g.addColorStop(1, 'hsla(' + p.hue + ',85%,40%,0)');
       ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(p.x, p.y, r * 3.2, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = 'hsla(' + (p.hue + 15) + ',100%,88%,' + (0.7 * fade) + ')';
-      ctx.beginPath(); ctx.arc(p.x, p.y, r * 0.45, 0, Math.PI * 2); ctx.fill();
-    }
-    for (const p of sys.sparks) {
-      p.life += dt;
-      if (p.life > p.max) {
-        p.life = 0; p.max = rnd(0.7, 1.5);
-        p.x = rnd(w * 0.2, w * 0.8); p.y = h - rnd(0, 40);
-        p.vy = rnd(-140, -70); p.vx = rnd(-30, 30);
-      }
-      const t = p.life / p.max;
-      p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.99;
-      ctx.fillStyle = 'rgba(255,230,160,' + ((1 - t) * 0.85) + ')';
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (1 - t * 0.5), 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x, p.y, r * 3.8, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'hsla(' + (p.hue + 12) + ',100%,88%,' + (0.4 * fade) + ')';
+      ctx.beginPath(); ctx.arc(p.x, p.y, r * 0.35, 0, Math.PI * 2); ctx.fill();
     }
     for (const p of sys.ash) {
       p.x += p.vx * dt; p.y += p.vy * dt;
       if (p.y < -10) { p.y = h + 10; p.x = rnd(0, w); }
-      ctx.fillStyle = 'rgba(40,28,22,' + p.a + ')';
+      ctx.fillStyle = 'rgba(50,34,28,' + p.a + ')';
       ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
     }
   }
