@@ -8,12 +8,12 @@
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=28';
+    link.href = './ui-layout-extras.css?v=29';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
   } else {
     const link = document.querySelector('link[data-ui-extras]');
-    if (link) link.href = './ui-layout-extras.css?v=28';
+    if (link) link.href = './ui-layout-extras.css?v=29';
   }
 
   function purgeCreate() {
@@ -167,26 +167,27 @@
         zIndex: '4001'
       });
     }
-    // The looper is a viewport-level bottom control, not part of the top
-    // instrument/scale selector stack.
-    if (looperRail && looperRail.parentElement !== document.body) document.body.appendChild(looperRail);
+    // Keep the FX drawer and looper in one stable top stack. The looper
+    // must live in the dock so no competing viewport/bottom positioning can
+    // move it after the first paint.
+    if (looperRail && looperRail.parentElement !== topDock) topDock.appendChild(looperRail);
     if (looperRail) {
       Object.assign(looperRail.style, {
-        position: 'fixed', top: 'auto', right: '0',
-        bottom: 'calc(118px + env(safe-area-inset-bottom, 0px))',
-        left: '0', transform: 'none', width: '100%',
-        justifyContent: 'center', zIndex: '3000'
+        position: 'relative', top: 'auto', right: 'auto', bottom: 'auto',
+        left: 'auto', transform: 'none', width: '100%', margin: '0',
+        justifyContent: 'center', zIndex: 'auto'
       });
     }
-    // The looper module deliberately keeps Clear as a body-level sibling.
-    // Align it with the looper rail instead of reparenting it into the rail.
+    // Clear is part of the looper row, not an independently fixed viewport
+    // element. This prevents its own late layout from creating a second jump.
+    if (looperClear && looperRail && looperClear.parentElement !== looperRail) {
+      looperRail.insertBefore(looperClear, looperRail.firstChild);
+    }
     if (looperClear) {
       Object.assign(looperClear.style, {
-        position: 'fixed', top: 'auto',
-        bottom: 'calc(118px + env(safe-area-inset-bottom, 0px))',
-        left: 'max(8px, env(safe-area-inset-left, 0px))',
-        right: 'auto', transform: 'none', zIndex: '4501',
-        width: '32px', height: '32px', pointerEvents: 'auto'
+        position: 'relative', top: 'auto', right: 'auto', bottom: 'auto',
+        left: 'auto', transform: 'none', zIndex: 'auto',
+        width: '34px', height: '34px', margin: '0', pointerEvents: 'auto'
       });
     }
     if (bar && (bar.parentElement !== app || bar.nextElementSibling !== null)) app.appendChild(bar);
@@ -266,6 +267,7 @@
       instrumentMenu.style.setProperty('bottom', openUp ? (window.innerHeight - r.top + 6) + 'px' : 'auto', 'important');
       instrumentMenu.style.setProperty('max-height', Math.max(120, Math.min(430, openUp ? above : below)) + 'px', 'important');
       instrumentMenu.style.setProperty('z-index', '3201', 'important');
+      instrumentMenu.style.setProperty('visibility', 'visible', 'important');
     }
     const scaleToggle = document.getElementById('scaleLabel');
     const scaleMenu = document.getElementById('scaleMenu');
@@ -282,6 +284,7 @@
       scaleMenu.style.setProperty('bottom', Math.max(12, window.innerHeight - r.top + 6) + 'px', 'important');
       scaleMenu.style.setProperty('max-height', Math.max(120, Math.min(360, above)) + 'px', 'important');
       scaleMenu.style.setProperty('z-index', '3201', 'important');
+      scaleMenu.style.setProperty('visibility', 'visible', 'important');
     }
   }
 
