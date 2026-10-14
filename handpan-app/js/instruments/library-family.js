@@ -1,15 +1,11 @@
 /**
  * instruments/library-family.js — the Pionier sound library as playable instruments.
  *
- * One Instrument per library voice (koto, harp, kalimba, bowl, tibetan, tongue,
- * crystal_kalimba, ice_chime, windchimes, breath, tine, musicbox, choir, drone, cloud).
- * The handpan voice itself is played by HandpanInstrument, which owns the scale /
- * layout logic. Every instrument here inherits the nine-to-fourteen pitches of the
- * selected handpan scale through setMusicalContext(), so all voices always play
- * the same layout.
+ * One Instrument per library voice. Handpan is separate (HandpanInstrument).
+ * All library voices inherit the active handpan scale via setMusicalContext().
  */
 import { Instrument } from '../instrument.js';
-import { SoundLibrary, listVoices } from '../sound/library.js?v=2';
+import { SoundLibrary, listVoices } from '../sound/library.js?v=3';
 
 const MAX_PADS = 14;
 const PITCH_BEND_RANGE = 2;
@@ -17,11 +13,13 @@ const BEND_SMOOTH = 0.055;
 const PRESSURE_SMOOTH = 0.06;
 
 // Voices that keep sounding while the finger is down and fade out on release.
-const HELD_VOICES = new Set(['bowl', 'tibetan', 'breath', 'choir', 'drone', 'cloud']);
+const HELD_VOICES = new Set([
+  'bowl', 'tibetan', 'breath', 'choir', 'drone', 'cloud',
+  'mist_drone', 'aether', 'aurora', 'celestial_bow', 'sub_hum'
+]);
 
 let shared = null;
 
-/** One SoundLibrary per AudioContext + bus, shared by every instrument. */
 export function getSoundLibrary(ctx, bus) {
   if (shared && shared.ctx === ctx && shared.bus === bus) return shared.lib;
   if (shared) { try { shared.lib.dispose(); } catch (_) {} }
@@ -63,14 +61,12 @@ export class LibraryInstrument extends Instrument {
     this._prewarm();
   }
 
-  /** Render the current layout's notes in the background so first hits don't stall. */
   _prewarm() {
     if (!this.lib || !this.ready) return;
     const freqs = this.pitches.filter(Boolean).map((p) => p.freq);
     if (!freqs.length) return;
     this._prewarmToken = (this._prewarmToken || 0) + 1;
     const token = this._prewarmToken;
-    // prewarm() yields between notes; a newer call (layout change) supersedes this one
     this.lib.prewarm([this.id], freqs, [0.65], () => (token === this._prewarmToken)).catch(() => {});
   }
 
@@ -117,7 +113,6 @@ export class LibraryInstrument extends Instrument {
     this.heldPad[idx] = 1;
     this.lastStrikeAt.set(idx, performance.now());
 
-    // pads around the ring sit left/right in the stereo field
     const handle = this.lib.play(this.id, note.freq, { vel, pan: Math.sin(angle) * 0.35 });
     if (!handle) return;
     const voice = { idx, handle, kind: 'lib', baseFreq: note.freq, released: false };
@@ -154,7 +149,6 @@ export class LibraryInstrument extends Instrument {
     this._smoothPressure[idx] = 0;
     if (this.glow[idx] > 0.15) this.glow[idx] = Math.min(this.glow[idx], 0.35);
     const voice = this.activeVoices.get(idx);
-    // Struck voices ring out on their own; held voices fade when the finger lifts.
     if (voice && this.held && this.audioCtx) voice.stop(this.audioCtx.currentTime, 0.9);
   }
 
@@ -181,7 +175,6 @@ export class LibraryInstrument extends Instrument {
   }
 }
 
-/** Every library voice except 'handpan' (that one is played by HandpanInstrument). */
 export function createLibraryInstruments() {
   return listVoices().filter((v) => v.id !== 'handpan').map((v) => new LibraryInstrument(v));
 }
