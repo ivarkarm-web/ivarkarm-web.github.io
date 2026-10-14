@@ -208,3 +208,81 @@ hr, .divider, .dock-section {
   }
   body::before { animation: none; }
 }
+
+
+/* Unified glass-control system — visual only; deliberately no transforms or
+   sizing changes, so controls cannot jump or affect the handpan hit surface. */
+:root {
+  --control-glass: rgba(25, 25, 29, .68);
+  --control-glass-hi: rgba(39, 38, 40, .76);
+  --control-edge: rgba(230, 224, 210, .16);
+  --control-edge-hover: rgba(200, 164, 114, .48);
+  --control-highlight: rgba(255, 255, 255, .075);
+}
+button {
+  border-radius: 14px;
+  border-color: var(--control-edge);
+  -webkit-backdrop-filter: blur(16px) saturate(135%);
+  backdrop-filter: blur(16px) saturate(135%);
+  box-shadow:
+    inset 0 1px 0 var(--control-highlight),
+    0 5px 16px rgba(0, 0, 0, .16);
+  transition:
+    background-color .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease,
+    color .2s ease !important;
+}
+button:hover:not(:disabled) {
+  border-color: var(--control-edge-hover);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.095),
+    0 0 0 1px rgba(200,164,114,.045),
+    0 7px 20px rgba(0,0,0,.2);
+}
+button:active:not(:disabled) {
+  box-shadow: inset 0 1px 5px rgba(0,0,0,.24);
+}
+button:disabled {
+  opacity: .42;
+  cursor: not-allowed;
+}
+/* Small transport/step controls stay compact and read as one control family. */
+.icon-btn, .stage-scale-step, .stage-instrument-nav .icon-btn,
+.stage-instrument-nav .soundscapes-open-btn, .stage-scale-row .stage-scale-step,
+#pionierTopDock #looperBtn, #pionierTopDock #looperSyncBtn,
+#pionierTopDock #looperClearBtn {
+  border-radius: 12px !important;
+  border: 1px solid rgba(230,224,210,.17) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.07),
+    0 4px 13px rgba(0,0,0,.18) !important;
+}
+.instrument-name, #instrumentDropdownToggle, #scaleLabel,
+.stage-instrument-nav .instrument-name, .stage-scale-row .stage-scale-btn {
+  border-radius: 15px !important;
+  border: 1px solid rgba(230,224,210,.19) !important;
+  background-color: rgba(24,24,28,.72) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
+  backdrop-filter: blur(20px) saturate(140%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.075),
+    0 5px 18px rgba(0,0,0,.18) !important;
+}
+#pionierTopDock .looper-rail {
+  border-color: rgba(230,224,210,.14) !important;
+  background: linear-gradient(145deg, rgba(32,32,36,.72), rgba(12,12,15,.82)) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(135%) !important;
+  backdrop-filter: blur(24px) saturate(135%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 10px 26px rgba(0,0,0,.22) !important;
+}
+#pionierTopDock #looperClearBtn {
+  background: rgba(255,255,255,.035) !important;
+}
+#pionierTopDock #looperBtn, #pionierTopDock #looperSyncBtn {
+  -webkit-backdrop-filter: blur(18px) saturate(145%) !important;
+  backdrop-filter: blur(18px) saturate(145%) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  button { transition: none !important; }
+}
