@@ -25,14 +25,21 @@
     .stage {
       padding: 0 4px 4px !important;
       flex-direction: column;
+      /* Shift instrument ~10% upward */
+      justify-content: flex-start !important;
+      padding-top: max(4px, 2vh) !important;
     }
     #pan {
-      width: min(94vw, calc(100dvh - 140px), 760px) !important;
-      max-width: 94vw !important;
+      width: min(98vw, calc(100dvh - 100px), 840px) !important;
+      max-width: 98vw !important;
+      /* Nudge up relative to previous centered position */
+      margin-top: -4vh !important;
+      transform: translateY(-6%);
     }
     .stage::before {
-      width: min(84vw, calc(100dvh - 150px), 660px) !important;
-      height: min(84vw, calc(100dvh - 150px), 660px) !important;
+      width: min(90vw, calc(100dvh - 110px), 740px) !important;
+      height: min(90vw, calc(100dvh - 110px), 740px) !important;
+      top: 46% !important;
     }
   </style>
   <script>
@@ -200,7 +207,7 @@
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
 
   <script src="./js/layout-boot.js?v=7"></script>
-  <script type="module" src="./pionier-app.js?v=133"></script>
+  <script type="module" src="./pionier-app.js?v=134"></script>
   <script src="./js/scale-root-fix.js?v=1"></script>
   <script src="./js/note-count-fix.js?v=1"></script>
 </body>
