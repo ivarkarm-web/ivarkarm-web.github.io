@@ -4,152 +4,217 @@
  */
 import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js';
 import { InstrumentRegistry } from './js/instrument.js';
-import { HandpanInstrument } from './js/instruments/handpan.js?v=5';
+import { GestureTracker, gestureFromPointer } from './js/gesture.js';
+import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js?v=6';
 import { createLibraryInstruments } from './js/instruments/library-family.js?v=3';
-import { HANDPAN_SCALES } from './js/instruments/handpan-scales.js';
+import { FxChain } from './js/fx.js';
+import { CatchMode } from './js/catch-mode.js?v=4';
+import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
+import { createSurface } from './js/pionier-surface.js?v=95';
 
-// Register instruments once
+const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f'];
+
+// Register instruments
 InstrumentRegistry.register(new HandpanInstrument());
 for (const instrument of createLibraryInstruments()) InstrumentRegistry.register(instrument);
 
-const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+let handpan = InstrumentRegistry.get('handpan');
+let currentId = 'handpan';
+let audioCtx = null;
+let instrumentBus = null;
+let fxChain = null;
+let surface = null;
+let gesture = null;
+let catchMode = null;
+let bootPromise = null;
 
-function midiToFreq(m) {
-  return 440 * Math.pow(2, (m - 69) / 12);
-}
-
-function midiToName(m) {
-  const n = Math.round(m);
-  return NOTE_NAMES[((n % 12) + 12) % 12] + Math.floor(n / 12 - 1);
-}
-
-/** Canonical musical layout from the active handpan scale. */
-function buildNotesFromHandpan(handpan) {
-  if (!handpan) return [];
-  const notes = handpan.getNotes?.() || [];
+function getNotesLayout() {
+  const notes = handpan?.getNotes?.() || [];
   return notes.map((n, i) => ({
     index: n.index != null ? n.index : i,
     midi: n.midi,
-    freq: n.freq || midiToFreq(n.midi),
-    name: n.name || midiToName(n.midi),
+    freq: n.freq,
+    name: n.name,
     kind: n.kind || (i === 0 ? 'ding' : 'tone')
   }));
 }
 
-const PionierCore = {
-  handpan: null,
-  currentInstrumentId: 'handpan',
-  _bus: null,
-  _fx: null,
+function syncWorldPitch() {
+  const notes = getNotesLayout();
+  for (const inst of InstrumentRegistry.all()) {
+    if (inst === handpan) continue;
+    try { inst.setMusicalContext?.(notes); } catch (_) {}
+  }
+}
 
-  async boot() {
-    const ctx = getAudioContext();
-    await resumeAudio();
-    // Instrument bus sits before master FX so looper can tap clean stems
-    if (!this._bus) {
-      this._bus = ctx.createGain();
-      this._bus.gain.value = 1;
-      const master = getAudioMaster();
-      if (master) this._bus.connect(master);
-      else this._bus.connect(ctx.destination);
-    }
-    this.handpan = InstrumentRegistry.get('handpan');
-    if (this.handpan && !this.handpan.ready) {
-      await this.handpan.activate(ctx, this._bus);
-    }
-    this.syncWorldPitch();
-    return true;
-  },
+function refreshPitch() {
+  syncWorldPitch();
+  try { surface?.redraw?.(); } catch (_) {}
+}
 
-  ensureAudio() {
-    resumeAudio();
+function updateLabels() {
+  try {
+    const scale = HANDPAN_SCALES?.[handpan?.scaleIndex ?? 0];
+    const el = document.getElementById('scaleLabel');
+    if (el && scale) {
+      const t = scale.label || scale.name || '';
+      el.textContent = t.includes('▾') ? t : (t + ' ▾');
+    }
+    const rootLabel = document.getElementById('rootLabel');
+    if (rootLabel && handpan) {
+      const names = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+      rootLabel.textContent = names[(handpan.rootPc ?? 2) % 12] || 'D';
+    }
+    const octLabel = document.getElementById('octLabel');
+    if (octLabel && handpan) octLabel.textContent = String(handpan.octaveOffset ?? 0);
+  } catch (_) {}
+}
+
+function changeNoteCount(delta) {
+  const before = Number.isFinite(handpan?.noteCount) ? handpan.noteCount : 9;
+  const after = Math.max(9, Math.min(14, before + delta));
+  if (after === before) return false;
+  handpan?.setNoteCount?.(after);
+  refreshPitch();
+  try {
+    const countEl = document.getElementById('notePlusCount');
+    if (countEl) countEl.textContent = after + '/14';
+  } catch (_) {}
+  return true;
+}
+
+async function ensureGraph() {
+  audioCtx = getAudioContext();
+  await resumeAudio();
+  if (!instrumentBus) {
+    instrumentBus = audioCtx.createGain();
+    instrumentBus.gain.value = 1;
+    if (!fxChain) {
+      try {
+        fxChain = new FxChain(audioCtx);
+        instrumentBus.connect(fxChain.input);
+        fxChain.output.connect(getAudioMaster() || audioCtx.destination);
+      } catch (_) {
+        instrumentBus.connect(getAudioMaster() || audioCtx.destination);
+      }
+    }
+  }
+  return audioCtx;
+}
+
+async function activateInstrument(id) {
+  const ctx = await ensureGraph();
+  const next = InstrumentRegistry.get(id);
+  if (!next) return false;
+  const prev = InstrumentRegistry.get(currentId);
+  if (prev && prev !== next) {
+    try { prev.dampAll?.(); } catch (_) {}
+  }
+  if (!next.ready) await next.activate(ctx, instrumentBus);
+  currentId = id;
+  if (id === 'handpan') handpan = next;
+  syncWorldPitch();
+  return true;
+}
+
+async function boot() {
+  if (bootPromise) return bootPromise;
+  bootPromise = (async () => {
+    await ensureGraph();
+    await activateInstrument('handpan');
+    syncWorldPitch();
+    updateLabels();
     try {
-      if (!this.handpan?.ready) this.boot();
-    } catch (_) {}
-  },
+      const canvas = document.getElementById('pan');
+      if (canvas && !surface) {
+        surface = createSurface(canvas, {
+          getInstrument: () => InstrumentRegistry.get(currentId) || handpan,
+          getHandpan: () => handpan
+        });
+      }
+    } catch (e) {
+      console.warn('[pionier] surface mount failed', e);
+    }
+    if (isDebugEnabled()) {
+      try { mountDebugPanel(); } catch (_) {}
+    }
+    return true;
+  })();
+  return bootPromise;
+}
 
-  getInstrumentBus() {
-    return this._bus;
-  },
+// Scale / root steppers
+function wireControls() {
+  const n = () => HANDPAN_SCALES?.length || 1;
+  document.getElementById('scalePrev')?.addEventListener('click', () => {
+    handpan?.setScaleIndex?.((handpan.scaleIndex - 1 + n()) % n());
+    refreshPitch();
+    updateLabels();
+  });
+  document.getElementById('scaleNext')?.addEventListener('click', () => {
+    handpan?.setScaleIndex?.((handpan.scaleIndex + 1) % n());
+    refreshPitch();
+    updateLabels();
+  });
+  document.getElementById('rootDown')?.addEventListener('click', () => {
+    handpan?.shiftRoot?.(-1);
+    refreshPitch();
+    updateLabels();
+  });
+  document.getElementById('rootUp')?.addEventListener('click', () => {
+    handpan?.shiftRoot?.(1);
+    refreshPitch();
+    updateLabels();
+  });
+  document.getElementById('octDown')?.addEventListener('click', () => {
+    handpan?.shiftOctave?.(-1);
+    refreshPitch();
+    updateLabels();
+  });
+  document.getElementById('octUp')?.addEventListener('click', () => {
+    handpan?.shiftOctave?.(1);
+    refreshPitch();
+    updateLabels();
+  });
+}
 
+wireControls();
+boot().catch((e) => console.error('[pionier-core] boot failed', e));
+
+const PionierCore = {
+  get handpan() { return handpan; },
+  get currentInstrumentId() { return currentId; },
+  boot,
+  ensureAudio() { resumeAudio(); boot(); },
+  getInstrumentBus: () => instrumentBus,
   health() {
     return {
       audioAvailable: !!getAudioContext(),
       storageAvailable: (() => {
-        try {
-          localStorage.setItem('__p', '1');
-          localStorage.removeItem('__p');
-          return true;
-        } catch (_) {
-          return false;
-        }
+        try { localStorage.setItem('__p', '1'); localStorage.removeItem('__p'); return true; }
+        catch (_) { return false; }
       })()
     };
   },
-
   noteCount() {
-    const h = this.handpan;
-    return Number.isFinite(h?.noteCount) ? h.noteCount : 9;
+    return Number.isFinite(handpan?.noteCount) ? handpan.noteCount : 9;
   },
-
-  changeNoteCount(delta) {
-    const before = this.noteCount();
-    const after = Math.max(9, Math.min(14, before + delta));
-    if (after === before) return false;
-    this.handpan?.setNoteCount?.(after);
-    this.refreshPitch();
+  changeNoteCount,
+  addNote() { return changeNoteCount(1); },
+  removeNote() { return changeNoteCount(-1); },
+  setScaleIndex(i) {
+    handpan?.setScaleIndex?.(i);
+    refreshPitch();
+    updateLabels();
     return true;
   },
-
-  setScaleIndex(idx) {
-    if (!this.handpan) return false;
-    this.handpan.setScaleIndex?.(idx);
-    this.refreshPitch();
-    this.updateLabels?.();
-    return true;
-  },
-
-  /** Push current scale pitches to every library instrument. */
-  syncWorldPitch() {
-    const notes = buildNotesFromHandpan(this.handpan);
-    for (const inst of InstrumentRegistry.all()) {
-      if (inst === this.handpan) continue;
-      try {
-        inst.setMusicalContext?.(notes);
-      } catch (_) {}
-    }
-  },
-
-  refreshPitch() {
-    this.syncWorldPitch();
-  },
-
-  updateLabels() {
-    try {
-      const scale = HANDPAN_SCALES?.[this.handpan?.scaleIndex ?? 0];
-      const el = document.getElementById('scaleLabel');
-      if (el && scale) {
-        const t = scale.label || scale.name || '';
-        el.textContent = t.includes('▾') ? t : t + ' ▾';
-      }
-    } catch (_) {}
-  },
-
+  syncWorldPitch,
+  refreshPitch,
+  updateLabels,
   async setInstrument(id) {
-    const ctx = getAudioContext();
-    const next = InstrumentRegistry.get(id);
-    if (!next) return false;
-    const prev = InstrumentRegistry.get(this.currentInstrumentId);
-    if (prev && prev !== next) {
-      try {
-        prev.dampAll?.();
-      } catch (_) {}
-    }
-    if (!next.ready) await next.activate(ctx, this._bus);
-    this.currentInstrumentId = id;
-    this.syncWorldPitch();
-    return true;
-  }
+    return activateInstrument(id);
+  },
+  getFx() { return fxChain; }
 };
 
 window.PionierCore = PionierCore;
