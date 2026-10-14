@@ -1,6 +1,8 @@
 /**
  * layout-boot.js — app chrome layout
- * Top full-width bar: instrument (left) + scale (right)
+ * Top bar: two stacked rows
+ *   1) instrument selector
+ *   2) scale selector + note count
  * Center: handpan
  * Bottom: looper above FX controls
  */
@@ -56,7 +58,7 @@
       }
     }
 
-    // Left: instrument + soundscapes
+    // Row 1: instrument + soundscapes
     const instNav = document.getElementById('instrumentNav');
     if (instNav) {
       instNav.classList.add('stage-instrument-nav');
@@ -65,7 +67,7 @@
       }
     }
 
-    // Right: note count + scale
+    // Row 2: scale (left) + note count (right)
     const scaleLabel = document.getElementById('scaleLabel');
     const scaleMenu = document.getElementById('scaleMenu');
     const prev = document.getElementById('scalePrev');
@@ -106,13 +108,24 @@
     if (row.parentElement !== bar) bar.appendChild(row);
 
     const noteWrap = document.getElementById('notePlusWrap');
+
+    // Order: scale selector first, then note +/- (switched sides)
+    if (scaleNav) {
+      scaleNav.classList.add('stage-scale-nav');
+      if (scaleNav.parentElement !== row || row.firstElementChild !== scaleNav) {
+        row.insertBefore(scaleNav, row.firstChild);
+      }
+    }
     if (noteWrap) {
       noteWrap.classList.add('stage-note-wrap');
-      if (noteWrap.parentElement !== row) row.appendChild(noteWrap);
+      if (noteWrap.parentElement !== row) {
+        row.appendChild(noteWrap);
+      } else if (scaleNav && noteWrap.previousElementSibling !== scaleNav) {
+        row.appendChild(noteWrap);
+      }
     }
-    if (scaleNav && scaleNav.parentElement !== row) row.appendChild(scaleNav);
 
-    // Order in bar: instrumentNav (left), scale row (right)
+    // Order in bar: instrumentNav (row 1), scale row (row 2)
     if (instNav && row && instNav.nextElementSibling !== row) {
       bar.appendChild(instNav);
       bar.appendChild(row);
