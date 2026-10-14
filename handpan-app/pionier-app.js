@@ -55,7 +55,7 @@ async function boot() {
   const degraded = [];
 
   try {
-    await import(new URL('./pionier-core.js?v=19', BASE).href);
+    await import(new URL('./pionier-core.js?v=20', BASE).href);
   } catch (err) {
     console.error('[pionier] required core failed to load', err);
     setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
@@ -79,7 +79,6 @@ async function boot() {
   const canvas = document.getElementById('pan');
   killCanvasGhosts(canvas);
 
-  // Scale menu wiring (minimal)
   const scaleLabel = document.getElementById('scaleLabel');
   const scaleMenu = document.getElementById('scaleMenu');
   if (scaleLabel && scaleMenu && core.getScales) {
