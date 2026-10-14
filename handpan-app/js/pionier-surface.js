@@ -21,7 +21,6 @@ export function createSurface(canvas) {
     reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   } catch (_) {}
 
-  // Thin elegant rim particles — slow breathe in/out around the handpan edge
   const RIM_COUNT = reducedMotion ? 28 : 48;
   const rimParticles = Array.from({ length: RIM_COUNT }, (_, i) => ({
     a: (i / RIM_COUNT) * Math.PI * 2 + Math.random() * 0.04,
@@ -44,7 +43,6 @@ export function createSurface(canvas) {
     const slitW = Math.max(1.05, R * 0.0052);
     const g = Math.max(0, Math.min(1, glow || 0));
     const idle = playable ? 1 : 0.14;
-    // Near-static core — no busy LED flicker; strike still lifts brightness
     const coreAlpha = (0.22 + g * 0.55) * idle;
     const halfL = slitLen * 0.5;
     ctx2.save();
@@ -93,19 +91,12 @@ export function createSurface(canvas) {
     ctx2.restore();
   }
 
-  /** Call right before relayout to glide existing pads and grow the new one. */
-  function armTransition() {
-    armed = true;
-  }
+  function armTransition() { armed = true; }
 
-  /** Pad geometry for this frame: eased between old and new layout while a note is being added. */
   function animatedView(now) {
     if (!anim) return fields;
     const t = (now - anim.t0) / anim.dur;
-    if (t >= 1) {
-      anim = null;
-      return fields;
-    }
+    if (t >= 1) { anim = null; return fields; }
     const e = 1 - Math.pow(1 - Math.max(0, t), 3);
     const mix = (a, b) => a + (b - a) * e;
     return fields.map((f) => {
@@ -115,10 +106,8 @@ export function createSurface(canvas) {
       dr = Math.atan2(Math.sin(dr), Math.cos(dr));
       return {
         ...f,
-        x: mix(from.x, f.x),
-        y: mix(from.y, f.y),
-        rx: mix(from.rx, f.rx),
-        ry: mix(from.ry, f.ry),
+        x: mix(from.x, f.x), y: mix(from.y, f.y),
+        rx: mix(from.rx, f.rx), ry: mix(from.ry, f.ry),
         rot: (from.rot || 0) + dr * e,
         ux: f.ux != null ? mix(from.ux ?? f.ux, f.ux) : f.ux,
         uy: f.uy != null ? mix(from.uy ?? f.uy, f.uy) : f.uy
@@ -179,15 +168,10 @@ export function createSurface(canvas) {
   function drawRimGlow(t) {
     if (R < 8) return;
     rimTime = t || rimTime;
-    // Global breath ~0.12 Hz — whole ring eases in and out together
-    const breath = reducedMotion
-      ? 0.55
-      : 0.42 + 0.58 * (0.5 + 0.5 * Math.sin(rimTime * 0.75));
+    const breath = reducedMotion ? 0.55 : 0.42 + 0.58 * (0.5 + 0.5 * Math.sin(rimTime * 0.75));
     const rimR = R * 0.965;
     ctx2.save();
     ctx2.globalCompositeOperation = 'lighter';
-
-    // Soft continuous halo along the rim (cohesive base)
     const halo = ctx2.createRadialGradient(CX, CY, rimR * 0.92, CX, CY, rimR * 1.06);
     halo.addColorStop(0, 'rgba(200, 210, 230, 0)');
     halo.addColorStop(0.55, `rgba(210, 220, 235, ${0.018 * breath})`);
@@ -199,8 +183,6 @@ export function createSurface(canvas) {
     ctx2.arc(CX, CY, rimR * 1.08, 0, Math.PI * 2);
     ctx2.arc(CX, CY, rimR * 0.88, 0, Math.PI * 2, true);
     ctx2.fill();
-
-    // Thin particle motes on the rim
     for (const p of rimParticles) {
       const local = 0.55 + 0.45 * Math.sin(rimTime * p.speed + p.phase);
       const a = breath * local * 0.22;
@@ -209,14 +191,10 @@ export function createSurface(canvas) {
       const x = CX + Math.cos(p.a) * rr;
       const y = CY + Math.sin(p.a) * rr;
       const s = Math.max(0.6, R * 0.0045 * p.size);
-      const col = p.gold
-        ? `rgba(228, 205, 140, ${a})`
-        : `rgba(220, 230, 245, ${a})`;
+      const col = p.gold ? `rgba(228, 205, 140, ${a})` : `rgba(220, 230, 245, ${a})`;
       const grad = ctx2.createRadialGradient(x, y, 0, x, y, s * 3.2);
       grad.addColorStop(0, col);
-      grad.addColorStop(0.35, p.gold
-        ? `rgba(212, 180, 90, ${a * 0.35})`
-        : `rgba(190, 205, 225, ${a * 0.3})`);
+      grad.addColorStop(0.35, p.gold ? `rgba(212, 180, 90, ${a * 0.35})` : `rgba(190, 205, 225, ${a * 0.3})`);
       grad.addColorStop(1, 'rgba(180, 190, 210, 0)');
       ctx2.fillStyle = grad;
       ctx2.beginPath();
@@ -228,7 +206,6 @@ export function createSurface(canvas) {
 
   function drawBody(inst, catchActive, waveTargets = null) {
     ctx2.clearRect(0, 0, W, H);
-
     const g = ctx2.createRadialGradient(CX - R * 0.2, CY - R * 0.28, R * 0.04, CX, CY, R);
     g.addColorStop(0, '#2c2d32');
     g.addColorStop(0.5, '#16171b');
@@ -242,18 +219,14 @@ export function createSurface(canvas) {
     ctx2.beginPath();
     ctx2.arc(CX, CY, R * 0.93, 0, Math.PI * 2);
     ctx2.stroke();
-
     if (catchActive) ctx2.globalAlpha = 0.78;
-
     const view = animatedView(performance.now());
     view.forEach((f) => {
       const glow = inst.glow?.[f.index] || 0;
       const radial = inst.zoneFlash?.[f.index] || 0;
       const dim = f.playable ? 1 : 0.35;
       const approach = f.appear != null ? f.appear : 1;
-
-      const hlx = -0.35;
-      const hly = -0.4;
+      const hlx = -0.35, hly = -0.4;
       const pad = ctx2.createRadialGradient(
         f.x + hlx * f.rx * 0.35, f.y + hly * f.ry * 0.35, 0,
         f.x, f.y, Math.max(f.rx, f.ry)
@@ -264,12 +237,10 @@ export function createSurface(canvas) {
       ctx2.fillStyle = pad;
       pathPad(f);
       ctx2.fill();
-
       ctx2.strokeStyle = `rgba(200,210,225,${0.12 * dim})`;
       ctx2.lineWidth = Math.max(1, R * 0.004);
       pathPad(f);
       ctx2.stroke();
-
       if (glow > 0.02 && f.playable) {
         const gr = Math.max(f.rx, f.ry) * (0.95 + radial * 0.45 + approach * 0.2);
         const gg = ctx2.createRadialGradient(f.x, f.y, 0, f.x, f.y, gr);
@@ -280,27 +251,71 @@ export function createSurface(canvas) {
         pathPad({ x: f.x, y: f.y, rx: f.rx * 1.12, ry: f.ry * 1.12, rot: f.rot });
         ctx2.fill();
       }
-
       drawSlit(f, glow, f.playable);
     });
-
     if (catchActive) ctx2.globalAlpha = 1;
+    if (waveTargets) drawCatchWaves(waveTargets);
     drawRimGlow(performance.now() * 0.001);
   }
 
-  function hitTest(lx, ly) {
-    const view = animatedView(performance.now());
+  function drawCatchWaves(waveTargets) {
+    const now = performance.now();
+    for (const [idx, start] of waveTargets) {
+      const f = fields.find((x) => x.index === idx);
+      if (!f) continue;
+      const p = (now - start) / 700;
+      if (p < 0 || p > 1.2) continue;
+      const padR = Math.max(f.rx, f.ry);
+      const rr = R * 0.065 + Math.min(1, p) * padR * 1.22;
+      const windowDist = Math.abs(Math.min(1, p) - 0.92);
+      const alpha = Math.max(0, 0.88 * (1 - windowDist * 2.0));
+      if (alpha < 0.02) continue;
+      const x = f.x, y = f.y;
+      ctx2.save();
+      ctx2.globalCompositeOperation = 'lighter';
+      const bloom = ctx2.createRadialGradient(x, y, rr * 0.2, x, y, rr * 1.35);
+      bloom.addColorStop(0, `rgba(255,230,160,${alpha * 0.55})`);
+      bloom.addColorStop(0.4, `rgba(228,195,90,${alpha * 0.28})`);
+      bloom.addColorStop(1, 'rgba(201,162,39,0)');
+      ctx2.fillStyle = bloom;
+      ctx2.beginPath();
+      ctx2.arc(x, y, rr * 1.35, 0, Math.PI * 2);
+      ctx2.fill();
+      ctx2.strokeStyle = `rgba(255,242,190,${alpha * 0.95})`;
+      ctx2.lineWidth = Math.max(2.2, R * 0.011);
+      ctx2.beginPath();
+      ctx2.arc(x, y, rr * 0.78, 0, Math.PI * 2);
+      ctx2.stroke();
+      ctx2.restore();
+    }
+  }
+
+  function hitVector(cx, cy) {
     let best = null;
-    let bestScore = Infinity;
-    for (const f of view) {
-      if (!f.playable) continue;
-      const dx = lx - f.x;
-      const dy = ly - f.y;
-      const d = Math.hypot(dx / f.rx, dy / f.ry);
+    let bestD = Infinity;
+    for (const f of fields) {
+      if (f.playable === false) continue;
+      const dx = cx - f.x;
+      const dy = cy - f.y;
+      const rot = f.rot || 0;
+      const cos = Math.cos(-rot);
+      const sin = Math.sin(-rot);
+      const lx = dx * cos - dy * sin;
+      const ly = dx * sin + dy * cos;
+      const d = Math.hypot(lx / f.rx, ly / f.ry);
       const minAxis = Math.min(f.rx, f.ry);
-      if (d <= 1.08 && d < bestScore) {
-        bestScore = d;
-        best = f;
+      const refAxis = R * 0.14;
+      const expand = Math.max(0, Math.min(0.55, (refAxis - minAxis) / (R * 0.09)));
+      const hitLimit = 1.85 + expand;
+      if (d <= hitLimit && d < bestD) {
+        bestD = d;
+        best = {
+          idx: f.index, index: f.index, radial: d,
+          angleRad: Math.atan2(dy, dx),
+          nx: 0.5 + (f.x - CX) / (R * 2),
+          ny: 0.5 + (f.y - CY) / (R * 2),
+          x: cx, y: cy
+        };
       }
     }
     return best;
@@ -308,7 +323,7 @@ export function createSurface(canvas) {
 
   function resize() {
     const rect = canvas.getBoundingClientRect();
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const dpr = Math.min(2.5, window.devicePixelRatio || 1);
     W = Math.max(1, Math.round(rect.width * dpr));
     H = Math.max(1, Math.round(rect.height * dpr));
     canvas.width = W;
@@ -320,23 +335,21 @@ export function createSurface(canvas) {
 
   function canvasCoords(e) {
     const rect = canvas.getBoundingClientRect();
-    const dpr = canvas.width / Math.max(1, rect.width);
-    return {
-      x: (e.clientX - rect.left) * dpr,
-      y: (e.clientY - rect.top) * dpr
-    };
+    const dpr = W / rect.width;
+    return { x: (e.clientX - rect.left) * dpr, y: (e.clientY - rect.top) * dpr };
   }
 
   return {
-    get fields() { return fields; },
+    resize,
     layoutHandpanFields,
     armTransition,
     drawBody,
-    hitTest,
-    resize,
+    drawCatchWaves,
+    hitVector,
     canvasCoords,
-    get R() { return R; },
-    get CX() { return CX; },
-    get CY() { return CY; }
+    get fields() { return fields; },
+    set fields(v) { fields = v; },
+    setSlitPhase(t) { slitPhase = t; },
+    get metrics() { return { W, H, R, CX, CY }; }
   };
 }
