@@ -11,9 +11,11 @@
   <div id="appBoot">Loading handpan…</div>
   <script>
   (async () => {
-    const r = await fetch('./app-shell.html?v=3');
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const html = await r.text();
+    const parts = await Promise.all([0,1,2].map(i => fetch('./shell-part-'+i+'.txt?v=1').then(r => {
+      if (!r.ok) throw new Error('part '+i+' HTTP '+r.status);
+      return r.text();
+    })));
+    const html = parts.join('');
     document.open();
     document.write(html);
     document.close();
