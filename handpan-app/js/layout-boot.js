@@ -207,6 +207,18 @@
   setTimeout(centerPan, 100);
   setTimeout(centerPan, 400);
   setTimeout(centerPan, 1200);
+  const drawerObserver = new MutationObserver(() => requestAnimationFrame(centerPan));
+  const observeDrawer = () => {
+    const drawer = document.getElementById('mobileControlDrawer');
+    if (drawer && !drawer.dataset.panObserved) {
+      drawer.dataset.panObserved = '1';
+      drawerObserver.observe(drawer, { attributes: true, attributeFilter: ['class'] });
+    }
+  };
+  observeDrawer();
+  setTimeout(observeDrawer, 250);
+  setTimeout(observeDrawer, 900);
+
   window.addEventListener('resize', () => {
     clearTimeout(window.__panCenterT);
     window.__panCenterT = setTimeout(centerPan, 50);
