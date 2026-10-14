@@ -55,14 +55,13 @@ async function boot() {
   const degraded = [];
 
   try {
-    await import(new URL('./pionier-core.js?v=15', BASE).href);
+    await import(new URL('./pionier-core.js?v=16', BASE).href);
   } catch (err) {
     console.error('[pionier] required core failed to load', err);
     setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
     return false;
   }
 
-  // Arpeggiator family: look-ahead scheduler + 10 cinematic ambient arps
   try {
     const { createArpInstruments } = await import(new URL('./js/instruments/arp-family.js?v=3', BASE).href);
     const { InstrumentRegistry } = await import(new URL('./js/instrument.js', BASE).href);
