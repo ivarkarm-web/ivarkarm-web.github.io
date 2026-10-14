@@ -87,132 +87,95 @@
   appearance: none;
   box-sizing: border-box;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(14, 14, 16, 0.9);
-  color: rgba(232, 230, 227, 0.94);
+  background: rgba(18, 18, 22, 0.92);
+  color: rgba(236, 234, 230, 0.95);
   border-radius: 999px;
-  width: clamp(120px, 42vw, 180px);
-  min-width: 0;
-  max-width: 180px;
-  height: 42px;
-  min-height: 42px;
-  padding: 0 14px;
+  padding: 8px 14px;
   font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.02em;
-  line-height: 1;
+  line-height: 1.2;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  max-width: min(52vw, 220px);
+  min-width: 0;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 1 auto;
 }
 
 .stage-instrument-nav .icon-btn,
 .stage-scale-step {
-  box-sizing: border-box;
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  min-height: 40px;
   flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
   border-radius: 50%;
+  font-size: 16px;
 }
 
 .stage-instrument-nav .soundscapes-open-btn {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  min-height: 40px;
-  margin-left: 2px;
-  color: rgba(212, 176, 74, 0.95);
-  border-color: rgba(212, 176, 74, 0.3);
+  flex: 0 0 auto;
 }
 
+/* Note +/- sits in the second row */
 .stage-note-wrap.note-plus-wrap {
   position: static !important;
   left: auto !important;
   right: auto !important;
+  top: auto !important;
   bottom: auto !important;
   transform: none !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   flex: 0 0 auto;
-  z-index: 12;
 }
 
 .stage-scale-menu {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 50%;
-  right: auto;
-  transform: translateX(-50%);
   z-index: 40;
-  max-height: min(42vh, 320px);
-  overflow-y: auto;
 }
 
-.instrument-menu {
-  z-index: 45;
-}
-
-/* Narrow phones — slightly tighter */
-@media (max-width: 400px) {
+@media (max-width: 420px) {
   .stage-instrument-nav .instrument-name,
   .stage-scale-btn {
-    width: clamp(100px, 38vw, 150px);
-    max-width: 150px;
-    height: 40px;
-    min-height: 40px;
+    max-width: min(48vw, 180px);
+    padding: 7px 12px;
     font-size: 12px;
-    padding: 0 12px;
   }
+
   .stage-instrument-nav .icon-btn,
   .stage-scale-step,
   .stage-instrument-nav .soundscapes-open-btn {
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
-    min-height: 38px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
   }
+
   .stage-scale-bar {
     gap: 5px;
-    padding-inline: max(8px, env(safe-area-inset-left)) max(8px, env(safe-area-inset-right));
+    padding-bottom: 8px;
   }
 }
 
-/* ---- Looper above bottom FX controls ---- */
+/* Looper stays above the controls drawer */
 .looper-rail {
-  top: auto !important;
-  bottom: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
-  transform: none !important;
+  z-index: 40;
 }
 
 .looper-clear-btn {
-  top: auto !important;
-  bottom: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
-  transform: none !important;
+  z-index: 40;
 }
 
-/* Drawer + effect bubbles */
-.mobile-control-drawer { overflow: visible !important; }
-.mobile-control-panel {
-  overflow: visible !important;
-  position: relative;
-  z-index: 2;
+/* Keep handpan geometrically centered in the stage */
+.stage {
+  align-items: center !important;
+  justify-content: center !important;
 }
-.mobile-controls-toggle { position: relative; z-index: 1; }
-.effect-bubble { z-index: 1800 !important; }
-.mobile-control-drawer.is-open .effect-bubble:not([hidden]) {
-  position: fixed !important;
-  z-index: 2500 !important;
-  pointer-events: auto;
+.stage::before {
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
 }
-
-/* Legacy create UI */
-.create-page,
-.create-launch,
-#createPage,
-#createLaunch {
-  display: none !important;
+#pan {
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
