@@ -379,3 +379,46 @@
   z-index: 5 !important;
 }
 .pionier-top-dock .looper-rail { position: relative !important; z-index: 1 !important; }
+
+
+/* Final dock ordering: FX drawer expands in normal flow and pushes looper down.
+   Avoid absolutely overlaying the looper with the open FX panel. */
+.pionier-top-dock {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 5px !important;
+}
+.pionier-top-dock #mobileControlDrawer {
+  order: 1 !important;
+  position: relative !important;
+  z-index: 20 !important;
+  flex: 0 0 auto !important;
+  height: auto !important;
+  min-height: 36px !important;
+  overflow: visible !important;
+}
+.pionier-top-dock #mobileControlDrawer .mobile-control-panel {
+  position: relative !important;
+  inset: auto !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  display: none !important;
+  width: 100% !important;
+  margin: 5px 0 0 !important;
+  transform: none !important;
+  z-index: 21 !important;
+}
+.pionier-top-dock #mobileControlDrawer.is-open .mobile-control-panel {
+  display: flex !important;
+  position: relative !important;
+}
+.pionier-top-dock .looper-rail {
+  order: 2 !important;
+  position: relative !important;
+  z-index: 2 !important;
+  margin-top: 2px !important;
+  flex: 0 0 auto !important;
+}
