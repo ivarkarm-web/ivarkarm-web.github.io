@@ -188,7 +188,7 @@ export function createSurface(canvas) {
 
     const halo = ctx2.createRadialGradient(CX, CY, rimR * 0.92, CX, CY, rimR * 1.06);
     halo.addColorStop(0, 'rgba(200, 210, 230, 0)');
-    halo.addColorStop(0.55, `rgba(210, 220, 235, ${0.018 * breath})`;
+    halo.addColorStop(0.55, `rgba(210, 220, 235, ${0.018 * breath})`);
     halo.addColorStop(0.78, `rgba(230, 236, 248, ${0.045 * breath})`);
     halo.addColorStop(0.92, `rgba(240, 244, 252, ${0.028 * breath})`);
     halo.addColorStop(1, 'rgba(200, 210, 230, 0)');
@@ -262,7 +262,7 @@ export function createSurface(canvas) {
         f.x + hlx * f.rx * 0.35, f.y + hly * f.ry * 0.35, 0,
         f.x, f.y, Math.max(f.rx, f.ry)
       );
-      pad.addColorStop(0, `rgba(78,80,88,${0.95 * dim})`);
+      pad.addColorStop(0, `rgba(78,80,88,${0.95 * dim})`;
       pad.addColorStop(0.55, `rgba(40,42,48,${0.95 * dim})`);
       pad.addColorStop(1, `rgba(22,23,27,${0.98 * dim})`);
       ctx2.fillStyle = pad;
