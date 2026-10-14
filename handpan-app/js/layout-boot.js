@@ -8,12 +8,12 @@
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=19';
+    link.href = './ui-layout-extras.css?v=20';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
   } else {
     const link = document.querySelector('link[data-ui-extras]');
-    if (link) link.href = './ui-layout-extras.css?v=19';
+    if (link) link.href = './ui-layout-extras.css?v=20';
   }
 
   function purgeCreate() {
@@ -143,12 +143,15 @@
       topDock.setAttribute('aria-label', 'Effects and looper');
       app.insertBefore(topDock, stage);
     }
-    // Keep the entire reveal drawer intact: its FX knobs and the customization
-    // gear/sheet must travel together rather than extracting the knobs from it.
-    // Re-append on every boot, even when already docked: an earlier run may
-    // have left the looper before the FX drawer in DOM order.
-    if (drawer) topDock.appendChild(drawer);
-    if (looperRail) topDock.appendChild(looperRail);
+    // Move controls only when needed. Re-appending on every delayed boot
+    // causes visible jumps; correct order in place without unnecessary moves.
+    if (drawer && drawer.parentElement !== topDock) topDock.appendChild(drawer);
+    if (looperRail && looperRail.parentElement !== topDock) topDock.appendChild(looperRail);
+    if (drawer && looperRail && drawer.parentElement === topDock &&
+        looperRail.parentElement === topDock &&
+        drawer.compareDocumentPosition(looperRail) & Node.DOCUMENT_POSITION_PRECEDING) {
+      topDock.insertBefore(drawer, looperRail);
+    }
     if (looperClear && looperRail && looperClear.parentElement !== looperRail) looperRail.appendChild(looperClear);
     if (bar && (bar.parentElement !== app || bar.nextElementSibling !== null)) app.appendChild(bar);
 
