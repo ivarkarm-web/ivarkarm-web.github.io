@@ -1,6 +1,6 @@
 /**
- * layout-boot.js — stage-first layout
- * Top: instrument + ♫ + scale (fixed buttons) above handpan
+ * layout-boot.js — app chrome layout
+ * Top full-width bar: instrument (left) + scale (right)
  * Center: handpan
  * Bottom: looper above FX controls
  */
@@ -8,14 +8,12 @@
   if (!document.querySelector('link[data-ui-extras]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=4';
+    link.href = './ui-layout-extras.css?v=5';
     link.setAttribute('data-ui-extras', '1');
     document.head.appendChild(link);
   } else {
     const link = document.querySelector('link[data-ui-extras]');
-    if (link && !/v=4/.test(link.href)) {
-      link.href = './ui-layout-extras.css?v=4';
-    }
+    if (link) link.href = './ui-layout-extras.css?v=5';
   }
 
   function purgeCreate() {
@@ -39,17 +37,26 @@
 
     if (!stage || !pan) return;
 
+    // Prefer placing the chrome bar as first child of #app (true top of screen),
+    // not only above the pan inside .stage — looks more like a native app header.
     let bar = document.getElementById('stageScaleBar');
     if (!bar) {
       bar = document.createElement('div');
       bar.className = 'stage-scale-bar';
       bar.id = 'stageScaleBar';
-      stage.insertBefore(bar, pan);
-    } else if (bar.parentElement !== stage) {
-      stage.insertBefore(bar, pan);
+    }
+    // Insert at top of app, before stage
+    if (bar.parentElement !== app || app.firstElementChild !== bar) {
+      const afterStatus = null;
+      // Keep topbar in DOM but collapsed; bar is the real chrome
+      if (topbar && topbar.parentElement === app) {
+        topbar.insertAdjacentElement('afterend', bar);
+      } else {
+        app.insertBefore(bar, stage);
+      }
     }
 
-    // Row 1: instrument selector + soundscapes
+    // Left: instrument + soundscapes
     const instNav = document.getElementById('instrumentNav');
     if (instNav) {
       instNav.classList.add('stage-instrument-nav');
@@ -58,7 +65,7 @@
       }
     }
 
-    // Row 2: note count + scale selector
+    // Right: note count + scale
     const scaleLabel = document.getElementById('scaleLabel');
     const scaleMenu = document.getElementById('scaleMenu');
     const prev = document.getElementById('scalePrev');
@@ -96,10 +103,7 @@
       row.id = 'stageScaleRow';
       row.className = 'stage-scale-row';
     }
-    if (row.parentElement !== bar) {
-      if (instNav && instNav.parentElement === bar) instNav.insertAdjacentElement('afterend', row);
-      else bar.appendChild(row);
-    }
+    if (row.parentElement !== bar) bar.appendChild(row);
 
     const noteWrap = document.getElementById('notePlusWrap');
     if (noteWrap) {
@@ -108,25 +112,23 @@
     }
     if (scaleNav && scaleNav.parentElement !== row) row.appendChild(scaleNav);
 
+    // Order in bar: instrumentNav (left), scale row (right)
+    if (instNav && row && instNav.nextElementSibling !== row) {
+      bar.appendChild(instNav);
+      bar.appendChild(row);
+    }
+
     if (scaleMenu) {
       scaleMenu.classList.add('stage-scale-menu');
       if (scaleMenu.parentElement !== bar) bar.appendChild(scaleMenu);
     }
     if (scaleBlock) scaleBlock.hidden = true;
 
-    // Collapse empty topbar
     if (topbar) {
-      const stillHasChrome = topbar.querySelector('#instrumentNav, .instrument-nav, #openSoundscapes');
-      if (!stillHasChrome) {
-        topbar.classList.add('topbar-collapsed');
-        topbar.setAttribute('aria-hidden', 'true');
-      } else {
-        topbar.classList.remove('topbar-collapsed');
-        topbar.removeAttribute('aria-hidden');
-      }
+      topbar.classList.add('topbar-collapsed');
+      topbar.setAttribute('aria-hidden', 'true');
     }
 
-    // Looper stays above the controls drawer in DOM order
     if (drawer && looperRail && looperRail.nextElementSibling !== drawer) {
       drawer.insertAdjacentElement('beforebegin', looperRail);
     }
