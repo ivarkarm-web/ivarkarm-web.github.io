@@ -1057,3 +1057,79 @@ html body #pionierTopDock #looperRail #looperClearBtn {
     max-height: 40px !important;
   }
 }
+
+
+/* Control hierarchy correction: looper first, then centered instrument and scale rows. */
+html body #stageScaleBar.stage-scale-bar {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+html body #stageScaleBar #looperRail {
+  order: 0 !important;
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: min(520px, calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+  min-height: 42px !important;
+  margin: 0 auto 2px !important;
+  padding: 4px 8px !important;
+  box-sizing: border-box !important;
+  border: 1px solid rgba(230,224,210,.15) !important;
+  border-radius: 18px !important;
+  background: linear-gradient(145deg,rgba(32,32,36,.74),rgba(12,12,15,.86)) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(135%) !important;
+  backdrop-filter: blur(24px) saturate(135%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.055), 0 8px 24px rgba(0,0,0,.2) !important;
+}
+html body #stageScaleBar > .stage-instrument-nav,
+html body #stageScaleBar > #stageScaleRow {
+  order: 1 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+html body #stageScaleBar > #stageScaleRow { order: 2 !important; }
+html body #stageScaleBar .stage-instrument-nav #instrumentDropdownToggle,
+html body #stageScaleBar #stageScaleRow #scaleLabel {
+  border-radius: 18px !important;
+  border: 1px solid rgba(230,224,210,.24) !important;
+  background: linear-gradient(145deg,rgba(40,39,41,.78),rgba(16,16,19,.84)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 7px 22px rgba(0,0,0,.2) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(145%) !important;
+  backdrop-filter: blur(22px) saturate(145%) !important;
+}
+html body #stageScaleBar #looperRail button,
+html body #stageScaleBar #looperRail .looper-clear-btn,
+html body #stageScaleBar button,
+html body #pionierTopDock button,
+html body .app button,
+html body button.icon-btn,
+html body button.pill {
+  border-radius: 14px !important;
+}
+html body #stageScaleBar #looperRail #looperClearBtn {
+  border-radius: 12px !important;
+}
+@media (max-width: 700px) {
+  html body #stageScaleBar #looperRail {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    min-height: 40px !important;
+    padding: 3px 6px !important;
+    border-radius: 16px !important;
+  }
+  html body #stageScaleBar > .stage-instrument-nav,
+  html body #stageScaleBar > #stageScaleRow {
+    gap: 7px !important;
+  }
+}
