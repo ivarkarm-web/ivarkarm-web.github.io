@@ -1,45 +1,40 @@
 /**
- * settings-panel.js
- * Settings gear on the CONTROLS bar → sheet with:
- *   - Light mode
- *   - Handpan skins (preference stored; surface can read later)
- *   - Ambient templates (preference)
- *   - LED RGB controls (CSS vars + soft stage glow)
+ * settings-panel.js — premium customization sheet
+ * Dropdown menus (scale-selector style) for skins, ambients, tonefields.
+ * Transparency slider. Persists to localStorage + PionierSettings.
  */
 (function settingsPanel() {
-  const STORAGE_KEY = 'pionier.settings.v1';
+  const STORAGE_KEY = 'pionier.settings.v2';
 
   const DEFAULTS = {
     lightMode: false,
     skin: 'classic',
     ambient: 'none',
+    tonefield: 'classic',
+    transparency: 1,
+    mandala: true,
     led: { r: 110, g: 200, b: 255, strength: 0.35 },
   };
 
-  const SKINS = [
-    { id: 'classic', label: 'Classic' },
-    { id: 'bronze', label: 'Bronze' },
-    { id: 'steel', label: 'Steel' },
-    { id: 'obsidian', label: 'Obsidian' },
-  ];
-
-  const AMBIENTS = [
-    { id: 'none', label: 'None' },
-    { id: 'forest', label: 'Forest' },
-    { id: 'rain', label: 'Rain' },
-    { id: 'night', label: 'Night' },
-    { id: 'fire', label: 'Fire' },
-  ];
+  function catalog() {
+    const c = window.PionierCatalog || {};
+    return {
+      SKINS: c.SKINS || [{ id: 'classic', label: 'Classic' }],
+      AMBIENTS: c.AMBIENTS || [{ id: 'none', label: 'None' }],
+      TONEFIELDS: c.TONEFIELDS || [{ id: 'classic', label: 'Classic Oval' }],
+    };
+  }
 
   function load() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('pionier.settings.v1');
       if (!raw) return { ...DEFAULTS, led: { ...DEFAULTS.led } };
       const parsed = JSON.parse(raw);
       return {
         ...DEFAULTS,
         ...parsed,
         led: { ...DEFAULTS.led, ...(parsed.led || {}) },
+        transparency: parsed.transparency != null ? Number(parsed.transparency) : 1,
       };
     } catch {
       return { ...DEFAULTS, led: { ...DEFAULTS.led } };
@@ -47,49 +42,121 @@
   }
 
   function save(state) {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch { /* ignore */ }
-  }
-
-  function ledCss(led) {
-    const { r, g, b, strength } = led;
-    return {
-      color: `rgb(${r}, ${g}, ${b})`,
-      strength: String(strength),
-    };
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
   }
 
   function apply(state) {
     document.documentElement.classList.toggle('theme-light', !!state.lightMode);
     document.documentElement.dataset.skin = state.skin || 'classic';
     document.documentElement.dataset.ambient = state.ambient || 'none';
+    document.documentElement.dataset.tonefield = state.tonefield || 'classic';
 
-    const { color, strength } = ledCss(state.led);
-    document.documentElement.style.setProperty('--led-color', color);
-    document.documentElement.style.setProperty('--led-strength', strength);
+    const led = state.led;
+    document.documentElement.style.setProperty('--led-color', 'rgb(' + led.r + ',' + led.g + ',' + led.b + ')');
+    document.documentElement.style.setProperty('--led-strength', String(led.strength));
+    document.documentElement.style.setProperty('--handpan-alpha', String(state.transparency));
 
-    // Expose for surface / future modules
     window.PionierSettings = {
       get: () => ({ ...state, led: { ...state.led } }),
       skin: state.skin,
       ambient: state.ambient,
+      tonefield: state.tonefield,
+      transparency: state.transparency,
+      mandala: state.mandala,
       lightMode: state.lightMode,
       led: { ...state.led },
     };
 
-    // Theme-color meta
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', state.lightMode ? '#e8e6e1' : '#070708');
 
-    window.dispatchEvent(new CustomEvent('pionier:settings', { detail: { ...state, led: { ...state.led } } }));
+    window.dispatchEvent(new CustomEvent('pionier:settings', {
+      detail: { ...state, led: { ...state.led } },
+    }));
+  }
+
+  function labelFor(list, id) {
+    const hit = list.find((x) => x.id === id);
+    return hit ? hit.label : id;
+  }
+
+  function closeAllMenus(except) {
+    document.querySelectorAll('.settings-dd-menu').forEach((m) => {
+      if (m !== except) m.hidden = true;
+    });
+    document.querySelectorAll('.settings-dd-toggle').forEach((t) => {
+      if (!except || t.getAttribute('aria-controls') !== except.id) {
+        t.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  function buildDropdown(sectionEl, { id, label, items, activeId, onPick }) {
+    const row = document.createElement('div');
+    row.className = 'settings-dd';
+    row.innerHTML =
+      '<span class="settings-row-label">' + label + '</span>' +
+      '<div class="settings-dd-wrap">' +
+      '  <button type="button" class="settings-dd-toggle" id="' + id + 'Toggle" aria-haspopup="listbox" aria-expanded="false" aria-controls="' + id + 'Menu">' +
+      '    <span class="settings-dd-value" id="' + id + 'Value">' + labelFor(items, activeId) + '</span>' +
+      '    <span class="settings-dd-chevron" aria-hidden="true">▾</span>' +
+      '  </button>' +
+      '  <div class="settings-dd-menu scale-menu" id="' + id + 'Menu" role="listbox" hidden></div>' +
+      '</div>';
+    sectionEl.appendChild(row);
+
+    const toggle = row.querySelector('.settings-dd-toggle');
+    const menu = row.querySelector('.settings-dd-menu');
+    const valueEl = row.querySelector('.settings-dd-value');
+
+    function renderMenu() {
+      menu.innerHTML = '';
+      let lastGroup = null;
+      items.forEach((item) => {
+        if (item.group && item.group !== lastGroup) {
+          lastGroup = item.group;
+          const g = document.createElement('div');
+          g.className = 'scale-menu-group';
+          g.textContent = item.group;
+          menu.appendChild(g);
+        }
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'scale-menu-item' + (item.id === activeId ? ' is-active' : '');
+        b.setAttribute('role', 'option');
+        b.textContent = item.label;
+        b.addEventListener('click', () => {
+          activeId = item.id;
+          valueEl.textContent = item.label;
+          onPick(item.id);
+          closeAllMenus();
+          renderMenu();
+        });
+        menu.appendChild(b);
+      });
+    }
+
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = menu.hidden;
+      closeAllMenus(open ? menu : null);
+      menu.hidden = !open;
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) renderMenu();
+    });
+
+    renderMenu();
+    return { setActive(id) {
+      activeId = id;
+      valueEl.textContent = labelFor(items, id);
+      renderMenu();
+    }};
   }
 
   function ensureDom() {
     const drawer = document.getElementById('mobileControlDrawer');
     if (!drawer) return null;
 
-    // Wrap toggle in bar if needed
     let bar = drawer.querySelector('.mobile-controls-bar');
     const toggle = document.getElementById('mobileControlsToggle');
     if (!bar && toggle) {
@@ -130,114 +197,152 @@
       sheet.setAttribute('aria-modal', 'true');
       sheet.setAttribute('aria-labelledby', 'settingsSheetTitle');
       sheet.hidden = true;
-      sheet.innerHTML = `
-        <div class="settings-sheet-header">
-          <span class="settings-sheet-title" id="settingsSheetTitle">Settings</span>
-          <button type="button" class="settings-sheet-close" id="settingsSheetClose" aria-label="Close settings">×</button>
-        </div>
-        <div class="settings-sheet-body">
-          <section class="settings-section" aria-label="Appearance">
-            <div class="settings-section-label">Appearance</div>
-            <div class="settings-row">
-              <span class="settings-row-label">Light mode</span>
-              <label class="settings-toggle">
-                <input type="checkbox" id="settingLightMode" />
-                <span class="settings-toggle-track"></span>
-              </label>
-            </div>
-          </section>
-
-          <section class="settings-section" aria-label="Handpan skins">
-            <div class="settings-section-label">Handpan skin</div>
-            <div class="settings-chips" id="settingSkinChips"></div>
-          </section>
-
-          <section class="settings-section" aria-label="Ambient templates">
-            <div class="settings-section-label">Ambient</div>
-            <div class="settings-chips" id="settingAmbientChips"></div>
-          </section>
-
-          <section class="settings-section" aria-label="LED color">
-            <div class="settings-section-label">LED color</div>
-            <div class="settings-row">
-              <span class="settings-row-label">Preview</span>
-              <span class="settings-led-preview" id="settingLedPreview" aria-hidden="true"></span>
-            </div>
-            <div class="settings-rgb-grid">
-              <label for="ledR">R</label>
-              <input type="range" id="ledR" min="0" max="255" />
-              <span class="settings-rgb-val" id="ledRVal">0</span>
-              <label for="ledG">G</label>
-              <input type="range" id="ledG" min="0" max="255" />
-              <span class="settings-rgb-val" id="ledGVal">0</span>
-              <label for="ledB">B</label>
-              <input type="range" id="ledB" min="0" max="255" />
-              <span class="settings-rgb-val" id="ledBVal">0</span>
-              <label for="ledStrength">Glow</label>
-              <input type="range" id="ledStrength" min="0" max="100" />
-              <span class="settings-rgb-val" id="ledStrengthVal">0%</span>
-            </div>
-          </section>
-        </div>
-      `;
+      sheet.innerHTML =
+        '<div class="settings-sheet-header">' +
+        '  <span class="settings-sheet-title" id="settingsSheetTitle">Customize</span>' +
+        '  <button type="button" class="settings-sheet-close" id="settingsSheetClose" aria-label="Close">×</button>' +
+        '</div>' +
+        '<div class="settings-sheet-body" id="settingsSheetBody"></div>';
       document.body.appendChild(sheet);
     }
 
     return { bar, btn, sheet, backdrop };
   }
 
-  function fillChips(container, items, activeId, onPick) {
-    if (!container) return;
-    container.innerHTML = '';
-    items.forEach((item) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'settings-chip' + (item.id === activeId ? ' is-active' : '');
-      b.textContent = item.label;
-      b.dataset.id = item.id;
-      b.addEventListener('click', () => onPick(item.id));
-      container.appendChild(b);
-    });
-  }
+  function buildBody(state, els) {
+    const body = document.getElementById('settingsSheetBody');
+    if (!body) return;
+    body.innerHTML = '';
+    const cat = catalog();
 
-  function syncUi(state, els) {
+    const app = document.createElement('section');
+    app.className = 'settings-section';
+    app.innerHTML =
+      '<div class="settings-section-label">Appearance</div>' +
+      '<div class="settings-row">' +
+      '  <span class="settings-row-label">Light mode</span>' +
+      '  <label class="settings-toggle"><input type="checkbox" id="settingLightMode" /><span class="settings-toggle-track"></span></label>' +
+      '</div>' +
+      '<div class="settings-row">' +
+      '  <span class="settings-row-label">Mandala aura</span>' +
+      '  <label class="settings-toggle"><input type="checkbox" id="settingMandala" /><span class="settings-toggle-track"></span></label>' +
+      '</div>';
+    body.appendChild(app);
+
+    const skinSec = document.createElement('section');
+    skinSec.className = 'settings-section';
+    skinSec.innerHTML = '<div class="settings-section-label">Handpan skin</div>';
+    body.appendChild(skinSec);
+    buildDropdown(skinSec, {
+      id: 'settingSkin',
+      label: 'Skin',
+      items: cat.SKINS,
+      activeId: state.skin,
+      onPick: (id) => { state.skin = id; save(state); apply(state); },
+    });
+
+    const tfSec = document.createElement('section');
+    tfSec.className = 'settings-section';
+    tfSec.innerHTML = '<div class="settings-section-label">Tonefields</div>';
+    body.appendChild(tfSec);
+    buildDropdown(tfSec, {
+      id: 'settingTonefield',
+      label: 'Shape',
+      items: cat.TONEFIELDS,
+      activeId: state.tonefield,
+      onPick: (id) => { state.tonefield = id; save(state); apply(state); },
+    });
+
+    const trSec = document.createElement('section');
+    trSec.className = 'settings-section';
+    trSec.innerHTML =
+      '<div class="settings-section-label">Handpan transparency</div>' +
+      '<div class="settings-row settings-slider-row">' +
+      '  <input type="range" id="settingTransparency" min="35" max="100" value="' + Math.round(state.transparency * 100) + '" />' +
+      '  <span class="settings-rgb-val" id="settingTransparencyVal">' + Math.round(state.transparency * 100) + '%</span>' +
+      '</div>';
+    body.appendChild(trSec);
+
+    const ambSec = document.createElement('section');
+    ambSec.className = 'settings-section';
+    ambSec.innerHTML = '<div class="settings-section-label">Background atmosphere</div>';
+    body.appendChild(ambSec);
+    buildDropdown(ambSec, {
+      id: 'settingAmbient',
+      label: 'Ambient',
+      items: cat.AMBIENTS,
+      activeId: state.ambient,
+      onPick: (id) => { state.ambient = id; save(state); apply(state); },
+    });
+
+    const ledSec = document.createElement('section');
+    ledSec.className = 'settings-section';
+    ledSec.innerHTML =
+      '<div class="settings-section-label">LED color</div>' +
+      '<div class="settings-row"><span class="settings-row-label">Preview</span><span class="settings-led-preview" id="settingLedPreview" aria-hidden="true"></span></div>' +
+      '<div class="settings-rgb-grid">' +
+      '  <label for="ledR">R</label><input type="range" id="ledR" min="0" max="255" /><span class="settings-rgb-val" id="ledRVal">0</span>' +
+      '  <label for="ledG">G</label><input type="range" id="ledG" min="0" max="255" /><span class="settings-rgb-val" id="ledGVal">0</span>' +
+      '  <label for="ledB">B</label><input type="range" id="ledB" min="0" max="255" /><span class="settings-rgb-val" id="ledBVal">0</span>' +
+      '  <label for="ledStrength">Glow</label><input type="range" id="ledStrength" min="0" max="100" /><span class="settings-rgb-val" id="ledStrengthVal">0%</span>' +
+      '</div>';
+    body.appendChild(ledSec);
+
     const light = document.getElementById('settingLightMode');
-    if (light) light.checked = !!state.lightMode;
+    if (light) {
+      light.checked = !!state.lightMode;
+      light.addEventListener('change', () => { state.lightMode = light.checked; save(state); apply(state); });
+    }
+    const mandala = document.getElementById('settingMandala');
+    if (mandala) {
+      mandala.checked = state.mandala !== false;
+      mandala.addEventListener('change', () => { state.mandala = mandala.checked; save(state); apply(state); });
+    }
+    const tr = document.getElementById('settingTransparency');
+    const trVal = document.getElementById('settingTransparencyVal');
+    if (tr) {
+      tr.addEventListener('input', () => {
+        state.transparency = Number(tr.value) / 100;
+        if (trVal) trVal.textContent = tr.value + '%';
+        save(state); apply(state);
+      });
+    }
 
-    fillChips(document.getElementById('settingSkinChips'), SKINS, state.skin, (id) => {
-      state.skin = id;
-      save(state);
-      apply(state);
-      syncUi(state, els);
-    });
-
-    fillChips(document.getElementById('settingAmbientChips'), AMBIENTS, state.ambient, (id) => {
-      state.ambient = id;
-      save(state);
-      apply(state);
-      syncUi(state, els);
-    });
-
-    const { r, g, b, strength } = state.led;
     const setRange = (id, valId, val, fmt) => {
       const input = document.getElementById(id);
       const label = document.getElementById(valId);
-      if (input) input.value = String(val);
+      if (input) {
+        input.value = String(val);
+        input.oninput = () => {
+          const v = Number(input.value);
+          if (id === 'ledR') state.led.r = v;
+          if (id === 'ledG') state.led.g = v;
+          if (id === 'ledB') state.led.b = v;
+          if (id === 'ledStrength') state.led.strength = v / 100;
+          if (label) label.textContent = fmt ? fmt(v) : String(v);
+          const preview = document.getElementById('settingLedPreview');
+          if (preview) {
+            preview.style.background = 'rgb(' + state.led.r + ',' + state.led.g + ',' + state.led.b + ')';
+            preview.style.boxShadow = '0 0 16px rgb(' + state.led.r + ',' + state.led.g + ',' + state.led.b + ')';
+          }
+          save(state); apply(state);
+        };
+      }
       if (label) label.textContent = fmt ? fmt(val) : String(val);
     };
-    setRange('ledR', 'ledRVal', r);
-    setRange('ledG', 'ledGVal', g);
-    setRange('ledB', 'ledBVal', b);
-    setRange('ledStrength', 'ledStrengthVal', Math.round(strength * 100), (v) => v + '%');
-
+    setRange('ledR', 'ledRVal', state.led.r);
+    setRange('ledG', 'ledGVal', state.led.g);
+    setRange('ledB', 'ledBVal', state.led.b);
+    setRange('ledStrength', 'ledStrengthVal', Math.round(state.led.strength * 100), (v) => v + '%');
     const preview = document.getElementById('settingLedPreview');
     if (preview) {
-      preview.style.background = `rgb(${r},${g},${b})`;
-      preview.style.boxShadow = `0 0 16px rgb(${r},${g},${b})`;
+      preview.style.background = 'rgb(' + state.led.r + ',' + state.led.g + ',' + state.led.b + ')';
+      preview.style.boxShadow = '0 0 16px rgb(' + state.led.r + ',' + state.led.g + ',' + state.led.b + ')';
     }
   }
 
   function openSheet(els, state) {
+    buildBody(state, els);
     els.sheet.hidden = false;
     els.backdrop.hidden = false;
     requestAnimationFrame(() => {
@@ -245,10 +350,10 @@
       els.backdrop.classList.add('is-open');
     });
     if (els.btn) els.btn.setAttribute('aria-expanded', 'true');
-    syncUi(state, els);
   }
 
   function closeSheet(els) {
+    closeAllMenus();
     els.sheet.classList.remove('is-open');
     els.backdrop.classList.remove('is-open');
     if (els.btn) els.btn.setAttribute('aria-expanded', 'false');
@@ -265,9 +370,8 @@
       els.btn.dataset.wired = '1';
       els.btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        // Close controls drawer if open so sheets don't stack awkwardly
         const drawer = document.getElementById('mobileControlDrawer');
-        if (drawer?.classList.contains('is-open')) {
+        if (drawer && drawer.classList.contains('is-open')) {
           drawer.classList.remove('is-open');
           document.getElementById('mobileControlsToggle')?.setAttribute('aria-expanded', 'false');
         }
@@ -275,35 +379,10 @@
         else openSheet(els, state);
       });
     }
-
     document.getElementById('settingsSheetClose')?.addEventListener('click', () => closeSheet(els));
     els.backdrop.addEventListener('click', () => closeSheet(els));
-
-    document.getElementById('settingLightMode')?.addEventListener('change', (e) => {
-      state.lightMode = !!e.target.checked;
-      save(state);
-      apply(state);
-    });
-
-    const bindLed = (id, key, scale) => {
-      const input = document.getElementById(id);
-      if (!input || input.dataset.wired) return;
-      input.dataset.wired = '1';
-      input.addEventListener('input', () => {
-        const n = Number(input.value);
-        state.led[key] = scale ? n / 100 : n;
-        save(state);
-        apply(state);
-        syncUi(state, els);
-      });
-    };
-    bindLed('ledR', 'r');
-    bindLed('ledG', 'g');
-    bindLed('ledB', 'b');
-    bindLed('ledStrength', 'strength', true);
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && els.sheet.classList.contains('is-open')) closeSheet(els);
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.settings-dd')) closeAllMenus();
     });
   }
 
@@ -311,16 +390,11 @@
     const state = load();
     apply(state);
     const els = ensureDom();
-    if (!els) return;
+    if (!els) { setTimeout(boot, 200); return; }
     wire(state, els);
-    syncUi(state, els);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
-  setTimeout(boot, 400);
-  setTimeout(boot, 1200);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+  setTimeout(boot, 300);
 })();
