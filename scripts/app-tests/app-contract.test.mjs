@@ -8,9 +8,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const app = path.join(root, 'handpan-app');
 function read(rel) { return fs.readFileSync(path.join(root, rel), 'utf8'); }
 function readCoreSource() {
-  return [0, 1, 2, 3, 4, 5]
-    .map((i) => read(`handpan-app/js/pionier-core.src.${i}.js`))
-    .join('');
+  return read('handpan-app/pionier-core.js');
 }
 
 test('Pionier entry surface matches the deployed instrument UI', () => {
@@ -42,13 +40,12 @@ test('Pionier entry surface matches the deployed instrument UI', () => {
 
 test('boot chain is local and does not fetch or rewrite executable source at runtime', () => {
   const shell = read('handpan-app/pionier-app.js');
-  const loader = read('handpan-app/pionier-core.js');
   const coreSrc = readCoreSource();
 
   assert.match(shell, /pionier-core\.js/);
   assert.doesNotMatch(shell, /cdn\.jsdelivr\.net|fetch\(GOOD\)|CORE_PATCHES/);
-  assert.doesNotMatch(loader, /cdn\.jsdelivr\.net/);
-  assert.match(loader, /pionier-core\.src\./);
+  assert.doesNotMatch(coreSrc, /cdn\.jsdelivr\.net/);
+  assert.doesNotMatch(coreSrc, /createObjectURL|Blob\(\[src\]/);
 
   // Vendored source carries the real module graph and public API.
   assert.match(coreSrc, /from ['"]\.\/js\/audio-core\.js['"]/);
