@@ -1,13 +1,16 @@
 # Pionier quality baseline
 
-This branch is for reliability, product coherence, and production-readiness work. Changes must preserve the existing handpan-first interaction and be verified by automated checks before merge.
+Reliability, product coherence, and production-readiness work for the handpan app.
 
-## Priority order
-1. **DONE** — Remove the remote runtime core-fetch and string-patching boot dependency.
-   - `index.html` is a local shell (no jsDelivr HTML fetch / `document.write` bootstrap).
-   - `pionier-core.js` loads in-repo source parts only (`js/pionier-core.src.0.js` … `src.5.js`). No CDN.
-2. **DONE** — Fix automated tests to describe the current app rather than a retired interface.
-   - Smoke test checks local loader + assembled core source, current soundscapes IDs, skips fragment syntax.
-   - App-contract tests assert the local shell surface and vendored core API.
-3. Add browser regression checks for note input, instrument switching, controls, and mobile layout.
-4. Verify CI and deployment from the exact tested commit.
+## Completed
+1. **DONE** — Local core: real `pionier-core.js` ES module (no blob/CDN loader).
+2. **DONE** — Automated tests match the current shell and core.
+3. **DONE** — Sample caching: cache-first SW, versioned sample URLs, E Amara Opus/WebM + AAC.
+4. **DONE** — Generative ambient beds in soundscapes (rain/storm/forest/wind/water).
+5. **DONE** — Removed racey patch-layer scripts; logic lives in instrument/core/settings.
+6. **DONE** — Removed unreferenced legacy bundles and build leftovers.
+
+## Remaining
+- Browser regression suite (Playwright) still thin; expand for multi-touch and offline.
+- Re-encode remaining non-E-Amara scales to Opus for further weight savings.
+- iOS Safari audio unlock must be verified on a real device.
