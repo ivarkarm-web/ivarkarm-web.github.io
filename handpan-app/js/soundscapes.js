@@ -1,6 +1,7 @@
 import { createMandalaRenderer } from './mandala-canvas.js';
+import { startAmbient, setAmbientLevel, stopAmbient } from './generative-ambient.js';
 
-const page = document.getElementById('soundscapesPage');
+const page = document.getElementById('soundscapesPage') || document.getElementById('soundscapesPanel');
 const app = document.getElementById('app');
 const pan = document.getElementById('pan');
 const audio = document.getElementById('soundscapeAudio');
@@ -225,3 +226,29 @@ if (page && app && pan && audio) {
   });
   window.addEventListener('beforeunload', () => objectUrls.forEach((url) => URL.revokeObjectURL(url)));
 }
+
+/* Generative ambient presets (no external files required) */
+(function wireAmbientPresets() {
+  const presets = document.getElementById('soundscapePresets');
+  const vol = document.getElementById('ambientVolume');
+  const status = document.getElementById('soundscapeStatus');
+  const title = document.getElementById('soundscapeTitle');
+  if (!presets) return;
+  presets.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-ambient]');
+    if (!btn) return;
+    const mode = btn.getAttribute('data-ambient') || 'off';
+    const level = vol ? parseFloat(vol.value) : 0.22;
+    const ok = startAmbient(mode, level);
+    presets.querySelectorAll('[data-ambient]').forEach((b) => {
+      b.classList.toggle('is-active', b === btn);
+      b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+    });
+    if (status) status.textContent = ok && mode !== 'off' ? 'AMBIENCE · ' + mode.toUpperCase() : 'READY WHEN YOU ARE';
+    if (title && mode !== 'off') title.textContent = mode.charAt(0).toUpperCase() + mode.slice(1) + ' (generative)';
+    if (title && mode === 'off') title.textContent = 'No track';
+  });
+  vol?.addEventListener('input', () => {
+    setAmbientLevel(parseFloat(vol.value) || 0);
+  });
+})();
