@@ -1,10 +1,10 @@
 /**
- * pionier-core — local vendored core (no remote CDN fetch / string-patch boot).
+ * pionier-core -- local vendored core (no remote CDN fetch / string-patch boot).
  * Loads in-repo source parts and evaluates as a module.
  */
 const base = new URL('./js/', import.meta.url);
 const parts = await Promise.all(
-  [0, 1, 2].map((i) => fetch(new URL(`pionier-core.src.${i}.js`, base)).then((r) => {
+  [0, 1, 2, 3, 4, 5].map((i) => fetch(new URL(`pionier-core.src.${i}.js`, base)).then((r) => {
     if (!r.ok) throw new Error(`Failed to load pionier-core.src.${i}.js: HTTP ${r.status}`);
     return r.text();
   }))
