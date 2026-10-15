@@ -57,6 +57,7 @@
     }
   </style>
   <link rel="stylesheet" href="./atelier.css?v=8">
+  <link rel="stylesheet" href="./soundscape-presets.css">
 </head>
 <body>
   <div id="appStatus" class="app-status" data-state="loading" role="status" aria-live="polite">
@@ -137,6 +138,17 @@
           <span id="soundscapeTime">0:00</span> / <span id="soundscapeTimeTotal">0:00</span>
         </div>
       </div>
+      <div class="soundscape-presets" id="soundscapePresets" role="group" aria-label="Ambient beds">
+        <button type="button" class="soundscape-preset" data-ambient="rain">Rain</button>
+        <button type="button" class="soundscape-preset" data-ambient="storm">Storm</button>
+        <button type="button" class="soundscape-preset" data-ambient="forest">Forest</button>
+        <button type="button" class="soundscape-preset" data-ambient="wind">Wind</button>
+        <button type="button" class="soundscape-preset" data-ambient="water">Water</button>
+        <button type="button" class="soundscape-preset" data-ambient="off">Off</button>
+      </div>
+      <label class="soundscape-control-row"><span>Ambience</span>
+        <input id="ambientVolume" type="range" min="0" max="1" step="0.01" value="0.22" aria-label="Ambience volume">
+      </label>
       <div class="soundscape-player-actions">
         <button type="button" class="soundscape-secondary" id="addSoundscapeTrack">＋ Add audio</button>
         <span class="soundscape-status" id="soundscapeStatus">READY WHEN YOU ARE</span>
