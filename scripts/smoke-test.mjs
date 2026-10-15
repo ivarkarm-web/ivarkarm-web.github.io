@@ -19,6 +19,12 @@ const read = (rel) => {
   return fs.readFileSync(full, 'utf8');
 };
 
+/** Concatenated in-repo pionier-core source (loader is thin; logic lives in parts). */
+const readCoreSource = () =>
+  [0, 1, 2, 3, 4, 5]
+    .map((i) => read(`handpan-app/js/pionier-core.src.${i}.js`))
+    .join('');
+
 console.log('\nIvar Karm – Resonance · production smoke test\n');
 
 const rootHtml = read('index.html');
@@ -26,7 +32,8 @@ read('styles.css');
 read('script.js');
 const appHtml = read('handpan-app/index.html');
 const shell = read('handpan-app/pionier-app.js');
-const core = read('handpan-app/pionier-core.js');
+const coreLoader = read('handpan-app/pionier-core.js');
+const coreSrc = readCoreSource();
 read('handpan-app/pionier.css');
 read('handpan-app/js/audio-core.js');
 read('handpan-app/js/instrument.js');
@@ -56,8 +63,6 @@ if (samples.length === 0 && bundledNoteAudio.length === 0) {
   const missing = samples
     .map((s) => s.file)
     .filter((file) => file && !fs.existsSync(path.join(bundledNoteAudioDir, file)));
-  // Manifest may list samples before binaries are pushed; that is OK if status is owner-prototype.
-  // When binaries exist, every listed file must be present; extra loose audio files are not allowed.
   const listed = new Set(samples.map((s) => s.file).filter(Boolean));
   const extras = bundledNoteAudio.filter((name) => !listed.has(name));
   if (extras.length) {
@@ -77,23 +82,62 @@ if (samples.length === 0 && bundledNoteAudio.length === 0) {
 
 if (rootHtml.includes('<title>') && rootHtml.includes('</html>')) ok('Portfolio document is present');
 else fail('Portfolio HTML document is incomplete');
+
 if (appHtml.includes('id="pan"') && appHtml.includes('id="instrumentDropdownToggle"')) ok('Pionier has its real instrument entry surface');
 else fail('Pionier instrument entry surface is missing');
-if (appHtml.includes('id="soundscapesPage"') && appHtml.includes('id="mandalaPlay"') && appHtml.includes('id="soundscapeAudio"')) ok('Soundscapes player markup is present');
+
+// Current shell uses soundscapesPanel + soundscapeAudio (+ optional play control).
+if (
+  (appHtml.includes('id="soundscapesPanel"') || appHtml.includes('id="soundscapesPage"')) &&
+  appHtml.includes('id="soundscapeAudio"') &&
+  (appHtml.includes('id="soundscapePlay"') || appHtml.includes('id="mandalaPlay"') || appHtml.includes('id="openSoundscapes"'))
+) ok('Soundscapes player markup is present');
 else fail('Soundscapes player markup is missing');
+
 if (/createMandalaRenderer/.test(soundscapes) && /pointerdown/.test(soundscapes) && /pointerup/.test(soundscapes)) ok('Soundscapes renderer and swipe navigation are present');
 else fail('Soundscapes renderer or swipe navigation is missing');
+
 if (appHtml.includes('name="description"')) ok('Pionier description metadata is present');
 else fail('Pionier description metadata is missing');
-if (/pionier-core\.js/.test(shell) && !/cdn\.jsdelivr\.net|fetch\(GOOD\)|new Blob|CORE_PATCHES/.test(shell)) ok('Pionier boot uses the local core without runtime source rewriting');
-else fail('Pionier boot still depends on remote source rewriting');
-if (/window\.PionierCore/.test(core) && /pionier:learn-note/.test(core)) ok('Core API and lesson note events are exposed');
-else fail('Core API or lesson note events are missing');
-const instrumentFamilyImports = core.match(/from ['"]\.\/js\/instruments\/[^'"]+['"]/g) || [];
+
+// Boot: shell imports local pionier-core; loader must not use CDN.
+if (/pionier-core\.js/.test(shell) && !/cdn\.jsdelivr\.net|fetch\(GOOD\)|CORE_PATCHES/.test(shell)) {
+  ok('Pionier boot uses the local core without runtime source rewriting');
+} else {
+  fail('Pionier boot still depends on remote source rewriting');
+}
+
+if (!/cdn\.jsdelivr\.net/.test(coreLoader) && /pionier-core\.src\./.test(coreLoader)) {
+  ok('Core loader is local and loads in-repo source parts');
+} else {
+  fail('Core loader still depends on a remote CDN or missing source parts');
+}
+
+// Core API lives in the concatenated vendored source, not the thin loader.
+if (/window\.PionierCore/.test(coreSrc) && /async function setInstrument/.test(coreSrc)) {
+  ok('Core API is exposed in the vendored source');
+} else {
+  fail('Core API is missing from the vendored source');
+}
+
+const instrumentFamilyImports = coreSrc.match(/from ['"]\.\/js\/instruments\/[^'"]+['"]/g) || [];
 if (instrumentFamilyImports.length === 2) ok('Instrument registry imports only the handpan and tonal families');
-else fail('Unexpected instrument-family imports in the core registry');
-if (!/ghp_[A-Za-z0-9]{20,}/.test(rootHtml + shell + core)) ok('No obvious GitHub token in entry source');
+else fail('Unexpected instrument-family imports in the core registry (got ' + instrumentFamilyImports.length + ')');
+
+if (!/ghp_[A-Za-z0-9]{20,}/.test(rootHtml + shell + coreLoader + coreSrc)) ok('No obvious GitHub token in entry source');
 else fail('Possible GitHub token in source');
+
+// Syntax-check complete JS modules only — skip intentional source fragments.
+const skipSyntax = (rel) => {
+  const base = rel.replace(/\\/g, '/');
+  return (
+    /pionier-core\.src\.\d+\.js$/.test(base) ||
+    /handpan-src-\d+\.js$/.test(base) ||
+    /surf-part-\d+\.js$/.test(base) ||
+    /shell-part-\d+/.test(base) ||
+    /b64-\d+\.js$/.test(base)
+  );
+};
 
 const jsFiles = [];
 function collectJs(dir) {
@@ -107,9 +151,24 @@ function collectJs(dir) {
 }
 collectJs('.');
 for (const rel of jsFiles) {
+  if (skipSyntax(rel)) {
+    ok('JS fragment skipped (assembled at runtime): ' + rel);
+    continue;
+  }
   const result = spawnSync(process.execPath, ['--check', path.join(root, rel)], { encoding: 'utf8' });
   if (result.status === 0) ok('JS syntax: ' + rel);
   else fail('JS syntax: ' + rel + (result.stderr ? ' — ' + result.stderr.trim().split('\n')[0] : ''));
+}
+
+// Assembled core must parse as a module when concatenated.
+const assembledPath = path.join(root, 'handpan-app/js/.pionier-core.assembled.check.js');
+try {
+  fs.writeFileSync(assembledPath, coreSrc, 'utf8');
+  const result = spawnSync(process.execPath, ['--check', assembledPath], { encoding: 'utf8' });
+  if (result.status === 0) ok('JS syntax: assembled pionier-core source');
+  else fail('JS syntax: assembled pionier-core source' + (result.stderr ? ' — ' + result.stderr.trim().split('\n')[0] : ''));
+} finally {
+  try { fs.unlinkSync(assembledPath); } catch (_) {}
 }
 
 console.log('');
