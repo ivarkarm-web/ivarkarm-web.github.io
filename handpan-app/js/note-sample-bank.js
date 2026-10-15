@@ -5,6 +5,8 @@
  * Loads each unique audio file once, then maps the full pitch set onto every
  * scale id so setActiveScale never drops the bank to synth fallback.
  */
+const SAMPLE_CACHE_VERSION = 'v1';
+
 export class NoteSampleBank {
   constructor(ctx, baseUrl = './sounds/notes/') {
     this.ctx = ctx;
@@ -46,7 +48,7 @@ export class NoteSampleBank {
   async _decodeFile(file, encoding) {
     if (this._fileCache.has(file)) return this._fileCache.get(file);
     const encodedFile = String(file).split('/').map((part) => encodeURIComponent(part)).join('/');
-    const r = await fetch(this.baseUrl + encodedFile, { cache: 'no-store' });
+    const r = await fetch(this.baseUrl + encodedFile + (encodedFile.includes('?') ? '&' : '?') + 'v=' + SAMPLE_CACHE_VERSION, {});
     if (!r.ok) return null;
     let ab;
     if (encoding === 'base64' || /\.b64$/i.test(file)) {
@@ -64,7 +66,7 @@ export class NoteSampleBank {
   }
 
   async _load() {
-    const res = await fetch(this.baseUrl + 'manifest.json', { cache: 'no-store' });
+    const res = await fetch(this.baseUrl + 'manifest.json?v=' + SAMPLE_CACHE_VERSION, {});
     if (!res.ok) throw new Error('Sample manifest missing: ' + res.status);
     this.manifest = await res.json();
 
