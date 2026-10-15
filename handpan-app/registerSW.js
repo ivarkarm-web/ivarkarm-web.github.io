@@ -1,6 +1,8 @@
-// Service worker disabled — always load fresh app shell
+/**
+ * Register Pionier service worker. Soft-updates without wiping caches on every load.
+ */
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then((regs) => {
-    regs.forEach((r) => r.unregister());
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {});
   });
 }
