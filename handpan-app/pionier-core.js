@@ -1,35 +1,15 @@
 /**
- * pionier-core — temporary restore of last known-good core.
- * Step 1 progress: index.html no longer uses remote HTML bootstrap.
- * TODO: replace this with fully local vendored source (no CDN).
- * PIN kept only until in-repo source parts are committed.
+ * pionier-core — local vendored core (no remote CDN fetch / string-patch boot).
+ * Loads in-repo source parts and evaluates as a module.
  */
-const PIN = 'https://cdn.jsdelivr.net/gh/ivarkarm-web/ivarkarm-web.github.io@fb1421d50a622911b6de9d94976d1e7481997858/handpan-app/pionier-core.js';
-
-const res = await fetch(PIN);
-if (!res.ok) throw new Error('Failed to restore pionier-core: HTTP ' + res.status);
-let src = await res.text();
-
-// Use the live library-family (includes metallic batch 1 voices)
-src = src.replace(/library-family\.js\?v=\d+/g, 'library-family.js?v=3');
-
-// Surface: on-handpan circular mandalas under tonefields
-src = src.replace(/pionier-surface\.js\?v=\d+/g, 'pionier-surface.js?v=120');
-
-// Disable vertical pitch-bend drag (was detuning held notes)
-src = src.replace(/moved\.pitchBendNorm = bendNorm;/g, 'moved.pitchBendNorm = 0;');
-src = src.replace(/moved\.pitchBend = bendNorm \* range;/g, 'moved.pitchBend = 0;');
-
-// Disable slide portamento/glide between pads (stable pitch per strike)
-src = src.replace(
-  /if \(!sharedPrev && !sharedTarget && prevIdx != null && typeof inst\.glideTo === 'function'\) \{[\s\S]*?\}/,
-  'if (false) { /* glide disabled */ }'
+const base = new URL('./js/', import.meta.url);
+const parts = await Promise.all(
+  [0, 1, 2].map((i) => fetch(new URL(`pionier-core.src.${i}.js`, base)).then((r) => {
+    if (!r.ok) throw new Error(`Failed to load pionier-core.src.${i}.js: HTTP ${r.status}`);
+    return r.text();
+  }))
 );
-
-// Resolve relative imports against the live handpan-app origin (not the CDN)
-const base = new URL('.', import.meta.url).href;
-src = src.replace(/from (['"])\.\//g, (m, q) => 'from ' + q + base);
-
+const src = parts.join('');
 const blob = new Blob([src], { type: 'text/javascript' });
 const url = URL.createObjectURL(blob);
 let mod;
@@ -38,6 +18,5 @@ try {
 } finally {
   URL.revokeObjectURL(url);
 }
-
 const core = mod?.default || window.PionierCore;
 export default core;
