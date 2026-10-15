@@ -6,6 +6,8 @@ This branch is for reliability, product coherence, and production-readiness work
 1. **DONE** — Remove the remote runtime core-fetch and string-patching boot dependency.
    - `index.html` is a local shell (no jsDelivr HTML fetch / `document.write` bootstrap).
    - `pionier-core.js` loads in-repo source parts only (`js/pionier-core.src.0.js` … `src.5.js`). No CDN.
-2. Fix automated tests to describe the current app rather than a retired interface.
+2. **DONE** — Fix automated tests to describe the current app rather than a retired interface.
+   - Smoke test checks local loader + assembled core source, current soundscapes IDs, skips fragment syntax.
+   - App-contract tests assert the local shell surface and vendored core API.
 3. Add browser regression checks for note input, instrument switching, controls, and mobile layout.
 4. Verify CI and deployment from the exact tested commit.
