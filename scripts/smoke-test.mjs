@@ -19,12 +19,6 @@ const read = (rel) => {
   return fs.readFileSync(full, 'utf8');
 };
 
-/** Concatenated in-repo pionier-core source (loader is thin; logic lives in parts). */
-const readCoreSource = () =>
-  [0, 1, 2, 3, 4, 5]
-    .map((i) => read(`handpan-app/js/pionier-core.src.${i}.js`))
-    .join('');
-
 console.log('\nIvar Karm – Resonance · production smoke test\n');
 
 const rootHtml = read('index.html');
@@ -32,8 +26,7 @@ read('styles.css');
 read('script.js');
 const appHtml = read('handpan-app/index.html');
 const shell = read('handpan-app/pionier-app.js');
-const coreLoader = read('handpan-app/pionier-core.js');
-const coreSrc = readCoreSource();
+const coreSrc = read('handpan-app/pionier-core.js');
 read('handpan-app/pionier.css');
 read('handpan-app/js/audio-core.js');
 read('handpan-app/js/instrument.js');
@@ -107,10 +100,10 @@ if (/pionier-core\.js/.test(shell) && !/cdn\.jsdelivr\.net|fetch\(GOOD\)|CORE_PA
   fail('Pionier boot still depends on remote source rewriting');
 }
 
-if (!/cdn\.jsdelivr\.net/.test(coreLoader) && /pionier-core\.src\./.test(coreLoader)) {
-  ok('Core loader is local and loads in-repo source parts');
+if (!/cdn\.jsdelivr\.net/.test(coreSrc) && /window\.PionierCore/.test(coreSrc) && /from ['"]\.\/js\/audio-core\.js['"]/.test(coreSrc)) {
+  ok('Core is a real local ES module (no CDN, no blob loader)');
 } else {
-  fail('Core loader still depends on a remote CDN or missing source parts');
+  fail('Core is not a real local ES module or still depends on CDN');
 }
 
 // Core API lives in the concatenated vendored source, not the thin loader.
@@ -124,14 +117,13 @@ const instrumentFamilyImports = coreSrc.match(/from ['"]\.\/js\/instruments\/[^'
 if (instrumentFamilyImports.length === 2) ok('Instrument registry imports only the handpan and tonal families');
 else fail('Unexpected instrument-family imports in the core registry (got ' + instrumentFamilyImports.length + ')');
 
-if (!/ghp_[A-Za-z0-9]{20,}/.test(rootHtml + shell + coreLoader + coreSrc)) ok('No obvious GitHub token in entry source');
+if (!/ghp_[A-Za-z0-9]{20,}/.test(rootHtml + shell + coreSrc)) ok('No obvious GitHub token in entry source');
 else fail('Possible GitHub token in source');
 
 // Syntax-check complete JS modules only — skip intentional source fragments.
 const skipSyntax = (rel) => {
   const base = rel.replace(/\\/g, '/');
   return (
-    /pionier-core\.src\.\d+\.js$/.test(base) ||
     /handpan-src-\d+\.js$/.test(base) ||
     /surf-part-\d+\.js$/.test(base) ||
     /shell-part-\d+/.test(base) ||
@@ -160,16 +152,7 @@ for (const rel of jsFiles) {
   else fail('JS syntax: ' + rel + (result.stderr ? ' — ' + result.stderr.trim().split('\n')[0] : ''));
 }
 
-// Assembled core must parse as a module when concatenated.
-const assembledPath = path.join(root, 'handpan-app/js/.pionier-core.assembled.check.js');
-try {
-  fs.writeFileSync(assembledPath, coreSrc, 'utf8');
-  const result = spawnSync(process.execPath, ['--check', assembledPath], { encoding: 'utf8' });
-  if (result.status === 0) ok('JS syntax: assembled pionier-core source');
-  else fail('JS syntax: assembled pionier-core source' + (result.stderr ? ' — ' + result.stderr.trim().split('\n')[0] : ''));
-} finally {
-  try { fs.unlinkSync(assembledPath); } catch (_) {}
-}
+
 
 console.log('');
 if (errors.length) {
