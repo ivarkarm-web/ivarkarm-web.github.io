@@ -4,33 +4,71 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Handpan — Ivar Karm</title>
+  <meta name="description" content="Playable virtual handpan — radial instrument that grows from 9 to 14 notes, with sampled notes, interval scales, and expressive effects." />
   <meta name="theme-color" content="#070708" />
-  <style>html,body{margin:0;background:#070708;color:#aaa;font:15px/1.4 system-ui;min-height:100%}</style>
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./pionier.css?v=117" />
+  <link rel="stylesheet" href="./topbar-narrow.css?v=6" />
+  <link rel="stylesheet" href="./looper.css?v=201" />
+  <link rel="stylesheet" href="./scale-menu.css?v=3" />
+  <link rel="stylesheet" href="./settings-panel.css?v=9" />
+  <style>
+    .backdrop-player { display: none !important; }
+    .play-pill, #modePlay, #btnHelp, #btnExit, .top-actions,
+    #createLaunch, .create-launch, #createPage, .create-page { display: none !important; }
+
+    .stage {
+      --stage-bottom-reserve: calc(120px + env(safe-area-inset-bottom, 0px));
+      padding: 0 !important;
+      flex-direction: column;
+      position: relative !important;
+      align-items: center !important;
+      justify-content: center !important;
+      overflow: hidden !important;
+      min-height: 0 !important;
+      flex: 1 1 auto !important;
+      box-sizing: border-box !important;
+    }
+    #pan {
+      position: absolute !important;
+      left: 50% !important;
+      top: calc((100% - var(--stage-bottom-reserve)) / 2) !important;
+      transform: translate(-50%, -50%) translateZ(0) !important;
+      width: min(86vw, calc(100dvh - 250px), 680px) !important;
+      max-width: 86vw !important;
+      margin: 0 !important;
+      display: block !important;
+      height: auto !important;
+      aspect-ratio: 1 !important;
+    }
+    .stage::before {
+      left: 50% !important;
+      top: calc((100% - var(--stage-bottom-reserve)) / 2) !important;
+      transform: translate(-50%, -50%) !important;
+      width: min(80vw, calc(100dvh - 260px), 640px) !important;
+      height: min(80vw, calc(100dvh - 260px), 640px) !important;
+    }
+  </style>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        regs.forEach((r) => r.unregister());
+      });
+    }
+    if (window.caches && caches.keys) {
+      caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+    }
+  </script>
+  <link rel="stylesheet" href="./atelier.css?v=8">
 </head>
 <body>
-  <p id="appBoot" style="padding:2rem;text-align:center">Loading handpan…</p>
-  <script>
-  (async function () {
-    try {
-      var url = 'https://cdn.jsdelivr.net/gh/ivarkarm-web/ivarkarm-web.github.io@033ec0faf1/handpan-app/index.html';
-      var r = await fetch(url);
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      var html = await r.text();
-      html = html.replace(/settings-panel\.css\?v=\d+/g, 'settings-panel.css?v=9');
-      html = html.replace(
-        '<script src="./js/layout-boot.js?v=13"><\/script>\n  <script src="./js/settings-panel.js?v=1"><\/script>\n  <script type="module" src="./pionier-app.js?v=143"><\/script>',
-        '<script src="./js/skin-palette.js?v=1"><\/script>\n  <script src="./js/customization-catalog.js?v=5"><\/script>\n  <script src="./js/layout-boot.js?v=40"><\/script>\n  <script src="./js/settings-panel.js?v=6"><\/script>\n  <script src="./js/settings-live-fix.js?v=7"><\/script>\n  <script src="./js/ambient-fx.js?v=12"><\/script>\n  <script src="./js/skin-mandala.js?v=4"><\/script>\n  <script type="module" src="./pionier-app.js?v=160"><\/script>'
-      );
-      html = html.replace(/<\/head>/i, '<link rel="stylesheet" href="./atelier.css?v=8"><\/head>');
-      document.open();
-      document.write(html);
-      document.close();
-    } catch (e) {
-      var el = document.getElementById('appBoot');
-      if (el) el.textContent = 'Failed to load: ' + e;
-      console.error(e);
-    }
-  })();
-  </script>
+PLACEHOLDER_BODY_AND_SCRIPTS
 </body>
 </html>
