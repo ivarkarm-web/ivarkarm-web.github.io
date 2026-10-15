@@ -47,22 +47,44 @@ export class NoteSampleBank {
 
   async _decodeFile(file, encoding) {
     if (this._fileCache.has(file)) return this._fileCache.get(file);
-    const encodedFile = String(file).split('/').map((part) => encodeURIComponent(part)).join('/');
-    const r = await fetch(this.baseUrl + encodedFile + (encodedFile.includes('?') ? '&' : '?') + 'v=' + SAMPLE_CACHE_VERSION, {});
-    if (!r.ok) return null;
-    let ab;
-    if (encoding === 'base64' || /\.b64$/i.test(file)) {
-      const text = (await r.text()).replace(/\s+/g, '');
-      const bin = atob(text);
-      const bytes = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      ab = bytes.buffer;
-    } else {
-      ab = await r.arrayBuffer();
+    // Prefer compressed formats when the manifest still points at .wav
+    const candidates = [];
+    const raw = String(file);
+    if (/\.wav$/i.test(raw)) {
+      candidates.push(raw.replace(/\.wav$/i, '.webm'));
+      candidates.push(raw.replace(/\.wav$/i, '.m4a'));
     }
-    const buf = await this.ctx.decodeAudioData(ab.slice(0));
-    this._fileCache.set(file, buf);
-    return buf;
+    candidates.push(raw);
+    let ab = null;
+    let used = null;
+    for (const candidate of candidates) {
+      const encodedFile = candidate.split('/').map((part) => encodeURIComponent(part)).join('/');
+      const url = this.baseUrl + encodedFile + (encodedFile.includes('?') ? '&' : '?') + 'v=' + SAMPLE_CACHE_VERSION;
+      try {
+        const r = await fetch(url, {});
+        if (!r.ok) continue;
+        if (encoding === 'base64' || /\.b64$/i.test(candidate)) {
+          const text = (await r.text()).replace(/\s+/g, '');
+          const bin = atob(text);
+          const bytes = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+          ab = bytes.buffer;
+        } else {
+          ab = await r.arrayBuffer();
+        }
+        used = candidate;
+        break;
+      } catch (_) { /* try next format */ }
+    }
+    if (!ab) return null;
+    try {
+      const buf = await this.ctx.decodeAudioData(ab.slice(0));
+      this._fileCache.set(file, buf);
+      return buf;
+    } catch (err) {
+      console.warn('[samples] decode failed', used || file, err);
+      return null;
+    }
   }
 
   async _load() {
