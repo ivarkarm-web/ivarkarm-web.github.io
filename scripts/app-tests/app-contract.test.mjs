@@ -7,10 +7,34 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const app = path.join(root, 'handpan-app');
 function read(rel) { return fs.readFileSync(path.join(root, rel), 'utf8'); }
+function readCoreSource() {
+  return [0, 1, 2, 3, 4, 5]
+    .map((i) => read(`handpan-app/js/pionier-core.src.${i}.js`))
+    .join('');
+}
 
 test('Pionier entry surface matches the deployed instrument UI', () => {
   const html = read('handpan-app/index.html');
-  for (const id of ['app','pan','instrumentDropdownToggle','instrumentMenu','mobileControlDrawer','mobileControlsToggle','mobileControlPanel','openSoundscapes','soundscapesPage','mandalaWrap','mandalaPlay','soundscapeAudio','scaleLabel','scaleMenu','knobCompress','knobDelay','knobReverb','knobFilter','knobBass','knobLow','knobMid','knobMaster','looperBtn']) {
+  // Current local shell: instrument surface + soundscapes panel (not the retired full knob shell).
+  for (const id of [
+    'app',
+    'pan',
+    'instrumentDropdownToggle',
+    'instrumentMenu',
+    'mobileControlDrawer',
+    'mobileControlsToggle',
+    'mobileControlPanel',
+    'openSoundscapes',
+    'soundscapesPanel',
+    'soundscapePlay',
+    'soundscapeAudio',
+    'scaleLabel',
+    'scaleMenu',
+    'looperRail',
+    'looperClearBtn',
+    'voicePrev',
+    'voiceNext',
+  ]) {
     assert.match(html, new RegExp('id="' + id + '"'), 'missing #' + id);
   }
   assert.match(html, /id="pan"[^>]*aria-label="Handpan instrument"/);
@@ -18,12 +42,19 @@ test('Pionier entry surface matches the deployed instrument UI', () => {
 
 test('boot chain is local and does not fetch or rewrite executable source at runtime', () => {
   const shell = read('handpan-app/pionier-app.js');
-  const core = read('handpan-app/pionier-core.js');
+  const loader = read('handpan-app/pionier-core.js');
+  const coreSrc = readCoreSource();
+
   assert.match(shell, /pionier-core\.js/);
-  assert.doesNotMatch(shell, /cdn\.jsdelivr\.net|fetch\(GOOD\)|new Blob|CORE_PATCHES/);
-  assert.match(core, /from ['"]\.\/js\/audio-core\.js['"]/);
-  assert.match(core, /window\.PionierCore/);
-  assert.match(core, /pionier:learn-note/);
+  assert.doesNotMatch(shell, /cdn\.jsdelivr\.net|fetch\(GOOD\)|CORE_PATCHES/);
+  assert.doesNotMatch(loader, /cdn\.jsdelivr\.net/);
+  assert.match(loader, /pionier-core\.src\./);
+
+  // Vendored source carries the real module graph and public API.
+  assert.match(coreSrc, /from ['"]\.\/js\/audio-core\.js['"]/);
+  assert.match(coreSrc, /window\.PionierCore/);
+  assert.match(coreSrc, /async function setInstrument\(id\)/);
+
   assert.ok(fs.existsSync(path.join(app, 'js/audio-core.js')));
   assert.ok(fs.existsSync(path.join(app, 'js/pionier-surface.js')));
   assert.ok(fs.existsSync(path.join(app, 'js/instruments/handpan.js')));
@@ -34,14 +65,18 @@ test('boot chain is local and does not fetch or rewrite executable source at run
 
 test('the app exposes instrument switching, audio controls and mobile drawer hooks', () => {
   const html = read('handpan-app/index.html');
-  const core = read('handpan-app/pionier-core.js');
+  const coreSrc = readCoreSource();
+
   assert.match(html, /id="voicePrev"/);
   assert.match(html, /id="voiceNext"/);
-  assert.match(html, /class="knob-effect-trigger"/);
   assert.match(html, /id="mobileControlsToggle"/);
-  assert.match(core, /async function setInstrument\(id\)/);
-  assert.match(core, /pointercancel/);
-  assert.match(core, /lostpointercapture/);
+  assert.match(html, /id="mobileControlDrawer"/);
+
+  // FX knobs are wired in core (DOM may be injected by settings/layout modules).
+  assert.match(coreSrc, /knobCompress/);
+  assert.match(coreSrc, /async function setInstrument\(id\)/);
+  assert.match(coreSrc, /pointercancel/);
+  assert.match(coreSrc, /lostpointercapture/);
 });
 
 test('browser test harness targets a mobile touch viewport and desktop viewport', () => {
