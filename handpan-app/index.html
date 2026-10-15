@@ -56,16 +56,6 @@
       height: min(80vw, calc(100dvh - 260px), 640px) !important;
     }
   </style>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then((regs) => {
-        regs.forEach((r) => r.unregister());
-      });
-    }
-    if (window.caches && caches.keys) {
-      caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
-    }
-  </script>
   <link rel="stylesheet" href="./atelier.css?v=8">
 </head>
 <body>
@@ -166,5 +156,6 @@
   <script type="module" src="./pionier-app.js?v=160"></script>
   <script src="./js/scale-root-fix.js?v=1"></script>
   <script src="./js/note-count-fix.js?v=1"></script>
+  <script src="./registerSW.js"></script>
 </body>
 </html>
