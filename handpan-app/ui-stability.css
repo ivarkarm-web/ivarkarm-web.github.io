@@ -405,3 +405,68 @@ html.theme-light body #scaleMenu button.is-active {
 
   html body #stageScaleBar #stageBaseOnly { max-width: 78px !important; }
 }
+
+
+/* Light-mode dropdowns: override legacy dark menu declarations with a cohesive
+   warm porcelain surface. These menus are portalled under body, so target them
+   explicitly rather than relying on the settings sheet's descendant styles. */
+html.theme-light body .settings-dd-menu,
+html.theme-light body #settingSkinMenu,
+html.theme-light body #settingTonefieldMenu,
+html.theme-light body #settingAmbientMenu,
+html.theme-light body .scale-menu,
+html.theme-light body #scaleMenu,
+html.theme-light body .instrument-menu,
+html.theme-light body #instrumentMenu,
+html.theme-light body .scale-menu.picker-sheet:not([hidden]),
+html.theme-light body .instrument-menu.picker-sheet:not([hidden]),
+html.theme-light body .scale-menu.picker-popover:not([hidden]),
+html.theme-light body .instrument-menu.picker-popover:not([hidden]) {
+  color: #302d27 !important;
+  background: #faf8f4 !important;
+  background-color: #faf8f4 !important;
+  background-image: none !important;
+  border: 1px solid rgba(62, 54, 40,  0.14) !important;
+  box-shadow: 0 14px 36px rgba(56, 44, 24, 0.14) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html.theme-light body .settings-dd-menu .settings-dd-group,
+html.theme-light body .scale-menu .scale-menu-group,
+html.theme-light body .instrument-menu .instrument-menu-group {
+  color: #82796b !important;
+}
+
+html.theme-light body .settings-dd-menu .settings-dd-item,
+html.theme-light body .scale-menu .scale-menu-item,
+html.theme-light body .instrument-menu .instrument-menu-item,
+html.theme-light body .scale-menu [role="menuitem"],
+html.theme-light body .instrument-menu [role="menuitem"] {
+  color: #39352e !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html.theme-light body .settings-dd-menu .settings-dd-item:hover,
+html.theme-light body .settings-dd-menu .settings-dd-item:focus-visible,
+html.theme-light body .scale-menu .scale-menu-item:hover,
+html.theme-light body .scale-menu .scale-menu-item:focus-visible,
+html.theme-light body .instrument-menu .instrument-menu-item:hover,
+html.theme-light body .instrument-menu .instrument-menu-item:focus-visible {
+  color: #24211b !important;
+  background: rgba(174, 137, 46, 0.10) !important;
+  background-color: rgba(174, 137, 46, 0.10) !important;
+  outline-color: rgba(174, 137, 46, 0.42) !important;
+}
+
+html.theme-light body .settings-dd-menu .settings-dd-item.is-active,
+html.theme-light body .scale-menu .scale-menu-item.is-active,
+html.theme-light body .instrument-menu .instrument-menu-item.is-active {
+  color: #70541a !important;
+  background: rgba(174, 137, 46, 0.14) !important;
+  background-color: rgba(174, 137, 46, 0.14) !important;
+  box-shadow: inset 2px 0 0 rgba(174, 137, 46, 0.72) !important;
+}
