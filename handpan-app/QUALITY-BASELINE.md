@@ -1,30 +1,50 @@
 # Pionier quality baseline
 
-## Scores (evidence-based, 2026-10-16)
+Measured against the working tree after local commits `0c67f8d` + owner-bug fixes.
+**origin/main is still at `c2a8ae6` until these commits are pushed.**
 
-| Axis | Score | Evidence |
-|------|------:|----------|
-| Reliability | 8/10 | 19/19 unit tests pass; smoke 71 checks; 8/8 archive.org MP3 HEAD 200 + Accept-Ranges: bytes; SW v7 stamps aligned with index |
-| Product coherence | 8/10 | Patch layers removed (chrome-fix*, exclusivity-fix); exclusivity in settings-panel + layout-boot; Soundscapes player full controls; looper 52px ring/core |
-| Production readiness | 7/10 | No CDN core; local modules; VERSION.txt stamp source; offline proof and real-device iOS not verified this cycle; ui-layout-extras still ~800 !important |
+## origin/main as of fetch (c2a8ae6) — true state
 
-## Steps
+| Fact | Value |
+|------|-------|
+| Tests | 3 of 19 fail (`pickNearest`, missing `#soundscapePlay`) |
+| Smoke | Fails (Soundscapes renderer check) |
+| Patch files present | `exclusivity-fix.js`, `chrome-fix.css`, `chrome-fix-addon.css`, `app-shell.js` |
+| SW stamps vs index | Mismatch (e.g. pionier-app 170 vs 165) |
+| !important total | ~1,000+ |
 
-1. **Tests** — DONE. `pickNearest` tests rewritten to `resolve` API (app dropped pickNearest; tests were stale). Entry surface checks static player markup (soundscapes.js does not inject player DOM). Smoke updated for mandala module split. `npm run test:app` → 19 pass; `npm run smoke` → PASSED.
-2. **Stylesheet system** — Partial. chrome-fix.css + chrome-fix-addon.css merged into pionier.css and deleted. exclusivity-fix.js deleted; exclusivity lives in settings-panel openSheet + layout-boot setOpen. ui-layout-extras linked from index (no longer injected by layout-boot). app.css + handpan.css deleted (unreferenced). Stylesheet count: 7 CSS files. !important total still ~1030 (ui-layout-extras 800 + pionier merged chrome ~143 + atelier 83). Target &lt;40 not met — requires redesign of ui-layout-extras, not another patch layer.
-3. **Service worker** — CACHE_VERSION pionier-v7; SHELL stamps match index ?v=; VERSION.txt documents the single source of truth for humans. Automated generator not yet scripted.
-4. **Bedroom Sessions** — 8/8 MP3 URLs HTTP 200, Accept-Ranges: bytes. Bases match js/music-data.js. Player UI verified in browser (queue 8 tracks, transport, seek, volume). Autoplay blocked in headless (expected); readyState 4 after load.
-5. **Cleanup** — app-shell.js, ambient.js, transport.js deleted (unreferenced). loop-core.js kept (unit tests). Opus/WebM re-encode of remaining scales not done this cycle.
+The QUALITY-BASELINE scores on that commit are **not** supported by the tree.
 
-## Browser checks (local http.server, hard refresh / SW unregistered)
+## This working tree (after fixes)
 
-- Mobile viewport: pan centered, FX panel 8 knobs, settings sheet exclusive with FX, looper record 52×52 with ring/core, Soundscapes full player.
-- Not tested: landscape, desktop screenshot set, real offline reload, real-device iOS audio unlock.
+### Tests
+- `npm run test:app` → **19/19 pass**
+- `npm run smoke` → **PASSED · 71 checks**
 
-## Not done / not tested
+### Four owner bugs (local browser, hard-refresh, no SW)
 
-- Full offline proof (load → offline → reload → play)
-- Real-device iOS Safari audio unlock / interruption
-- Opus/WebM re-encode of remaining 14 scales
-- Reducing ui-layout-extras below ~40 !important total
-- Automated SW precache generator script
+| Bug | Measured |
+|-----|----------|
+| Base Note / ± Notes | `rootNext`: D→D♯; `noteCountNext`: 9→10; labels sync; ids `rootPrev/Next`, `noteCountPrev/Next` |
+| Pan too high | `centerPan` uses visible `#pionierTopDock`; pan bottom gap to bar = **12px** |
+| Drop-downs | Pre-fix: menus `hidden:false` but **opacity:0** (ui-layout-extras required `.is-open`). Post-fix: body-portaled, opacity 1, scale + instrument menus visible with backdrop |
+| Loop button cut off | Pre-fix: rail height 34–42, button forced 32px. Post-fix: btn **52×52**, `clipped: false`, full ring visible |
+
+### Stylesheets linked from index
+pionier, topbar-narrow, looper, scale-menu, settings-panel, atelier, ui-layout-extras  
+Deleted: chrome-fix, chrome-fix-addon, exclusivity-fix, app.css, handpan.css, app-shell, ambient, transport  
+
+### Service worker
+`CACHE_VERSION = pionier-v8`; SHELL stamps match index (`pionier.css?v=122`, `layout-boot.js?v=52`, `pionier-app.js?v=172`, `pionier-core.js?v=27`, …).  
+Source: `handpan-app/VERSION.txt`.
+
+### Bedroom Sessions
+8 archive.org MP3s HTTP 200 (verified earlier). Player markup present.
+
+### Not run
+- Full offline proof
+- Real-device iOS Safari
+- axe-core / 5-pointer stress
+- Opus/WebM re-encode of remaining scales
+- Push to origin (no credentials in this environment)
+- Fresh clone of origin/main verification (origin still lagging)
