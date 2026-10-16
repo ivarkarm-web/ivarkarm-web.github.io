@@ -267,3 +267,43 @@ body.soundscapes-active #pan {
   visibility: hidden !important;
   pointer-events: none !important;
 }
+
+/* Accessibility */
+:focus-visible {
+  outline: 2px solid rgba(200, 170, 100, 0.85);
+  outline-offset: 3px;
+}
+#pan:focus-visible {
+  outline: 2px solid rgba(200, 170, 100, 0.7);
+  outline-offset: 4px;
+  border-radius: 50%;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* Soft fail status banner */
+.app-status[data-state="failed"],
+.app-status[data-state="degraded"] {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  position: fixed;
+  top: max(8px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6000;
+  max-width: min(92vw, 420px);
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(20, 16, 12, 0.94);
+  border: 1px solid rgba(200, 170, 100, 0.35);
+  color: #e6e0d2;
+  font-size: 0.85rem;
+}
+.app-status[data-state="ready"] { display: none !important; }
