@@ -393,42 +393,41 @@ export function createSurface(canvas) {
     if(!touchRipples.length||!rippleCtx)return false;
     const ctx=rippleCtx,vw=window.innerWidth,vh=window.innerHeight;
     ctx.clearRect(0,0,vw,vh);
-    const duration=5600;
+    const duration=3000;
     for(let i=touchRipples.length-1;i>=0;i--){
       const p=touchRipples[i];
       const t=(now-p.started)/duration;
       if(t>=1){touchRipples.splice(i,1);continue}
-      const fadeIn=smoothstep(t/0.20);
-      const fadeOut=smoothstep((1-t)/0.34);
+      // Show the first ring immediately at the pressed pad; don't fade it in after it has drifted.
+      const fadeIn=smoothstep(t/0.045);
+      const fadeOut=smoothstep((1-t)/0.30);
       const envelope=fadeIn*fadeOut;
       const travel=smoothstep(t);
       const span=Math.min(vw,vh);
-      // Each struck tone releases its own rings which rise vertically from that note.
-      const rise=vh*0.42*travel;
-      const sway=Math.sin(t*Math.PI*1.4+p.phase)*span*0.012;
+      const rise=vh*0.18*travel;
+      const sway=Math.sin(t*Math.PI*1.1+p.phase)*span*0.003;
       const x=p.x+sway;
       const y=p.y-rise;
-      const radius=5+span*0.13*travel;
+      const radius=2+span*0.075*travel;
       ctx.save();
       ctx.globalCompositeOperation='screen';
-      const halo=ctx.createRadialGradient(x,y,Math.max(0,radius-span*0.035),x,y,radius+span*0.045);
+      const halo=ctx.createRadialGradient(x,y,Math.max(0,radius-span*0.012),x,y,radius+span*0.022);
       halo.addColorStop(0,'rgba(255,210,130,0)');
-      halo.addColorStop(0.42,'rgba(255,190,105,'+(0.035*envelope)+')');
-      halo.addColorStop(0.72,'rgba(255,218,157,'+(0.065*envelope)+')');
+      halo.addColorStop(0.42,'rgba(255,190,105,'+(0.025*envelope)+')');
+      halo.addColorStop(0.72,'rgba(255,218,157,'+(0.045*envelope)+')');
       halo.addColorStop(1,'rgba(255,218,157,0)');
       ctx.fillStyle=halo;
-      ctx.beginPath();ctx.arc(x,y,radius+span*0.045,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(x,y,radius+span*0.022,0,Math.PI*2);ctx.fill();
       for(let ring=0;ring<2;ring++){
-        const delay=ring===0?0:0.16;
+        const delay=ring===0?0:0.12;
         const rt=Math.max(0,Math.min(1,(t-delay)/(1-delay)));
-        if(rt<=0)continue;
-        const rr=5+span*(0.13+ring*0.012)*smoothstep(rt);
-        const alpha=(ring===0?0.22:0.12)*envelope;
+        const rr=2+span*(0.075+ring*0.009)*smoothstep(rt);
+        const alpha=(ring===0?0.28:0.15)*envelope;
         ctx.beginPath();ctx.arc(x,y,rr,0,Math.PI*2);
         ctx.strokeStyle='rgba(255,220,161,'+alpha+')';
-        ctx.lineWidth=ring===0?2.1:1.35;
-        ctx.shadowColor='rgba(255,190,89,'+(alpha*0.65)+')';
-        ctx.shadowBlur=(ring===0?10:5)*envelope;
+        ctx.lineWidth=ring===0?1.8:1.15;
+        ctx.shadowColor='rgba(255,190,89,'+(alpha*0.45)+')';
+        ctx.shadowBlur=(ring===0?5:3)*envelope;
         ctx.stroke();
       }
       ctx.restore();
