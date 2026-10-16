@@ -1,100 +1,111 @@
-/* Catch the Note: visual timing lesson. No lesson audio is loaded or played. */
+/* Pionier Learn — shared-clock phrase playback and Catch the Note practice.
+   Phrase events are editable scale-degree fixtures, not claimed audio transcriptions. */
 const LESSONS = [
-  { id:'first-contact', title:'First Contact', description:'A short, steady sequence. Catch each ring as it reaches its tonefield.', events:[
-    {pad:0,at:1750},{pad:2,at:3400},{pad:4,at:5050},{pad:3,at:6700},{pad:5,at:8350},{pad:2,at:10000},{pad:1,at:11650},{pad:0,at:13300}
+  { id:'first-contact', title:'First Contact', description:'Eight spacious strikes. Listen first, then catch the same phrase.', bpm:72, events:[
+    {pad:0,at:1900},{pad:2,at:3150},{pad:4,at:4400},{pad:3,at:5650},
+    {pad:5,at:6900},{pad:2,at:8150},{pad:1,at:9400},{pad:0,at:10650}
   ]},
-  { id:'flow', title:'Flow', description:'A longer phrase with changing spaces between strikes.', events:[
-    {pad:0,at:1750},{pad:2,at:3150},{pad:4,at:4800},{pad:6,at:6000},{pad:5,at:7800},{pad:3,at:9150},{pad:4,at:10550},{pad:2,at:12400},{pad:1,at:13750},{pad:3,at:15100},{pad:5,at:16900},{pad:7,at:18250},{pad:6,at:20100},{pad:4,at:21450},{pad:2,at:23100},{pad:0,at:24800}
+  { id:'flow', title:'Flow', description:'A longer phrase with changing gaps and a gentle return home.', bpm:78, events:[
+    {pad:0,at:1900},{pad:2,at:2900},{pad:4,at:4150},{pad:6,at:4900},
+    {pad:5,at:6150},{pad:3,at:7150},{pad:4,at:8150},{pad:2,at:9400},
+    {pad:1,at:10400},{pad:3,at:11400},{pad:5,at:12650},{pad:7,at:13650},
+    {pad:6,at:14900},{pad:4,at:15900},{pad:2,at:17150},{pad:0,at:18400}
+  ]},
+  { id:'transpose', title:'Move the Phrase', description:'The same contour shifted two scale degrees. Learn how a phrase changes without losing its shape.', bpm:72, transpose:2, events:[
+    {pad:0,at:1900},{pad:2,at:3150},{pad:4,at:4400},{pad:3,at:5650},
+    {pad:5,at:6900},{pad:2,at:8150},{pad:1,at:9400},{pad:0,at:10650}
   ]}
 ];
-const APPROACH_MS=1450, WINDOW_MS=230;
+const APPROACH_MS=1450, WINDOW_MS=260, TAIL_MS=560;
 export function mountLearnMode(){
   const button=document.getElementById('openLearn'), panel=document.getElementById('learnPanel'), close=document.getElementById('learnClose');
   const canvas=document.getElementById('pan'), list=document.getElementById('learnLessonList');
   const controls=document.getElementById('learnRunControls'), progress=document.getElementById('learnProgress');
   const heading=document.getElementById('learnHeading'), description=document.getElementById('learnDescription');
-  if(!button||!panel||!canvas||button.dataset.learnEngineMounted==='1')return false;
+  const listenBtn=document.getElementById('learnListen'), catchBtn=document.getElementById('learnCatch'), transposeBtn=document.getElementById('learnTranspose');
+  if(!button||!panel||!canvas||!list||button.dataset.learnEngineMounted==='1')return false;
   button.dataset.learnEngineMounted='1';
   const overlay=document.createElement('canvas'); overlay.id='learnRippleOverlay'; overlay.width=680; overlay.height=680;
   canvas.parentElement?.appendChild(overlay);
   const ctx=overlay.getContext('2d');
   function syncOverlay(){const r=canvas.getBoundingClientRect(),p=canvas.parentElement.getBoundingClientRect();overlay.style.left=(r.left-p.left)+'px';overlay.style.top=(r.top-p.top)+'px';overlay.style.width=r.width+'px';overlay.style.height=r.height+'px';}
-  let running=false, lesson=null, startAt=0, index=0, raf=0, hitCount=0, missCount=0, redUntil=0;
-  let ringState=null, done=false;
-  const reduced=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(_){return false}})();
-  function show(){panel.hidden=false; document.body.classList.add('learn-active')}
-  function hide(){panel.hidden=true; stop(); document.body.classList.remove('learn-active')}
-  function stop(){running=false;done=false;ringState=null;cancelAnimationFrame(raf);ctx.clearRect(0,0,680,680);overlay.style.display='none';}
-  function menu(){stop();list.hidden=false;controls.hidden=true;heading.textContent='Catch the Note';description.textContent='Catch the contracting ring at the moment it reaches its tonefield.'}
-  function begin(i){
-    lesson=LESSONS[i]; index=0;hitCount=0;missCount=0;done=false;running=true;startAt=performance.now();ringState=null;
-    list.hidden=true;controls.hidden=false;heading.textContent=lesson.title;description.textContent=lesson.description;
-    syncOverlay();overlay.style.display='block'; progress.textContent='GET READY'; drawFrame();
-  }
+  let running=false, lesson=null, lessonIndex=0, mode='practice', startAt=0, index=0, raf=0, hitCount=0, missCount=0;
+  let ringState=null, done=false, transposeSteps=0, sounded=new Set();
+  function show(){panel.hidden=false;document.body.classList.add('learn-active')}
+  function hide(){panel.hidden=true;stop();document.body.classList.remove('learn-active')}
+  function stop(){running=false;done=false;ringState=null;sounded.clear();cancelAnimationFrame(raf);ctx.clearRect(0,0,680,680);overlay.style.display='none';}
+  function menu(){stop();list.hidden=false;controls.hidden=true;heading.textContent='Catch the Note';description.textContent='Listen to a phrase, then play it with the ripples. Shift it by scale degrees to hear the same idea in a new place.'}
+  function targetPad(ev){const fields=window.PionierCore?.surface?.fields||[];const count=fields.length||9;return ((Number(ev.pad)+transposeSteps)%count+count)%count}
   function targetField(pad){const fields=window.PionierCore?.surface?.fields||[];return fields.find(f=>Number(f.index)===Number(pad))||fields[pad]||null}
-  function overlayPoint(field){const m=window.PionierCore?.surface?.metrics||{};const w=m.W||680,h=m.H||680;return{x:field.x*(680/w),y:field.y*(680/h)}}
-  function markMiss(now){if(!ringState||ringState.state!=='approach')return;ringState.state='miss';ringState.changedAt=now;missCount++;progress.textContent='MISS';}
-  function finish(){done=true;running=false;ringState=null;progress.textContent='FINISHED  ·  '+hitCount+' HITS  ·  '+missCount+' MISSES';}
+  function overlayPoint(field){const m=window.PionierCore?.surface?.metrics||{};const w=m.W||800,h=m.H||800;return{x:field.x*(680/w),y:field.y*(680/h)}}
+  function strikePad(pad,velocity=.72){
+    const core=window.PionierCore, surface=core?.surface, inst=core?.activeInstrument?.();
+    if(!surface||!inst||typeof inst.noteOn!=='function')return false;
+    const field=targetField(pad);if(!field)return false;
+    try{core.ensureAudio?.();const gesture={pointerId:'learn-track',x:field.x,y:field.y,velocity,pressure:.5,radial:.45,angle:field.angleRad||0,timestamp:performance.now(),phase:'down'};
+      inst.noteOn(gesture,{index:pad,...field,radial:.45});window.setTimeout(()=>{try{inst.noteOff?.(pad)}catch(_){}},180);return true;
+    }catch(err){console.warn('Learn phrase strike failed',err);return false}
+  }
+  function markMiss(now){if(!ringState||ringState.state!=='approach')return;ringState.state='miss';ringState.changedAt=now;missCount++;progress.textContent='MISS · '+hitCount+' CAUGHT'}
+  function finish(){done=true;running=false;ringState=null;progress.textContent=(mode==='listen'?'PHRASE COMPLETE':'FINISHED')+' · '+hitCount+' HITS · '+missCount+' MISSES';}
+  function begin(i,nextMode='practice'){
+    if(!LESSONS[i])return;
+    stop();lessonIndex=i;lesson=LESSONS[i];mode=nextMode;index=0;hitCount=0;missCount=0;done=false;running=true;startAt=performance.now();ringState=null;sounded.clear();
+    transposeSteps=Number(lesson.transpose||0);
+    list.hidden=true;controls.hidden=false;heading.textContent=lesson.title;description.textContent=lesson.description;
+    if(transposeBtn)transposeBtn.textContent='Transpose: '+(transposeSteps===0?'Original':('+'+transposeSteps+' scale degrees'));
+    if(listenBtn)listenBtn.setAttribute('aria-pressed',String(mode==='listen'));
+    if(catchBtn)catchBtn.setAttribute('aria-pressed',String(mode==='practice'));
+    syncOverlay();overlay.style.display='block';progress.textContent=mode==='listen'?'LISTENING PREVIEW':'GET READY';drawFrame();
+  }
   function drawFrame(){
     if(!running&&!ringState){ctx.clearRect(0,0,680,680);return}
-    const now=performance.now(), elapsed=now-startAt;
-    ctx.clearRect(0,0,680,680);
-    const fields=window.PionierCore?.surface?.fields||[];
+    const now=performance.now(),elapsed=now-startAt;ctx.clearRect(0,0,680,680);
     if(running&&index<lesson.events.length){
-      const ev=lesson.events[index], spawnAt=ev.at-APPROACH_MS;
-      if(elapsed>=spawnAt&&!ringState) ringState={event:ev,spawnAt,state:'approach',changedAt:0};
-      if(ringState?.state==='approach'&&elapsed>ringState.event.at+WINDOW_MS){markMiss(now);index++}
-    }else if(running&&index>=lesson.events.length&&!ringState){finish()}
+      const ev=lesson.events[index],pad=targetPad(ev),spawnAt=ev.at-APPROACH_MS;
+      if(elapsed>=spawnAt&&!ringState)ringState={event:ev,pad,spawnAt,state:'approach',changedAt:0};
+      if(mode==='listen'&&elapsed>=ev.at&&!sounded.has(index)){
+        sounded.add(index);strikePad(pad,.66);ringState={event:ev,pad,state:'hit',changedAt:now};index++;
+      }else if(mode==='practice'&&ringState?.state==='approach'&&elapsed>ev.at+WINDOW_MS){markMiss(now);index++}
+    }else if(running&&index>=lesson.events.length&&!ringState)finish();
     if(ringState){
-      const field=targetField(ringState.event.pad);
-      if(field){
-        const point=overlayPoint(field),x=point.x,y=point.y;
+      const field=targetField(ringState.pad),point=field&&overlayPoint(field);
+      if(point){
+        const{x,y}=point;
         if(ringState.state==='approach'){
-          const p=Math.max(0,Math.min(1,(elapsed-ringState.spawnAt)/APPROACH_MS));
-          const radius=70-(p*43);
-          const pulse=1+Math.sin(now/95)*.035;
-          ctx.save();ctx.globalAlpha=.24+p*.7;ctx.strokeStyle='#d4b04a';ctx.lineWidth=1.5+(p*1.4);
-          ctx.shadowColor='rgba(212,176,74,.55)';ctx.shadowBlur=9+p*9;
-          for(let n=0;n<3;n++){const rr=radius* pulse+n*10;ctx.beginPath();ctx.arc(x,y,rr,0,Math.PI*2);ctx.globalAlpha=Math.max(.06,.72-n*.2)*(0.35+p*.65);ctx.stroke()}
-          ctx.restore();
+          const p=Math.max(0,Math.min(1,(elapsed-ringState.spawnAt)/APPROACH_MS)),radius=70-p*43,pulse=1+Math.sin(now/95)*.025;
+          ctx.save();ctx.strokeStyle='#d4b04a';ctx.lineWidth=1.5+p*1.4;ctx.shadowColor='rgba(212,176,74,.6)';ctx.shadowBlur=10+p*9;
+          for(let n=0;n<3;n++){ctx.globalAlpha=Math.max(.06,.72-n*.2)*(.35+p*.65);ctx.beginPath();ctx.arc(x,y,(radius+n*10)*pulse,0,Math.PI*2);ctx.stroke()}ctx.restore();
         }else{
-          const age=now-ringState.changedAt;ctx.save();ctx.globalAlpha=Math.max(0,1-age/560);ctx.strokeStyle=ringState.state==='hit'?'#f3d47a':'#ff4545';ctx.lineWidth=3;ctx.shadowColor=ringState.state==='hit'?'rgba(243,212,122,.9)':'#ff2525';ctx.shadowBlur=16;ctx.beginPath();ctx.arc(x,y,ringState.state==='hit'?27+age*.09:27+age*.025,0,Math.PI*2);ctx.stroke();ctx.restore();
-          if(age>560)ringState=null;
+          const age=now-ringState.changedAt;ctx.save();ctx.globalAlpha=Math.max(0,1-age/TAIL_MS);ctx.strokeStyle=ringState.state==='hit'?'#f3d47a':'#ff4545';ctx.lineWidth=3;ctx.shadowColor=ringState.state==='hit'?'rgba(243,212,122,.9)':'#ff2525';ctx.shadowBlur=16;ctx.beginPath();ctx.arc(x,y,ringState.state==='hit'?27+age*.09:27+age*.025,0,Math.PI*2);ctx.stroke();ctx.restore();if(age>TAIL_MS)ringState=null;
         }
-      }
+      }else ringState=null;
     }
-    if(running||ringState)raf=requestAnimationFrame(drawFrame);
-    else if(done) {ctx.clearRect(0,0,680,680)}
+    if(running||ringState)raf=requestAnimationFrame(drawFrame);else if(done)ctx.clearRect(0,0,680,680);
   }
   function onStrike(e){
-    if(!running)return;
-    const core=window.PionierCore, surface=core?.surface;
-    if(!surface)return;
-    const pos=surface.canvasCoords(e), hit=surface.hitVector(pos.x,pos.y);
-    const now=performance.now(), elapsed=now-startAt;
-    const state=ringState, target=state?.event;
+    if(!running||mode!=='practice')return;
+    const surface=window.PionierCore?.surface;if(!surface)return;
+    const pos=surface.canvasCoords(e),hit=surface.hitVector(pos.x,pos.y),now=performance.now(),elapsed=now-startAt;
+    const state=ringState,target=state?.event;
     const inWindow=!!target&&state.state==='approach'&&elapsed>=target.at-WINDOW_MS&&elapsed<=target.at+WINDOW_MS;
-    if(!inWindow||hit?.index!==target?.pad){
+    if(!inWindow||hit?.index!==state?.pad){
       e.preventDefault();e.stopImmediatePropagation();
-      if(state?.state==='approach'){markMiss(now);index++}
-      else {missCount++;progress.textContent='MISS'}
+      if(state?.state==='approach'){markMiss(now);index++}else{missCount++;progress.textContent='MISS · '+hitCount+' CAUGHT'}
       return;
     }
-    hitCount++;progress.textContent='CAUGHT  ·  '+hitCount+' / '+lesson.events.length;
-    ringState={event:target,state:'hit',changedAt:now};index++;
-    // Gold response ripple; the native note handler continues and triggers the sound.
-    const field=targetField(target.pad);
-    if(field){const point=overlayPoint(field);ctx.save();ctx.strokeStyle='#f3d47a';ctx.lineWidth=2;ctx.globalAlpha=.9;ctx.beginPath();ctx.arc(point.x,point.y,24,0,Math.PI*2);ctx.stroke();ctx.restore()}
+    hitCount++;progress.textContent='CAUGHT · '+hitCount+' / '+lesson.events.length;ringState={event:target,pad:state.pad,state:'hit',changedAt:now};index++;
   }
   canvas.addEventListener('pointerdown',onStrike,true);
-  list.querySelectorAll('[data-lesson]').forEach(b=>b.addEventListener('click',()=>begin(Number(b.dataset.lesson))));
+  list.querySelectorAll('[data-lesson]').forEach(b=>b.addEventListener('click',()=>begin(Number(b.dataset.lesson),'practice')));
   button.addEventListener('click',show);close?.addEventListener('click',hide);
   document.getElementById('learnBack')?.addEventListener('click',menu);
-  document.getElementById('learnRestart')?.addEventListener('click',()=>begin(LESSONS.findIndex(x=>x===lesson)));
+  document.getElementById('learnRestart')?.addEventListener('click',()=>begin(lessonIndex,mode));
+  listenBtn?.addEventListener('click',()=>begin(lessonIndex,'listen'));
+  catchBtn?.addEventListener('click',()=>begin(lessonIndex,'practice'));
+  transposeBtn?.addEventListener('click',()=>{if(!lesson)return;transposeSteps=(transposeSteps+2)%Math.max(2,(window.PionierCore?.surface?.fields||[]).length||9);transposeBtn.textContent='Transpose: '+(transposeSteps===0?'Original':('+'+transposeSteps+' scale degrees'));begin(lessonIndex,mode);});
   panel.addEventListener('click',e=>{if(e.target===panel)hide()});
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden)hide()});
   window.addEventListener('resize',()=>{overlay.width=680;overlay.height=680;syncOverlay();if(running)drawFrame()});
-  menu();
-  window.PionierLearnMode={start:begin,close:hide,stop,ready:true};
-  return true;
+  menu();window.PionierLearnMode={start:begin,close:hide,stop,ready:true,lessons:LESSONS};return true;
 }
