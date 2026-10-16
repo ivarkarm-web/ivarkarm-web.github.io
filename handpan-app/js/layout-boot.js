@@ -145,6 +145,8 @@
     if (topbar) {
       topbar.classList.add('topbar-collapsed');
       topbar.setAttribute('aria-hidden', 'true');
+      topbar.hidden = true;
+      topbar.style.cssText = 'display:none!important;visibility:hidden!important;height:0!important;border:0!important;padding:0!important;margin:0!important;';
     }
 
     let topDock = document.getElementById('pionierTopDock');
