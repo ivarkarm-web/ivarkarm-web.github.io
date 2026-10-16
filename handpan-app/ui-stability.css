@@ -470,3 +470,85 @@ html.theme-light body .instrument-menu .instrument-menu-item.is-active {
   background-color: rgba(174, 137, 46, 0.14) !important;
   box-shadow: inset 2px 0 0 rgba(174, 137, 46, 0.72) !important;
 }
+
+
+/* Final light-mode cascade repair.
+   atelier.css gives every button a dark !important gradient. Removing only its
+   background-color is insufficient: the gradient still paints the menu items. */
+html.theme-light body .settings-dd-menu,
+html.theme-light body .settings-dd-menu *,
+html.theme-light body #settingSkinMenu,
+html.theme-light body #settingTonefieldMenu,
+html.theme-light body #settingAmbientMenu,
+html.theme-light body #scaleMenu,
+html.theme-light body #instrumentMenu,
+html.theme-light body #scaleMenu *,
+html.theme-light body #instrumentMenu *,
+body.theme-light .settings-dd-menu,
+body.theme-light #scaleMenu,
+body.theme-light #instrumentMenu,
+body.theme-light #scaleMenu *,
+body.theme-light #instrumentMenu * {
+  color-scheme: light !important;
+}
+html.theme-light body .settings-dd-menu,
+html.theme-light body #settingSkinMenu,
+html.theme-light body #settingTonefieldMenu,
+html.theme-light body #settingAmbientMenu,
+html.theme-light body #scaleMenu,
+html.theme-light body #instrumentMenu,
+body.theme-light .settings-dd-menu,
+body.theme-light #scaleMenu,
+body.theme-light #instrumentMenu {
+  background: #faf8f4 !important;
+  background-color: #faf8f4 !important;
+  background-image: none !important;
+  color: #302d27 !important;
+  border-color: rgba(62,54,40,.14) !important;
+  box-shadow: 0 14px 36px rgba(56,44,24,.14) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html.theme-light body .settings-dd-menu button,
+html.theme-light body #scaleMenu button,
+html.theme-light body #instrumentMenu button,
+body.theme-light .settings-dd-menu button,
+body.theme-light #scaleMenu button,
+body.theme-light #instrumentMenu button {
+  color: #39352e !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html.theme-light body .settings-dd-menu .settings-dd-group,
+body.theme-light .settings-dd-menu .settings-dd-group {
+  color: #82796b !important;
+}
+html.theme-light body .settings-dd-menu button:hover,
+html.theme-light body #scaleMenu button:hover,
+html.theme-light body #instrumentMenu button:hover,
+body.theme-light .settings-dd-menu button:hover,
+body.theme-light #scaleMenu button:hover,
+body.theme-light #instrumentMenu button:hover {
+  color: #24211b !important;
+  background: rgba(174,137,46,.10) !important;
+  background-color: rgba(174,137,46,.10) !important;
+  background-image: none !important;
+}
+html.theme-light body .settings-dd-menu button.is-active,
+html.theme-light body #scaleMenu button.is-active,
+html.theme-light body #instrumentMenu button.is-active,
+html.theme-light body #scaleMenu button[aria-selected="true"],
+html.theme-light body #instrumentMenu button[aria-selected="true"],
+body.theme-light .settings-dd-menu button.is-active,
+body.theme-light #scaleMenu button.is-active,
+body.theme-light #instrumentMenu button.is-active {
+  color: #70541a !important;
+  background: rgba(174,137,46,.14) !important;
+  background-color: rgba(174,137,46,.14) !important;
+  background-image: none !important;
+}
