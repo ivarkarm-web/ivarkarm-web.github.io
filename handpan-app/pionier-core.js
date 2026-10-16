@@ -11,7 +11,7 @@ import { createLibraryInstruments } from './js/instruments/library-family.js?v=3
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
-import { createSurface } from './js/pionier-surface.js?v=129';
+import { createSurface } from './js/pionier-surface.js?v=130';
 
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f'];
 const PITCH_BEND_PIXELS = 90;
@@ -207,8 +207,9 @@ function draw() {
 }
 
 function triggerTouchFeedback(x, y, noteIndex) {
-  if (window.PionierSettings?.touchFeedback !== true) return;
+  // Visual response belongs to the instrument; haptic feedback remains optional.
   surface.addRipple?.(x, y, noteIndex);
+  if (window.PionierSettings?.touchFeedback !== true) return;
   // Browsers expose vibration as a pulse pattern, not an adjustable intensity.
   // A firm double-pulse gives supported Android phones a more tactile strike.
   try {
