@@ -203,20 +203,9 @@
   }
 
   function ensureDom() {
-    const drawer = document.getElementById('mobileControlDrawer');
-    if (!drawer) return null;
-
-    let bar = drawer.querySelector('.mobile-controls-bar');
-    const toggle = document.getElementById('mobileControlsToggle');
-    if (!bar && toggle) {
-      bar = document.createElement('div');
-      bar.className = 'mobile-controls-bar';
-      toggle.parentElement.insertBefore(bar, toggle);
-      bar.appendChild(toggle);
-    }
-
+    // Prefer a fixed top-right gear so settings work without the Controls drawer.
     let btn = document.getElementById('settingsOpenBtn');
-    if (!btn && bar) {
+    if (!btn) {
       btn = document.createElement('button');
       btn.type = 'button';
       btn.id = 'settingsOpenBtn';
@@ -225,8 +214,10 @@
       btn.setAttribute('aria-expanded', 'false');
       btn.setAttribute('aria-controls', 'settingsSheet');
       btn.innerHTML = '⚙';
-      bar.appendChild(btn);
+      document.body.appendChild(btn);
     }
+    btn.hidden = false;
+    btn.style.display = '';
     const bottomBtn = document.getElementById('btnSettings');
 
     let backdrop = document.getElementById('settingsSheetBackdrop');
