@@ -143,6 +143,7 @@
     const pickerText = lightTheme ? '#24221e' : '#e6e0d2';
     menu.style.setProperty('background', pickerSurface, 'important');
     menu.style.setProperty('background-color', pickerSurface, 'important');
+    menu.style.setProperty('background-image', 'none', 'important');
     menu.style.setProperty('color', pickerText, 'important');
     menu.style.setProperty('border-color', lightTheme ? 'rgba(52,44,28,0.14)' : 'rgba(230,224,210,0.18)', 'important');
     menu.style.setProperty('box-shadow', lightTheme
@@ -154,6 +155,7 @@
       menu.querySelectorAll('button, [role="menuitem"], [role="option"]').forEach((item) => {
         item.style.setProperty('color', '#302d27', 'important');
         item.style.setProperty('background-color', 'transparent', 'important');
+        item.style.setProperty('background-image', 'none', 'important');
         item.style.setProperty('border-color', 'transparent', 'important');
         item.style.setProperty('box-shadow', 'none', 'important');
       });
