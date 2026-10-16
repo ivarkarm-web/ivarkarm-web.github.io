@@ -11,7 +11,7 @@ import { createLibraryInstruments } from './js/instruments/library-family.js?v=3
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
-import { createSurface } from './js/pionier-surface.js?v=120';
+import { createSurface } from './js/pionier-surface.js?v=121';
 
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f'];
 const PITCH_BEND_PIXELS = 90;
@@ -209,11 +209,11 @@ function draw() {
 function triggerTouchFeedback(x, y, noteIndex) {
   if (window.PionierSettings?.touchFeedback !== true) return;
   surface.addRipple?.(x, y, noteIndex);
-  // Vibration is a progressive enhancement: some mobile browsers (notably iOS
-  // Safari) do not expose navigator.vibrate, so the visual ripple still works.
+  // Browsers expose vibration as a pulse pattern, not an adjustable intensity.
+  // A firm double-pulse gives supported Android phones a more tactile strike.
   try {
     if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
-      navigator.vibrate(9);
+      navigator.vibrate([42, 18, 62]);
     }
   } catch (_) {}
 }
