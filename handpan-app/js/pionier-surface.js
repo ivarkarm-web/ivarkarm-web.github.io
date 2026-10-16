@@ -398,37 +398,45 @@ export function createSurface(canvas) {
     const vw=overlayRect.width,vh=overlayRect.height;
     ctx.clearRect(0,0,vw,vh);
     for(let i=touchRipples.length-1;i>=0;i--){
-      const p=touchRipples[i];
-      const t=(now-p.started)/p.duration;
+      const p=touchRipples[i],t=(now-p.started)/p.duration;
       if(t>=1){touchRipples.splice(i,1);continue}
-      const fadeIn=smoothstep(t/0.045);
-      const fadeOut=1-smoothstep((t-0.78)/0.22);
+      const style=p.style||'ambient';
+      const presets={
+        ambient:{rings:2,delay:0.18,alpha:[0.19,0.095],width:[1.15,0.8],color:[255,222,169],halo:[0.035,0.018]},
+        halo:{rings:1,delay:0,alpha:[0.10],width:[0.75],color:[190,218,255],halo:[0.085,0.035]},
+        'double-wave':{rings:3,delay:0.13,alpha:[0.17,0.105,0.06],width:[1.05,0.85,0.65],color:[255,211,157],halo:[0.025,0.012]},
+        liquid:{rings:2,delay:0.22,alpha:[0.16,0.075],width:[1.05,0.7],color:[154,222,210],halo:[0.04,0.02]},
+        pulse:{rings:3,delay:0.11,alpha:[0.16,0.095,0.05],width:[1.15,0.85,0.65],color:[226,202,255],halo:[0.055,0.025]}
+      };
+      const preset=presets[style]||presets.ambient;
+      const fadeIn=smoothstep(t/(style==='pulse'?0.07:0.045));
+      const fadeOut=1-smoothstep((t-(style==='pulse'?0.72:0.78))/(style==='pulse'?0.28:0.22));
       const envelope=fadeIn*fadeOut;
-      ctx.save();
-      ctx.globalCompositeOperation='screen';
-      for(let ring=0;ring<2;ring++){
-        const delay=ring*0.18;
+      ctx.save();ctx.globalCompositeOperation='screen';
+      for(let ring=0;ring<preset.rings;ring++){
+        const delay=ring*preset.delay;
         const rt=Math.max(0,Math.min(1,(t-delay)/(1-delay)));
         const grow=smoothstep(rt);
-        const rx=p.rx+(p.maxRadiusX-p.rx)*grow;
-        const ry=p.ry+(p.maxRadiusY-p.ry)*grow;
-        const alpha=[0.19,0.095][ring]*envelope;
-        if(alpha<0.006)continue;
-        ctx.beginPath();
-        ctx.ellipse(p.x,p.y,rx,ry,p.rotation,0,Math.PI*2);
-        ctx.strokeStyle='rgba(255,222,169,'+alpha+')';
-        ctx.lineWidth=ring===0?1.15:0.8;
-        ctx.shadowColor='rgba(255,190,100,'+(alpha*0.18)+')';
-        ctx.shadowBlur=(ring===0?2.2:1.2)*envelope;
+        const wobble=style==='liquid'?1+0.025*Math.sin((t*8+ring)*Math.PI):1;
+        const pulseScale=style==='pulse'?1+0.012*Math.sin(t*Math.PI*8):1;
+        const rx=(p.rx+(p.maxRadiusX-p.rx)*grow)*wobble*pulseScale;
+        const ry=(p.ry+(p.maxRadiusY-p.ry)*grow)*wobble*pulseScale;
+        const alpha=preset.alpha[ring]*envelope;
+        if(alpha<0.005)continue;
+        ctx.beginPath();ctx.ellipse(p.x,p.y,rx,ry,p.rotation,0,Math.PI*2);
+        ctx.strokeStyle='rgba('+preset.color.join(',')+','+alpha+')';
+        ctx.lineWidth=preset.width[ring];ctx.setLineDash(style==='liquid'?[3,5]:[]);
+        ctx.shadowColor='rgba('+preset.color.join(',')+','+(alpha*0.2)+')';
+        ctx.shadowBlur=(style==='halo'?4:style==='pulse'?2.8:style==='liquid'?1.6:2.2)*envelope;
         ctx.stroke();
       }
-      // Keep a restrained glow at the note's launch point while the rings travel.
+      ctx.setLineDash([]);
       const pulse=1+0.1*Math.sin(t*Math.PI*4);
-      const haloRadius=Math.max(p.rx,p.ry)*2.5*pulse;
+      const haloRadius=Math.max(p.rx,p.ry)*(style==='halo'?4:style==='pulse'?3.1:2.5)*pulse;
       const halo=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,haloRadius);
-      halo.addColorStop(0,'rgba(255,226,181,'+(0.035*envelope)+')');
-      halo.addColorStop(0.4,'rgba(255,211,143,'+(0.018*envelope)+')');
-      halo.addColorStop(1,'rgba(255,211,143,0)');
+      halo.addColorStop(0,'rgba('+preset.color.join(',')+','+(preset.halo[0]*envelope)+')');
+      halo.addColorStop(0.4,'rgba('+preset.color.join(',')+','+(preset.halo[1]*envelope)+')');
+      halo.addColorStop(1,'rgba('+preset.color.join(',')+',0)');
       ctx.fillStyle=halo;ctx.beginPath();ctx.arc(p.x,p.y,haloRadius,0,Math.PI*2);ctx.fill();
       ctx.restore();
     }
@@ -462,7 +470,9 @@ export function createSurface(canvas) {
     const maxRadiusY=Math.max(py,vwSafeHeight()-overlayRect.top-py)+Math.max(vwSafeWidth(),vwSafeHeight())*0.08;
     touchLights.set(Number(noteIndex),now);
     if(touchRipples.length>=12)touchRipples.splice(0,touchRipples.length-11);
-    touchRipples.push({x:px,y:py,rx,ry,rotation,maxRadiusX,maxRadiusY,started:now,duration:2600});
+    const rippleStyle=['ambient','halo','double-wave','liquid','pulse'].includes(window.PionierSettings?.rippleStyle)?window.PionierSettings.rippleStyle:'ambient';
+    const duration=rippleStyle==='pulse'?1900:rippleStyle==='halo'?3000:rippleStyle==='liquid'?3200:rippleStyle==='double-wave'?2400:2600;
+    touchRipples.push({x:px,y:py,rx,ry,rotation,maxRadiusX,maxRadiusY,started:now,duration,style:rippleStyle});
     if(_lastInst!=null)_origDrawBody(_lastInst,_lastCatch);
     if(!rippleRaf)rippleRaf=requestAnimationFrame(tickRipples);
   }
