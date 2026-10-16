@@ -447,7 +447,7 @@ export function createSurface(canvas) {
     const now=performance.now();
     if(touchRipples.length>=8)touchRipples.splice(0,touchRipples.length-7);
     touchRipples.push({
-      x:rect.left+x*sx+rect.width*0.5,
+      x:rect.left+x*sx,
       y:rect.top+y*sy,
       started:now,
       angle:((Number(noteIndex)||0)*2.3999632297)-Math.PI/2,
