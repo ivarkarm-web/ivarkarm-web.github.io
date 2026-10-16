@@ -1318,21 +1318,7 @@ body.soundscapes-active #pan {
   align-items: center !important;
   gap: 8px !important;
 }
-.looper-btn,
-#looperBtn {
-  width: 48px !important;
-  height: 48px !important;
-  min-width: 48px !important;
-  border-radius: 50% !important;
-  border: 2px solid rgba(220, 80, 80, 0.85) !important;
-  background: rgba(180, 40, 40, 0.35) !important;
-  cursor: pointer !important;
-  position: relative !important;
-}
-.looper-btn.is-recording {
-  background: rgba(220, 50, 50, 0.7) !important;
-  box-shadow: 0 0 0 4px rgba(220, 50, 50, 0.25) !important;
-}
+/* looper-btn size owned by looper.css */
 .looper-layers {
   display: flex !important;
   gap: 6px !important;
