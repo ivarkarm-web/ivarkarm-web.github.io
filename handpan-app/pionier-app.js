@@ -96,7 +96,7 @@ async function boot() {
 
   try {
     let HANDPAN_SCALES;
-    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=10', BASE).href));
+    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=11', BASE).href));
     window.HANDPAN_SCALES = HANDPAN_SCALES;
   } catch (err) {
     console.warn('[handpan] scales module', err);
@@ -143,7 +143,7 @@ async function boot() {
   }
 
   try {
-    const { mountLearnMode } = await import(new URL('./js/learn-mode.js?v=24', BASE).href);
+    const { mountLearnMode } = await import(new URL('./js/learn-mode.js?v=25', BASE).href);
     mountLearnMode();
   } catch (err) {
     console.warn('[learn] mount failed', err);
