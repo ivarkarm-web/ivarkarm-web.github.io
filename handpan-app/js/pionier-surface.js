@@ -5,6 +5,8 @@ const ADD_NOTE_MS = 520;
 export function createSurface(canvas) {
   const ctx2 = canvas.getContext('2d');
   let W=800,H=800,R=0,CX=0,CY=0,fields=[],anim=null,armed=false,rimTime=0;
+  const touchRipples=[];
+  let rippleRaf=0;
   let reducedMotion=false;
   try{reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches}catch(_){}
   function getTheme(){
@@ -361,6 +363,55 @@ export function createSurface(canvas) {
     ctx2.fillStyle=halo;ctx2.beginPath();ctx2.arc(CX,CY,rimR*1.08,0,Math.PI*2);ctx2.arc(CX,CY,rimR*0.88,0,Math.PI*2,true);ctx2.fill();
     ctx2.restore();
   }
+  function drawTouchRipples(now){
+    if (!touchRipples.length) return false;
+    const elapsedNow = now || performance.now();
+    const duration = 1150;
+    const led = getTheme().led;
+    const color = 'rgb(' + led.r + ',' + led.g + ',' + led.b + ')';
+    for (let i = touchRipples.length - 1; i >= 0; i--) {
+      const ripple = touchRipples[i];
+      const progress = (elapsedNow - ripple.started) / duration;
+      if (progress >= 1) { touchRipples.splice(i, 1); continue; }
+      const ease = 1 - Math.pow(1 - progress, 2);
+      const drift = progress * Math.min(W, H) * 0.055;
+      const x = ripple.x + Math.cos(ripple.angle) * drift;
+      const y = ripple.y + Math.sin(ripple.angle) * drift;
+      ctx2.save();
+      ctx2.globalCompositeOperation = 'screen';
+      for (let ring = 0; ring < 3; ring++) {
+        const phase = Math.max(0, Math.min(1, progress - ring * 0.12));
+        if (phase <= 0) continue;
+        const radius = 3 + phase * Math.min(W, H) * (0.34 + ring * 0.045);
+        const alpha = (1 - phase) * 0.28 * (ring === 0 ? 1 : 0.62);
+        ctx2.beginPath();
+        ctx2.arc(x, y, radius, 0, Math.PI * 2);
+        ctx2.strokeStyle = color;
+        ctx2.globalAlpha = alpha;
+        ctx2.lineWidth = Math.max(0.8, 1.8 - phase * 0.8);
+        ctx2.stroke();
+      }
+      ctx2.restore();
+    }
+    return touchRipples.length > 0;
+  }
+  function addRipple(x, y, noteIndex) {
+    if (window.PionierSettings?.touchFeedback !== true) return;
+    const now = performance.now();
+    // Cap overlapping effects to keep rapid playing light on mobile GPUs.
+    if (touchRipples.length > 18) touchRipples.splice(0, touchRipples.length - 18);
+    touchRipples.push({
+      x, y, started: now,
+      angle: ((Number(noteIndex) || 0) * 2.3999632297) - Math.PI / 2
+    });
+    if (!rippleRaf) rippleRaf = requestAnimationFrame(tickRipples);
+  }
+  function tickRipples(now) {
+    rippleRaf = 0;
+    if (!touchRipples.length || document.hidden) return;
+    if (_lastInst != null) _origDrawBody(_lastInst, _lastCatch);
+    if (touchRipples.length) rippleRaf = requestAnimationFrame(tickRipples);
+  }
   function drawBody(inst,catchActive){
     ctx2.clearRect(0,0,W,H);
     const theme=getTheme(),tf=theme.tonefield||'classic';
@@ -401,6 +452,7 @@ export function createSurface(canvas) {
       drawSlit(f,glow,playable);
     });
     ctx2.globalAlpha=1;
+    drawTouchRipples(performance.now());
     drawRimGlow(performance.now()*0.001);
   }
   function drawCatchWaves(waves){
@@ -472,6 +524,6 @@ export function createSurface(canvas) {
       else if(_lastInst!=null)drawBody(_lastInst,_lastCatch);
     });
   }
-  return{resize,layoutHandpanFields,armTransition,drawBody,drawCatchWaves,hitVector,canvasCoords,
+  return{resize,layoutHandpanFields,armTransition,drawBody,drawCatchWaves,hitVector,canvasCoords,addRipple,
     get fields(){return fields},set fields(v){fields=v},setSlitPhase(){},get metrics(){return{W,H,R,CX,CY}}};
 }
