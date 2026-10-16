@@ -492,7 +492,7 @@
   font: 14px Inter,system-ui,sans-serif;
 }
 .looper-save-form input:focus { border-color: rgba(212,176,74,.75); }
-.looper-save-status { min-height: 18px; margin: 0; color: #d8c27c; font: 12px/1.5 Inter,system-ui,sans-serif; }
+.looper-save-status { overflow-wrap: anywhere; min-height: 18px; margin: 0; color: #d8c27c; font: 12px/1.5 Inter,system-ui,sans-serif; }
 .looper-save-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
 .looper-save-actions button {
   min-height: 40px; padding: 0 14px; border-radius: 999px; cursor: pointer;
@@ -505,3 +505,7 @@ html.theme-light .looper-save-btn { color: #55451a; background: rgba(255,255,255
 html.theme-light .looper-save-dialog { color: #211f1a; background: #f8f6f0; }
 html.theme-light .looper-save-form input { color: #211f1a; background: white; border-color: rgba(0,0,0,.15); }
 html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { color: rgba(33,31,26,.65); }
+
+.looper-save-form input[type="password"] { letter-spacing: .04em; }
+.looper-save-status.is-success { color: #a9d8a4; }
+.looper-save-result-link { color: #e5ca70; font: 12px Inter,system-ui,sans-serif; overflow-wrap: anywhere; }
