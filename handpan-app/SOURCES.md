@@ -1,18 +1,30 @@
-# Pionier — Sample Sources & Licensing
+# Pionier — sources & licensing
 
-Every external audio asset used by Pionier must be listed in [`docs/AUDIO-LICENSES.md`](../docs/AUDIO-LICENSES.md).
+## Owner recordings (Bedroom Sessions)
 
-## Current shipped audio
+Eight tracks mirrored from portfolio `js/music-data.js`, streamed from Internet Archive:
 
-No third-party audio files are shipped after the sample-removal change. Handpan playback uses the procedural synthesis fallback. Ambient beds are generated through Web Audio.
+- Item: https://archive.org/details/bedroom-sessions-03.10.2026-22.29
+- Prefer VBR MP3 derivatives; WAV fallback in the player
+- CORS: `Access-Control-Allow-Origin: *`; Range requests supported
+- Rights: owner-recorded by Ivar Karm for this project
 
-## Removed sample set
+## Note samples
 
-The previous `sounds/notes/*.mp3` set was attributed to the Haganenote virtual-handpan project, but an explicit license permitting redistribution in this app was not established. The files have been removed; per-file provenance and the upstream references remain documented in `docs/AUDIO-LICENSES.md`.
+- E Amara (and other scales when present) under `sounds/notes/` — owner recordings or licensed assets only
+- Manifest: `sounds/notes/manifest.json`
+- Playback prefers WebM/Opus → M4A/AAC → WAV
+
+## Generated / removed
+
+- **No** third-party sample packs ship without an entry here
+- **No** generated ambient beds (rain/storm/forest/wind/water) — removed by product decision
+- **No** user-upload paths
+
+## Fonts
+
+- Inter via Google Fonts (display swap)
 
 ## Policy
 
-- Do **not** assume a free download is redistributable inside an app.
-- Prefer CC0, public domain, or licenses that explicitly allow redistribution in applications.
-- Record source, creator, exact license, commercial-use permission, attribution, and the license URL/text for every external sound.
-- Keep test fixtures out of production assets.
+Record source, creator, license, commercial-use permission, and attribution for every external sound before shipping it.
