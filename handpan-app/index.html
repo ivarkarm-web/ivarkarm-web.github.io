@@ -53,7 +53,7 @@
   <link rel="stylesheet" href="./atelier.css?v=10">
   <!-- ui-layout-extras.css retired: layout lives in pionier.css -->
   <link rel="stylesheet" href="./ui-stability.css?v=5" />
-  <link rel="stylesheet" href="./learn-mode.css?v=2" />
+  <link rel="stylesheet" href="./learn-mode.css?v=5" />
 </head>
 <body>
   <div id="appStatus" class="app-status" data-state="loading" role="status" aria-live="polite">
@@ -135,13 +135,18 @@
       <div id="learnLessonList" class="learn-lesson-list">
         <button type="button" class="learn-lesson" data-lesson="0"><span class="learn-lesson-number">01</span><span><strong>First Contact</strong><small>Short · learn the timing</small></span><span class="learn-lesson-arrow">↗</span></button>
         <button type="button" class="learn-lesson" data-lesson="1"><span class="learn-lesson-number">02</span><span><strong>Flow</strong><small>Longer · changing intervals</small></span><span class="learn-lesson-arrow">↗</span></button>
+        <button type="button" class="learn-lesson" data-lesson="2"><span class="learn-lesson-number">03</span><span><strong>Move the Phrase</strong><small>Same contour · shifted scale degrees</small></span><span class="learn-lesson-arrow">↗</span></button>
       </div>
       <div id="learnRunControls" class="learn-run-controls" hidden>
-        <div id="learnProgress" class="learn-progress">READY</div>
-        <button type="button" id="learnRestart" class="learn-action">Restart lesson</button>
+        <div id="learnProgress" class="learn-progress">READY WHEN YOU ARE</div>
+        <button type="button" id="learnStart" class="learn-action">Start</button>
+        <button type="button" id="learnListen" class="learn-action" aria-pressed="false" hidden>Listen to phrase</button>
+        <button type="button" id="learnCatch" class="learn-action" aria-pressed="true" hidden>Catch the phrase</button>
+        <button type="button" id="learnTranspose" class="learn-secondary">Transpose: Original</button>
+        <button type="button" id="learnRestart" class="learn-secondary">Restart lesson</button>
         <button type="button" id="learnBack" class="learn-secondary">All lessons</button>
       </div>
-      <p class="learn-footnote">No backing track. Notes sound only when you catch a ring.</p>
+      <p class="learn-footnote">Press Start when you are ready, then play the highlighted tonefields yourself. Phrases are editable prototypes, not transcriptions of the source recordings yet.</p>
     </div>
   </section>
 
