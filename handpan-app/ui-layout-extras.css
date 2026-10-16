@@ -506,7 +506,7 @@
   inset: auto !important;
   transform: none !important;
   width: 100% !important;
-  min-height: 40px !important;
+  min-height: 56px !important;
   margin: 0 !important;
   display: flex !important;
   justify-content: center !important;
@@ -586,41 +586,43 @@ html body > #pionierTopDock #mobileControlDrawer .mobile-control-panel {
 }
 
 
-/* Compact looper strip: keep the controls usable without stealing play space. */
+/* Looper in bottom bar: size owned by looper.css (52px record). Do not shrink. */
 #stageScaleBar > #looperRail {
-  min-height: 32px !important;
-  height: 34px !important;
-  flex: 0 0 34px !important;
-  gap: 5px !important;
-  padding: 0 4px !important;
-  overflow: hidden !important;
+  min-height: 56px !important;
+  height: auto !important;
+  flex: 0 0 auto !important;
+  gap: 12px !important;
+  padding: 4px 8px !important;
+  overflow: visible !important;
 }
 #stageScaleBar > #looperRail .looper-layers {
-  min-height: 28px !important;
-  height: 28px !important;
-  gap: 4px !important;
+  min-height: 56px !important;
+  height: auto !important;
+  gap: 8px !important;
   align-items: center !important;
   overflow-x: auto !important;
-  overflow-y: hidden !important;
+  overflow-y: visible !important;
+  scrollbar-width: none !important;
 }
-#stageScaleBar > #looperRail .looper-clear-btn,
-#stageScaleBar > #looperRail #looperBtn {
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
-  min-height: 32px !important;
-  flex: 0 0 32px !important;
-  align-self: center !important;
-  margin: 0 !important;
+#stageScaleBar > #looperRail .looper-clear-btn {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  flex: 0 0 36px !important;
+}
+#stageScaleBar > #looperRail #looperBtn,
+#stageScaleBar > #looperRail .looper-btn {
+  width: 52px !important;
+  height: 52px !important;
+  min-width: 52px !important;
+  min-height: 52px !important;
+  flex: 0 0 52px !important;
 }
 #stageScaleBar > #looperRail .looper-layers > * {
-  min-height: 26px !important;
-  max-height: 28px !important;
-  padding-block: 2px !important;
-  font-size: 11px !important;
-  line-height: 1.1 !important;
+  min-height: 36px !important;
+  max-height: none !important;
 }
-@media (max-width: 420px) {
   #stageScaleBar > #looperRail {
     gap: 3px !important;
     padding-inline: 2px !important;
@@ -925,13 +927,17 @@ html body > #looperClearBtn .looper-clear-x::after {
   border-color:rgba(212,176,74,.20)!important; background:rgba(22,22,25,.96)!important;
   box-shadow:inset 0 1px rgba(255,255,255,.025)!important;
 }
-.stage-scale-menu,.instrument-menu {
-  visibility:hidden!important; opacity:0!important; transition:none!important;
-  pointer-events:none!important;
+/* Menus are body-portaled; [hidden] is authoritative. Do not force opacity:0. */
+.stage-scale-menu[hidden], .instrument-menu[hidden],
+#scaleMenu[hidden], #instrumentMenu[hidden] {
+  display: none !important;
 }
-.stage-scale-menu.is-open,.instrument-menu.is-open {
-  /* layout-boot positions the menu before revealing it */
-  opacity:1!important; pointer-events:auto!important;
+.stage-scale-menu:not([hidden]), .instrument-menu:not([hidden]),
+#scaleMenu:not([hidden]), #instrumentMenu:not([hidden]) {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 @media(max-width:700px) {
   .pionier-top-dock { gap:5px!important; }
@@ -1053,7 +1059,7 @@ html body #pionierTopDock #looperRail #looperClearBtn {
     width: clamp(112px, 38vw, 170px) !important;
     max-width: 42vw !important;
     height: 40px !important;
-    min-height: 40px !important;
+    min-height: 56px !important;
     max-height: 40px !important;
   }
 }
@@ -1124,7 +1130,7 @@ html body #stageScaleBar #looperRail #looperClearBtn {
   html body #stageScaleBar #looperRail {
     width: calc(100vw - 16px) !important;
     max-width: calc(100vw - 16px) !important;
-    min-height: 40px !important;
+    min-height: 56px !important;
     padding: 3px 6px !important;
     border-radius: 16px !important;
   }
