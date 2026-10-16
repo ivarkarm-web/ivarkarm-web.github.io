@@ -106,11 +106,17 @@ export function mountLearnMode(){
     const surface=window.PionierCore?.surface;if(!surface)return;
     const pos=surface.canvasCoords(e),hit=surface.hitVector(pos.x,pos.y),now=performance.now(),elapsed=now-startAt;
     const state=ringState,target=state?.event;
-    const inWindow=!!target&&['approach','arrive'].includes(state.state)&&elapsed>=target.at-WINDOW_MS&&elapsed<=target.at+WINDOW_MS;
-    if(!inWindow||hit?.index!==state?.pad){
-      e.preventDefault();e.stopImmediatePropagation();
-      if(state?.state==='approach'){markMiss(now);index++;setHud('MISS · '+hitCount+' CAUGHT')}else{missCount++;progress.textContent='MISS · '+hitCount+' CAUGHT';setHud('MISS · '+hitCount+' CAUGHT')}
-      return;
+    if(!target||!['approach','arrive'].includes(state.state))return;
+    // Early strikes are allowed: don't intercept them or record a miss.
+    // The player can play freely while waiting for the cue's timing window.
+    if(elapsed<target.at-WINDOW_MS)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    // A late strike is one miss and advances the phrase, avoiding double penalties.
+    if(elapsed>target.at+WINDOW_MS){
+      markMiss(now);index++;setHud('LATE · '+hitCount+' CAUGHT');return;
+    }
+    if(hit?.index!==state.pad){
+      missCount++;progress.textContent='MISS · '+hitCount+' CAUGHT';setHud('MISS · '+hitCount+' CAUGHT');return;
     }
     hitCount++;progress.textContent='CAUGHT · '+hitCount+' / '+lesson.events.length;setHud('CAUGHT · '+hitCount+' / '+lesson.events.length);ringState={event:target,pad:state.pad,state:'hit',changedAt:now};index++;
   }
