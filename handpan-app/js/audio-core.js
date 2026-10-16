@@ -69,16 +69,30 @@ export function audioState() {
 }
 
 if (typeof document !== 'undefined') {
+  // iOS Safari often fires visibilitychange during system gestures / Control
+  // Center. Suspending mid-session causes the next strike to be silent until
+  // another explicit unlock. Prefer resume-on-show; only suspend when the
+  // page is truly backgrounded for a while.
+  let suspendTimer = 0;
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-      suspendAudio();
+      clearTimeout(suspendTimer);
+      suspendTimer = setTimeout(() => {
+        if (document.hidden) suspendAudio();
+      }, 2500);
     } else {
-      // Resume after tab return / lock-screen unlock when possible.
+      clearTimeout(suspendTimer);
       resumeAudio();
     }
   });
-  window.addEventListener('pageshow', () => { resumeAudio(); });
-  window.addEventListener('focus', () => { resumeAudio(); });
+  window.addEventListener('pageshow', () => {
+    clearTimeout(suspendTimer);
+    resumeAudio();
+  });
+  window.addEventListener('focus', () => {
+    clearTimeout(suspendTimer);
+    resumeAudio();
+  });
 }
 
 export const HandpanAudio = {
