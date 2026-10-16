@@ -49,7 +49,7 @@ export function mountLearnMode(){
       inst.noteOn(gesture,{index:pad,...field,radial:.45});window.setTimeout(()=>{try{inst.noteOff?.(pad)}catch(_){}},180);return true;
     }catch(err){console.warn('Learn phrase strike failed',err);return false}
   }
-  function markMiss(now){if(!ringState||ringState.state!=='approach')return;ringState.state='miss';ringState.changedAt=now;missCount++;progress.textContent='MISS · '+hitCount+' CAUGHT'}
+  function markMiss(now){if(!ringState||!['approach','arrive'].includes(ringState.state))return;ringState.state='miss';ringState.changedAt=now;missCount++;progress.textContent='MISS · '+hitCount+' CAUGHT'}
   function finish(){done=true;running=false;ringState=null;const result=(mode==='listen'?'PHRASE COMPLETE':'FINISHED')+' · '+hitCount+' HITS · '+missCount+' MISSES';progress.textContent=result;setHud(result);window.setTimeout(()=>{if(done){hideHud();show();list.hidden=true;controls.hidden=false;heading.textContent=lesson.title;description.textContent=result;}},900);}
   function begin(i,nextMode='practice'){
     if(!LESSONS[i])return;
@@ -71,6 +71,7 @@ export function mountLearnMode(){
     if(running&&index<lesson.events.length){
       const ev=lesson.events[index],pad=targetPad(ev),spawnAt=ev.at-APPROACH_MS;
       if(elapsed>=spawnAt&&!ringState)ringState={event:ev,pad,spawnAt,state:'approach',changedAt:0};
+      if(mode==='practice'&&ringState?.state==='approach'&&elapsed>=ev.at-WINDOW_MS){ringState.state='arrive';ringState.changedAt=now;setHud('PLAY NOW');progress.textContent='PLAY NOW · HIT THE GLOWING NOTE';}
       if(mode==='listen'&&elapsed>=ev.at&&!sounded.has(index)){
         sounded.add(index);strikePad(pad,.66);ringState={event:ev,pad,state:'hit',changedAt:now};index++;
       }else if(mode==='practice'&&ringState?.state==='approach'&&elapsed>ev.at+WINDOW_MS){markMiss(now);index++}
@@ -80,9 +81,13 @@ export function mountLearnMode(){
       if(point){
         const{x,y}=point;
         if(ringState.state==='approach'){
-          const p=Math.max(0,Math.min(1,(elapsed-ringState.spawnAt)/APPROACH_MS)),radius=70-p*43,pulse=1+Math.sin(now/95)*.025;
-          ctx.save();ctx.strokeStyle='#d4b04a';ctx.lineWidth=1.5+p*1.4;ctx.shadowColor='rgba(212,176,74,.6)';ctx.shadowBlur=10+p*9;
-          for(let n=0;n<3;n++){ctx.globalAlpha=Math.max(.06,.72-n*.2)*(.35+p*.65);ctx.beginPath();ctx.arc(x,y,(radius+n*10)*pulse,0,Math.PI*2);ctx.stroke()}ctx.restore();
+          const p=Math.max(0,Math.min(1,(elapsed-ringState.spawnAt)/APPROACH_MS)),radius=138-p*124,pulse=1+Math.sin(now/145)*.022;
+          ctx.save();ctx.strokeStyle='#e2bd59';ctx.lineWidth=1.8+p*1.7;ctx.shadowColor='rgba(243,212,122,.78)';ctx.shadowBlur=15+p*17;
+          for(let n=0;n<3;n++){ctx.globalAlpha=Math.max(.08,.78-n*.19)*(.48+p*.52);ctx.beginPath();ctx.arc(x,y,(radius+n*18)*pulse,0,Math.PI*2);ctx.stroke()}ctx.restore();
+        }else if(ringState.state==='arrive'){
+          const pulse=1+Math.sin(now/72)*.08;
+          ctx.save();const glow=ctx.createRadialGradient(x,y,3,x,y,54*pulse);glow.addColorStop(0,'rgba(255,239,173,.48)');glow.addColorStop(.42,'rgba(243,212,122,.24)');glow.addColorStop(1,'rgba(243,212,122,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(x,y,58*pulse,0,Math.PI*2);ctx.fill();
+          ctx.strokeStyle='#fff0ad';ctx.lineWidth=3;ctx.shadowColor='rgba(255,224,125,1)';ctx.shadowBlur=28;ctx.beginPath();ctx.arc(x,y,31*pulse,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=.82;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x,y,43*pulse,0,Math.PI*2);ctx.stroke();ctx.restore();
         }else{
           const age=now-ringState.changedAt;ctx.save();ctx.globalAlpha=Math.max(0,1-age/TAIL_MS);ctx.strokeStyle=ringState.state==='hit'?'#f3d47a':'#ff4545';ctx.lineWidth=3;ctx.shadowColor=ringState.state==='hit'?'rgba(243,212,122,.9)':'#ff2525';ctx.shadowBlur=16;ctx.beginPath();ctx.arc(x,y,ringState.state==='hit'?27+age*.09:27+age*.025,0,Math.PI*2);ctx.stroke();ctx.restore();if(age>TAIL_MS)ringState=null;
         }
@@ -95,7 +100,7 @@ export function mountLearnMode(){
     const surface=window.PionierCore?.surface;if(!surface)return;
     const pos=surface.canvasCoords(e),hit=surface.hitVector(pos.x,pos.y),now=performance.now(),elapsed=now-startAt;
     const state=ringState,target=state?.event;
-    const inWindow=!!target&&state.state==='approach'&&elapsed>=target.at-WINDOW_MS&&elapsed<=target.at+WINDOW_MS;
+    const inWindow=!!target&&['approach','arrive'].includes(state.state)&&elapsed>=target.at-WINDOW_MS&&elapsed<=target.at+WINDOW_MS;
     if(!inWindow||hit?.index!==state?.pad){
       e.preventDefault();e.stopImmediatePropagation();
       if(state?.state==='approach'){markMiss(now);index++;setHud('MISS · '+hitCount+' CAUGHT')}else{missCount++;progress.textContent='MISS · '+hitCount+' CAUGHT';setHud('MISS · '+hitCount+' CAUGHT')}
