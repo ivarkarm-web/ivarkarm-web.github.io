@@ -301,7 +301,7 @@ if (page && audio) {
     else setStatus('Finished');
   });
   audio.addEventListener('error', () => {
-    const track = BEDROOM_SESSIONS[index];
+    const track = allTracks()[index];
     if (track?.saved) {
       setStatus('Could not play saved loop');
     } else if (track && audio.src === track.mp3) {
