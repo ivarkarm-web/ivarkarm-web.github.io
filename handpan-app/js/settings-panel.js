@@ -168,6 +168,7 @@
     // Do not hard-code a dark inline-important surface: it overrides the light
     // theme stylesheet because these menus are portalled directly under body.
     menu.style.setProperty('background', surface, 'important');
+    menu.style.setProperty('background-image', 'none', 'important');
     menu.style.setProperty('color', text, 'important');
     menu.style.setProperty('border-color', border, 'important');
     menu.style.setProperty('box-shadow', shadow, 'important');
@@ -213,6 +214,7 @@
           const g = document.createElement('div');
           g.className = 'settings-dd-group';
           g.textContent = item.group;
+          if (isLightTheme()) g.style.setProperty('color', '#82796b', 'important');
           menu.appendChild(g);
         }
         const b = document.createElement('button');
@@ -224,6 +226,7 @@
           b.style.setProperty('color', item.id === activeId ? '#654b12' : '#302d27', 'important');
           b.style.setProperty('background', item.id === activeId ? 'rgba(190,151,53,0.18)' : 'transparent', 'important');
           b.style.setProperty('background-color', item.id === activeId ? 'rgba(190,151,53,0.18)' : 'transparent', 'important');
+          b.style.setProperty('background-image', 'none', 'important');
           b.style.setProperty('border-color', 'transparent', 'important');
         }
         b.addEventListener('click', (e) => {
