@@ -945,8 +945,27 @@ const SONG_LIBRARY = [
   }
 ].map(song => ({
   id:song.id, title:song.title, description:song.description + ' · simplified scale-degree lesson', bpm:76,
-  events:song.seq.map((pad,i)=>({pad:Math.min(8,pad),at:1600+i*1320+(i>0 && i%4===0?320:0)}))
+  scaleId:SONG_SCALE_BY_ID[song.id] || 'lesson-c-major', instrumentId:'handpan', events:song.seq.map((pad,i)=>({pad:Math.min(8,pad),at:1600+i*1320+(i>0 && i%4===0?320:0)}))
 }));
+
+
+const SONG_SCALE_BY_ID = {
+  'ode-to-joy':'lesson-c-major', 'frere-jacques':'lesson-c-major',
+  'twinkle-star':'lesson-c-major', 'mary-lamb':'lesson-c-major',
+  'row-row-boat':'lesson-c-major', 'london-bridge':'lesson-c-major',
+  'old-macdonald':'lesson-c-major', 'amazing-grace':'lesson-g-major',
+  'greensleeves':'lesson-e-minor', 'scarborough-fair':'lesson-d-dorian',
+  'when-saints':'lesson-c-major', 'oh-susanna':'lesson-c-major',
+  'yankee-doodle':'lesson-c-major', 'jingle-bells':'lesson-g-major',
+  'silent-night':'lesson-g-major', 'auld-lang-syne':'lesson-g-major',
+  'au-clair':'lesson-c-major', 'brahms-lullaby':'lesson-c-major',
+  'canon-d':'lesson-g-major', 'minuet-g':'lesson-g-major',
+  'turkish-march':'lesson-a-minor', 'fur-elise':'lesson-a-minor',
+  'ode-to-spring':'lesson-g-major', 'swan-lake':'lesson-e-minor',
+  'morning-mood':'lesson-g-major', 'sugar-plum':'lesson-e-minor',
+  'william-tell':'lesson-c-major', 'habanera':'lesson-d-minor',
+  'sakura':'lesson-japanese-pentatonic', 'beethoven-fifth':'lesson-c-minor'
+};
 
 const LESSONS = [
   { id:'scale-up-down', title:'Scale Up & Down', description:'Follow the notes from the lowest pad to the highest, then return home.', bpm:96, events:[
@@ -1016,9 +1035,22 @@ export function mountLearnMode(){
   }
   function markMiss(now){if(!ringState||!['approach','arrive'].includes(ringState.state))return;ringState.state='miss';ringState.changedAt=now;missCount++;progress.textContent='MISS · '+hitCount+' CAUGHT'}
   function finish(){done=true;running=false;ringState=null;const result=(mode==='listen'?'PHRASE COMPLETE':'FINISHED')+' · '+hitCount+' HITS · '+missCount+' MISSES';progress.textContent=result;setHud(result);window.setTimeout(()=>{if(done){hideHud();show();list.hidden=true;controls.hidden=false;heading.textContent=lesson.title;description.textContent=result;}},900);}
-  function begin(i,nextMode='practice'){
+  async function begin(i,nextMode='practice'){
     if(!LESSONS[i])return;
-    stop();lessonIndex=i;lesson=LESSONS[i];mode=nextMode;index=0;hitCount=0;missCount=0;done=false;running=true;startAt=performance.now();ringState=null;sounded.clear();
+    stop();lessonIndex=i;lesson=LESSONS[i];mode=nextMode;index=0;hitCount=0;missCount=0;done=false;running=false;startAt=performance.now();ringState=null;sounded.clear();
+    // Melody lessons explicitly select the intended instrument and scale before the countdown.
+    if(lesson.scaleId && !lesson.setup){
+      const core=window.PionierCore;
+      try{
+        if(lesson.instrumentId && core?.activeInstrument?.()?.id!==lesson.instrumentId && typeof core?.setInstrument==='function') await core.setInstrument(lesson.instrumentId);
+        const registry=window.HANDPAN_SCALES||[];
+        const scaleIndex=registry.findIndex(scale=>scale.id===lesson.scaleId);
+        if(scaleIndex<0) throw new Error('Missing lesson scale: '+lesson.scaleId);
+        core?.setScaleIndex?.(scaleIndex);
+        core?.refreshPitch?.();core?.draw?.();
+      }catch(error){console.error('[learn] could not prepare melody scale',error);setHud('SCALE SETUP FAILED');progress.textContent='COULD NOT LOAD THIS LESSON SCALE · RELOAD AND TRY AGAIN';return;}
+    }
+    running=true;
     transposeSteps=Number(lesson.transpose||0);
     list.hidden=true;controls.hidden=false;heading.textContent=lesson.title;description.textContent=lesson.description;
     if(transposeBtn)transposeBtn.textContent='Transpose: '+(transposeSteps===0?'Original':('+'+transposeSteps+' scale degrees'));
