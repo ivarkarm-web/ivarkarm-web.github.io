@@ -125,7 +125,17 @@
     menu.style.visibility = 'visible';
     menu.style.opacity = '1';
     menu.style.pointerEvents = 'auto';
-    menu.style.background = 'rgba(12, 12, 14, 0.98)';
+    const lightTheme = document.documentElement.classList.contains('theme-light') ||
+      document.body.classList.contains('theme-light');
+    const pickerSurface = lightTheme ? '#faf8f4' : 'rgba(12, 12, 14, 0.98)';
+    const pickerText = lightTheme ? '#24221e' : '#e6e0d2';
+    menu.style.setProperty('background', pickerSurface, 'important');
+    menu.style.setProperty('background-color', pickerSurface, 'important');
+    menu.style.setProperty('color', pickerText, 'important');
+    menu.style.setProperty('border-color', lightTheme ? 'rgba(52,44,28,0.14)' : 'rgba(230,224,210,0.18)', 'important');
+    menu.style.setProperty('box-shadow', lightTheme
+      ? '0 16px 42px rgba(43,35,20,0.16)'
+      : '0 20px 60px rgba(0,0,0,0.55)', 'important');
     menu.style.overflowY = 'auto';
     menu.style.webkitOverflowScrolling = 'touch';
 
