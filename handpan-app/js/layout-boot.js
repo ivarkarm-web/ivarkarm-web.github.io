@@ -260,6 +260,7 @@
   }
 
   ensureFxOpenBtn();
+  ensureSoundscapesTopBtn();
   ensureBottomBar();
 
   const fxDockObserver = new MutationObserver(() => {
@@ -315,6 +316,19 @@
       btn.textContent = 'FX';
       document.body.appendChild(btn);
     }
+    btn.hidden = false;
+    btn.style.display = 'flex';
+    btn.style.alignItems = 'center';
+    btn.style.justifyContent = 'center';
+    return btn;
+  }
+
+  /** Move ♫ Soundscapes next to FX (top-right chrome), not inside instrument nav. */
+  function ensureSoundscapesTopBtn() {
+    const btn = document.getElementById('openSoundscapes');
+    if (!btn) return null;
+    btn.classList.add('soundscapes-top-btn');
+    if (btn.parentElement !== document.body) document.body.appendChild(btn);
     btn.hidden = false;
     btn.style.display = 'flex';
     btn.style.alignItems = 'center';
@@ -426,7 +440,7 @@
     }
   }
 
-  const boot = () => { run(); ensureBottomBar(); positionEffectBubbles(); centerPan(); };
+  const boot = () => { run(); ensureFxOpenBtn(); ensureSoundscapesTopBtn(); ensureBottomBar(); positionEffectBubbles(); centerPan(); };
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);
   } else {
@@ -441,6 +455,8 @@
   setTimeout(ensureBottomBar, 50);
   setTimeout(ensureBottomBar, 300);
   setTimeout(ensureBottomBar, 1000);
+  setTimeout(ensureSoundscapesTopBtn, 80);
+  setTimeout(ensureSoundscapesTopBtn, 400);
   window.addEventListener('resize', () => {
     clearTimeout(window.__panCenterT);
     window.__panCenterT = setTimeout(centerPan, 50);
