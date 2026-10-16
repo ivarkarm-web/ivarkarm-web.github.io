@@ -52,3 +52,10 @@ body.learn-active #looperRail{opacity:.25}
 #learnGameHud{font-family:Inter,var(--font),sans-serif;letter-spacing:.045em;border-color:rgba(212,176,74,.24);box-shadow:0 5px 22px rgba(0,0,0,.26)}
 #learnHudLabel{min-width:96px;font-size:9px;letter-spacing:.065em}
 #learnGameHud button{font-family:Inter,var(--font),sans-serif;font-weight:500;letter-spacing:.04em}
+
+
+/* Lesson 03 setup cues: highlight the real controls; keep the instruction pill clear of the top bar. */
+#learnGameHud{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 118px);}
+.learn-step-target{position:relative!important;z-index:5300!important;border-radius:10px!important;outline:2px solid rgba(255,224,125,.96)!important;outline-offset:4px!important;box-shadow:0 0 0 6px rgba(212,176,74,.15),0 0 24px rgba(243,212,122,.65)!important;color:#ffe8a0!important;animation:learnTargetPulse 1.25s ease-in-out infinite!important;}
+@keyframes learnTargetPulse{0%,100%{filter:brightness(1);outline-color:rgba(255,224,125,.7)}50%{filter:brightness(1.45);outline-color:#fff0ad}}
+@media(prefers-reduced-motion:reduce){.learn-step-target{animation:none!important}}
