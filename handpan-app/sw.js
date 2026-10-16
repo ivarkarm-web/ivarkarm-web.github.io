@@ -4,7 +4,7 @@
  * - Old caches deleted on activate
  * - CACHE_VERSION must bump with each intentional deploy
  */
-const CACHE_VERSION = 'pionier-v3';
+const CACHE_VERSION = 'pionier-v4';
 
 self.addEventListener('install', (event) => {
   // Do not precache a brittle shell list here — install always succeeds.
