@@ -166,8 +166,10 @@ if (page && audio) {
   }
 
   function loadTrack(i, autoplay) {
-    index = (i + BEDROOM_SESSIONS.length) % BEDROOM_SESSIONS.length;
-    const track = BEDROOM_SESSIONS[index];
+    const tracks = allTracks();
+    if (!tracks.length) return;
+    index = (i + tracks.length) % tracks.length;
+    const track = tracks[index];
     syncMeta();
     setStatus('Loading…');
     audio.pause();
@@ -300,7 +302,9 @@ if (page && audio) {
   });
   audio.addEventListener('error', () => {
     const track = BEDROOM_SESSIONS[index];
-    if (track && audio.src === track.mp3) {
+    if (track?.saved) {
+      setStatus('Could not play saved loop');
+    } else if (track && audio.src === track.mp3) {
       setStatus('Trying WAV fallback…');
       audio.src = track.wav;
       audio.load();
