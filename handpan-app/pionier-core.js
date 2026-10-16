@@ -3,7 +3,7 @@
  * Local vendored core (no remote fetch / string-patch boot).
  * Looper v2: exposes getInstrumentBus for pre-FX recording
  */
-import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js';
+import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js?v=2';
 import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
 import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js?v=7';
@@ -67,6 +67,17 @@ function ensureAudio() {
     app.fxChain.seedDefaults();
     app.instrumentBus.connect(app.fxChain.input);
     wireKnobs();
+  }
+  // iOS Safari: play a tiny silent buffer inside the user-gesture stack so the
+  // context is allowed to run even when resume() alone is deferred.
+  if (ctx.state !== 'running') {
+    try {
+      const buf = ctx.createBuffer(1, 1, ctx.sampleRate || 44100);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(ctx.destination);
+      src.start(0);
+    } catch (_) {}
   }
   resumeAudio();
   return true;
@@ -538,33 +549,77 @@ wire('rootNext', () => { handpan.setRootIndex((handpan.rootIndex + 1) % 12); ref
 wire('noteCountPrev', () => { changeNoteCount(-1); });
 wire('noteCountNext', () => { changeNoteCount(1); });
 
+const INSTRUMENT_GROUP_ORDER = [
+  { id: 'handpan', label: 'Handpan' },
+  { id: 'traditional', label: 'Traditional' },
+  { id: 'hybrid', label: 'Hybrid' },
+  { id: 'experimental', label: 'Ambient' },
+  { id: 'arp', label: 'Arpeggiators' },
+  { id: 'other', label: 'Other' },
+];
+
+function instrumentGroupId(item) {
+  if (!item) return 'other';
+  if (item.id === 'handpan') return 'handpan';
+  const cat = (item.category || '').toLowerCase();
+  if (cat === 'traditional' || cat === 'hybrid' || cat === 'experimental' || cat === 'arp') return cat;
+  return 'other';
+}
+
 function renderInstrumentMenu() {
   const menu = document.getElementById('instrumentMenu');
   if (!menu) return;
   menu.replaceChildren();
+  menu.setAttribute('role', 'menu');
+  menu.setAttribute('aria-label', 'Choose instrument');
+
   const seen = new Set();
+  const groups = new Map(INSTRUMENT_GROUP_ORDER.map((g) => [g.id, []]));
   for (const item of InstrumentRegistry.list()) {
     if (!item || !item.id || seen.has(item.id)) continue;
     seen.add(item.id);
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'instrument-menu-item' + ((InstrumentRegistry.active?.id === item.id) ? ' is-active' : '');
-    btn.setAttribute('role', 'menuitem');
-    btn.dataset.instrumentId = item.id;
-    btn.textContent = item.name || item.id;
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setInstrument(item.id).catch(() => {});
-      if (window.PionierOverlay) window.PionierOverlay.closePickers();
-      else {
-        menu.hidden = true;
-        menu.setAttribute('hidden', '');
-        document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false');
-      }
-    });
-    menu.appendChild(btn);
+    const gid = instrumentGroupId(item);
+    if (!groups.has(gid)) groups.set(gid, []);
+    groups.get(gid).push(item);
   }
+
+  let focusTarget = null;
+  for (const meta of INSTRUMENT_GROUP_ORDER) {
+    const items = groups.get(meta.id) || [];
+    if (!items.length) continue;
+    const head = document.createElement('div');
+    head.className = 'instrument-menu-group';
+    head.textContent = meta.label;
+    head.setAttribute('role', 'presentation');
+    menu.appendChild(head);
+    for (const item of items) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      const active = InstrumentRegistry.active?.id === item.id;
+      btn.className = 'instrument-menu-item' + (active ? ' is-active' : '');
+      btn.setAttribute('role', 'menuitem');
+      btn.dataset.instrumentId = item.id;
+      btn.textContent = item.name || item.id;
+      if (active) {
+        btn.setAttribute('aria-current', 'true');
+        focusTarget = btn;
+      }
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setInstrument(item.id).catch(() => {});
+        if (window.PionierOverlay) window.PionierOverlay.closePickers();
+        else {
+          menu.hidden = true;
+          menu.setAttribute('hidden', '');
+          document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false');
+        }
+      });
+      menu.appendChild(btn);
+    }
+  }
+  // Prefer focusing the active item when the sheet opens
+  if (focusTarget) menu.dataset.focusItem = focusTarget.dataset.instrumentId || '';
 }
 window.__pionierRenderInstrumentMenu = renderInstrumentMenu;
 document.addEventListener('pionier:picker-open', (e) => {
@@ -715,8 +770,16 @@ async function boot() {
   refreshPitch();
   resize();
   window.addEventListener('resize', resize);
-  const unlock = () => { ensureAudio(); window.removeEventListener('pointerdown', unlock); };
-  window.addEventListener('pointerdown', unlock);
+  // Unlock on the earliest gesture Safari accepts (touchstart + pointerdown).
+  const unlock = () => {
+    ensureAudio();
+    window.removeEventListener('pointerdown', unlock, true);
+    window.removeEventListener('touchstart', unlock, true);
+    document.removeEventListener('touchstart', unlock, true);
+  };
+  window.addEventListener('pointerdown', unlock, true);
+  window.addEventListener('touchstart', unlock, { capture: true, passive: true });
+  document.addEventListener('touchstart', unlock, { capture: true, passive: true });
   if (isDebugEnabled?.()) mountDebugPanel?.({ setInstrument });
 }
 
