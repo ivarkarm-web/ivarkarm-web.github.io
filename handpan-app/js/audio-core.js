@@ -70,8 +70,15 @@ export function audioState() {
 
 if (typeof document !== 'undefined') {
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) suspendAudio();
+    if (document.hidden) {
+      suspendAudio();
+    } else {
+      // Resume after tab return / lock-screen unlock when possible.
+      resumeAudio();
+    }
   });
+  window.addEventListener('pageshow', () => { resumeAudio(); });
+  window.addEventListener('focus', () => { resumeAudio(); });
 }
 
 export const HandpanAudio = {
