@@ -120,8 +120,8 @@ export function mountLooper({ root } = {}) {
     saveBtn.id = 'looperSaveBtn';
     saveBtn.className = 'looper-save-btn';
     saveBtn.textContent = 'Save';
-    saveBtn.setAttribute('aria-label', 'Save loop to Soundscapes');
-    saveBtn.title = 'Save loop to Soundscapes';
+    saveBtn.setAttribute('aria-label', 'Save recording to repository');
+    saveBtn.title = 'Save recording to repository';
   }
   if (saveBtn.parentElement !== cluster) cluster.appendChild(saveBtn);
   syncBtn.setAttribute('aria-label', 'Sync mode: Free');
