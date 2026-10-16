@@ -50,7 +50,7 @@
     }
   </style>
   <link rel="stylesheet" href="./atelier.css?v=8">
-  <link rel="stylesheet" href="./chrome-fix.css?v=3">
+  <link rel="stylesheet" href="./chrome-fix.css?v=4">
 </head>
 <body>
   <div id="appStatus" class="app-status" data-state="loading" role="status" aria-live="polite">
@@ -71,7 +71,7 @@
     <div class="instrument-menu" id="instrumentMenu" role="menu" aria-label="Choose instrument" hidden></div>
 
     <div class="mobile-control-drawer" id="mobileControlDrawer">
-      <button type="button" class="mobile-controls-toggle" id="mobileControlsToggle" aria-expanded="false" aria-controls="mobileControlPanel">
+      <button type="button" class="mobile-controls-toggle" id="mobileControlsToggle" hidden aria-expanded="false" aria-controls="mobileControlPanel">
         <span class="mobile-controls-grip" aria-hidden="true"></span>
         <span class="mobile-controls-label">Controls</span>
       </button>
@@ -118,33 +118,43 @@
     </div>
   </div>
 
-  <section id="soundscapesPanel" class="soundscapes-panel" hidden aria-label="Soundscapes">
+    <section id="soundscapesPanel" class="soundscapes-panel" hidden aria-label="Bedroom Sessions">
     <header class="soundscapes-header">
-      <h2>Soundscapes</h2>
+      <h2>Bedroom Sessions</h2>
       <button type="button" id="closeSoundscapes" class="icon-btn" aria-label="Close">×</button>
     </header>
     <main class="soundscapes-body">
-      <div class="soundscape-player">
+      <div class="soundscape-now">
+        <p id="soundscapeTitle" class="soundscape-title">E Amara · Improvisation 1</p>
+        <p id="soundscapeNote" class="soundscape-note">Owner recordings</p>
+      </div>
+      <div class="soundscape-transport">
+        <button type="button" class="soundscape-transport-btn" id="soundscapePrev" aria-label="Previous track">‹</button>
         <button type="button" class="soundscape-play" id="soundscapePlay" aria-label="Play">▶</button>
-        <div class="soundscape-meta">
-          <span id="soundscapeTitle">No track</span>
-          <span id="soundscapeTime">0:00</span> / <span id="soundscapeTimeTotal">0:00</span>
-        </div>
+        <button type="button" class="soundscape-transport-btn" id="soundscapeNext" aria-label="Next track">›</button>
+        <button type="button" class="soundscape-transport-btn" id="soundscapeRepeat" aria-label="Repeat" aria-pressed="false">↻</button>
       </div>
-<div class="soundscape-player-actions">
-<span class="soundscape-status" id="soundscapeStatus">READY WHEN YOU ARE</span>
+      <div class="soundscape-seek-row">
+        <span id="soundscapeTime">0:00</span>
+        <input id="soundscapeSeek" type="range" min="0" max="1000" value="0" aria-label="Seek">
+        <span id="soundscapeTimeTotal">0:00</span>
       </div>
-</main>
+      <label class="soundscape-vol-row"><span>Volume</span>
+        <input id="soundscapeVolume" type="range" min="0" max="1" step="0.01" value="0.85" aria-label="Track volume">
+      </label>
+      <p class="soundscape-status" id="soundscapeStatus" role="status">Bedroom Sessions · 8 tracks</p>
+      <div id="soundscapeQueue" class="soundscape-queue" role="list" aria-label="Track list"></div>
+    </main>
   </section>
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
 
   <script src="./js/skin-palette.js?v=1"></script>
   <script src="./js/customization-catalog.js?v=5"></script>
-  <script src="./js/layout-boot.js?v=44"></script>
+  <script src="./js/layout-boot.js?v=45"></script>
   <script src="./js/settings-panel.js?v=6"></script>
   <script src="./js/ambient-fx.js?v=12"></script>
   <script src="./js/skin-mandala.js?v=4"></script>
-  <script type="module" src="./pionier-app.js?v=161"></script>
+  <script type="module" src="./pionier-app.js?v=162"></script>
   <script src="./registerSW.js"></script>
 </body>
 </html>
