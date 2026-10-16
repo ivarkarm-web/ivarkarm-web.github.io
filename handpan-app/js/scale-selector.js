@@ -15,14 +15,17 @@ export function mountScaleSelector({ getHandpan, onScaleChange }) {
 
   function updateLabel() {
     const handpan = getHandpan();
+    if (!handpan) return;
     const s = HANDPAN_SCALES[handpan.scaleIndex];
-    const short = s?.label || handpan.scaleLabel || 'Scale';
+    const short = s?.short || s?.label || handpan.scaleLabel || 'Scale';
+    const full = s?.label || handpan.scaleLabel || short;
     toggle.textContent = short + ' ▾';
-    toggle.title = handpan.scaleLabel || short;
+    toggle.title = full;
   }
 
   function render() {
     const handpan = getHandpan();
+    if (!handpan) return;
     menu.replaceChildren();
     let lastTuning = null;
     HANDPAN_SCALES.forEach((scale, index) => {
@@ -64,13 +67,11 @@ export function mountScaleSelector({ getHandpan, onScaleChange }) {
     });
   }
 
-  // Populate list when menu is about to open (MutationObserver on hidden)
   const mo = new MutationObserver(() => {
     if (!menu.hidden) render();
   });
   mo.observe(menu, { attributes: true, attributeFilter: ['hidden'] });
 
-  // Overlay notifies when scale menu opens
   document.addEventListener('pionier:picker-open', (e) => {
     if (e.detail?.id === 'scaleMenu') render();
   });
