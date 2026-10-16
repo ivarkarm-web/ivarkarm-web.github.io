@@ -29,7 +29,7 @@ const SHELL = [
   './js/settings-panel.js?v=26',
   './js/ambient-fx.js?v=12',
   './js/skin-mandala.js?v=4',
-  './pionier-app.js?v=196',
+  './pionier-app.js?v=197',
   './registerSW.js',
   './pionier-core.js?v=45',
   './js/audio-core.js?v=2',
