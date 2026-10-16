@@ -891,3 +891,36 @@ html.theme-light .settings-sheet-close:hover { background: rgba(46,40,28,.085) !
     animation-duration: .01ms !important;
   }
 }
+
+
+/* Touch feedback preference: secondary copy stays quiet and the row remains easy to hit. */
+.settings-row-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+}
+.settings-row-hint {
+  display: block;
+  max-width: 245px;
+  color: rgba(230,224,210,.48);
+  font-size: 11px;
+  line-height: 1.35;
+  letter-spacing: .005em;
+}
+html.theme-light .settings-row-hint {
+  color: rgba(48,43,34,.52);
+}
+.settings-row-touch-feedback {
+  min-height: 54px;
+  margin-top: 2px;
+  margin-bottom: 8px;
+}
+.settings-row-touch-feedback .settings-toggle {
+  flex: 0 0 46px;
+  margin-left: 12px !important;
+}
+@media (max-width: 380px) {
+  .settings-row-hint { max-width: 210px; font-size: 10.5px; }
+}
