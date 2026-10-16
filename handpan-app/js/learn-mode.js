@@ -70,7 +70,7 @@ export function mountLearnMode(){
     if(running&&index<lesson.events.length){
       const ev=lesson.events[index],pad=targetPad(ev),spawnAt=ev.at-APPROACH_MS;
       if(elapsed>=spawnAt&&!ringState)ringState={event:ev,pad,spawnAt,state:'approach',changedAt:0};
-      if(mode==='practice'&&ringState?.state==='approach'&&elapsed>=ev.at-WINDOW_MS){ringState.state='arrive';ringState.changedAt=now;setHud('PLAY NOW');progress.textContent='PLAY NOW · HIT THE GLOWING NOTE';}
+      if(mode==='practice'&&ringState?.state==='approach'&&elapsed>=ev.at){ringState.state='arrive';ringState.changedAt=now;setHud('PLAY NOW');progress.textContent='PLAY NOW · HIT THE GLOWING NOTE';}
       if(mode==='listen'&&elapsed>=ev.at&&!sounded.has(index)){
         sounded.add(index);strikePad(pad,.66);ringState={event:ev,pad,state:'hit',changedAt:now};index++;
       }else if(mode==='practice'&&['approach','arrive'].includes(ringState?.state)&&elapsed>ev.at+WINDOW_MS){markMiss(now);index++}
