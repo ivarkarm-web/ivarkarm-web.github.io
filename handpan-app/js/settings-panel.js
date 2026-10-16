@@ -136,10 +136,10 @@
     if (top + maxH > window.innerHeight - 8) top = Math.max(8, window.innerHeight - 8 - maxH);
 
     const light = isLightTheme();
-    const surface = light ? '#faf8f4' : '#161618';
+    const surface = light ? '#fcfbf8' : '#17171a';
     const text = light ? '#24221e' : '#e6e0d2';
-    const border = light ? 'rgba(52,44,28,0.14)' : 'rgba(230,224,210,0.18)';
-    const shadow = light ? '0 16px 42px rgba(43,35,20,0.16)' : '0 20px 60px rgba(0,0,0,0.55)';
+    const border = light ? 'rgba(46,40,28,0.085)' : 'rgba(230,224,210,0.09)';
+    const shadow = light ? '0 14px 36px rgba(34,29,19,0.14)' : '0 14px 38px rgba(0,0,0,0.30)';
     menu.style.cssText = [
       'position:fixed',
       'z-index:9999',
