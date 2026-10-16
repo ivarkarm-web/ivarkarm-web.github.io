@@ -68,7 +68,7 @@ async function boot() {
   const degraded = [];
 
   try {
-    await import(new URL('./pionier-core.js?v=56', BASE).href);
+    await import(new URL('./pionier-core.js?v=57', BASE).href);
   } catch (err) {
     console.error('[pionier] required core failed to load', err);
     setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
@@ -96,7 +96,7 @@ async function boot() {
 
   try {
     let HANDPAN_SCALES;
-    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=8', BASE).href));
+    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=9', BASE).href));
     window.HANDPAN_SCALES = HANDPAN_SCALES;
   } catch (err) {
     console.warn('[handpan] scales module', err);
@@ -124,7 +124,7 @@ async function boot() {
   }
 
   try {
-    const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=5', BASE).href);
+    const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=6', BASE).href);
     mountScaleSelector({
       getHandpan: () => window.PionierCore?.handpan,
       onScaleChange: () => {
