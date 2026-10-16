@@ -375,7 +375,8 @@ export function createSurface(canvas) {
       position:'fixed',left:'0',top:'0',width:'100vw',height:'100vh',
       pointerEvents:'none',zIndex:'99999',opacity:'1'
     });
-    document.body.appendChild(rippleCanvas);
+    // Keep the fixed overlay outside the app/body stacking and transform contexts.
+    document.documentElement.appendChild(rippleCanvas);
     rippleCtx=rippleCanvas.getContext('2d');
     const fit=()=>{
       const dpr=Math.min(1.5,window.devicePixelRatio||1);
