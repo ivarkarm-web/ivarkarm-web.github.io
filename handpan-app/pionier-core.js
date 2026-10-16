@@ -363,8 +363,42 @@ function paintKnob(canvasEl, value01, size = 88) {
   ctx.fill();
 }
 
+
+function paintAllKnobs() {
+  if (!app.fxChain) return;
+  const map = [
+    { knobId: 'knobCompress', fxId: 'compressor', def: 0.4, size: 68 },
+    { knobId: 'knobDelay', fxId: 'delay', def: 0.15, size: 68 },
+    { knobId: 'knobReverb', fxId: 'reverb', def: 0.25, size: 68 },
+    { knobId: 'knobFilter', fxId: 'filter', def: 0.12, size: 68 },
+    { knobId: 'knobBass', tone: 'bass', def: 0.5, size: 72 },
+    { knobId: 'knobLow', tone: 'low', def: 0.5, size: 72 },
+    { knobId: 'knobMid', tone: 'mid', def: 0.5, size: 72 },
+    { knobId: 'knobMaster', tone: 'master', def: 0.82, size: 72 }
+  ];
+  for (const m of map) {
+    const el = document.getElementById(m.knobId);
+    if (!el) continue;
+    const canvasEl = el.querySelector('.knob-canvas');
+    let v = m.def;
+    try {
+      if (m.tone === 'bass') v = app.fxChain.bass ?? m.def;
+      else if (m.tone === 'low') v = app.fxChain.low ?? m.def;
+      else if (m.tone === 'mid') v = app.fxChain.mid ?? m.def;
+      else if (m.tone === 'master') v = app.fxChain.master ?? m.def;
+      else {
+        const mod = app.fxChain.modules?.find((x) => x.id === m.fxId);
+        if (mod && Number.isFinite(mod.value)) v = mod.value;
+      }
+    } catch (_) {}
+    paintKnob(canvasEl, v, m.size || 88);
+  }
+}
+
 function wireKnobs() {
   if (!app.fxChain) return;
+  if (app._knobsWired) { paintAllKnobs(); return; }
+  app._knobsWired = true;
   const map = [
     { knobId: 'knobCompress', valId: 'valCompress', fxId: 'compressor', def: 0.4, size: 68 },
     { knobId: 'knobDelay', valId: 'valDelay', fxId: 'delay', def: 0.15, size: 68 },
@@ -737,6 +771,7 @@ window.PionierCore = {
   handpan, surface,
   activeInstrument: () => activeInstrument(),
   ensureAudio: () => ensureAudio(),
+  paintFxKnobs: () => { ensureAudio(); wireKnobs(); paintAllKnobs(); },
   getInstrumentBus: () => {
     if (!app.instrumentBus) ensureAudio();
     return app.instrumentBus;
