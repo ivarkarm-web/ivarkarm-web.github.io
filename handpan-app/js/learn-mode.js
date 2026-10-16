@@ -893,33 +893,7 @@ const SONG_LIBRARY = [
       3
     ]
   },
-  {
-    "id": "house-rising-sun",
-    "title": "House of the Rising Sun",
-    "description": "Traditional folk song · public-domain status varies by jurisdiction",
-    "seq": [
-      0,
-      2,
-      4,
-      5,
-      4,
-      2,
-      0,
-      2,
-      3,
-      5,
-      4,
-      3,
-      2,
-      0,
-      2,
-      4,
-      5,
-      4,
-      2,
-      0
-    ]
-  },
+
   {
     "id": "sakura",
     "title": "Sakura Sakura",
