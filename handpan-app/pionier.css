@@ -1697,3 +1697,111 @@ html, body {
 .fx-panel[hidden] {
   display: none !important;
 }
+
+/* ========== Bottom bar: scale above, instrument + notes lowest ========== */
+#stageScaleBar #stageScaleRow,
+#stageScaleBar .stage-scale-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  width: 100% !important;
+  max-width: 520px !important;
+  margin: 0 auto !important;
+  order: 2 !important;
+  padding: 0 4px !important;
+}
+
+#stageScaleBar #stageInstrumentRow,
+#stageScaleBar .stage-instrument-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  width: 100% !important;
+  max-width: 520px !important;
+  margin: 0 auto !important;
+  order: 3 !important;
+  padding: 0 4px 2px !important;
+}
+
+#stageScaleBar #looperRail,
+#stageScaleBar .looper-rail {
+  order: 1 !important;
+}
+
+#stageScaleBar .stage-control-scale,
+#stageScaleBar .control-scale {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+#stageScaleBar .stage-base-only,
+#stageScaleBar #stageBaseOnly {
+  display: flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+#stageScaleBar .stage-base-only .control-half,
+#stageScaleBar #stageBaseOnly .control-half {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 2px !important;
+  margin: 0 !important;
+}
+
+#stageScaleBar .stage-instrument-nav,
+#stageScaleBar #instrumentNav {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  justify-content: flex-start !important;
+}
+
+#stageScaleBar .stage-notes-slot,
+#stageScaleBar #stageNotesSlot {
+  display: flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+}
+
+#stageScaleBar .stage-notes-slot .control-half,
+#stageScaleBar #stageNotesSlot .control-half {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 2px !important;
+  margin: 0 !important;
+}
+
+#stageScaleBar .stage-note-wrap,
+#stageScaleBar #notePlusWrap {
+  position: relative !important;
+  left: auto !important;
+  bottom: auto !important;
+  display: flex !important;
+  margin: 0 !important;
+}
+
+/* Hide the emptied original root row shell */
+#stageScaleBar .stage-root-row[hidden],
+#stageScaleBar .control-row[hidden] {
+  display: none !important;
+}
+
+/* Compact labels in the redistributed half-blocks */
+#stageScaleBar .stage-base-only .control-label,
+#stageScaleBar .stage-notes-slot .control-label {
+  font-size: 0.55rem !important;
+  letter-spacing: 0.1em !important;
+  opacity: 0.45 !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+}
