@@ -2,21 +2,21 @@
    Phrase events are editable scale-degree fixtures, not claimed audio transcriptions. */
 const LESSONS = [
   { id:'first-contact', title:'First Contact', description:'Eight spacious strikes. Listen first, then catch the same phrase.', bpm:72, events:[
-    {pad:0,at:1900},{pad:2,at:3150},{pad:4,at:4400},{pad:3,at:5650},
-    {pad:5,at:6900},{pad:2,at:8150},{pad:1,at:9400},{pad:0,at:10650}
+    {pad:0,at:2200},{pad:2,at:3450},{pad:4,at:4700},{pad:3,at:5950},
+    {pad:5,at:7200},{pad:2,at:8450},{pad:1,at:9700},{pad:0,at:10950}
   ]},
   { id:'flow', title:'Flow', description:'A longer phrase with changing gaps and a gentle return home.', bpm:78, events:[
-    {pad:0,at:1900},{pad:2,at:2900},{pad:4,at:4150},{pad:6,at:4900},
-    {pad:5,at:6150},{pad:3,at:7150},{pad:4,at:8150},{pad:2,at:9400},
-    {pad:1,at:10400},{pad:3,at:11400},{pad:5,at:12650},{pad:7,at:13650},
-    {pad:6,at:14900},{pad:4,at:15900},{pad:2,at:17150},{pad:0,at:18400}
+    {pad:0,at:2200},{pad:2,at:3200},{pad:4,at:4450},{pad:6,at:5200},
+    {pad:5,at:6450},{pad:3,at:7450},{pad:4,at:8450},{pad:2,at:9700},
+    {pad:1,at:10700},{pad:3,at:11700},{pad:5,at:12950},{pad:7,at:13950},
+    {pad:6,at:15200},{pad:4,at:16200},{pad:2,at:17450},{pad:0,at:18700}
   ]},
   { id:'transpose', title:'Move the Phrase', description:'The same contour shifted two scale degrees. Learn how a phrase changes without losing its shape.', bpm:72, transpose:2, events:[
-    {pad:0,at:1900},{pad:2,at:3150},{pad:4,at:4400},{pad:3,at:5650},
-    {pad:5,at:6900},{pad:2,at:8150},{pad:1,at:9400},{pad:0,at:10650}
+    {pad:0,at:2200},{pad:2,at:3450},{pad:4,at:4700},{pad:3,at:5950},
+    {pad:5,at:7200},{pad:2,at:8450},{pad:1,at:9700},{pad:0,at:10950}
   ]}
 ];
-const APPROACH_MS=1450, WINDOW_MS=260, TAIL_MS=560;
+const APPROACH_MS=2200, WINDOW_MS=260, TAIL_MS=560;
 export function mountLearnMode(){
   const button=document.getElementById('openLearn'), panel=document.getElementById('learnPanel'), close=document.getElementById('learnClose');
   const canvas=document.getElementById('pan'), list=document.getElementById('learnLessonList');
@@ -83,7 +83,7 @@ export function mountLearnMode(){
       if(point){
         const{x,y}=point;
         if(ringState.state==='approach'){
-          const p=Math.max(0,Math.min(1,(elapsed-ringState.spawnAt)/APPROACH_MS));const maxRadius=Math.max(Math.hypot(x,y),Math.hypot(stageWidth-x,y),Math.hypot(x,stageHeight-y),Math.hypot(stageWidth-x,stageHeight-y))+48;const radius=maxRadius-p*(maxRadius-14),pulse=1+Math.sin(now/145)*.022;
+          const rawP=Math.max(0,Math.min(1,(elapsed-ringState.spawnAt)/APPROACH_MS));const p=rawP*rawP*(3-2*rawP);const maxRadius=Math.max(Math.hypot(x,y),Math.hypot(stageWidth-x,y),Math.hypot(x,stageHeight-y),Math.hypot(stageWidth-x,stageHeight-y))+48;const radius=maxRadius-p*(maxRadius-14),pulse=1+Math.sin(now/145)*.022;
           ctx.save();ctx.strokeStyle='#e2bd59';ctx.lineWidth=1.8+p*1.7;ctx.shadowColor='rgba(243,212,122,.78)';ctx.shadowBlur=15+p*17;
           for(let n=0;n<3;n++){ctx.globalAlpha=Math.max(.08,.78-n*.19)*(.48+p*.52);ctx.beginPath();ctx.arc(x,y,(radius+n*18)*pulse,0,Math.PI*2);ctx.stroke()}ctx.restore();
         }else if(ringState.state==='arrive'){
