@@ -22,7 +22,7 @@ export function mountLearnMode(){
   const canvas=document.getElementById('pan'), list=document.getElementById('learnLessonList');
   const controls=document.getElementById('learnRunControls'), progress=document.getElementById('learnProgress');
   const heading=document.getElementById('learnHeading'), description=document.getElementById('learnDescription');
-  const listenBtn=document.getElementById('learnListen'), catchBtn=document.getElementById('learnCatch'), transposeBtn=document.getElementById('learnTranspose');
+  const listenBtn=document.getElementById('learnListen'), catchBtn=document.getElementById('learnCatch'), transposeBtn=document.getElementById('learnTranspose'), startBtn=document.getElementById('learnStart');
   if(!button||!panel||!canvas||!list||button.dataset.learnEngineMounted==='1')return false;
   button.dataset.learnEngineMounted='1';
   const overlay=document.createElement('canvas'); overlay.id='learnRippleOverlay'; overlay.width=680; overlay.height=680;
@@ -34,7 +34,7 @@ export function mountLearnMode(){
   function show(){panel.hidden=false;document.body.classList.add('learn-active')}\n  function ensureHud(){if(hud)return;hud=document.createElement('div');hud.id='learnGameHud';hud.innerHTML='<span id="learnHudLabel">GET READY</span><button type="button" data-action="restart">Restart</button><button type="button" data-action="menu">Lessons</button><button type="button" data-action="close" aria-label="Close lesson">×</button>';document.body.appendChild(hud);hudLabel=hud.querySelector('#learnHudLabel');hud.addEventListener('click',e=>{const a=e.target?.dataset?.action;if(a==='restart')begin(lessonIndex,mode);if(a==='menu'){hud.hidden=true;show();menu()}if(a==='close')hide()});}\n  function setHud(text){ensureHud();hudLabel.textContent=text;hud.hidden=false}\n  function hideHud(){if(hud)hud.hidden=true}
   function hide(){panel.hidden=true;stop();hideHud();document.body.classList.remove('learn-active')}
   function stop(){running=false;done=false;ringState=null;sounded.clear();countdownUntil=0;cancelAnimationFrame(raf);ctx.clearRect(0,0,680,680);overlay.style.display='none';hideHud();}
-  function menu(){stop();list.hidden=false;controls.hidden=true;heading.textContent='Catch the Note';description.textContent='Listen to a phrase, then play it with the ripples. Shift it by scale degrees to hear the same idea in a new place.'}
+  function menu(){stop();list.hidden=false;controls.hidden=true;heading.textContent='Catch the Note';description.textContent='Choose a lesson, then press Start when you are ready. A 3–2–1 count-in gives you time to prepare.';if(startBtn)startBtn.hidden=false;if(listenBtn)listenBtn.hidden=true;if(catchBtn)catchBtn.hidden=true;if(transposeBtn)transposeBtn.hidden=false;if(document.getElementById('learnRestart'))document.getElementById('learnRestart').hidden=true;}
   function targetPad(ev){const fields=window.PionierCore?.surface?.fields||[];const count=fields.length||9;return ((Number(ev.pad)+transposeSteps)%count+count)%count}
   function targetField(pad){const fields=window.PionierCore?.surface?.fields||[];return fields.find(f=>Number(f.index)===Number(pad))||fields[pad]||null}
   function overlayPoint(field){const m=window.PionierCore?.surface?.metrics||{};const w=m.W||800,h=m.H||800;return{x:field.x*(680/w),y:field.y*(680/h)}}
@@ -54,8 +54,11 @@ export function mountLearnMode(){
     transposeSteps=Number(lesson.transpose||0);
     list.hidden=true;controls.hidden=false;heading.textContent=lesson.title;description.textContent=lesson.description;
     if(transposeBtn)transposeBtn.textContent='Transpose: '+(transposeSteps===0?'Original':('+'+transposeSteps+' scale degrees'));
-    if(listenBtn)listenBtn.setAttribute('aria-pressed',String(mode==='listen'));
-    if(catchBtn)catchBtn.setAttribute('aria-pressed',String(mode==='practice'));
+    if(listenBtn)listenBtn.hidden=true;
+    if(catchBtn)catchBtn.hidden=true;
+    if(startBtn)startBtn.hidden=true;
+    if(transposeBtn)transposeBtn.hidden=false;
+    if(document.getElementById('learnRestart'))document.getElementById('learnRestart').hidden=false;
     syncOverlay();overlay.style.display='block';panel.hidden=true;ensureHud();setHud('3');progress.textContent='3';drawFrame();
   }
   function drawFrame(){
@@ -97,11 +100,21 @@ export function mountLearnMode(){
     hitCount++;progress.textContent='CAUGHT · '+hitCount+' / '+lesson.events.length;setHud('CAUGHT · '+hitCount+' / '+lesson.events.length);ringState={event:target,pad:state.pad,state:'hit',changedAt:now};index++;
   }
   canvas.addEventListener('pointerdown',onStrike,true);
-  list.querySelectorAll('[data-lesson]').forEach(b=>b.addEventListener('click',()=>begin(Number(b.dataset.lesson),'practice')));
+  list.querySelectorAll('[data-lesson]').forEach(b=>b.addEventListener('click',()=>{
+    lessonIndex=Number(b.dataset.lesson);lesson=LESSONS[lessonIndex];
+    list.hidden=true;controls.hidden=false;heading.textContent=lesson.title;description.textContent=lesson.description;
+    progress.textContent='READY WHEN YOU ARE';
+    if(startBtn)startBtn.hidden=false;
+    if(listenBtn)listenBtn.hidden=true;
+    if(catchBtn)catchBtn.hidden=true;
+    if(transposeBtn)transposeBtn.hidden=false;
+    if(document.getElementById('learnRestart'))document.getElementById('learnRestart').hidden=true;
+  }));
   button.addEventListener('click',show);close?.addEventListener('click',hide);
   document.getElementById('learnBack')?.addEventListener('click',menu);
   document.getElementById('learnRestart')?.addEventListener('click',()=>begin(lessonIndex,mode));
-  listenBtn?.addEventListener('click',()=>begin(lessonIndex,'listen'));
+  startBtn?.addEventListener('click',()=>begin(lessonIndex,'practice'));
+  listenBtn?.addEventListener('click',()=>begin(lessonIndex,'practice'));
   catchBtn?.addEventListener('click',()=>begin(lessonIndex,'practice'));
   transposeBtn?.addEventListener('click',()=>{if(!lesson)return;transposeSteps=(transposeSteps+2)%Math.max(2,(window.PionierCore?.surface?.fields||[]).length||9);lesson.transpose=transposeSteps;begin(lessonIndex,mode);});
   panel.addEventListener('click',e=>{if(e.target===panel)hide()});
