@@ -6,6 +6,7 @@ export function createSurface(canvas) {
   const ctx2 = canvas.getContext('2d');
   let W=800,H=800,R=0,CX=0,CY=0,fields=[],anim=null,armed=false,rimTime=0;
   const touchRipples=[];
+  const touchLights=new Map();
   let rippleRaf=0;
   let reducedMotion=false;
   try{reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches}catch(_){}
@@ -440,7 +441,6 @@ export function createSurface(canvas) {
     return touchRipples.length>0;
   }
   function addRipple(x,y,noteIndex){
-    if(window.PionierSettings?.touchFeedback!==true)return;
     ensureRippleCanvas();
     const rect=canvas.getBoundingClientRect();
     // Use the exact field position currently being painted (including a scale/layout transition),
@@ -464,12 +464,19 @@ export function createSurface(canvas) {
     // Start the wave on the tonefield's perimeter, not as a tiny dot at its
     // center. Match the field's own ellipse and rotation so the first visible
     // frame hugs the metal pad, then expand away from that exact boundary.
-    const rx=Math.max(2,note.rx*scaleX*0.94);
-    const ry=Math.max(2,note.ry*scaleY*0.94);
-    const rotation=note.rot||0;
+    const toneStyle=softTone(window.PionierSettings?.tonefield||document.documentElement?.dataset?.tonefield||'classic');
+    let padRx=note.rx,padRy=note.ry,offsetY=0,rotation=note.rot||0;
+    if(toneStyle==='round'){padRx=padRy=Math.max(note.rx,note.ry)*0.92;rotation=0}
+    else if(toneStyle==='petal'){padRx=note.rx*0.75;padRy=note.ry*1.25}
+    else if(toneStyle==='teardrop'){padRx=note.rx*0.85;padRy=note.ry*1.1;offsetY=-note.ry*0.15}
+    else if(toneStyle==='seed'){padRx=note.rx*0.7;padRy=note.ry*1.28}
+    const rx=Math.max(2,padRx*scaleX*1.015);
+    const ry=Math.max(2,padRy*scaleY*1.015);
     const now=performance.now();
+    touchLights.set(Number(noteIndex),now);
+    if(_lastInst!=null)_origDrawBody(_lastInst,_lastCatch);
     if(touchRipples.length>=12)touchRipples.splice(0,touchRipples.length-11);
-    touchRipples.push({x:px,y:py,dx,dy,rx,ry,rotation,center,travelDistance,bodyX,bodyY,bodyRadius,started:now,phase:0});
+    touchRipples.push({x:px,y:py+offsetY*scaleY,dx,dy,rx,ry,rotation,center,travelDistance,bodyX,bodyY,bodyRadius,started:now,phase:0});
     if(!rippleRaf)rippleRaf=requestAnimationFrame(tickRipples);
   }
   function tickRipples(now){
@@ -509,6 +516,26 @@ export function createSurface(canvas) {
       ctx2.strokeStyle=rgba(lipCol,0.55*dim);ctx2.lineWidth=Math.max(1.2,R*0.0045);
       pathPad(f,tf);ctx2.stroke();
       const glow=inst&&inst.glow?inst.glow[f.index]||0:0;
+      const touchedAt=touchLights.get(Number(f.index))||0;
+      const touchGlow=touchedAt?Math.max(0,1-(performance.now()-touchedAt)/520):0;
+      if(touchGlow>0.005){
+        ctx2.save();
+        ctx2.globalCompositeOperation='screen';
+        const gold=ctx2.createRadialGradient(f.x-f.rx*0.12,f.y-f.ry*0.16,0,f.x,f.y,baseR*1.28);
+        gold.addColorStop(0,'rgba(255,213,117,'+(0.32*touchGlow)+')');
+        gold.addColorStop(0.58,'rgba(255,174,57,'+(0.22*touchGlow)+')');
+        gold.addColorStop(1,'rgba(255,159,35,0)');
+        ctx2.fillStyle=gold;
+        pathPad(f,tf);ctx2.fill();
+        ctx2.globalCompositeOperation='lighter';
+        ctx2.strokeStyle='rgba(255,207,111,'+(0.82*touchGlow)+')';
+        ctx2.lineWidth=Math.max(1.6,R*0.007*touchGlow);
+        ctx2.shadowColor='rgba(255,176,58,'+(0.52*touchGlow)+')';
+        ctx2.shadowBlur=baseR*0.34*touchGlow;
+        pathPad(f,tf);ctx2.stroke();
+        ctx2.restore();
+        if(touchGlow<0.025)touchLights.delete(Number(f.index));
+      }
       if(glow>0.02){
         const hg=ctx2.createRadialGradient(f.x,f.y,0,f.x,f.y,baseR*1.4);
         const gc=theme.skin.glow||[[250,252,255],[200,220,250]];
