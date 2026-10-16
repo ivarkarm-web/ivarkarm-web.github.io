@@ -46,6 +46,8 @@
 
   function apply(state) {
     document.documentElement.classList.toggle('theme-light', !!state.lightMode);
+    document.documentElement.classList.toggle('dark', !state.lightMode);
+    document.body.classList.toggle('theme-light', !!state.lightMode);
     document.documentElement.dataset.skin = state.skin || 'classic';
     document.documentElement.dataset.ambient = state.ambient || 'none';
     document.documentElement.dataset.tonefield = state.tonefield || 'classic';
