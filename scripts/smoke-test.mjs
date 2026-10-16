@@ -103,7 +103,7 @@ if (/pionier-core\.js/.test(shell) && !/cdn\.jsdelivr\.net|fetch\(GOOD\)|CORE_PA
   fail('Pionier boot still depends on remote source rewriting');
 }
 
-if (!/cdn\.jsdelivr\.net/.test(coreSrc) && /window\.PionierCore/.test(coreSrc) && /from ['"]\.\/js\/audio-core\.js['"]/.test(coreSrc)) {
+if (!/cdn\.jsdelivr\.net/.test(coreSrc) && /window\.PionierCore/.test(coreSrc) && /from ['"]\.\/js\/audio-core\.js(?:\?[^'"]*)?['"]/.test(coreSrc)) {
   ok('Core is a real local ES module (no CDN, no blob loader)');
 } else {
   fail('Core is not a real local ES module or still depends on CDN');
