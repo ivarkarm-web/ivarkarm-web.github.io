@@ -453,9 +453,7 @@ export function createSurface(canvas) {
     let screenDY=center?-1:(note.uy||0)*scaleY;
     const magnitude=Math.hypot(screenDX,screenDY)||1;
     const dx=screenDX/magnitude,dy=screenDY/magnitude;
-    const rotation=center?0:Math.atan2(screenDY,screenDX);
-    // Anchor the wave to the tonefield center itself. Starting at an offset
-    // pushed the first frame beyond the visible pad and could put it beyond the shell.
+    // Convert the actual painted tonefield bounds into viewport coordinates.
     const px=rect.left+(note.x/W)*rect.width;
     const py=rect.top+(note.y/H)*rect.height;
     const bodyX=rect.left+(CX/W)*rect.width;
@@ -463,10 +461,12 @@ export function createSurface(canvas) {
     const bodyRadius=R*Math.min(scaleX,scaleY);
     const radialDistance=Math.hypot(px-bodyX,py-bodyY);
     const travelDistance=Math.max(0,bodyRadius-radialDistance);
-    // A small initial ring sits on the tonefield and grows as it moves to the rim.
-    const padSize=Math.min(note.rx*scaleX,note.ry*scaleY);
-    const rx=Math.max(1.5,padSize*0.045);
-    const ry=Math.max(1.5,padSize*0.04);
+    // Start the wave on the tonefield's perimeter, not as a tiny dot at its
+    // center. Match the field's own ellipse and rotation so the first visible
+    // frame hugs the metal pad, then expand away from that exact boundary.
+    const rx=Math.max(2,note.rx*scaleX*0.94);
+    const ry=Math.max(2,note.ry*scaleY*0.94);
+    const rotation=note.rot||0;
     const now=performance.now();
     if(touchRipples.length>=12)touchRipples.splice(0,touchRipples.length-11);
     touchRipples.push({x:px,y:py,dx,dy,rx,ry,rotation,center,travelDistance,bodyX,bodyY,bodyRadius,started:now,phase:0});
