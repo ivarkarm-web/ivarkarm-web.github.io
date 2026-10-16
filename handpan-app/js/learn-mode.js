@@ -15,12 +15,11 @@ const LESSONS = [
     {pads:[3,5],at:14200},{pads:[2,4],at:15600},{pads:[1,3],at:17000},
     {pads:[0,2],at:18400}
   ]},
-  ]},
   { id:'flow-pygmy-tine-piano', title:'Flow Pygmy → Tine Piano', description:'First select Flow Pygmy in the scale menu, then choose Tine Piano in the instrument menu. Once both are selected, follow the ripples from the lowest note to the sixth and back three times.', bpm:96, setup:true, events:[
     {pad:0,at:1400},{pad:1,at:2500},{pad:2,at:3600},{pad:3,at:4700},{pad:4,at:5800},{pad:5,at:6900},{pad:4,at:8000},{pad:3,at:9100},{pad:2,at:10200},{pad:1,at:11300},{pad:0,at:12400},
     {pad:0,at:13500},{pad:1,at:14600},{pad:2,at:15700},{pad:3,at:16800},{pad:4,at:17900},{pad:5,at:19000},{pad:4,at:20100},{pad:3,at:21200},{pad:2,at:22300},{pad:1,at:23400},{pad:0,at:24500},
     {pad:0,at:25600},{pad:1,at:26700},{pad:2,at:27800},{pad:3,at:28900},{pad:4,at:30000},{pad:5,at:31100},{pad:4,at:32200},{pad:3,at:33300},{pad:2,at:34400},{pad:1,at:35500},{pad:0,at:36600}
-  }
+  ]}
 ];
 const APPROACH_MS=800, WINDOW_MS=500, TAIL_MS=220;
 export function mountLearnMode(){
