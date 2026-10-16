@@ -26,29 +26,39 @@
   /** Place #pan in the open play area (midpoint + 5% down). */
   function centerPan() {
     const pan = document.getElementById('pan');
-    const stage = document.querySelector('.stage');
-    if (!pan || !stage) return;
+    if (!pan) return;
 
+    // Viewport-safe play area between top chrome and bottom scale bar.
     const bar = document.getElementById('stageScaleBar');
     const topDock = document.getElementById('pionierTopDock');
-    const stageRect = stage.getBoundingClientRect();
-    // Anchor to the fixed FX toggle, not the expanding drawer, so opening FX
-    // never recenters or jumps the handpan.
     const drawer = document.getElementById('mobileControlDrawer');
     const toggle = drawer && drawer.querySelector('.mobile-controls-toggle');
-    const topEdge = toggle ? toggle.getBoundingClientRect().bottom : (topDock ? topDock.getBoundingClientRect().bottom : stageRect.top);
-    const botEdge = bar ? bar.getBoundingClientRect().top - 8 : window.innerHeight - 24;
+    const topEdge = toggle
+      ? toggle.getBoundingClientRect().bottom
+      : (topDock ? topDock.getBoundingClientRect().bottom : 48);
+    const botEdge = bar
+      ? bar.getBoundingClientRect().top
+      : (window.innerHeight - 24);
+    const safeTop = Math.max(topEdge + 8, 8);
+    const safeBot = Math.max(safeTop + 120, botEdge - 8);
+    const availH = Math.max(120, safeBot - safeTop);
+    const availW = Math.max(120, window.innerWidth - 24);
+    const size = Math.min(availW, availH, 680);
+    const midY = safeTop + availH * 0.5;
 
-    const span = botEdge - topEdge;
-    // 50% center + 5% of the open span downward
-    const midY = topEdge + span * 0.55;
-    const topInStage = midY - stageRect.top;
-
-    pan.style.position = 'absolute';
-    pan.style.left = '50%';
-    pan.style.setProperty('top', topInStage + 'px', 'important');
-    pan.style.transform = 'translate(-50%, -50%) translateZ(0)';
-    pan.style.margin = '0';
+    // Fixed to the viewport so transformed ancestors cannot offset the pan.
+    pan.style.setProperty('position', 'fixed', 'important');
+    pan.style.setProperty('left', '50%', 'important');
+    pan.style.setProperty('top', midY + 'px', 'important');
+    pan.style.setProperty('right', 'auto', 'important');
+    pan.style.setProperty('bottom', 'auto', 'important');
+    pan.style.setProperty('width', size + 'px', 'important');
+    pan.style.setProperty('height', size + 'px', 'important');
+    pan.style.setProperty('max-width', 'min(92vw, 680px)', 'important');
+    pan.style.setProperty('max-height', 'min(70dvh, 680px)', 'important');
+    pan.style.setProperty('transform', 'translate(-50%, -50%) translateZ(0)', 'important');
+    pan.style.setProperty('margin', '0', 'important');
+    pan.style.setProperty('z-index', '2', 'important');
   }
 
   function run() {
