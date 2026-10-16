@@ -31,7 +31,7 @@ const SHELL = [
   './js/skin-mandala.js?v=4',
   './pionier-app.js?v=198',
   './registerSW.js',
-  './pionier-core.js?v=46',
+  './pionier-core.js?v=47',
   './js/audio-core.js?v=2',
   './js/instrument.js',
   './js/gesture.js',
