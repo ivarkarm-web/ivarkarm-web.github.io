@@ -1831,3 +1831,169 @@ html, body {
   outline: 2px solid rgba(212, 176, 74, 0.55);
   outline-offset: 2px;
 }
+
+/* ========== Primary selectors stretch; secondary steppers stay compact ========== */
+
+/* Scale row: scale picker grows, base note stays compact on the right */
+#stageScaleBar #stageScaleRow,
+#stageScaleBar .stage-scale-row {
+  max-width: 100% !important;
+  gap: 10px !important;
+  padding: 0 6px !important;
+}
+
+#stageScaleBar .stage-control-scale,
+#stageScaleBar .control-scale {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+#stageScaleBar .control-scale .scale-stepper,
+#stageScaleBar .control-scale .stepper.scale-stepper {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+#stageScaleBar #scaleLabel,
+#stageScaleBar .stage-scale-btn,
+#stageScaleBar .scale-dropdown-toggle {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  width: auto !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 12px !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em !important;
+  text-align: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+#stageScaleBar #scalePrev,
+#stageScaleBar #scaleNext {
+  flex: 0 0 36px !important;
+  width: 36px !important;
+  height: 40px !important;
+  min-width: 36px !important;
+}
+
+/* Instrument row: instrument name grows, notes stepper stays compact */
+#stageScaleBar #stageInstrumentRow,
+#stageScaleBar .stage-instrument-row {
+  max-width: 100% !important;
+  gap: 10px !important;
+  padding: 0 6px 4px !important;
+}
+
+#stageScaleBar .stage-instrument-nav,
+#stageScaleBar #instrumentNav {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  width: auto !important;
+  justify-content: stretch !important;
+  gap: 2px !important;
+}
+
+#stageScaleBar #instrumentDropdownToggle,
+#stageScaleBar .stage-instrument-nav .instrument-name {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  width: auto !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 12px !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em !important;
+  text-align: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+#stageScaleBar #voicePrev,
+#stageScaleBar #voiceNext {
+  flex: 0 0 36px !important;
+  width: 36px !important;
+  height: 40px !important;
+  min-width: 36px !important;
+}
+
+/* Secondary: base note + notes stay smaller on the right */
+#stageScaleBar .stage-base-only,
+#stageScaleBar #stageBaseOnly,
+#stageScaleBar .stage-notes-slot,
+#stageScaleBar #stageNotesSlot {
+  flex: 0 0 auto !important;
+  max-width: 112px !important;
+}
+
+#stageScaleBar .stage-base-only .stepper,
+#stageScaleBar .stage-notes-slot .stepper,
+#stageScaleBar #stageBaseOnly .stepper,
+#stageScaleBar #stageNotesSlot .stepper {
+  height: 34px !important;
+}
+
+#stageScaleBar .stage-base-only .step,
+#stageScaleBar .stage-notes-slot .step,
+#stageScaleBar #stageBaseOnly .step,
+#stageScaleBar #stageNotesSlot .step {
+  width: 28px !important;
+  min-width: 28px !important;
+  height: 34px !important;
+}
+
+#stageScaleBar .stage-base-only .step-value,
+#stageScaleBar .stage-notes-slot .step-value,
+#stageScaleBar #stageBaseOnly .step-value,
+#stageScaleBar #stageNotesSlot .step-value {
+  min-width: 1.6em !important;
+  font-size: 0.8rem !important;
+  height: 34px !important;
+}
+
+/* Soundscapes ♫ sits with FX + settings in the top-right chrome */
+#openSoundscapes.soundscapes-top-btn,
+button#openSoundscapes.soundscapes-top-btn {
+  position: fixed !important;
+  top: max(10px, env(safe-area-inset-top, 0px)) !important;
+  right: max(116px, calc(env(safe-area-inset-right, 0px) + 104px)) !important;
+  z-index: 4400 !important;
+  width: var(--pionier-tap, 44px) !important;
+  height: var(--pionier-tap, 44px) !important;
+  min-width: var(--pionier-tap, 44px) !important;
+  border-radius: 50% !important;
+  border: 1px solid var(--pionier-line, rgba(230, 224, 210, 0.14)) !important;
+  background: rgba(12, 12, 14, 0.9) !important;
+  color: rgba(201, 162, 39, 0.9) !important;
+  font-size: 1.05rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+#openSoundscapes.soundscapes-top-btn:hover {
+  color: #f1d982 !important;
+  background: rgba(201, 162, 39, 0.1) !important;
+}
+
+/* Hide legacy ♫ inside the instrument nav if layout hasn't moved it yet */
+#stageScaleBar #openSoundscapes:not(.soundscapes-top-btn) {
+  display: none !important;
+}
