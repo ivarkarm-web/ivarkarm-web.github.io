@@ -9,7 +9,7 @@
  * Circles: tap play/pause · long-press layer sheet (level/pan/mute/solo/delete)
  * Clear: wipe all layers
  */
-import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js';
+import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
 
 const MAX_LAYERS = 8;
 const LONG_MS = 480;
