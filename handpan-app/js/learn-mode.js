@@ -945,7 +945,7 @@ const SONG_LIBRARY = [
   }
 ].map(song => ({
   id:song.id, title:song.title, description:song.description + ' · simplified scale-degree lesson', bpm:76,
-  events:song.seq.map((pad,i)=>({pad:Math.min(8,pad),at:1400+i*850+(i>0 && i%4===0?250:0)}))
+  events:song.seq.map((pad,i)=>({pad:Math.min(8,pad),at:1600+i*1320+(i>0 && i%4===0?320:0)}))
 }));
 
 const LESSONS = [
@@ -970,7 +970,7 @@ const LESSONS = [
     {pad:0,at:25600},{pad:1,at:26700},{pad:2,at:27800},{pad:3,at:28900},{pad:4,at:30000},{pad:5,at:31100},{pad:4,at:32200},{pad:3,at:33300},{pad:2,at:34400},{pad:1,at:35500},{pad:0,at:36600}
   ]}
 ];
-const APPROACH_MS=620, WINDOW_MS=180, TAIL_MS=90;
+const APPROACH_MS=1050, WINDOW_MS=300, TAIL_MS=180;
 export function mountLearnMode(){
   const button=document.getElementById('openLearn'), panel=document.getElementById('learnPanel'), close=document.getElementById('learnClose');
   const canvas=document.getElementById('pan'), list=document.getElementById('learnLessonList');
@@ -1062,13 +1062,13 @@ export function mountLearnMode(){
         fields.forEach(field=>{
           const point=overlayPoint(field);if(!point)return;const{x,y}=point;
           if(ringState.state==='approach'){
-            const rawP=Math.max(0,Math.min(1,(elapsed-ringState.spawnAt)/APPROACH_MS));const p=rawP*rawP*(3-2*rawP);const maxRadius=Math.max(Math.hypot(x,y),Math.hypot(stageWidth-x,y),Math.hypot(x,stageHeight-y),Math.hypot(stageWidth-x,stageHeight-y))+48;const radius=maxRadius-p*(maxRadius-14),pulse=1+Math.sin(now/240)*.012;
+            const rawP=Math.max(0,Math.min(1,(elapsed-ringState.spawnAt)/APPROACH_MS));const p=rawP*rawP*(3-2*rawP);const maxRadius=Math.max(Math.hypot(x,y),Math.hypot(stageWidth-x,y),Math.hypot(x,stageHeight-y),Math.hypot(stageWidth-x,stageHeight-y))+48;const radius=maxRadius-p*(maxRadius-14),pulse=1+Math.sin(now/340)*.008;
             ctx.save();ctx.strokeStyle='#e2bd59';ctx.lineWidth=1.8+p*1.7;ctx.shadowColor='rgba(243,212,122,.78)';ctx.shadowBlur=15+p*17;
             for(let n=0;n<3;n++){ctx.globalAlpha=Math.max(.08,.78-n*.19)*(.48+p*.52);ctx.beginPath();ctx.arc(x,y,(radius+n*18)*pulse,0,Math.PI*2);ctx.stroke()}
             if(p>.72){const warm=Math.min(1,(p-.72)/.28),sx=canvas.getBoundingClientRect().width/((window.PionierCore?.surface?.metrics||{}).W||800),sy=canvas.getBoundingClientRect().height/((window.PionierCore?.surface?.metrics||{}).H||800);ctx.globalAlpha=.18+.42*warm;ctx.strokeStyle='#ffe8a0';ctx.lineWidth=1.5+2*warm;ctx.shadowBlur=8+18*warm;ctx.beginPath();ctx.ellipse(x,y,Math.max(8,(field.rx||34)*sx*1.08),Math.max(8,(field.ry||24)*sy*1.08),field.rot||0,0,Math.PI*2);ctx.stroke()}
             ctx.restore();
           }else if(ringState.state==='arrive'){
-            const pulse=1+Math.sin(now/150)*.045;ctx.save();const glow=ctx.createRadialGradient(x,y,3,x,y,54*pulse);glow.addColorStop(0,'rgba(255,239,173,.48)');glow.addColorStop(.42,'rgba(243,212,122,.24)');glow.addColorStop(1,'rgba(243,212,122,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(x,y,58*pulse,0,Math.PI*2);ctx.fill();
+            const pulse=1+Math.sin(now/220)*.028;ctx.save();const glow=ctx.createRadialGradient(x,y,3,x,y,54*pulse);glow.addColorStop(0,'rgba(255,239,173,.48)');glow.addColorStop(.42,'rgba(243,212,122,.24)');glow.addColorStop(1,'rgba(243,212,122,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(x,y,58*pulse,0,Math.PI*2);ctx.fill();
             const sx=canvas.getBoundingClientRect().width/((window.PionierCore?.surface?.metrics||{}).W||800),sy=canvas.getBoundingClientRect().height/((window.PionierCore?.surface?.metrics||{}).H||800),rx=Math.max(8,(field.rx||34)*sx*1.1),ry=Math.max(8,(field.ry||24)*sy*1.1);
             ctx.strokeStyle='#fff0ad';ctx.lineWidth=3.5;ctx.shadowColor='rgba(255,224,125,1)';ctx.shadowBlur=30;ctx.beginPath();ctx.ellipse(x,y,rx,ry,field.rot||0,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=.88;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y,rx*1.13,ry*1.13,field.rot||0,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=.8;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(x,y,Math.max(rx,ry)*.7*pulse,0,Math.PI*2);ctx.stroke();ctx.restore();
           }else{
