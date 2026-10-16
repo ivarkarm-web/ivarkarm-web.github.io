@@ -1,3 +1,5 @@
+import { HANDPAN_SCALES } from './instruments/handpan-scales.js?v=6';
+
 /* Pionier Learn — shared-clock phrase playback and Catch the Note practice.
    Phrase events are editable scale-degree fixtures, not claimed audio transcriptions. */
 // Public-domain/traditional melody studies. These are newly authored scale-degree
@@ -1045,10 +1047,12 @@ export function mountLearnMode(){
       const core=window.PionierCore;
       try{
         if(lesson.instrumentId && core?.activeInstrument?.()?.id!==lesson.instrumentId && typeof core?.setInstrument==='function') await core.setInstrument(lesson.instrumentId);
-        const registry=window.HANDPAN_SCALES||[];
+        const registry=HANDPAN_SCALES;
         const scaleIndex=registry.findIndex(scale=>scale.id===lesson.scaleId);
-        if(scaleIndex<0) throw new Error('Missing lesson scale: '+lesson.scaleId);
-        core?.setScaleIndex?.(scaleIndex);
+        if(scaleIndex<0) throw new Error('Missing lesson scale in imported registry: '+lesson.scaleId);
+        if(!core || typeof core.setScaleIndex!=='function') throw new Error('PionierCore.setScaleIndex is unavailable');
+        core.setScaleIndex(scaleIndex);
+        if(core.handpan?.scaleIndex !== scaleIndex) throw new Error('Instrument did not apply lesson scale: '+lesson.scaleId);
         core?.refreshPitch?.();core?.draw?.();
       }catch(error){console.error('[learn] could not prepare melody scale',error);setHud('SCALE SETUP FAILED');progress.textContent='COULD NOT LOAD THIS LESSON SCALE · RELOAD AND TRY AGAIN';return;}
     }
