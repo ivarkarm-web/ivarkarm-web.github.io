@@ -1,7 +1,4 @@
-pionier-v9
-overlay-controller.js?v=1
-layout-boot.js?v=53
-pionier.css?v=123
-scale-menu.css?v=5
-pionier-app.js?v=173
-pionier-core.js?v=28
+pionier-v25
+2026-10-16
+shell: overlay v6, core v32, app v179, scales v3
+audits: instrument groups, iOS unlock, SW network-first versioned, menu a11y
