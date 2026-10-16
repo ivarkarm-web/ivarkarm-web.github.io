@@ -763,6 +763,11 @@ window.PionierCore = {
   }
 };
 
+window.addEventListener('pionier:settings', () => {
+  try { draw(); } catch (_) {}
+  try { resize(); } catch (_) {}
+});
+
 async function boot() {
   ensureAudio();
   const saved = readSavedInstrumentId();
