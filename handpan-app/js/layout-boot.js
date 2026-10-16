@@ -263,6 +263,7 @@
 
   ensureFxOpenBtn();
   ensureSoundscapesTopBtn();
+  centerTopChrome();
   ensureBottomBar();
 
   const fxDockObserver = new MutationObserver(() => {
@@ -326,6 +327,27 @@
   }
 
   /** Move ♫ Soundscapes next to FX (top-right chrome), not inside instrument nav. */
+
+  function centerTopChrome() {
+    const ids = ['openSoundscapes', 'fxPanelOpen', 'settingsOpenBtn'];
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      el.style.removeProperty('right');
+      el.style.setProperty('left', '50%', 'important');
+      el.style.setProperty('right', 'auto', 'important');
+      el.style.setProperty('top', 'max(10px, env(safe-area-inset-top, 0px))', 'important');
+      el.style.setProperty('position', 'fixed', 'important');
+      el.style.setProperty('z-index', '4400', 'important');
+    }
+    const sc = document.getElementById('openSoundscapes');
+    const fx = document.getElementById('fxPanelOpen');
+    const ge = document.getElementById('settingsOpenBtn');
+    if (sc) sc.style.setProperty('transform', 'translateX(calc(-50% - 52px))', 'important');
+    if (fx) fx.style.setProperty('transform', 'translateX(-50%)', 'important');
+    if (ge) ge.style.setProperty('transform', 'translateX(calc(-50% + 52px))', 'important');
+  }
+
   function ensureSoundscapesTopBtn() {
     const btn = document.getElementById('openSoundscapes');
     if (!btn) return null;
@@ -442,7 +464,7 @@
     }
   }
 
-  const boot = () => { run(); ensureFxOpenBtn(); ensureSoundscapesTopBtn(); ensureBottomBar(); positionEffectBubbles(); centerPan(); };
+  const boot = () => { run(); ensureFxOpenBtn(); ensureSoundscapesTopBtn(); centerTopChrome(); ensureBottomBar(); positionEffectBubbles(); centerPan(); };
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);
   } else {
@@ -459,6 +481,9 @@
   setTimeout(ensureBottomBar, 1000);
   setTimeout(ensureSoundscapesTopBtn, 80);
   setTimeout(ensureSoundscapesTopBtn, 400);
+  setTimeout(centerTopChrome, 90);
+  setTimeout(centerTopChrome, 420);
+  setTimeout(centerTopChrome, 1200);
   window.addEventListener('resize', () => {
     clearTimeout(window.__panCenterT);
     window.__panCenterT = setTimeout(centerPan, 50);
