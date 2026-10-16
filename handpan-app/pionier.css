@@ -2327,3 +2327,114 @@ body.is-fx-open {
   width: auto !important;
   height: auto !important;
 }
+
+/* ========== Light mode: settings sheet + dropdowns (authoritative) ========== */
+html.theme-light .settings-sheet {
+  background: linear-gradient(180deg, #faf8f4 0%, #f0ebe3 100%) !important;
+  border-color: rgba(40, 36, 28, 0.12) !important;
+  color: #1c1b1a !important;
+  box-shadow: 0 -16px 48px rgba(40, 30, 10, 0.18) !important;
+}
+html.theme-light .settings-sheet-title,
+html.theme-light .settings-row-label,
+html.theme-light .settings-sheet .settings-row,
+html.theme-light .settings-sheet label {
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-section-label,
+html.theme-light .settings-dd-label {
+  color: rgba(40, 36, 28, 0.48) !important;
+}
+html.theme-light .settings-sheet-close {
+  background: rgba(40, 36, 28, 0.06) !important;
+  border-color: rgba(40, 36, 28, 0.12) !important;
+  color: #3a3834 !important;
+}
+html.theme-light .settings-dd-toggle {
+  background: #ffffff !important;
+  border-color: rgba(40, 36, 28, 0.14) !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-dd-toggle .settings-dd-value,
+html.theme-light .settings-dd-chevron {
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-dd-menu {
+  background: #faf8f4 !important;
+  border-color: rgba(40, 36, 28, 0.14) !important;
+  color: #1c1b1a !important;
+  box-shadow: 0 16px 40px rgba(40, 30, 10, 0.16) !important;
+}
+html.theme-light .settings-dd-item {
+  color: #2a2824 !important;
+}
+html.theme-light .settings-dd-item:hover {
+  background: rgba(40, 36, 28, 0.06) !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-dd-item.is-active {
+  background: rgba(196, 160, 70, 0.22) !important;
+  color: #6b4e0e !important;
+}
+html.theme-light .settings-dd-group {
+  color: rgba(40, 36, 28, 0.4) !important;
+}
+html.theme-light .settings-sheet-backdrop.is-open {
+  background: rgba(30, 28, 24, 0.35) !important;
+}
+
+/* Light: instrument/scale menus */
+html.theme-light .instrument-menu,
+html.theme-light .scale-menu,
+html.theme-light .instrument-menu.picker-sheet,
+html.theme-light .scale-menu.picker-sheet {
+  background: #faf8f4 !important;
+  color: #1c1b1a !important;
+  border-color: rgba(40, 36, 28, 0.12) !important;
+}
+html.theme-light .instrument-menu-item,
+html.theme-light .scale-menu-item {
+  color: #2a2824 !important;
+  background: transparent !important;
+}
+html.theme-light .instrument-menu-item.is-active,
+html.theme-light .scale-menu-item.is-active {
+  background: rgba(196, 160, 70, 0.2) !important;
+  color: #6b4e0e !important;
+}
+html.theme-light .instrument-menu-group,
+html.theme-light .scale-menu-group {
+  color: rgba(40, 36, 28, 0.4) !important;
+}
+
+/* Light: FX panel text */
+html.theme-light #fxPanel.fx-panel,
+html.theme-light .fx-panel {
+  background: #faf8f4 !important;
+  color: #1c1b1a !important;
+  border-color: rgba(40, 36, 28, 0.12) !important;
+}
+html.theme-light #fxPanel .fx-panel-header h2,
+html.theme-light #fxPanel .knob-label,
+html.theme-light #fxPanel .knob-val {
+  color: #2a2824 !important;
+}
+
+/* Light: soundscapes panel */
+html.theme-light .soundscapes-panel,
+html.theme-light #soundscapesPanel {
+  background: #f4f1eb !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .soundscapes-header h2,
+html.theme-light .soundscape-title,
+html.theme-light .soundscape-note,
+html.theme-light .soundscape-status {
+  color: #2a2824 !important;
+}
+html.theme-light .soundscape-queue button,
+html.theme-light .soundscape-queue [role="listitem"] {
+  background: #ffffff !important;
+  color: #1c1b1a !important;
+  border-color: rgba(40, 36, 28, 0.1) !important;
+}
