@@ -186,9 +186,11 @@
     const bd = ensureBackdrop();
     bd.hidden = false;
     bd.removeAttribute('hidden');
-    // Focus first item for a11y
+    // Focus active item if present, else first menuitem
     requestAnimationFrame(() => {
-      menu.querySelector('[role="menuitem"], button')?.focus?.();
+      const active = menu.querySelector('[role="menuitem"].is-active, [aria-current="true"]');
+      const first = menu.querySelector('[role="menuitem"], button.scale-menu-item, button');
+      (active || first)?.focus?.();
     });
   }
 
@@ -274,14 +276,49 @@
     });
 
     document.addEventListener('keydown', (e) => {
+      const openId = PICKER_IDS.find((id) => {
+        const m = document.getElementById(id);
+        return m && !m.hidden;
+      });
+
       if (e.key === 'Escape') {
-        const hadPicker = PICKER_IDS.some((id) => {
-          const m = document.getElementById(id);
-          return m && !m.hidden;
-        });
+        if (openId) {
+          e.preventDefault();
+          closePickers();
+          document.getElementById(TOGGLE_FOR[openId])?.focus?.();
+          return;
+        }
         closeAll();
-        if (hadPicker) {
-          // focus last toggle if possible
+        return;
+      }
+
+      if (!openId) return;
+      const menu = document.getElementById(openId);
+      if (!menu) return;
+      const items = [...menu.querySelectorAll('[role="menuitem"], button.scale-menu-item')].filter(
+        (el) => el.offsetParent !== null
+      );
+      if (!items.length) return;
+      const idx = items.indexOf(document.activeElement);
+
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        const next = items[(idx + 1 + items.length) % items.length];
+        next?.focus?.();
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const prev = items[(idx - 1 + items.length) % items.length];
+        prev?.focus?.();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        items[0]?.focus?.();
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        items[items.length - 1]?.focus?.();
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        if (document.activeElement && items.includes(document.activeElement)) {
+          e.preventDefault();
+          document.activeElement.click();
         }
       }
     });
