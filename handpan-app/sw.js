@@ -3,7 +3,7 @@
  * CACHE_VERSION and SHELL query stamps must match index.html / pionier-app.js.
  * Bump CACHE_VERSION on every deploy that changes shell assets.
  */
-const CACHE_VERSION = 'pionier-v15';
+const CACHE_VERSION = 'pionier-v16';
 
 const SHELL = [
   './',
@@ -19,14 +19,14 @@ const SHELL = [
   './topbar-narrow.css?v=6',
   './js/skin-palette.js?v=1',
   './js/customization-catalog.js?v=5',
-  './js/overlay-controller.js?v=3',
-  './js/layout-boot.js?v=58',
-  './js/settings-panel.js?v=13',
+  './js/overlay-controller.js?v=4',
+  './js/layout-boot.js?v=59',
+  './js/settings-panel.js?v=14',
   './js/ambient-fx.js?v=12',
   './js/skin-mandala.js?v=4',
-  './pionier-app.js?v=174',
+  './pionier-app.js?v=175',
   './registerSW.js',
-  './pionier-core.js?v=28',
+  './pionier-core.js?v=29',
   './js/audio-core.js',
   './js/instrument.js',
   './js/gesture.js',
@@ -34,7 +34,7 @@ const SHELL = [
   './js/pionier-surface.js',
   './js/note-sample-bank.js',
   './js/soundscapes.js?v=7',
-  './js/scale-selector.js?v=3',
+  './js/scale-selector.js?v=4',
   './js/looper.js?v=206',
   './js/instruments/handpan.js',
   './js/instruments/arp-family.js',

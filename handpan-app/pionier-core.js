@@ -94,13 +94,22 @@ async function setInstrument(id) {
   releaseAllPointers();
   ensureAudio();
   const ctx = getAudioContext();
-  if (!ctx) return;
+  if (!ctx) {
+    updateInstrumentUI();
+    return;
+  }
   if (!app.instrumentBus) ensureAudio();
-  if (!app.instrumentBus) return;
+  if (!app.instrumentBus) {
+    updateInstrumentUI();
+    return;
+  }
 
   if (!handpan.getNotes().length) handpan.rebuildNotes();
   const notes = handpan.getNotes();
-  if (!notes.length) return;
+  if (!notes.length) {
+    updateInstrumentUI();
+    return;
+  }
 
   const prev = InstrumentRegistry.active;
   if (prev) { try { prev.dampAll(); } catch (_) {} }
@@ -516,23 +525,34 @@ function renderInstrumentMenu() {
   const menu = document.getElementById('instrumentMenu');
   if (!menu) return;
   menu.replaceChildren();
+  const seen = new Set();
   for (const item of InstrumentRegistry.list()) {
+    if (!item || !item.id || seen.has(item.id)) continue;
+    seen.add(item.id);
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'instrument-menu-item';
+    btn.className = 'instrument-menu-item' + ((InstrumentRegistry.active?.id === item.id) ? ' is-active' : '');
     btn.setAttribute('role', 'menuitem');
+    btn.dataset.instrumentId = item.id;
     btn.textContent = item.name || item.id;
-    btn.addEventListener('click', () => {
-      setInstrument(item.id);
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setInstrument(item.id).catch(() => {});
       if (window.PionierOverlay) window.PionierOverlay.closePickers();
       else {
         menu.hidden = true;
+        menu.setAttribute('hidden', '');
         document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false');
       }
     });
     menu.appendChild(btn);
   }
 }
+window.__pionierRenderInstrumentMenu = renderInstrumentMenu;
+document.addEventListener('pionier:picker-open', (e) => {
+  if (e.detail?.id === 'instrumentMenu') renderInstrumentMenu();
+});
 
 /* instrument menu open/close: overlay-controller.js */
 document.getElementById('instrumentDropdownToggle')?.addEventListener('click', () => {

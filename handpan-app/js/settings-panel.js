@@ -390,8 +390,13 @@
     document.getElementById('soundscapesPanel')?.setAttribute('hidden', '');
     document.body.classList.remove('soundscapes-active');
     buildBody(state);
+    // Recover empty sheet (e.g. catalog raced or body was cleared)
+    const body = document.getElementById('settingsSheetBody');
+    if (body && body.children.length === 0) buildBody(state);
     els.sheet.hidden = false;
+    els.sheet.removeAttribute('hidden');
     els.backdrop.hidden = false;
+    els.backdrop.removeAttribute('hidden');
     requestAnimationFrame(() => {
       els.sheet.classList.add('is-open');
       els.backdrop.classList.add('is-open');

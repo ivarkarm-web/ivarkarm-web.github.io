@@ -39,13 +39,18 @@
       const m = document.getElementById(id);
       if (!m) return;
       m.hidden = true;
+      m.setAttribute('hidden', '');
       m.classList.remove('is-open', 'picker-sheet', 'picker-popover');
       clearInlineLayout(m);
       const tid = TOGGLE_FOR[id];
       if (tid) document.getElementById(tid)?.setAttribute('aria-expanded', 'false');
     });
     const bd = document.getElementById('pickerBackdrop');
-    if (bd) bd.hidden = true;
+    if (bd) {
+      bd.hidden = true;
+      bd.setAttribute('hidden', '');
+      bd.style.removeProperty('display');
+    }
   }
 
   function closeFx() {
@@ -64,18 +69,25 @@
     if (sheet) {
       sheet.classList.remove('is-open');
       sheet.hidden = true;
+      sheet.setAttribute('hidden', '');
     }
     if (backdrop) {
       backdrop.classList.remove('is-open');
       backdrop.hidden = true;
+      backdrop.setAttribute('hidden', '');
     }
     document.getElementById('settingsOpenBtn')?.setAttribute('aria-expanded', 'false');
   }
 
   function closeSoundscapes() {
-    const panel = document.getElementById('soundscapesPanel');
-    if (panel) panel.hidden = true;
+    const panel = document.getElementById('soundscapesPanel') || document.getElementById('soundscapesPage');
+    if (panel) {
+      panel.hidden = true;
+      panel.classList.remove('is-active', 'is-open');
+      panel.setAttribute('aria-hidden', 'true');
+    }
     document.body.classList.remove('soundscapes-active');
+    document.getElementById('app')?.classList.remove('soundscapes-away');
   }
 
   function closeAll(except) {
@@ -143,9 +155,14 @@
     });
     placePicker(menu, toggle);
     toggle.setAttribute('aria-expanded', 'true');
+    // Ensure instrument list is fresh when opening
+    if (menuId === 'instrumentMenu' && typeof window.__pionierRenderInstrumentMenu === 'function') {
+      try { window.__pionierRenderInstrumentMenu(); } catch (_) {}
+    }
     document.dispatchEvent(new CustomEvent('pionier:picker-open', { detail: { id: menuId } }));
     const bd = ensureBackdrop();
     bd.hidden = false;
+    bd.removeAttribute('hidden');
     // Focus first item for a11y
     requestAnimationFrame(() => {
       menu.querySelector('[role="menuitem"], button')?.focus?.();
@@ -265,9 +282,35 @@
     }
   }
 
+  function recoverChrome() {
+    const anyPickerOpen = PICKER_IDS.some((id) => {
+      const m = document.getElementById(id);
+      return m && !m.hidden;
+    });
+    if (!anyPickerOpen) {
+      const bd = document.getElementById('pickerBackdrop');
+      if (bd && !bd.hidden) {
+        bd.hidden = true;
+        bd.setAttribute('hidden', '');
+      }
+    }
+    // Never leave the main app translated away without soundscapes open
+    const ss = document.getElementById('soundscapesPanel') || document.getElementById('soundscapesPage');
+    const ssOpen = ss && !ss.hidden && (ss.classList.contains('is-active') || ss.classList.contains('is-open'));
+    if (!ssOpen) {
+      document.body.classList.remove('soundscapes-active');
+      document.getElementById('app')?.classList.remove('soundscapes-away');
+    }
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', wire);
   } else {
     wire();
   }
+  // Safety net for stuck backdrop / translated app after rapid switches
+  setInterval(recoverChrome, 1500);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) recoverChrome();
+  });
 })();

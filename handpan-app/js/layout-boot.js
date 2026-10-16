@@ -270,13 +270,19 @@
   ensureBottomBar();
 
   const fxDockObserver = new MutationObserver(() => {
+    // Skip while a picker is open — reparenting fights the portal menu
+    const scaleOpen = document.getElementById('scaleMenu') && !document.getElementById('scaleMenu').hidden;
+    const instOpen = document.getElementById('instrumentMenu') && !document.getElementById('instrumentMenu').hidden;
+    if (scaleOpen || instOpen) return;
     if (window.__fxDockGuardFrame) return;
     window.__fxDockGuardFrame = requestAnimationFrame(() => {
       window.__fxDockGuardFrame = 0;
       stabilizeFxDock();
     });
   });
-  fxDockObserver.observe(document.body, { childList: true, subtree: true });
+  // Observe only the app shell, not every menu item mutation under body
+  const appEl = document.getElementById('app') || document.body;
+  fxDockObserver.observe(appEl, { childList: true, subtree: false });
 
   function positionEffectBubbles() {
     document.querySelectorAll('.knob-effect-trigger').forEach((btn) => {
