@@ -81,6 +81,20 @@
     return hit ? hit.label : id;
   }
 
+  function isLightTheme() {
+    if (document.documentElement.classList.contains('theme-light') ||
+        document.body.classList.contains('theme-light') ||
+        document.documentElement.dataset.theme === 'light' ||
+        document.body.dataset.theme === 'light' ||
+        window.PionierSettings?.lightMode === true) return true;
+    // The stored preference is authoritative while classes/UI are still initializing.
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('pionier.settings.v1');
+      if (raw && JSON.parse(raw).lightMode === true) return true;
+    } catch (_) {}
+    return false;
+  }
+
   let openMenuEl = null;
   let openToggleEl = null;
 
@@ -121,8 +135,7 @@
     if (top < 8) top = 8;
     if (top + maxH > window.innerHeight - 8) top = Math.max(8, window.innerHeight - 8 - maxH);
 
-    const light = document.documentElement.classList.contains('theme-light') ||
-      document.body.classList.contains('theme-light');
+    const light = isLightTheme();
     const surface = light ? '#faf8f4' : '#161618';
     const text = light ? '#24221e' : '#e6e0d2';
     const border = light ? 'rgba(52,44,28,0.14)' : 'rgba(230,224,210,0.18)';
@@ -207,6 +220,12 @@
         b.className = 'settings-dd-item' + (item.id === activeId ? ' is-active' : '');
         b.setAttribute('role', 'option');
         b.textContent = item.label;
+        if (isLightTheme()) {
+          b.style.setProperty('color', item.id === activeId ? '#654b12' : '#302d27', 'important');
+          b.style.setProperty('background', item.id === activeId ? 'rgba(190,151,53,0.18)' : 'transparent', 'important');
+          b.style.setProperty('background-color', item.id === activeId ? 'rgba(190,151,53,0.18)' : 'transparent', 'important');
+          b.style.setProperty('border-color', 'transparent', 'important');
+        }
         b.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
