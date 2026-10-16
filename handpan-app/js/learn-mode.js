@@ -30,10 +30,10 @@ export function mountLearnMode(){
   const ctx=overlay.getContext('2d');
   function syncOverlay(){const r=canvas.getBoundingClientRect(),p=canvas.parentElement.getBoundingClientRect();overlay.style.left=(r.left-p.left)+'px';overlay.style.top=(r.top-p.top)+'px';overlay.style.width=r.width+'px';overlay.style.height=r.height+'px';}
   let running=false, lesson=null, lessonIndex=0, mode='practice', startAt=0, index=0, raf=0, hitCount=0, missCount=0;
-  let ringState=null, done=false, transposeSteps=0, sounded=new Set();
-  function show(){panel.hidden=false;document.body.classList.add('learn-active')}
-  function hide(){panel.hidden=true;stop();document.body.classList.remove('learn-active')}
-  function stop(){running=false;done=false;ringState=null;sounded.clear();cancelAnimationFrame(raf);ctx.clearRect(0,0,680,680);overlay.style.display='none';}
+  let ringState=null, done=false, transposeSteps=0, sounded=new Set(), countdownUntil=0, hud=null, hudLabel=null;
+  function show(){panel.hidden=false;document.body.classList.add('learn-active')}\n  function ensureHud(){if(hud)return;hud=document.createElement('div');hud.id='learnGameHud';hud.innerHTML='<span id="learnHudLabel">GET READY</span><button type="button" data-action="restart">Restart</button><button type="button" data-action="menu">Lessons</button><button type="button" data-action="close" aria-label="Close lesson">×</button>';document.body.appendChild(hud);hudLabel=hud.querySelector('#learnHudLabel');hud.addEventListener('click',e=>{const a=e.target?.dataset?.action;if(a==='restart')begin(lessonIndex,mode);if(a==='menu'){hud.hidden=true;show();menu()}if(a==='close')hide()});}\n  function setHud(text){ensureHud();hudLabel.textContent=text;hud.hidden=false}\n  function hideHud(){if(hud)hud.hidden=true}
+  function hide(){panel.hidden=true;stop();hideHud();document.body.classList.remove('learn-active')}
+  function stop(){running=false;done=false;ringState=null;sounded.clear();countdownUntil=0;cancelAnimationFrame(raf);ctx.clearRect(0,0,680,680);overlay.style.display='none';hideHud();}
   function menu(){stop();list.hidden=false;controls.hidden=true;heading.textContent='Catch the Note';description.textContent='Listen to a phrase, then play it with the ripples. Shift it by scale degrees to hear the same idea in a new place.'}
   function targetPad(ev){const fields=window.PionierCore?.surface?.fields||[];const count=fields.length||9;return ((Number(ev.pad)+transposeSteps)%count+count)%count}
   function targetField(pad){const fields=window.PionierCore?.surface?.fields||[];return fields.find(f=>Number(f.index)===Number(pad))||fields[pad]||null}
@@ -47,20 +47,20 @@ export function mountLearnMode(){
     }catch(err){console.warn('Learn phrase strike failed',err);return false}
   }
   function markMiss(now){if(!ringState||ringState.state!=='approach')return;ringState.state='miss';ringState.changedAt=now;missCount++;progress.textContent='MISS · '+hitCount+' CAUGHT'}
-  function finish(){done=true;running=false;ringState=null;progress.textContent=(mode==='listen'?'PHRASE COMPLETE':'FINISHED')+' · '+hitCount+' HITS · '+missCount+' MISSES';}
+  function finish(){done=true;running=false;ringState=null;const result=(mode==='listen'?'PHRASE COMPLETE':'FINISHED')+' · '+hitCount+' HITS · '+missCount+' MISSES';progress.textContent=result;setHud(result);window.setTimeout(()=>{if(done){hideHud();show();list.hidden=true;controls.hidden=false;heading.textContent=lesson.title;description.textContent=result;}},900);}
   function begin(i,nextMode='practice'){
     if(!LESSONS[i])return;
-    stop();lessonIndex=i;lesson=LESSONS[i];mode=nextMode;index=0;hitCount=0;missCount=0;done=false;running=true;startAt=performance.now();ringState=null;sounded.clear();
+    stop();lessonIndex=i;lesson=LESSONS[i];mode=nextMode;index=0;hitCount=0;missCount=0;done=false;running=true;countdownUntil=performance.now()+3000;startAt=countdownUntil;ringState=null;sounded.clear();
     transposeSteps=Number(lesson.transpose||0);
     list.hidden=true;controls.hidden=false;heading.textContent=lesson.title;description.textContent=lesson.description;
     if(transposeBtn)transposeBtn.textContent='Transpose: '+(transposeSteps===0?'Original':('+'+transposeSteps+' scale degrees'));
     if(listenBtn)listenBtn.setAttribute('aria-pressed',String(mode==='listen'));
     if(catchBtn)catchBtn.setAttribute('aria-pressed',String(mode==='practice'));
-    syncOverlay();overlay.style.display='block';progress.textContent=mode==='listen'?'LISTENING PREVIEW':'GET READY';drawFrame();
+    syncOverlay();overlay.style.display='block';panel.hidden=true;ensureHud();setHud('3');progress.textContent='3';drawFrame();
   }
   function drawFrame(){
     if(!running&&!ringState){ctx.clearRect(0,0,680,680);return}
-    const now=performance.now(),elapsed=now-startAt;ctx.clearRect(0,0,680,680);
+    const now=performance.now(),elapsed=now-startAt;ctx.clearRect(0,0,680,680);\n    if(now<countdownUntil){const n=Math.max(1,Math.ceil((countdownUntil-now)/1000));setHud(String(n));progress.textContent=String(n);ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='500 96px system-ui';ctx.fillStyle='rgba(243,212,122,.92)';ctx.shadowColor='rgba(243,212,122,.75)';ctx.shadowBlur=28;ctx.fillText(String(n),340,340);ctx.restore();raf=requestAnimationFrame(drawFrame);return;}else if(now>=countdownUntil&&countdownUntil){countdownUntil=0;setHud(mode==='listen'?'LISTENING':'CATCH THE NOTE');}
     if(running&&index<lesson.events.length){
       const ev=lesson.events[index],pad=targetPad(ev),spawnAt=ev.at-APPROACH_MS;
       if(elapsed>=spawnAt&&!ringState)ringState={event:ev,pad,spawnAt,state:'approach',changedAt:0};
@@ -84,17 +84,17 @@ export function mountLearnMode(){
     if(running||ringState)raf=requestAnimationFrame(drawFrame);else if(done)ctx.clearRect(0,0,680,680);
   }
   function onStrike(e){
-    if(!running||mode!=='practice')return;
+    if(!running||mode!=='practice'||performance.now()<startAt)return;
     const surface=window.PionierCore?.surface;if(!surface)return;
     const pos=surface.canvasCoords(e),hit=surface.hitVector(pos.x,pos.y),now=performance.now(),elapsed=now-startAt;
     const state=ringState,target=state?.event;
     const inWindow=!!target&&state.state==='approach'&&elapsed>=target.at-WINDOW_MS&&elapsed<=target.at+WINDOW_MS;
     if(!inWindow||hit?.index!==state?.pad){
       e.preventDefault();e.stopImmediatePropagation();
-      if(state?.state==='approach'){markMiss(now);index++}else{missCount++;progress.textContent='MISS · '+hitCount+' CAUGHT'}
+      if(state?.state==='approach'){markMiss(now);index++;setHud('MISS · '+hitCount+' CAUGHT')}else{missCount++;progress.textContent='MISS · '+hitCount+' CAUGHT';setHud('MISS · '+hitCount+' CAUGHT')}
       return;
     }
-    hitCount++;progress.textContent='CAUGHT · '+hitCount+' / '+lesson.events.length;ringState={event:target,pad:state.pad,state:'hit',changedAt:now};index++;
+    hitCount++;progress.textContent='CAUGHT · '+hitCount+' / '+lesson.events.length;setHud('CAUGHT · '+hitCount+' / '+lesson.events.length);ringState={event:target,pad:state.pad,state:'hit',changedAt:now};index++;
   }
   canvas.addEventListener('pointerdown',onStrike,true);
   list.querySelectorAll('[data-lesson]').forEach(b=>b.addEventListener('click',()=>begin(Number(b.dataset.lesson),'practice')));
@@ -105,7 +105,7 @@ export function mountLearnMode(){
   catchBtn?.addEventListener('click',()=>begin(lessonIndex,'practice'));
   transposeBtn?.addEventListener('click',()=>{if(!lesson)return;transposeSteps=(transposeSteps+2)%Math.max(2,(window.PionierCore?.surface?.fields||[]).length||9);lesson.transpose=transposeSteps;begin(lessonIndex,mode);});
   panel.addEventListener('click',e=>{if(e.target===panel)hide()});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden)hide()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(!panel.hidden||!hud?.hidden))hide()});
   window.addEventListener('resize',()=>{overlay.width=680;overlay.height=680;syncOverlay();if(running)drawFrame()});
   menu();window.PionierLearnMode={start:begin,close:hide,stop,ready:true,lessons:LESSONS};return true;
 }
