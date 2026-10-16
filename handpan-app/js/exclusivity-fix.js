@@ -1,6 +1,6 @@
 /**
  * exclusivity-fix.js — FX panel and settings sheet never stack
- * + ensure looper record button has ring/core chrome
+ * + ensure looper record button has ring/core chrome at 52px
  */
 (function exclusivityFix() {
   function closeFx() {
@@ -75,11 +75,13 @@
         '<span class="looper-btn-ring" aria-hidden="true"></span>' +
         '<span class="looper-btn-core" aria-hidden="true"></span>';
     }
-    btn.style.width = '52px';
-    btn.style.height = '52px';
-    btn.style.minWidth = '52px';
-    btn.style.minHeight = '52px';
-    btn.style.pointerEvents = 'auto';
+    btn.style.setProperty('width', '52px', 'important');
+    btn.style.setProperty('height', '52px', 'important');
+    btn.style.setProperty('min-width', '52px', 'important');
+    btn.style.setProperty('min-height', '52px', 'important');
+    btn.style.setProperty('pointer-events', 'auto', 'important');
+    btn.style.setProperty('background', 'transparent', 'important');
+    btn.style.setProperty('border', '0', 'important');
   }
 
   function run() {
