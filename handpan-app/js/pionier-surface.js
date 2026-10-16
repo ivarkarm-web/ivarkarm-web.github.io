@@ -393,48 +393,46 @@ export function createSurface(canvas) {
     if(!touchRipples.length||!rippleCtx)return false;
     const ctx=rippleCtx,vw=window.innerWidth,vh=window.innerHeight;
     ctx.clearRect(0,0,vw,vh);
-    const duration=1700;
+    const duration=1350;
     for(let i=touchRipples.length-1;i>=0;i--){
       const p=touchRipples[i];
       const t=(now-p.started)/duration;
       if(t>=1){touchRipples.splice(i,1);continue}
       const travel=smoothstep(t);
-      const fadeIn=smoothstep(t/0.035);
-      const fadeOut=1-smoothstep((t-0.48)/0.52);
+      const fadeIn=smoothstep(t/0.045);
+      const fadeOut=1-smoothstep((t-0.52)/0.48);
       const envelope=fadeIn*fadeOut;
-      // Travel only from the tonefield's actual center to the handpan rim.
-      // The central ding sends its wave upward; outer pads follow their own radial axis.
-      const distance=p.travelDistance*travel;
-      const x=p.x+p.dx*distance;
-      const y=p.y+p.dy*distance;
-      const span=Math.min(vw,vh);
-      const baseRx=Math.max(5,p.rx);
-      const baseRy=Math.max(4,p.ry);
-      const rx=baseRx*(1+0.95*travel);
-      const ry=baseRy*(1+0.95*travel);
+      // The wave is anchored to the actual tonefield center. Its rings expand
+      // outward from that point and are clipped to the handpan's circular shell.
+      const bodyX=p.bodyX,bodyY=p.bodyY,bodyRadius=p.bodyRadius;
       ctx.save();
+      ctx.beginPath();ctx.arc(bodyX,bodyY,bodyRadius*0.985,0,Math.PI*2);ctx.clip();
       ctx.globalCompositeOperation='screen';
-      for(let ring=0;ring<2;ring++){
-        const delay=ring===0?0:0.15;
+      const span=Math.min(vw,vh);
+      for(let ring=0;ring<3;ring++){
+        const delay=ring*0.17;
         const rt=Math.max(0,Math.min(1,(t-delay)/(1-delay)));
-        const rrX=baseRx*(1+0.95*smoothstep(rt))+(ring?span*0.006:0);
-        const rrY=baseRy*(1+0.95*smoothstep(rt))+(ring?span*0.004:0);
-        const alpha=(ring===0?0.32:0.19)*envelope;
+        const grow=smoothstep(rt);
+        const radius=p.travelDistance*grow;
+        const rx=p.rx+radius;
+        const ry=p.ry+radius*0.82;
+        const alpha=[0.58,0.34,0.2][ring]*envelope;
+        if(alpha<0.006)continue;
         ctx.beginPath();
-        ctx.ellipse(x,y,rrX,rrY,p.rotation,0,Math.PI*2);
-        ctx.strokeStyle='rgba(255,220,161,'+alpha+')';
-        ctx.lineWidth=ring===0?1.8:1.2;
-        ctx.shadowColor='rgba(255,190,89,'+(alpha*0.45)+')';
-        ctx.shadowBlur=(ring===0?5:3)*envelope;
+        ctx.ellipse(p.x,p.y,rx,ry,p.rotation,0,Math.PI*2);
+        ctx.strokeStyle='rgba(255,222,169,'+alpha+')';
+        ctx.lineWidth=ring===0?2.2:1.35;
+        ctx.shadowColor='rgba(255,190,100,'+(alpha*0.65)+')';
+        ctx.shadowBlur=(ring===0?8:4)*envelope;
         ctx.stroke();
       }
-      // A restrained halo stays attached to the moving wave instead of blooming in the background.
-      const halo=ctx.createRadialGradient(x,y,Math.max(0,rx*0.7),x,y,rx*1.12);
-      halo.addColorStop(0,'rgba(255,210,130,0)');
-      halo.addColorStop(0.7,'rgba(255,218,157,'+(0.035*envelope)+')');
-      halo.addColorStop(1,'rgba(255,218,157,0)');
-      ctx.fillStyle=halo;
-      ctx.beginPath();ctx.ellipse(x,y,rx*1.12,ry*1.12,p.rotation,0,Math.PI*2);ctx.fill();
+      // A soft point of light marks where the note launched the wave.
+      const pulse=1+0.16*Math.sin(t*Math.PI*5);
+      const halo=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,Math.max(p.rx,p.ry)*3.2*pulse);
+      halo.addColorStop(0,'rgba(255,226,181,'+(0.19*envelope)+')');
+      halo.addColorStop(0.35,'rgba(255,211,143,'+(0.09*envelope)+')');
+      halo.addColorStop(1,'rgba(255,211,143,0)');
+      ctx.fillStyle=halo;ctx.beginPath();ctx.arc(p.x,p.y,Math.max(p.rx,p.ry)*3.2*pulse,0,Math.PI*2);ctx.fill();
       ctx.restore();
     }
     ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.globalCompositeOperation='source-over';
@@ -467,11 +465,11 @@ export function createSurface(canvas) {
     const travelDistance=Math.max(0,bodyRadius-radialDistance);
     // A small initial ring sits on the tonefield and grows as it moves to the rim.
     const padSize=Math.min(note.rx*scaleX,note.ry*scaleY);
-    const rx=Math.max(2,padSize*0.12);
-    const ry=Math.max(2,padSize*0.09);
+    const rx=Math.max(1.5,padSize*0.045);
+    const ry=Math.max(1.5,padSize*0.04);
     const now=performance.now();
     if(touchRipples.length>=12)touchRipples.splice(0,touchRipples.length-11);
-    touchRipples.push({x:px,y:py,dx,dy,rx,ry,rotation,center,travelDistance,started:now,phase:0});
+    touchRipples.push({x:px,y:py,dx,dy,rx,ry,rotation,center,travelDistance,bodyX,bodyY,bodyRadius,started:now,phase:0});
     if(!rippleRaf)rippleRaf=requestAnimationFrame(tickRipples);
   }
   function tickRipples(now){
