@@ -117,6 +117,9 @@ export function mountLearnMode(){
       missCount++;progress.textContent='MISS · '+hitCount+' CAUGHT';setHud('MISS · '+hitCount+' CAUGHT');return;
     }
     if(state.caughtPads.includes(hit.index))return;
+    // This capture-phase handler stops the core pointer listener so the lesson can
+    // score the hit. Trigger the instrument voice ourselves or scored notes stay silent.
+    strikePad(hit.index, Math.max(.55, Math.min(1, Number(e.pressure)||.72)));
     state.caughtPads.push(hit.index);
     if(state.caughtPads.length<expected.length){
       progress.textContent='ONE OF TWO · PLAY THE OTHER NOTE';setHud('ONE MORE NOTE');return;
