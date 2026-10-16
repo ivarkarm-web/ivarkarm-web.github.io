@@ -18,6 +18,7 @@ export function mountLearnMode(){
   const overlay=document.createElement('canvas'); overlay.id='learnRippleOverlay'; overlay.width=680; overlay.height=680;
   canvas.parentElement?.appendChild(overlay);
   const ctx=overlay.getContext('2d');
+  function syncOverlay(){const r=canvas.getBoundingClientRect(),p=canvas.parentElement.getBoundingClientRect();overlay.style.left=(r.left-p.left)+'px';overlay.style.top=(r.top-p.top)+'px';overlay.style.width=r.width+'px';overlay.style.height=r.height+'px';}
   let running=false, lesson=null, startAt=0, index=0, raf=0, hitCount=0, missCount=0, redUntil=0;
   let ringState=null, done=false;
   const reduced=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(_){return false}})();
@@ -28,7 +29,7 @@ export function mountLearnMode(){
   function begin(i){
     lesson=LESSONS[i]; index=0;hitCount=0;missCount=0;done=false;running=true;startAt=performance.now();ringState=null;
     list.hidden=true;controls.hidden=false;heading.textContent=lesson.title;description.textContent=lesson.description;
-    overlay.style.display='block'; progress.textContent='GET READY'; drawFrame();
+    syncOverlay();overlay.style.display='block'; progress.textContent='GET READY'; drawFrame();
   }
   function targetField(pad){const fields=window.PionierCore?.surface?.fields||[];return fields.find(f=>f.index===pad)||fields[pad]||null}
   function markMiss(now){if(!ringState||ringState.state!=='approach')return;ringState.state='miss';ringState.changedAt=now;missCount++;progress.textContent='MISS';}
@@ -56,7 +57,7 @@ export function mountLearnMode(){
           for(let n=0;n<3;n++){const rr=radius* pulse+n*10;ctx.beginPath();ctx.arc(x,y,rr,0,Math.PI*2);ctx.globalAlpha=Math.max(.06,.72-n*.2)*(0.35+p*.65);ctx.stroke()}
           ctx.restore();
         }else{
-          const age=now-ringState.changedAt;ctx.save();ctx.globalAlpha=Math.max(0,1-age/560);ctx.strokeStyle='#ff4545';ctx.lineWidth=3;ctx.shadowColor='#ff2525';ctx.shadowBlur=16;ctx.beginPath();ctx.arc(x,y,27+age*.025,0,Math.PI*2);ctx.stroke();ctx.restore();
+          const age=now-ringState.changedAt;ctx.save();ctx.globalAlpha=Math.max(0,1-age/560);ctx.strokeStyle=ringState.state==='hit'?'#f3d47a':'#ff4545';ctx.lineWidth=3;ctx.shadowColor=ringState.state==='hit'?'rgba(243,212,122,.9)':'#ff2525';ctx.shadowBlur=16;ctx.beginPath();ctx.arc(x,y,ringState.state==='hit'?27+age*.09:27+age*.025,0,Math.PI*2);ctx.stroke();ctx.restore();
           if(age>560)ringState=null;
         }
       }
@@ -91,6 +92,6 @@ export function mountLearnMode(){
   document.getElementById('learnRestart')?.addEventListener('click',()=>begin(LESSONS.findIndex(x=>x===lesson)));
   panel.addEventListener('click',e=>{if(e.target===panel)hide()});
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden)hide()});
-  window.addEventListener('resize',()=>{overlay.width=680;overlay.height=680;if(running)drawFrame()});
+  window.addEventListener('resize',()=>{overlay.width=680;overlay.height=680;syncOverlay();if(running)drawFrame()});
   menu();
 }
