@@ -1,0 +1,554 @@
+/* PIONIER UI stability pass — theme-aware portals and fixed selector geometry.
+   Loaded last so these focused rules override legacy cascade conflicts. */
+
+/* Stable selector geometry: labels never determine the width of the control. */
+html body #stageScaleBar .stage-instrument-nav,
+html body #stageScaleBar #instrumentNav,
+html body #stageScaleBar #stageScaleRow,
+html body #stageScaleBar .stage-control-scale,
+html body #stageScaleBar .scale-stepper {
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+}
+
+html body #stageScaleBar .stage-instrument-nav,
+html body #stageScaleBar #instrumentNav,
+html body #stageScaleBar #stageScaleRow {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  width: max-content !important;
+  max-width: 100% !important;
+  margin-inline: auto !important;
+}
+
+html body #stageScaleBar .stage-instrument-nav #instrumentDropdownToggle,
+html body #stageScaleBar #instrumentNav #instrumentDropdownToggle,
+html body #stageScaleBar #stageScaleRow #scaleLabel,
+html body #stageScaleBar .stage-control-scale #scaleLabel {
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  flex: 0 0 clamp(116px, 34vw, 176px) !important;
+  width: clamp(116px, 34vw, 176px) !important;
+  min-width: 0 !important;
+  max-width: calc(100vw - 120px) !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: 0 !important;
+  line-height: 1.15 !important;
+  margin: 0 !important;
+  padding: 0 10px !important;
+  transform: none !important;
+}
+
+html body #stageScaleBar .stage-instrument-nav #voicePrev,
+html body #stageScaleBar .stage-instrument-nav #voiceNext,
+html body #stageScaleBar #stageScaleRow #scalePrev,
+html body #stageScaleBar #stageScaleRow #scaleNext {
+  box-sizing: border-box !important;
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  padding: 0 !important;
+  transform: none !important;
+}
+
+html body #stageScaleBar .stage-instrument-nav #openSoundscapes {
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 !important;
+}
+
+html body #stageScaleBar .stage-control-scale,
+html body #stageScaleBar .stage-control-scale .scale-stepper {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-wrap: nowrap !important;
+  gap: 6px !important;
+  width: max-content !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin-inline: auto !important;
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html body #stageScaleBar .step-value,
+html body #stageScaleBar .stage-root-row .step-value,
+html body #stageScaleBar #rootLabel,
+html body #stageScaleBar #noteCountLabel,
+html body #stageScaleBar .stepper .step-value {
+  box-sizing: border-box !important;
+  min-width: 2.8ch !important;
+  width: 2.8ch !important;
+  flex: 0 0 2.8ch !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" 1 !important;
+}
+
+html body #stageScaleBar .stage-control-scale::before,
+html body #stageScaleBar .stage-control-scale::after,
+html body #stageScaleBar .stage-control-scale .scale-stepper::before,
+html body #stageScaleBar .stage-control-scale .scale-stepper::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Theme tokens for menus portalled to body as well as menus inside the app.
+   Explicitly override dark defaults and any inline background declarations. */
+html.theme-light,
+html.theme-light body,
+html.theme-light body * {
+  color-scheme: light;
+}
+
+html.theme-light body .settings-dd-menu,
+html.theme-light .settings-dd-menu,
+body.theme-light .settings-dd-menu,
+html.theme-light .scale-menu,
+html.theme-light .instrument-menu,
+html.theme-light .scale-menu.picker-sheet,
+html.theme-light .instrument-menu.picker-sheet,
+html.theme-light .scale-menu.picker-popover,
+html.theme-light .instrument-menu.picker-popover,
+html.theme-light .looper-sheet {
+  background: #faf8f4 !important;
+  background-color: #faf8f4 !important;
+  background-image: linear-gradient(180deg, #fffdf9 0%, #f1ede5 100%) !important;
+  color: #24221e !important;
+  border-color: rgba(52, 44, 28, 0.14) !important;
+  box-shadow: 0 16px 42px rgba(43, 35, 20, 0.16) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(115%) !important;
+  backdrop-filter: blur(20px) saturate(115%) !important;
+}
+
+html.theme-light .settings-dd-group,
+html.theme-light .instrument-menu-group,
+html.theme-light .scale-menu-group,
+html.theme-light .looper-sheet,
+html.theme-light .settings-dd-item,
+html.theme-light .scale-menu-item,
+html.theme-light .instrument-menu-item,
+body.theme-light .settings-dd-item {
+  color: #302d27 !important;
+}
+
+html.theme-light .settings-dd-item,
+html.theme-light .scale-menu-item,
+html.theme-light .instrument-menu-item,
+html.theme-light .looper-sheet button {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html.theme-light .settings-dd-item:hover,
+html.theme-light .scale-menu-item:hover,
+html.theme-light .instrument-menu-item:hover,
+html.theme-light .looper-sheet button:hover {
+  background: rgba(73, 59, 30, 0.07) !important;
+  color: #171613 !important;
+}
+
+html.theme-light .settings-dd-item.is-active,
+html.theme-light .scale-menu-item.is-active,
+html.theme-light .instrument-menu-item.is-active {
+  background: rgba(190, 151, 53, 0.18) !important;
+  color: #654b12 !important;
+}
+
+html.theme-light .settings-dd-group,
+html.theme-light .scale-menu-group,
+html.theme-light .instrument-menu-group {
+  color: rgba(45, 40, 31, 0.58) !important;
+}
+
+html.theme-light .settings-dd-menu,
+html.theme-light .scale-menu,
+html.theme-light .instrument-menu,
+html.theme-light .looper-sheet {
+  border-radius: 18px !important;
+}
+
+html.theme-light .settings-dd-item,
+html.theme-light .scale-menu-item,
+html.theme-light .instrument-menu-item {
+  min-height: 42px !important;
+  border-radius: 11px !important;
+  transition: background-color 120ms ease, color 120ms ease !important;
+}
+
+/* Keep light-mode dropdowns legible even if the theme class is mirrored to body. */
+body.theme-light .settings-dd-menu,
+body.theme-light .scale-menu,
+body.theme-light .instrument-menu {
+  background: #faf8f4 !important;
+  background-color: #faf8f4 !important;
+  color: #24221e !important;
+}
+
+@media (max-width: 420px) {
+  html body #stageScaleBar .stage-instrument-nav,
+  html body #stageScaleBar #instrumentNav,
+  html body #stageScaleBar #stageScaleRow {
+    gap: 4px !important;
+  }
+
+  html body #stageScaleBar .stage-instrument-nav #instrumentDropdownToggle,
+  html body #stageScaleBar #instrumentNav #instrumentDropdownToggle,
+  html body #stageScaleBar #stageScaleRow #scaleLabel,
+  html body #stageScaleBar .stage-control-scale #scaleLabel {
+    flex-basis: clamp(108px, 35vw, 138px) !important;
+    width: clamp(108px, 35vw, 138px) !important;
+    max-width: calc(100vw - 116px) !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    padding-inline: 8px !important;
+    font-size: 12px !important;
+  }
+}
+
+
+/* Final pass: geometry is tied to the viewport, never to the selected label.
+   This targets the actual runtime rows assembled by layout-boot.js. */
+html body #stageScaleBar > #stageInstrumentRow,
+html body #stageScaleBar > #stageScaleRow {
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex: 0 1 auto !important;
+  flex-flow: row nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: min(520px, calc(100vw - 24px)) !important;
+  min-width: 0 !important;
+  max-width: calc(100vw - 24px) !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+html body #stageScaleBar #stageInstrumentRow .stage-instrument-nav {
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-flow: row nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+}
+
+html body #stageScaleBar #instrumentDropdownToggle,
+html body #stageScaleBar #stageScaleRow #scaleLabel {
+  box-sizing: border-box !important;
+  flex: 0 0 clamp(136px, calc(100vw - 220px), 190px) !important;
+  width: clamp(136px, calc(100vw - 220px), 190px) !important;
+  min-width: 0 !important;
+  max-width: min(190px, calc(100vw - 220px)) !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  padding: 0 12px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" 1 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.2 !important;
+  transform: none !important;
+}
+
+html body #stageScaleBar #instrumentDropdownToggle {
+  flex-shrink: 0 !important;
+}
+
+html body #stageScaleBar #stageInstrumentRow .icon-btn,
+html body #stageScaleBar #stageScaleRow #scalePrev,
+html body #stageScaleBar #stageScaleRow #scaleNext,
+html body #stageScaleBar #stageInstrumentRow #openSoundscapes {
+  box-sizing: border-box !important;
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+html body #stageScaleBar #stageBaseOnly,
+html body #stageScaleBar #stageNotesSlot {
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html body #stageScaleBar #stageBaseOnly { max-width: 88px !important; }
+html body #stageScaleBar #stageNotesSlot { max-width: 78px !important; }
+
+html body #stageScaleBar #rootLabel,
+html body #stageScaleBar #noteCountLabel,
+html body #stageScaleBar .step-value {
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" 1 !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+}
+
+/* Portal pickers: a light theme must remain light after JS positions them. */
+html.theme-light body #instrumentMenu,
+html.theme-light body #scaleMenu,
+body.theme-light #instrumentMenu,
+body.theme-light #scaleMenu {
+  color-scheme: light !important;
+  color: #24221e !important;
+  background: #faf8f4 !important;
+  background-color: #faf8f4 !important;
+  background-image: linear-gradient(180deg, #fffdf9 0%, #f1ede5 100%) !important;
+  border: 1px solid rgba(52, 44, 28, 0.14) !important;
+  box-shadow: 0 16px 42px rgba(43, 35, 20, 0.16) !important;
+}
+
+html.theme-light body #instrumentMenu button,
+html.theme-light body #scaleMenu button,
+body.theme-light #instrumentMenu button,
+body.theme-light #scaleMenu button {
+  color: #302d27 !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html.theme-light body #instrumentMenu button:hover,
+html.theme-light body #scaleMenu button:hover,
+body.theme-light #instrumentMenu button:hover,
+body.theme-light #scaleMenu button:hover {
+  color: #171613 !important;
+  background: rgba(73, 59, 30, 0.07) !important;
+}
+
+html.theme-light body #instrumentMenu button[aria-selected="true"],
+html.theme-light body #scaleMenu button[aria-selected="true"],
+html.theme-light body #instrumentMenu button.active,
+html.theme-light body #scaleMenu button.active,
+html.theme-light body #instrumentMenu button.is-active,
+html.theme-light body #scaleMenu button.is-active {
+  color: #654b12 !important;
+  background: rgba(190, 151, 53, 0.18) !important;
+}
+
+@media (max-width: 420px) {
+  html body #stageScaleBar > #stageInstrumentRow,
+  html body #stageScaleBar > #stageScaleRow {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    gap: 5px !important;
+  }
+
+  html body #stageScaleBar #stageInstrumentRow .stage-instrument-nav {
+    gap: 4px !important;
+  }
+
+  html body #stageScaleBar #instrumentDropdownToggle,
+  html body #stageScaleBar #stageScaleRow #scaleLabel {
+    flex-basis: clamp(124px, calc(100vw - 220px), 190px) !important;
+    width: clamp(124px, calc(100vw - 220px), 190px) !important;
+    max-width: calc(100vw - 220px) !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    padding-inline: 8px !important;
+    font-size: 12px !important;
+  }
+
+  html body #stageScaleBar #stageBaseOnly { max-width: 78px !important; }
+}
+
+
+/* Light-mode dropdowns: override legacy dark menu declarations with a cohesive
+   warm porcelain surface. These menus are portalled under body, so target them
+   explicitly rather than relying on the settings sheet's descendant styles. */
+html.theme-light body .settings-dd-menu,
+html.theme-light body #settingSkinMenu,
+html.theme-light body #settingTonefieldMenu,
+html.theme-light body #settingAmbientMenu,
+html.theme-light body .scale-menu,
+html.theme-light body #scaleMenu,
+html.theme-light body .instrument-menu,
+html.theme-light body #instrumentMenu,
+html.theme-light body .scale-menu.picker-sheet:not([hidden]),
+html.theme-light body .instrument-menu.picker-sheet:not([hidden]),
+html.theme-light body .scale-menu.picker-popover:not([hidden]),
+html.theme-light body .instrument-menu.picker-popover:not([hidden]) {
+  color: #302d27 !important;
+  background: #faf8f4 !important;
+  background-color: #faf8f4 !important;
+  background-image: none !important;
+  border: 1px solid rgba(62, 54, 40,  0.14) !important;
+  box-shadow: 0 14px 36px rgba(56, 44, 24, 0.14) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html.theme-light body .settings-dd-menu .settings-dd-group,
+html.theme-light body .scale-menu .scale-menu-group,
+html.theme-light body .instrument-menu .instrument-menu-group {
+  color: #82796b !important;
+}
+
+html.theme-light body .settings-dd-menu .settings-dd-item,
+html.theme-light body .scale-menu .scale-menu-item,
+html.theme-light body .instrument-menu .instrument-menu-item,
+html.theme-light body .scale-menu [role="menuitem"],
+html.theme-light body .instrument-menu [role="menuitem"] {
+  color: #39352e !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html.theme-light body .settings-dd-menu .settings-dd-item:hover,
+html.theme-light body .settings-dd-menu .settings-dd-item:focus-visible,
+html.theme-light body .scale-menu .scale-menu-item:hover,
+html.theme-light body .scale-menu .scale-menu-item:focus-visible,
+html.theme-light body .instrument-menu .instrument-menu-item:hover,
+html.theme-light body .instrument-menu .instrument-menu-item:focus-visible {
+  color: #24211b !important;
+  background: rgba(174, 137, 46, 0.10) !important;
+  background-color: rgba(174, 137, 46, 0.10) !important;
+  outline-color: rgba(174, 137, 46, 0.42) !important;
+}
+
+html.theme-light body .settings-dd-menu .settings-dd-item.is-active,
+html.theme-light body .scale-menu .scale-menu-item.is-active,
+html.theme-light body .instrument-menu .instrument-menu-item.is-active {
+  color: #70541a !important;
+  background: rgba(174, 137, 46, 0.14) !important;
+  background-color: rgba(174, 137, 46, 0.14) !important;
+  box-shadow: inset 2px 0 0 rgba(174, 137, 46, 0.72) !important;
+}
+
+
+/* Final light-mode cascade repair.
+   atelier.css gives every button a dark !important gradient. Removing only its
+   background-color is insufficient: the gradient still paints the menu items. */
+html.theme-light body .settings-dd-menu,
+html.theme-light body .settings-dd-menu *,
+html.theme-light body #settingSkinMenu,
+html.theme-light body #settingTonefieldMenu,
+html.theme-light body #settingAmbientMenu,
+html.theme-light body #scaleMenu,
+html.theme-light body #instrumentMenu,
+html.theme-light body #scaleMenu *,
+html.theme-light body #instrumentMenu *,
+body.theme-light .settings-dd-menu,
+body.theme-light #scaleMenu,
+body.theme-light #instrumentMenu,
+body.theme-light #scaleMenu *,
+body.theme-light #instrumentMenu * {
+  color-scheme: light !important;
+}
+html.theme-light body .settings-dd-menu,
+html.theme-light body #settingSkinMenu,
+html.theme-light body #settingTonefieldMenu,
+html.theme-light body #settingAmbientMenu,
+html.theme-light body #scaleMenu,
+html.theme-light body #instrumentMenu,
+body.theme-light .settings-dd-menu,
+body.theme-light #scaleMenu,
+body.theme-light #instrumentMenu {
+  background: #faf8f4 !important;
+  background-color: #faf8f4 !important;
+  background-image: none !important;
+  color: #302d27 !important;
+  border-color: rgba(62,54,40,.14) !important;
+  box-shadow: 0 14px 36px rgba(56,44,24,.14) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html.theme-light body .settings-dd-menu button,
+html.theme-light body #scaleMenu button,
+html.theme-light body #instrumentMenu button,
+body.theme-light .settings-dd-menu button,
+body.theme-light #scaleMenu button,
+body.theme-light #instrumentMenu button {
+  color: #39352e !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html.theme-light body .settings-dd-menu .settings-dd-group,
+body.theme-light .settings-dd-menu .settings-dd-group {
+  color: #82796b !important;
+}
+html.theme-light body .settings-dd-menu button:hover,
+html.theme-light body #scaleMenu button:hover,
+html.theme-light body #instrumentMenu button:hover,
+body.theme-light .settings-dd-menu button:hover,
+body.theme-light #scaleMenu button:hover,
+body.theme-light #instrumentMenu button:hover {
+  color: #24211b !important;
+  background: rgba(174,137,46,.10) !important;
+  background-color: rgba(174,137,46,.10) !important;
+  background-image: none !important;
+}
+html.theme-light body .settings-dd-menu button.is-active,
+html.theme-light body #scaleMenu button.is-active,
+html.theme-light body #instrumentMenu button.is-active,
+html.theme-light body #scaleMenu button[aria-selected="true"],
+html.theme-light body #instrumentMenu button[aria-selected="true"],
+body.theme-light .settings-dd-menu button.is-active,
+body.theme-light #scaleMenu button.is-active,
+body.theme-light #instrumentMenu button.is-active {
+  color: #70541a !important;
+  background: rgba(174,137,46,.14) !important;
+  background-color: rgba(174,137,46,.14) !important;
+  background-image: none !important;
+}

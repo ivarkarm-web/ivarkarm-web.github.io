@@ -81,6 +81,20 @@
     return hit ? hit.label : id;
   }
 
+  function isLightTheme() {
+    if (document.documentElement.classList.contains('theme-light') ||
+        document.body.classList.contains('theme-light') ||
+        document.documentElement.dataset.theme === 'light' ||
+        document.body.dataset.theme === 'light' ||
+        window.PionierSettings?.lightMode === true) return true;
+    // The stored preference is authoritative while classes/UI are still initializing.
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('pionier.settings.v1');
+      if (raw && JSON.parse(raw).lightMode === true) return true;
+    } catch (_) {}
+    return false;
+  }
+
   let openMenuEl = null;
   let openToggleEl = null;
 
@@ -121,6 +135,11 @@
     if (top < 8) top = 8;
     if (top + maxH > window.innerHeight - 8) top = Math.max(8, window.innerHeight - 8 - maxH);
 
+    const light = isLightTheme();
+    const surface = light ? '#faf8f4' : '#161618';
+    const text = light ? '#24221e' : '#e6e0d2';
+    const border = light ? 'rgba(52,44,28,0.14)' : 'rgba(230,224,210,0.18)';
+    const shadow = light ? '0 16px 42px rgba(43,35,20,0.16)' : '0 20px 60px rgba(0,0,0,0.55)';
     menu.style.cssText = [
       'position:fixed',
       'z-index:9999',
@@ -134,18 +153,25 @@
       'visibility:visible',
       'opacity:1',
       'pointer-events:auto',
-      'background:#161618',
+      'background:' + surface,
+      'background-color:' + surface,
       'background-image:none',
-      'color:#e6e0d2',
-      'border:1px solid rgba(230,224,210,0.18)',
-      'border-radius:12px',
-      'box-shadow:0 20px 60px rgba(0,0,0,0.75)',
+      'color:' + text,
+      'border:1px solid ' + border,
+      'border-radius:16px',
+      'box-shadow:' + shadow,
       'padding:8px',
       'overflow-y:auto',
       '-webkit-overflow-scrolling:touch',
     ].join(';');
     menu.style.setProperty('z-index', '99999', 'important');
-    menu.style.setProperty('background', '#161618', 'important');
+    // Do not hard-code a dark inline-important surface: it overrides the light
+    // theme stylesheet because these menus are portalled directly under body.
+    menu.style.setProperty('background', surface, 'important');
+    menu.style.setProperty('background-image', 'none', 'important');
+    menu.style.setProperty('color', text, 'important');
+    menu.style.setProperty('border-color', border, 'important');
+    menu.style.setProperty('box-shadow', shadow, 'important');
   }
 
   function buildDropdown(sectionEl, { id, label, items, activeId, onPick }) {
@@ -188,6 +214,7 @@
           const g = document.createElement('div');
           g.className = 'settings-dd-group';
           g.textContent = item.group;
+          if (isLightTheme()) g.style.setProperty('color', '#82796b', 'important');
           menu.appendChild(g);
         }
         const b = document.createElement('button');
@@ -195,6 +222,13 @@
         b.className = 'settings-dd-item' + (item.id === activeId ? ' is-active' : '');
         b.setAttribute('role', 'option');
         b.textContent = item.label;
+        if (isLightTheme()) {
+          b.style.setProperty('color', item.id === activeId ? '#654b12' : '#302d27', 'important');
+          b.style.setProperty('background', item.id === activeId ? 'rgba(190,151,53,0.18)' : 'transparent', 'important');
+          b.style.setProperty('background-color', item.id === activeId ? 'rgba(190,151,53,0.18)' : 'transparent', 'important');
+          b.style.setProperty('background-image', 'none', 'important');
+          b.style.setProperty('border-color', 'transparent', 'important');
+        }
         b.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();

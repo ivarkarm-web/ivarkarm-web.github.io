@@ -48,7 +48,7 @@ test('boot chain is local and does not fetch or rewrite executable source at run
   assert.doesNotMatch(coreSrc, /createObjectURL|Blob\(\[src\]/);
 
   // Vendored source carries the real module graph and public API.
-  assert.match(coreSrc, /from ['"]\.\/js\/audio-core\.js['"]/);
+  assert.match(coreSrc, /from ['"]\.\/js\/audio-core\.js(?:\?[^'"]*)?['"]/);
   assert.match(coreSrc, /window\.PionierCore/);
   assert.match(coreSrc, /async function setInstrument\(id\)/);
 
