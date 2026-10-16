@@ -139,13 +139,13 @@
       rootRow.classList.add('stage-root-row');
       if (rootRow.parentElement !== bar) bar.appendChild(rootRow);
     }
-    // Hide the empty CONTROLS chrome when its only useful controls live in the bottom bar
-    const drawer = document.getElementById('mobileControlDrawer');
-    const panel = document.getElementById('mobileControlPanel');
-    if (panel && !panel.querySelector('.knobs-panel, .effect-knob-wrap, .control-block')) {
-      // keep gear/settings path; collapse empty FX drawer toggle
-      const toggle = document.getElementById('mobileControlsToggle');
-      if (toggle) toggle.style.display = 'none';
+    // Hide empty CONTROLS toggle when its useful controls live in the bottom bar
+    {
+      const panelEl = document.getElementById('mobileControlPanel');
+      const toggleEl = document.getElementById('mobileControlsToggle');
+      if (panelEl && toggleEl && !panelEl.querySelector('.knobs-panel, .effect-knob-wrap, .control-block')) {
+        toggleEl.style.display = 'none';
+      }
     }
 
     if (noteWrap) {
