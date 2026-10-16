@@ -14,9 +14,15 @@ const LESSONS = [
     {pads:[6,8],at:10000},{pads:[5,7],at:11400},{pads:[4,6],at:12800},
     {pads:[3,5],at:14200},{pads:[2,4],at:15600},{pads:[1,3],at:17000},
     {pads:[0,2],at:18400}
-  ]}
+  ]},
+  ]},
+  { id:'flow-pygmy-tine-piano', title:'Flow Pygmy → Tine Piano', description:'First select Flow Pygmy in the scale menu, then choose Tine Piano in the instrument menu. Once both are selected, follow the ripples from the lowest note to the sixth and back three times.', bpm:96, setup:true, events:[
+    {pad:0,at:1400},{pad:1,at:2500},{pad:2,at:3600},{pad:3,at:4700},{pad:4,at:5800},{pad:5,at:6900},{pad:4,at:8000},{pad:3,at:9100},{pad:2,at:10200},{pad:1,at:11300},{pad:0,at:12400},
+    {pad:0,at:13500},{pad:1,at:14600},{pad:2,at:15700},{pad:3,at:16800},{pad:4,at:17900},{pad:5,at:19000},{pad:4,at:20100},{pad:3,at:21200},{pad:2,at:22300},{pad:1,at:23400},{pad:0,at:24500},
+    {pad:0,at:25600},{pad:1,at:26700},{pad:2,at:27800},{pad:3,at:28900},{pad:4,at:30000},{pad:5,at:31100},{pad:4,at:32200},{pad:3,at:33300},{pad:2,at:34400},{pad:1,at:35500},{pad:0,at:36600}
+  }
 ];
-const APPROACH_MS=1000, WINDOW_MS=500, TAIL_MS=260;
+const APPROACH_MS=800, WINDOW_MS=500, TAIL_MS=220;
 export function mountLearnMode(){
   const button=document.getElementById('openLearn'), panel=document.getElementById('learnPanel'), close=document.getElementById('learnClose');
   const canvas=document.getElementById('pan'), list=document.getElementById('learnLessonList');
@@ -59,6 +65,7 @@ export function mountLearnMode(){
     transposeSteps=Number(lesson.transpose||0);
     list.hidden=true;controls.hidden=false;heading.textContent=lesson.title;description.textContent=lesson.description;
     if(transposeBtn)transposeBtn.textContent='Transpose: '+(transposeSteps===0?'Original':('+'+transposeSteps+' scale degrees'));
+    if(startBtn)startBtn.textContent=lesson.setup?'Begin setup':'Start lesson';
     if(listenBtn)listenBtn.hidden=true;
     if(catchBtn)catchBtn.hidden=true;
     if(startBtn)startBtn.hidden=true;
@@ -70,6 +77,19 @@ export function mountLearnMode(){
     if(!running&&!ringState){ctx.clearRect(0,0,stageWidth,stageHeight);return}
     const now=performance.now(),elapsed=now-startAt;ctx.clearRect(0,0,stageWidth,stageHeight);
     if(now<countdownUntil){const n=Math.max(1,Math.ceil((countdownUntil-now)/1000));setHud('GET READY · '+n);progress.textContent='GET READY · '+n;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.beginPath();ctx.arc(stageWidth/2,stageHeight/2,24,0,Math.PI*2);ctx.fillStyle='rgba(10,10,12,.72)';ctx.fill();ctx.strokeStyle='rgba(212,176,74,.56)';ctx.lineWidth=1;ctx.stroke();ctx.font='500 18px Inter, sans-serif';ctx.fillStyle='rgba(243,212,122,.94)';ctx.fillText(String(n),stageWidth/2,stageHeight/2+.5);ctx.restore();raf=requestAnimationFrame(drawFrame);return;}else if(countdownUntil){countdownUntil=0;setHud(mode==='listen'?'LISTENING':'FOLLOW THE WAVE');}
+    if(running&&mode==='setup'){
+      const core=window.PionierCore;
+      const scale=window.HANDPAN_SCALES?.[core?.handpan?.scaleIndex];
+      const scaleReady=scale?.id==='flowpygmy';
+      const instrumentReady=core?.activeInstrument?.()?.id==='tine';
+      if(!scaleReady){setHud('STEP 1 · SELECT FLOW PYGMY');progress.textContent='OPEN THE SCALE MENU · CHOOSE FLOW PYGMY';}
+      else if(!instrumentReady){setHud('STEP 2 · SELECT TINE PIANO');progress.textContent='OPEN THE INSTRUMENT MENU · CHOOSE TINE PIANO';}
+      else{
+        mode='practice';index=0;hitCount=0;missCount=0;ringState=null;
+        startAt=now+2400;countdownUntil=startAt;setHud('SETUP COMPLETE · GET READY');progress.textContent='FLOW PYGMY + TINE PIANO READY';
+      }
+      raf=requestAnimationFrame(drawFrame);return;
+    }
     if(running&&index<lesson.events.length){
       const ev=lesson.events[index],pads=targetPads(ev),pad=pads[0],spawnAt=ev.at-APPROACH_MS;
       if(elapsed>=spawnAt&&!ringState)ringState={event:ev,pad,pads,spawnAt,state:'approach',changedAt:0,caughtPads:[]};
@@ -132,6 +152,7 @@ export function mountLearnMode(){
     list.hidden=true;controls.hidden=false;heading.textContent=lesson.title;description.textContent=lesson.description;
     progress.textContent='READY WHEN YOU ARE';
     if(startBtn)startBtn.hidden=false;
+    if(startBtn)startBtn.textContent=lesson.setup?'Begin setup':'Start lesson';
     if(listenBtn)listenBtn.hidden=true;
     if(catchBtn)catchBtn.hidden=true;
     if(transposeBtn)transposeBtn.hidden=false;
@@ -140,8 +161,8 @@ export function mountLearnMode(){
   button.addEventListener('click',show);close?.addEventListener('click',hide);
   document.getElementById('learnBack')?.addEventListener('click',menu);
   document.getElementById('learnRestart')?.addEventListener('click',()=>begin(lessonIndex,mode));
-  startBtn?.addEventListener('click',()=>begin(lessonIndex,'practice'));
-  listenBtn?.addEventListener('click',()=>begin(lessonIndex,'practice'));
+  startBtn?.addEventListener('click',()=>begin(lessonIndex,lesson?.setup?'setup':'practice'));
+  listenBtn?.addEventListener('click',()=>begin(lessonIndex,lesson?.setup?'setup':'practice'));
   catchBtn?.addEventListener('click',()=>begin(lessonIndex,'practice'));
   transposeBtn?.addEventListener('click',()=>{if(!lesson)return;transposeSteps=(transposeSteps+2)%Math.max(2,(window.PionierCore?.surface?.fields||[]).length||9);lesson.transpose=transposeSteps;transposeBtn.textContent='Transpose: '+(transposeSteps===0?'Original':('+'+transposeSteps+' scale degrees'));if(running)begin(lessonIndex,mode);});
   panel.addEventListener('click',e=>{if(e.target===panel)hide()});
