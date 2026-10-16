@@ -538,6 +538,7 @@ export function mountLooper({ root } = {}) {
     const status = dialog.querySelector('.looper-save-status');
     const confirm = dialog.querySelector('.looper-save-confirm');
     dialog.querySelector('.looper-save-cancel').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('close', () => { tokenInput.value = ''; });
     dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
