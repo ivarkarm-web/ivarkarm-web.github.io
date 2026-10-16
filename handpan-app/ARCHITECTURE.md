@@ -1,51 +1,41 @@
-# Pionier Architecture (instrument engine)
+# Pionier architecture
 
-## Integrated status
-
-The main application (`pionier-app.js`) is wired to the shared systems:
+## Runtime graph
 
 ```
-Pointer / Touch
-    ↓
-Gesture (gesture.js)
-    ↓
-Active Instrument (InstrumentRegistry)
-    ↓
-instrumentBus
-    ↓
-FxChain (fx.js)
-    ↓
-Master → AudioContext destination
+Pointer / Touch / Keyboard
+        ↓
+  Gesture tracker (gesture.js)
+        ↓
+  Active instrument (InstrumentRegistry)
+        ↓
+  instrumentBus → FxChain → Master → AudioContext
 ```
 
-### Registered instruments
-- **Handpan** (default) — scale / layout owner, played by the `handpan` voice of the sound library. Ivar's recorded E Amara scale still plays his real recordings.
-- **Library voices** — Koto, Harp, Kalimba, Singing Bowl, Breath Flute, Tine Piano, Music Box, Choir, Open-Fifth Drone, Grain Cloud. Each inherits the handpan's current scale and pad layout.
+## Entry
 
-### Modules
-| Path | Role |
+| File | Role |
 |------|------|
-| `js/instrument.js` | Instrument base + registry |
-| `js/gesture.js` | Gesture model + tracker |
-| `js/instruments/handpan.js` | HandpanInstrument (scales, layout, expression) |
-| `js/instruments/library-family.js` | One Instrument per sound-library voice + shared `SoundLibrary` |
-| `js/sound/` | Sound library: `dsp.js`, `voices.js`, `library.js`, `space.js`; see `js/sound/INTEGRATION.md` |
-| `js/fx.js` | FxChain + modules |
-| `js/catch-mode.js` | Catch phase machine + waves |
-| `js/debug.js` | `?debug=1` panel |
-| `js/sample-metadata.js` | Sample metadata helpers |
-| `SOURCES.md` | License ledger |
+| `index.html` | Shell, chrome, Soundscapes panel |
+| `pionier-app.js` | Boot, optional modules, scale selector |
+| `pionier-core.js` | Audio, surface, instruments, input |
+| `js/layout-boot.js` | Viewport chrome, pan centering, bottom bar |
+| `js/soundscapes.js` | Bedroom Sessions player only |
+| `sw.js` | Network-first HTML; cache-first assets (`CACHE_VERSION`) |
+| `chrome-fix.css` | Late chrome / a11y / player styles |
 
-### Entry points
-- App: `handpan-app/pionier-app.js`
-- Catch: `?catch=1` starts onboarding ritual
-- Debug: `?debug=1` mounts developer panel
-- Easter Egg: portfolio `js/easter-egg.js` → `./handpan-app/?from=summit`
+## Instruments
 
-### Design rules
-- Handpan is flagship, not a special-case blocker
-- Gestures are instrument-agnostic
-- FX modules are real Web Audio graphs
-- Kitchen/Bird placeholders marked in SOURCES.md
-- Catch is waves/rings, not Guitar Hero
-- Pionier stays independent of portfolio runtime
+- **Handpan** — default; scales + pad layout owner; E Amara samples when present
+- **Library voices** — Koto, Harp, Kalimba, etc. (inherit current scale/layout)
+- **Synth ambient family** — additional registered voices
+
+Bird / kitten instruments are removed.
+
+## Design system notes
+
+Tokens in `chrome-fix.css` (`--pionier-z-*`, `--pionier-tap`). Older sheets (`pionier.css`, `atelier.css`, `ui-layout-extras.css`, …) still load; consolidation is ongoing. Prefer tokens over new `!important` rules.
+
+## Soft failure
+
+Boot states: `loading` → `ready` | `degraded` | `failed` via `#appStatus`. Optional modules fail soft without blocking the instrument.
