@@ -372,7 +372,7 @@ export function createSurface(canvas) {
     rippleCanvas.setAttribute('aria-hidden','true');
     Object.assign(rippleCanvas.style,{
       position:'fixed',inset:'0',width:'100vw',height:'100vh',
-      pointerEvents:'none',zIndex:'20',opacity:'1'
+      pointerEvents:'none',zIndex:'99999',opacity:'1'
     });
     document.body.appendChild(rippleCanvas);
     rippleCtx=rippleCanvas.getContext('2d');
