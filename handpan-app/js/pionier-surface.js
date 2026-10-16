@@ -402,12 +402,12 @@ export function createSurface(canvas) {
       const fadeIn=smoothstep(t/0.035);
       const fadeOut=1-smoothstep((t-0.48)/0.52);
       const envelope=fadeIn*fadeOut;
-      const span=Math.min(vw,vh);
-      // Ring notes send their wave radially toward the nearest rim.
-      // The central ding alone sends its wave upward.
-      const distance=span*(p.center?0.22:0.19)*travel;
+      // Travel only from the tonefield's actual center to the handpan rim.
+      // The central ding sends its wave upward; outer pads follow their own radial axis.
+      const distance=p.travelDistance*travel;
       const x=p.x+p.dx*distance;
       const y=p.y+p.dy*distance;
+      const span=Math.min(vw,vh);
       const baseRx=Math.max(5,p.rx);
       const baseRy=Math.max(4,p.ry);
       const rx=baseRx*(1+0.95*travel);
@@ -456,21 +456,22 @@ export function createSurface(canvas) {
     const magnitude=Math.hypot(screenDX,screenDY)||1;
     const dx=screenDX/magnitude,dy=screenDY/magnitude;
     const rotation=center?0:Math.atan2(screenDY,screenDX);
-    const cx=rect.left+(note.x/W)*rect.width;
-    const cy=rect.top+(note.y/H)*rect.height;
-    // Start at the outside edge of the pad, so the wave visibly leaves the tonefield
-    // instead of appearing as a detached oval centered over it.
-    const edgeRadius=center
-      ? Math.max(4,note.ry*scaleY)
-      : Math.max(4,note.rx*scaleX);
-    const px=cx+dx*edgeRadius;
-    const py=cy+dy*edgeRadius;
-    // A compact leading ring grows away from the pad edge.
-    const rx=Math.max(3,Math.min(note.rx*scaleX,note.ry*scaleY)*0.24);
-    const ry=Math.max(3,Math.min(note.rx*scaleX,note.ry*scaleY)*0.16);
+    // Anchor the wave to the tonefield center itself. Starting at an offset
+    // pushed the first frame beyond the visible pad and could put it beyond the shell.
+    const px=rect.left+(note.x/W)*rect.width;
+    const py=rect.top+(note.y/H)*rect.height;
+    const bodyX=rect.left+(CX/W)*rect.width;
+    const bodyY=rect.top+(CY/H)*rect.height;
+    const bodyRadius=R*Math.min(scaleX,scaleY);
+    const radialDistance=Math.hypot(px-bodyX,py-bodyY);
+    const travelDistance=Math.max(0,bodyRadius-radialDistance);
+    // A small initial ring sits on the tonefield and grows as it moves to the rim.
+    const padSize=Math.min(note.rx*scaleX,note.ry*scaleY);
+    const rx=Math.max(2,padSize*0.12);
+    const ry=Math.max(2,padSize*0.09);
     const now=performance.now();
     if(touchRipples.length>=12)touchRipples.splice(0,touchRipples.length-11);
-    touchRipples.push({x:px,y:py,dx,dy,rx,ry,rotation,center,started:now,phase:0});
+    touchRipples.push({x:px,y:py,dx,dy,rx,ry,rotation,center,travelDistance,started:now,phase:0});
     if(!rippleRaf)rippleRaf=requestAnimationFrame(tickRipples);
   }
   function tickRipples(now){
