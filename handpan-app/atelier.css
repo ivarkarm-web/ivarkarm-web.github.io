@@ -353,3 +353,12 @@ html body .loop-orb:hover,
 html body .loop-orb.is-recording {
   box-shadow: none !important;
 }
+
+
+/* stepper pills owned by pionier bottom bar — do not restyle as separate chips */
+#stageScaleBar .stepper .step,
+#stageScaleBar .stepper .step-value {
+  border-color: transparent !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}

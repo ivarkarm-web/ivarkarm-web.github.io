@@ -3,15 +3,15 @@
  * CACHE_VERSION and SHELL query stamps must match index.html / pionier-app.js.
  * Bump CACHE_VERSION on every deploy that changes shell assets.
  */
-const CACHE_VERSION = 'pionier-v14';
+const CACHE_VERSION = 'pionier-v15';
 
 const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icon.svg',
-  './pionier.css?v=130',
-  './atelier.css?v=9',
+  './pionier.css?v=131',
+  './atelier.css?v=10',
   './ui-layout-extras.css?v=41',
   './looper.css?v=204',
   './scale-menu.css?v=5',

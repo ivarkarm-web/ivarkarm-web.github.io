@@ -1005,38 +1005,31 @@ body.soundscapes-active #pan {
   z-index: var(--pionier-z-bar) !important;
 }
 
-/* Root / note in bottom bar */
+/* Root / note in bottom bar — unified pill steppers */
 .stage-root-row {
   display: flex !important;
   flex-direction: row !important;
   justify-content: center !important;
   align-items: center !important;
-  gap: 12px !important;
+  gap: 10px !important;
   width: 100% !important;
   order: 3 !important;
-  padding: 4px 0 2px !important;
+  padding: 2px 0 0 !important;
 }
 .stage-root-row .control-half {
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  gap: 4px !important;
+  gap: 3px !important;
+  flex: 0 0 auto !important;
 }
 .stage-root-row .control-label {
-  font-size: 10px !important;
-  letter-spacing: 0.06em !important;
+  font-size: 0.58rem !important;
+  letter-spacing: 0.1em !important;
   text-transform: uppercase !important;
-  opacity: 0.7 !important;
-}
-.stage-root-row .stepper {
-  display: flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-}
-.stage-root-row .step,
-.stage-root-row .step-value {
-  min-height: 40px !important;
-  min-width: 40px !important;
+  opacity: 0.45 !important;
+  margin: 0 !important;
+  line-height: 1 !important;
 }
 
 /* Bedroom Sessions player */
@@ -1577,47 +1570,106 @@ html, body {
 #stageScaleBar .control-row {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
   margin: 0;
   width: 100%;
 }
 
 #stageScaleBar .control-half {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
+  flex: 0 0 auto;
 }
 
 #stageScaleBar .control-label {
-  font-size: 0.6rem;
-  letter-spacing: 0.06em;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  opacity: 0.5;
+  opacity: 0.45;
   margin: 0;
+  line-height: 1;
 }
 
+/* Unified pill steppers — same language as scale / instrument chips */
 #stageScaleBar .stepper {
-  display: flex;
-  align-items: center;
-  gap: 1px;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  gap: 0 !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 1px solid rgba(230, 224, 210, 0.14) !important;
+  border-radius: 999px !important;
+  background: rgba(12, 12, 14, 0.88) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+  overflow: hidden !important;
 }
 
-#stageScaleBar .step,
-#stageScaleBar .stepper .step {
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
-  min-height: 32px !important;
-  border-radius: 50%;
+#stageScaleBar .stepper .step,
+#stageScaleBar .step {
+  width: 34px !important;
+  min-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: rgba(230, 224, 210, 0.7) !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
 }
 
+#stageScaleBar .stepper .step:first-child {
+  border-right: 1px solid rgba(230, 224, 210, 0.08) !important;
+}
+#stageScaleBar .stepper .step:last-child {
+  border-left: 1px solid rgba(230, 224, 210, 0.08) !important;
+}
+
+#stageScaleBar .stepper .step:hover,
+#stageScaleBar .stepper .step:focus-visible {
+  color: #e6e0d2 !important;
+  background: rgba(200, 164, 114, 0.12) !important;
+}
+
+#stageScaleBar .stepper .step:active {
+  background: rgba(200, 164, 114, 0.2) !important;
+  transform: none !important;
+}
+
+#stageScaleBar .stepper .step-value,
 #stageScaleBar .step-value {
-  min-width: 1.8em;
-  text-align: center;
-  font-size: 0.82rem;
+  min-width: 2.4em !important;
+  width: auto !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  margin: 0 !important;
+  padding: 0 6px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #e6e0d2 !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: none !important;
 }
 
 /* Kill abandoned top chip row if any leftover DOM */
