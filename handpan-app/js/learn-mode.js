@@ -1,19 +1,23 @@
 /* Pionier Learn — shared-clock phrase playback and Catch the Note practice.
    Phrase events are editable scale-degree fixtures, not claimed audio transcriptions. */
 const LESSONS = [
-  { id:'first-contact', title:'First Contact', description:'Eight spacious strikes. Listen first, then catch the same phrase.', bpm:72, events:[
-    {pad:0,at:2200},{pad:2,at:3450},{pad:4,at:4700},{pad:3,at:5950},
-    {pad:5,at:7200},{pad:2,at:8450},{pad:1,at:9700},{pad:0,at:10950}
+  { id:'scale-up-down', title:'Scale Up & Down', description:'Follow the notes from the lowest pad to the highest, then return home.', bpm:68, events:[
+    {pad:0,at:2200},{pad:1,at:4000},{pad:2,at:5800},{pad:3,at:7600},
+    {pad:4,at:9400},{pad:5,at:11200},{pad:6,at:13000},{pad:7,at:14800},
+    {pad:8,at:16600},{pad:7,at:18400},{pad:6,at:20200},{pad:5,at:22000},
+    {pad:4,at:23800},{pad:3,at:25600},{pad:2,at:27400},{pad:1,at:29200},
+    {pad:0,at:31000}
   ]},
-  { id:'flow', title:'Flow', description:'A longer phrase with changing gaps and a gentle return home.', bpm:78, events:[
-    {pad:0,at:2200},{pad:2,at:3200},{pad:4,at:4450},{pad:6,at:5200},
-    {pad:5,at:6450},{pad:3,at:7450},{pad:4,at:8450},{pad:2,at:9700},
-    {pad:1,at:10700},{pad:3,at:11700},{pad:5,at:12950},{pad:7,at:13950},
-    {pad:6,at:15200},{pad:4,at:16200},{pad:2,at:17450},{pad:0,at:18700}
-  ]},
-  { id:'transpose', title:'Move the Phrase', description:'The same contour shifted two scale degrees. Learn how a phrase changes without losing its shape.', bpm:72, transpose:2, events:[
-    {pad:0,at:2200},{pad:2,at:3450},{pad:4,at:4700},{pad:3,at:5950},
-    {pad:5,at:7200},{pad:2,at:8450},{pad:1,at:9700},{pad:0,at:10950}
+  { id:'chords-up-down', title:'Chords Up & Down', description:'Play an arpeggiated chord pattern: move through each three-note shape upward, then descend through the shapes.', bpm:68, events:[
+    {pad:0,at:2200},{pad:2,at:4000},{pad:4,at:5800},
+    {pad:1,at:7600},{pad:3,at:9400},{pad:5,at:11200},
+    {pad:2,at:13000},{pad:4,at:14800},{pad:6,at:16600},
+    {pad:3,at:18400},{pad:5,at:20200},{pad:7,at:22000},
+    {pad:4,at:23800},{pad:6,at:25600},{pad:8,at:27400},
+    {pad:3,at:29200},{pad:5,at:31000},{pad:7,at:32800},
+    {pad:2,at:34600},{pad:4,at:36400},{pad:6,at:38200},
+    {pad:1,at:40000},{pad:3,at:41800},{pad:5,at:43600},
+    {pad:0,at:45400},{pad:2,at:47200},{pad:4,at:49000}
   ]}
 ];
 const APPROACH_MS=2200, WINDOW_MS=260, TAIL_MS=560;
