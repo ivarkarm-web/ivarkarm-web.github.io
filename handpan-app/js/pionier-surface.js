@@ -393,45 +393,43 @@ export function createSurface(canvas) {
     if(!touchRipples.length||!rippleCtx)return false;
     const ctx=rippleCtx,vw=window.innerWidth,vh=window.innerHeight;
     ctx.clearRect(0,0,vw,vh);
-    const duration=6200;
+    const duration=7200;
     for(let i=touchRipples.length-1;i>=0;i--){
       const p=touchRipples[i];
       const t=(now-p.started)/duration;
       if(t>=1){touchRipples.splice(i,1);continue}
-      // Long, gentle fade-in and fade-out; no sudden bright flash at touch-down.
-      const fadeIn=smoothstep(t/0.27);
-      const fadeOut=smoothstep((1-t)/0.43);
+      const fadeIn=smoothstep(t/0.24);
+      const fadeOut=smoothstep((1-t)/0.46);
       const envelope=fadeIn*fadeOut;
       const travel=smoothstep(t);
       const span=Math.min(vw,vh);
-      const drift=span*0.2*travel;
-      const x=p.x+Math.sin(t*Math.PI*1.25+p.phase)*span*0.025+Math.cos(p.angle)*drift*0.45;
-      const y=p.y-drift*0.72+Math.sin(t*Math.PI*1.4+p.phase)*span*0.018;
-      const maxR=Math.hypot(vw,vh)*0.82;
-      const radius=5+maxR*travel;
+      const drift=span*0.22*travel;
+      const x=p.x+Math.sin(t*Math.PI*1.1+p.phase)*span*0.018+Math.cos(p.angle)*drift*0.38;
+      const y=p.y-drift*0.72+Math.sin(t*Math.PI*1.2+p.phase)*span*0.012;
+      const maxR=Math.hypot(vw,vh)*0.78;
+      const radius=8+maxR*travel;
       ctx.save();
       ctx.globalCompositeOperation='screen';
-      // Diffuse golden atmosphere, kept extremely subtle behind the rings.
-      const bloom=ctx.createRadialGradient(x,y,radius*0.58,x,y,radius);
-      bloom.addColorStop(0,'rgba(255,216,145,0)');
-      bloom.addColorStop(0.78,'rgba(255,195,96,'+(0.009*envelope)+')');
-      bloom.addColorStop(0.96,'rgba(255,224,166,'+(0.026*envelope)+')');
-      bloom.addColorStop(1,'rgba(255,224,166,0)');
-      ctx.fillStyle=bloom;
-      ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);ctx.fill();
-      // Fine rings bloom into view rather than appearing fully formed.
-      for(let ring=0;ring<3;ring++){
-        const delay=ring*0.095;
+      // A broad, low-contrast halo gives the effect a metallic, atmospheric finish.
+      const halo=ctx.createRadialGradient(x,y,Math.max(0,radius- span*0.075),x,y,radius+span*0.065);
+      halo.addColorStop(0,'rgba(255,210,130,0)');
+      halo.addColorStop(0.46,'rgba(255,195,104,'+(0.012*envelope)+')');
+      halo.addColorStop(0.72,'rgba(255,218,157,'+(0.024*envelope)+')');
+      halo.addColorStop(1,'rgba(255,218,157,0)');
+      ctx.fillStyle=halo;
+      ctx.beginPath();ctx.arc(x,y,radius+span*0.065,0,Math.PI*2);ctx.fill();
+      // Two restrained, softly lit rings: no hard neon outline or sharp flash.
+      for(let ring=0;ring<2;ring++){
+        const delay=ring===0?0:0.13;
         const rt=Math.max(0,Math.min(1,(t-delay)/(1-delay)));
         if(rt<=0)continue;
-        const rr=5+maxR*smoothstep(rt)*(1+ring*0.035);
-        const strength=ring===0?0.115:ring===1?0.065:0.032;
-        const alpha=strength*envelope;
+        const rr=8+maxR*smoothstep(rt)*(ring===0?1:1.035);
+        const alpha=(ring===0?0.085:0.038)*envelope;
         ctx.beginPath();ctx.arc(x,y,rr,0,Math.PI*2);
-        ctx.strokeStyle='rgba(255,218,151,'+alpha+')';
-        ctx.lineWidth=ring===0?1.25:ring===1?0.85:0.6;
-        ctx.shadowColor='rgba(255,194,96,'+(alpha*0.6)+')';
-        ctx.shadowBlur=(ring===0?10:ring===1?6:3)*envelope;
+        ctx.strokeStyle='rgba(255,220,161,'+alpha+')';
+        ctx.lineWidth=ring===0?1.8:1.05;
+        ctx.shadowColor='rgba(255,190,89,'+(alpha*0.85)+')';
+        ctx.shadowBlur=(ring===0?18:10)*envelope;
         ctx.stroke();
       }
       ctx.restore();
