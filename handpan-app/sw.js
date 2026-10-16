@@ -36,7 +36,7 @@ const SHELL = [
   './js/instrument.js',
   './js/gesture.js',
   './js/fx.js',
-  './js/pionier-surface.js?v=131',
+  './js/pionier-surface.js?v=132',
   './js/note-sample-bank.js',
   './js/soundscapes.js?v=7',
   './js/scale-selector.js?v=5',
