@@ -138,7 +138,7 @@ export const HANDPAN_SCALES = [
     intervals: [0, 7, 10, 12, 14, 15, 17, 19, 22, 24, 26, 27, 29, 31],
     rootMidi: 52,
     rootPc: 4,
-  },,
+  },
 
   // Dedicated, equal-tempered scales used by Learn melodies. Their intervals are
   // ordered ascending scale steps so pad 0 is the tonic and pad 1 the next degree.
