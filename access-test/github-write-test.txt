@@ -1,0 +1,3 @@
+GitHub connector write-access verification
+Created on 2026-10-16 in a dedicated test branch.
+This file is a harmless permission test and is not part of the PIONIER app.
