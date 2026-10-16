@@ -1,31 +1,14 @@
 /**
- * Pionier service worker — cache-first for app shell and note samples.
- * Version bump CACHE_VERSION to invalidate.
+ * Pionier service worker
+ * - HTML always network-first (never serve stale index after deploy)
+ * - Old caches deleted on activate
+ * - CACHE_VERSION must bump with each intentional deploy
  */
-const CACHE_VERSION = 'pionier-v1';
-const SHELL = [
-  './',
-  './index.html',
-  './pionier.css',
-  './pionier-app.js',
-  './pionier-core.js',
-  './js/audio-core.js',
-  './js/instrument.js',
-  './js/gesture.js',
-  './js/fx.js',
-  './js/pionier-surface.js',
-  './js/layout-boot.js',
-  './js/settings-panel.js',
-  './js/note-sample-bank.js',
-  './js/instruments/handpan.js',
-  './js/instruments/library-family.js',
-  './sounds/notes/manifest.json',
-];
+const CACHE_VERSION = 'pionier-v3';
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting())
-  );
+  // Do not precache a brittle shell list here — install always succeeds.
+  event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener('activate', (event) => {
@@ -36,32 +19,44 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
+function isDocumentRequest(req, url) {
+  if (req.mode === 'navigate') return true;
+  if (req.destination === 'document') return true;
+  const path = url.pathname;
+  return path.endsWith('.html') || path.endsWith('/') || path.endsWith('/handpan-app');
+}
+
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // Network-first for navigations so deploys are picked up; fall back to cache.
-  if (req.mode === 'navigate') {
+  // HTML / navigations: network-first, never block on a failed cache match.
+  if (isDocumentRequest(req, url)) {
     event.respondWith(
-      fetch(req).then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE_VERSION).then((c) => c.put(req, copy));
-        return res;
-      }).catch(() => caches.match(req).then((r) => r || caches.match('./index.html')))
+      fetch(req)
+        .then((res) => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});
+          }
+          return res;
+        })
+        .catch(() => caches.match(req).then((r) => r || caches.match('./index.html')))
     );
     return;
   }
 
-  // Cache-first for same-origin static assets (JS/CSS/audio/manifest).
+  // Other same-origin assets: cache-first, then network.
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
       return fetch(req).then((res) => {
-        if (!res || res.status !== 200 || res.type === 'opaque') return res;
-        const copy = res.clone();
-        caches.open(CACHE_VERSION).then((c) => c.put(req, copy));
+        if (res && res.status === 200 && res.type !== 'opaque') {
+          const copy = res.clone();
+          caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});
+        }
         return res;
       });
     })

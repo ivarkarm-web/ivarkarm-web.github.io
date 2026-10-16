@@ -1,0 +1,71 @@
+/* chrome-fix.css — ordered last. Prefer tokens over new !important wars. */
+:root {
+  --pionier-z-pan: 2;
+  --pionier-z-bar: 1000;
+  --pionier-z-menu: 3201;
+  --pionier-z-dock: 4000;
+  --pionier-tap: 44px;
+}
+
+/* Drawer: usable expanded panel */
+#mobileControlDrawer.is-open .mobile-control-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: min(50dvh, 420px) !important;
+  overflow: auto !important;
+  padding: 10px 12px 14px !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+#mobileControlDrawer .mobile-controls-toggle {
+  min-height: var(--pionier-tap);
+  min-width: var(--pionier-tap);
+}
+
+/* Scale menu as readable sheet above the bottom bar */
+#scaleMenu:not([hidden]) {
+  display: block !important;
+  position: fixed !important;
+  left: max(10px, env(safe-area-inset-left, 0px)) !important;
+  right: max(10px, env(safe-area-inset-right, 0px)) !important;
+  width: auto !important;
+  max-width: 420px !important;
+  margin-inline: auto !important;
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+  top: auto !important;
+  max-height: min(50dvh, 360px) !important;
+  overflow: auto !important;
+  z-index: var(--pionier-z-menu) !important;
+  visibility: visible !important;
+  background: rgba(12, 12, 14, 0.96) !important;
+  border: 1px solid rgba(230, 224, 210, 0.14) !important;
+  border-radius: 14px !important;
+  padding: 8px !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45) !important;
+}
+
+#instrumentMenu:not([hidden]) {
+  z-index: var(--pionier-z-menu) !important;
+  visibility: visible !important;
+}
+
+/* Soundscapes panel: one mechanism — [hidden] is authoritative */
+#soundscapesPanel[hidden] {
+  display: none !important;
+}
+#soundscapesPanel:not([hidden]) {
+  display: flex !important;
+  flex-direction: column !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 5000 !important;
+  background: rgba(7, 7, 8, 0.96) !important;
+  padding: max(12px, env(safe-area-inset-top, 0px)) 16px max(16px, env(safe-area-inset-bottom, 0px));
+}
+
+/* Keep bottom bar above pan, below menus */
+#stageScaleBar {
+  z-index: var(--pionier-z-bar) !important;
+}
