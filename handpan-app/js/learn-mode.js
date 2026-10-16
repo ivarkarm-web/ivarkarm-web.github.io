@@ -1,26 +1,22 @@
 /* Pionier Learn — shared-clock phrase playback and Catch the Note practice.
    Phrase events are editable scale-degree fixtures, not claimed audio transcriptions. */
 const LESSONS = [
-  { id:'scale-up-down', title:'Scale Up & Down', description:'Follow the notes from the lowest pad to the highest, then return home.', bpm:68, events:[
-    {pad:0,at:2200},{pad:1,at:4000},{pad:2,at:5800},{pad:3,at:7600},
-    {pad:4,at:9400},{pad:5,at:11200},{pad:6,at:13000},{pad:7,at:14800},
-    {pad:8,at:16600},{pad:7,at:18400},{pad:6,at:20200},{pad:5,at:22000},
-    {pad:4,at:23800},{pad:3,at:25600},{pad:2,at:27400},{pad:1,at:29200},
-    {pad:0,at:31000}
+  { id:'scale-up-down', title:'Scale Up & Down', description:'Follow the notes from the lowest pad to the highest, then return home.', bpm:96, events:[
+    {pad:0,at:1600},{pad:1,at:2700},{pad:2,at:3800},{pad:3,at:4900},
+    {pad:4,at:6000},{pad:5,at:7100},{pad:6,at:8200},{pad:7,at:9300},
+    {pad:8,at:10400},{pad:7,at:11500},{pad:6,at:12600},{pad:5,at:13700},
+    {pad:4,at:14800},{pad:3,at:15900},{pad:2,at:17000},{pad:1,at:18100},
+    {pad:0,at:19200}
   ]},
-  { id:'chords-up-down', title:'Chords Up & Down', description:'Play an arpeggiated chord pattern: move through each three-note shape upward, then descend through the shapes.', bpm:68, events:[
-    {pad:0,at:2200},{pad:2,at:4000},{pad:4,at:5800},
-    {pad:1,at:7600},{pad:3,at:9400},{pad:5,at:11200},
-    {pad:2,at:13000},{pad:4,at:14800},{pad:6,at:16600},
-    {pad:3,at:18400},{pad:5,at:20200},{pad:7,at:22000},
-    {pad:4,at:23800},{pad:6,at:25600},{pad:8,at:27400},
-    {pad:3,at:29200},{pad:5,at:31000},{pad:7,at:32800},
-    {pad:2,at:34600},{pad:4,at:36400},{pad:6,at:38200},
-    {pad:1,at:40000},{pad:3,at:41800},{pad:5,at:43600},
-    {pad:0,at:45400},{pad:2,at:47200},{pad:4,at:49000}
+  { id:'two-note-chords', title:'Two-Note Chords', description:'Use two fingers together. Strike both glowing notes within the timing window to catch each chord.', bpm:96, events:[
+    {pads:[0,2],at:1600},{pads:[1,3],at:3000},{pads:[2,4],at:4400},
+    {pads:[3,5],at:5800},{pads:[4,6],at:7200},{pads:[5,7],at:8600},
+    {pads:[6,8],at:10000},{pads:[5,7],at:11400},{pads:[4,6],at:12800},
+    {pads:[3,5],at:14200},{pads:[2,4],at:15600},{pads:[1,3],at:17000},
+    {pads:[0,2],at:18400}
   ]}
 ];
-const APPROACH_MS=2200, WINDOW_MS=500, TAIL_MS=700;
+const APPROACH_MS=1000, WINDOW_MS=500, TAIL_MS=260;
 export function mountLearnMode(){
   const button=document.getElementById('openLearn'), panel=document.getElementById('learnPanel'), close=document.getElementById('learnClose');
   const canvas=document.getElementById('pan'), list=document.getElementById('learnLessonList');
@@ -44,7 +40,7 @@ export function mountLearnMode(){
   function hide(){panel.hidden=true;stop();hideHud();document.body.classList.remove('learn-active')}
   function stop(){running=false;done=false;ringState=null;sounded.clear();countdownUntil=0;cancelAnimationFrame(raf);ctx.clearRect(0,0,stageWidth,stageHeight);overlay.style.display='none';hideHud();}
   function menu(){stop();list.hidden=false;controls.hidden=true;heading.textContent='Catch the Note';description.textContent='Choose a lesson, then press Start when you are ready. Follow the incoming wave and play when the target glows.';if(startBtn)startBtn.hidden=false;if(listenBtn)listenBtn.hidden=true;if(catchBtn)catchBtn.hidden=true;if(transposeBtn)transposeBtn.hidden=false;if(document.getElementById('learnRestart'))document.getElementById('learnRestart').hidden=true;}
-  function targetPad(ev){const fields=window.PionierCore?.surface?.fields||[];const count=fields.length||9;return ((Number(ev.pad)+transposeSteps)%count+count)%count}
+  function targetPads(ev){const fields=window.PionierCore?.surface?.fields||[];const count=fields.length||9;return (ev.pads||[ev.pad]).map(p=>((Number(p)+transposeSteps)%count+count)%count)}
   function targetField(pad){const fields=window.PionierCore?.surface?.fields||[];return fields.find(f=>Number(f.index)===Number(pad))||fields[pad]||null}
   function overlayPoint(field){const m=window.PionierCore?.surface?.metrics||{};const w=m.W||800,h=m.H||800;const c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect();return{x:c.left-s.left+field.x*((canvas.getBoundingClientRect().width/((window.PionierCore?.surface?.metrics||{}).W||800))),y:c.top-s.top+field.y*((canvas.getBoundingClientRect().height/((window.PionierCore?.surface?.metrics||{}).H||800)))}}
   function strikePad(pad,velocity=.72){
@@ -75,35 +71,34 @@ export function mountLearnMode(){
     const now=performance.now(),elapsed=now-startAt;ctx.clearRect(0,0,stageWidth,stageHeight);
     if(now<countdownUntil){const n=Math.max(1,Math.ceil((countdownUntil-now)/1000));setHud('GET READY · '+n);progress.textContent='GET READY · '+n;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.beginPath();ctx.arc(stageWidth/2,stageHeight/2,24,0,Math.PI*2);ctx.fillStyle='rgba(10,10,12,.72)';ctx.fill();ctx.strokeStyle='rgba(212,176,74,.56)';ctx.lineWidth=1;ctx.stroke();ctx.font='500 18px Inter, sans-serif';ctx.fillStyle='rgba(243,212,122,.94)';ctx.fillText(String(n),stageWidth/2,stageHeight/2+.5);ctx.restore();raf=requestAnimationFrame(drawFrame);return;}else if(countdownUntil){countdownUntil=0;setHud(mode==='listen'?'LISTENING':'FOLLOW THE WAVE');}
     if(running&&index<lesson.events.length){
-      const ev=lesson.events[index],pad=targetPad(ev),spawnAt=ev.at-APPROACH_MS;
-      if(elapsed>=spawnAt&&!ringState)ringState={event:ev,pad,spawnAt,state:'approach',changedAt:0};
+      const ev=lesson.events[index],pads=targetPads(ev),pad=pads[0],spawnAt=ev.at-APPROACH_MS;
+      if(elapsed>=spawnAt&&!ringState)ringState={event:ev,pad,pads,spawnAt,state:'approach',changedAt:0,caughtPads:[]};
       if(mode==='practice'&&ringState?.state==='approach'&&elapsed>=ev.at){ringState.state='arrive';ringState.changedAt=now;setHud('PLAY NOW');progress.textContent='PLAY NOW · HIT THE GLOWING NOTE';}
       if(mode==='listen'&&elapsed>=ev.at&&!sounded.has(index)){
-        sounded.add(index);strikePad(pad,.66);ringState={event:ev,pad,state:'hit',changedAt:now};index++;
+        sounded.add(index);targetPads(ev).forEach(p=>strikePad(p,.66));ringState={event:ev,pad,pads:targetPads(ev),state:'hit',changedAt:now};index++;
       }else if(mode==='practice'&&['approach','arrive'].includes(ringState?.state)&&elapsed>ev.at+WINDOW_MS){markMiss(now);index++}
     }else if(running&&index>=lesson.events.length&&!ringState)finish();
     if(ringState){
-      const field=targetField(ringState.pad),point=field&&overlayPoint(field);
-      if(point){
-        const{x,y}=point;
-        if(ringState.state==='approach'){
-          const rawP=Math.max(0,Math.min(1,(elapsed-ringState.spawnAt)/APPROACH_MS));const p=rawP*rawP*(3-2*rawP);const maxRadius=Math.max(Math.hypot(x,y),Math.hypot(stageWidth-x,y),Math.hypot(x,stageHeight-y),Math.hypot(stageWidth-x,stageHeight-y))+48;const radius=maxRadius-p*(maxRadius-14),pulse=1+Math.sin(now/145)*.022;
-          ctx.save();ctx.strokeStyle='#e2bd59';ctx.lineWidth=1.8+p*1.7;ctx.shadowColor='rgba(243,212,122,.78)';ctx.shadowBlur=15+p*17;
-          for(let n=0;n<3;n++){ctx.globalAlpha=Math.max(.08,.78-n*.19)*(.48+p*.52);ctx.beginPath();ctx.arc(x,y,(radius+n*18)*pulse,0,Math.PI*2);ctx.stroke()}
-          // As the wave nears the pad, pre-light its actual rim so the arrival is readable.
-          if(field&&p>.72){const warm=Math.min(1,(p-.72)/.28);const sx=(canvas.getBoundingClientRect().width/((window.PionierCore?.surface?.metrics||{}).W||800)),sy=(canvas.getBoundingClientRect().height/((window.PionierCore?.surface?.metrics||{}).H||800));ctx.globalAlpha=.18+.42*warm;ctx.strokeStyle='#ffe8a0';ctx.lineWidth=1.5+2*warm;ctx.shadowBlur=8+18*warm;ctx.beginPath();ctx.ellipse(x,y,Math.max(8,(field.rx||34)*sx*1.08),Math.max(8,(field.ry||24)*sy*1.08),field.rot||0,0,Math.PI*2);ctx.stroke()}
-          ctx.restore();
-        }else if(ringState.state==='arrive'){
-          const pulse=1+Math.sin(now/72)*.08;
-          ctx.save();const glow=ctx.createRadialGradient(x,y,3,x,y,54*pulse);glow.addColorStop(0,'rgba(255,239,173,.48)');glow.addColorStop(.42,'rgba(243,212,122,.24)');glow.addColorStop(1,'rgba(243,212,122,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(x,y,58*pulse,0,Math.PI*2);ctx.fill();
-          // The target's rim is the exact "play now" signal; hold it bright through the timing window.
-          const sx=(canvas.getBoundingClientRect().width/((window.PionierCore?.surface?.metrics||{}).W||800)),sy=(canvas.getBoundingClientRect().height/((window.PionierCore?.surface?.metrics||{}).H||800)),rx=Math.max(8,(field?.rx||34)*sx*1.1),ry=Math.max(8,(field?.ry||24)*sy*1.1);
-          ctx.strokeStyle='#fff0ad';ctx.lineWidth=3.5;ctx.shadowColor='rgba(255,224,125,1)';ctx.shadowBlur=30;ctx.beginPath();ctx.ellipse(x,y,rx,ry,field?.rot||0,0,Math.PI*2);ctx.stroke();
-          ctx.globalAlpha=.88;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y,rx*1.13,ry*1.13,field?.rot||0,0,Math.PI*2);ctx.stroke();
-          ctx.globalAlpha=.8;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(x,y,Math.max(rx,ry)*.7*pulse,0,Math.PI*2);ctx.stroke();ctx.restore();
-        }else{
-          const age=now-ringState.changedAt;ctx.save();ctx.globalAlpha=Math.max(0,1-age/TAIL_MS);ctx.strokeStyle=ringState.state==='hit'?'#f3d47a':'#ff4545';ctx.lineWidth=3;ctx.shadowColor=ringState.state==='hit'?'rgba(243,212,122,.9)':'#ff2525';ctx.shadowBlur=16;ctx.beginPath();ctx.arc(x,y,ringState.state==='hit'?27+age*.09:27+age*.025,0,Math.PI*2);ctx.stroke();ctx.restore();if(age>TAIL_MS)ringState=null;
-        }
+      const pads=ringState.pads||[ringState.pad];
+      const fields=pads.map(p=>targetField(p)).filter(Boolean);
+      if(fields.length){
+        fields.forEach(field=>{
+          const point=overlayPoint(field);if(!point)return;const{x,y}=point;
+          if(ringState.state==='approach'){
+            const rawP=Math.max(0,Math.min(1,(elapsed-ringState.spawnAt)/APPROACH_MS));const p=rawP*rawP*(3-2*rawP);const maxRadius=Math.max(Math.hypot(x,y),Math.hypot(stageWidth-x,y),Math.hypot(x,stageHeight-y),Math.hypot(stageWidth-x,stageHeight-y))+48;const radius=maxRadius-p*(maxRadius-14),pulse=1+Math.sin(now/145)*.022;
+            ctx.save();ctx.strokeStyle='#e2bd59';ctx.lineWidth=1.8+p*1.7;ctx.shadowColor='rgba(243,212,122,.78)';ctx.shadowBlur=15+p*17;
+            for(let n=0;n<3;n++){ctx.globalAlpha=Math.max(.08,.78-n*.19)*(.48+p*.52);ctx.beginPath();ctx.arc(x,y,(radius+n*18)*pulse,0,Math.PI*2);ctx.stroke()}
+            if(p>.72){const warm=Math.min(1,(p-.72)/.28),sx=canvas.getBoundingClientRect().width/((window.PionierCore?.surface?.metrics||{}).W||800),sy=canvas.getBoundingClientRect().height/((window.PionierCore?.surface?.metrics||{}).H||800);ctx.globalAlpha=.18+.42*warm;ctx.strokeStyle='#ffe8a0';ctx.lineWidth=1.5+2*warm;ctx.shadowBlur=8+18*warm;ctx.beginPath();ctx.ellipse(x,y,Math.max(8,(field.rx||34)*sx*1.08),Math.max(8,(field.ry||24)*sy*1.08),field.rot||0,0,Math.PI*2);ctx.stroke()}
+            ctx.restore();
+          }else if(ringState.state==='arrive'){
+            const pulse=1+Math.sin(now/72)*.08;ctx.save();const glow=ctx.createRadialGradient(x,y,3,x,y,54*pulse);glow.addColorStop(0,'rgba(255,239,173,.48)');glow.addColorStop(.42,'rgba(243,212,122,.24)');glow.addColorStop(1,'rgba(243,212,122,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(x,y,58*pulse,0,Math.PI*2);ctx.fill();
+            const sx=canvas.getBoundingClientRect().width/((window.PionierCore?.surface?.metrics||{}).W||800),sy=canvas.getBoundingClientRect().height/((window.PionierCore?.surface?.metrics||{}).H||800),rx=Math.max(8,(field.rx||34)*sx*1.1),ry=Math.max(8,(field.ry||24)*sy*1.1);
+            ctx.strokeStyle='#fff0ad';ctx.lineWidth=3.5;ctx.shadowColor='rgba(255,224,125,1)';ctx.shadowBlur=30;ctx.beginPath();ctx.ellipse(x,y,rx,ry,field.rot||0,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=.88;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y,rx*1.13,ry*1.13,field.rot||0,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=.8;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(x,y,Math.max(rx,ry)*.7*pulse,0,Math.PI*2);ctx.stroke();ctx.restore();
+          }else{
+            const age=now-ringState.changedAt;ctx.save();ctx.globalAlpha=Math.max(0,1-age/TAIL_MS);ctx.strokeStyle=ringState.state==='hit'?'#f3d47a':'#ff4545';ctx.lineWidth=3;ctx.shadowColor=ringState.state==='hit'?'rgba(243,212,122,.9)':'#ff2525';ctx.shadowBlur=16;ctx.beginPath();ctx.arc(x,y,ringState.state==='hit'?27+age*.09:27+age*.025,0,Math.PI*2);ctx.stroke();ctx.restore();
+          }
+        });
+        if(['hit','miss'].includes(ringState.state)&&now-ringState.changedAt>TAIL_MS)ringState=null;
       }else ringState=null;
     }
     if(running||ringState)raf=requestAnimationFrame(drawFrame);else if(done)ctx.clearRect(0,0,680,680);
@@ -114,18 +109,19 @@ export function mountLearnMode(){
     const pos=surface.canvasCoords(e),hit=surface.hitVector(pos.x,pos.y),now=performance.now(),elapsed=now-startAt;
     const state=ringState,target=state?.event;
     if(!target||!['approach','arrive'].includes(state.state))return;
-    // Early strikes are allowed: don't intercept them or record a miss.
-    // The player can play freely while waiting for the cue's timing window.
     if(elapsed<target.at-WINDOW_MS)return;
+    const expected=state.pads||[state.pad];
     e.preventDefault();e.stopImmediatePropagation();
-    // A late strike is one miss and advances the phrase, avoiding double penalties.
-    if(elapsed>target.at+WINDOW_MS){
-      markMiss(now);index++;setHud('LATE · '+hitCount+' CAUGHT');return;
-    }
-    if(hit?.index!==state.pad){
+    if(elapsed>target.at+WINDOW_MS){markMiss(now);index++;setHud('LATE · '+hitCount+' CAUGHT');return;}
+    if(!hit||!expected.includes(hit.index)){
       missCount++;progress.textContent='MISS · '+hitCount+' CAUGHT';setHud('MISS · '+hitCount+' CAUGHT');return;
     }
-    hitCount++;progress.textContent='CAUGHT · '+hitCount+' / '+lesson.events.length;setHud('CAUGHT · '+hitCount+' / '+lesson.events.length);ringState={event:target,pad:state.pad,state:'hit',changedAt:now};index++;
+    if(state.caughtPads.includes(hit.index))return;
+    state.caughtPads.push(hit.index);
+    if(state.caughtPads.length<expected.length){
+      progress.textContent='ONE OF TWO · PLAY THE OTHER NOTE';setHud('ONE MORE NOTE');return;
+    }
+    hitCount++;progress.textContent='CHORD CAUGHT · '+hitCount+' / '+lesson.events.length;setHud('CHORD CAUGHT · '+hitCount+' / '+lesson.events.length);ringState={event:target,pad:state.pad,pads:expected,state:'hit',changedAt:now};index++;
   }
   canvas.addEventListener('pointerdown',onStrike,true);
   list.querySelectorAll('[data-lesson]').forEach(b=>b.addEventListener('click',()=>{
