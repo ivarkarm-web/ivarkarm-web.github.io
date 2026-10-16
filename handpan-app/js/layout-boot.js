@@ -133,6 +133,21 @@
       if (scaleBlock.parentElement !== row) row.insertBefore(scaleBlock, row.firstChild);
     }
     if (scaleMenu) scaleMenu.classList.add('stage-scale-menu');
+    // Root + note count: one tap away in the bottom bar (not buried in drawer)
+    const rootRow = document.querySelector('#mobileControlPanel .control-row');
+    if (rootRow && bar) {
+      rootRow.classList.add('stage-root-row');
+      if (rootRow.parentElement !== bar) bar.appendChild(rootRow);
+    }
+    // Hide the empty CONTROLS chrome when its only useful controls live in the bottom bar
+    const drawer = document.getElementById('mobileControlDrawer');
+    const panel = document.getElementById('mobileControlPanel');
+    if (panel && !panel.querySelector('.knobs-panel, .effect-knob-wrap, .control-block')) {
+      // keep gear/settings path; collapse empty FX drawer toggle
+      const toggle = document.getElementById('mobileControlsToggle');
+      if (toggle) toggle.style.display = 'none';
+    }
+
     if (noteWrap) {
       noteWrap.classList.add('stage-note-wrap');
       if (noteWrap.parentElement !== row) row.appendChild(noteWrap);
