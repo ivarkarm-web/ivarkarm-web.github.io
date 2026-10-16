@@ -13,7 +13,7 @@
 import { Instrument } from '../instrument.js';
 import { NoteSampleBank } from '../note-sample-bank.js?v=4';
 import { getSoundLibrary } from './library-family.js?v=1';
-import { HANDPAN_SCALES, scaleToCents } from './handpan-scales.js?v=5';
+import { HANDPAN_SCALES, scaleToCents } from './handpan-scales.js?v=6';
 import { MIN_NOTES, MAX_NOTES, ringAngles } from '../pad-layout.js';
 
 export { HANDPAN_SCALES, MIN_NOTES, MAX_NOTES };
