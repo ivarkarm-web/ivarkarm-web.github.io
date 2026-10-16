@@ -47,37 +47,107 @@ export function createSurface(canvas) {
   }
   function mandalaStyle(){const s=window.PionierSettings||{};return ['glow','petals','sacred','orbit','wave'].includes(s.auraStyle)?s.auraStyle:'petals';}
   function mandalaEnabled(){const s=window.PionierSettings;return !(s&&s.mandala===false);}
-  // Slowly rotating, breathing ornamentation around the actual handpan shell rim.
-  // Draw the aura OUTSIDE the metal shell. The shell edge is R; all ornament
-  // geometry is anchored beyond 1.01R so it reads as a separate rim halo.
-  // Distinct, softly luminous ornamentation outside the handpan shell.
+  // Intricate, slowly animated ornamentation outside the metal shell.
+  // Wave Filigree is the visual benchmark: layered curves, rhythm and fine detail.
   function drawHandpanMandala(theme){
     if(!mandalaEnabled()||R<20)return;
     const style=mandalaStyle(),base=theme.skin.rim||[230,236,248],t=performance.now()*0.001;
     const led=[theme.led.r,theme.led.g,theme.led.b],col=mixLed(base,led,0.24);
     const breath=0.5+0.5*Math.sin(t*0.42),rim=R*1.065;
-    ctx2.save();ctx2.translate(CX,CY);ctx2.rotate(t*0.026);ctx2.globalCompositeOperation='screen';
-    ctx2.lineCap='round';ctx2.lineJoin='round';ctx2.globalAlpha=0.58+breath*0.34;
-    const stroke=(a,w)=>{ctx2.strokeStyle=rgba(col,a);ctx2.lineWidth=Math.max(0.8,R*w)};
-    const fill=(a)=>{ctx2.fillStyle=rgba(col,a)};
+    ctx2.save();ctx2.translate(CX,CY);ctx2.rotate(t*0.018);ctx2.globalCompositeOperation='screen';
+    ctx2.lineCap='round';ctx2.lineJoin='round';ctx2.globalAlpha=0.72+breath*0.25;
+    const stroke=(a,w)=>{ctx2.strokeStyle=rgba(col,a);ctx2.lineWidth=Math.max(0.75,R*w);};
+    const fill=(a)=>{ctx2.fillStyle=rgba(col,a);};
+    const polar=(a,r)=>({x:Math.cos(a)*r,y:Math.sin(a)*r});
+    const curveRing=(fn,alpha,width,steps=240)=>{
+      ctx2.beginPath();
+      for(let i=0;i<=steps;i++){const a=i/steps*Math.PI*2,r=fn(a,i),p=polar(a,r);if(i===0)ctx2.moveTo(p.x,p.y);else ctx2.lineTo(p.x,p.y);}
+      ctx2.closePath();stroke(alpha,width);ctx2.stroke();
+    };
+    const bead=(x,y,r,alpha)=>{
+      const g=ctx2.createRadialGradient(x-r*0.25,y-r*0.3,0,x,y,r*2.2);
+      g.addColorStop(0,rgba([255,255,255],alpha*0.72));g.addColorStop(0.24,rgba(col,alpha));g.addColorStop(1,rgba(col,0));
+      ctx2.fillStyle=g;ctx2.beginPath();ctx2.arc(x,y,r*2.2,0,Math.PI*2);ctx2.fill();
+    };
+    // Fine double rail is shared by every style to visually bind the ornament to the rim.
+    for(let j=0;j<2;j++){ctx2.beginPath();ctx2.arc(0,0,rim*(0.997+j*0.018),0,Math.PI*2);stroke(j?0.19:0.29,j?0.0015:0.0021);ctx2.stroke();}
     if(style==='glow'){
-      for(let i=0;i<3;i++){const rr=rim*(1.005+i*0.018);ctx2.beginPath();ctx2.arc(0,0,rr,0,Math.PI*2);stroke(0.20-i*0.035,0.0032-i*0.00045);ctx2.shadowColor=rgba(col,0.42);ctx2.shadowBlur=R*(0.045-i*0.008);ctx2.stroke();}
-      ctx2.shadowBlur=0;const halo=ctx2.createRadialGradient(0,0,rim*0.98,0,0,rim*1.12);halo.addColorStop(0,rgba(col,0));halo.addColorStop(0.48,rgba(col,0.15+breath*0.07));halo.addColorStop(1,rgba(col,0));ctx2.fillStyle=halo;ctx2.beginPath();ctx2.arc(0,0,rim*1.12,0,Math.PI*2);ctx2.fill();
+      // Aurora filaments: three interwoven, softly breathing waves rather than plain rings.
+      for(let layer=0;layer<5;layer++){
+        const phase=t*(0.18+layer*0.025)+layer*1.18;
+        curveRing((a)=>rim*(1.024+layer*0.012)+R*(0.007+layer*0.0015)*Math.sin(a*(7+layer%3)+phase)*Math.cos(a*3-phase*0.7),0.13+layer*0.035,0.00135+layer*0.00012,280);
+      }
+      for(let arc=0;arc<12;arc++){
+        const a=arc/12*Math.PI*2+Math.sin(t*0.2+arc)*0.025,p=polar(a,rim*1.075),q=polar(a+0.17,rim*1.105),m=polar(a+0.085,rim*1.13);
+        ctx2.beginPath();ctx2.moveTo(p.x,p.y);ctx2.quadraticCurveTo(m.x,m.y,q.x,q.y);stroke(0.36+breath*0.12,0.0025);ctx2.stroke();
+        bead(m.x,m.y,R*(arc%3===0?0.009:0.0045),0.48);
+      }
+      const halo=ctx2.createRadialGradient(0,0,rim*1.01,0,0,rim*1.15);
+      halo.addColorStop(0,rgba(col,0));halo.addColorStop(0.55,rgba(col,0.055+breath*0.035));halo.addColorStop(1,rgba(col,0));
+      ctx2.fillStyle=halo;ctx2.beginPath();ctx2.arc(0,0,rim*1.15,0,Math.PI*2);ctx2.fill();
     }else if(style==='petals'){
-      stroke(0.25,0.0022);ctx2.beginPath();ctx2.arc(0,0,rim*1.005,0,Math.PI*2);ctx2.stroke();
-      for(let i=0;i<20;i++){const a=i/20*Math.PI*2,rr=rim*(1.025+0.006*Math.sin(t*0.35+i*0.7));ctx2.save();ctx2.rotate(a);ctx2.translate(0,-rr);ctx2.beginPath();ctx2.ellipse(0,0,R*0.025,R*0.044,0,0,Math.PI*2);stroke(0.34+breath*0.14,0.0027);ctx2.stroke();ctx2.beginPath();ctx2.ellipse(0,0,R*0.011,R*0.027,0,0,Math.PI*2);stroke(0.25,0.0018);ctx2.stroke();ctx2.restore();}
+      // Lace-like pointed petals with inner veins, crossing shoulders and seed pearls.
+      for(let i=0;i<24;i++){
+        const a=i/24*Math.PI*2,dr=0.004*Math.sin(t*0.45+i*0.9),inner=rim*(1.008+dr),outer=rim*(1.105+dr),side=R*0.027;
+        const p0=polar(a,inner),tip=polar(a+0.006,outer),left=polar(a-0.052,rim*1.055),right=polar(a+0.052,rim*1.055);
+        ctx2.beginPath();ctx2.moveTo(p0.x,p0.y);ctx2.quadraticCurveTo(left.x-side*Math.sin(a),left.y+side*Math.cos(a),tip.x,tip.y);
+        ctx2.quadraticCurveTo(right.x+side*Math.sin(a),right.y-side*Math.cos(a),p0.x,p0.y);
+        stroke(0.37+breath*0.13,0.0023);ctx2.stroke();
+        const v1=polar(a-0.023,rim*1.035),v2=polar(a+0.023,rim*1.035);
+        ctx2.beginPath();ctx2.moveTo(v1.x,v1.y);ctx2.quadraticCurveTo(p0.x,p0.y,tip.x,tip.y);ctx2.quadraticCurveTo(p0.x,p0.y,v2.x,v2.y);stroke(0.22,0.00125);ctx2.stroke();
+        if(i%2===0){const pearl=polar(a,outer*1.012);bead(pearl.x,pearl.y,R*0.0048,0.44);}
+      }
+      curveRing(a=>rim*(1.055+0.012*Math.cos(a*24+t*0.3)),0.23,0.0014);
     }else if(style==='sacred'){
-      stroke(0.22,0.002);ctx2.beginPath();ctx2.arc(0,0,rim*1.005,0,Math.PI*2);ctx2.stroke();
-      for(let i=0;i<24;i++){const a=i/24*Math.PI*2,x=Math.cos(a)*rim*1.045,y=Math.sin(a)*rim*1.045,size=R*0.021;ctx2.save();ctx2.translate(x,y);ctx2.rotate(a+Math.PI/4);ctx2.beginPath();ctx2.moveTo(0,-size);ctx2.lineTo(size,0);ctx2.lineTo(0,size);ctx2.lineTo(-size,0);ctx2.closePath();stroke(0.34+breath*0.12,0.0024);ctx2.stroke();ctx2.restore();if(i%2===0){ctx2.beginPath();ctx2.arc(Math.cos(a)*rim*1.015,Math.sin(a)*rim*1.015,R*0.0065,0,Math.PI*2);fill(0.32);ctx2.fill();}}
+      // Interlocking vesica arcs, rotating star polygons and a delicate radial lattice.
+      for(let i=0;i<24;i++){
+        const a=i/24*Math.PI*2,center=polar(a,rim*1.065),rad=R*0.052;
+        ctx2.save();ctx2.translate(center.x,center.y);ctx2.rotate(a+t*0.035);
+        ctx2.beginPath();ctx2.ellipse(0,0,rad*0.42,rad,0,0,Math.PI*2);stroke(0.34,0.0017);ctx2.stroke();
+        ctx2.beginPath();ctx2.ellipse(0,0,rad*0.42,rad,Math.PI/3,0,Math.PI*2);stroke(0.23,0.0012);ctx2.stroke();
+        ctx2.beginPath();ctx2.moveTo(0,-rad*0.8);ctx2.lineTo(rad*0.28,0);ctx2.lineTo(0,rad*0.8);ctx2.lineTo(-rad*0.28,0);ctx2.closePath();stroke(0.36,0.0015);ctx2.stroke();
+        ctx2.restore();
+      }
+      for(let ring=0;ring<3;ring++){
+        const rr=rim*(1.018+ring*0.027);
+        curveRing(a=>rr+R*(0.004+ring*0.001)*Math.cos(a*(12+ring*6)+t*0.12+ring),0.13+ring*0.045,0.00125+ring*0.00018);
+      }
+      for(let i=0;i<48;i++){
+        const a=i/48*Math.PI*2,p=polar(a,rim*(1.035+0.008*Math.sin(a*12+t*0.2)));
+        if(i%2===0)bead(p.x,p.y,R*(i%6===0?0.0065:0.0034),0.4);
+      }
     }else if(style==='orbit'){
-      for(let ring=0;ring<2;ring++){ctx2.beginPath();ctx2.arc(0,0,rim*(1.005+ring*0.032),0,Math.PI*2);stroke(ring?0.15:0.27,ring?0.0018:0.0026);ctx2.stroke();}
-      for(let i=0;i<32;i++){const a=i/32*Math.PI*2,rr=rim*(1.03+0.012*Math.sin(t*0.38+i*0.85)),x=Math.cos(a)*rr,y=Math.sin(a)*rr,pr=R*(i%4===0?0.009:0.0055),g=ctx2.createRadialGradient(x,y,0,x,y,pr*2.8);g.addColorStop(0,rgba(col,i%4===0?0.52:0.28));g.addColorStop(1,rgba(col,0));ctx2.fillStyle=g;ctx2.beginPath();ctx2.arc(x,y,pr*2.8,0,Math.PI*2);ctx2.fill();}
+      // Orbital ellipses and connected moving satellites create a small celestial mechanism.
+      for(let k=0;k<4;k++){
+        ctx2.save();ctx2.rotate(k*Math.PI/4+t*(k%2?0.012:-0.009));
+        ctx2.beginPath();ctx2.ellipse(0,0,rim*(1.035+k*0.009),R*(0.036+k*0.009),0,0,Math.PI*2);
+        stroke(0.17+k*0.035,0.00135+k*0.00016);ctx2.stroke();ctx2.restore();
+      }
+      for(let orbit=0;orbit<3;orbit++){
+        const count=12+orbit*4,phase=-t*(0.18+orbit*0.055)+orbit*1.7,rr=rim*(1.045+orbit*0.019);
+        let previous=null;
+        for(let i=0;i<=count;i++){
+          const a=i/count*Math.PI*2+phase,p=polar(a,rr+R*0.008*Math.sin(a*3+t*0.2));
+          if(previous&&i%2===0){ctx2.beginPath();ctx2.moveTo(previous.x,previous.y);ctx2.lineTo(p.x,p.y);stroke(0.13,0.0011);ctx2.stroke();}
+          if(i<count&&i%(orbit+2)===0)bead(p.x,p.y,R*(i%4===0?0.008:0.0042),0.52);
+          previous=p;
+        }
+      }
+      curveRing(a=>rim*(1.01+0.014*Math.sin(a*18-t*0.28)),0.19,0.0015);
     }else if(style==='wave'){
-      for(let ring=0;ring<3;ring++){ctx2.beginPath();for(let i=0;i<=180;i++){const a=i/180*Math.PI*2,rr=rim*(1.005+ring*0.021)+Math.sin(a*12-t*0.45+ring*1.2)*R*0.009,x=Math.cos(a)*rr,y=Math.sin(a)*rr;if(i===0)ctx2.moveTo(x,y);else ctx2.lineTo(x,y);}ctx2.closePath();stroke(0.15+ring*0.07,0.0018+ring*0.00025);ctx2.stroke();}
+      // The signature filigree: three nested, fluid harmonic ribbons.
+      for(let ring=0;ring<3;ring++){
+        curveRing(a=>rim*(1.005+ring*0.021)+Math.sin(a*12-t*0.45+ring*1.2)*R*0.009+Math.sin(a*24+t*0.18-ring)*R*0.0028,0.17+ring*0.07,0.0018+ring*0.00025);
+      }
+      // Small alternating curls along the outer wave give the silhouette its fine, hand-drawn edge.
+      for(let i=0;i<48;i++){
+        const a=i/48*Math.PI*2,rr=rim*1.055+Math.sin(a*12-t*0.45)*R*0.009,p=polar(a,rr),q=polar(a+0.032,rr+R*0.012*Math.sin(i*0.8+t*0.22));
+        ctx2.beginPath();ctx2.moveTo(p.x,p.y);ctx2.quadraticCurveTo((p.x+q.x)*0.5-R*0.007*Math.sin(a),(p.y+q.y)*0.5+R*0.007*Math.cos(a),q.x,q.y);stroke(0.18,0.00115);ctx2.stroke();
+      }
     }
     ctx2.restore();
   }
-  function layoutHandpanFields(handpanNotes,isFieldPlayable){
+    function layoutHandpanFields(handpanNotes,isFieldPlayable){
     const list=handpanNotes||[];const wasArmed=armed;armed=false;
     const previous=wasArmed&&fields.length?animatedView(performance.now()).map(f=>({...f})):null;
     const stock=list.slice(0,MIN_NOTES||9);
