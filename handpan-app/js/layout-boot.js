@@ -5,16 +5,7 @@
  * Center: handpan in the remaining play area
  */
 (function layoutBoot() {
-  if (!document.querySelector('link[data-ui-extras]')) {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = './ui-layout-extras.css?v=37';
-    link.setAttribute('data-ui-extras', '1');
-    document.head.appendChild(link);
-  } else {
-    const link = document.querySelector('link[data-ui-extras]');
-    if (link) link.href = './ui-layout-extras.css?v=37';
-  }
+  // ui-layout-extras is linked from index.html (not injected).
 
   function purgeCreate() {
     document.getElementById('createPage')?.remove();
@@ -394,6 +385,15 @@
     const closeBtn = document.getElementById('fxPanelClose');
     function setOpen(open) {
       if (!panel) return;
+      if (open) {
+        const sheet = document.getElementById('settingsSheet');
+        const backdrop = document.getElementById('settingsSheetBackdrop');
+        if (sheet) { sheet.classList.remove('is-open'); sheet.hidden = true; }
+        if (backdrop) { backdrop.classList.remove('is-open'); backdrop.hidden = true; }
+        document.getElementById('settingsOpenBtn')?.setAttribute('aria-expanded', 'false');
+        document.getElementById('soundscapesPanel')?.setAttribute('hidden', '');
+        document.body.classList.remove('soundscapes-active');
+      }
       panel.hidden = !open;
       openBtn.setAttribute('aria-expanded', String(open));
       document.body.classList.toggle('fx-panel-open', open);
@@ -403,4 +403,27 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && panel && !panel.hidden) setOpen(false);
     });
+  })();
+
+
+  // Record button chrome (ring/core) — source of truth, not a patch file
+  (function ensureLooperChrome() {
+    function apply() {
+      const btn = document.getElementById('looperBtn');
+      if (!btn) return;
+      if (!btn.querySelector('.looper-btn-core')) {
+        btn.className = 'looper-btn looper-record';
+        btn.innerHTML =
+          '<span class="looper-btn-ring" aria-hidden="true"></span>' +
+          '<span class="looper-btn-core" aria-hidden="true"></span>';
+      }
+      btn.style.setProperty('width', '52px', 'important');
+      btn.style.setProperty('height', '52px', 'important');
+      btn.style.setProperty('min-width', '52px', 'important');
+      btn.style.setProperty('min-height', '52px', 'important');
+      btn.style.setProperty('pointer-events', 'auto', 'important');
+    }
+    apply();
+    setTimeout(apply, 200);
+    setTimeout(apply, 1000);
   })();

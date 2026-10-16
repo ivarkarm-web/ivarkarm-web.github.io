@@ -1,0 +1,11 @@
+CACHE_VERSION=pionier-v7
+# Bump this and matching ?v= stamps in index.html + sw.js SHELL together before each push.
+# Key stamps for v7:
+#   pionier.css?v=121
+#   layout-boot.js?v=51
+#   settings-panel.js?v=13
+#   pionier-app.js?v=171
+#   ui-layout-extras.css?v=38
+#   looper.css?v=203
+#   settings-panel.css?v=10
+#   atelier.css?v=9

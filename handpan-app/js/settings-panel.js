@@ -380,6 +380,15 @@
   }
 
   function openSheet(els, state) {
+    // Single open-panel policy: close FX / soundscapes when Settings opens
+    const fx = document.getElementById('fxPanel');
+    if (fx && !fx.hidden) {
+      fx.hidden = true;
+      document.getElementById('fxPanelOpen')?.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('fx-panel-open');
+    }
+    document.getElementById('soundscapesPanel')?.setAttribute('hidden', '');
+    document.body.classList.remove('soundscapes-active');
     buildBody(state);
     els.sheet.hidden = false;
     els.backdrop.hidden = false;

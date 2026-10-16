@@ -84,29 +84,36 @@ test('per-scale: only the starting scale is fetched at start-up, others on deman
   });
 });
 
-test('per-scale: a scale never borrows another scale\'s notes', async () => {
+test('per-scale: a scale never borrows another scale\'s notes (resolve API)', async () => {
   await withFetch(files, async () => {
     const bank = new NoteSampleBank(makeCtx());
     await bank.load();
     await bank._loadScale('b');
     bank.setActiveScale('a');
-    const a = bank.pickNearest(50);
+    const a = bank.resolve(50);
     bank.setActiveScale('b');
-    const b = bank.pickNearest(48);
+    const b = bank.resolve(48);
     assert.ok(a);
     assert.ok(b);
-    assert.notEqual(a.file, b.file);
+    // Different source MIDI when scales differ
+    assert.notEqual(a.sourceMidi, b.sourceMidi);
   });
 });
 
-test('per-scale: exact notes play unshifted, small gaps are shifted, big gaps fall back to synth', async () => {
+test('per-scale: exact notes play unshifted; near notes shift within maxShift; far gaps return null', async () => {
   await withFetch(files, async () => {
     const bank = new NoteSampleBank(makeCtx());
     await bank.load();
-    const exact = bank.pickNearest(50);
-    assert.equal(exact.shiftSemitones, 0);
-    const near = bank.pickNearest(51);
-    assert.ok(Math.abs(near.shiftSemitones) <= 2 || near.shiftSemitones === undefined || near.kind === 'synth' || near.file);
+    const exact = bank.resolve(50);
+    assert.ok(exact);
+    assert.equal(exact.rate, 1);
+    assert.equal(exact.sourceMidi, 50);
+    const near = bank.resolve(51);
+    assert.ok(near, 'one semitone should resolve within maxShift');
+    assert.ok(Math.abs(Math.log2(near.rate) * 12) <= (bank.maxShift || 12) + 0.01);
+    // Far outside maxShift from any loaded note → null (synth fallback is the caller's job)
+    const far = bank.resolve(50 + 40);
+    assert.equal(far, null);
   });
 });
 
@@ -116,7 +123,7 @@ test('per-scale: playback is one dry source, with the old layered blend behind ?
     const bank = new NoteSampleBank(ctx);
     await bank.load();
     const bus = ctx.createGain();
-    bank.play(50, 0.8, bus);
+    bank.play(50, bus, 0, { vel: 0.8 });
     assert.ok(ctx.made.sources >= 1);
   });
 });

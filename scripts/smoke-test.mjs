@@ -87,8 +87,11 @@ if (
 ) ok('Soundscapes player markup is present');
 else fail('Soundscapes player markup is missing');
 
-if (/createMandalaRenderer/.test(soundscapes) && /pointerdown/.test(soundscapes) && /pointerup/.test(soundscapes)) ok('Soundscapes renderer and swipe navigation are present');
-else fail('Soundscapes renderer or swipe navigation is missing');
+const mandala = read('handpan-app/js/mandala-canvas.js');
+if (/BEDROOM_SESSIONS/.test(soundscapes) && /pointerdown/.test(soundscapes) && /mediaSession/.test(soundscapes)) ok('Soundscapes Bedroom Sessions player is present');
+else fail('Soundscapes Bedroom Sessions player is missing');
+if (/createMandalaRenderer/.test(mandala)) ok('Mandala renderer module is present');
+else fail('Mandala renderer module is missing');
 
 if (appHtml.includes('name="description"')) ok('Pionier description metadata is present');
 else fail('Pionier description metadata is missing');
