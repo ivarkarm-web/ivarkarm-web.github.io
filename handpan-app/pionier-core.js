@@ -573,6 +573,73 @@ function changeNoteCount(delta) {
   return true;
 }
 
+
+/* Keyboard: digits 1–9 (and Q–O) map to pads 0–8. Hold = sustain; release = noteOff. */
+const KEY_TO_PAD = {
+  '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7, '9': 8,
+  'q': 0, 'w': 1, 'e': 2, 'r': 3, 't': 4, 'y': 5, 'u': 6, 'i': 7, 'o': 8,
+};
+function keyboardTargetOk(el) {
+  if (!el) return true;
+  const tag = (el.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || tag === 'select') return false;
+  if (el.isContentEditable) return false;
+  return true;
+}
+window.addEventListener('keydown', (e) => {
+  if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (!keyboardTargetOk(e.target)) return;
+  const pad = KEY_TO_PAD[e.key.toLowerCase()];
+  if (pad == null) return;
+  const count = padCount();
+  if (pad >= count) return;
+  e.preventDefault();
+  if (app.keysHeld.has(e.key.toLowerCase())) return;
+  app.keysHeld.add(e.key.toLowerCase());
+  ensureAudio();
+  const inst = activeInstrument();
+  const fields = surface?.fields || [];
+  const field = fields[pad];
+  if (!field) return;
+  const alreadyHeld = Array.from(app.pointers.values()).some((rec) =>
+    (typeof rec === 'object' ? rec?.index : rec) === pad
+  );
+  if (alreadyHeld) return;
+  const gesture = {
+    pointerId: 'key:' + e.key.toLowerCase(),
+    x: field.x, y: field.y,
+    velocity: 0.78,
+    pressure: 0.5,
+    timestamp: performance.now(),
+    phase: 'down',
+  };
+  try { inst.noteOn(gesture, { index: pad, ...field }); } catch (_) {}
+  draw();
+});
+window.addEventListener('keyup', (e) => {
+  const k = e.key.toLowerCase();
+  const pad = KEY_TO_PAD[k];
+  if (pad == null) return;
+  if (!app.keysHeld.has(k)) return;
+  app.keysHeld.delete(k);
+  const stillHeld =
+    Array.from(app.pointers.values()).some((rec) => (typeof rec === 'object' ? rec?.index : rec) === pad) ||
+    [...app.keysHeld].some((hk) => KEY_TO_PAD[hk] === pad);
+  if (!stillHeld) {
+    try { activeInstrument().noteOff(pad); } catch (_) {}
+  }
+  draw();
+});
+window.addEventListener('blur', () => {
+  for (const k of [...app.keysHeld]) {
+    const pad = KEY_TO_PAD[k];
+    app.keysHeld.delete(k);
+    if (pad != null) {
+      try { activeInstrument().noteOff(pad); } catch (_) {}
+    }
+  }
+});
+
 window.PionierCore = {
   handpan, surface,
   activeInstrument: () => activeInstrument(),
