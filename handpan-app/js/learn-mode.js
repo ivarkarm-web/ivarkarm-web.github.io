@@ -103,7 +103,7 @@ export function mountLearnMode(){
   document.getElementById('learnRestart')?.addEventListener('click',()=>begin(lessonIndex,mode));
   listenBtn?.addEventListener('click',()=>begin(lessonIndex,'listen'));
   catchBtn?.addEventListener('click',()=>begin(lessonIndex,'practice'));
-  transposeBtn?.addEventListener('click',()=>{if(!lesson)return;transposeSteps=(transposeSteps+2)%Math.max(2,(window.PionierCore?.surface?.fields||[]).length||9);transposeBtn.textContent='Transpose: '+(transposeSteps===0?'Original':('+'+transposeSteps+' scale degrees'));begin(lessonIndex,mode);});
+  transposeBtn?.addEventListener('click',()=>{if(!lesson)return;transposeSteps=(transposeSteps+2)%Math.max(2,(window.PionierCore?.surface?.fields||[]).length||9);lesson.transpose=transposeSteps;begin(lessonIndex,mode);});
   panel.addEventListener('click',e=>{if(e.target===panel)hide()});
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden)hide()});
   window.addEventListener('resize',()=>{overlay.width=680;overlay.height=680;syncOverlay();if(running)drawFrame()});
