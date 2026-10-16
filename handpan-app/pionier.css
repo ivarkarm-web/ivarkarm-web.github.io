@@ -2328,113 +2328,104 @@ body.is-fx-open {
   height: auto !important;
 }
 
-/* ========== Light mode: settings sheet + dropdowns (authoritative) ========== */
-html.theme-light .settings-sheet {
-  background: linear-gradient(180deg, #faf8f4 0%, #f0ebe3 100%) !important;
-  border-color: rgba(40, 36, 28, 0.12) !important;
-  color: #1c1b1a !important;
-  box-shadow: 0 -16px 48px rgba(40, 30, 10, 0.18) !important;
-}
-html.theme-light .settings-sheet-title,
-html.theme-light .settings-row-label,
-html.theme-light .settings-sheet .settings-row,
-html.theme-light .settings-sheet label {
-  color: #1c1b1a !important;
-}
-html.theme-light .settings-section-label,
-html.theme-light .settings-dd-label {
-  color: rgba(40, 36, 28, 0.48) !important;
-}
-html.theme-light .settings-sheet-close {
-  background: rgba(40, 36, 28, 0.06) !important;
-  border-color: rgba(40, 36, 28, 0.12) !important;
-  color: #3a3834 !important;
-}
-html.theme-light .settings-dd-toggle {
-  background: #ffffff !important;
-  border-color: rgba(40, 36, 28, 0.14) !important;
-  color: #1c1b1a !important;
-}
-html.theme-light .settings-dd-toggle .settings-dd-value,
-html.theme-light .settings-dd-chevron {
-  color: #1c1b1a !important;
-}
-html.theme-light .settings-dd-menu {
-  background: #faf8f4 !important;
-  border-color: rgba(40, 36, 28, 0.14) !important;
-  color: #1c1b1a !important;
-  box-shadow: 0 16px 40px rgba(40, 30, 10, 0.16) !important;
-}
-html.theme-light .settings-dd-item {
-  color: #2a2824 !important;
-}
-html.theme-light .settings-dd-item:hover {
-  background: rgba(40, 36, 28, 0.06) !important;
-  color: #1c1b1a !important;
-}
-html.theme-light .settings-dd-item.is-active {
-  background: rgba(196, 160, 70, 0.22) !important;
-  color: #6b4e0e !important;
-}
-html.theme-light .settings-dd-group {
-  color: rgba(40, 36, 28, 0.4) !important;
-}
-html.theme-light .settings-sheet-backdrop.is-open {
-  background: rgba(30, 28, 24, 0.35) !important;
+/* ========== Light mode: unified bottom-bar control language ========== */
+html.theme-light #stageScaleBar,
+html.theme-light .stage-scale-bar {
+  background: linear-gradient(
+    to top,
+    rgba(244, 241, 235, 0.98) 0%,
+    rgba(244, 241, 235, 0.88) 55%,
+    rgba(244, 241, 235, 0.35) 88%,
+    transparent 100%
+  ) !important;
 }
 
-/* Light: instrument/scale menus */
-html.theme-light .instrument-menu,
-html.theme-light .scale-menu,
-html.theme-light .instrument-menu.picker-sheet,
-html.theme-light .scale-menu.picker-sheet {
-  background: #faf8f4 !important;
-  color: #1c1b1a !important;
-  border-color: rgba(40, 36, 28, 0.12) !important;
+/* Shared pill token */
+html.theme-light #stageScaleBar .stage-instrument-nav,
+html.theme-light #stageScaleBar #instrumentNav,
+html.theme-light #stageScaleBar .control-scale,
+html.theme-light #stageScaleBar .stage-control-scale,
+html.theme-light #stageScaleBar .scale-stepper,
+html.theme-light #stageScaleBar .stepper,
+html.theme-light #stageScaleBar .stage-base-only .stepper,
+html.theme-light #stageScaleBar .stage-notes-slot .stepper,
+html.theme-light #stageScaleBar #stageBaseOnly .stepper,
+html.theme-light #stageScaleBar #stageNotesSlot .stepper {
+  background: #ffffff !important;
+  border: 1px solid rgba(40, 36, 28, 0.12) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 1px 3px rgba(40, 30, 10, 0.05) !important;
+  overflow: hidden !important;
 }
-html.theme-light .instrument-menu-item,
-html.theme-light .scale-menu-item {
-  color: #2a2824 !important;
+
+/* Center labels (scale name, instrument name) — same as pill face */
+html.theme-light #stageScaleBar #scaleLabel,
+html.theme-light #stageScaleBar .stage-scale-btn,
+html.theme-light #stageScaleBar .scale-dropdown-toggle,
+html.theme-light #stageScaleBar #instrumentDropdownToggle,
+html.theme-light #stageScaleBar .instrument-name,
+html.theme-light #stageScaleBar .stage-instrument-nav .instrument-name {
   background: transparent !important;
-}
-html.theme-light .instrument-menu-item.is-active,
-html.theme-light .scale-menu-item.is-active {
-  background: rgba(196, 160, 70, 0.2) !important;
-  color: #6b4e0e !important;
-}
-html.theme-light .instrument-menu-group,
-html.theme-light .scale-menu-group {
-  color: rgba(40, 36, 28, 0.4) !important;
+  color: #1c1b1a !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-weight: 600 !important;
 }
 
-/* Light: FX panel text */
-html.theme-light #fxPanel.fx-panel,
-html.theme-light .fx-panel {
-  background: #faf8f4 !important;
-  color: #1c1b1a !important;
-  border-color: rgba(40, 36, 28, 0.12) !important;
+/* Chevron / step buttons — transparent inside the shared pill */
+html.theme-light #stageScaleBar #scalePrev,
+html.theme-light #stageScaleBar #scaleNext,
+html.theme-light #stageScaleBar #voicePrev,
+html.theme-light #stageScaleBar #voiceNext,
+html.theme-light #stageScaleBar .stage-scale-step,
+html.theme-light #stageScaleBar .icon-btn,
+html.theme-light #stageScaleBar .step,
+html.theme-light #stageScaleBar .stepper .step {
+  background: transparent !important;
+  color: #3a3834 !important;
+  border: none !important;
+  box-shadow: none !important;
 }
-html.theme-light #fxPanel .fx-panel-header h2,
-html.theme-light #fxPanel .knob-label,
-html.theme-light #fxPanel .knob-val {
-  color: #2a2824 !important;
+html.theme-light #stageScaleBar .stepper .step:first-child {
+  border-right: 1px solid rgba(40, 36, 28, 0.1) !important;
+}
+html.theme-light #stageScaleBar .stepper .step:last-child {
+  border-left: 1px solid rgba(40, 36, 28, 0.1) !important;
+}
+html.theme-light #stageScaleBar .step-value,
+html.theme-light #stageScaleBar .stepper .step-value {
+  background: transparent !important;
+  color: #1c1b1a !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+html.theme-light #stageScaleBar .control-label {
+  color: rgba(40, 36, 28, 0.45) !important;
 }
 
-/* Light: soundscapes panel */
-html.theme-light .soundscapes-panel,
-html.theme-light #soundscapesPanel {
-  background: #f4f1eb !important;
+/* Hover/active feedback — subtle warm tint */
+html.theme-light #stageScaleBar #scalePrev:hover,
+html.theme-light #stageScaleBar #scaleNext:hover,
+html.theme-light #stageScaleBar #voicePrev:hover,
+html.theme-light #stageScaleBar #voiceNext:hover,
+html.theme-light #stageScaleBar .step:hover,
+html.theme-light #stageScaleBar .stepper .step:hover,
+html.theme-light #stageScaleBar #scaleLabel:hover,
+html.theme-light #stageScaleBar #instrumentDropdownToggle:hover {
+  background: rgba(196, 160, 70, 0.12) !important;
   color: #1c1b1a !important;
 }
-html.theme-light .soundscapes-header h2,
-html.theme-light .soundscape-title,
-html.theme-light .soundscape-note,
-html.theme-light .soundscape-status {
-  color: #2a2824 !important;
-}
-html.theme-light .soundscape-queue button,
-html.theme-light .soundscape-queue [role="listitem"] {
+
+/* Looper chrome in light — match the same white language */
+html.theme-light #looperClearBtn,
+html.theme-light .looper-clear-btn,
+html.theme-light #looperSyncBtn,
+html.theme-light .looper-sync-dial {
   background: #ffffff !important;
-  color: #1c1b1a !important;
-  border-color: rgba(40, 36, 28, 0.1) !important;
+  border: 1px solid rgba(40, 36, 28, 0.12) !important;
+  color: #3a3834 !important;
+  box-shadow: 0 1px 3px rgba(40, 30, 10, 0.05) !important;
+}
+html.theme-light .looper-sync-label {
+  color: #3a3834 !important;
 }
