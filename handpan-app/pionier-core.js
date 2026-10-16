@@ -213,7 +213,7 @@ function triggerTouchFeedback(x, y, noteIndex) {
   // A firm double-pulse gives supported Android phones a more tactile strike.
   try {
     if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
-      navigator.vibrate([42, 18, 62]);
+      navigator.vibrate([70, 30, 110, 25, 75]);
     }
   } catch (_) {}
 }
