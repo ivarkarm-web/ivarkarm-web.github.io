@@ -363,8 +363,8 @@
       if (halves[0] && halves[0].parentElement !== baseOnly) {
         baseOnly.appendChild(halves[0]);
       }
-      // Hide the original row shell; we redistribute its children
-      rootRow.hidden = true;
+      // Original row shell is empty after redistribute — drop it
+      rootRow.remove();
     }
     if (baseOnly.parentElement !== scaleRow) scaleRow.appendChild(baseOnly);
 
