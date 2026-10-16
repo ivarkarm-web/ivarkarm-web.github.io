@@ -485,3 +485,193 @@ html.theme-light .settings-slider-row input[type="range"],
 html.theme-light .settings-rgb-grid input[type="range"] {
   accent-color: #b8922e !important;
 }
+
+
+/* PIONIER customization interaction polish — lightweight, tactile, mobile-first. */
+.settings-sheet,
+.settings-sheet * {
+  -webkit-tap-highlight-color: transparent;
+}
+.settings-sheet {
+  overscroll-behavior: contain;
+  contain: layout paint;
+}
+.settings-sheet-body {
+  overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(190, 151, 53, .48) transparent;
+  touch-action: pan-y;
+}
+.settings-sheet-body::-webkit-scrollbar,
+.settings-dd-menu::-webkit-scrollbar {
+  width: 4px;
+}
+.settings-sheet-body::-webkit-scrollbar-track,
+.settings-dd-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+.settings-sheet-body::-webkit-scrollbar-thumb,
+.settings-dd-menu::-webkit-scrollbar-thumb {
+  border-radius: 99px;
+  background: rgba(190, 151, 53, .42);
+}
+.settings-dd-menu {
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(190, 151, 53, .48) transparent;
+  /* Avoid costly blur while a long option list is moving under the finger. */
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .24) !important;
+  border-radius: 16px !important;
+  padding: 6px !important;
+}
+.settings-dd-item {
+  min-height: 42px;
+  border-radius: 10px !important;
+  padding: 10px 12px !important;
+  transition: background-color 140ms ease, color 140ms ease, transform 140ms ease !important;
+  touch-action: manipulation;
+}
+.settings-dd-item:active {
+  transform: scale(.985);
+}
+.settings-dd-toggle,
+.settings-sheet-close,
+.settings-open-btn {
+  touch-action: manipulation;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease,
+    box-shadow 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1) !important;
+}
+.settings-dd-toggle:active,
+.settings-sheet-close:active,
+.settings-open-btn:active {
+  transform: scale(.975);
+}
+.settings-toggle {
+  width: 46px !important;
+  height: 28px !important;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.settings-toggle input {
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  cursor: pointer;
+  z-index: 2;
+}
+.settings-toggle-track {
+  border: 1px solid transparent !important;
+  outline: none !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.12) !important;
+  transition: background-color 220ms cubic-bezier(.2,.8,.2,1),
+    box-shadow 220ms cubic-bezier(.2,.8,.2,1) !important;
+}
+.settings-toggle-track::after {
+  top: 3px !important;
+  left: 3px !important;
+  width: 20px !important;
+  height: 20px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,.18) !important;
+  transition: transform 260ms cubic-bezier(.2,.85,.25,1.25),
+    background-color 180ms ease, box-shadow 180ms ease !important;
+  will-change: transform;
+}
+.settings-toggle input:checked + .settings-toggle-track::after {
+  transform: translateX(18px) !important;
+}
+.settings-toggle input:focus-visible + .settings-toggle-track {
+  outline: 2px solid rgba(190,151,53,.72) !important;
+  outline-offset: 3px;
+}
+.settings-sheet input[type="range"],
+.settings-rgb-grid input[type="range"] {
+  --range-fill: 50%;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 28px;
+  margin: 2px 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+.settings-sheet input[type="range"]::-webkit-slider-runnable-track,
+.settings-rgb-grid input[type="range"]::-webkit-slider-runnable-track {
+  height: 5px;
+  border-radius: 99px;
+  background: linear-gradient(to right, #c5a04a 0 var(--range-fill), rgba(128,124,116,.24) var(--range-fill) 100%);
+}
+.settings-sheet input[type="range"]::-moz-range-track,
+.settings-rgb-grid input[type="range"]::-moz-range-track {
+  height: 5px;
+  border-radius: 99px;
+  background: rgba(128,124,116,.24);
+}
+.settings-sheet input[type="range"]::-moz-range-progress,
+.settings-rgb-grid input[type="range"]::-moz-range-progress {
+  height: 5px;
+  border-radius: 99px;
+  background: #c5a04a;
+}
+.settings-sheet input[type="range"]::-webkit-slider-thumb,
+.settings-rgb-grid input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -6.5px;
+  border: 2px solid rgba(255,255,255,.96);
+  border-radius: 50%;
+  background: #c5a04a;
+  box-shadow: 0 1px 4px rgba(0,0,0,.22), 0 0 0 3px rgba(197,160,74,.12);
+  transition: box-shadow 160ms ease, transform 160ms cubic-bezier(.2,.8,.2,1);
+}
+.settings-sheet input[type="range"]::-moz-range-thumb,
+.settings-rgb-grid input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,.96);
+  border-radius: 50%;
+  background: #c5a04a;
+  box-shadow: 0 1px 4px rgba(0,0,0,.22);
+}
+.settings-sheet input[type="range"]:active::-webkit-slider-thumb,
+.settings-rgb-grid input[type="range"]:active::-webkit-slider-thumb {
+  transform: scale(1.12);
+  box-shadow: 0 1px 5px rgba(0,0,0,.2), 0 0 0 5px rgba(197,160,74,.17);
+}
+.settings-sheet input[type="range"]:focus-visible {
+  outline: none;
+}
+html.theme-light .settings-toggle-track {
+  border-color: transparent !important;
+  background: rgba(64, 58, 46, .17) !important;
+  box-shadow: inset 0 1px 2px rgba(40,30,10,.12) !important;
+}
+html.theme-light .settings-toggle input:checked + .settings-toggle-track {
+  border-color: transparent !important;
+  background: #c5a04a !important;
+  box-shadow: inset 0 1px 2px rgba(90,60,10,.12) !important;
+}
+html.theme-light .settings-toggle-track::after {
+  background: #fffdf8 !important;
+  box-shadow: 0 1px 3px rgba(40,30,10,.2) !important;
+}
+html.theme-light .settings-dd-menu {
+  box-shadow: 0 10px 28px rgba(43,35,20,.13) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .settings-sheet *, .settings-dd-menu, .settings-dd-menu * {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
+}
