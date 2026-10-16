@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=127" />
+  <link rel="stylesheet" href="./pionier.css?v=130" />
   <link rel="stylesheet" href="./topbar-narrow.css?v=6" />
   <link rel="stylesheet" href="./looper.css?v=204" />
   <link rel="stylesheet" href="./scale-menu.css?v=5" />
@@ -25,12 +25,12 @@
     #createLaunch, .create-launch, #createPage, .create-page { display: none !important; }
 
     .stage {
-      --stage-bottom-reserve: calc(120px + env(safe-area-inset-bottom, 0px));
-      padding: 0 !important;
+      --stage-bottom-reserve: calc(var(--chrome-bottom, 160px) + var(--pan-bottom-gap, 10px));
+      padding: max(8px, var(--chrome-top, 48px)) 8px var(--stage-bottom-reserve) 8px !important;
       flex-direction: column;
       position: relative !important;
       align-items: center !important;
-      justify-content: center !important;
+      justify-content: flex-end !important;
       overflow: hidden !important;
       min-height: 0 !important;
       flex: 1 1 auto !important;
@@ -39,11 +39,13 @@
     #pan {
       display: block !important;
       aspect-ratio: 1 !important;
+      margin-bottom: 0 !important;
     }
     .stage::before {
       left: 50% !important;
-      top: calc((100% - var(--stage-bottom-reserve)) / 2) !important;
-      transform: translate(-50%, -50%) !important;
+      top: auto !important;
+      bottom: calc(var(--stage-bottom-reserve) + var(--pan-budget, 40vw) / 2) !important;
+      transform: translate(-50%, 50%) !important;
       width: min(80vw, calc(100dvh - 260px), 640px) !important;
       height: min(80vw, calc(100dvh - 260px), 640px) !important;
     }
@@ -172,7 +174,7 @@
   <script src="./js/skin-palette.js?v=1"></script>
   <script src="./js/customization-catalog.js?v=5"></script>
   <script src="./js/overlay-controller.js?v=3"></script>
-  <script src="./js/layout-boot.js?v=57"></script>
+  <script src="./js/layout-boot.js?v=58"></script>
   <script src="./js/settings-panel.js?v=13"></script>
   <script src="./js/ambient-fx.js?v=12"></script>
   <script src="./js/skin-mandala.js?v=4"></script>

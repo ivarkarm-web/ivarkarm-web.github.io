@@ -266,6 +266,9 @@
     }
   }
 
+  ensureFxOpenBtn();
+  ensureBottomBar();
+
   const fxDockObserver = new MutationObserver(() => {
     if (window.__fxDockGuardFrame) return;
     window.__fxDockGuardFrame = requestAnimationFrame(() => {
@@ -299,23 +302,52 @@
   // Picker/FX open-close owned by overlay-controller.js
 
 
+
+  function ensureFxOpenBtn() {
+    let btn = document.getElementById('fxPanelOpen');
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = 'fxPanelOpen';
+      btn.className = 'fx-panel-open';
+      btn.setAttribute('aria-label', 'Effects');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.setAttribute('aria-controls', 'fxPanel');
+      btn.textContent = 'FX';
+      document.body.appendChild(btn);
+    }
+    btn.hidden = false;
+    btn.style.display = 'flex';
+    btn.style.alignItems = 'center';
+    btn.style.justifyContent = 'center';
+    return btn;
+  }
+
   function ensureBottomBar() {
     const bar = document.getElementById('stageScaleBar');
     const rail = document.getElementById('looperRail');
     const instNav = document.getElementById('instrumentNav');
-    const scaleRow = document.getElementById('stageScaleRow');
+    let scaleRow = document.getElementById('stageScaleRow');
     const rootRow = document.querySelector('.stage-root-row') || document.querySelector('#stageScaleBar .control-row');
     if (!bar) return;
     document.getElementById('topChipRow')?.remove();
-    // Order: looper → instrument → scale → root/notes
-    if (rail && rail.parentElement !== bar) bar.insertBefore(rail, bar.firstChild);
-    if (instNav && instNav.parentElement !== bar) {
-      if (rail && rail.parentElement === bar) rail.after(instNav);
-      else bar.insertBefore(instNav, bar.firstChild);
+    // Horizontal select row: instrument + scale side by side (saves height)
+    let selectRow = document.getElementById('stageSelectRow');
+    if (!selectRow) {
+      selectRow = document.createElement('div');
+      selectRow.id = 'stageSelectRow';
+      selectRow.className = 'stage-select-row';
     }
-    if (scaleRow && scaleRow.parentElement !== bar) {
-      if (instNav && instNav.parentElement === bar) instNav.after(scaleRow);
-      else bar.appendChild(scaleRow);
+    if (selectRow.parentElement !== bar) {
+      if (rail && rail.parentElement === bar) rail.after(selectRow);
+      else bar.insertBefore(selectRow, bar.firstChild);
+    }
+    if (instNav && instNav.parentElement !== selectRow) selectRow.appendChild(instNav);
+    if (scaleRow && scaleRow.parentElement !== selectRow) selectRow.appendChild(scaleRow);
+    // Order: looper → selectRow → root/notes
+    if (rail && rail.parentElement !== bar) bar.insertBefore(rail, bar.firstChild);
+    if (rail && selectRow.previousElementSibling !== rail) {
+      rail.after(selectRow);
     }
     if (rootRow && rootRow.parentElement !== bar) bar.appendChild(rootRow);
     if (rail) {
