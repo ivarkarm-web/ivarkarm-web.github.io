@@ -145,13 +145,19 @@ app.catchMode.reducedMotion = app.reducedMotion;
 function updateLabels() {
   const scaleEl = document.getElementById('scaleLabel');
   const rootEl = document.getElementById('rootLabel');
-  const octEl = document.getElementById('octLabel');
-  if (scaleEl && handpan.scaleLabel) scaleEl.textContent = handpan.scaleLabel;
+  const noteCountEl = document.getElementById('noteCountLabel');
+  if (scaleEl && handpan.scaleLabel) scaleEl.textContent = handpan.scaleLabel + ' \u25be';
   if (rootEl && handpan.rootLabel) rootEl.textContent = handpan.rootLabel;
-  if (octEl) {
-    const o = handpan.octaveOffset ?? 0;
-    octEl.textContent = o === 0 ? '0' : o > 0 ? '+' + o : String(o);
+  if (noteCountEl) {
+    const n = Number.isFinite(handpan.noteCount) ? handpan.noteCount : 9;
+    noteCountEl.textContent = String(n);
   }
+  // Disable note-count steppers at limits (9–14)
+  const n = Number.isFinite(handpan.noteCount) ? handpan.noteCount : 9;
+  const prevN = document.getElementById('noteCountPrev');
+  const nextN = document.getElementById('noteCountNext');
+  if (prevN) prevN.disabled = n <= 9;
+  if (nextN) nextN.disabled = n >= 14;
   const voiceEl = document.getElementById('instrumentDropdownToggle');
   const inst = activeInstrument();
   if (voiceEl) voiceEl.textContent = (inst.name || inst.id) + ' \u25be';
@@ -482,11 +488,6 @@ function setActivePage(which) {
 function wire(id, fn) {
   document.getElementById(id)?.addEventListener('click', fn);
 }
-wire('btnExit', () => { window.location.href = '../'; });
-wire('btnHelp', () => {
-  alert('Play: tap tonefields or Q-O (hold to sustain).\nSlide across pads for smooth glide/portamento.\nHold + drag up/down for MPE pitch bend (+/-2 semitones).\nPressure = gain, vibrato depth, filter resonance.\nRadial position = brightness.\nMulti-touch polyphony supported.');
-});
-
 function refreshPitch() {
   handpan.rebuildNotes();
   syncWorldPitch();
@@ -504,10 +505,12 @@ wire('scaleNext', () => {
   handpan.setScaleIndex((handpan.scaleIndex + 1) % n);
   refreshPitch();
 });
-wire('rootDown', () => { handpan.setRootIndex((handpan.rootIndex - 1 + 12) % 12); refreshPitch(); });
-wire('rootUp', () => { handpan.setRootIndex((handpan.rootIndex + 1) % 12); refreshPitch(); });
-wire('octDown', () => { handpan.setOctaveOffset((handpan.octaveOffset || 0) - 1); refreshPitch(); });
-wire('octUp', () => { handpan.setOctaveOffset((handpan.octaveOffset || 0) + 1); refreshPitch(); });
+// HTML ids: rootPrev / rootNext (root wraps over 12)
+wire('rootPrev', () => { handpan.setRootIndex((handpan.rootIndex - 1 + 12) % 12); refreshPitch(); });
+wire('rootNext', () => { handpan.setRootIndex((handpan.rootIndex + 1) % 12); refreshPitch(); });
+// HTML ids: noteCountPrev / noteCountNext (clamp 9–14 via changeNoteCount)
+wire('noteCountPrev', () => { changeNoteCount(-1); });
+wire('noteCountNext', () => { changeNoteCount(1); });
 
 function renderInstrumentMenu() {
   const menu = document.getElementById('instrumentMenu');
