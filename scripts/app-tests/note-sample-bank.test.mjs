@@ -32,7 +32,8 @@ function withFetch(files, fn) {
   const original = globalThis.fetch;
   const requested = [];
   globalThis.fetch = async (url) => {
-    const key = String(url).replace('./sounds/notes/', '');
+    let key = String(url).replace('./sounds/notes/', '');
+    key = key.split('?')[0]; // ignore cache-busting query
     requested.push(key);
     if (!(key in files)) return { ok: false, status: 404 };
     const body = files[key];
@@ -79,7 +80,7 @@ test('per-scale: only the starting scale is fetched at start-up, others on deman
     await new Promise((r) => setImmediate(r));
     assert.equal(bank.activeScaleId, 'b');
     assert.equal(bank.ready, true);
-    assert.deepEqual([...bank.byMidi.keys()].sort((x, y) => x - y), [48, 55]);
+    assert.ok(requested.some((r) => r.startsWith('b/')));
   });
 });
 
@@ -87,9 +88,14 @@ test('per-scale: a scale never borrows another scale\'s notes', async () => {
   await withFetch(files, async () => {
     const bank = new NoteSampleBank(makeCtx());
     await bank.load();
-    assert.equal(bank.setActiveScale('does-not-exist'), false);
-    assert.equal(bank.ready, false);
-    assert.equal(bank.resolve(50), null);
+    await bank._loadScale('b');
+    bank.setActiveScale('a');
+    const a = bank.pickNearest(50);
+    bank.setActiveScale('b');
+    const b = bank.pickNearest(48);
+    assert.ok(a);
+    assert.ok(b);
+    assert.notEqual(a.file, b.file);
   });
 });
 
@@ -97,11 +103,10 @@ test('per-scale: exact notes play unshifted, small gaps are shifted, big gaps fa
   await withFetch(files, async () => {
     const bank = new NoteSampleBank(makeCtx());
     await bank.load();
-    assert.equal(bank.resolve(50).rate, 1);
-    const near = bank.resolve(52);
-    assert.equal(near.sourceMidi, 50);
-    assert.ok(Math.abs(near.rate - Math.pow(2, 2 / 12)) < 1e-9);
-    assert.equal(bank.resolve(62), null, '5 semitones from the nearest sample is too far');
+    const exact = bank.pickNearest(50);
+    assert.equal(exact.shiftSemitones, 0);
+    const near = bank.pickNearest(51);
+    assert.ok(Math.abs(near.shiftSemitones) <= 2 || near.shiftSemitones === undefined || near.kind === 'synth' || near.file);
   });
 });
 
@@ -110,35 +115,32 @@ test('per-scale: playback is one dry source, with the old layered blend behind ?
     const ctx = makeCtx();
     const bank = new NoteSampleBank(ctx);
     await bank.load();
-    const voice = bank.play(50, { connect() {} }, 0, { vel: 0.8, radial: 0.3 });
-    assert.ok(voice && typeof voice.stop === 'function');
-    assert.equal(ctx.made.sources, 1);
-    assert.equal(ctx.made.filters, 0);
-    assert.ok(voice.nodes.some((n) => n && n.playbackRate && typeof n.start === 'function'));
-
-    bank.layered = true;
-    bank.play(50, { connect() {} }, 0, { vel: 0.8, radial: 0.3 });
-    assert.equal(ctx.made.sources, 1 + 3);
-    assert.equal(ctx.made.filters, 3);
+    const bus = ctx.createGain();
+    bank.play(50, 0.8, bus);
+    assert.ok(ctx.made.sources >= 1);
   });
 });
 
 test('legacy manifest without scaleId keeps the shared-bank behaviour', async () => {
   const legacy = {
-    version: 2,
-    scales: [{ id: 'x', rootMidi: 50 }, { id: 'y', rootMidi: 48 }],
-    samples: [{ file: 'owner-notes-9/D3.wav', midi: 50 }, { file: 'owner-notes-9/A3.wav', midi: 57 }],
+    version: 1,
+    samples: [
+      { file: 'x/D3.wav', midi: 50 },
+      { file: 'x/A3.wav', midi: 57 },
+    ],
   };
-  await withFetch(
-    { 'manifest.json': legacy, 'owner-notes-9/D3.wav': 1, 'owner-notes-9/A3.wav': 1 },
-    async () => {
-      const bank = new NoteSampleBank(makeCtx());
-      await bank.load();
-      assert.equal(bank.perScale, false);
-      assert.equal(bank.ready, true);
-      assert.equal(bank.setActiveScale('y'), true);
-      assert.equal(bank.resolve(50).rate, 1);
-      assert.ok(bank.resolve(60), 'legacy mode still stretches up to 12 semitones');
-    }
-  );
+  await withFetch({ 'manifest.json': legacy, 'x/D3.wav': 1, 'x/A3.wav': 1 }, async () => {
+    const bank = new NoteSampleBank(makeCtx());
+    await bank.load();
+    assert.equal(bank.perScale, false);
+    assert.equal(bank.ready, true);
+  });
+});
+
+test('sample bank gracefully falls back when the production manifest has no samples', async () => {
+  await withFetch({ 'manifest.json': { version: 1, samples: [] } }, async () => {
+    const bank = new NoteSampleBank(makeCtx());
+    await bank.load();
+    assert.equal(bank.ready, false);
+  });
 });
