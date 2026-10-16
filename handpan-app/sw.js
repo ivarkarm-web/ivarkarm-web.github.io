@@ -1,42 +1,43 @@
 /**
  * Pionier service worker
- * - HTML always network-first
- * - Soft precache of app shell (exact ?v= URLs); one failure does not block install
- * - Old caches deleted on activate
+ * CACHE_VERSION and SHELL query stamps must match index.html / pionier-app.js.
+ * Bump CACHE_VERSION on every deploy that changes shell assets.
  */
-const CACHE_VERSION = 'pionier-v5';
+const CACHE_VERSION = 'pionier-v6';
 
-/** Shell URLs must match index.html query stamps. */
 const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icon.svg',
-  './pionier.css?v=117',
-  './topbar-narrow.css?v=6',
-  './looper.css?v=201',
+  './pionier.css?v=120',
+  './atelier.css?v=9',
+  './ui-layout-extras.css?v=38',
+  './looper.css?v=203',
   './scale-menu.css?v=3',
-  './settings-panel.css?v=9',
-  './atelier.css?v=8',
-  './chrome-fix.css?v=6',
+  './settings-panel.css?v=10',
+  './topbar-narrow.css?v=6',
   './js/skin-palette.js?v=1',
   './js/customization-catalog.js?v=5',
-  './js/layout-boot.js?v=45',
-  './js/settings-panel.js?v=6',
+  './js/layout-boot.js?v=50',
+  './js/settings-panel.js?v=12',
   './js/ambient-fx.js?v=12',
   './js/skin-mandala.js?v=4',
-  './pionier-app.js?v=163',
+  './pionier-app.js?v=170',
   './registerSW.js',
   './pionier-core.js?v=26',
   './js/audio-core.js',
   './js/instrument.js',
   './js/gesture.js',
   './js/fx.js',
-  './js/pionier-surface.js?v=120',
-  './js/note-sample-bank.js?v=4',
+  './js/pionier-surface.js',
+  './js/note-sample-bank.js',
   './js/soundscapes.js?v=7',
   './js/scale-selector.js?v=2',
-  './js/looper.js?v=202',
+  './js/looper.js?v=206',
+  './js/instruments/handpan.js',
+  './js/instruments/arp-family.js',
+  './js/note-plus.js?v=3',
 ];
 
 self.addEventListener('install', (event) => {
@@ -46,9 +47,7 @@ self.addEventListener('install', (event) => {
       try {
         const res = await fetch(url, { cache: 'no-cache' });
         if (res && res.ok) await cache.put(url, res);
-      } catch (_) {
-        // Tolerate a single failed file on install.
-      }
+      } catch (_) {}
     }));
     await self.skipWaiting();
   })());

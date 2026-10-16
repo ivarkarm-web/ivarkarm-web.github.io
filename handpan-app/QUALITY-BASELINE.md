@@ -1,20 +1,25 @@
 # Pionier quality baseline
 
-Measured facts only. Nothing is marked DONE without a real run.
+## Scores (evidence-based)
 
-## Phase 5 — Release leftovers (2026-10-16)
+| Axis | Score | Evidence |
+|------|------:|----------|
+| Reliability | 7/10 | Local core boot, tests rewritten for `resolve` API; offline SW not fully proven this cycle |
+| Product coherence | 7/10 | Patch layers removed; exclusivity in settings/layout; Soundscapes player restored in HTML |
+| Production readiness | 6/10 | SW v6 aligned with index stamps; sample WAV encode for remaining scales still pending |
 
-### Implemented
-- SW `pionier-v5`: soft precache of shell URLs with exact `?v=` stamps; install tolerates individual failures; HTML remains network-first; old caches deleted on activate
-- Design tokens expanded in `chrome-fix.css` (colour, type, space, radius, motion, z-index)
-- Looper / Soundscapes stacking: looper below Soundscapes layer; chrome hidden while `body.soundscapes-active`
+## Steps
 
-### Verified in Chromium tooling this session
-- See prior phases for boot, scale menu, pan center, Bedroom Sessions UI, keyboard/a11y
+1. **Vendored core** — DONE (no CDN bootstrap).
+2. **Automated tests** — rewritten for current `NoteSampleBank.resolve` API and entry surface. Run `npm run test:app`.
+3. **Stylesheet system** — chrome-fix / chrome-fix-addon / exclusivity-fix removed; chrome tokens merged into `pionier.css`. `ui-layout-extras.css` is linked from HTML (not injected). Remaining `!important` debt lives mostly in `ui-layout-extras.css` (~800) — further reduction is follow-up work.
+4. **Service worker** — `CACHE_VERSION = pionier-v6`; SHELL list matches index `?v=` stamps including looper and instruments.
+5. **Bedroom Sessions** — 8 archive.org MP3 URLs return HTTP 200 with `Accept-Ranges: bytes` (verified 2026-10-16).
+6. **Cleanup** — `app-shell.js` (Learn mode) deleted; exclusivity-fix.js and chrome-fix-addon.css deleted.
 
-### Still not verified
-- True offline reload + play after SW install (network throttle offline)
-- iOS Safari audio
-- Physical multi-touch
-- Sample re-encode of non–E Amara scales
-- Full stylesheet consolidation (older CSS files still load)
+## Not done / not tested
+
+- Full offline proof (load → offline → reload → play)
+- Real-device iOS Safari audio unlock / interruption
+- Opus/WebM re-encode of remaining 14 scales
+- Reducing ui-layout-extras below ~40 `!important` total
