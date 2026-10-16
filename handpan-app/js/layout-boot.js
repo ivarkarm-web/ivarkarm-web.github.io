@@ -14,40 +14,50 @@
     document.getElementById('app')?.classList.remove('create-away');
   }
 
-  /** Place #pan in the open play area (midpoint + 5% down). */
+  /**
+   * Place #pan in the open play area.
+   * Top edge from the visible top dock (never the hidden Controls toggle).
+   * Bottom edge of the pan sits ~12px above the bottom control bar.
+   * Writes one CSS custom property for the available play height; sizing is CSS-driven.
+   */
   function centerPan() {
     const pan = document.getElementById('pan');
     if (!pan) return;
 
-    // Viewport-safe play area between top chrome and bottom scale bar.
     const bar = document.getElementById('stageScaleBar');
     const topDock = document.getElementById('pionierTopDock');
-    const drawer = document.getElementById('mobileControlDrawer');
-    const toggle = drawer && drawer.querySelector('.mobile-controls-toggle');
-    const topEdge = toggle
-      ? toggle.getBoundingClientRect().bottom
-      : (topDock ? topDock.getBoundingClientRect().bottom : 48);
+    // Prefer visible top dock; ignore hidden mobileControlsToggle (rect is 0).
+    let topEdge = 48;
+    if (topDock) {
+      const r = topDock.getBoundingClientRect();
+      if (r.height > 1) topEdge = r.bottom;
+    }
     const botEdge = bar
       ? bar.getBoundingClientRect().top
       : (window.innerHeight - 24);
-    const safeTop = Math.max(topEdge + 8, 8);
-    const safeBot = Math.max(safeTop + 120, botEdge - 8);
+    const gapTop = 8;
+    const gapBot = 12; // pan bottom ~10–12px above bottom controls
+    const safeTop = Math.max(topEdge + gapTop, 8);
+    const safeBot = Math.max(safeTop + 120, botEdge - gapBot);
     const availH = Math.max(120, safeBot - safeTop);
     const availW = Math.max(120, window.innerWidth - 24);
     const size = Math.min(availW, availH, 680);
-    const midY = safeTop + availH * 0.5;
 
-    // Fixed to the viewport so transformed ancestors cannot offset the pan.
+    // One custom property for layout consumers; pan bottom-aligned in play area.
+    document.documentElement.style.setProperty('--pan-play-h', availH + 'px');
+    document.documentElement.style.setProperty('--pan-size', size + 'px');
+
     pan.style.setProperty('position', 'fixed', 'important');
     pan.style.setProperty('left', '50%', 'important');
-    pan.style.setProperty('top', midY + 'px', 'important');
     pan.style.setProperty('right', 'auto', 'important');
-    pan.style.setProperty('bottom', 'auto', 'important');
+    pan.style.setProperty('top', 'auto', 'important');
+    // Anchor bottom edge of pan just above the control bar
+    pan.style.setProperty('bottom', Math.max(gapBot, window.innerHeight - safeBot) + 'px', 'important');
     pan.style.setProperty('width', size + 'px', 'important');
     pan.style.setProperty('height', size + 'px', 'important');
     pan.style.setProperty('max-width', 'min(92vw, 680px)', 'important');
     pan.style.setProperty('max-height', 'min(70dvh, 680px)', 'important');
-    pan.style.setProperty('transform', 'translate(-50%, -50%) translateZ(0)', 'important');
+    pan.style.setProperty('transform', 'translateX(-50%) translateZ(0)', 'important');
     pan.style.setProperty('margin', '0', 'important');
     pan.style.setProperty('z-index', '2', 'important');
   }
@@ -294,47 +304,110 @@
     });
   }
 
-  function positionPickerMenus() {
-    const instrumentToggle = document.getElementById('instrumentDropdownToggle');
-    const instrumentMenu = document.getElementById('instrumentMenu');
-    if (instrumentToggle && instrumentMenu && !instrumentMenu.hidden) {
-      const r = instrumentToggle.getBoundingClientRect();
-      const width = Math.min(320, window.innerWidth - 24);
-      const left = Math.max(12, Math.min(r.left, window.innerWidth - width - 12));
-      const below = window.innerHeight - r.bottom - 12;
-      const above = r.top - 12;
-      const openUp = below < 180 && above > below;
-      instrumentMenu.style.setProperty('position', 'fixed', 'important');
-      instrumentMenu.style.setProperty('left', left + 'px', 'important');
-      instrumentMenu.style.setProperty('right', 'auto', 'important');
-      instrumentMenu.style.setProperty('width', width + 'px', 'important');
-      instrumentMenu.style.setProperty('top', openUp ? 'auto' : (r.bottom + 6) + 'px', 'important');
-      instrumentMenu.style.setProperty('bottom', openUp ? (window.innerHeight - r.top + 6) + 'px' : 'auto', 'important');
-      instrumentMenu.style.setProperty('max-height', Math.max(120, Math.min(430, openUp ? above : below)) + 'px', 'important');
-      instrumentMenu.style.setProperty('z-index', '3201', 'important');
-      instrumentMenu.style.setProperty('visibility', 'visible', 'important');
+  /**
+   * Portal instrument + scale menus to document.body.
+   * Phone: bottom sheet. Desktop: popover above the toggle.
+   * Backdrop + Escape close. Single open overlay.
+   */
+  function placePickerMenu(menu, toggle, mode) {
+    if (!menu || !toggle || menu.hidden) return;
+    if (menu.parentElement !== document.body) {
+      document.body.appendChild(menu);
     }
-    const scaleToggle = document.getElementById('scaleLabel');
-    const scaleMenu = document.getElementById('scaleMenu');
-    if (scaleToggle && scaleMenu && !scaleMenu.hidden) {
-      const r = scaleToggle.getBoundingClientRect();
+    const isPhone = window.matchMedia('(max-width: 700px)').matches;
+    menu.classList.add(isPhone ? 'picker-sheet' : 'picker-popover');
+    menu.classList.remove(isPhone ? 'picker-popover' : 'picker-sheet');
+    menu.style.setProperty('position', 'fixed', 'important');
+    menu.style.setProperty('z-index', '5200', 'important');
+    menu.style.setProperty('visibility', 'visible', 'important');
+    menu.style.setProperty('opacity', '1', 'important');
+    menu.style.setProperty('pointer-events', 'auto', 'important');
+    menu.style.setProperty('display', 'block', 'important');
+    if (isPhone) {
+      menu.style.setProperty('left', '0', 'important');
+      menu.style.setProperty('right', '0', 'important');
+      menu.style.setProperty('bottom', '0', 'important');
+      menu.style.setProperty('top', 'auto', 'important');
+      menu.style.setProperty('width', '100%', 'important');
+      menu.style.setProperty('max-width', '100%', 'important');
+      menu.style.setProperty('max-height', 'min(55dvh, 420px)', 'important');
+      menu.style.setProperty('border-radius', '16px 16px 0 0', 'important');
+      menu.style.setProperty('transform', 'none', 'important');
+    } else {
+      const r = toggle.getBoundingClientRect();
       const width = Math.min(320, window.innerWidth - 24);
       const left = Math.max(12, Math.min(r.left + r.width / 2 - width / 2, window.innerWidth - width - 12));
       const above = r.top - 12;
-      scaleMenu.style.setProperty('position', 'fixed', 'important');
-      scaleMenu.style.setProperty('left', left + 'px', 'important');
-      scaleMenu.style.setProperty('right', 'auto', 'important');
-      scaleMenu.style.setProperty('width', width + 'px', 'important');
-      scaleMenu.style.setProperty('top', 'auto', 'important');
-      scaleMenu.style.setProperty('bottom', Math.max(12, window.innerHeight - r.top + 6) + 'px', 'important');
-      scaleMenu.style.setProperty('max-height', Math.max(120, Math.min(360, above)) + 'px', 'important');
-      scaleMenu.style.setProperty('z-index', '3201', 'important');
-      scaleMenu.style.setProperty('visibility', 'visible', 'important');
+      menu.style.setProperty('left', left + 'px', 'important');
+      menu.style.setProperty('right', 'auto', 'important');
+      menu.style.setProperty('width', width + 'px', 'important');
+      menu.style.setProperty('top', 'auto', 'important');
+      menu.style.setProperty('bottom', Math.max(12, window.innerHeight - r.top + 6) + 'px', 'important');
+      menu.style.setProperty('max-height', Math.max(120, Math.min(360, above)) + 'px', 'important');
+      menu.style.setProperty('transform', 'none', 'important');
+      menu.style.setProperty('border-radius', '12px', 'important');
+    }
+  }
+
+  function ensurePickerBackdrop() {
+    let bd = document.getElementById('pickerBackdrop');
+    if (!bd) {
+      bd = document.createElement('div');
+      bd.id = 'pickerBackdrop';
+      bd.className = 'picker-backdrop';
+      bd.hidden = true;
+      bd.addEventListener('click', () => closeAllPickers());
+      document.body.appendChild(bd);
+    }
+    return bd;
+  }
+
+  function closeAllPickers() {
+    ['instrumentMenu', 'scaleMenu'].forEach((id) => {
+      const m = document.getElementById(id);
+      if (m) {
+        m.hidden = true;
+        m.classList.remove('is-open', 'picker-sheet', 'picker-popover');
+      }
+    });
+    document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false');
+    document.getElementById('scaleLabel')?.setAttribute('aria-expanded', 'false');
+    const bd = document.getElementById('pickerBackdrop');
+    if (bd) bd.hidden = true;
+  }
+
+  function positionPickerMenus() {
+    const instrumentToggle = document.getElementById('instrumentDropdownToggle');
+    const instrumentMenu = document.getElementById('instrumentMenu');
+    const scaleToggle = document.getElementById('scaleLabel');
+    const scaleMenu = document.getElementById('scaleMenu');
+    const anyOpen =
+      (instrumentMenu && !instrumentMenu.hidden) ||
+      (scaleMenu && !scaleMenu.hidden);
+    const bd = ensurePickerBackdrop();
+    bd.hidden = !anyOpen;
+    if (instrumentMenu && !instrumentMenu.hidden) {
+      // close scale when instrument opens
+      if (scaleMenu && !scaleMenu.hidden) {
+        scaleMenu.hidden = true;
+        scaleToggle?.setAttribute('aria-expanded', 'false');
+      }
+      placePickerMenu(instrumentMenu, instrumentToggle, 'instrument');
+    }
+    if (scaleMenu && !scaleMenu.hidden) {
+      if (instrumentMenu && !instrumentMenu.hidden) {
+        instrumentMenu.hidden = true;
+        instrumentToggle?.setAttribute('aria-expanded', 'false');
+      }
+      placePickerMenu(scaleMenu, scaleToggle, 'scale');
     }
   }
 
   const boot = () => { run(); positionEffectBubbles(); positionPickerMenus(); };
   const pickerObserver = new MutationObserver(() => requestAnimationFrame(positionPickerMenus));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeAllPickers();
+  });
   const observePickerMenus = () => {
     ['instrumentMenu', 'scaleMenu'].forEach((id) => {
       const menu = document.getElementById(id);
