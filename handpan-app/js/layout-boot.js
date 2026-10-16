@@ -375,3 +375,32 @@
 })();
 
 /* Keep the published control layer aligned with the current rounded layout. */
+
+
+  // FX panel + settings gear placement
+  (function wireFxPanel() {
+    let openBtn = document.getElementById('fxPanelOpen');
+    if (!openBtn) {
+      openBtn = document.createElement('button');
+      openBtn.type = 'button';
+      openBtn.id = 'fxPanelOpen';
+      openBtn.className = 'fx-panel-open';
+      openBtn.setAttribute('aria-label', 'Open effects');
+      openBtn.setAttribute('aria-controls', 'fxPanel');
+      openBtn.textContent = 'FX';
+      document.body.appendChild(openBtn);
+    }
+    const panel = document.getElementById('fxPanel');
+    const closeBtn = document.getElementById('fxPanelClose');
+    function setOpen(open) {
+      if (!panel) return;
+      panel.hidden = !open;
+      openBtn.setAttribute('aria-expanded', String(open));
+      document.body.classList.toggle('fx-panel-open', open);
+    }
+    openBtn.addEventListener('click', () => setOpen(panel?.hidden !== false));
+    closeBtn?.addEventListener('click', () => setOpen(false));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && panel && !panel.hidden) setOpen(false);
+    });
+  })();
