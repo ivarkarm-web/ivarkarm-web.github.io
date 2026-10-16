@@ -24,8 +24,13 @@ jobs:
         with:
           node-version: 20
 
+      # Node 20 ships with npm 10 on this runner; use npm 11 to avoid the
+      # Arborist dependency-tree crash seen in npm install (null edgesOut).
+      - name: Update npm
+        run: npm install --global npm@11
+
       - name: Install dependencies
-        run: npm install
+        run: npm install --no-audit --no-fund
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
