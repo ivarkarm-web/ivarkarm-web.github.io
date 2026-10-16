@@ -10,6 +10,7 @@
  * Clear: wipe all layers
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
+import { encodeLoopMix, saveLoop } from './saved-loop-library.js?v=1';
 
 const MAX_LAYERS = 8;
 const LONG_MS = 480;
@@ -111,6 +112,18 @@ export function mountLooper({ root } = {}) {
   if (syncBtn.parentElement !== cluster) {
     cluster.insertBefore(syncBtn, btn);
   }
+
+  let saveBtn = document.getElementById('looperSaveBtn');
+  if (!saveBtn) {
+    saveBtn = document.createElement('button');
+    saveBtn.type = 'button';
+    saveBtn.id = 'looperSaveBtn';
+    saveBtn.className = 'looper-save-btn';
+    saveBtn.textContent = 'Save';
+    saveBtn.setAttribute('aria-label', 'Save loop to Soundscapes');
+    saveBtn.title = 'Save loop to Soundscapes';
+  }
+  if (saveBtn.parentElement !== cluster) cluster.appendChild(saveBtn);
   syncBtn.setAttribute('aria-label', 'Sync mode: Free');
   syncBtn.title = SYNC_MODES[0].title;
 
@@ -240,6 +253,8 @@ export function mountLooper({ root } = {}) {
     btn.setAttribute('aria-label', btn.title);
     clearBtn.classList.toggle('has-layers', hasLayers || recording);
     clearBtn.hidden = false;
+    saveBtn.disabled = !hasLayers || recording || pendingLoopStop;
+    saveBtn.classList.toggle('is-available', hasLayers && !recording && !pendingLoopStop);
 
     const mode = SYNC_MODES[syncModeIndex];
     syncBtn.dataset.mode = mode.id;
@@ -492,6 +507,66 @@ export function mountLooper({ root } = {}) {
       layersEl.appendChild(c);
     });
   }
+
+
+  function openSaveDialog() {
+    if (!layers.length || recording || pendingLoopStop) return;
+    document.getElementById('looperSaveDialog')?.remove();
+    const dialog = document.createElement('dialog');
+    dialog.id = 'looperSaveDialog';
+    dialog.className = 'looper-save-dialog';
+    dialog.innerHTML = `
+      <form method="dialog" class="looper-save-form">
+        <p class="looper-save-eyebrow">SOUNDSCAPES LIBRARY</p>
+        <h2>Save this loop</h2>
+        <p class="looper-save-copy">Save a reusable audio mix on this device.</p>
+        <label for="looperSaveName">Loop name</label>
+        <input id="looperSaveName" name="title" maxlength="80" value="Loop ${String(Date.now()).slice(-4)}" autocomplete="off" required />
+        <p class="looper-save-status" role="status" aria-live="polite"></p>
+        <div class="looper-save-actions">
+          <button type="button" class="looper-save-cancel">Cancel</button>
+          <button type="submit" class="looper-save-confirm">Save loop</button>
+        </div>
+      </form>`;
+    document.body.appendChild(dialog);
+    const form = dialog.querySelector('form');
+    const input = dialog.querySelector('input');
+    const status = dialog.querySelector('.looper-save-status');
+    const confirm = dialog.querySelector('.looper-save-confirm');
+    dialog.querySelector('.looper-save-cancel').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const title = input.value.trim();
+      if (!title) { input.focus(); return; }
+      confirm.disabled = true;
+      status.textContent = 'Bouncing audio…';
+      try {
+        const ctx = getAudioContext();
+        const duration = (syncMode() === 'loop' || syncMode() === 'beat') && cycleDuration() > 0.05
+          ? cycleDuration()
+          : Math.max(...layers.map((layer) => layer.buffer?.duration || 0));
+        if (!ctx || !duration) throw new Error('There is no recorded audio to save yet.');
+        const blob = encodeLoopMix(layers, ctx.sampleRate, duration);
+        status.textContent = 'Saving to this device…';
+        const id = await saveLoop(blob, title, duration);
+        window.dispatchEvent(new CustomEvent('pionier:saved-loops-changed', { detail: { id } }));
+        status.textContent = 'Saved to Soundscapes.';
+        saveBtn.textContent = 'Saved ✓';
+        setTimeout(() => { saveBtn.textContent = 'Save'; }, 1400);
+        setTimeout(() => dialog.close(), 350);
+      } catch (error) {
+        status.textContent = error?.message || 'Could not save this loop. Try again.';
+        confirm.disabled = false;
+      }
+    });
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+    else dialog.setAttribute('open', '');
+    input.focus();
+    input.select();
+  }
+
+  saveBtn.addEventListener('click', openSaveDialog);
 
   function startRecord() {
     if (layers.length >= MAX_LAYERS) return;
