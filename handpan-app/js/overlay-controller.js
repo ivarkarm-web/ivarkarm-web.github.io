@@ -10,6 +10,19 @@
     scaleMenu: 'scaleLabel',
   };
 
+  function isLightTheme() {
+    if (document.documentElement.classList.contains('theme-light') ||
+        document.body.classList.contains('theme-light') ||
+        document.documentElement.dataset.theme === 'light' ||
+        document.body.dataset.theme === 'light' ||
+        window.PionierSettings?.lightMode === true) return true;
+    try {
+      const raw = localStorage.getItem('pionier.settings.v2') || localStorage.getItem('pionier.settings.v1');
+      if (raw && JSON.parse(raw).lightMode === true) return true;
+    } catch (_) {}
+    return false;
+  }
+
   function ensureBackdrop() {
     let bd = document.getElementById('pickerBackdrop');
     if (!bd) {
@@ -125,8 +138,7 @@
     menu.style.visibility = 'visible';
     menu.style.opacity = '1';
     menu.style.pointerEvents = 'auto';
-    const lightTheme = document.documentElement.classList.contains('theme-light') ||
-      document.body.classList.contains('theme-light');
+    const lightTheme = isLightTheme();
     const pickerSurface = lightTheme ? '#faf8f4' : 'rgba(12, 12, 14, 0.98)';
     const pickerText = lightTheme ? '#24221e' : '#e6e0d2';
     menu.style.setProperty('background', pickerSurface, 'important');
@@ -136,6 +148,16 @@
     menu.style.setProperty('box-shadow', lightTheme
       ? '0 16px 42px rgba(43,35,20,0.16)'
       : '0 20px 60px rgba(0,0,0,0.55)', 'important');
+    // Picker options can carry their own legacy dark inline styles; normalize every
+    // visible option whenever the portal opens, not just the menu container.
+    if (lightTheme) {
+      menu.querySelectorAll('button, [role="menuitem"], [role="option"]').forEach((item) => {
+        item.style.setProperty('color', '#302d27', 'important');
+        item.style.setProperty('background-color', 'transparent', 'important');
+        item.style.setProperty('border-color', 'transparent', 'important');
+        item.style.setProperty('box-shadow', 'none', 'important');
+      });
+    }
     menu.style.overflowY = 'auto';
     menu.style.webkitOverflowScrolling = 'touch';
 
