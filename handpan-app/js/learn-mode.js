@@ -15,28 +15,34 @@ const LESSONS = [
     {pads:[3,5],at:14200},{pads:[2,4],at:15600},{pads:[1,3],at:17000},
     {pads:[0,2],at:18400}
   ]},
-  { id:'black-sails-original', title:'Black Sails · Pirate Adventure', description:'An original swashbuckling melody: a rolling motif, a rising call, then a bold return. Not an arrangement of an existing film theme.', bpm:88, events:[
-    {pad:0,at:1600},{pad:3,at:2280},{pad:4,at:2960},{pad:3,at:3640},
-    {pad:0,at:4320},{pad:2,at:5000},{pad:4,at:5680},{pad:6,at:6360},
-    {pad:5,at:7040},{pad:4,at:7720},{pad:3,at:8400},{pad:2,at:9080},
-    {pad:0,at:9760},{pad:3,at:10440},{pad:4,at:11120},{pad:6,at:11800},
-    {pad:8,at:12480},{pad:6,at:13160},{pad:5,at:13840},{pad:3,at:14520},
-    {pad:2,at:15200},{pad:3,at:15880},{pad:0,at:16560}
+  { id:'ode-to-joy', title:'Ode to Joy · Beethoven', description:'A beginner-friendly, scale-adapted version of the famous public-domain melody. The original composition is public domain; this is a simplified lesson arrangement.', bpm:76, events:[
+    {pad:2,at:1600},{pad:2,at:2500},{pad:3,at:3400},{pad:4,at:4300},
+    {pad:4,at:5200},{pad:3,at:6100},{pad:2,at:7000},{pad:1,at:7900},
+    {pad:0,at:8800},{pad:0,at:9700},{pad:1,at:10600},{pad:2,at:11500},
+    {pad:2,at:12850},{pad:1,at:13750},{pad:1,at:15100},
+    {pad:2,at:16000},{pad:2,at:16900},{pad:3,at:17800},{pad:4,at:18700},
+    {pad:4,at:19600},{pad:3,at:20500},{pad:2,at:21400},{pad:1,at:22300},
+    {pad:0,at:23200},{pad:0,at:24100},{pad:1,at:25000},{pad:2,at:25900},
+    {pad:1,at:26800},{pad:0,at:27700},{pad:0,at:28600}
   ]},
-  { id:'hollow-crown-original', title:'The Hollow Crown · Dark Fantasy', description:'An original, haunting fantasy melody with a slow descent, a tense high note, and a resolving answer.', bpm:72, events:[
-    {pad:0,at:1600},{pad:4,at:2430},{pad:3,at:3260},{pad:1,at:4090},
-    {pad:2,at:4920},{pad:5,at:5750},{pad:4,at:6580},{pad:2,at:7410},
-    {pad:0,at:8240},{pad:1,at:9070},{pad:4,at:9900},{pad:6,at:10730},
-    {pad:5,at:11560},{pad:4,at:12390},{pad:3,at:13220},{pad:1,at:14050},
-    {pad:0,at:14880},{pad:3,at:15710},{pad:2,at:16540},{pad:0,at:17370}
+  { id:'frere-jacques', title:'Frère Jacques · Traditional', description:'The familiar round, arranged as a simple scale-degree melody for Pionier. Traditional tune, public-domain melody; this is a new simplified lesson arrangement.', bpm:80, events:[
+    {pad:0,at:1600},{pad:1,at:2500},{pad:2,at:3400},{pad:0,at:4300},
+    {pad:0,at:5200},{pad:1,at:6100},{pad:2,at:7000},{pad:0,at:7900},
+    {pad:2,at:8800},{pad:3,at:9700},{pad:4,at:10600},
+    {pad:2,at:11500},{pad:3,at:12400},{pad:4,at:13300},
+    {pad:4,at:14200},{pad:5,at:15100},{pad:4,at:16000},{pad:3,at:16900},
+    {pad:2,at:17800},{pad:0,at:18700},{pad:4,at:19600},{pad:5,at:20500},
+    {pad:4,at:21400},{pad:3,at:22300},{pad:2,at:23200},{pad:0,at:24100}
   ]},
-  { id:'starlight-run-original', title:'Starlight Run · Cinematic Quest', description:'An original, uplifting adventure theme: a quick opening, a soaring answer, and a bright homecoming.', bpm:104, events:[
-    {pad:0,at:1600},{pad:2,at:2175},{pad:4,at:2750},{pad:5,at:3325},
-    {pad:4,at:3900},{pad:2,at:4475},{pad:3,at:5050},{pad:5,at:5625},
-    {pad:6,at:6200},{pad:8,at:6775},{pad:6,at:7350},{pad:5,at:7925},
-    {pad:4,at:8500},{pad:2,at:9075},{pad:0,at:9650},{pad:2,at:10225},
-    {pad:4,at:10800},{pad:6,at:11375},{pad:5,at:11950},{pad:3,at:12525},
-    {pad:2,at:13100},{pad:4,at:13675},{pad:3,at:14250},{pad:0,at:14825}
+  { id:'twinkle-star', title:'Twinkle, Twinkle · Traditional', description:'A gentle, recognizable version of the traditional public-domain melody, simplified for the circular pad layout.', bpm:76, events:[
+    {pad:0,at:1600},{pad:0,at:2500},{pad:4,at:3400},{pad:4,at:4300},
+    {pad:5,at:5200},{pad:5,at:6100},{pad:4,at:7450},
+    {pad:3,at:8350},{pad:3,at:9250},{pad:2,at:10150},{pad:2,at:11050},
+    {pad:1,at:11950},{pad:1,at:12850},{pad:0,at:14200},
+    {pad:4,at:15100},{pad:4,at:16000},{pad:3,at:16900},{pad:3,at:17800},
+    {pad:2,at:18700},{pad:2,at:19600},{pad:1,at:20950},
+    {pad:4,at:21850},{pad:4,at:22750},{pad:3,at:23650},{pad:3,at:24550},
+    {pad:2,at:25450},{pad:2,at:26350},{pad:1,at:27700}
   ]},
   { id:'flow-pygmy-tine-piano', title:'Flow Pygmy → Tine Piano', description:'First select Flow Pygmy in the scale menu, then choose Tine Piano in the instrument menu. Once both are selected, follow the ripples from the lowest note to the sixth and back three times.', bpm:96, setup:true, events:[
     {pad:0,at:1400},{pad:1,at:2500},{pad:2,at:3600},{pad:3,at:4700},{pad:4,at:5800},{pad:5,at:6900},{pad:4,at:8000},{pad:3,at:9100},{pad:2,at:10200},{pad:1,at:11300},{pad:0,at:12400},
@@ -44,7 +50,7 @@ const LESSONS = [
     {pad:0,at:25600},{pad:1,at:26700},{pad:2,at:27800},{pad:3,at:28900},{pad:4,at:30000},{pad:5,at:31100},{pad:4,at:32200},{pad:3,at:33300},{pad:2,at:34400},{pad:1,at:35500},{pad:0,at:36600}
   ]}
 ];
-const APPROACH_MS=800, WINDOW_MS=500, TAIL_MS=220;
+const APPROACH_MS=620, WINDOW_MS=180, TAIL_MS=90;
 export function mountLearnMode(){
   const button=document.getElementById('openLearn'), panel=document.getElementById('learnPanel'), close=document.getElementById('learnClose');
   const canvas=document.getElementById('pan'), list=document.getElementById('learnLessonList');
@@ -136,13 +142,13 @@ export function mountLearnMode(){
         fields.forEach(field=>{
           const point=overlayPoint(field);if(!point)return;const{x,y}=point;
           if(ringState.state==='approach'){
-            const rawP=Math.max(0,Math.min(1,(elapsed-ringState.spawnAt)/APPROACH_MS));const p=rawP*rawP*(3-2*rawP);const maxRadius=Math.max(Math.hypot(x,y),Math.hypot(stageWidth-x,y),Math.hypot(x,stageHeight-y),Math.hypot(stageWidth-x,stageHeight-y))+48;const radius=maxRadius-p*(maxRadius-14),pulse=1+Math.sin(now/145)*.022;
+            const rawP=Math.max(0,Math.min(1,(elapsed-ringState.spawnAt)/APPROACH_MS));const p=rawP*rawP*(3-2*rawP);const maxRadius=Math.max(Math.hypot(x,y),Math.hypot(stageWidth-x,y),Math.hypot(x,stageHeight-y),Math.hypot(stageWidth-x,stageHeight-y))+48;const radius=maxRadius-p*(maxRadius-14),pulse=1+Math.sin(now/240)*.012;
             ctx.save();ctx.strokeStyle='#e2bd59';ctx.lineWidth=1.8+p*1.7;ctx.shadowColor='rgba(243,212,122,.78)';ctx.shadowBlur=15+p*17;
             for(let n=0;n<3;n++){ctx.globalAlpha=Math.max(.08,.78-n*.19)*(.48+p*.52);ctx.beginPath();ctx.arc(x,y,(radius+n*18)*pulse,0,Math.PI*2);ctx.stroke()}
             if(p>.72){const warm=Math.min(1,(p-.72)/.28),sx=canvas.getBoundingClientRect().width/((window.PionierCore?.surface?.metrics||{}).W||800),sy=canvas.getBoundingClientRect().height/((window.PionierCore?.surface?.metrics||{}).H||800);ctx.globalAlpha=.18+.42*warm;ctx.strokeStyle='#ffe8a0';ctx.lineWidth=1.5+2*warm;ctx.shadowBlur=8+18*warm;ctx.beginPath();ctx.ellipse(x,y,Math.max(8,(field.rx||34)*sx*1.08),Math.max(8,(field.ry||24)*sy*1.08),field.rot||0,0,Math.PI*2);ctx.stroke()}
             ctx.restore();
           }else if(ringState.state==='arrive'){
-            const pulse=1+Math.sin(now/72)*.08;ctx.save();const glow=ctx.createRadialGradient(x,y,3,x,y,54*pulse);glow.addColorStop(0,'rgba(255,239,173,.48)');glow.addColorStop(.42,'rgba(243,212,122,.24)');glow.addColorStop(1,'rgba(243,212,122,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(x,y,58*pulse,0,Math.PI*2);ctx.fill();
+            const pulse=1+Math.sin(now/150)*.045;ctx.save();const glow=ctx.createRadialGradient(x,y,3,x,y,54*pulse);glow.addColorStop(0,'rgba(255,239,173,.48)');glow.addColorStop(.42,'rgba(243,212,122,.24)');glow.addColorStop(1,'rgba(243,212,122,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(x,y,58*pulse,0,Math.PI*2);ctx.fill();
             const sx=canvas.getBoundingClientRect().width/((window.PionierCore?.surface?.metrics||{}).W||800),sy=canvas.getBoundingClientRect().height/((window.PionierCore?.surface?.metrics||{}).H||800),rx=Math.max(8,(field.rx||34)*sx*1.1),ry=Math.max(8,(field.ry||24)*sy*1.1);
             ctx.strokeStyle='#fff0ad';ctx.lineWidth=3.5;ctx.shadowColor='rgba(255,224,125,1)';ctx.shadowBlur=30;ctx.beginPath();ctx.ellipse(x,y,rx,ry,field.rot||0,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=.88;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y,rx*1.13,ry*1.13,field.rot||0,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=.8;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(x,y,Math.max(rx,ry)*.7*pulse,0,Math.PI*2);ctx.stroke();ctx.restore();
           }else{
