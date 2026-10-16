@@ -75,7 +75,7 @@ async function boot() {
   }
 
   try {
-    await import(new URL('./js/soundscapes.js?v=5', BASE).href);
+    await import(new URL('./js/soundscapes.js?v=6', BASE).href);
   } catch (err) {
     console.error('[soundscapes] module failed to initialize', err);
     degraded.push('soundscapes');
@@ -108,6 +108,25 @@ async function boot() {
   } catch (err) {
     console.warn('[looper] mount failed', err);
     degraded.push('looper');
+  }
+
+  try {
+    const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=2', BASE).href);
+    mountScaleSelector({
+      getHandpan: () => window.PionierCore?.handpan,
+      onScaleChange: () => {
+        try { window.PionierCore?.refreshPitch?.(); } catch (_) {}
+        try { window.PionierCore?.draw?.(); } catch (_) {}
+        try {
+          const root = document.getElementById('rootLabel');
+          const hp = window.PionierCore?.handpan;
+          if (root && hp?.rootLabel) root.textContent = hp.rootLabel;
+        } catch (_) {}
+      },
+    });
+  } catch (err) {
+    console.warn('[scale-selector] mount failed', err);
+    degraded.push('scale-selector');
   }
 
   if (degraded.length) {
