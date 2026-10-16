@@ -13,6 +13,7 @@
     transparency: 1,
     mandala: true,
     touchFeedback: false,
+    rippleStyle: 'ambient',
     led: { r: 110, g: 200, b: 255, strength: 0.35 },
   };
 
@@ -66,6 +67,7 @@
       transparency: state.transparency,
       mandala: state.mandala,
       touchFeedback: state.touchFeedback === true,
+      rippleStyle: state.rippleStyle || 'ambient',
       lightMode: state.lightMode,
       led: { ...state.led },
     };
@@ -338,6 +340,24 @@
       '  <label class="settings-toggle"><input type="checkbox" id="settingTouchFeedback" /><span class="settings-toggle-track"></span></label>' +
       '</div>';
     body.appendChild(app);
+
+    const rippleStyleSec = document.createElement('section');
+    rippleStyleSec.className = 'settings-section';
+    rippleStyleSec.innerHTML = '<div class="settings-section-label">Touch ripple style</div>';
+    body.appendChild(rippleStyleSec);
+    buildDropdown(rippleStyleSec, {
+      id: 'settingRippleStyle',
+      label: 'Ripple',
+      items: [
+        { id: 'ambient', label: 'Ambient Rings' },
+        { id: 'halo', label: 'Soft Halo' },
+        { id: 'double-wave', label: 'Double Wave' },
+        { id: 'liquid', label: 'Liquid' },
+        { id: 'pulse', label: 'Pulse Bloom' },
+      ],
+      activeId: state.rippleStyle || 'ambient',
+      onPick: (id) => { state.rippleStyle = id; save(state); apply(state); },
+    });
 
     const skinSec = document.createElement('section');
     skinSec.className = 'settings-section';
