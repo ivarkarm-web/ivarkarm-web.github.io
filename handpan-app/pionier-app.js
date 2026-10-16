@@ -83,7 +83,7 @@ async function boot() {
 
   try {
     let HANDPAN_SCALES;
-    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=5', BASE).href));
+    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=6', BASE).href));
     window.HANDPAN_SCALES = HANDPAN_SCALES;
   } catch (err) {
     console.warn('[handpan] scales module', err);
@@ -111,7 +111,7 @@ async function boot() {
   }
 
   try {
-    const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=4', BASE).href);
+    const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=5', BASE).href);
     mountScaleSelector({
       getHandpan: () => window.PionierCore?.handpan,
       onScaleChange: () => {
