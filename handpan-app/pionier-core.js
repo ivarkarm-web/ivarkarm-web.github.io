@@ -206,6 +206,18 @@ function draw() {
   surface.drawBody(activeInstrument(), false, null);
 }
 
+function triggerTouchFeedback(x, y, noteIndex) {
+  if (window.PionierSettings?.touchFeedback !== true) return;
+  surface.addRipple?.(x, y, noteIndex);
+  // Vibration is a progressive enhancement: some mobile browsers (notably iOS
+  // Safari) do not expose navigator.vibrate, so the visual ripple still works.
+  try {
+    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+      navigator.vibrate(9);
+    }
+  } catch (_) {}
+}
+
 function resize() {
   if (!surface) return;
   surface.resize();
@@ -236,6 +248,7 @@ canvas?.addEventListener('pointerdown', (e) => {
   app.lastVelocity = gesture.velocity;
   if (!alreadyHeld) {
     inst.noteOn(gesture, hit);
+    triggerTouchFeedback(x, y, hit.index);
     if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);
   }
   draw();
@@ -267,7 +280,10 @@ canvas?.addEventListener('pointermove', (e) => {
     if (false) { /* glide disabled */ }
     if (!glided) {
       if (prevIdx != null && !sharedPrev) inst.noteOff(prevIdx);
-      if (!sharedTarget) inst.noteOn(gesture, hit);
+      if (!sharedTarget) {
+        inst.noteOn(gesture, hit);
+        triggerTouchFeedback(x, y, hit.index);
+      }
     }
     if (glided || !sharedTarget) {
       if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);
