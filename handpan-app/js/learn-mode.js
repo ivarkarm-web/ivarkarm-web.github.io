@@ -33,7 +33,7 @@ export function mountLearnMode(){
   let ringState=null, done=false, transposeSteps=0, sounded=new Set(), countdownUntil=0, hud=null, hudLabel=null;
   function show(){panel.hidden=false;document.body.classList.add('learn-active')}
   function ensureHud(){if(hud)return;hud=document.createElement('div');hud.id='learnGameHud';hud.innerHTML='<span id="learnHudLabel">COUNTDOWN</span><button type="button" data-action="restart">Restart</button><button type="button" data-action="menu">Lessons</button><button type="button" data-action="close" aria-label="Close lesson">×</button>';document.body.appendChild(hud);hudLabel=hud.querySelector('#learnHudLabel');hud.addEventListener('click',e=>{const a=e.target?.dataset?.action;if(a==='restart')begin(lessonIndex,mode);if(a==='menu'){hud.hidden=true;show();menu()}if(a==='close')hide()});}
-  function setHud(text){ensureHud();hudLabel.textContent=text;hud.hidden=false}
+  function setHud(text){ensureHud();hudLabel.textContent=text;hud.dataset.cue=text==='PLAY NOW'?'play':'';hud.hidden=false}
   function hideHud(){if(hud)hud.hidden=true}
   function hide(){panel.hidden=true;stop();hideHud();document.body.classList.remove('learn-active')}
   function stop(){running=false;done=false;ringState=null;sounded.clear();countdownUntil=0;cancelAnimationFrame(raf);ctx.clearRect(0,0,680,680);overlay.style.display='none';hideHud();}
@@ -74,7 +74,7 @@ export function mountLearnMode(){
       if(mode==='practice'&&ringState?.state==='approach'&&elapsed>=ev.at-WINDOW_MS){ringState.state='arrive';ringState.changedAt=now;setHud('PLAY NOW');progress.textContent='PLAY NOW · HIT THE GLOWING NOTE';}
       if(mode==='listen'&&elapsed>=ev.at&&!sounded.has(index)){
         sounded.add(index);strikePad(pad,.66);ringState={event:ev,pad,state:'hit',changedAt:now};index++;
-      }else if(mode==='practice'&&ringState?.state==='approach'&&elapsed>ev.at+WINDOW_MS){markMiss(now);index++}
+      }else if(mode==='practice'&&['approach','arrive'].includes(ringState?.state)&&elapsed>ev.at+WINDOW_MS){markMiss(now);index++}
     }else if(running&&index>=lesson.events.length&&!ringState)finish();
     if(ringState){
       const field=targetField(ringState.pad),point=field&&overlayPoint(field);
