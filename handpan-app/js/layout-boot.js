@@ -139,16 +139,8 @@
       }
     }
 
-    if (noteWrap) {
-      noteWrap.classList.add('stage-note-wrap');
-      if (noteWrap.parentElement !== row) row.appendChild(noteWrap);
-      else if (scaleBlock && noteWrap.previousElementSibling !== scaleBlock) row.appendChild(noteWrap);
-    }
-
-    if (instNav && row && instNav.nextElementSibling !== row) {
-      bar.appendChild(instNav);
-      bar.appendChild(row);
-    }
+    // note+/- and final ordering handled in ensureBottomBar()
+    if (noteWrap) noteWrap.classList.add('stage-note-wrap');
 
     if (topbar) {
       topbar.classList.add('topbar-collapsed');
@@ -330,35 +322,104 @@
     return btn;
   }
 
+  /**
+   * Bottom stack (bottom → top of the bar = last → first in flex column):
+   *   1. instrument row  — instrument selector (left/flex) + ± notes (right)
+   *   2. scale row       — scale selector (left/flex) + base note (right)
+   *   3. looper          — above both
+   */
   function ensureBottomBar() {
     const bar = document.getElementById('stageScaleBar');
     const rail = document.getElementById('looperRail');
     const instNav = document.getElementById('instrumentNav');
     let scaleRow = document.getElementById('stageScaleRow');
-    const rootRow = document.querySelector('.stage-root-row') || document.querySelector('#stageScaleBar .control-row');
+    const rootRow = document.querySelector('.stage-root-row') || document.querySelector('#stageScaleBar .control-row') || document.querySelector('.control-row');
     if (!bar) return;
     document.getElementById('topChipRow')?.remove();
-    // Horizontal select row: instrument + scale side by side (saves height)
-    let selectRow = document.getElementById('stageSelectRow');
-    if (!selectRow) {
-      selectRow = document.createElement('div');
-      selectRow.id = 'stageSelectRow';
-      selectRow.className = 'stage-select-row';
+    // Retire the old combined select row
+    document.getElementById('stageSelectRow')?.remove();
+
+    // --- Scale row: scale block + base note on the right ---
+    if (!scaleRow) {
+      scaleRow = document.createElement('div');
+      scaleRow.id = 'stageScaleRow';
+      scaleRow.className = 'stage-scale-row';
     }
-    if (selectRow.parentElement !== bar) {
-      if (rail && rail.parentElement === bar) rail.after(selectRow);
-      else bar.insertBefore(selectRow, bar.firstChild);
+    scaleRow.classList.add('stage-scale-row');
+    const scaleBlock = document.querySelector('.control-scale') || document.getElementById('stageScaleRow')?.querySelector('.control-scale');
+    if (scaleBlock && scaleBlock.parentElement !== scaleRow) scaleRow.appendChild(scaleBlock);
+
+    // Base note only (notes stepper moves with instrument row)
+    let baseOnly = document.getElementById('stageBaseOnly');
+    if (!baseOnly) {
+      baseOnly = document.createElement('div');
+      baseOnly.id = 'stageBaseOnly';
+      baseOnly.className = 'stage-base-only';
     }
-    if (instNav && instNav.parentElement !== selectRow) selectRow.appendChild(instNav);
-    if (scaleRow && scaleRow.parentElement !== selectRow) selectRow.appendChild(scaleRow);
-    // Order: looper → selectRow → root/notes
+    if (rootRow) {
+      rootRow.classList.add('stage-root-row');
+      const halves = rootRow.querySelectorAll('.control-half');
+      // First half is Base Note, second is Notes
+      if (halves[0] && halves[0].parentElement !== baseOnly) {
+        baseOnly.appendChild(halves[0]);
+      }
+      // Hide the original row shell; we redistribute its children
+      rootRow.hidden = true;
+    }
+    if (baseOnly.parentElement !== scaleRow) scaleRow.appendChild(baseOnly);
+
+    // --- Instrument row: instrument nav + ± notes on the right ---
+    let instRow = document.getElementById('stageInstrumentRow');
+    if (!instRow) {
+      instRow = document.createElement('div');
+      instRow.id = 'stageInstrumentRow';
+      instRow.className = 'stage-instrument-row';
+    }
+    if (instNav && instNav.parentElement !== instRow) instRow.appendChild(instNav);
+
+    // Notes stepper (from original control-row second half) or notePlusWrap
+    let notesSlot = document.getElementById('stageNotesSlot');
+    if (!notesSlot) {
+      notesSlot = document.createElement('div');
+      notesSlot.id = 'stageNotesSlot';
+      notesSlot.className = 'stage-notes-slot';
+    }
+    if (rootRow) {
+      const halves = rootRow.querySelectorAll('.control-half');
+      // After moving base, remaining half is Notes
+      const notesHalf = Array.from(rootRow.querySelectorAll('.control-half')).find((h) =>
+        h.querySelector('#noteCountLabel, #noteCountPrev, #noteCountNext')
+      ) || halves[1];
+      if (notesHalf && notesHalf.parentElement !== notesSlot) notesSlot.appendChild(notesHalf);
+    }
+    const noteWrap = document.getElementById('notePlusWrap');
+    if (noteWrap) {
+      noteWrap.classList.add('stage-note-wrap');
+      noteWrap.hidden = false;
+      if (noteWrap.parentElement !== notesSlot) notesSlot.appendChild(noteWrap);
+    }
+    if (notesSlot.parentElement !== instRow) instRow.appendChild(notesSlot);
+
+    // Order in bar: looper → scale row → instrument row (instrument is lowest)
     if (rail && rail.parentElement !== bar) bar.insertBefore(rail, bar.firstChild);
-    if (rail && selectRow.previousElementSibling !== rail) {
-      rail.after(selectRow);
+    if (scaleRow.parentElement !== bar) {
+      if (rail && rail.parentElement === bar) rail.after(scaleRow);
+      else bar.appendChild(scaleRow);
     }
-    if (rootRow && rootRow.parentElement !== bar) bar.appendChild(rootRow);
+    if (instRow.parentElement !== bar) bar.appendChild(instRow);
+
+    // Enforce sibling order
+    if (rail && rail.parentElement === bar && bar.firstChild !== rail) bar.insertBefore(rail, bar.firstChild);
+    if (scaleRow.parentElement === bar && scaleRow.previousElementSibling !== rail) {
+      if (rail) rail.after(scaleRow);
+      else bar.insertBefore(scaleRow, bar.firstChild);
+    }
+    if (instRow.parentElement === bar && instRow.previousElementSibling !== scaleRow) {
+      scaleRow.after(instRow);
+    }
+
     if (rail) {
-      ['position','top','right','bottom','left','transform'].forEach((prop) => {
+      ['position', 'top', 'right', 'bottom', 'left', 'transform'].forEach((prop) => {
         rail.style.setProperty(prop, prop === 'position' ? 'relative' : 'auto', 'important');
       });
       rail.style.setProperty('width', '100%', 'important');
