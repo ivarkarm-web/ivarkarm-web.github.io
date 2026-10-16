@@ -46,7 +46,7 @@ export function mountLearnMode(){
   function menu(){stop();list.hidden=false;controls.hidden=true;heading.textContent='Catch the Note';description.textContent='Choose a lesson, then press Start when you are ready. Follow the incoming wave and play when the target glows.';if(startBtn)startBtn.hidden=false;if(listenBtn)listenBtn.hidden=true;if(catchBtn)catchBtn.hidden=true;if(transposeBtn)transposeBtn.hidden=false;if(document.getElementById('learnRestart'))document.getElementById('learnRestart').hidden=true;}
   function targetPad(ev){const fields=window.PionierCore?.surface?.fields||[];const count=fields.length||9;return ((Number(ev.pad)+transposeSteps)%count+count)%count}
   function targetField(pad){const fields=window.PionierCore?.surface?.fields||[];return fields.find(f=>Number(f.index)===Number(pad))||fields[pad]||null}
-  function overlayPoint(field){const m=window.PionierCore?.surface?.metrics||{};const w=m.W||800,h=m.H||800;const c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect();return{x:c.left-s.left+field.x*(c.width/w),y:c.top-s.top+field.y*(c.height/h)}}
+  function overlayPoint(field){const m=window.PionierCore?.surface?.metrics||{};const w=m.W||800,h=m.H||800;const c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect();return{x:c.left-s.left+field.x*((canvas.getBoundingClientRect().width/((window.PionierCore?.surface?.metrics||{}).W||800))),y:c.top-s.top+field.y*((canvas.getBoundingClientRect().height/((window.PionierCore?.surface?.metrics||{}).H||800)))}}
   function strikePad(pad,velocity=.72){
     const core=window.PionierCore, surface=core?.surface, inst=core?.activeInstrument?.();
     if(!surface||!inst||typeof inst.noteOn!=='function')return false;
@@ -91,13 +91,13 @@ export function mountLearnMode(){
           ctx.save();ctx.strokeStyle='#e2bd59';ctx.lineWidth=1.8+p*1.7;ctx.shadowColor='rgba(243,212,122,.78)';ctx.shadowBlur=15+p*17;
           for(let n=0;n<3;n++){ctx.globalAlpha=Math.max(.08,.78-n*.19)*(.48+p*.52);ctx.beginPath();ctx.arc(x,y,(radius+n*18)*pulse,0,Math.PI*2);ctx.stroke()}
           // As the wave nears the pad, pre-light its actual rim so the arrival is readable.
-          if(field&&p>.72){const warm=Math.min(1,(p-.72)/.28);const sx=c.width/w,sy=c.height/h;ctx.globalAlpha=.18+.42*warm;ctx.strokeStyle='#ffe8a0';ctx.lineWidth=1.5+2*warm;ctx.shadowBlur=8+18*warm;ctx.beginPath();ctx.ellipse(x,y,Math.max(8,(field.rx||34)*sx*1.08),Math.max(8,(field.ry||24)*sy*1.08),field.rot||0,0,Math.PI*2);ctx.stroke()}
+          if(field&&p>.72){const warm=Math.min(1,(p-.72)/.28);const sx=(canvas.getBoundingClientRect().width/((window.PionierCore?.surface?.metrics||{}).W||800)),sy=(canvas.getBoundingClientRect().height/((window.PionierCore?.surface?.metrics||{}).H||800));ctx.globalAlpha=.18+.42*warm;ctx.strokeStyle='#ffe8a0';ctx.lineWidth=1.5+2*warm;ctx.shadowBlur=8+18*warm;ctx.beginPath();ctx.ellipse(x,y,Math.max(8,(field.rx||34)*sx*1.08),Math.max(8,(field.ry||24)*sy*1.08),field.rot||0,0,Math.PI*2);ctx.stroke()}
           ctx.restore();
         }else if(ringState.state==='arrive'){
           const pulse=1+Math.sin(now/72)*.08;
           ctx.save();const glow=ctx.createRadialGradient(x,y,3,x,y,54*pulse);glow.addColorStop(0,'rgba(255,239,173,.48)');glow.addColorStop(.42,'rgba(243,212,122,.24)');glow.addColorStop(1,'rgba(243,212,122,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(x,y,58*pulse,0,Math.PI*2);ctx.fill();
           // The target's rim is the exact "play now" signal; hold it bright through the timing window.
-          const sx=c.width/w,sy=c.height/h,rx=Math.max(8,(field?.rx||34)*sx*1.1),ry=Math.max(8,(field?.ry||24)*sy*1.1);
+          const sx=(canvas.getBoundingClientRect().width/((window.PionierCore?.surface?.metrics||{}).W||800)),sy=(canvas.getBoundingClientRect().height/((window.PionierCore?.surface?.metrics||{}).H||800)),rx=Math.max(8,(field?.rx||34)*sx*1.1),ry=Math.max(8,(field?.ry||24)*sy*1.1);
           ctx.strokeStyle='#fff0ad';ctx.lineWidth=3.5;ctx.shadowColor='rgba(255,224,125,1)';ctx.shadowBlur=30;ctx.beginPath();ctx.ellipse(x,y,rx,ry,field?.rot||0,0,Math.PI*2);ctx.stroke();
           ctx.globalAlpha=.88;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y,rx*1.13,ry*1.13,field?.rot||0,0,Math.PI*2);ctx.stroke();
           ctx.globalAlpha=.8;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(x,y,Math.max(rx,ry)*.7*pulse,0,Math.PI*2);ctx.stroke();ctx.restore();
