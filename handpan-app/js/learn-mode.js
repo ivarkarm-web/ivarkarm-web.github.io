@@ -30,14 +30,14 @@ export function mountLearnMode(){
   const ctx=overlay.getContext('2d');
   function syncOverlay(){const r=canvas.getBoundingClientRect(),p=canvas.parentElement.getBoundingClientRect();overlay.style.left=(r.left-p.left)+'px';overlay.style.top=(r.top-p.top)+'px';overlay.style.width=r.width+'px';overlay.style.height=r.height+'px';}
   let running=false, lesson=null, lessonIndex=0, mode='practice', startAt=0, index=0, raf=0, hitCount=0, missCount=0;
-  let ringState=null, done=false, transposeSteps=0, sounded=new Set(), countdownUntil=0, hud=null, hudLabel=null;
+  let ringState=null, done=false, transposeSteps=0, sounded=new Set(), hud=null, hudLabel=null;
   function show(){panel.hidden=false;document.body.classList.add('learn-active')}
   function ensureHud(){if(hud)return;hud=document.createElement('div');hud.id='learnGameHud';hud.innerHTML='<span id="learnHudLabel">COUNTDOWN</span><button type="button" data-action="restart">Restart</button><button type="button" data-action="menu">Lessons</button><button type="button" data-action="close" aria-label="Close lesson">×</button>';document.body.appendChild(hud);hudLabel=hud.querySelector('#learnHudLabel');hud.addEventListener('click',e=>{const a=e.target?.dataset?.action;if(a==='restart')begin(lessonIndex,mode);if(a==='menu'){hud.hidden=true;show();menu()}if(a==='close')hide()});}
   function setHud(text){ensureHud();hudLabel.textContent=text;hud.dataset.cue=text==='PLAY NOW'?'play':'';hud.hidden=false}
   function hideHud(){if(hud)hud.hidden=true}
   function hide(){panel.hidden=true;stop();hideHud();document.body.classList.remove('learn-active')}
-  function stop(){running=false;done=false;ringState=null;sounded.clear();countdownUntil=0;cancelAnimationFrame(raf);ctx.clearRect(0,0,680,680);overlay.style.display='none';hideHud();}
-  function menu(){stop();list.hidden=false;controls.hidden=true;heading.textContent='Catch the Note';description.textContent='Choose a lesson, then press Start when you are ready. A 3–2–1 count-in gives you time to prepare.';if(startBtn)startBtn.hidden=false;if(listenBtn)listenBtn.hidden=true;if(catchBtn)catchBtn.hidden=true;if(transposeBtn)transposeBtn.hidden=false;if(document.getElementById('learnRestart'))document.getElementById('learnRestart').hidden=true;}
+  function stop(){running=false;done=false;ringState=null;sounded.clear();cancelAnimationFrame(raf);ctx.clearRect(0,0,680,680);overlay.style.display='none';hideHud();}
+  function menu(){stop();list.hidden=false;controls.hidden=true;heading.textContent='Catch the Note';description.textContent='Choose a lesson, then press Start when you are ready. Follow the incoming wave and play when the target glows.';if(startBtn)startBtn.hidden=false;if(listenBtn)listenBtn.hidden=true;if(catchBtn)catchBtn.hidden=true;if(transposeBtn)transposeBtn.hidden=false;if(document.getElementById('learnRestart'))document.getElementById('learnRestart').hidden=true;}
   function targetPad(ev){const fields=window.PionierCore?.surface?.fields||[];const count=fields.length||9;return ((Number(ev.pad)+transposeSteps)%count+count)%count}
   function targetField(pad){const fields=window.PionierCore?.surface?.fields||[];return fields.find(f=>Number(f.index)===Number(pad))||fields[pad]||null}
   function overlayPoint(field){const m=window.PionierCore?.surface?.metrics||{};const w=m.W||800,h=m.H||800;return{x:field.x*(680/w),y:field.y*(680/h)}}
@@ -53,7 +53,7 @@ export function mountLearnMode(){
   function finish(){done=true;running=false;ringState=null;const result=(mode==='listen'?'PHRASE COMPLETE':'FINISHED')+' · '+hitCount+' HITS · '+missCount+' MISSES';progress.textContent=result;setHud(result);window.setTimeout(()=>{if(done){hideHud();show();list.hidden=true;controls.hidden=false;heading.textContent=lesson.title;description.textContent=result;}},900);}
   function begin(i,nextMode='practice'){
     if(!LESSONS[i])return;
-    stop();lessonIndex=i;lesson=LESSONS[i];mode=nextMode;index=0;hitCount=0;missCount=0;done=false;running=true;countdownUntil=performance.now()+3000;startAt=countdownUntil;ringState=null;sounded.clear();
+    stop();lessonIndex=i;lesson=LESSONS[i];mode=nextMode;index=0;hitCount=0;missCount=0;done=false;running=true;startAt=performance.now();ringState=null;sounded.clear();
     transposeSteps=Number(lesson.transpose||0);
     list.hidden=true;controls.hidden=false;heading.textContent=lesson.title;description.textContent=lesson.description;
     if(transposeBtn)transposeBtn.textContent='Transpose: '+(transposeSteps===0?'Original':('+'+transposeSteps+' scale degrees'));
@@ -62,12 +62,11 @@ export function mountLearnMode(){
     if(startBtn)startBtn.hidden=true;
     if(transposeBtn)transposeBtn.hidden=false;
     if(document.getElementById('learnRestart'))document.getElementById('learnRestart').hidden=false;
-    syncOverlay();overlay.style.display='block';panel.hidden=true;ensureHud();setHud('3');progress.textContent='3';drawFrame();
+    syncOverlay();overlay.style.display='block';panel.hidden=true;ensureHud();setHud(mode==='listen'?'LISTENING':'FOLLOW THE WAVE');progress.textContent='FOLLOW THE WAVE';drawFrame();
   }
   function drawFrame(){
     if(!running&&!ringState){ctx.clearRect(0,0,680,680);return}
     const now=performance.now(),elapsed=now-startAt;ctx.clearRect(0,0,680,680);
-    if(now<countdownUntil){const n=Math.max(1,Math.ceil((countdownUntil-now)/1000));setHud(String(n));progress.textContent=String(n);ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='500 96px system-ui';ctx.fillStyle='rgba(243,212,122,.92)';ctx.shadowColor='rgba(243,212,122,.75)';ctx.shadowBlur=28;ctx.fillText(String(n),340,340);ctx.restore();raf=requestAnimationFrame(drawFrame);return;}else if(now>=countdownUntil&&countdownUntil){countdownUntil=0;setHud(mode==='listen'?'LISTENING':'CATCH THE NOTE');}
     if(running&&index<lesson.events.length){
       const ev=lesson.events[index],pad=targetPad(ev),spawnAt=ev.at-APPROACH_MS;
       if(elapsed>=spawnAt&&!ringState)ringState={event:ev,pad,spawnAt,state:'approach',changedAt:0};
@@ -81,7 +80,7 @@ export function mountLearnMode(){
       if(point){
         const{x,y}=point;
         if(ringState.state==='approach'){
-          const p=Math.max(0,Math.min(1,(elapsed-ringState.spawnAt)/APPROACH_MS)),radius=138-p*124,pulse=1+Math.sin(now/145)*.022;
+          const p=Math.max(0,Math.min(1,(elapsed-ringState.spawnAt)/APPROACH_MS));const maxRadius=Math.max(Math.hypot(x,y),Math.hypot(680-x,y),Math.hypot(x,680-y),Math.hypot(680-x,680-y))+48;const radius=maxRadius-p*(maxRadius-14),pulse=1+Math.sin(now/145)*.022;
           ctx.save();ctx.strokeStyle='#e2bd59';ctx.lineWidth=1.8+p*1.7;ctx.shadowColor='rgba(243,212,122,.78)';ctx.shadowBlur=15+p*17;
           for(let n=0;n<3;n++){ctx.globalAlpha=Math.max(.08,.78-n*.19)*(.48+p*.52);ctx.beginPath();ctx.arc(x,y,(radius+n*18)*pulse,0,Math.PI*2);ctx.stroke()}ctx.restore();
         }else if(ringState.state==='arrive'){
