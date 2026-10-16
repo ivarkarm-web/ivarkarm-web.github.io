@@ -31,7 +31,7 @@
 .looper-record-cluster {
   pointer-events: none;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   gap: 10px;
 }
@@ -450,3 +450,63 @@
   .looper-clear-btn { left: max(8px, env(safe-area-inset-left)); }
   .looper-sheet { width: 168px; }
 }
+
+
+/* Save recorded loops into the local Soundscapes library */
+.looper-save-btn {
+  pointer-events: auto;
+  appearance: none;
+  border: 1px solid rgba(212,176,74,.34);
+  border-radius: 999px;
+  min-height: 34px;
+  padding: 0 13px;
+  color: rgba(230,224,210,.9);
+  background: rgba(20,19,17,.88);
+  font: 600 11px/1 Inter, system-ui, sans-serif;
+  letter-spacing: .04em;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity .18s ease, border-color .18s ease, background .18s ease;
+}
+.looper-save-btn:disabled { opacity: .28; cursor: default; }
+.looper-save-btn.is-available { border-color: rgba(212,176,74,.7); color: #f1d982; }
+.looper-save-btn.is-available:hover { background: rgba(212,176,74,.12); }
+.looper-save-dialog {
+  width: min(360px, calc(100vw - 32px));
+  padding: 0;
+  border: 1px solid rgba(212,176,74,.28);
+  border-radius: 20px;
+  color: #e6e0d2;
+  background: rgba(15,15,17,.98);
+  box-shadow: 0 24px 80px rgba(0,0,0,.55);
+}
+.looper-save-dialog::backdrop { background: rgba(0,0,0,.62); backdrop-filter: blur(7px); }
+.looper-save-form { display: grid; gap: 10px; padding: 24px; }
+.looper-save-eyebrow { margin: 0; color: #c9a227; font: 600 10px/1.3 Inter,system-ui,sans-serif; letter-spacing: .14em; }
+.looper-save-form h2 { margin: 0; font: 500 22px/1.2 Inter,system-ui,sans-serif; }
+.looper-save-copy { margin: 0 0 5px; color: rgba(230,224,210,.6); font: 13px/1.5 Inter,system-ui,sans-serif; }
+.looper-save-form label { color: rgba(230,224,210,.7); font: 500 12px Inter,system-ui,sans-serif; }
+.looper-save-form input {
+  box-sizing: border-box; width: 100%; min-height: 44px; padding: 0 12px;
+  border: 1px solid rgba(230,224,210,.18); border-radius: 10px;
+  outline: none; background: rgba(255,255,255,.04); color: #f5f0e5;
+  font: 14px Inter,system-ui,sans-serif;
+}
+.looper-save-form input:focus { border-color: rgba(212,176,74,.75); }
+.looper-save-status { overflow-wrap: anywhere; min-height: 18px; margin: 0; color: #d8c27c; font: 12px/1.5 Inter,system-ui,sans-serif; }
+.looper-save-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+.looper-save-actions button {
+  min-height: 40px; padding: 0 14px; border-radius: 999px; cursor: pointer;
+  font: 600 12px Inter,system-ui,sans-serif;
+}
+.looper-save-cancel { border: 1px solid rgba(230,224,210,.16); background: transparent; color: rgba(230,224,210,.75); }
+.looper-save-confirm { border: 1px solid #d4b04a; background: #d4b04a; color: #1a160b; }
+.looper-save-confirm:disabled { opacity: .55; }
+html.theme-light .looper-save-btn { color: #55451a; background: rgba(255,255,255,.94); }
+html.theme-light .looper-save-dialog { color: #211f1a; background: #f8f6f0; }
+html.theme-light .looper-save-form input { color: #211f1a; background: white; border-color: rgba(0,0,0,.15); }
+html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { color: rgba(33,31,26,.65); }
+
+.looper-save-form input[type="password"] { letter-spacing: .04em; }
+.looper-save-status.is-success { color: #a9d8a4; }
+.looper-save-result-link { color: #e5ca70; font: 12px Inter,system-ui,sans-serif; overflow-wrap: anywhere; }

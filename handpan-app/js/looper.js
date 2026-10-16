@@ -10,6 +10,7 @@
  * Clear: wipe all layers
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
+import { encodeLoopMix, uploadLoopToRepository } from './repository-loop-save.js?v=1';
 
 const MAX_LAYERS = 8;
 const LONG_MS = 480;
@@ -111,6 +112,18 @@ export function mountLooper({ root } = {}) {
   if (syncBtn.parentElement !== cluster) {
     cluster.insertBefore(syncBtn, btn);
   }
+
+  let saveBtn = document.getElementById('looperSaveBtn');
+  if (!saveBtn) {
+    saveBtn = document.createElement('button');
+    saveBtn.type = 'button';
+    saveBtn.id = 'looperSaveBtn';
+    saveBtn.className = 'looper-save-btn';
+    saveBtn.textContent = 'Save';
+    saveBtn.setAttribute('aria-label', 'Save recording to repository');
+    saveBtn.title = 'Save recording to repository';
+  }
+  if (saveBtn.parentElement !== cluster) cluster.appendChild(saveBtn);
   syncBtn.setAttribute('aria-label', 'Sync mode: Free');
   syncBtn.title = SYNC_MODES[0].title;
 
@@ -240,6 +253,8 @@ export function mountLooper({ root } = {}) {
     btn.setAttribute('aria-label', btn.title);
     clearBtn.classList.toggle('has-layers', hasLayers || recording);
     clearBtn.hidden = false;
+    saveBtn.disabled = !hasLayers || recording || pendingLoopStop;
+    saveBtn.classList.toggle('is-available', hasLayers && !recording && !pendingLoopStop);
 
     const mode = SYNC_MODES[syncModeIndex];
     syncBtn.dataset.mode = mode.id;
@@ -492,6 +507,87 @@ export function mountLooper({ root } = {}) {
       layersEl.appendChild(c);
     });
   }
+
+
+  function openSaveDialog() {
+    if (!layers.length || recording || pendingLoopStop) return;
+    document.getElementById('looperSaveDialog')?.remove();
+    const dialog = document.createElement('dialog');
+    dialog.id = 'looperSaveDialog';
+    dialog.className = 'looper-save-dialog';
+    dialog.innerHTML = `
+      <form method="dialog" class="looper-save-form">
+        <p class="looper-save-eyebrow">PIONIER · LESSON SOURCE</p>
+        <h2>Save recording</h2>
+        <p class="looper-save-copy">Upload your loop WAV and its metadata to <code>handpan-app/lesson-source/</code> on GitHub, ready to build a lesson later.</p>
+        <label for="looperSaveName">Recording name</label>
+        <input id="looperSaveName" name="title" maxlength="80" value="Loop ${String(Date.now()).slice(-4)}" autocomplete="off" required />
+        <label for="looperSaveToken">GitHub fine-grained token</label>
+        <input id="looperSaveToken" name="token" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…" required />
+        <p class="looper-save-copy">Token must be scoped to this repository with Contents: Read and write. It is used only for this upload and is not saved by Pionier.</p>
+        <p class="looper-save-status" role="status" aria-live="polite"></p>
+        <div class="looper-save-actions">
+          <button type="button" class="looper-save-cancel">Cancel</button>
+          <button type="submit" class="looper-save-confirm">Upload to repo</button>
+        </div>
+      </form>`;
+    document.body.appendChild(dialog);
+    const form = dialog.querySelector('form');
+    const input = dialog.querySelector('#looperSaveName');
+    const tokenInput = dialog.querySelector('#looperSaveToken');
+    const status = dialog.querySelector('.looper-save-status');
+    const confirm = dialog.querySelector('.looper-save-confirm');
+    dialog.querySelector('.looper-save-cancel').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('close', () => { tokenInput.value = ''; });
+    dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const title = input.value.trim();
+      const token = tokenInput.value.trim();
+      if (!title) { input.focus(); return; }
+      if (!token) { tokenInput.focus(); return; }
+      confirm.disabled = true;
+      input.disabled = true;
+      tokenInput.disabled = true;
+      status.textContent = 'Preparing WAV…';
+      try {
+        const ctx = getAudioContext();
+        const duration = Math.max(...layers.map((layer) => layer.buffer?.duration || 0));
+        if (!ctx || !duration) throw new Error('There is no recorded audio to save yet.');
+        const blob = encodeLoopMix(layers, ctx.sampleRate, duration);
+        status.textContent = 'Uploading audio and metadata to GitHub…';
+        const saved = await uploadLoopToRepository({ blob, title, duration, token });
+        tokenInput.value = '';
+        status.textContent = 'Saved to repository: ' + saved.audioPath;
+        status.classList.add('is-success');
+        saveBtn.textContent = 'Saved ✓';
+        saveBtn.title = 'Recording committed to GitHub';
+        setTimeout(() => { saveBtn.textContent = 'Save'; }, 1800);
+        const link = document.createElement('a');
+        link.href = saved.audioUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'Open saved recording in GitHub';
+        link.className = 'looper-save-result-link';
+        status.after(link);
+        confirm.textContent = 'Done';
+        confirm.disabled = false;
+        confirm.onclick = (e) => { e.preventDefault(); dialog.close(); };
+      } catch (error) {
+        status.textContent = error?.message || 'Could not upload this loop. Try again.';
+        confirm.disabled = false;
+        input.disabled = false;
+        tokenInput.disabled = false;
+        tokenInput.value = '';
+        tokenInput.placeholder = 'Re-enter token to retry';
+      }
+    });
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+    else dialog.setAttribute('open', '');
+    input.focus();
+    input.select();
+  }
+  saveBtn.addEventListener('click', openSaveDialog);
 
   function startRecord() {
     if (layers.length >= MAX_LAYERS) return;

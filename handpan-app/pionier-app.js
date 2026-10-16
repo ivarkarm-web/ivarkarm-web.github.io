@@ -75,7 +75,7 @@ async function boot() {
   }
 
   try {
-    await import(new URL('./js/soundscapes.js?v=7', BASE).href);
+    await import(new URL('./js/soundscapes.js?v=8', BASE).href);
   } catch (err) {
     console.error('[soundscapes] module failed to initialize', err);
     degraded.push('soundscapes');
@@ -103,7 +103,7 @@ async function boot() {
   }
 
   try {
-    const { mountLooper } = await import(new URL('./js/looper.js?v=207', BASE).href);
+    const { mountLooper } = await import(new URL('./js/looper.js?v=209', BASE).href);
     mountLooper();
   } catch (err) {
     console.warn('[looper] mount failed', err);
