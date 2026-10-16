@@ -157,3 +157,28 @@
 .instrument-menu .instrument-menu-item.is-active {
   color: var(--gold, #d4b04a);
 }
+
+/* Instrument groups — same recipe as scale-menu-group */
+.instrument-menu-group {
+  padding: 10px 12px 5px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(232, 230, 227, 0.32);
+  font-weight: 600;
+}
+
+/* Keyboard focus rings inside portaled menus */
+.scale-menu .scale-menu-item:focus-visible,
+.instrument-menu .instrument-menu-item:focus-visible {
+  outline: 2px solid rgba(212, 176, 74, 0.55);
+  outline-offset: -2px;
+  background: rgba(212, 176, 74, 0.12);
+  color: #eceae6;
+}
+
+/* Ensure menuitems are keyboard-reachable */
+.scale-menu .scale-menu-item,
+.instrument-menu .instrument-menu-item {
+  min-height: 44px;
+}
