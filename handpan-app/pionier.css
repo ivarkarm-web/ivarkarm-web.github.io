@@ -934,7 +934,7 @@ body.soundscapes-active .soundscape-only { display: grid; }
   /* Single z-index scale */
   --pionier-z-pan: 2;
   --pionier-z-bar: 1000;
-  --pionier-z-menu: 3201;
+  --pionier-z-menu: 5200;
   --pionier-z-dock: 4000;
   --pionier-z-settings: 4300;
   --pionier-z-fx: 4400;
@@ -948,31 +948,48 @@ body.soundscapes-active .soundscape-only { display: grid; }
   display: none !important;
 }
 
-/* Scale menu sheet */
-#scaleMenu:not([hidden]) {
-  display: block !important;
-  position: fixed !important;
-  left: max(10px, env(safe-area-inset-left, 0px)) !important;
-  right: max(10px, env(safe-area-inset-right, 0px)) !important;
-  width: auto !important;
-  max-width: 420px !important;
-  margin-inline: auto !important;
-  bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
-  top: auto !important;
-  max-height: min(50dvh, 360px) !important;
-  overflow: auto !important;
-  z-index: var(--pionier-z-menu) !important;
-  visibility: visible !important;
-  background: var(--pionier-panel) !important;
-  border: 1px solid var(--pionier-line) !important;
-  border-radius: var(--pionier-radius) !important;
-  padding: var(--pionier-space-2) !important;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45) !important;
+/* Menus: [hidden] closes; open state is owned by overlay-controller
+   (.picker-sheet / .picker-popover). Do not pin geometry here — that
+   fought the bottom-sheet and left menus invisible on many phones. */
+#scaleMenu[hidden],
+#instrumentMenu[hidden] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
-
+#scaleMenu:not([hidden]),
 #instrumentMenu:not([hidden]) {
-  z-index: var(--pionier-z-menu) !important;
+  display: block !important;
   visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: var(--pionier-z-menu) !important;
+  background: rgba(12, 12, 14, 0.98) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+/* Full-width bottom sheet (phone / touch) */
+#scaleMenu.picker-sheet:not([hidden]),
+#instrumentMenu.picker-sheet:not([hidden]) {
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  top: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  max-height: min(55dvh, 420px) !important;
+  border-radius: 16px 16px 0 0 !important;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.55) !important;
+}
+/* Anchored popover (wide desktop) */
+#scaleMenu.picker-popover:not([hidden]),
+#instrumentMenu.picker-popover:not([hidden]) {
+  border-radius: 12px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55) !important;
+  max-width: min(320px, calc(100vw - 24px)) !important;
 }
 
 /* Soundscapes: [hidden] authoritative; above looper rail */
