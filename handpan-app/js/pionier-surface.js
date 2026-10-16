@@ -119,15 +119,15 @@ export function createSurface(canvas) {
     }else if(style==='orbit'){
       // Orbital ellipses and connected moving satellites create a small celestial mechanism.
       for(let k=0;k<4;k++){
-        ctx2.save();ctx2.rotate(k*Math.PI/4+t*(k%2?0.012:-0.009));
+        ctx2.save();ctx2.rotate(k*Math.PI/4+t*(k%2?0.004:-0.003));
         ctx2.beginPath();ctx2.ellipse(0,0,rim*(1.035+k*0.009),R*(0.036+k*0.009),0,0,Math.PI*2);
         stroke(0.17+k*0.035,0.00135+k*0.00016);ctx2.stroke();ctx2.restore();
       }
       for(let orbit=0;orbit<3;orbit++){
-        const count=12+orbit*4,phase=-t*(0.18+orbit*0.055)+orbit*1.7,rr=rim*(1.045+orbit*0.019);
+        const count=12+orbit*4,phase=-t*(0.065+orbit*0.02)+orbit*1.7,rr=rim*(1.045+orbit*0.019);
         let previous=null;
         for(let i=0;i<=count;i++){
-          const a=i/count*Math.PI*2+phase,p=polar(a,rr+R*0.008*Math.sin(a*3+t*0.2));
+          const a=i/count*Math.PI*2+phase,p=polar(a,rr+R*0.008*Math.sin(a*3+t*0.07));
           if(previous&&i%2===0){ctx2.beginPath();ctx2.moveTo(previous.x,previous.y);ctx2.lineTo(p.x,p.y);stroke(0.13,0.0011);ctx2.stroke();}
           if(i<count&&i%(orbit+2)===0)bead(p.x,p.y,R*(i%4===0?0.008:0.0042),0.52);
           previous=p;
@@ -482,7 +482,7 @@ export function createSurface(canvas) {
     const dpr=Math.min(2,window.devicePixelRatio||1);
     canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);
     ctx2.setTransform(dpr,0,0,dpr,0,0);
-    const m=Math.min(W,H);R=m*0.42;CX=W*0.5;CY=H*0.46;
+    const m=Math.min(W,H);R=m*0.39;CX=W*0.5;CY=H*0.5;
   }
   function armTransition(){armed=true}
   function hitVector(x,y){
