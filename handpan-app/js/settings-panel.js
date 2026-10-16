@@ -12,6 +12,7 @@
     tonefield: 'classic',
     transparency: 1,
     mandala: true,
+    auraStyle: 'petals',
     touchFeedback: false,
     rippleStyle: 'ambient',
     led: { r: 110, g: 200, b: 255, strength: 0.35 },
@@ -23,6 +24,7 @@
       SKINS: c.SKINS || [{ id: 'classic', label: 'Classic' }],
       AMBIENTS: c.AMBIENTS || [{ id: 'none', label: 'None' }],
       TONEFIELDS: c.TONEFIELDS || [{ id: 'classic', label: 'Classic Oval' }],
+      AURAS: c.AURAS || [{ id: 'petals', label: 'Petal Crown' }],
     };
   }
 
@@ -66,6 +68,7 @@
       tonefield: state.tonefield,
       transparency: state.transparency,
       mandala: state.mandala,
+      auraStyle: state.auraStyle || 'petals',
       touchFeedback: state.touchFeedback === true,
       rippleStyle: state.rippleStyle || 'ambient',
       lightMode: state.lightMode,
@@ -340,6 +343,18 @@
       '  <label class="settings-toggle"><input type="checkbox" id="settingTouchFeedback" /><span class="settings-toggle-track"></span></label>' +
       '</div>';
     body.appendChild(app);
+
+    const auraSec = document.createElement('section');
+    auraSec.className = 'settings-section';
+    auraSec.innerHTML = '<div class="settings-section-label">Rim aura style</div>';
+    body.appendChild(auraSec);
+    buildDropdown(auraSec, {
+      id: 'settingAuraStyle',
+      label: 'Aura',
+      items: cat.AURAS,
+      activeId: state.auraStyle || 'petals',
+      onPick: (id) => { state.auraStyle = id; save(state); apply(state); },
+    });
 
     const rippleStyleSec = document.createElement('section');
     rippleStyleSec.className = 'settings-section';
