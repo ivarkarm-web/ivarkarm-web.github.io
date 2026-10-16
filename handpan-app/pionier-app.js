@@ -6,6 +6,19 @@ const statusEl = document.getElementById('appStatus');
 const statusMessage = document.getElementById('appStatusMessage');
 const statusRetry = document.getElementById('appStatusRetry');
 
+// Keep the Learn sheet reachable even if the optional lesson engine fails to import.
+const learnButton = document.getElementById('openLearn');
+const learnPanel = document.getElementById('learnPanel');
+const learnClose = document.getElementById('learnClose');
+learnButton?.addEventListener('click', () => {
+  if (learnPanel) learnPanel.hidden = false;
+  document.body.classList.add('learn-active');
+});
+learnClose?.addEventListener('click', () => {
+  if (learnPanel) learnPanel.hidden = true;
+  document.body.classList.remove('learn-active');
+});
+
 function setBootStatus(state, message = '', retry = false) {
   window.PionierBootState = state;
   if (!statusEl) return;
@@ -130,7 +143,7 @@ async function boot() {
   }
 
   try {
-    const { mountLearnMode } = await import(new URL('./js/learn-mode.js?v=1', BASE).href);
+    const { mountLearnMode } = await import(new URL('./js/learn-mode.js?v=2', BASE).href);
     mountLearnMode();
   } catch (err) {
     console.warn('[learn] mount failed', err);
