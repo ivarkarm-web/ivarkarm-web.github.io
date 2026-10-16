@@ -445,19 +445,29 @@ export function createSurface(canvas) {
     if(window.PionierSettings?.touchFeedback!==true)return;
     ensureRippleCanvas();
     const rect=canvas.getBoundingClientRect();
-    const note=fields.find(f=>Number(f.index)===Number(noteIndex));
+    // Use the exact field position currently being painted (including a scale/layout transition),
+    // not the next target layout. This keeps the effect attached to the visible tonefield.
+    const note=animatedView(performance.now()).find(f=>Number(f.index)===Number(noteIndex));
     if(!note)return;
-    const px=rect.left+(note.x/W)*rect.width;
-    const py=rect.top+(note.y/H)*rect.height;
     const center=note.kind==='ding';
-    const screenDX=center?0:(note.ux||0)*(rect.width/W);
-    const screenDY=center?-1:(note.uy||0)*(rect.height/H);
+    const scaleX=rect.width/W,scaleY=rect.height/H;
+    let screenDX=center?0:(note.ux||0)*scaleX;
+    let screenDY=center?-1:(note.uy||0)*scaleY;
     const magnitude=Math.hypot(screenDX,screenDY)||1;
     const dx=screenDX/magnitude,dy=screenDY/magnitude;
     const rotation=center?0:Math.atan2(screenDY,screenDX);
-    const scaleX=rect.width/W,scaleY=rect.height/H;
-    const rx=Math.max(4,note.rx*scaleX);
-    const ry=Math.max(4,note.ry*scaleY);
+    const cx=rect.left+(note.x/W)*rect.width;
+    const cy=rect.top+(note.y/H)*rect.height;
+    // Start at the outside edge of the pad, so the wave visibly leaves the tonefield
+    // instead of appearing as a detached oval centered over it.
+    const edgeRadius=center
+      ? Math.max(4,note.ry*scaleY)
+      : Math.max(4,note.rx*scaleX);
+    const px=cx+dx*edgeRadius;
+    const py=cy+dy*edgeRadius;
+    // A compact leading ring grows away from the pad edge.
+    const rx=Math.max(3,Math.min(note.rx*scaleX,note.ry*scaleY)*0.24);
+    const ry=Math.max(3,Math.min(note.rx*scaleX,note.ry*scaleY)*0.16);
     const now=performance.now();
     if(touchRipples.length>=12)touchRipples.splice(0,touchRipples.length-11);
     touchRipples.push({x:px,y:py,dx,dy,rx,ry,rotation,center,started:now,phase:0});
