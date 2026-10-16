@@ -443,12 +443,12 @@ export function createSurface(canvas) {
     if(window.PionierSettings?.touchFeedback!==true)return;
     ensureRippleCanvas();
     const rect=canvas.getBoundingClientRect();
-    const sx=rect.width?rect.width/W:1,sy=rect.height?rect.height/H:1;
     const now=performance.now();
     if(touchRipples.length>=8)touchRipples.splice(0,touchRipples.length-7);
     touchRipples.push({
-      x:rect.left+x*sx,
-      y:rect.top+y*sy,
+      // Bloom from beneath the instrument, then drift into the surrounding viewport.
+      x:rect.left+rect.width*0.5,
+      y:rect.top+rect.height*0.46,
       started:now,
       angle:((Number(noteIndex)||0)*2.3999632297)-Math.PI/2,
       phase:(Number(noteIndex)||0)*1.6180339887
