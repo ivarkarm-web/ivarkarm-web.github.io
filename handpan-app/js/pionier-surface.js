@@ -393,43 +393,48 @@ export function createSurface(canvas) {
     if(!touchRipples.length||!rippleCtx)return false;
     const ctx=rippleCtx,vw=window.innerWidth,vh=window.innerHeight;
     ctx.clearRect(0,0,vw,vh);
-    const duration=3000;
+    const duration=1700;
     for(let i=touchRipples.length-1;i>=0;i--){
       const p=touchRipples[i];
       const t=(now-p.started)/duration;
       if(t>=1){touchRipples.splice(i,1);continue}
-      // Show the first ring immediately at the pressed pad; don't fade it in after it has drifted.
-      const fadeIn=smoothstep(t/0.045);
-      const fadeOut=smoothstep((1-t)/0.30);
-      const envelope=fadeIn*fadeOut;
       const travel=smoothstep(t);
+      const fadeIn=smoothstep(t/0.035);
+      const fadeOut=1-smoothstep((t-0.48)/0.52);
+      const envelope=fadeIn*fadeOut;
       const span=Math.min(vw,vh);
-      const rise=vh*0.18*travel;
-      const sway=Math.sin(t*Math.PI*1.1+p.phase)*span*0.003;
-      const x=p.x+sway;
-      const y=p.y-rise;
-      const radius=2+span*0.075*travel;
+      // Ring notes send their wave radially toward the nearest rim.
+      // The central ding alone sends its wave upward.
+      const distance=span*(p.center?0.22:0.19)*travel;
+      const x=p.x+p.dx*distance;
+      const y=p.y+p.dy*distance;
+      const baseRx=Math.max(5,p.rx);
+      const baseRy=Math.max(4,p.ry);
+      const rx=baseRx*(1+0.95*travel);
+      const ry=baseRy*(1+0.95*travel);
       ctx.save();
       ctx.globalCompositeOperation='screen';
-      const halo=ctx.createRadialGradient(x,y,Math.max(0,radius-span*0.012),x,y,radius+span*0.022);
-      halo.addColorStop(0,'rgba(255,210,130,0)');
-      halo.addColorStop(0.42,'rgba(255,190,105,'+(0.025*envelope)+')');
-      halo.addColorStop(0.72,'rgba(255,218,157,'+(0.045*envelope)+')');
-      halo.addColorStop(1,'rgba(255,218,157,0)');
-      ctx.fillStyle=halo;
-      ctx.beginPath();ctx.arc(x,y,radius+span*0.022,0,Math.PI*2);ctx.fill();
       for(let ring=0;ring<2;ring++){
-        const delay=ring===0?0:0.12;
+        const delay=ring===0?0:0.15;
         const rt=Math.max(0,Math.min(1,(t-delay)/(1-delay)));
-        const rr=2+span*(0.075+ring*0.009)*smoothstep(rt);
-        const alpha=(ring===0?0.28:0.15)*envelope;
-        ctx.beginPath();ctx.arc(x,y,rr,0,Math.PI*2);
+        const rrX=baseRx*(1+0.95*smoothstep(rt))+(ring?span*0.006:0);
+        const rrY=baseRy*(1+0.95*smoothstep(rt))+(ring?span*0.004:0);
+        const alpha=(ring===0?0.32:0.19)*envelope;
+        ctx.beginPath();
+        ctx.ellipse(x,y,rrX,rrY,p.rotation,0,Math.PI*2);
         ctx.strokeStyle='rgba(255,220,161,'+alpha+')';
-        ctx.lineWidth=ring===0?1.8:1.15;
+        ctx.lineWidth=ring===0?1.8:1.2;
         ctx.shadowColor='rgba(255,190,89,'+(alpha*0.45)+')';
         ctx.shadowBlur=(ring===0?5:3)*envelope;
         ctx.stroke();
       }
+      // A restrained halo stays attached to the moving wave instead of blooming in the background.
+      const halo=ctx.createRadialGradient(x,y,Math.max(0,rx*0.7),x,y,rx*1.12);
+      halo.addColorStop(0,'rgba(255,210,130,0)');
+      halo.addColorStop(0.7,'rgba(255,218,157,'+(0.035*envelope)+')');
+      halo.addColorStop(1,'rgba(255,218,157,0)');
+      ctx.fillStyle=halo;
+      ctx.beginPath();ctx.ellipse(x,y,rx*1.12,ry*1.12,p.rotation,0,Math.PI*2);ctx.fill();
       ctx.restore();
     }
     ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.globalCompositeOperation='source-over';
@@ -441,14 +446,21 @@ export function createSurface(canvas) {
     ensureRippleCanvas();
     const rect=canvas.getBoundingClientRect();
     const note=fields.find(f=>Number(f.index)===Number(noteIndex));
-    const localX=note?note.x:(Number(x)||W*0.5);
-    const localY=note?note.y:(Number(y)||H*0.5);
-    const px=rect.left+(localX/W)*rect.width;
-    const py=rect.top+(localY/H)*rect.height;
-    const angle=((Number(noteIndex)||0)*2.3999632297)-Math.PI/2;
+    if(!note)return;
+    const px=rect.left+(note.x/W)*rect.width;
+    const py=rect.top+(note.y/H)*rect.height;
+    const center=note.kind==='ding';
+    const screenDX=center?0:(note.ux||0)*(rect.width/W);
+    const screenDY=center?-1:(note.uy||0)*(rect.height/H);
+    const magnitude=Math.hypot(screenDX,screenDY)||1;
+    const dx=screenDX/magnitude,dy=screenDY/magnitude;
+    const rotation=center?0:Math.atan2(screenDY,screenDX);
+    const scaleX=rect.width/W,scaleY=rect.height/H;
+    const rx=Math.max(4,note.rx*scaleX);
+    const ry=Math.max(4,note.ry*scaleY);
     const now=performance.now();
     if(touchRipples.length>=12)touchRipples.splice(0,touchRipples.length-11);
-    touchRipples.push({x:px,y:py,angle,started:now,phase:(Number(noteIndex)||0)*1.6180339887});
+    touchRipples.push({x:px,y:py,dx,dy,rx,ry,rotation,center,started:now,phase:0});
     if(!rippleRaf)rippleRaf=requestAnimationFrame(tickRipples);
   }
   function tickRipples(now){
