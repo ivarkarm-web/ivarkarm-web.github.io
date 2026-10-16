@@ -498,11 +498,28 @@ function wire(id, fn) {
   document.getElementById(id)?.addEventListener('click', fn);
 }
 function refreshPitch() {
-  handpan.rebuildNotes();
-  syncWorldPitch();
-  updateLabels();
-  layoutFields();
-  draw();
+  try {
+    handpan.rebuildNotes();
+    syncWorldPitch();
+    updateLabels();
+    layoutFields();
+    draw();
+  } catch (err) {
+    console.warn('refreshPitch', err);
+    try { updateLabels(); } catch (_) {}
+  }
+  // Keep chrome interactive after scale/root changes
+  try {
+    if (window.PionierOverlay?.closePickers) window.PionierOverlay.closePickers();
+    document.getElementById('app')?.classList.remove('soundscapes-away');
+    document.body.classList.remove('soundscapes-active');
+    const bd = document.getElementById('pickerBackdrop');
+    if (bd) { bd.hidden = true; bd.setAttribute('hidden', ''); }
+  } catch (_) {}
+  // Re-measure pan slot after label/layout shifts
+  try {
+    if (typeof window.__pionierCenterPan === 'function') window.__pionierCenterPan();
+  } catch (_) {}
 }
 wire('scalePrev', () => {
   const n = HANDPAN_SCALES.length;

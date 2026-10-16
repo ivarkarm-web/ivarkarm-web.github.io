@@ -25,6 +25,7 @@
    * Geometry lives in pionier.css (flex/grid + dvh). No inline position on #pan.
    */
   function centerPan() {
+    window.__pionierCenterPan = centerPan;
     const bar = document.getElementById('stageScaleBar');
     const dock = document.getElementById('pionierTopDock');
     const root = document.documentElement;

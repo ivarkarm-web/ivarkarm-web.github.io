@@ -95,35 +95,55 @@
     document.querySelectorAll('.settings-dd-toggle[aria-expanded="true"]').forEach((t) => {
       t.setAttribute('aria-expanded', 'false');
     });
-    document.querySelectorAll('.settings-dd-menu.is-open').forEach((m) => {
+    document.querySelectorAll('.settings-dd-menu.is-open, .settings-dd-menu').forEach((m) => {
       m.hidden = true;
+      m.setAttribute('hidden', '');
       m.classList.remove('is-open');
+      m.style.removeProperty('display');
     });
   }
 
   function positionMenu(menu, toggle) {
     const rect = toggle.getBoundingClientRect();
-    const maxH = Math.min(window.innerHeight * 0.5, 360);
-    const spaceBelow = window.innerHeight - rect.bottom - 12;
-    const spaceAbove = rect.top - 12;
-    const openUp = spaceBelow < 180 && spaceAbove > spaceBelow;
     const width = Math.max(rect.width, Math.min(320, window.innerWidth - 24));
     let left = rect.left;
     if (left + width > window.innerWidth - 12) left = window.innerWidth - 12 - width;
     if (left < 12) left = 12;
 
-    menu.style.position = 'fixed';
-    menu.style.zIndex = '3200';
-    menu.style.width = width + 'px';
-    menu.style.left = left + 'px';
-    menu.style.maxHeight = Math.min(maxH, openUp ? spaceAbove : spaceBelow) + 'px';
-    if (openUp) {
-      menu.style.bottom = (window.innerHeight - rect.top + 6) + 'px';
-      menu.style.top = 'auto';
-    } else {
-      menu.style.top = (rect.bottom + 6) + 'px';
-      menu.style.bottom = 'auto';
-    }
+    const spaceBelow = Math.max(80, window.innerHeight - rect.bottom - 16);
+    const spaceAbove = Math.max(80, rect.top - 16);
+    const preferBelow = spaceBelow >= 140 || spaceBelow >= spaceAbove;
+    const maxH = Math.min(window.innerHeight * 0.55, 360, preferBelow ? spaceBelow : spaceAbove);
+    let top = preferBelow ? (rect.bottom + 6) : (rect.top - 6 - maxH);
+    // Clamp fully into the viewport
+    if (top < 8) top = 8;
+    if (top + maxH > window.innerHeight - 8) top = Math.max(8, window.innerHeight - 8 - maxH);
+
+    menu.style.cssText = [
+      'position:fixed',
+      'z-index:9999',
+      'left:' + left + 'px',
+      'top:' + top + 'px',
+      'bottom:auto',
+      'right:auto',
+      'width:' + width + 'px',
+      'max-height:' + maxH + 'px',
+      'display:block',
+      'visibility:visible',
+      'opacity:1',
+      'pointer-events:auto',
+      'background:#161618',
+      'background-image:none',
+      'color:#e6e0d2',
+      'border:1px solid rgba(230,224,210,0.18)',
+      'border-radius:12px',
+      'box-shadow:0 20px 60px rgba(0,0,0,0.75)',
+      'padding:8px',
+      'overflow-y:auto',
+      '-webkit-overflow-scrolling:touch',
+    ].join(';');
+    menu.style.setProperty('z-index', '99999', 'important');
+    menu.style.setProperty('background', '#161618', 'important');
   }
 
   function buildDropdown(sectionEl, { id, label, items, activeId, onPick }) {
@@ -139,7 +159,12 @@
     sectionEl.appendChild(row);
 
     let menu = document.getElementById(id + 'Menu');
-    if (!menu) {
+    if (menu) {
+      // Reset for a clean open state after sheet rebuild
+      menu.hidden = true;
+      menu.classList.remove('is-open');
+      menu.innerHTML = '';
+    } else {
       menu = document.createElement('div');
       menu.id = id + 'Menu';
       menu.className = 'settings-dd-menu';
@@ -147,6 +172,7 @@
       menu.hidden = true;
       document.body.appendChild(menu);
     }
+    if (menu.parentElement !== document.body) document.body.appendChild(menu);
 
     const toggle = row.querySelector('.settings-dd-toggle');
     const valueEl = row.querySelector('.settings-dd-value');
@@ -186,9 +212,10 @@
       closeMenus();
       if (wasOpen) return;
       renderMenu();
-      positionMenu(menu, toggle);
       menu.hidden = false;
+      menu.removeAttribute('hidden');
       menu.classList.add('is-open');
+      positionMenu(menu, toggle);
       toggle.setAttribute('aria-expanded', 'true');
       openMenuEl = menu;
       openToggleEl = toggle;
@@ -418,6 +445,9 @@
   }
 
   function wire(state, els) {
+    if (window.__settingsPanelWired) {
+      // Still (re)bind open buttons below; skip document-level listeners
+    }
     const open = (e) => {
       if (e) { e.preventDefault(); e.stopPropagation(); }
       const drawer = document.getElementById('mobileControlDrawer');
@@ -441,18 +471,27 @@
     document.getElementById('settingsSheetClose')?.addEventListener('click', () => closeSheet(els));
     els.backdrop.addEventListener('click', () => closeSheet(els));
 
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.settings-dd-toggle') && !e.target.closest('.settings-dd-menu')) {
+    if (!window.__settingsPanelWired) {
+      window.__settingsPanelWired = true;
+      document.addEventListener('click', (e) => {
+        if (!openMenuEl) return;
+        if (e.target.closest('.settings-dd-toggle') || e.target.closest('.settings-dd-menu')) return;
         closeMenus();
-      }
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        if (openMenuEl) closeMenus();
-        else if (els.sheet.classList.contains('is-open')) closeSheet(els);
-      }
-    });
-    window.addEventListener('resize', () => closeMenus());
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (openMenuEl) closeMenus();
+          else if (document.getElementById('settingsSheet')?.classList.contains('is-open')) {
+            const sheet = document.getElementById('settingsSheet');
+            const backdrop = document.getElementById('settingsSheetBackdrop');
+            if (sheet) { sheet.classList.remove('is-open'); sheet.hidden = true; }
+            if (backdrop) { backdrop.classList.remove('is-open'); backdrop.hidden = true; }
+            document.getElementById('settingsOpenBtn')?.setAttribute('aria-expanded', 'false');
+          }
+        }
+      });
+      window.addEventListener('resize', () => closeMenus());
+    }
   }
 
   function boot() {
