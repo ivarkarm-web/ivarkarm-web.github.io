@@ -1,3 +1,5 @@
+import { listSavedLoops } from './saved-loop-library.js?v=1';
+
 /**
  * Soundscapes — Bedroom Sessions only (owner recordings on archive.org).
  * No uploads, no third-party embeds, no generated ambience.
@@ -102,6 +104,33 @@ if (page && audio) {
   let index = 0;
   let seeking = false;
   let repeat = false;
+  let savedSessions = [];
+  let currentObjectUrl = null;
+
+  function allTracks() { return [...BEDROOM_SESSIONS, ...savedSessions]; }
+
+  async function refreshSavedLoops() {
+    try {
+      const records = await listSavedLoops();
+      savedSessions = records
+        .sort((a, b) => a.createdAt - b.createdAt)
+        .map((record) => ({
+          num: 'S' + record.id,
+          title: record.title || 'Saved loop',
+          note: 'Saved on this device',
+          instrument: 'Recorded loop',
+          duration: Number(record.duration) || 0,
+          blob: record.blob,
+          saved: true,
+          id: record.id,
+        }));
+      renderQueue();
+      if (statusEl && !audio.src) setStatus('Bedroom Sessions · ' + BEDROOM_SESSIONS.length + ' tracks · ' + savedSessions.length + ' saved loops');
+    } catch (error) {
+      console.warn('[soundscapes] saved loops unavailable', error);
+      if (statusEl && !audio.src) setStatus('Local loop storage is unavailable in this browser');
+    }
+  }
 
   function fmt(seconds) {
     if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
@@ -115,7 +144,7 @@ if (page && audio) {
   }
 
   function syncMeta() {
-    const track = BEDROOM_SESSIONS[index];
+    const track = allTracks()[index];
     if (!track) return;
     if (titleEl) titleEl.textContent = track.title;
     if (noteEl) noteEl.textContent = track.note || track.instrument || '';
@@ -142,8 +171,14 @@ if (page && audio) {
     syncMeta();
     setStatus('Loading…');
     audio.pause();
-    // Prefer MP3; browser will error → we can fall back once
-    audio.src = track.mp3;
+    if (currentObjectUrl) { URL.revokeObjectURL(currentObjectUrl); currentObjectUrl = null; }
+    if (track.saved && track.blob) {
+      currentObjectUrl = URL.createObjectURL(track.blob);
+      audio.src = currentObjectUrl;
+    } else {
+      // Prefer MP3; browser will error → we can fall back once
+      audio.src = track.mp3;
+    }
     audio.preload = 'metadata';
     audio.load();
     if (autoplay) {
@@ -160,7 +195,7 @@ if (page && audio) {
   function renderQueue() {
     if (!queueEl) return;
     queueEl.replaceChildren();
-    BEDROOM_SESSIONS.forEach((track, i) => {
+    allTracks().forEach((track, i) => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'soundscape-queue-item' + (i === index ? ' is-active' : '');
@@ -260,7 +295,7 @@ if (page && audio) {
   });
   audio.addEventListener('ended', () => {
     if (repeat) return;
-    if (index < BEDROOM_SESSIONS.length - 1) loadTrack(index + 1, true);
+    if (index < allTracks().length - 1) loadTrack(index + 1, true);
     else setStatus('Finished');
   });
   audio.addEventListener('error', () => {
@@ -290,6 +325,8 @@ if (page && audio) {
   renderQueue();
   syncMeta();
   setStatus('Bedroom Sessions · 8 tracks');
+  refreshSavedLoops();
+  window.addEventListener('pionier:saved-loops-changed', refreshSavedLoops);
 }
 
 export { BEDROOM_SESSIONS };
