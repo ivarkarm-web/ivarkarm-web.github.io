@@ -149,7 +149,7 @@
     hue = entry && entry.hue != null ? entry.hue : 210;
     // Very subtle — primary mandala lives on the handpan surface
     const mandalaOn = !(detail && detail.mandala === false) && !(window.PionierSettings && window.PionierSettings.mandala === false);
-    targetOpacity = mandalaOn ? 0.12 : 0;
+    // Aura is now drawn on the handpan canvas rim, not as a full-screen overlay.\n    targetOpacity = 0;
     if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
   }
 
