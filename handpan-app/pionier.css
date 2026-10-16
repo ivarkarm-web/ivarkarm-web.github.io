@@ -1998,59 +1998,152 @@ button#openSoundscapes.soundscapes-top-btn {
   display: none !important;
 }
 
-/* ========== Kill glitched collapsed topbar pill ========== */
-header.topbar,
-.topbar.topbar-minimal,
-.topbar.topbar-collapsed,
-header.topbar.topbar-minimal.topbar-collapsed {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  height: 0 !important;
-  min-height: 0 !important;
-  max-height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  pointer-events: none !important;
-  overflow: hidden !important;
+/* ========== Light mode — full override of dark !important chrome ========== */
+html.theme-light body {
+  background: #e8e6e1 !important;
+  color: #1a1a1c !important;
+}
+html.theme-light body::before {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 42%, rgba(255, 255, 255, 0.75) 0%, transparent 62%),
+    radial-gradient(ellipse 50% 40% at 50% 100%, rgba(212, 176, 74, 0.08) 0%, transparent 55%),
+    linear-gradient(180deg, #f2f0eb 0%, #e4e1da 100%) !important;
 }
 
-/* ========== Center top chrome: ♫ + FX + settings ========== */
-#openSoundscapes.soundscapes-top-btn,
-button#openSoundscapes.soundscapes-top-btn,
-#fxPanelOpen,
-.fx-panel-open,
-#settingsOpenBtn,
-.settings-open-btn {
-  position: fixed !important;
-  top: max(10px, env(safe-area-inset-top, 0px)) !important;
-  right: auto !important;
-  left: 50% !important;
-  z-index: 4400 !important;
+/* Bottom bar */
+html.theme-light #stageScaleBar,
+html.theme-light .stage-scale-bar {
+  background: linear-gradient(
+    to top,
+    rgba(242, 240, 235, 0.98) 0%,
+    rgba(242, 240, 235, 0.92) 55%,
+    rgba(242, 240, 235, 0.55) 85%,
+    transparent 100%
+  ) !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+  color: #1a1a1c !important;
 }
 
-/* Cluster of three 44px buttons + 8px gaps ≈ 148px → offset each from center */
-#openSoundscapes.soundscapes-top-btn,
-button#openSoundscapes.soundscapes-top-btn {
-  transform: translateX(calc(-50% - 52px)) !important;
+/* Primary selectors */
+html.theme-light #stageScaleBar #scaleLabel,
+html.theme-light #stageScaleBar .stage-scale-btn,
+html.theme-light #stageScaleBar .scale-dropdown-toggle,
+html.theme-light #stageScaleBar #instrumentDropdownToggle,
+html.theme-light #stageScaleBar .stage-instrument-nav .instrument-name {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: rgba(28, 28, 32, 0.92) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
 }
 
-#fxPanelOpen,
-.fx-panel-open {
-  transform: translateX(-50%) !important;
-  min-width: var(--pionier-tap, 44px) !important;
-  width: var(--pionier-tap, 44px) !important;
-  height: var(--pionier-tap, 44px) !important;
-  padding: 0 !important;
-  border-radius: 50% !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+html.theme-light #stageScaleBar #scalePrev,
+html.theme-light #stageScaleBar #scaleNext,
+html.theme-light #stageScaleBar #voicePrev,
+html.theme-light #stageScaleBar #voiceNext,
+html.theme-light #stageScaleBar .stage-scale-step,
+html.theme-light #stageScaleBar .icon-btn {
+  background: rgba(255, 255, 255, 0.85) !important;
+  color: rgba(28, 28, 32, 0.75) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
-#settingsOpenBtn,
-.settings-open-btn {
-  transform: translateX(calc(-50% + 52px)) !important;
+/* Secondary steppers */
+html.theme-light #stageScaleBar .stepper,
+html.theme-light #stageScaleBar .stepper .step,
+html.theme-light #stageScaleBar .step,
+html.theme-light #stageScaleBar .step-value {
+  background: rgba(255, 255, 255, 0.88) !important;
+  color: rgba(28, 28, 32, 0.88) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+html.theme-light #stageScaleBar .control-label {
+  color: rgba(28, 28, 32, 0.45) !important;
+}
+
+/* Top chrome */
+html.theme-light #settingsOpenBtn,
+html.theme-light .settings-open-btn,
+html.theme-light #fxPanelOpen,
+html.theme-light .fx-panel-open,
+html.theme-light #openSoundscapes.soundscapes-top-btn,
+html.theme-light button#openSoundscapes.soundscapes-top-btn {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: rgba(40, 40, 44, 0.78) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+}
+html.theme-light #openSoundscapes.soundscapes-top-btn {
+  color: rgba(150, 110, 20, 0.9) !important;
+}
+
+/* Looper chrome in light mode */
+html.theme-light #looperRail,
+html.theme-light .looper-rail {
+  background: transparent !important;
+}
+html.theme-light .looper-clear-btn,
+html.theme-light #looperClearBtn {
+  background: rgba(255, 255, 255, 0.85) !important;
+  color: rgba(40, 40, 44, 0.65) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+html.theme-light .looper-sync-dial,
+html.theme-light #looperSyncBtn {
+  background: rgba(255, 255, 255, 0.88) !important;
+  color: rgba(40, 40, 44, 0.75) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+html.theme-light .looper-sync-label {
+  color: rgba(40, 40, 44, 0.7) !important;
+}
+
+/* Menus / sheets */
+html.theme-light .instrument-menu,
+html.theme-light .scale-menu,
+html.theme-light .instrument-menu.picker-sheet,
+html.theme-light .scale-menu.picker-sheet {
+  background: linear-gradient(180deg, #faf9f6, #eceae4) !important;
+  color: #1a1a1c !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+html.theme-light .instrument-menu-item,
+html.theme-light .scale-menu-item {
+  color: rgba(28, 28, 32, 0.88) !important;
+}
+html.theme-light .instrument-menu-item.is-active,
+html.theme-light .scale-menu-item.is-active {
+  background: rgba(212, 176, 74, 0.18) !important;
+  color: #7a5c12 !important;
+}
+html.theme-light .instrument-menu-group,
+html.theme-light .scale-menu-group {
+  color: rgba(28, 28, 32, 0.4) !important;
+}
+
+/* FX panel */
+html.theme-light .fx-panel {
+  background: rgba(250, 249, 246, 0.98) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #1a1a1c !important;
+}
+
+/* ========== Looper: never block hits ========== */
+#looperRail,
+#looperRail.looper-rail,
+.looper-rail,
+#looperRecordCluster,
+.looper-record-cluster,
+#looperBtn,
+.looper-btn,
+#looperClearBtn,
+.looper-clear-btn,
+#looperSyncBtn,
+.looper-sync-dial {
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+}
+#stageScaleBar #looperRail,
+#stageScaleBar .looper-rail {
+  pointer-events: auto !important;
+  z-index: 1002 !important;
 }
