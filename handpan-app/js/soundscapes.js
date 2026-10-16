@@ -202,7 +202,10 @@ if (page && audio) {
       btn.type = 'button';
       btn.className = 'soundscape-queue-item' + (i === index ? ' is-active' : '');
       btn.dataset.trackIndex = String(i);
-      btn.innerHTML = '<span class="sq-num">' + track.num + '</span><span class="sq-title">' + track.title + '</span><span class="sq-dur">' + fmt(track.duration) + '</span>';
+      const num = document.createElement('span'); num.className = 'sq-num'; num.textContent = track.num;
+      const title = document.createElement('span'); title.className = 'sq-title'; title.textContent = track.title;
+      const duration = document.createElement('span'); duration.className = 'sq-dur'; duration.textContent = fmt(track.duration);
+      btn.append(num, title, duration);
       btn.addEventListener('click', () => loadTrack(i, true));
       queueEl.appendChild(btn);
     });
