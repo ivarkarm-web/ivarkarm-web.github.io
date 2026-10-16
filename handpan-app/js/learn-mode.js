@@ -39,11 +39,20 @@ export function mountLearnMode(){
   let running=false, lesson=null, lessonIndex=0, mode='practice', startAt=0, index=0, raf=0, hitCount=0, missCount=0;
   let ringState=null, done=false, transposeSteps=0, sounded=new Set(), countdownUntil=0, hud=null, hudLabel=null;
   function show(){panel.hidden=false;document.body.classList.add('learn-active')}
+  function setSetupTarget(step){
+    const scaleButton=document.getElementById('scaleLabel');
+    const instrumentButton=document.getElementById('instrumentDropdownToggle');
+    scaleButton?.classList.toggle('learn-step-target',step==='scale');
+    instrumentButton?.classList.toggle('learn-step-target',step==='instrument');
+    scaleButton?.setAttribute('aria-description',step==='scale'?'Lesson hint: choose Flow Pygmy':'');
+    instrumentButton?.setAttribute('aria-description',step==='instrument'?'Lesson hint: choose Tine Piano':'');
+  }
+  function clearSetupTarget(){setSetupTarget('');}
   function ensureHud(){if(hud)return;hud=document.createElement('div');hud.id='learnGameHud';hud.innerHTML='<span id="learnHudLabel">COUNTDOWN</span><button type="button" data-action="restart">Restart</button><button type="button" data-action="menu">Lessons</button><button type="button" data-action="close" aria-label="Close lesson">×</button>';document.body.appendChild(hud);hudLabel=hud.querySelector('#learnHudLabel');hud.addEventListener('click',e=>{const a=e.target?.dataset?.action;if(a==='restart')begin(lessonIndex,mode);if(a==='menu'){hud.hidden=true;show();menu()}if(a==='close')hide()});}
   function setHud(text){ensureHud();hudLabel.textContent=text;hud.dataset.cue=text==='PLAY NOW'?'play':'';hud.hidden=false}
   function hideHud(){if(hud)hud.hidden=true}
   function hide(){panel.hidden=true;stop();hideHud();document.body.classList.remove('learn-active')}
-  function stop(){running=false;done=false;ringState=null;sounded.clear();countdownUntil=0;cancelAnimationFrame(raf);ctx.clearRect(0,0,stageWidth,stageHeight);overlay.style.display='none';hideHud();}
+  function stop(){running=false;done=false;ringState=null;sounded.clear();countdownUntil=0;clearSetupTarget();cancelAnimationFrame(raf);ctx.clearRect(0,0,stageWidth,stageHeight);overlay.style.display='none';hideHud();}
   function menu(){stop();list.hidden=false;controls.hidden=true;heading.textContent='Catch the Note';description.textContent='Choose a lesson, then press Start when you are ready. Follow the incoming wave and play when the target glows.';if(startBtn)startBtn.hidden=false;if(listenBtn)listenBtn.hidden=true;if(catchBtn)catchBtn.hidden=true;if(transposeBtn)transposeBtn.hidden=false;if(document.getElementById('learnRestart'))document.getElementById('learnRestart').hidden=true;}
   function targetPads(ev){const fields=window.PionierCore?.surface?.fields||[];const count=fields.length||9;return (ev.pads||[ev.pad]).map(p=>((Number(p)+transposeSteps)%count+count)%count)}
   function targetField(pad){const fields=window.PionierCore?.surface?.fields||[];return fields.find(f=>Number(f.index)===Number(pad))||fields[pad]||null}
@@ -81,10 +90,10 @@ export function mountLearnMode(){
       const scale=window.HANDPAN_SCALES?.[core?.handpan?.scaleIndex];
       const scaleReady=scale?.id==='flowpygmy';
       const instrumentReady=core?.activeInstrument?.()?.id==='tine';
-      if(!scaleReady){setHud('STEP 1 · SELECT FLOW PYGMY');progress.textContent='OPEN THE SCALE MENU · CHOOSE FLOW PYGMY';}
-      else if(!instrumentReady){setHud('STEP 2 · SELECT TINE PIANO');progress.textContent='OPEN THE INSTRUMENT MENU · CHOOSE TINE PIANO';}
+      if(!scaleReady){setSetupTarget('scale');setHud('STEP 1 · TAP SCALE');progress.textContent='TAP THE SCALE CONTROL · CHOOSE FLOW PYGMY';}
+      else if(!instrumentReady){setSetupTarget('instrument');setHud('STEP 2 · TAP INSTRUMENT');progress.textContent='TAP THE INSTRUMENT NAME · CHOOSE TINE PIANO';}
       else{
-        mode='practice';index=0;hitCount=0;missCount=0;ringState=null;
+        clearSetupTarget();mode='practice';index=0;hitCount=0;missCount=0;ringState=null;
         startAt=now+2400;countdownUntil=startAt;setHud('SETUP COMPLETE · GET READY');progress.textContent='FLOW PYGMY + TINE PIANO READY';
       }
       raf=requestAnimationFrame(drawFrame);return;
