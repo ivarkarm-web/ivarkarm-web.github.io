@@ -1,33 +1,37 @@
 /**
  * Pionier service worker
- * CACHE_VERSION and SHELL query stamps must match index.html / pionier-app.js.
+ * CACHE_VERSION and SHELL query stamps MUST match index.html / pionier-app.js.
  * Bump CACHE_VERSION on every deploy that changes shell assets.
+ *
+ * Strategy:
+ *  - HTML / navigations: network-first (fallback to cache offline)
+ *  - Versioned shell assets (?v=): network-first when online, cache fallback
+ *  - Other same-origin GET: cache-first, then network
  */
-const CACHE_VERSION = 'pionier-v24';
+const CACHE_VERSION = 'pionier-v25';
 
 const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icon.svg',
-  './pionier.css?v=135',
+  './pionier.css?v=136',
   './atelier.css?v=10',
-  './ui-layout-extras.css?v=41',
   './looper.css?v=204',
-  './scale-menu.css?v=6',
+  './scale-menu.css?v=7',
   './settings-panel.css?v=13',
   './topbar-narrow.css?v=6',
   './js/skin-palette.js?v=1',
   './js/customization-catalog.js?v=5',
-  './js/overlay-controller.js?v=5',
+  './js/overlay-controller.js?v=6',
   './js/layout-boot.js?v=62',
   './js/settings-panel.js?v=17',
   './js/ambient-fx.js?v=12',
   './js/skin-mandala.js?v=4',
-  './pionier-app.js?v=178',
+  './pionier-app.js?v=179',
   './registerSW.js',
-  './pionier-core.js?v=31',
-  './js/audio-core.js',
+  './pionier-core.js?v=32',
+  './js/audio-core.js?v=2',
   './js/instrument.js',
   './js/gesture.js',
   './js/fx.js',
@@ -36,7 +40,8 @@ const SHELL = [
   './js/soundscapes.js?v=7',
   './js/scale-selector.js?v=5',
   './js/looper.js?v=206',
-  './js/instruments/handpan.js',
+  './js/instruments/handpan.js?v=7',
+  './js/instruments/handpan-scales.js?v=3',
   './js/instruments/arp-family.js',
   './js/note-plus.js?v=3',
 ];
@@ -62,11 +67,19 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
 function isDocumentRequest(req, url) {
   if (req.mode === 'navigate') return true;
   if (req.destination === 'document') return true;
   const path = url.pathname;
   return path.endsWith('.html') || path.endsWith('/') || path.endsWith('/handpan-app');
+}
+
+function isVersionedAsset(url) {
+  return url.search.includes('v=');
 }
 
 self.addEventListener('fetch', (event) => {
@@ -75,6 +88,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
+  // HTML: network-first
   if (isDocumentRequest(req, url)) {
     event.respondWith(
       fetch(req)
@@ -90,6 +104,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Versioned shell JS/CSS: network-first so deploys win over stale cache
+  if (isVersionedAsset(url) && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});
+          }
+          return res;
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // Everything else: cache-first
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
