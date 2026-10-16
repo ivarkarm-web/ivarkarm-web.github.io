@@ -247,7 +247,7 @@
       document.body.appendChild(sheet);
     }
 
-    return { bar, btn, sheet, backdrop, bottomBtn };
+    return { btn, sheet, backdrop, bottomBtn };
   }
 
   function buildBody(state) {
