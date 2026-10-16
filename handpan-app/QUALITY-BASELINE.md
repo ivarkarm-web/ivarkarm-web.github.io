@@ -2,39 +2,32 @@
 
 Measured facts only. Nothing is marked DONE without a real run.
 
-## Phase 0 — Real-browser baseline (2026-10-16)
+## Phase 0–3 (prior)
 
-Environment: Chromium via browser tooling against https://ivarkarm-web.github.io/handpan-app/
+- Core boots; instrument ready
+- Scale menu opens with 15 items
+- Pan viewport-centered
+- CONTROLS empty toggle hidden
+- Root / note count in bottom bar
+- Bedroom Sessions panel: 8-track queue, MP3 from archive.org loads (`readyState` 4)
+- SW: network-first HTML, `CACHE_VERSION` pionier-v4+
 
-### Boot
-- `window.PionierCore` present; `health.instrumentReady === true`
-- Status banner `data-state="ready"`, hidden
-- No "could not start" banner
-- Cold transfer ~119 KB for shell modules (samples not loaded until scale play)
-- ~46 network resources for shell; no failed requests observed in the capture
+## Phase 4 — Hardening (2026-10-16)
 
-### Layout (measured)
-- Stylesheets: 9 app CSS + Inter + 1 inline block
-- Fixed overlays: `skinMandalaCanvas`, `ambientFxCanvas`, `stageScaleBar` (z=1000), `pionierTopDock` (z=4000)
-- At one measured viewport (780×493), `#pan` reported `left: -120` and `#stageScaleBar` `left: -359` — off-canvas positioning risk under some sizes
-- Instrument dropdown opens and lists many voices (46 menu buttons)
-- Scale chip does not open `#scaleMenu` (menu stays `display:none`, 0 items) when tapping `#scaleLabel`
-- Controls drawer opens (`aria-expanded=true`) but measured height ~40px — content not usefully expanded
-- Soundscapes open leaves panel with class `is-active` while `hidden` still true; UI goes mostly blank (pan disappears)
+### Implemented in code
+- Keyboard pads: `1`–`9` / `Q`–`O`, hold/release, ignores typing in inputs
+- Audio: resume on `visibilitychange` (visible), `pageshow`, `focus`; suspend when hidden
+- Canvas: `tabindex="0"`, richer `aria-label`, `:focus-visible`
+- `prefers-reduced-motion` hard cut in chrome-fix
+- Docs: README / ARCHITECTURE / SOURCES rewritten to match product (no Learn, no uploads, no generative ambience)
 
-### Product decisions applied next
-- Remove generated ambience and user-upload soundscapes paths
-- Remove Learn mode artifacts
-- Bedroom Sessions only (Phase 3)
+### Browser-verified this session
+- Boot + scale menu + bottom bar + Soundscapes open/close (Chromium tooling)
+- Archive.org MP3 CORS `*` + Accept-Ranges
 
-### Tests (local sparse clone, 2026-10-16)
-- `node scripts/smoke-test.mjs`: PASS (76 checks on sparse tree)
-- `npm run test:app`: 18/18 PASS after fixing fetch query-string handling and deleting `backdrop-player.test.mjs`
-- Playwright: not fully re-run in this session (install blocked by environment)
-
-## Unverified
-- Real-device iOS Safari audio unlock
-- Offline play after SW install
-- Repeat-visit zero sample network
-- Multi-touch chords
-- archive.org Bedroom Sessions streaming
+### Not verified here
+- Real-device iOS Safari unlock / interruption / lock screen
+- 5-pointer multi-touch on physical hardware
+- 10-minute memory profile
+- Full WCAG audit with a screen reader
+- Start-to-finish playback of all 8 tracks with audible output (headless autoplay policy)
