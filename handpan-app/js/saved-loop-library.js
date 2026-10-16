@@ -79,7 +79,8 @@ export function encodeLoopMix(layers, sampleRate, duration) {
     const gainL = level * Math.cos((pan + 1) * Math.PI / 4);
     const gainR = level * Math.sin((pan + 1) * Math.PI / 4);
     for (let i = 0; i < frames; i++) {
-      const j = i % srcFrames;
+      const phase = Math.floor(Math.max(0, Number(layer.offset) || 0) * sr) % srcFrames;
+      const j = (i + phase) % srcFrames;
       left[i] += srcL[j] * gainL;
       right[i] += srcR[j] * gainR;
     }
