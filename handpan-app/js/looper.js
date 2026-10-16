@@ -543,9 +543,7 @@ export function mountLooper({ root } = {}) {
       status.textContent = 'Bouncing audio…';
       try {
         const ctx = getAudioContext();
-        const duration = (syncMode() === 'loop' || syncMode() === 'beat') && cycleDuration() > 0.05
-          ? cycleDuration()
-          : Math.max(...layers.map((layer) => layer.buffer?.duration || 0));
+        const duration = Math.max(...layers.map((layer) => layer.buffer?.duration || 0));
         if (!ctx || !duration) throw new Error('There is no recorded audio to save yet.');
         const blob = encodeLoopMix(layers, ctx.sampleRate, duration);
         status.textContent = 'Saving to this device…';
