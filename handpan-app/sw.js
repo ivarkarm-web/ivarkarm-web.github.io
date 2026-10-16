@@ -41,7 +41,6 @@ const SHELL = [
   './js/soundscapes.js?v=8',
   './js/scale-selector.js?v=5',
   './js/looper.js?v=209',
-  './js/saved-loop-library.js?v=1',
   './js/repository-loop-save.js?v=1',
   './js/instruments/handpan.js?v=7',
   './js/instruments/handpan-scales.js?v=3',
