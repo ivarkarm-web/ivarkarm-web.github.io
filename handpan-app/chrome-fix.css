@@ -96,3 +96,37 @@
 #stageScaleBar {
   z-index: var(--pionier-z-bar) !important;
 }
+
+/* Root / note count in bottom bar */
+.stage-root-row {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: 100% !important;
+  order: 3 !important;
+  padding: 4px 0 2px !important;
+}
+.stage-root-row .control-half {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+.stage-root-row .control-label {
+  font-size: 10px !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  opacity: 0.7 !important;
+}
+.stage-root-row .stepper {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+.stage-root-row .step,
+.stage-root-row .step-value {
+  min-height: 40px !important;
+  min-width: 40px !important;
+}
