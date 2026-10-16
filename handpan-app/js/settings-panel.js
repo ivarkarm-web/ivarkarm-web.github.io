@@ -12,6 +12,7 @@
     tonefield: 'classic',
     transparency: 1,
     mandala: true,
+    touchFeedback: false,
     led: { r: 110, g: 200, b: 255, strength: 0.35 },
   };
 
@@ -64,6 +65,7 @@
       tonefield: state.tonefield,
       transparency: state.transparency,
       mandala: state.mandala,
+      touchFeedback: state.touchFeedback === true,
       lightMode: state.lightMode,
       led: { ...state.led },
     };
@@ -330,6 +332,10 @@
       '<div class="settings-row">' +
       '  <span class="settings-row-label">Mandala aura</span>' +
       '  <label class="settings-toggle"><input type="checkbox" id="settingMandala" /><span class="settings-toggle-track"></span></label>' +
+      '</div>' +
+      '<div class="settings-row settings-row-touch-feedback">' +
+      '  <div class="settings-row-copy"><span class="settings-row-label">Touch ripples</span><span class="settings-row-hint">Expanding rings + haptic feedback</span></div>' +
+      '  <label class="settings-toggle"><input type="checkbox" id="settingTouchFeedback" /><span class="settings-toggle-track"></span></label>' +
       '</div>';
     body.appendChild(app);
 
@@ -403,6 +409,15 @@
     if (mandala) {
       mandala.checked = state.mandala !== false;
       mandala.addEventListener('change', () => { state.mandala = mandala.checked; save(state); apply(state); });
+    }
+    const touchFeedback = document.getElementById('settingTouchFeedback');
+    if (touchFeedback) {
+      touchFeedback.checked = state.touchFeedback === true;
+      touchFeedback.addEventListener('change', () => {
+        state.touchFeedback = touchFeedback.checked;
+        save(state);
+        apply(state);
+      });
     }
     const tr = document.getElementById('settingTransparency');
     const trVal = document.getElementById('settingTransparencyVal');
