@@ -10,8 +10,7 @@
  * Clear: wipe all layers
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
-import { encodeLoopMix } from './saved-loop-library.js?v=1';
-import { uploadLoopToRepository } from './repository-loop-save.js?v=1';
+import { encodeLoopMix, uploadLoopToRepository } from './repository-loop-save.js?v=1';
 
 const MAX_LAYERS = 8;
 const LONG_MS = 480;
