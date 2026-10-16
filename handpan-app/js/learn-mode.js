@@ -2,6 +2,24 @@
    Phrase events are editable scale-degree fixtures, not claimed audio transcriptions. */
 // Public-domain/traditional melody studies. These are newly authored scale-degree
 // arrangements for Pionier's pads, not copied recordings or modern arrangements.
+const SONG_SCALE_BY_ID = {
+  'ode-to-joy':'lesson-c-major', 'frere-jacques':'lesson-c-major',
+  'twinkle-star':'lesson-c-major', 'mary-lamb':'lesson-c-major',
+  'row-row-boat':'lesson-c-major', 'london-bridge':'lesson-c-major',
+  'old-macdonald':'lesson-c-major', 'amazing-grace':'lesson-g-major',
+  'greensleeves':'lesson-e-minor', 'scarborough-fair':'lesson-d-dorian',
+  'when-saints':'lesson-c-major', 'oh-susanna':'lesson-c-major',
+  'yankee-doodle':'lesson-c-major', 'jingle-bells':'lesson-g-major',
+  'silent-night':'lesson-g-major', 'auld-lang-syne':'lesson-g-major',
+  'au-clair':'lesson-c-major', 'brahms-lullaby':'lesson-c-major',
+  'canon-d':'lesson-g-major', 'minuet-g':'lesson-g-major',
+  'turkish-march':'lesson-a-minor', 'fur-elise':'lesson-a-minor',
+  'ode-to-spring':'lesson-g-major', 'swan-lake':'lesson-e-minor',
+  'morning-mood':'lesson-g-major', 'sugar-plum':'lesson-e-minor',
+  'william-tell':'lesson-c-major', 'habanera':'lesson-d-minor',
+  'sakura':'lesson-japanese-pentatonic', 'beethoven-fifth':'lesson-c-minor'
+};
+
 const SONG_LIBRARY = [
   {
     "id": "ode-to-joy",
@@ -949,23 +967,7 @@ const SONG_LIBRARY = [
 }));
 
 
-const SONG_SCALE_BY_ID = {
-  'ode-to-joy':'lesson-c-major', 'frere-jacques':'lesson-c-major',
-  'twinkle-star':'lesson-c-major', 'mary-lamb':'lesson-c-major',
-  'row-row-boat':'lesson-c-major', 'london-bridge':'lesson-c-major',
-  'old-macdonald':'lesson-c-major', 'amazing-grace':'lesson-g-major',
-  'greensleeves':'lesson-e-minor', 'scarborough-fair':'lesson-d-dorian',
-  'when-saints':'lesson-c-major', 'oh-susanna':'lesson-c-major',
-  'yankee-doodle':'lesson-c-major', 'jingle-bells':'lesson-g-major',
-  'silent-night':'lesson-g-major', 'auld-lang-syne':'lesson-g-major',
-  'au-clair':'lesson-c-major', 'brahms-lullaby':'lesson-c-major',
-  'canon-d':'lesson-g-major', 'minuet-g':'lesson-g-major',
-  'turkish-march':'lesson-a-minor', 'fur-elise':'lesson-a-minor',
-  'ode-to-spring':'lesson-g-major', 'swan-lake':'lesson-e-minor',
-  'morning-mood':'lesson-g-major', 'sugar-plum':'lesson-e-minor',
-  'william-tell':'lesson-c-major', 'habanera':'lesson-d-minor',
-  'sakura':'lesson-japanese-pentatonic', 'beethoven-fifth':'lesson-c-minor'
-};
+
 
 const LESSONS = [
   { id:'scale-up-down', title:'Scale Up & Down', description:'Follow the notes from the lowest pad to the highest, then return home.', bpm:96, events:[
