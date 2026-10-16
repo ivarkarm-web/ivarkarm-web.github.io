@@ -6,7 +6,7 @@
 import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js?v=2';
 import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
-import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js?v=9';
+import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js?v=10';
 import { createLibraryInstruments } from './js/instruments/library-family.js?v=3';
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
