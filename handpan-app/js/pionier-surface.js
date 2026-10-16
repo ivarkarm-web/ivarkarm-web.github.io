@@ -403,10 +403,11 @@ export function createSurface(canvas) {
       const envelope=fadeIn*fadeOut;
       const travel=smoothstep(t);
       const span=Math.min(vw,vh);
-      const drift=Math.hypot(vw,vh)*0.40*travel;
-      const sway=Math.sin(t*Math.PI*1.4+p.phase)*span*0.008;
-      const x=p.x+p.dx*drift+Math.cos(p.angle+Math.PI/2)*sway;
-      const y=p.y+p.dy*drift+Math.sin(p.angle+Math.PI/2)*sway;
+      // Each struck tone releases its own rings which rise vertically from that note.
+      const rise=vh*0.42*travel;
+      const sway=Math.sin(t*Math.PI*1.4+p.phase)*span*0.012;
+      const x=p.x+sway;
+      const y=p.y-rise;
       const radius=5+span*0.13*travel;
       ctx.save();
       ctx.globalCompositeOperation='screen';
@@ -445,13 +446,10 @@ export function createSurface(canvas) {
     const localY=note?note.y:(Number(y)||H*0.5);
     const px=rect.left+(localX/W)*rect.width;
     const py=rect.top+(localY/H)*rect.height;
-    let dx=px-window.innerWidth*0.5,dy=py-window.innerHeight*0.5;
-    const len=Math.hypot(dx,dy);
-    const angle=len>1e-3?Math.atan2(dy,dx):((Number(noteIndex)||0)*2.3999632297)-Math.PI/2;
-    if(len>1e-3){dx/=len;dy/=len}else{dx=Math.cos(angle);dy=Math.sin(angle)}
+    const angle=((Number(noteIndex)||0)*2.3999632297)-Math.PI/2;
     const now=performance.now();
-    if(touchRipples.length>=9)touchRipples.splice(0,touchRipples.length-8);
-    touchRipples.push({x:px,y:py,dx,dy,angle,started:now,phase:(Number(noteIndex)||0)*1.6180339887});
+    if(touchRipples.length>=12)touchRipples.splice(0,touchRipples.length-11);
+    touchRipples.push({x:px,y:py,angle,started:now,phase:(Number(noteIndex)||0)*1.6180339887});
     if(!rippleRaf)rippleRaf=requestAnimationFrame(tickRipples);
   }
   function tickRipples(now){
