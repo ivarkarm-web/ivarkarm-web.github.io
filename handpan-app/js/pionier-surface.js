@@ -363,8 +363,7 @@ export function createSurface(canvas) {
     ctx2.fillStyle=halo;ctx2.beginPath();ctx2.arc(CX,CY,rimR*1.08,0,Math.PI*2);ctx2.arc(CX,CY,rimR*0.88,0,Math.PI*2,true);ctx2.fill();
     ctx2.restore();
   }
-  // Full-viewport ripple layer: a warm golden wave blooms from the touch point,
-  // lifts away from the instrument, and dissolves into the surrounding space.
+  // Slow, ambient golden resonance: gently appears, floats outward, then dissolves.
   let rippleCanvas=null,rippleCtx=null,rippleResizeHandler=null;
   function ensureRippleCanvas(){
     if(rippleCanvas)return;
@@ -386,54 +385,56 @@ export function createSurface(canvas) {
     rippleResizeHandler=fit;
     window.addEventListener('resize',fit,{passive:true});
   }
+  function smoothstep(t){
+    t=Math.max(0,Math.min(1,t));
+    return t*t*(3-2*t);
+  }
   function drawTouchRipples(now){
     if(!touchRipples.length||!rippleCtx)return false;
     const ctx=rippleCtx,vw=window.innerWidth,vh=window.innerHeight;
     ctx.clearRect(0,0,vw,vh);
-    const duration=2650;
-    const easeOut=t=>1-Math.pow(1-t,3);
+    const duration=6200;
     for(let i=touchRipples.length-1;i>=0;i--){
       const p=touchRipples[i];
       const t=(now-p.started)/duration;
       if(t>=1){touchRipples.splice(i,1);continue}
-      const e=easeOut(Math.max(0,t));
-      const drift= Math.min(vw,vh)*0.11*e;
-      const floatX=Math.sin(t*Math.PI*2+p.phase)*Math.min(vw,vh)*0.025;
-      const floatY=-drift-Math.sin(t*Math.PI*1.5+p.phase)*Math.min(vw,vh)*0.018;
-      const x=p.x+floatX+Math.cos(p.angle)*drift*0.7;
-      const y=p.y+floatY+Math.sin(p.angle)*drift*0.45;
-      const maxR=Math.hypot(vw,vh)*0.72;
-      const radius=8+maxR*e;
-      const fade=Math.pow(1-Math.max(0,(t-0.46)/0.54),1.7);
-      const bloom=ctx.createRadialGradient(x,y,Math.max(1,radius*0.72),x,y,radius*1.16);
-      bloom.addColorStop(0,'rgba(255,218,139,0)');
-      bloom.addColorStop(0.72,'rgba(255,196,91,'+(0.018*fade)+')');
-      bloom.addColorStop(0.94,'rgba(255,222,157,'+(0.045*fade)+')');
-      bloom.addColorStop(1,'rgba(255,222,157,0)');
+      // Long, gentle fade-in and fade-out; no sudden bright flash at touch-down.
+      const fadeIn=smoothstep(t/0.27);
+      const fadeOut=smoothstep((1-t)/0.43);
+      const envelope=fadeIn*fadeOut;
+      const travel=smoothstep(t);
+      const span=Math.min(vw,vh);
+      const drift=span*0.2*travel;
+      const x=p.x+Math.sin(t*Math.PI*1.25+p.phase)*span*0.025+Math.cos(p.angle)*drift*0.45;
+      const y=p.y-drift*0.72+Math.sin(t*Math.PI*1.4+p.phase)*span*0.018;
+      const maxR=Math.hypot(vw,vh)*0.82;
+      const radius=5+maxR*travel;
+      ctx.save();
       ctx.globalCompositeOperation='screen';
-      ctx.fillStyle=bloom;ctx.beginPath();ctx.arc(x,y,radius*1.16,0,Math.PI*2);ctx.fill();
-      // Three deliberately restrained, staggered rings create depth instead of a neon target.
+      // Diffuse golden atmosphere, kept extremely subtle behind the rings.
+      const bloom=ctx.createRadialGradient(x,y,radius*0.58,x,y,radius);
+      bloom.addColorStop(0,'rgba(255,216,145,0)');
+      bloom.addColorStop(0.78,'rgba(255,195,96,'+(0.009*envelope)+')');
+      bloom.addColorStop(0.96,'rgba(255,224,166,'+(0.026*envelope)+')');
+      bloom.addColorStop(1,'rgba(255,224,166,0)');
+      ctx.fillStyle=bloom;
+      ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);ctx.fill();
+      // Fine rings bloom into view rather than appearing fully formed.
       for(let ring=0;ring<3;ring++){
-        const delay=ring*0.105;
+        const delay=ring*0.095;
         const rt=Math.max(0,Math.min(1,(t-delay)/(1-delay)));
         if(rt<=0)continue;
-        const re=easeOut(rt);
-        const rr=8+maxR*re*(1+ring*0.055);
-        const alpha=(ring===0?0.22:ring===1?0.12:0.065)*Math.pow(1-rt,1.3)*fade;
+        const rr=5+maxR*smoothstep(rt)*(1+ring*0.035);
+        const strength=ring===0?0.115:ring===1?0.065:0.032;
+        const alpha=strength*envelope;
         ctx.beginPath();ctx.arc(x,y,rr,0,Math.PI*2);
-        ctx.strokeStyle='rgba(255,211,126,'+alpha+')';
-        ctx.lineWidth=ring===0?1.65:ring===1?1.05:0.7;
-        ctx.shadowColor='rgba(255,190,83,'+(alpha*0.85)+')';
-        ctx.shadowBlur=(ring===0?15:ring===1?9:4)*(1-rt*0.65);
+        ctx.strokeStyle='rgba(255,218,151,'+alpha+')';
+        ctx.lineWidth=ring===0?1.25:ring===1?0.85:0.6;
+        ctx.shadowColor='rgba(255,194,96,'+(alpha*0.6)+')';
+        ctx.shadowBlur=(ring===0?10:ring===1?6:3)*envelope;
         ctx.stroke();
       }
-      // A soft moving glint gives the wave a slow, liquid-metal shimmer.
-      const glintA=t*Math.PI*2+p.phase;
-      const gx=x+Math.cos(glintA)*radius,gy=y+Math.sin(glintA)*radius;
-      const glint=ctx.createRadialGradient(gx,gy,0,gx,gy,Math.max(5,Math.min(vw,vh)*0.035));
-      glint.addColorStop(0,'rgba(255,238,194,'+(0.16*fade)+')');
-      glint.addColorStop(1,'rgba(255,210,132,0)');
-      ctx.fillStyle=glint;ctx.beginPath();ctx.arc(gx,gy,Math.min(vw,vh)*0.035,0,Math.PI*2);ctx.fill();
+      ctx.restore();
     }
     ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.globalCompositeOperation='source-over';
     if(!touchRipples.length)ctx.clearRect(0,0,vw,vh);
@@ -444,9 +445,8 @@ export function createSurface(canvas) {
     ensureRippleCanvas();
     const rect=canvas.getBoundingClientRect();
     const now=performance.now();
-    if(touchRipples.length>=8)touchRipples.splice(0,touchRipples.length-7);
+    if(touchRipples.length>=6)touchRipples.splice(0,touchRipples.length-5);
     touchRipples.push({
-      // Bloom from beneath the instrument, then drift into the surrounding viewport.
       x:rect.left+rect.width*0.5,
       y:rect.top+rect.height*0.46,
       started:now,
