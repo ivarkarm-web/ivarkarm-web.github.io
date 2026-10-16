@@ -1822,3 +1822,12 @@ html, body {
   margin: 0 !important;
   line-height: 1 !important;
 }
+
+/* A11y: visible focus on bottom-bar controls */
+#stageScaleBar button:focus-visible,
+#stageScaleBar .instrument-name:focus-visible,
+#stageScaleBar .scale-dropdown-toggle:focus-visible,
+#stageScaleBar .stage-scale-btn:focus-visible {
+  outline: 2px solid rgba(212, 176, 74, 0.55);
+  outline-offset: 2px;
+}
