@@ -179,7 +179,7 @@
   gap: 6px 10px;
   align-items: center;
   font-size: 12px;
-  color: rgba: rgba(245, 242, 236, 0.55);
+  color: rgba(245, 242, 236, 0.55);
 }
 .settings-rgb-grid input[type="range"] {
   width: 100%;
@@ -289,109 +289,199 @@
 
 /* ---- Light theme ---- */
 html.theme-light,
-html.theme-light body { color-scheme: light; }
 html.theme-light body {
-  background: #e8e6e1 !important;
-  color: #1a1a1c !important;
+  color-scheme: light;
+}
+html.theme-light body {
+  background: #ebe8e2 !important;
+  color: #1c1b1a !important;
 }
 html.theme-light body::before {
   background:
-    radial-gradient(ellipse 90% 60% at 50% 42%, rgba(255, 255, 255, 0.7) 0%, transparent 62%),
-    radial-gradient(ellipse 50% 40% at 50% 100%, rgba(212, 176, 74, 0.08) 0%, transparent 55%),
-    linear-gradient(180deg, #f2f0eb 0%, #e4e1da 100%) !important;
-}
-html.theme-light .stage-scale-bar {
-  background: linear-gradient(to bottom, rgba(242,240,235,0.96) 0%, rgba(242,240,235,0.7) 70%, transparent 100%);
-  border-bottom-color: rgba(0, 0, 0, 0.06);
-}
-html.theme-light .stage-instrument-nav .instrument-name,
-html.theme-light .stage-scale-btn {
-  background: rgba(255, 255, 255, 0.85);
-  color: rgba(30, 30, 34, 0.9);
-  border-color: rgba(0, 0, 0, 0.1);
-}
-html.theme-light .stage-instrument-nav .icon-btn,
-html.theme-light .stage-scale-step {
-  background: rgba(255, 255, 255, 0.75);
-  color: rgba(30, 30, 34, 0.75);
-  border-color: rgba(0, 0, 0, 0.1);
-}
-html.theme-light .mobile-control-drawer {
-  background: linear-gradient(180deg, rgba(250, 249, 246, 0.98), rgba(236, 234, 228, 0.99));
-  border-color: rgba(0, 0, 0, 0.1);
-  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.12);
-}
-html.theme-light .mobile-controls-toggle { color: rgba(40, 40, 44, 0.65); }
-html.theme-light .mobile-controls-grip {
-  background: rgba(0, 0, 0, 0.2);
-  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.1);
-}
-html.theme-light .settings-open-btn {
-  background: rgba(255, 255, 255, 0.9);
-  color: rgba(40, 40, 44, 0.7);
-  border-color: rgba(0, 0, 0, 0.1);
-}
-html.theme-light .settings-sheet {
-  background: linear-gradient(180deg, #faf9f6, #eceae4);
-  border-color: rgba(0, 0, 0, 0.1);
-  box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.15);
-}
-html.theme-light .settings-sheet-title,
-html.theme-light .settings-row-label { color: rgba(30, 30, 34, 0.9); }
-html.theme-light .settings-section-label { color: rgba(30, 30, 34, 0.45); }
-html.theme-light .settings-sheet-close {
-  background: rgba(0, 0, 0, 0.04);
-  color: rgba(30, 30, 34, 0.65);
-  border-color: rgba(0, 0, 0, 0.1);
-}
-html.theme-light .app-status {
-  background: rgba(242, 240, 235, 0.95);
-  color: #1a1a1c;
-}
-html.theme-light .settings-dd-toggle {
-  background: rgba(255, 255, 255, 0.9);
-  color: rgba(30, 30, 34, 0.9);
-  border-color: rgba(0, 0, 0, 0.12);
-}
-html.theme-light .settings-dd-menu {
-  background: linear-gradient(180deg, #faf9f6, #eceae4);
-  border-color: rgba(0, 0, 0, 0.12);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-}
-html.theme-light .settings-dd-item { color: rgba(30, 30, 34, 0.88); }
-html.theme-light .settings-dd-item:hover { background: rgba(0, 0, 0, 0.05); }
-html.theme-light .settings-dd-item.is-active {
-  background: rgba(212, 176, 74, 0.18);
-  color: #7a5c12;
-}
-html.theme-light .settings-dd-group { color: rgba(30, 30, 34, 0.4); }
-html.theme-light .settings-dd-label { color: rgba(30, 30, 34, 0.45); }
-html.theme-light .instrument-name {
-  background: rgba(255, 255, 255, 0.85);
-  color: rgba(30, 30, 34, 0.9);
-  border-color: rgba(0, 0, 0, 0.1);
-}
-html.theme-light .icon-btn { color: rgba(30, 30, 34, 0.7); }
-html.theme-light .bottom-bar {
-  background: linear-gradient(180deg, transparent, rgba(232, 230, 225, 0.92));
+    radial-gradient(ellipse 90% 55% at 50% 40%, rgba(255, 255, 255, 0.85) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 35% at 50% 100%, rgba(196, 160, 70, 0.07) 0%, transparent 55%),
+    linear-gradient(180deg, #f4f1eb 0%, #e5e1d9 100%) !important;
 }
 
-/* LED glow on stage */
-.stage::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: min(70vw, 520px);
-  height: min(70vw, 520px);
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-  opacity: var(--led-strength, 0.35);
-  background: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--led-color, #6ec8ff) 45%, transparent) 0%,
-    transparent 68%
-  );
+/* --- Settings sheet --- */
+html.theme-light .settings-sheet {
+  background: linear-gradient(180deg, #faf8f4 0%, #f0ebe3 100%) !important;
+  border: 1px solid rgba(40, 36, 28, 0.12) !important;
+  border-bottom: none !important;
+  box-shadow: 0 -16px 48px rgba(40, 30, 10, 0.18) !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-sheet-title {
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-sheet-close {
+  background: rgba(40, 36, 28, 0.06) !important;
+  border: 1px solid rgba(40, 36, 28, 0.12) !important;
+  color: #3a3834 !important;
+}
+html.theme-light .settings-sheet-close:hover {
+  background: rgba(40, 36, 28, 0.1) !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-sheet-backdrop {
+  background: rgba(30, 28, 24, 0.35) !important;
+}
+html.theme-light .settings-section-label {
+  color: rgba(40, 36, 28, 0.45) !important;
+}
+html.theme-light .settings-row-label,
+html.theme-light .settings-row span,
+html.theme-light .settings-row {
+  color: #2a2824 !important;
+}
+html.theme-light .settings-dd-label {
+  color: rgba(40, 36, 28, 0.5) !important;
+}
+html.theme-light .settings-dd-toggle {
+  background: #ffffff !important;
+  border: 1px solid rgba(40, 36, 28, 0.14) !important;
+  color: #1c1b1a !important;
+  box-shadow: 0 1px 2px rgba(40, 30, 10, 0.04) !important;
+}
+html.theme-light .settings-dd-toggle:hover,
+html.theme-light .settings-dd-toggle[aria-expanded="true"] {
+  border-color: rgba(160, 120, 30, 0.45) !important;
+  background: #fffdf8 !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-dd-value {
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-dd-chevron {
+  color: rgba(40, 36, 28, 0.5) !important;
+  opacity: 1 !important;
+}
+html.theme-light .settings-dd-menu {
+  background: #faf8f4 !important;
+  background-image: none !important;
+  border: 1px solid rgba(40, 36, 28, 0.14) !important;
+  box-shadow: 0 16px 40px rgba(40, 30, 10, 0.16) !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-dd-item {
+  background: transparent !important;
+  color: #2a2824 !important;
+}
+html.theme-light .settings-dd-item:hover {
+  background: rgba(40, 36, 28, 0.06) !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-dd-item.is-active {
+  background: rgba(196, 160, 70, 0.22) !important;
+  color: #6b4e0e !important;
+}
+html.theme-light .settings-dd-group {
+  color: rgba(40, 36, 28, 0.4) !important;
+}
+
+/* Toggles / sliders / values inside sheet */
+html.theme-light .settings-sheet input[type="range"] {
+  accent-color: #b8922e !important;
+}
+html.theme-light .settings-sheet .settings-value,
+html.theme-light .settings-sheet .settings-slider-value,
+html.theme-light .settings-transparency-val,
+html.theme-light .settings-sheet output {
+  color: #3a3834 !important;
+}
+html.theme-light .settings-switch,
+html.theme-light .settings-toggle {
+  background: rgba(40, 36, 28, 0.15) !important;
+}
+html.theme-light .settings-led-label,
+html.theme-light .settings-sheet label {
+  color: #2a2824 !important;
+}
+
+/* Gear button */
+html.theme-light .settings-open-btn,
+html.theme-light #settingsOpenBtn {
+  background: #ffffff !important;
+  border: 1px solid rgba(40, 36, 28, 0.12) !important;
+  color: #3a3834 !important;
+  box-shadow: 0 2px 8px rgba(40, 30, 10, 0.08) !important;
+}
+
+/* Catch-all text inside open sheet */
+html.theme-light .settings-sheet,
+html.theme-light .settings-sheet * {
+  /* do not force * color — would break gold accents; specific rules above */
+}
+html.theme-light .settings-sheet p,
+html.theme-light .settings-sheet h2,
+html.theme-light .settings-sheet h3,
+html.theme-light .settings-sheet div.settings-row-label {
+  color: #1c1b1a !important;
+}
+
+/* Stage / bottom bar leftovers */
+html.theme-light .stage-scale-bar,
+html.theme-light #stageScaleBar {
+  background: linear-gradient(
+    to top,
+    rgba(244, 241, 235, 0.98) 0%,
+    rgba(244, 241, 235, 0.9) 50%,
+    rgba(244, 241, 235, 0.4) 85%,
+    transparent 100%
+  ) !important;
+  border-top-color: rgba(40, 36, 28, 0.08) !important;
+}
+html.theme-light .instrument-name,
+html.theme-light .stage-scale-btn,
+html.theme-light .stage-instrument-nav .instrument-name {
+  background: #ffffff !important;
+  color: #1c1b1a !important;
+  border-color: rgba(40, 36, 28, 0.12) !important;
+}
+html.theme-light .icon-btn {
+  color: #3a3834 !important;
+}
+html.theme-light .bottom-bar {
+  background: linear-gradient(180deg, transparent, rgba(235, 232, 226, 0.94)) !important;
+}
+html.theme-light .app-status {
+  background: rgba(250, 248, 244, 0.95) !important;
+  color: #1c1b1a !important;
+  border-color: rgba(40, 36, 28, 0.1) !important;
+}
+html.theme-light .mobile-control-drawer {
+  background: linear-gradient(180deg, #faf8f4, #efeae2) !important;
+  border-color: rgba(40, 36, 28, 0.1) !important;
+  box-shadow: 0 -8px 40px rgba(40, 30, 10, 0.12) !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .mobile-controls-toggle { color: rgba(40, 36, 28, 0.65) !important; }
+html.theme-light .mobile-controls-grip {
+  background: rgba(40, 36, 28, 0.2) !important;
+}
+
+html.theme-light .settings-toggle-track {
+  background: rgba(40, 36, 28, 0.12) !important;
+  border: 1px solid rgba(40, 36, 28, 0.14) !important;
+}
+html.theme-light .settings-toggle-track::after {
+  background: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(40, 30, 10, 0.2) !important;
+}
+html.theme-light .settings-toggle input:checked + .settings-toggle-track {
+  background: rgba(184, 146, 46, 0.55) !important;
+  border-color: rgba(160, 120, 30, 0.5) !important;
+}
+html.theme-light .settings-rgb-grid {
+  color: #3a3834 !important;
+}
+html.theme-light .settings-rgb-grid label {
+  color: #3a3834 !important;
+}
+html.theme-light .settings-rgb-val {
+  color: #2a2824 !important;
+}
+html.theme-light .settings-slider-row input[type="range"],
+html.theme-light .settings-rgb-grid input[type="range"] {
+  accent-color: #b8922e !important;
 }
