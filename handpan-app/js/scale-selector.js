@@ -1,7 +1,7 @@
 /**
  * scale-selector.js — scale list UI only. Open/close owned by overlay-controller.
  */
-import { HANDPAN_SCALES } from './instruments/handpan.js?v=9';
+import { HANDPAN_SCALES } from './instruments/handpan.js?v=10';
 
 /**
  * @param {object} opts
