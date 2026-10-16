@@ -15,6 +15,29 @@ const LESSONS = [
     {pads:[3,5],at:14200},{pads:[2,4],at:15600},{pads:[1,3],at:17000},
     {pads:[0,2],at:18400}
   ]},
+  { id:'black-sails-original', title:'Black Sails · Pirate Adventure', description:'An original swashbuckling melody: a rolling motif, a rising call, then a bold return. Not an arrangement of an existing film theme.', bpm:88, events:[
+    {pad:0,at:1600},{pad:3,at:2280},{pad:4,at:2960},{pad:3,at:3640},
+    {pad:0,at:4320},{pad:2,at:5000},{pad:4,at:5680},{pad:6,at:6360},
+    {pad:5,at:7040},{pad:4,at:7720},{pad:3,at:8400},{pad:2,at:9080},
+    {pad:0,at:9760},{pad:3,at:10440},{pad:4,at:11120},{pad:6,at:11800},
+    {pad:8,at:12480},{pad:6,at:13160},{pad:5,at:13840},{pad:3,at:14520},
+    {pad:2,at:15200},{pad:3,at:15880},{pad:0,at:16560}
+  ]},
+  { id:'hollow-crown-original', title:'The Hollow Crown · Dark Fantasy', description:'An original, haunting fantasy melody with a slow descent, a tense high note, and a resolving answer.', bpm:72, events:[
+    {pad:0,at:1600},{pad:4,at:2430},{pad:3,at:3260},{pad:1,at:4090},
+    {pad:2,at:4920},{pad:5,at:5750},{pad:4,at:6580},{pad:2,at:7410},
+    {pad:0,at:8240},{pad:1,at:9070},{pad:4,at:9900},{pad:6,at:10730},
+    {pad:5,at:11560},{pad:4,at:12390},{pad:3,at:13220},{pad:1,at:14050},
+    {pad:0,at:14880},{pad:3,at:15710},{pad:2,at:16540},{pad:0,at:17370}
+  ]},
+  { id:'starlight-run-original', title:'Starlight Run · Cinematic Quest', description:'An original, uplifting adventure theme: a quick opening, a soaring answer, and a bright homecoming.', bpm:104, events:[
+    {pad:0,at:1600},{pad:2,at:2175},{pad:4,at:2750},{pad:5,at:3325},
+    {pad:4,at:3900},{pad:2,at:4475},{pad:3,at:5050},{pad:5,at:5625},
+    {pad:6,at:6200},{pad:8,at:6775},{pad:6,at:7350},{pad:5,at:7925},
+    {pad:4,at:8500},{pad:2,at:9075},{pad:0,at:9650},{pad:2,at:10225},
+    {pad:4,at:10800},{pad:6,at:11375},{pad:5,at:11950},{pad:3,at:12525},
+    {pad:2,at:13100},{pad:4,at:13675},{pad:3,at:14250},{pad:0,at:14825}
+  ]},
   { id:'flow-pygmy-tine-piano', title:'Flow Pygmy → Tine Piano', description:'First select Flow Pygmy in the scale menu, then choose Tine Piano in the instrument menu. Once both are selected, follow the ripples from the lowest note to the sixth and back three times.', bpm:96, setup:true, events:[
     {pad:0,at:1400},{pad:1,at:2500},{pad:2,at:3600},{pad:3,at:4700},{pad:4,at:5800},{pad:5,at:6900},{pad:4,at:8000},{pad:3,at:9100},{pad:2,at:10200},{pad:1,at:11300},{pad:0,at:12400},
     {pad:0,at:13500},{pad:1,at:14600},{pad:2,at:15700},{pad:3,at:16800},{pad:4,at:17900},{pad:5,at:19000},{pad:4,at:20100},{pad:3,at:21200},{pad:2,at:22300},{pad:1,at:23400},{pad:0,at:24500},
