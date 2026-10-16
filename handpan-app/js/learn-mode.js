@@ -13,8 +13,8 @@ export function mountLearnMode(){
   const canvas=document.getElementById('pan'), list=document.getElementById('learnLessonList');
   const controls=document.getElementById('learnRunControls'), progress=document.getElementById('learnProgress');
   const heading=document.getElementById('learnHeading'), description=document.getElementById('learnDescription');
-  if(!button||!panel||!canvas||button.dataset.mounted==='1')return;
-  button.dataset.mounted='1';
+  if(!button||!panel||!canvas||button.dataset.learnEngineMounted==='1')return false;
+  button.dataset.learnEngineMounted='1';
   const overlay=document.createElement('canvas'); overlay.id='learnRippleOverlay'; overlay.width=680; overlay.height=680;
   canvas.parentElement?.appendChild(overlay);
   const ctx=overlay.getContext('2d');
@@ -31,7 +31,8 @@ export function mountLearnMode(){
     list.hidden=true;controls.hidden=false;heading.textContent=lesson.title;description.textContent=lesson.description;
     syncOverlay();overlay.style.display='block'; progress.textContent='GET READY'; drawFrame();
   }
-  function targetField(pad){const fields=window.PionierCore?.surface?.fields||[];return fields.find(f=>f.index===pad)||fields[pad]||null}
+  function targetField(pad){const fields=window.PionierCore?.surface?.fields||[];return fields.find(f=>Number(f.index)===Number(pad))||fields[pad]||null}
+  function overlayPoint(field){const m=window.PionierCore?.surface?.metrics||{};const w=m.W||680,h=m.H||680;return{x:field.x*(680/w),y:field.y*(680/h)}}
   function markMiss(now){if(!ringState||ringState.state!=='approach')return;ringState.state='miss';ringState.changedAt=now;missCount++;progress.textContent='MISS';}
   function finish(){done=true;running=false;ringState=null;progress.textContent='FINISHED  ·  '+hitCount+' HITS  ·  '+missCount+' MISSES';}
   function drawFrame(){
@@ -47,7 +48,7 @@ export function mountLearnMode(){
     if(ringState){
       const field=targetField(ringState.event.pad);
       if(field){
-        const x=field.x,y=field.y;
+        const point=overlayPoint(field),x=point.x,y=point.y;
         if(ringState.state==='approach'){
           const p=Math.max(0,Math.min(1,(elapsed-ringState.spawnAt)/APPROACH_MS));
           const radius=70-(p*43);
@@ -83,10 +84,10 @@ export function mountLearnMode(){
     ringState={event:target,state:'hit',changedAt:now};index++;
     // Gold response ripple; the native note handler continues and triggers the sound.
     const field=targetField(target.pad);
-    if(field){ctx.save();ctx.strokeStyle='#f3d47a';ctx.lineWidth=2;ctx.globalAlpha=.9;ctx.beginPath();ctx.arc(field.x,field.y,24,0,Math.PI*2);ctx.stroke();ctx.restore()}
+    if(field){const point=overlayPoint(field);ctx.save();ctx.strokeStyle='#f3d47a';ctx.lineWidth=2;ctx.globalAlpha=.9;ctx.beginPath();ctx.arc(point.x,point.y,24,0,Math.PI*2);ctx.stroke();ctx.restore()}
   }
   canvas.addEventListener('pointerdown',onStrike,true);
-  list.addEventListener('click',e=>{const b=e.target.closest('[data-lesson]');if(b)begin(Number(b.dataset.lesson))});
+  list.querySelectorAll('[data-lesson]').forEach(b=>b.addEventListener('click',()=>begin(Number(b.dataset.lesson))));
   button.addEventListener('click',show);close?.addEventListener('click',hide);
   document.getElementById('learnBack')?.addEventListener('click',menu);
   document.getElementById('learnRestart')?.addEventListener('click',()=>begin(LESSONS.findIndex(x=>x===lesson)));
@@ -94,4 +95,6 @@ export function mountLearnMode(){
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden)hide()});
   window.addEventListener('resize',()=>{overlay.width=680;overlay.height=680;syncOverlay();if(running)drawFrame()});
   menu();
+  window.PionierLearnMode={start:begin,close:hide,stop,ready:true};
+  return true;
 }
