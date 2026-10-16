@@ -454,6 +454,7 @@
 
 /* Save recorded loops into the local Soundscapes library */
 .looper-save-btn {
+  pointer-events: auto;
   appearance: none;
   border: 1px solid rgba(212,176,74,.34);
   border-radius: 999px;
