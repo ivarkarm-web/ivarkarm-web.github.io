@@ -34,3 +34,10 @@ body.learn-active #looperRail{opacity:.25}
 .learn-run-controls{gap:8px}
 .learn-progress{font-variant-numeric:tabular-nums;letter-spacing:.1em}
 .learn-footnote{max-width:350px;margin-left:auto;margin-right:auto}
+
+/* Non-blocking in-game transport: the pan remains fully touchable. */
+#learnGameHud{position:fixed;z-index:95;top:calc(env(safe-area-inset-top,0px) + 12px);left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:7px;width:max-content;max-width:calc(100vw - 20px);padding:8px 10px;border:1px solid rgba(212,176,74,.32);border-radius:999px;background:rgba(12,12,13,.88);box-shadow:0 8px 28px rgba(0,0,0,.3);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--gold);font:600 10px/1 var(--font);letter-spacing:.08em}
+#learnGameHud[hidden]{display:none!important}
+#learnHudLabel{min-width:84px;text-align:center;font-variant-numeric:tabular-nums}
+#learnGameHud button{appearance:none;border:1px solid rgba(255,255,255,.16);border-radius:999px;background:rgba(255,255,255,.04);color:var(--fg);padding:8px 10px;min-height:32px;font:600 9px/1 var(--font);letter-spacing:.06em;text-transform:uppercase}
+@media(max-width:380px){#learnGameHud{gap:4px;padding:6px 7px}#learnHudLabel{min-width:52px}#learnGameHud button{padding:7px 8px;font-size:8px}}
