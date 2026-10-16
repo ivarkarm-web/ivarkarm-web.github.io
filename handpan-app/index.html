@@ -53,6 +53,7 @@
   <link rel="stylesheet" href="./atelier.css?v=10">
   <!-- ui-layout-extras.css retired: layout lives in pionier.css -->
   <link rel="stylesheet" href="./ui-stability.css?v=5" />
+  <link rel="stylesheet" href="./learn-mode.css?v=1" />
 </head>
 <body>
   <div id="appStatus" class="app-status" data-state="loading" role="status" aria-live="polite">
@@ -67,6 +68,7 @@
           <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Handpan ▾</button>
           <button type="button" class="icon-btn" id="voiceNext" aria-label="Next voice">›</button>
           <button type="button" class="icon-btn soundscapes-open-btn" id="openSoundscapes" aria-label="Open Soundscapes" title="Soundscapes">♫</button>
+          <button type="button" class="learn-open-btn" id="openLearn" aria-label="Open Learn" title="Learn">Learn</button>
         </div>
       </div>
     </header>
@@ -123,6 +125,25 @@
       <canvas id="pan" width="680" height="680" role="img" aria-label="Handpan instrument"></canvas>
     </main>
   </div>
+
+  <section id="learnPanel" class="learn-panel" hidden aria-label="Learn Catch the Note">
+    <div class="learn-card">
+      <div class="learn-eyebrow">PIONIER · LEARN</div>
+      <button type="button" id="learnClose" class="learn-close" aria-label="Close Learn">×</button>
+      <h2 id="learnHeading">Catch the Note</h2>
+      <p id="learnDescription">Catch the contracting ring at the moment it reaches its tonefield.</p>
+      <div id="learnLessonList" class="learn-lesson-list">
+        <button type="button" class="learn-lesson" data-lesson="0"><span class="learn-lesson-number">01</span><span><strong>First Contact</strong><small>Short · learn the timing</small></span><span class="learn-lesson-arrow">↗</span></button>
+        <button type="button" class="learn-lesson" data-lesson="1"><span class="learn-lesson-number">02</span><span><strong>Flow</strong><small>Longer · changing intervals</small></span><span class="learn-lesson-arrow">↗</span></button>
+      </div>
+      <div id="learnRunControls" class="learn-run-controls" hidden>
+        <div id="learnProgress" class="learn-progress">READY</div>
+        <button type="button" id="learnRestart" class="learn-action">Restart lesson</button>
+        <button type="button" id="learnBack" class="learn-secondary">All lessons</button>
+      </div>
+      <p class="learn-footnote">No backing track. Notes sound only when you catch a ring.</p>
+    </div>
+  </section>
 
   <section id="soundscapesPanel" class="soundscapes-panel" hidden aria-label="Bedroom Sessions">
     <header class="soundscapes-header">

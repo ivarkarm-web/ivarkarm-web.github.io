@@ -129,6 +129,14 @@ async function boot() {
     degraded.push('scale-selector');
   }
 
+  try {
+    const { mountLearnMode } = await import(new URL('./js/learn-mode.js?v=1', BASE).href);
+    mountLearnMode();
+  } catch (err) {
+    console.warn('[learn] mount failed', err);
+    degraded.push('learn');
+  }
+
   if (degraded.length) {
     setBootStatus('degraded', 'Some features unavailable: ' + degraded.join(', '), true);
   } else {
