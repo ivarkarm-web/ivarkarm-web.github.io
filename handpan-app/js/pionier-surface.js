@@ -364,80 +364,108 @@ export function createSurface(canvas) {
     ctx2.fillStyle=halo;ctx2.beginPath();ctx2.arc(CX,CY,rimR*1.08,0,Math.PI*2);ctx2.arc(CX,CY,rimR*0.88,0,Math.PI*2,true);ctx2.fill();
     ctx2.restore();
   }
-  // Ripples are rendered on the handpan's own canvas, after the tonefields.
-  // This keeps their coordinates in the same local space as the pads and avoids
-  // viewport overlays, stacking-context issues, and alignment drift.
+  // Screen-space resonance: anchor each wave to the real tonefield on touch,
+  // then let it travel beyond the handpan toward the viewport edges.
+  let rippleCanvas=null,rippleCtx=null;
+  function ensureRippleCanvas(){
+    if(rippleCanvas)return;
+    rippleCanvas=document.createElement('canvas');
+    rippleCanvas.setAttribute('aria-hidden','true');
+    Object.assign(rippleCanvas.style,{
+      position:'fixed',left:'0',top:'0',width:'100vw',height:'100vh',
+      pointerEvents:'none',zIndex:'99999',opacity:'1'
+    });
+    document.body.appendChild(rippleCanvas);
+    rippleCtx=rippleCanvas.getContext('2d');
+    const fit=()=>{
+      const dpr=Math.min(1.5,window.devicePixelRatio||1);
+      rippleCanvas.width=Math.round(window.innerWidth*dpr);
+      rippleCanvas.height=Math.round(window.innerHeight*dpr);
+      rippleCtx.setTransform(dpr,0,0,dpr,0,0);
+    };
+    fit();
+    window.addEventListener('resize',fit,{passive:true});
+  }
   function smoothstep(t){
     t=Math.max(0,Math.min(1,t));
     return t*t*(3-2*t);
   }
   function drawTouchRipples(now){
-    if(!touchRipples.length)return false;
-    const duration=1180;
+    if(!touchRipples.length||!rippleCtx)return false;
+    const ctx=rippleCtx,vw=window.innerWidth,vh=window.innerHeight;
+    ctx.clearRect(0,0,vw,vh);
     for(let i=touchRipples.length-1;i>=0;i--){
       const p=touchRipples[i];
-      const t=(now-p.started)/duration;
+      const t=(now-p.started)/p.duration;
       if(t>=1){touchRipples.splice(i,1);continue}
-      const fadeIn=smoothstep(t/0.055);
-      const fadeOut=1-smoothstep((t-0.56)/0.44);
+      const fadeIn=smoothstep(t/0.045);
+      const fadeOut=1-smoothstep((t-0.72)/0.28);
       const envelope=fadeIn*fadeOut;
-      ctx2.save();
-      ctx2.beginPath();
-      ctx2.arc(CX,CY,R*0.985,0,Math.PI*2);
-      ctx2.clip();
-      ctx2.globalCompositeOperation='screen';
+      ctx.save();
+      ctx.globalCompositeOperation='screen';
       for(let ring=0;ring<3;ring++){
-        const delay=ring*0.16;
+        const delay=ring*0.12;
         const rt=Math.max(0,Math.min(1,(t-delay)/(1-delay)));
         const grow=smoothstep(rt);
-        const scale=1.035+(p.maxScale-1.035)*grow;
-        const alpha=[0.64,0.38,0.23][ring]*envelope;
+        const rx=p.rx+(p.maxRadiusX-p.rx)*grow;
+        const ry=p.ry+(p.maxRadiusY-p.ry)*grow;
+        const alpha=[0.56,0.34,0.2][ring]*envelope;
         if(alpha<0.006)continue;
-        // Use the same tonefield path as the pad itself: the ripple begins
-        // directly at that note's perimeter, including the central ding.
-        pathPad({...p.field,rx:p.field.rx*scale,ry:p.field.ry*scale},p.toneStyle);
-        ctx2.strokeStyle='rgba(255,222,169,'+alpha+')';
-        ctx2.lineWidth=ring===0?Math.max(1.7,R*0.006):Math.max(1.1,R*0.0038);
-        ctx2.shadowColor='rgba(255,190,100,'+(alpha*0.6)+')';
-        ctx2.shadowBlur=(ring===0?R*0.025:R*0.012)*envelope;
-        ctx2.stroke();
+        ctx.beginPath();
+        ctx.ellipse(p.x,p.y,rx,ry,p.rotation,0,Math.PI*2);
+        ctx.strokeStyle='rgba(255,222,169,'+alpha+')';
+        ctx.lineWidth=ring===0?2.0:1.25;
+        ctx.shadowColor='rgba(255,190,100,'+(alpha*0.55)+')';
+        ctx.shadowBlur=(ring===0?8:4)*envelope;
+        ctx.stroke();
       }
-      const pulse=1+0.12*Math.sin(t*Math.PI*5);
-      const haloRadius=Math.max(p.field.rx,p.field.ry)*2.7*pulse;
-      const halo=ctx2.createRadialGradient(p.field.x,p.field.y,0,p.field.x,p.field.y,haloRadius);
-      halo.addColorStop(0,'rgba(255,226,181,'+(0.16*envelope)+')');
-      halo.addColorStop(0.38,'rgba(255,211,143,'+(0.07*envelope)+')');
+      // Keep a restrained glow at the note's launch point while the rings travel.
+      const pulse=1+0.1*Math.sin(t*Math.PI*4);
+      const haloRadius=Math.max(p.rx,p.ry)*2.5*pulse;
+      const halo=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,haloRadius);
+      halo.addColorStop(0,'rgba(255,226,181,'+(0.12*envelope)+')');
+      halo.addColorStop(0.4,'rgba(255,211,143,'+(0.055*envelope)+')');
       halo.addColorStop(1,'rgba(255,211,143,0)');
-      ctx2.fillStyle=halo;
-      ctx2.beginPath();ctx2.arc(p.field.x,p.field.y,haloRadius,0,Math.PI*2);ctx2.fill();
-      ctx2.restore();
+      ctx.fillStyle=halo;ctx.beginPath();ctx.arc(p.x,p.y,haloRadius,0,Math.PI*2);ctx.fill();
+      ctx.restore();
     }
-    ctx2.globalAlpha=1;
-    ctx2.shadowBlur=0;
-    ctx2.globalCompositeOperation='source-over';
+    ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.globalCompositeOperation='source-over';
+    if(!touchRipples.length)ctx.clearRect(0,0,vw,vh);
     return touchRipples.length>0;
   }
   function addRipple(x,y,noteIndex){
+    ensureRippleCanvas();
     const now=performance.now();
-    // Resolve the currently painted field in canvas-local coordinates. Ignore
-    // pointer coordinates here: the hit-tested note index is the source of truth.
     const note=animatedView(now).find(f=>Number(f.index)===Number(noteIndex));
     if(!note)return;
+    const rect=canvas.getBoundingClientRect();
+    if(!rect.width||!rect.height)return;
+    const sx=rect.width/W,sy=rect.height/H;
     const toneStyle=softTone(window.PionierSettings?.tonefield||document.documentElement?.dataset?.tonefield||'classic');
-    const radialDistance=Math.hypot(note.x-CX,note.y-CY);
-    const maxScale=Math.max(1.25,Math.min(3.2,(R*0.985-radialDistance)/Math.max(note.rx,note.ry,1)+1));
+    let padRx=note.rx,padRy=note.ry,offsetY=0,rotation=note.rot||0;
+    if(toneStyle==='round'){padRx=padRy=Math.max(note.rx,note.ry)*0.92;rotation=0}
+    else if(toneStyle==='petal'){padRx=note.rx*0.75;padRy=note.ry*1.25}
+    else if(toneStyle==='teardrop'){padRx=note.rx*0.85;padRy=note.ry*1.1;offsetY=-note.ry*0.15}
+    else if(toneStyle==='seed'){padRx=note.rx*0.7;padRy=note.ry*1.28}
+    const px=rect.left+note.x*sx;
+    const py=rect.top+(note.y+offsetY)*sy;
+    const rx=Math.max(2,padRx*sx*1.035);
+    const ry=Math.max(2,padRy*sy*1.035);
+    // Expand far enough to reach the furthest viewport edge from this note.
+    const maxRadiusX=Math.max(px,vwSafeWidth()-px)+Math.max(vwSafeWidth(),vwSafeHeight())*0.08;
+    const maxRadiusY=Math.max(py,vwSafeHeight()-py)+Math.max(vwSafeWidth(),vwSafeHeight())*0.08;
     touchLights.set(Number(noteIndex),now);
     if(touchRipples.length>=12)touchRipples.splice(0,touchRipples.length-11);
-    touchRipples.push({
-      field:{...note},toneStyle,maxScale,started:now
-    });
+    touchRipples.push({x:px,y:py,rx,ry,rotation,maxRadiusX,maxRadiusY,started:now,duration:1850});
     if(_lastInst!=null)_origDrawBody(_lastInst,_lastCatch);
     if(!rippleRaf)rippleRaf=requestAnimationFrame(tickRipples);
   }
+  function vwSafeWidth(){return window.innerWidth||document.documentElement.clientWidth||800}
+  function vwSafeHeight(){return window.innerHeight||document.documentElement.clientHeight||600}
   function tickRipples(now){
     rippleRaf=0;
     if(!touchRipples.length||document.hidden)return;
-    if(_lastInst!=null)_origDrawBody(_lastInst,_lastCatch);
+    drawTouchRipples(now||performance.now());
     if(touchRipples.length)rippleRaf=requestAnimationFrame(tickRipples);
   }
   function drawBody(inst,catchActive){
@@ -499,8 +527,6 @@ export function createSurface(canvas) {
       }
       drawSlit(f,glow,playable);
     });
-    // Draw ripples above the tonefields, but still clipped to the metal shell.
-    drawTouchRipples(performance.now());
     ctx2.globalAlpha=1;
     drawRimGlow(performance.now()*0.001);
   }
