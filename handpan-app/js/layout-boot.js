@@ -80,22 +80,14 @@
       }
     }
 
-    // Top chip row: instrument + scale (Oval-style compact chrome)
-    let chipRow = document.getElementById('topChipRow');
-    if (!chipRow) {
-      chipRow = document.createElement('div');
-      chipRow.id = 'topChipRow';
-    }
-    if (chipRow.parentElement !== app) {
-      const stage = app.querySelector('.stage');
-      if (stage) app.insertBefore(chipRow, stage);
-      else app.appendChild(chipRow);
-    }
+    // Remove abandoned top-chip row if present
+    document.getElementById('topChipRow')?.remove();
 
+    // Bottom bar: looper, then instrument + scale, then root/notes
     const instNav = document.getElementById('instrumentNav');
     if (instNav) {
       instNav.classList.add('stage-instrument-nav');
-      if (instNav.parentElement !== chipRow) chipRow.appendChild(instNav);
+      if (bar && instNav.parentElement !== bar) bar.appendChild(instNav);
     }
 
     const scaleLabel = document.getElementById('scaleLabel');
@@ -116,14 +108,20 @@
       next.classList.remove('step');
     }
 
+    let scaleRow = document.getElementById('stageScaleRow');
+    if (!scaleRow) {
+      scaleRow = document.createElement('div');
+      scaleRow.id = 'stageScaleRow';
+      scaleRow.className = 'stage-scale-row';
+    }
+    if (bar && scaleRow.parentElement !== bar) bar.appendChild(scaleRow);
     if (scaleBlock) {
       scaleBlock.hidden = false;
       scaleBlock.classList.add('stage-control-scale');
-      if (scaleBlock.parentElement !== chipRow) chipRow.appendChild(scaleBlock);
+      if (scaleBlock.parentElement !== scaleRow) scaleRow.appendChild(scaleBlock);
     }
     if (scaleMenu) scaleMenu.classList.add('stage-scale-menu');
 
-    // Bottom bar: ONE row — looper + root/notes only
     const rootRow = document.querySelector('.control-row') || document.querySelector('#mobileControlPanel .control-row');
     if (rootRow && bar) {
       rootRow.classList.add('stage-root-row');
@@ -187,7 +185,7 @@
     // The FX drawer belongs in the top dock. The looper belongs in the
     // bottom control stack, directly above the instrument selector.
     if (looperRail && bar) {
-      // Always keep looper in the bottom bar (instrument/scale live in #topChipRow)
+      // Always keep looper in the bottom bar
       if (looperRail.parentElement !== bar) {
         bar.insertBefore(looperRail, bar.firstChild);
       }
@@ -304,19 +302,27 @@
   function ensureBottomBar() {
     const bar = document.getElementById('stageScaleBar');
     const rail = document.getElementById('looperRail');
+    const instNav = document.getElementById('instrumentNav');
+    const scaleRow = document.getElementById('stageScaleRow');
     const rootRow = document.querySelector('.stage-root-row') || document.querySelector('#stageScaleBar .control-row');
     if (!bar) return;
-    if (rail && rail.parentElement !== bar) {
-      bar.insertBefore(rail, bar.firstChild);
+    document.getElementById('topChipRow')?.remove();
+    // Order: looper → instrument → scale → root/notes
+    if (rail && rail.parentElement !== bar) bar.insertBefore(rail, bar.firstChild);
+    if (instNav && instNav.parentElement !== bar) {
+      if (rail && rail.parentElement === bar) rail.after(instNav);
+      else bar.insertBefore(instNav, bar.firstChild);
     }
-    if (rootRow && rootRow.parentElement !== bar) {
-      bar.appendChild(rootRow);
+    if (scaleRow && scaleRow.parentElement !== bar) {
+      if (instNav && instNav.parentElement === bar) instNav.after(scaleRow);
+      else bar.appendChild(scaleRow);
     }
+    if (rootRow && rootRow.parentElement !== bar) bar.appendChild(rootRow);
     if (rail) {
       ['position','top','right','bottom','left','transform'].forEach((prop) => {
         rail.style.setProperty(prop, prop === 'position' ? 'relative' : 'auto', 'important');
       });
-      rail.style.setProperty('width', 'auto', 'important');
+      rail.style.setProperty('width', '100%', 'important');
     }
   }
 

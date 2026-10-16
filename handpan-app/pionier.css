@@ -1423,85 +1423,7 @@ html, body {
   z-index: 2;
 }
 
-/* Top chip row: instrument + scale */
-#topChipRow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 4px 56px 6px; /* room for FX/settings buttons */
-  min-height: 40px;
-  pointer-events: auto;
-  z-index: 50;
-}
-
-#topChipRow .stage-instrument-nav,
-#topChipRow .stage-control-scale,
-#topChipRow .control-scale {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin: 0;
-}
-
-#topChipRow .instrument-name,
-#topChipRow .stage-scale-btn,
-#topChipRow #scaleLabel,
-#topChipRow #instrumentDropdownToggle {
-  min-height: 36px;
-  height: 36px;
-  padding: 0 12px;
-  font-size: 0.8rem;
-  max-width: 42vw;
-  border-radius: 999px;
-}
-
-#topChipRow .stage-scale-step,
-#topChipRow .icon-btn {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-}
-/* Hide scale steppers in chip row — chip itself is the control */
-#topChipRow #scalePrev,
-#topChipRow #scaleNext {
-  display: none;
-}
-#topChipRow .control-label {
-  display: none;
-}
-#topChipRow .control-scale,
-#topChipRow .stage-control-scale {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-}
-#topChipRow .stage-instrument-nav {
-  gap: 4px;
-}
-/* Looper must stay in bottom bar — defeat any leftover fixed top rules */
-#stageScaleBar #looperRail,
-#stageScaleBar .looper-rail {
-  position: relative !important;
-  top: auto !important;
-  right: auto !important;
-  left: auto !important;
-  transform: none !important;
-  width: auto !important;
-}
-body > #looperRail {
-  /* if somehow portaled to body, force into flow at bottom via fixed bar only */
-  position: fixed !important;
-  bottom: max(64px, env(safe-area-inset-bottom, 0px) + 48px) !important;
-  top: auto !important;
-  right: 12px !important;
-  left: auto !important;
-  transform: none !important;
-}
-
-
-/* Bottom bar: ONE row */
+/* Bottom control stack — instrument + scale stay with the lower chrome */
 #stageScaleBar {
   position: fixed;
   left: 0;
@@ -1510,17 +1432,15 @@ body > #looperRail {
   width: auto;
   max-width: 100%;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: nowrap;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  justify-content: flex-end;
+  gap: 6px;
   padding: 8px 10px max(10px, env(safe-area-inset-bottom, 0px));
-  min-height: 56px;
-  max-height: 120px;
   box-sizing: border-box;
   z-index: 1000;
-  background: linear-gradient(to top, rgba(7,7,8,0.96) 40%, rgba(7,7,8,0.72) 100%);
+  background: linear-gradient(to top, rgba(7,7,8,0.97) 55%, rgba(7,7,8,0.75) 100%);
   border-top: 1px solid rgba(230,224,210,0.08);
   overflow: visible;
 }
@@ -1529,30 +1449,85 @@ body > #looperRail {
   flex: 0 0 auto;
 }
 
-#stageScaleBar #looperRail {
-  position: relative;
-  inset: auto;
-  transform: none;
-  width: auto;
+#stageScaleBar #looperRail,
+#stageScaleBar .looper-rail {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  left: auto !important;
+  transform: none !important;
+  width: 100%;
   min-height: 0;
-  min-width: 0;
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 10px;
   margin: 0;
   overflow: visible;
+}
+
+#stageScaleBar .stage-instrument-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+}
+
+#stageScaleBar .stage-instrument-nav .instrument-name,
+#stageScaleBar #instrumentDropdownToggle {
+  min-height: 40px;
+  height: 40px;
+  padding: 0 14px;
+  font-size: 0.85rem;
+  max-width: min(52vw, 220px);
+  border-radius: 999px;
+}
+
+#stageScaleBar .stage-scale-row,
+#stageScaleBar #stageScaleRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+#stageScaleBar .stage-control-scale,
+#stageScaleBar .control-scale {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+}
+
+#stageScaleBar .control-scale .control-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+#stageScaleBar .stage-scale-btn,
+#stageScaleBar #scaleLabel {
+  min-height: 40px;
+  height: 40px;
+  padding: 0 14px;
+  font-size: 0.85rem;
+  max-width: min(70vw, 280px);
+  border-radius: 999px;
 }
 
 #stageScaleBar .stage-root-row,
 #stageScaleBar .control-row {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  gap: 10px;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 16px;
   margin: 0;
-  width: auto;
-  max-width: none;
+  width: 100%;
 }
 
 #stageScaleBar .control-half {
@@ -1591,12 +1566,8 @@ body > #looperRail {
   font-size: 0.9rem;
 }
 
-/* Hide stacked instrument/scale rows when moved to top */
-#stageScaleBar .stage-instrument-nav,
-#stageScaleBar .stage-scale-row,
-#stageScaleBar #stageScaleRow {
-  display: none;
-}
+/* Kill abandoned top chip row if any leftover DOM */
+#topChipRow { display: none !important; }
 
 /* FX panel: no translateX centering (avoids layout shift) */
 .fx-panel {
