@@ -8,7 +8,7 @@
  *  - Versioned shell assets (?v=): network-first when online, cache fallback
  *  - Other same-origin GET: cache-first, then network
  */
-const CACHE_VERSION = 'pionier-v66';
+const CACHE_VERSION = 'pionier-v67';
 
 const SHELL = [
   './',
@@ -40,8 +40,9 @@ const SHELL = [
   './js/note-sample-bank.js',
   './js/soundscapes.js?v=8',
   './js/scale-selector.js?v=5',
-  './js/looper.js?v=208',
+  './js/looper.js?v=209',
   './js/saved-loop-library.js?v=1',
+  './js/repository-loop-save.js?v=1',
   './js/instruments/handpan.js?v=7',
   './js/instruments/handpan-scales.js?v=3',
   './js/instruments/arp-family.js',
