@@ -51,6 +51,14 @@
     { id: 'haze', label: 'Warm Haze', group: 'Light' },
   ];
 
+  const AURAS = [
+    { id: 'glow', label: 'Rim Glow', group: 'Light' },
+    { id: 'petals', label: 'Petal Crown', group: 'Geometry' },
+    { id: 'sacred', label: 'Sacred Geometry', group: 'Geometry' },
+    { id: 'orbit', label: 'Orbit Beads', group: 'Light' },
+    { id: 'wave', label: 'Wave Filigree', group: 'Geometry' },
+  ];
+
   const TONEFIELDS = [
     { id: 'classic', label: 'Classic Oval' },
     { id: 'round', label: 'Soft Round' },
@@ -60,5 +68,5 @@
     { id: 'halo', label: 'Halo Ring' },
   ];
 
-  window.PionierCatalog = { SKINS, AMBIENTS, TONEFIELDS };
+  window.PionierCatalog = { SKINS, AMBIENTS, TONEFIELDS, AURAS };
 })();
