@@ -121,6 +121,12 @@
     if (top < 8) top = 8;
     if (top + maxH > window.innerHeight - 8) top = Math.max(8, window.innerHeight - 8 - maxH);
 
+    const light = document.documentElement.classList.contains('theme-light') ||
+      document.body.classList.contains('theme-light');
+    const surface = light ? '#faf8f4' : '#161618';
+    const text = light ? '#24221e' : '#e6e0d2';
+    const border = light ? 'rgba(52,44,28,0.14)' : 'rgba(230,224,210,0.18)';
+    const shadow = light ? '0 16px 42px rgba(43,35,20,0.16)' : '0 20px 60px rgba(0,0,0,0.55)';
     menu.style.cssText = [
       'position:fixed',
       'z-index:9999',
@@ -134,18 +140,24 @@
       'visibility:visible',
       'opacity:1',
       'pointer-events:auto',
-      'background:#161618',
+      'background:' + surface,
+      'background-color:' + surface,
       'background-image:none',
-      'color:#e6e0d2',
-      'border:1px solid rgba(230,224,210,0.18)',
-      'border-radius:12px',
-      'box-shadow:0 20px 60px rgba(0,0,0,0.75)',
+      'color:' + text,
+      'border:1px solid ' + border,
+      'border-radius:16px',
+      'box-shadow:' + shadow,
       'padding:8px',
       'overflow-y:auto',
       '-webkit-overflow-scrolling:touch',
     ].join(';');
     menu.style.setProperty('z-index', '99999', 'important');
-    menu.style.setProperty('background', '#161618', 'important');
+    // Do not hard-code a dark inline-important surface: it overrides the light
+    // theme stylesheet because these menus are portalled directly under body.
+    menu.style.setProperty('background', surface, 'important');
+    menu.style.setProperty('color', text, 'important');
+    menu.style.setProperty('border-color', border, 'important');
+    menu.style.setProperty('box-shadow', shadow, 'important');
   }
 
   function buildDropdown(sectionEl, { id, label, items, activeId, onPick }) {
