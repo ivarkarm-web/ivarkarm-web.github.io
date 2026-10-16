@@ -62,7 +62,7 @@
       clearInlineLayout(fx);
     }
     document.getElementById('fxPanelOpen')?.setAttribute('aria-expanded', 'false');
-    document.body.classList.remove('fx-panel-open');
+    document.body.classList.remove('is-fx-open');
   }
 
   function closeSettings() {
@@ -210,8 +210,13 @@
     const panel = document.getElementById('fxPanel');
     if (!panel) return;
     panel.hidden = false;
+    panel.removeAttribute('hidden');
+    panel.style.removeProperty('display');
     document.getElementById('fxPanelOpen')?.setAttribute('aria-expanded', 'true');
-    document.body.classList.add('fx-panel-open');
+    document.body.classList.add('is-fx-open');
+    // Ensure audio graph + knobs exist, then repaint canvases
+    try { window.PionierCore?.ensureAudio?.(); } catch (_) {}
+    try { window.PionierCore?.paintFxKnobs?.(); } catch (_) {}
   }
 
   function toggleFx() {
