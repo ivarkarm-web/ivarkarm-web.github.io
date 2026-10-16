@@ -392,7 +392,7 @@
       '</div>';
     body.appendChild(ledSec);
 
-    const light = document.getElementById('settingLightMode');
+    body.querySelectorAll('input[type="range"]').forEach(syncRangeFill);\n\n    const light = document.getElementById('settingLightMode');
     if (light) {
       light.checked = !!state.lightMode;
       light.addEventListener('change', () => { state.lightMode = light.checked; save(state); apply(state); });
@@ -441,6 +441,22 @@
       preview.style.boxShadow = '0 0 16px rgb(' + state.led.r + ',' + state.led.g + ',' + state.led.b + ')';
     }
   }
+
+  function syncRangeFill(input) {
+    const min = Number(input.min || 0);
+    const max = Number(input.max || 100);
+    const value = Number(input.value || 0);
+    const pct = max > min ? Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100)) : 0;
+    input.style.setProperty('--range-fill', pct + '%');
+  }
+
+  // Keep the visual track in sync during touch drags without layout work.
+  document.addEventListener('input', (event) => {
+    const input = event.target;
+    if (input instanceof HTMLInputElement && input.type === 'range' && input.closest('.settings-sheet')) {
+      syncRangeFill(input);
+    }
+  }, { passive: true });
 
   function openSheet(els, state) {
     // Single open-panel policy: close FX / soundscapes when Settings opens
