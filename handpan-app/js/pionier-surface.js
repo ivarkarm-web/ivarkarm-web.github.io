@@ -48,28 +48,30 @@ export function createSurface(canvas) {
   function mandalaStyle(){const s=window.PionierSettings||{};return ['glow','petals','sacred','orbit','wave'].includes(s.auraStyle)?s.auraStyle:'petals';}
   function mandalaEnabled(){const s=window.PionierSettings;return !(s&&s.mandala===false);}
   // Slowly rotating, breathing ornamentation around the actual handpan shell rim.
+  // Draw the aura OUTSIDE the metal shell. The shell edge is R; all ornament
+  // geometry is anchored beyond 1.01R so it reads as a separate rim halo.
   function drawHandpanMandala(theme){
     if(!mandalaEnabled()||R<20)return;
     const style=mandalaStyle(),col=theme.skin.rim||[230,236,248],t=performance.now()*0.001;
-    const breath=0.5+0.5*Math.sin(t*0.42),rim=R*0.925;
+    const breath=0.5+0.5*Math.sin(t*0.42),rim=R*1.035;
     ctx2.save();ctx2.translate(CX,CY);ctx2.rotate(t*0.026);ctx2.globalCompositeOperation='screen';
     ctx2.lineCap='round';ctx2.lineJoin='round';ctx2.globalAlpha=0.22+breath*0.34;
     const stroke=(a,w)=>{ctx2.strokeStyle=rgba(col,a);ctx2.lineWidth=Math.max(0.55,R*w)};
     const fill=(a)=>{ctx2.fillStyle=rgba(col,a)};
     if(style==='glow'){
-      for(let i=0;i<3;i++){const rr=rim*(0.985+i*0.018);ctx2.beginPath();ctx2.arc(0,0,rr,0,Math.PI*2);stroke(0.09-i*0.022,0.0024-i*0.00045);ctx2.shadowColor=rgba(col,0.24);ctx2.shadowBlur=R*(0.025-i*0.006);ctx2.stroke();}
-      ctx2.shadowBlur=0;const halo=ctx2.createRadialGradient(0,0,rim*0.94,0,0,rim*1.04);halo.addColorStop(0,rgba(col,0));halo.addColorStop(0.55,rgba(col,0.075+breath*0.035));halo.addColorStop(1,rgba(col,0));ctx2.fillStyle=halo;ctx2.beginPath();ctx2.arc(0,0,rim*1.04,0,Math.PI*2);ctx2.fill();
+      for(let i=0;i<3;i++){const rr=rim*(1.005+i*0.012);ctx2.beginPath();ctx2.arc(0,0,rr,0,Math.PI*2);stroke(0.09-i*0.022,0.0024-i*0.00045);ctx2.shadowColor=rgba(col,0.24);ctx2.shadowBlur=R*(0.025-i*0.006);ctx2.stroke();}
+      ctx2.shadowBlur=0;const halo=ctx2.createRadialGradient(0,0,rim*0.99,0,0,rim*1.07);halo.addColorStop(0,rgba(col,0));halo.addColorStop(0.55,rgba(col,0.075+breath*0.035));halo.addColorStop(1,rgba(col,0));ctx2.fillStyle=halo;ctx2.beginPath();ctx2.arc(0,0,rim*1.07,0,Math.PI*2);ctx2.fill();
     }else if(style==='petals'){
-      stroke(0.12,0.0017);ctx2.beginPath();ctx2.arc(0,0,rim*0.965,0,Math.PI*2);ctx2.stroke();
-      for(let i=0;i<20;i++){const a=i/20*Math.PI*2,rr=rim*(0.945+0.012*Math.sin(t*0.35+i*0.7));ctx2.save();ctx2.rotate(a);ctx2.translate(0,-rr);ctx2.beginPath();ctx2.ellipse(0,0,R*0.026,R*0.052,0,0,Math.PI*2);stroke(0.14+breath*0.045,0.0018);ctx2.stroke();ctx2.beginPath();ctx2.ellipse(0,0,R*0.012,R*0.032,0,0,Math.PI*2);stroke(0.09,0.0012);ctx2.stroke();ctx2.restore();}
+      stroke(0.12,0.0017);ctx2.beginPath();ctx2.arc(0,0,rim*1.005,0,Math.PI*2);ctx2.stroke();
+      for(let i=0;i<20;i++){const a=i/20*Math.PI*2,rr=rim*(1.03+0.004*Math.sin(t*0.35+i*0.7));ctx2.save();ctx2.rotate(a);ctx2.translate(0,-rr);ctx2.beginPath();ctx2.ellipse(0,0,R*0.018,R*0.025,0,0,Math.PI*2);stroke(0.14+breath*0.045,0.0018);ctx2.stroke();ctx2.beginPath();ctx2.ellipse(0,0,R*0.008,R*0.015,0,0,Math.PI*2);stroke(0.09,0.0012);ctx2.stroke();ctx2.restore();}
     }else if(style==='sacred'){
-      stroke(0.09,0.0015);ctx2.beginPath();ctx2.arc(0,0,rim*0.96,0,Math.PI*2);ctx2.stroke();
-      for(let i=0;i<24;i++){const a=i/24*Math.PI*2,x=Math.cos(a)*rim*0.96,y=Math.sin(a)*rim*0.96,size=R*0.024;ctx2.save();ctx2.translate(x,y);ctx2.rotate(a+Math.PI/4);ctx2.beginPath();ctx2.moveTo(0,-size);ctx2.lineTo(size,0);ctx2.lineTo(0,size);ctx2.lineTo(-size,0);ctx2.closePath();stroke(0.13+breath*0.035,0.0018);ctx2.stroke();ctx2.restore();if(i%2===0){ctx2.beginPath();ctx2.arc(Math.cos(a)*rim*0.91,Math.sin(a)*rim*0.91,R*0.006,0,Math.PI*2);fill(0.13);ctx2.fill();}}
+      stroke(0.09,0.0015);ctx2.beginPath();ctx2.arc(0,0,rim*1.005,0,Math.PI*2);ctx2.stroke();
+      for(let i=0;i<24;i++){const a=i/24*Math.PI*2,x=Math.cos(a)*rim*1.035,y=Math.sin(a)*rim*1.035,size=R*0.014;ctx2.save();ctx2.translate(x,y);ctx2.rotate(a+Math.PI/4);ctx2.beginPath();ctx2.moveTo(0,-size);ctx2.lineTo(size,0);ctx2.lineTo(0,size);ctx2.lineTo(-size,0);ctx2.closePath();stroke(0.13+breath*0.035,0.0018);ctx2.stroke();ctx2.restore();if(i%2===0){ctx2.beginPath();ctx2.arc(Math.cos(a)*rim*1.015,Math.sin(a)*rim*1.015,R*0.0045,0,Math.PI*2);fill(0.13);ctx2.fill();}}
     }else if(style==='orbit'){
-      for(let ring=0;ring<2;ring++){ctx2.beginPath();ctx2.arc(0,0,rim*(0.955+ring*0.025),0,Math.PI*2);stroke(ring?0.055:0.11,ring?0.0011:0.0018);ctx2.stroke();}
-      for(let i=0;i<32;i++){const a=i/32*Math.PI*2,rr=rim*(0.965+0.012*Math.sin(t*0.38+i*0.85)),x=Math.cos(a)*rr,y=Math.sin(a)*rr,pr=R*(i%4===0?0.009:0.0048),g=ctx2.createRadialGradient(x,y,0,x,y,pr*2.6);g.addColorStop(0,rgba(col,i%4===0?0.23:0.12));g.addColorStop(1,rgba(col,0));ctx2.fillStyle=g;ctx2.beginPath();ctx2.arc(x,y,pr*2.6,0,Math.PI*2);ctx2.fill();}
+      for(let ring=0;ring<2;ring++){ctx2.beginPath();ctx2.arc(0,0,rim*(1.005+ring*0.025),0,Math.PI*2);stroke(ring?0.055:0.11,ring?0.0011:0.0018);ctx2.stroke();}
+      for(let i=0;i<32;i++){const a=i/32*Math.PI*2,rr=rim*(1.025+0.008*Math.sin(t*0.38+i*0.85)),x=Math.cos(a)*rr,y=Math.sin(a)*rr,pr=R*(i%4===0?0.006:0.0035),g=ctx2.createRadialGradient(x,y,0,x,y,pr*2.6);g.addColorStop(0,rgba(col,i%4===0?0.23:0.12));g.addColorStop(1,rgba(col,0));ctx2.fillStyle=g;ctx2.beginPath();ctx2.arc(x,y,pr*2.6,0,Math.PI*2);ctx2.fill();}
     }else if(style==='wave'){
-      for(let ring=0;ring<3;ring++){ctx2.beginPath();for(let i=0;i<=180;i++){const a=i/180*Math.PI*2,rr=rim*(0.945+ring*0.018)+Math.sin(a*12-t*0.45+ring*1.2)*R*0.009,x=Math.cos(a)*rr,y=Math.sin(a)*rr;if(i===0)ctx2.moveTo(x,y);else ctx2.lineTo(x,y);}ctx2.closePath();stroke(0.055+ring*0.025,0.00125+ring*0.0002);ctx2.stroke();}
+      for(let ring=0;ring<3;ring++){ctx2.beginPath();for(let i=0;i<=180;i++){const a=i/180*Math.PI*2,rr=rim*(1.005+ring*0.014)+Math.sin(a*12-t*0.45+ring*1.2)*R*0.006,x=Math.cos(a)*rr,y=Math.sin(a)*rr;if(i===0)ctx2.moveTo(x,y);else ctx2.lineTo(x,y);}ctx2.closePath();stroke(0.055+ring*0.025,0.00125+ring*0.0002);ctx2.stroke();}
     }
     ctx2.restore();
   }
