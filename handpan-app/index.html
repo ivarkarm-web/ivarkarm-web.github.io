@@ -39,7 +39,6 @@
     #pan {
       display: block !important;
       aspect-ratio: 1 !important;
-      /* position/size owned by layout-boot centerPan (viewport-safe) */
     }
     .stage::before {
       left: 50% !important;
@@ -51,6 +50,7 @@
   </style>
   <link rel="stylesheet" href="./atelier.css?v=8">
   <link rel="stylesheet" href="./chrome-fix.css?v=7">
+  <link rel="stylesheet" href="./chrome-fix-addon.css?v=1">
 </head>
 <body>
   <div id="appStatus" class="app-status" data-state="loading" role="status" aria-live="polite">
@@ -91,17 +91,17 @@
         <div class="control-block control-half">
           <label class="control-label">Base Note</label>
           <div class="stepper">
-            <button type="button" class="step" id="rootDown" aria-label="Lower base note">‹</button>
+            <button type="button" class="step" id="rootPrev" aria-label="Previous root">‹</button>
             <span class="step-value" id="rootLabel">D3</span>
-            <button type="button" class="step" id="rootUp" aria-label="Raise base note">›</button>
+            <button type="button" class="step" id="rootNext" aria-label="Next root">›</button>
           </div>
         </div>
         <div class="control-block control-half">
           <label class="control-label">Notes</label>
           <div class="stepper">
-            <button type="button" class="step" id="noteCountDown" aria-label="Fewer notes">‹</button>
+            <button type="button" class="step" id="noteCountPrev" aria-label="Fewer notes">‹</button>
             <span class="step-value" id="noteCountLabel">9</span>
-            <button type="button" class="step" id="noteCountUp" aria-label="More notes">›</button>
+            <button type="button" class="step" id="noteCountNext" aria-label="More notes">›</button>
           </div>
         </div>
       </div>
@@ -109,48 +109,28 @@
       </div>
     </div>
 
-    <main class="stage" id="stage">
-      <canvas id="pan" width="720" height="720" role="img" tabindex="0" aria-label="Handpan instrument. Play with touch or keys 1 through 9."></canvas>
-    </main>
-
     <div id="looperRail" class="looper-rail" aria-label="Looper">
       <button type="button" id="looperClearBtn" class="looper-clear-btn" aria-label="Clear loops" title="Clear">×</button>
       <div id="looperRecordCluster" class="looper-record-cluster">
-        <button type="button" id="looperBtn" class="looper-btn looper-record" aria-label="Record loop" title="Record loop"></button>
+        <button type="button" id="looperBtn" class="looper-btn looper-record" aria-label="Record loop" title="Record loop"><span class="looper-btn-ring" aria-hidden="true"></span><span class="looper-btn-core" aria-hidden="true"></span></button>
       </div>
       <div id="looperLayers" class="looper-layers" aria-label="Loop layers"></div>
     </div>
+
+    <main class="stage" id="stage">
+      <canvas id="pan" width="680" height="680" role="img" aria-label="Handpan instrument"></canvas>
+    </main>
   </div>
 
-    <section id="soundscapesPanel" class="soundscapes-panel" hidden aria-label="Bedroom Sessions">
+  <div id="soundscapesPanel" class="soundscapes-panel" hidden>
     <header class="soundscapes-header">
       <h2>Bedroom Sessions</h2>
-      <button type="button" id="closeSoundscapes" class="icon-btn" aria-label="Close">×</button>
+      <button type="button" id="soundscapesClose" class="icon-btn" aria-label="Close">×</button>
     </header>
-    <main class="soundscapes-body">
-      <div class="soundscape-now">
-        <p id="soundscapeTitle" class="soundscape-title">E Amara · Improvisation 1</p>
-        <p id="soundscapeNote" class="soundscape-note">Owner recordings</p>
-      </div>
-      <div class="soundscape-transport">
-        <button type="button" class="soundscape-transport-btn" id="soundscapePrev" aria-label="Previous track">‹</button>
-        <button type="button" class="soundscape-play" id="soundscapePlay" aria-label="Play">▶</button>
-        <button type="button" class="soundscape-transport-btn" id="soundscapeNext" aria-label="Next track">›</button>
-        <button type="button" class="soundscape-transport-btn" id="soundscapeRepeat" aria-label="Repeat" aria-pressed="false">↻</button>
-      </div>
-      <div class="soundscape-seek-row">
-        <span id="soundscapeTime">0:00</span>
-        <input id="soundscapeSeek" type="range" min="0" max="1000" value="0" aria-label="Seek">
-        <span id="soundscapeTimeTotal">0:00</span>
-      </div>
-      <label class="soundscape-vol-row"><span>Volume</span>
-        <input id="soundscapeVolume" type="range" min="0" max="1" step="0.01" value="0.85" aria-label="Track volume">
-      </label>
-      <p class="soundscape-status" id="soundscapeStatus" role="status">Bedroom Sessions · 8 tracks</p>
-      <div id="soundscapeQueue" class="soundscape-queue" role="list" aria-label="Track list"></div>
-    </main>
-  </section>
-    <div id="fxPanel" class="fx-panel" hidden>
+    <div class="soundscapes-body" id="soundscapesBody"></div>
+  </div>
+
+  <div id="fxPanel" class="fx-panel" hidden>
     <header class="fx-panel-header">
       <h2>Effects</h2>
       <button type="button" id="fxPanelClose" class="icon-btn" aria-label="Close effects">×</button>
@@ -173,9 +153,10 @@
   <script src="./js/customization-catalog.js?v=5"></script>
   <script src="./js/layout-boot.js?v=46"></script>
   <script src="./js/settings-panel.js?v=8"></script>
+  <script src="./js/exclusivity-fix.js?v=1"></script>
   <script src="./js/ambient-fx.js?v=12"></script>
   <script src="./js/skin-mandala.js?v=4"></script>
-  <script type="module" src="./pionier-app.js?v=164"></script>
+  <script type="module" src="./pionier-app.js?v=165"></script>
   <script src="./registerSW.js"></script>
 </body>
 </html>

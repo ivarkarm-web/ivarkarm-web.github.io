@@ -1,0 +1,22 @@
+/* exclusivity + record chrome addon v9 */
+#settingsSheetBackdrop, .settings-sheet-backdrop { z-index: 4300 !important; }
+#settingsSheet, .settings-sheet { z-index: 4350 !important; }
+#fxPanel, .fx-panel { z-index: 4200 !important; }
+#settingsOpenBtn, #fxPanelOpen, .fx-panel-open { z-index: 4400 !important; }
+#looperRail.looper-rail, .looper-rail {
+  position: relative !important; top: auto !important; right: auto !important;
+  left: auto !important; transform: none !important; pointer-events: auto !important;
+  display: flex !important; flex-direction: row !important; align-items: center !important;
+  justify-content: center !important; gap: 12px !important; width: 100% !important;
+  min-height: 56px !important; visibility: visible !important;
+}
+.looper-record-cluster {
+  display: flex !important; flex-direction: row !important;
+  align-items: center !important; gap: 10px !important; pointer-events: auto !important;
+}
+.looper-btn, #looperBtn {
+  width: 52px !important; height: 52px !important; min-width: 52px !important;
+  min-height: 52px !important; border: 0 !important; background: transparent !important;
+  box-shadow: none !important; pointer-events: auto !important; position: relative !important;
+}
+.looper-btn-ring, .looper-btn-core { pointer-events: none !important; }
