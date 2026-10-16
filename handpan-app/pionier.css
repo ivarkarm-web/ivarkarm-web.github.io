@@ -2429,3 +2429,16 @@ html.theme-light .looper-sync-dial {
 html.theme-light .looper-sync-label {
   color: #3a3834 !important;
 }
+
+/* Kill residual grey fill on instrument name chip in light mode */
+html.theme-light #stageScaleBar #instrumentDropdownToggle,
+html.theme-light #stageScaleBar #instrumentDropdownToggle.instrument-name,
+html.theme-light #stageScaleBar .instrument-name,
+html.theme-light .instrument-name {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  color: #1c1b1a !important;
+  border: none !important;
+  box-shadow: none !important;
+}
