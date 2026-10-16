@@ -393,43 +393,41 @@ export function createSurface(canvas) {
     if(!touchRipples.length||!rippleCtx)return false;
     const ctx=rippleCtx,vw=window.innerWidth,vh=window.innerHeight;
     ctx.clearRect(0,0,vw,vh);
-    const duration=7200;
+    const duration=5600;
     for(let i=touchRipples.length-1;i>=0;i--){
       const p=touchRipples[i];
       const t=(now-p.started)/duration;
       if(t>=1){touchRipples.splice(i,1);continue}
-      const fadeIn=smoothstep(t/0.24);
-      const fadeOut=smoothstep((1-t)/0.46);
+      const fadeIn=smoothstep(t/0.20);
+      const fadeOut=smoothstep((1-t)/0.34);
       const envelope=fadeIn*fadeOut;
       const travel=smoothstep(t);
       const span=Math.min(vw,vh);
-      const drift=span*0.22*travel;
-      const x=p.x+Math.sin(t*Math.PI*1.1+p.phase)*span*0.018+Math.cos(p.angle)*drift*0.38;
-      const y=p.y-drift*0.72+Math.sin(t*Math.PI*1.2+p.phase)*span*0.012;
-      const maxR=Math.hypot(vw,vh)*0.78;
-      const radius=8+maxR*travel;
+      const drift=Math.hypot(vw,vh)*0.40*travel;
+      const sway=Math.sin(t*Math.PI*1.4+p.phase)*span*0.008;
+      const x=p.x+p.dx*drift+Math.cos(p.angle+Math.PI/2)*sway;
+      const y=p.y+p.dy*drift+Math.sin(p.angle+Math.PI/2)*sway;
+      const radius=5+span*0.13*travel;
       ctx.save();
       ctx.globalCompositeOperation='screen';
-      // A broad, low-contrast halo gives the effect a metallic, atmospheric finish.
-      const halo=ctx.createRadialGradient(x,y,Math.max(0,radius- span*0.075),x,y,radius+span*0.065);
+      const halo=ctx.createRadialGradient(x,y,Math.max(0,radius-span*0.035),x,y,radius+span*0.045);
       halo.addColorStop(0,'rgba(255,210,130,0)');
-      halo.addColorStop(0.46,'rgba(255,195,104,'+(0.012*envelope)+')');
-      halo.addColorStop(0.72,'rgba(255,218,157,'+(0.024*envelope)+')');
+      halo.addColorStop(0.42,'rgba(255,190,105,'+(0.035*envelope)+')');
+      halo.addColorStop(0.72,'rgba(255,218,157,'+(0.065*envelope)+')');
       halo.addColorStop(1,'rgba(255,218,157,0)');
       ctx.fillStyle=halo;
-      ctx.beginPath();ctx.arc(x,y,radius+span*0.065,0,Math.PI*2);ctx.fill();
-      // Two restrained, softly lit rings: no hard neon outline or sharp flash.
+      ctx.beginPath();ctx.arc(x,y,radius+span*0.045,0,Math.PI*2);ctx.fill();
       for(let ring=0;ring<2;ring++){
-        const delay=ring===0?0:0.13;
+        const delay=ring===0?0:0.16;
         const rt=Math.max(0,Math.min(1,(t-delay)/(1-delay)));
         if(rt<=0)continue;
-        const rr=8+maxR*smoothstep(rt)*(ring===0?1:1.035);
-        const alpha=(ring===0?0.085:0.038)*envelope;
+        const rr=5+span*(0.13+ring*0.012)*smoothstep(rt);
+        const alpha=(ring===0?0.22:0.12)*envelope;
         ctx.beginPath();ctx.arc(x,y,rr,0,Math.PI*2);
         ctx.strokeStyle='rgba(255,220,161,'+alpha+')';
-        ctx.lineWidth=ring===0?1.8:1.05;
-        ctx.shadowColor='rgba(255,190,89,'+(alpha*0.85)+')';
-        ctx.shadowBlur=(ring===0?18:10)*envelope;
+        ctx.lineWidth=ring===0?2.1:1.35;
+        ctx.shadowColor='rgba(255,190,89,'+(alpha*0.65)+')';
+        ctx.shadowBlur=(ring===0?10:5)*envelope;
         ctx.stroke();
       }
       ctx.restore();
@@ -442,15 +440,18 @@ export function createSurface(canvas) {
     if(window.PionierSettings?.touchFeedback!==true)return;
     ensureRippleCanvas();
     const rect=canvas.getBoundingClientRect();
+    const note=fields.find(f=>Number(f.index)===Number(noteIndex));
+    const localX=note?note.x:(Number(x)||W*0.5);
+    const localY=note?note.y:(Number(y)||H*0.5);
+    const px=rect.left+(localX/W)*rect.width;
+    const py=rect.top+(localY/H)*rect.height;
+    let dx=px-window.innerWidth*0.5,dy=py-window.innerHeight*0.5;
+    const len=Math.hypot(dx,dy);
+    const angle=len>1e-3?Math.atan2(dy,dx):((Number(noteIndex)||0)*2.3999632297)-Math.PI/2;
+    if(len>1e-3){dx/=len;dy/=len}else{dx=Math.cos(angle);dy=Math.sin(angle)}
     const now=performance.now();
-    if(touchRipples.length>=6)touchRipples.splice(0,touchRipples.length-5);
-    touchRipples.push({
-      x:rect.left+rect.width*0.5,
-      y:rect.top+rect.height*0.46,
-      started:now,
-      angle:((Number(noteIndex)||0)*2.3999632297)-Math.PI/2,
-      phase:(Number(noteIndex)||0)*1.6180339887
-    });
+    if(touchRipples.length>=9)touchRipples.splice(0,touchRipples.length-8);
+    touchRipples.push({x:px,y:py,dx,dy,angle,started:now,phase:(Number(noteIndex)||0)*1.6180339887});
     if(!rippleRaf)rippleRaf=requestAnimationFrame(tickRipples);
   }
   function tickRipples(now){
