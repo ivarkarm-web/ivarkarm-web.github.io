@@ -50,7 +50,7 @@
     }
   </style>
   <link rel="stylesheet" href="./atelier.css?v=8">
-  <link rel="stylesheet" href="./chrome-fix.css?v=6">
+  <link rel="stylesheet" href="./chrome-fix.css?v=7">
 </head>
 <body>
   <div id="appStatus" class="app-status" data-state="loading" role="status" aria-live="polite">
@@ -114,7 +114,11 @@
     </main>
 
     <div id="looperRail" class="looper-rail" aria-label="Looper">
-      <button type="button" id="looperClearBtn" class="looper-clear" aria-label="Clear loops" title="Clear">×</button>
+      <button type="button" id="looperClearBtn" class="looper-clear-btn" aria-label="Clear loops" title="Clear">×</button>
+      <div id="looperRecordCluster" class="looper-record-cluster">
+        <button type="button" id="looperBtn" class="looper-btn looper-record" aria-label="Record loop" title="Record loop"></button>
+      </div>
+      <div id="looperLayers" class="looper-layers" aria-label="Loop layers"></div>
     </div>
   </div>
 
@@ -146,15 +150,32 @@
       <div id="soundscapeQueue" class="soundscape-queue" role="list" aria-label="Track list"></div>
     </main>
   </section>
+    <div id="fxPanel" class="fx-panel" hidden>
+    <header class="fx-panel-header">
+      <h2>Effects</h2>
+      <button type="button" id="fxPanelClose" class="icon-btn" aria-label="Close effects">×</button>
+    </header>
+    <div class="fx-panel-body knobs-panel">
+      <div class="effect-knob-wrap" id="knobCompress"><canvas class="knob-canvas" width="68" height="68"></canvas><span class="knob-label">Comp</span><span class="knob-val" id="valCompress">40%</span></div>
+      <div class="effect-knob-wrap" id="knobDelay"><canvas class="knob-canvas" width="68" height="68"></canvas><span class="knob-label">Delay</span><span class="knob-val" id="valDelay">15%</span></div>
+      <div class="effect-knob-wrap" id="knobReverb"><canvas class="knob-canvas" width="68" height="68"></canvas><span class="knob-label">Reverb</span><span class="knob-val" id="valReverb">25%</span></div>
+      <div class="effect-knob-wrap" id="knobFilter"><canvas class="knob-canvas" width="68" height="68"></canvas><span class="knob-label">Filter</span><span class="knob-val" id="valFilter">12%</span></div>
+      <div class="effect-knob-wrap" id="knobBass"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Bass</span><span class="knob-val" id="valBass">50%</span></div>
+      <div class="effect-knob-wrap" id="knobLow"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Low</span><span class="knob-val" id="valLow">50%</span></div>
+      <div class="effect-knob-wrap" id="knobMid"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Mid</span><span class="knob-val" id="valMid">50%</span></div>
+      <div class="effect-knob-wrap" id="knobMaster"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Master</span><span class="knob-val" id="valMaster">82%</span></div>
+    </div>
+  </div>
+
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
 
   <script src="./js/skin-palette.js?v=1"></script>
   <script src="./js/customization-catalog.js?v=5"></script>
-  <script src="./js/layout-boot.js?v=45"></script>
-  <script src="./js/settings-panel.js?v=6"></script>
+  <script src="./js/layout-boot.js?v=46"></script>
+  <script src="./js/settings-panel.js?v=7"></script>
   <script src="./js/ambient-fx.js?v=12"></script>
   <script src="./js/skin-mandala.js?v=4"></script>
-  <script type="module" src="./pionier-app.js?v=163"></script>
+  <script type="module" src="./pionier-app.js?v=164"></script>
   <script src="./registerSW.js"></script>
 </body>
 </html>
