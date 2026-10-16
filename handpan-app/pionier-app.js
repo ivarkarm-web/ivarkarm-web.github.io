@@ -55,7 +55,7 @@ async function boot() {
   const degraded = [];
 
   try {
-    await import(new URL('./pionier-core.js?v=30', BASE).href);
+    await import(new URL('./pionier-core.js?v=31', BASE).href);
   } catch (err) {
     console.error('[pionier] required core failed to load', err);
     setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
@@ -83,7 +83,7 @@ async function boot() {
 
   try {
     let HANDPAN_SCALES;
-    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=6', BASE).href));
+    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=7', BASE).href));
     window.HANDPAN_SCALES = HANDPAN_SCALES;
   } catch (err) {
     console.warn('[handpan] scales module', err);
