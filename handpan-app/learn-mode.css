@@ -46,3 +46,9 @@ body.learn-active #looperRail{opacity:.25}
 /* Clear timing cue: a broad contracting wave, then a bright target halo at the play moment. */
 #learnGameHud[data-cue="play"]{border-color:rgba(255,231,151,.85);background:rgba(46,35,13,.94);box-shadow:0 0 0 1px rgba(243,212,122,.22),0 0 28px rgba(243,212,122,.3)}
 #learnHudLabel{transition:color .12s ease,text-shadow .12s ease}
+
+/* Learn timing cues use the same quiet glass-and-gold language as Pionier controls. */
+#learnRippleOverlay{z-index:6;overflow:visible}
+#learnGameHud{font-family:Inter,var(--font),sans-serif;letter-spacing:.045em;border-color:rgba(212,176,74,.24);box-shadow:0 5px 22px rgba(0,0,0,.26)}
+#learnHudLabel{min-width:96px;font-size:9px;letter-spacing:.065em}
+#learnGameHud button{font-family:Inter,var(--font),sans-serif;font-weight:500;letter-spacing:.04em}
