@@ -1234,7 +1234,7 @@ body.soundscapes-active #pan {
   opacity: 1 !important;
   pointer-events: auto !important;
 }
-.fx-panel-open,
+button.fx-panel-open,
 #fxPanelOpen {
   position: fixed !important;
   top: max(10px, env(safe-area-inset-top, 0px)) !important;
@@ -1360,7 +1360,7 @@ body.soundscapes-active #pan {
 #settingsSheet, .settings-sheet { z-index: 4350 !important; }
 .settings-dd-menu, .settings-dd-menu.is-open { z-index: 4500 !important; }
 #fxPanel, .fx-panel { z-index: 4200 !important; }
-#settingsOpenBtn, #fxPanelOpen, .fx-panel-open { z-index: 4400 !important; }
+#settingsOpenBtn, #fxPanelOpen, button.fx-panel-open { z-index: 4400 !important; }
 #looperRail.looper-rail, .looper-rail {
   position: relative !important; top: auto !important; right: auto !important;
   left: auto !important; transform: none !important; pointer-events: auto !important;
@@ -2064,7 +2064,7 @@ html.theme-light #stageScaleBar .control-label {
 html.theme-light #settingsOpenBtn,
 html.theme-light .settings-open-btn,
 html.theme-light #fxPanelOpen,
-html.theme-light .fx-panel-open,
+html.theme-light button.fx-panel-open,
 html.theme-light #openSoundscapes.soundscapes-top-btn,
 html.theme-light button#openSoundscapes.soundscapes-top-btn {
   background: rgba(255, 255, 255, 0.92) !important;
@@ -2152,7 +2152,7 @@ html.theme-light .fx-panel {
 #openSoundscapes.soundscapes-top-btn,
 button#openSoundscapes.soundscapes-top-btn,
 #fxPanelOpen,
-.fx-panel-open,
+button.fx-panel-open,
 #settingsOpenBtn,
 .settings-open-btn {
   position: fixed !important;
@@ -2166,7 +2166,7 @@ button#openSoundscapes.soundscapes-top-btn {
   transform: translateX(calc(-50% - 52px)) !important;
 }
 #fxPanelOpen,
-.fx-panel-open {
+button.fx-panel-open {
   transform: translateX(-50%) !important;
 }
 #settingsOpenBtn,
@@ -2229,4 +2229,101 @@ html.theme-light #app {
 html.theme-light .app-status {
   background: rgba(242, 240, 235, 0.95) !important;
   color: #1a1a1c !important;
+}
+
+
+/* ========== FX panel: reliable sheet, never style body as button ========== */
+button.fx-panel-open,
+#fxPanelOpen {
+  position: fixed !important;
+  /* centering handled by top-chrome cluster rules */
+}
+
+#fxPanel.fx-panel,
+.fx-panel#fxPanel {
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  top: max(64px, calc(env(safe-area-inset-top, 0px) + 56px)) !important;
+  bottom: auto !important;
+  transform: translateX(-50%) !important;
+  width: min(96vw, 420px) !important;
+  max-width: calc(100vw - 20px) !important;
+  max-height: min(70dvh, 520px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  z-index: 4600 !important;
+  padding: 14px 16px 18px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(212, 176, 74, 0.28) !important;
+  background: rgba(14, 14, 16, 0.97) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55) !important;
+  color: #e6e0d2 !important;
+  -webkit-overflow-scrolling: touch;
+}
+#fxPanel.fx-panel[hidden],
+.fx-panel#fxPanel[hidden] {
+  display: none !important;
+}
+.fx-panel-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 12px !important;
+}
+.fx-panel-header h2 {
+  margin: 0 !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  color: #e6e0d2 !important;
+}
+.fx-panel-body.knobs-panel,
+#fxPanel .knobs-panel {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 12px 8px !important;
+  justify-items: center !important;
+  align-items: start !important;
+}
+#fxPanel .effect-knob-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+  pointer-events: auto !important;
+}
+#fxPanel .knob-canvas {
+  display: block !important;
+  width: 64px !important;
+  height: 64px !important;
+  max-width: 18vw !important;
+  max-height: 18vw !important;
+}
+#fxPanel .knob-label,
+#fxPanel .knob-val {
+  font-size: 0.7rem !important;
+  color: rgba(230, 224, 210, 0.7) !important;
+}
+
+html.theme-light #fxPanel.fx-panel {
+  background: rgba(250, 249, 246, 0.98) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #1a1a1c !important;
+}
+html.theme-light #fxPanel .fx-panel-header h2,
+html.theme-light #fxPanel .knob-label,
+html.theme-light #fxPanel .knob-val {
+  color: rgba(28, 28, 32, 0.85) !important;
+}
+
+/* Do NOT let body.is-fx-open inherit button positioning */
+body.is-fx-open {
+  position: static !important;
+  transform: none !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  width: auto !important;
+  height: auto !important;
 }
