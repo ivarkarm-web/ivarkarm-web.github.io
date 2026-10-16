@@ -25,11 +25,30 @@ const SYNC_MODES = [
 
 export function mountLooper({ root } = {}) {
   const rail = root || document.getElementById('looperRail');
-  const btn = document.getElementById('looperBtn');
-  const layersEl = document.getElementById('looperLayers');
+  if (!rail || rail.dataset.mounted === '1') return null;
+
+  // Ensure required controls exist (shell may only ship the rail + clear).
+  let btn = document.getElementById('looperBtn');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'looperBtn';
+    btn.className = 'looper-btn looper-record';
+    btn.setAttribute('aria-label', 'Record loop');
+    btn.title = 'Record loop';
+    btn.innerHTML = '<span class="looper-btn-core" aria-hidden="true"></span>';
+    rail.appendChild(btn);
+  }
+  let layersEl = document.getElementById('looperLayers');
+  if (!layersEl) {
+    layersEl = document.createElement('div');
+    layersEl.id = 'looperLayers';
+    layersEl.className = 'looper-layers';
+    layersEl.setAttribute('aria-label', 'Loop layers');
+    rail.appendChild(layersEl);
+  }
   let clearBtn = document.getElementById('looperClearBtn');
   let syncBtn = document.getElementById('looperSyncBtn');
-  if (!rail || !btn || !layersEl || rail.dataset.mounted === '1') return null;
   rail.dataset.mounted = '1';
 
   const legacyPlay = document.getElementById('looperPlayBtn');
