@@ -17,7 +17,7 @@ const SHELL = [
   './icon.svg',
   './pionier.css?v=144',
   './atelier.css?v=10',
-  './looper.css?v=206',
+  './looper.css?v=207',
   './scale-menu.css?v=7',
   './settings-panel.css?v=18',
   './ui-stability.css?v=5',
