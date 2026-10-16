@@ -42,6 +42,8 @@
       m.setAttribute('hidden', '');
       m.classList.remove('is-open', 'picker-sheet', 'picker-popover');
       clearInlineLayout(m);
+      // Force closed even if a prior open left display:block inline
+      m.style.setProperty('display', 'none', 'important');
       const tid = TOGGLE_FOR[id];
       if (tid) document.getElementById(tid)?.setAttribute('aria-expanded', 'false');
     });
@@ -100,15 +102,32 @@
   function placePicker(menu, toggle) {
     if (!menu || !toggle) return;
     if (menu.parentElement !== document.body) document.body.appendChild(menu);
-    const isPhone = window.matchMedia('(max-width: 700px)').matches;
+
+    // Prefer bottom sheet on phones, tablets in portrait, touch devices, or short viewports.
+    // Previous 700px breakpoint left many real phones (and 750px emulators) on the broken popover path.
+    const isPhone =
+      window.matchMedia('(max-width: 900px)').matches ||
+      window.matchMedia('(pointer: coarse)').matches ||
+      window.innerHeight < 720;
+
+    menu.classList.remove('picker-sheet', 'picker-popover');
     menu.classList.add(isPhone ? 'picker-sheet' : 'picker-popover');
-    menu.classList.remove(isPhone ? 'picker-popover' : 'picker-sheet');
     menu.classList.add('is-open');
     menu.hidden = false;
+    menu.removeAttribute('hidden');
 
-    // Prefer CSS classes; only set position fixed for portal stacking.
+    // Solid portal styles so the menu never inherits a transparent/zero-opacity state.
+    // Clear any display:none !important left by closePickers.
+    menu.style.removeProperty('display');
+    menu.style.setProperty('display', 'block', 'important');
     menu.style.position = 'fixed';
     menu.style.zIndex = '5200';
+    menu.style.visibility = 'visible';
+    menu.style.opacity = '1';
+    menu.style.pointerEvents = 'auto';
+    menu.style.background = 'rgba(12, 12, 14, 0.98)';
+    menu.style.overflowY = 'auto';
+    menu.style.webkitOverflowScrolling = 'touch';
 
     if (isPhone) {
       menu.style.left = '0';
@@ -116,6 +135,7 @@
       menu.style.bottom = '0';
       menu.style.top = 'auto';
       menu.style.width = '100%';
+      menu.style.maxWidth = '100%';
       menu.style.maxHeight = 'min(55dvh, 420px)';
       menu.style.borderRadius = '16px 16px 0 0';
       menu.style.transform = 'none';
@@ -123,12 +143,15 @@
       const r = toggle.getBoundingClientRect();
       const width = Math.min(320, window.innerWidth - 24);
       const left = Math.max(12, Math.min(r.left + r.width / 2 - width / 2, window.innerWidth - width - 12));
+      // Open upward above the toggle (bottom bar lives at the viewport bottom).
+      const spaceAbove = Math.max(120, r.top - 16);
       menu.style.left = left + 'px';
       menu.style.right = 'auto';
       menu.style.width = width + 'px';
+      menu.style.maxWidth = width + 'px';
       menu.style.top = 'auto';
-      menu.style.bottom = Math.max(12, window.innerHeight - r.top + 6) + 'px';
-      menu.style.maxHeight = Math.max(120, Math.min(360, r.top - 12)) + 'px';
+      menu.style.bottom = Math.max(12, window.innerHeight - r.top + 8) + 'px';
+      menu.style.maxHeight = Math.min(360, spaceAbove) + 'px';
       menu.style.transform = 'none';
       menu.style.borderRadius = '12px';
     }
