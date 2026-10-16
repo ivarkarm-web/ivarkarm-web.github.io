@@ -130,3 +130,140 @@
   min-height: 40px !important;
   min-width: 40px !important;
 }
+
+/* Hide empty CONTROLS toggle — root/scale live in bottom bar */
+#mobileControlsToggle[hidden],
+#mobileControlDrawer:has(#mobileControlsToggle[hidden]) {
+  display: none !important;
+}
+
+/* Bedroom Sessions player */
+.soundscapes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.soundscapes-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.soundscapes-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 520px;
+  margin: 0 auto;
+  width: 100%;
+  flex: 1;
+  overflow: auto;
+}
+.soundscape-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+.soundscape-note {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  opacity: 0.65;
+}
+.soundscape-transport {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.soundscape-play {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1px solid rgba(230, 224, 210, 0.2);
+  background: rgba(230, 224, 210, 0.08);
+  color: #e6e0d2;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+.soundscape-transport-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(230, 224, 210, 0.14);
+  background: transparent;
+  color: #e6e0d2;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.soundscape-transport-btn.is-active {
+  border-color: rgba(200, 170, 100, 0.5);
+  color: #c8aa64;
+}
+.soundscape-seek-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+.soundscape-seek-row input[type="range"] {
+  flex: 1;
+  accent-color: #c8aa64;
+}
+.soundscape-vol-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+.soundscape-vol-row input {
+  flex: 1;
+  accent-color: #c8aa64;
+}
+.soundscape-status {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  text-align: center;
+}
+.soundscape-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 24px;
+}
+.soundscape-queue-item {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(230, 224, 210, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: #e6e0d2;
+  cursor: pointer;
+  min-height: 48px;
+}
+.soundscape-queue-item.is-active {
+  border-color: rgba(200, 170, 100, 0.35);
+  background: rgba(200, 170, 100, 0.08);
+}
+.sq-num { opacity: 0.45; font-size: 0.75rem; }
+.sq-title { font-size: 0.9rem; }
+.sq-dur { opacity: 0.45; font-size: 0.75rem; }
+
+/* While soundscapes open, hide instrument chrome (JS also sets visibility) */
+body.soundscapes-active #stageScaleBar,
+body.soundscapes-active #pionierTopDock,
+body.soundscapes-active #pan {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
