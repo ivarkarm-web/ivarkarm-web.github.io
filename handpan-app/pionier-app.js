@@ -143,7 +143,7 @@ async function boot() {
   }
 
   try {
-    const { mountLearnMode } = await import(new URL('./js/learn-mode.js?v=16', BASE).href);
+    const { mountLearnMode } = await import(new URL('./js/learn-mode.js?v=17', BASE).href);
     mountLearnMode();
   } catch (err) {
     console.warn('[learn] mount failed', err);
