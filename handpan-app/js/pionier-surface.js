@@ -363,54 +363,103 @@ export function createSurface(canvas) {
     ctx2.fillStyle=halo;ctx2.beginPath();ctx2.arc(CX,CY,rimR*1.08,0,Math.PI*2);ctx2.arc(CX,CY,rimR*0.88,0,Math.PI*2,true);ctx2.fill();
     ctx2.restore();
   }
-  function drawTouchRipples(now){
-    if (!touchRipples.length) return false;
-    const elapsedNow = now || performance.now();
-    const duration = 1150;
-    const led = getTheme().led;
-    const color = 'rgb(' + led.r + ',' + led.g + ',' + led.b + ')';
-    for (let i = touchRipples.length - 1; i >= 0; i--) {
-      const ripple = touchRipples[i];
-      const progress = (elapsedNow - ripple.started) / duration;
-      if (progress >= 1) { touchRipples.splice(i, 1); continue; }
-      const ease = 1 - Math.pow(1 - progress, 2);
-      const drift = progress * Math.min(W, H) * 0.055;
-      const x = ripple.x + Math.cos(ripple.angle) * drift;
-      const y = ripple.y + Math.sin(ripple.angle) * drift;
-      ctx2.save();
-      ctx2.globalCompositeOperation = 'screen';
-      for (let ring = 0; ring < 3; ring++) {
-        const phase = Math.max(0, Math.min(1, progress - ring * 0.12));
-        if (phase <= 0) continue;
-        const radius = 3 + phase * Math.min(W, H) * (0.34 + ring * 0.045);
-        const alpha = (1 - phase) * 0.28 * (ring === 0 ? 1 : 0.62);
-        ctx2.beginPath();
-        ctx2.arc(x, y, radius, 0, Math.PI * 2);
-        ctx2.strokeStyle = color;
-        ctx2.globalAlpha = alpha;
-        ctx2.lineWidth = Math.max(0.8, 1.8 - phase * 0.8);
-        ctx2.stroke();
-      }
-      ctx2.restore();
-    }
-    return touchRipples.length > 0;
-  }
-  function addRipple(x, y, noteIndex) {
-    if (window.PionierSettings?.touchFeedback !== true) return;
-    const now = performance.now();
-    // Cap overlapping effects to keep rapid playing light on mobile GPUs.
-    if (touchRipples.length > 18) touchRipples.splice(0, touchRipples.length - 18);
-    touchRipples.push({
-      x, y, started: now,
-      angle: ((Number(noteIndex) || 0) * 2.3999632297) - Math.PI / 2
+  // Full-viewport ripple layer: a warm golden wave blooms from the touch point,
+  // lifts away from the instrument, and dissolves into the surrounding space.
+  let rippleCanvas=null,rippleCtx=null,rippleResizeHandler=null;
+  function ensureRippleCanvas(){
+    if(rippleCanvas)return;
+    rippleCanvas=document.createElement('canvas');
+    rippleCanvas.setAttribute('aria-hidden','true');
+    Object.assign(rippleCanvas.style,{
+      position:'fixed',inset:'0',width:'100vw',height:'100vh',
+      pointerEvents:'none',zIndex:'20',opacity:'1'
     });
-    if (!rippleRaf) rippleRaf = requestAnimationFrame(tickRipples);
+    document.body.appendChild(rippleCanvas);
+    rippleCtx=rippleCanvas.getContext('2d');
+    const fit=()=>{
+      const dpr=Math.min(1.5,window.devicePixelRatio||1);
+      rippleCanvas.width=Math.round(window.innerWidth*dpr);
+      rippleCanvas.height=Math.round(window.innerHeight*dpr);
+      rippleCtx.setTransform(dpr,0,0,dpr,0,0);
+    };
+    fit();
+    rippleResizeHandler=fit;
+    window.addEventListener('resize',fit,{passive:true});
   }
-  function tickRipples(now) {
-    rippleRaf = 0;
-    if (!touchRipples.length || document.hidden) return;
-    if (_lastInst != null) _origDrawBody(_lastInst, _lastCatch);
-    if (touchRipples.length) rippleRaf = requestAnimationFrame(tickRipples);
+  function drawTouchRipples(now){
+    if(!touchRipples.length||!rippleCtx)return false;
+    const ctx=rippleCtx,vw=window.innerWidth,vh=window.innerHeight;
+    ctx.clearRect(0,0,vw,vh);
+    const duration=2650;
+    const easeOut=t=>1-Math.pow(1-t,3);
+    for(let i=touchRipples.length-1;i>=0;i--){
+      const p=touchRipples[i];
+      const t=(now-p.started)/duration;
+      if(t>=1){touchRipples.splice(i,1);continue}
+      const e=easeOut(Math.max(0,t));
+      const drift= Math.min(vw,vh)*0.11*e;
+      const floatX=Math.sin(t*Math.PI*2+p.phase)*Math.min(vw,vh)*0.025;
+      const floatY=-drift-Math.sin(t*Math.PI*1.5+p.phase)*Math.min(vw,vh)*0.018;
+      const x=p.x+floatX+Math.cos(p.angle)*drift*0.7;
+      const y=p.y+floatY+Math.sin(p.angle)*drift*0.45;
+      const maxR=Math.hypot(vw,vh)*0.72;
+      const radius=8+maxR*e;
+      const fade=Math.pow(1-Math.max(0,(t-0.46)/0.54),1.7);
+      const bloom=ctx.createRadialGradient(x,y,Math.max(1,radius*0.72),x,y,radius*1.16);
+      bloom.addColorStop(0,'rgba(255,218,139,0)');
+      bloom.addColorStop(0.72,'rgba(255,196,91,'+(0.018*fade)+')');
+      bloom.addColorStop(0.94,'rgba(255,222,157,'+(0.045*fade)+')');
+      bloom.addColorStop(1,'rgba(255,222,157,0)');
+      ctx.globalCompositeOperation='screen';
+      ctx.fillStyle=bloom;ctx.beginPath();ctx.arc(x,y,radius*1.16,0,Math.PI*2);ctx.fill();
+      // Three deliberately restrained, staggered rings create depth instead of a neon target.
+      for(let ring=0;ring<3;ring++){
+        const delay=ring*0.105;
+        const rt=Math.max(0,Math.min(1,(t-delay)/(1-delay)));
+        if(rt<=0)continue;
+        const re=easeOut(rt);
+        const rr=8+maxR*re*(1+ring*0.055);
+        const alpha=(ring===0?0.22:ring===1?0.12:0.065)*Math.pow(1-rt,1.3)*fade;
+        ctx.beginPath();ctx.arc(x,y,rr,0,Math.PI*2);
+        ctx.strokeStyle='rgba(255,211,126,'+alpha+')';
+        ctx.lineWidth=ring===0?1.65:ring===1?1.05:0.7;
+        ctx.shadowColor='rgba(255,190,83,'+(alpha*0.85)+')';
+        ctx.shadowBlur=(ring===0?15:ring===1?9:4)*(1-rt*0.65);
+        ctx.stroke();
+      }
+      // A soft moving glint gives the wave a slow, liquid-metal shimmer.
+      const glintA=t*Math.PI*2+p.phase;
+      const gx=x+Math.cos(glintA)*radius,gy=y+Math.sin(glintA)*radius;
+      const glint=ctx.createRadialGradient(gx,gy,0,gx,gy,Math.max(5,Math.min(vw,vh)*0.035));
+      glint.addColorStop(0,'rgba(255,238,194,'+(0.16*fade)+')');
+      glint.addColorStop(1,'rgba(255,210,132,0)');
+      ctx.fillStyle=glint;ctx.beginPath();ctx.arc(gx,gy,Math.min(vw,vh)*0.035,0,Math.PI*2);ctx.fill();
+    }
+    ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.globalCompositeOperation='source-over';
+    if(!touchRipples.length)ctx.clearRect(0,0,vw,vh);
+    return touchRipples.length>0;
+  }
+  function addRipple(x,y,noteIndex){
+    if(window.PionierSettings?.touchFeedback!==true)return;
+    ensureRippleCanvas();
+    const rect=canvas.getBoundingClientRect();
+    const sx=rect.width?rect.width/W:1,sy=rect.height?rect.height/H:1;
+    const now=performance.now();
+    if(touchRipples.length>=8)touchRipples.splice(0,touchRipples.length-7);
+    touchRipples.push({
+      x:rect.left+x*sx+rect.width*0.5,
+      y:rect.top+y*sy,
+      started:now,
+      angle:((Number(noteIndex)||0)*2.3999632297)-Math.PI/2,
+      phase:(Number(noteIndex)||0)*1.6180339887
+    });
+    if(!rippleRaf)rippleRaf=requestAnimationFrame(tickRipples);
+  }
+  function tickRipples(now){
+    rippleRaf=0;
+    if(!touchRipples.length||document.hidden)return;
+    drawTouchRipples(now||performance.now());
+    if(touchRipples.length)rippleRaf=requestAnimationFrame(tickRipples);
   }
   function drawBody(inst,catchActive){
     ctx2.clearRect(0,0,W,H);
@@ -452,7 +501,6 @@ export function createSurface(canvas) {
       drawSlit(f,glow,playable);
     });
     ctx2.globalAlpha=1;
-    drawTouchRipples(performance.now());
     drawRimGlow(performance.now()*0.001);
   }
   function drawCatchWaves(waves){
