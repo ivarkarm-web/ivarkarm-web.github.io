@@ -392,7 +392,9 @@
       '</div>';
     body.appendChild(ledSec);
 
-    body.querySelectorAll('input[type="range"]').forEach(syncRangeFill);\n\n    const light = document.getElementById('settingLightMode');
+    body.querySelectorAll('input[type="range"]').forEach(syncRangeFill);
+
+    const light = document.getElementById('settingLightMode');
     if (light) {
       light.checked = !!state.lightMode;
       light.addEventListener('change', () => { state.lightMode = light.checked; save(state); apply(state); });
