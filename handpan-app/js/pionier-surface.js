@@ -372,16 +372,17 @@ export function createSurface(canvas) {
     rippleCanvas=document.createElement('canvas');
     rippleCanvas.setAttribute('aria-hidden','true');
     Object.assign(rippleCanvas.style,{
-      position:'fixed',left:'0',top:'0',width:'100vw',height:'100vh',
+      position:'fixed',inset:'0',width:'100vw',height:'100vh',
       pointerEvents:'none',zIndex:'99999',opacity:'1'
     });
     // Keep the fixed overlay outside the app/body stacking and transform contexts.
     document.documentElement.appendChild(rippleCanvas);
     rippleCtx=rippleCanvas.getContext('2d');
     const fit=()=>{
+      const rect=rippleCanvas.getBoundingClientRect();
       const dpr=Math.min(1.5,window.devicePixelRatio||1);
-      rippleCanvas.width=Math.round(window.innerWidth*dpr);
-      rippleCanvas.height=Math.round(window.innerHeight*dpr);
+      rippleCanvas.width=Math.round(rect.width*dpr);
+      rippleCanvas.height=Math.round(rect.height*dpr);
       rippleCtx.setTransform(dpr,0,0,dpr,0,0);
     };
     fit();
@@ -393,39 +394,40 @@ export function createSurface(canvas) {
   }
   function drawTouchRipples(now){
     if(!touchRipples.length||!rippleCtx)return false;
-    const ctx=rippleCtx,vw=window.innerWidth,vh=window.innerHeight;
+    const ctx=rippleCtx,overlayRect=rippleCanvas.getBoundingClientRect();
+    const vw=overlayRect.width,vh=overlayRect.height;
     ctx.clearRect(0,0,vw,vh);
     for(let i=touchRipples.length-1;i>=0;i--){
       const p=touchRipples[i];
       const t=(now-p.started)/p.duration;
       if(t>=1){touchRipples.splice(i,1);continue}
       const fadeIn=smoothstep(t/0.045);
-      const fadeOut=1-smoothstep((t-0.72)/0.28);
+      const fadeOut=1-smoothstep((t-0.78)/0.22);
       const envelope=fadeIn*fadeOut;
       ctx.save();
       ctx.globalCompositeOperation='screen';
-      for(let ring=0;ring<3;ring++){
-        const delay=ring*0.12;
+      for(let ring=0;ring<2;ring++){
+        const delay=ring*0.18;
         const rt=Math.max(0,Math.min(1,(t-delay)/(1-delay)));
         const grow=smoothstep(rt);
         const rx=p.rx+(p.maxRadiusX-p.rx)*grow;
         const ry=p.ry+(p.maxRadiusY-p.ry)*grow;
-        const alpha=[0.56,0.34,0.2][ring]*envelope;
+        const alpha=[0.19,0.095][ring]*envelope;
         if(alpha<0.006)continue;
         ctx.beginPath();
         ctx.ellipse(p.x,p.y,rx,ry,p.rotation,0,Math.PI*2);
         ctx.strokeStyle='rgba(255,222,169,'+alpha+')';
-        ctx.lineWidth=ring===0?2.0:1.25;
-        ctx.shadowColor='rgba(255,190,100,'+(alpha*0.55)+')';
-        ctx.shadowBlur=(ring===0?8:4)*envelope;
+        ctx.lineWidth=ring===0?1.15:0.8;
+        ctx.shadowColor='rgba(255,190,100,'+(alpha*0.18)+')';
+        ctx.shadowBlur=(ring===0?2.2:1.2)*envelope;
         ctx.stroke();
       }
       // Keep a restrained glow at the note's launch point while the rings travel.
       const pulse=1+0.1*Math.sin(t*Math.PI*4);
       const haloRadius=Math.max(p.rx,p.ry)*2.5*pulse;
       const halo=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,haloRadius);
-      halo.addColorStop(0,'rgba(255,226,181,'+(0.12*envelope)+')');
-      halo.addColorStop(0.4,'rgba(255,211,143,'+(0.055*envelope)+')');
+      halo.addColorStop(0,'rgba(255,226,181,'+(0.035*envelope)+')');
+      halo.addColorStop(0.4,'rgba(255,211,143,'+(0.018*envelope)+')');
       halo.addColorStop(1,'rgba(255,211,143,0)');
       ctx.fillStyle=halo;ctx.beginPath();ctx.arc(p.x,p.y,haloRadius,0,Math.PI*2);ctx.fill();
       ctx.restore();
@@ -448,16 +450,19 @@ export function createSurface(canvas) {
     else if(toneStyle==='petal'){padRx=note.rx*0.75;padRy=note.ry*1.25}
     else if(toneStyle==='teardrop'){padRx=note.rx*0.85;padRy=note.ry*1.1;offsetY=-note.ry*0.15}
     else if(toneStyle==='seed'){padRx=note.rx*0.7;padRy=note.ry*1.28}
-    const px=rect.left+note.x*sx;
-    const py=rect.top+(note.y+offsetY)*sy;
+    // Convert the rendered tonefield center into the overlay's own CSS-pixel space.
+    // Using both real element rectangles avoids drift from scaling and layout offsets.
+    const overlayRect=rippleCanvas.getBoundingClientRect();
+    const px=rect.left+note.x*sx-overlayRect.left;
+    const py=rect.top+(note.y+offsetY)*sy-overlayRect.top;
     const rx=Math.max(2,padRx*sx*1.035);
     const ry=Math.max(2,padRy*sy*1.035);
-    // Expand far enough to reach the furthest viewport edge from this note.
-    const maxRadiusX=Math.max(px,vwSafeWidth()-px)+Math.max(vwSafeWidth(),vwSafeHeight())*0.08;
-    const maxRadiusY=Math.max(py,vwSafeHeight()-py)+Math.max(vwSafeWidth(),vwSafeHeight())*0.08;
+    // Expand far enough to reach the furthest visible edge from this note.
+    const maxRadiusX=Math.max(px,vwSafeWidth()-overlayRect.left-px)+Math.max(vwSafeWidth(),vwSafeHeight())*0.08;
+    const maxRadiusY=Math.max(py,vwSafeHeight()-overlayRect.top-py)+Math.max(vwSafeWidth(),vwSafeHeight())*0.08;
     touchLights.set(Number(noteIndex),now);
     if(touchRipples.length>=12)touchRipples.splice(0,touchRipples.length-11);
-    touchRipples.push({x:px,y:py,rx,ry,rotation,maxRadiusX,maxRadiusY,started:now,duration:1850});
+    touchRipples.push({x:px,y:py,rx,ry,rotation,maxRadiusX,maxRadiusY,started:now,duration:2600});
     if(_lastInst!=null)_origDrawBody(_lastInst,_lastCatch);
     if(!rippleRaf)rippleRaf=requestAnimationFrame(tickRipples);
   }
