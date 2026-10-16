@@ -1,5 +1,5 @@
 /**
- * scale-selector.js — dropdown scale picker UI
+ * scale-selector.js — scale list UI only. Open/close owned by overlay-controller.
  */
 import { HANDPAN_SCALES } from './instruments/handpan.js';
 
@@ -53,39 +53,26 @@ export function mountScaleSelector({ getHandpan, onScaleChange }) {
         onScaleChange?.();
         render();
         updateLabel();
-        menu.hidden = true;
-        toggle.setAttribute('aria-expanded', 'false');
+        if (window.PionierOverlay) window.PionierOverlay.closePickers();
+        else {
+          menu.hidden = true;
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+        toggle.focus?.();
       });
       menu.appendChild(button);
     });
   }
 
-  toggle.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const instMenu = document.getElementById('instrumentMenu');
-    if (instMenu) instMenu.hidden = true;
-    render();
-    const open = menu.hidden;
-    menu.hidden = !open;
-    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-    if (open) {
-      requestAnimationFrame(() => {
-        menu.querySelector('.scale-menu-item.is-active')?.scrollIntoView({ block: 'nearest' });
-      });
-    }
+  // Populate list when menu is about to open (MutationObserver on hidden)
+  const mo = new MutationObserver(() => {
+    if (!menu.hidden) render();
   });
+  mo.observe(menu, { attributes: true, attributeFilter: ['hidden'] });
 
-  document.addEventListener('click', (e) => {
-    if (menu.hidden) return;
-    if (e.target.closest('#scaleMenu') || e.target.closest('#scaleLabel')) return;
-    menu.hidden = true;
-    toggle.setAttribute('aria-expanded', 'false');
-  });
-
-  // Close scale menu when instrument menu opens
-  document.getElementById('instrumentDropdownToggle')?.addEventListener('click', () => {
-    menu.hidden = true;
-    toggle.setAttribute('aria-expanded', 'false');
+  // Overlay notifies when scale menu opens
+  document.addEventListener('pionier:picker-open', (e) => {
+    if (e.detail?.id === 'scaleMenu') render();
   });
 
   updateLabel();

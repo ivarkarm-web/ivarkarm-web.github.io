@@ -1368,3 +1368,247 @@ body.soundscapes-active #pan {
 }
 .looper-btn-ring, .looper-btn-core { pointer-events: none !important; }
 
+
+
+/* ========== Oval-style layout (no inline pan styles) ========== */
+html, body {
+  overflow-x: clip;
+  width: 100%;
+  max-width: 100%;
+}
+
+#app {
+  width: 100%;
+  max-width: 100%;
+  left: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Play stage fills remaining space between top chrome and bottom bar */
+.stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  align-items: flex-end; /* pan sits low */
+  justify-content: center;
+  padding-bottom: max(12px, var(--pan-bottom-gap, 12px));
+  padding-top: 8px;
+  overflow: hidden;
+}
+
+#pan {
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  margin: 0 auto 12px;
+  --pan-budget: min(
+    100vw - 16px,
+    var(--viewport-h, 100dvh) - var(--chrome-top, 56px) - var(--chrome-bottom, 120px) - 28px,
+    560px
+  );
+  width: var(--pan-budget);
+  height: var(--pan-budget);
+  max-width: var(--pan-budget);
+  max-height: var(--pan-budget);
+  aspect-ratio: 1;
+  z-index: 2;
+}
+
+/* Top chip row: instrument + scale */
+#topChipRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 56px 6px; /* room for FX/settings buttons */
+  min-height: 40px;
+  pointer-events: auto;
+  z-index: 50;
+}
+
+#topChipRow .stage-instrument-nav,
+#topChipRow .stage-control-scale,
+#topChipRow .control-scale {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+}
+
+#topChipRow .instrument-name,
+#topChipRow .stage-scale-btn,
+#topChipRow #scaleLabel,
+#topChipRow #instrumentDropdownToggle {
+  min-height: 36px;
+  height: 36px;
+  padding: 0 12px;
+  font-size: 0.8rem;
+  max-width: 42vw;
+  border-radius: 999px;
+}
+
+#topChipRow .stage-scale-step,
+#topChipRow .icon-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+}
+/* Hide scale steppers in chip row — chip itself is the control */
+#topChipRow #scalePrev,
+#topChipRow #scaleNext {
+  display: none;
+}
+#topChipRow .control-label {
+  display: none;
+}
+#topChipRow .control-scale,
+#topChipRow .stage-control-scale {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+#topChipRow .stage-instrument-nav {
+  gap: 4px;
+}
+/* Looper must stay in bottom bar — defeat any leftover fixed top rules */
+#stageScaleBar #looperRail,
+#stageScaleBar .looper-rail {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  left: auto !important;
+  transform: none !important;
+  width: auto !important;
+}
+body > #looperRail {
+  /* if somehow portaled to body, force into flow at bottom via fixed bar only */
+  position: fixed !important;
+  bottom: max(64px, env(safe-area-inset-bottom, 0px) + 48px) !important;
+  top: auto !important;
+  right: 12px !important;
+  left: auto !important;
+  transform: none !important;
+}
+
+
+/* Bottom bar: ONE row */
+#stageScaleBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  max-width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 10px max(10px, env(safe-area-inset-bottom, 0px));
+  min-height: 56px;
+  max-height: 120px;
+  box-sizing: border-box;
+  z-index: 1000;
+  background: linear-gradient(to top, rgba(7,7,8,0.96) 40%, rgba(7,7,8,0.72) 100%);
+  border-top: 1px solid rgba(230,224,210,0.08);
+  overflow: visible;
+}
+
+#stageScaleBar > * {
+  flex: 0 0 auto;
+}
+
+#stageScaleBar #looperRail {
+  position: relative;
+  inset: auto;
+  transform: none;
+  width: auto;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  overflow: visible;
+}
+
+#stageScaleBar .stage-root-row,
+#stageScaleBar .control-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  width: auto;
+  max-width: none;
+}
+
+#stageScaleBar .control-half {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+#stageScaleBar .control-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin: 0;
+}
+
+#stageScaleBar .stepper {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+#stageScaleBar .step,
+#stageScaleBar .stepper .step {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 50%;
+}
+
+#stageScaleBar .step-value {
+  min-width: 2.2em;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Hide stacked instrument/scale rows when moved to top */
+#stageScaleBar .stage-instrument-nav,
+#stageScaleBar .stage-scale-row,
+#stageScaleBar #stageScaleRow {
+  display: none;
+}
+
+/* FX panel: no translateX centering (avoids layout shift) */
+.fx-panel {
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  width: min(96vw, 440px);
+  max-width: calc(100vw - 24px);
+  transform: none;
+}
+
+.fx-panel[hidden] {
+  display: none !important;
+}

@@ -20,47 +20,37 @@
    * Bottom edge of the pan sits ~12px above the bottom control bar.
    * Writes one CSS custom property for the available play height; sizing is CSS-driven.
    */
+  /**
+   * Pan placement via one CSS custom property (--pan-bottom-gap).
+   * Geometry lives in pionier.css (flex/grid + dvh). No inline position on #pan.
+   */
   function centerPan() {
-    const pan = document.getElementById('pan');
-    if (!pan) return;
-
     const bar = document.getElementById('stageScaleBar');
-    const topDock = document.getElementById('pionierTopDock');
-    // Prefer visible top dock; ignore hidden mobileControlsToggle (rect is 0).
-    let topEdge = 48;
-    if (topDock) {
-      const r = topDock.getBoundingClientRect();
-      if (r.height > 1) topEdge = r.bottom;
+    const dock = document.getElementById('pionierTopDock');
+    const root = document.documentElement;
+    let topH = 48;
+    if (dock) {
+      const r = dock.getBoundingClientRect();
+      if (r.height > 1) topH = r.bottom;
     }
-    const botEdge = bar
-      ? bar.getBoundingClientRect().top
-      : (window.innerHeight - 24);
-    const gapTop = 8;
-    const gapBot = 12; // pan bottom ~10–12px above bottom controls
-    const safeTop = Math.max(topEdge + gapTop, 8);
-    const safeBot = Math.max(safeTop + 120, botEdge - gapBot);
-    const availH = Math.max(120, safeBot - safeTop);
-    const availW = Math.max(120, window.innerWidth - 24);
-    const size = Math.min(availW, availH, 680);
-
-    // One custom property for layout consumers; pan bottom-aligned in play area.
-    document.documentElement.style.setProperty('--pan-play-h', availH + 'px');
-    document.documentElement.style.setProperty('--pan-size', size + 'px');
-
-    pan.style.setProperty('position', 'fixed', 'important');
-    pan.style.setProperty('left', '50%', 'important');
-    pan.style.setProperty('right', 'auto', 'important');
-    pan.style.setProperty('top', 'auto', 'important');
-    // Anchor bottom edge of pan just above the control bar
-    pan.style.setProperty('bottom', Math.max(gapBot, window.innerHeight - safeBot) + 'px', 'important');
-    pan.style.setProperty('width', size + 'px', 'important');
-    pan.style.setProperty('height', size + 'px', 'important');
-    pan.style.setProperty('max-width', 'min(92vw, 680px)', 'important');
-    pan.style.setProperty('max-height', 'min(70dvh, 680px)', 'important');
-    pan.style.setProperty('transform', 'translateX(-50%) translateZ(0)', 'important');
-    pan.style.setProperty('margin', '0', 'important');
-    pan.style.setProperty('z-index', '2', 'important');
+    let botH = 120;
+    if (bar) {
+      const r = bar.getBoundingClientRect();
+      if (r.height > 1) botH = window.innerHeight - r.top;
+    }
+    root.style.setProperty('--chrome-top', Math.round(topH) + 'px');
+    root.style.setProperty('--chrome-bottom', Math.round(botH) + 'px');
+    root.style.setProperty('--pan-bottom-gap', '12px');
+    root.style.setProperty('--viewport-h', window.innerHeight + 'px');
+    // Clear legacy inline fixed positioning from older centerPan
+    const pan = document.getElementById('pan');
+    if (pan) {
+      ['position','left','right','top','bottom','width','height','transform','max-width','max-height','margin','z-index'].forEach((prop) => {
+        pan.style.removeProperty(prop);
+      });
+    }
   }
+
 
   function run() {
     purgeCreate();
@@ -90,12 +80,22 @@
       }
     }
 
+    // Top chip row: instrument + scale (Oval-style compact chrome)
+    let chipRow = document.getElementById('topChipRow');
+    if (!chipRow) {
+      chipRow = document.createElement('div');
+      chipRow.id = 'topChipRow';
+    }
+    if (chipRow.parentElement !== app) {
+      const stage = app.querySelector('.stage');
+      if (stage) app.insertBefore(chipRow, stage);
+      else app.appendChild(chipRow);
+    }
+
     const instNav = document.getElementById('instrumentNav');
     if (instNav) {
       instNav.classList.add('stage-instrument-nav');
-      if (instNav.parentElement !== bar) {
-        bar.insertBefore(instNav, bar.firstChild);
-      }
+      if (instNav.parentElement !== chipRow) chipRow.appendChild(instNav);
     }
 
     const scaleLabel = document.getElementById('scaleLabel');
@@ -116,30 +116,21 @@
       next.classList.remove('step');
     }
 
-    let row = document.getElementById('stageScaleRow');
-    if (!row) {
-      row = document.createElement('div');
-      row.id = 'stageScaleRow';
-      row.className = 'stage-scale-row';
-    }
-    if (row.parentElement !== bar) bar.appendChild(row);
-
-    const noteWrap = document.getElementById('notePlusWrap');
-
-    // Keep the complete scale control (including its menu) together. The picker
-    // relies on its original .control-scale ancestry for open/close behavior.
     if (scaleBlock) {
       scaleBlock.hidden = false;
       scaleBlock.classList.add('stage-control-scale');
-      if (scaleBlock.parentElement !== row) row.insertBefore(scaleBlock, row.firstChild);
+      if (scaleBlock.parentElement !== chipRow) chipRow.appendChild(scaleBlock);
     }
     if (scaleMenu) scaleMenu.classList.add('stage-scale-menu');
-    // Root + note count: one tap away in the bottom bar (not buried in drawer)
-    const rootRow = document.querySelector('#mobileControlPanel .control-row');
+
+    // Bottom bar: ONE row — looper + root/notes only
+    const rootRow = document.querySelector('.control-row') || document.querySelector('#mobileControlPanel .control-row');
     if (rootRow && bar) {
       rootRow.classList.add('stage-root-row');
       if (rootRow.parentElement !== bar) bar.appendChild(rootRow);
     }
+
+    const noteWrap = document.getElementById('notePlusWrap');
     // Hide empty CONTROLS toggle when its useful controls live in the bottom bar
     {
       const panelEl = document.getElementById('mobileControlPanel');
@@ -195,13 +186,14 @@
     }
     // The FX drawer belongs in the top dock. The looper belongs in the
     // bottom control stack, directly above the instrument selector.
-    if (looperRail && looperRail.parentElement !== bar) {
-      bar.insertBefore(looperRail, instNav && instNav.parentElement === bar ? instNav : bar.firstChild);
-    }
-    if (looperRail) {
+    if (looperRail && bar) {
+      // Always keep looper in the bottom bar (instrument/scale live in #topChipRow)
+      if (looperRail.parentElement !== bar) {
+        bar.insertBefore(looperRail, bar.firstChild);
+      }
       Object.assign(looperRail.style, {
         position: 'relative', top: 'auto', right: 'auto', bottom: 'auto',
-        left: 'auto', transform: 'none', width: '100%', margin: '0',
+        left: 'auto', transform: 'none', width: 'auto', margin: '0',
         justifyContent: 'center', zIndex: 'auto'
       });
     }
@@ -236,15 +228,16 @@
     const clear = document.getElementById('looperClearBtn');
     const bar = document.getElementById('stageScaleBar');
     const instrumentNav = document.getElementById('instrumentNav');
-    if (rail && bar && rail.parentElement !== bar) {
-      bar.insertBefore(rail, instrumentNav && instrumentNav.parentElement === bar ? instrumentNav : bar.firstChild);
-    }
-    if (rail) {
+    if (rail && bar) {
+      if (rail.parentElement !== bar) bar.insertBefore(rail, bar.firstChild);
       rail.style.setProperty('position', 'relative', 'important');
       rail.style.setProperty('inset', 'auto', 'important');
       rail.style.setProperty('transform', 'none', 'important');
-      rail.style.setProperty('width', '100%', 'important');
+      rail.style.setProperty('width', 'auto', 'important');
       rail.style.setProperty('margin', '0', 'important');
+      rail.style.setProperty('top', 'auto', 'important');
+      rail.style.setProperty('right', 'auto', 'important');
+      rail.style.setProperty('left', 'auto', 'important');
     }
     if (rail && clear && clear.parentElement !== rail) rail.insertBefore(clear, rail.firstChild);
     if (clear) {
@@ -256,6 +249,7 @@
       clear.style.setProperty('flex', '0 0 34px', 'important');
       clear.style.setProperty('margin', '0', 'important');
     }
+    ensureBottomBar();
     dock.style.setProperty('position', 'fixed', 'important');
     dock.style.setProperty('top', 'max(4px, env(safe-area-inset-top, 0px))', 'important');
     dock.style.setProperty('right', '0', 'important');
@@ -304,122 +298,29 @@
     });
   }
 
-  /**
-   * Portal instrument + scale menus to document.body.
-   * Phone: bottom sheet. Desktop: popover above the toggle.
-   * Backdrop + Escape close. Single open overlay.
-   */
-  function placePickerMenu(menu, toggle, mode) {
-    if (!menu || !toggle || menu.hidden) return;
-    if (menu.parentElement !== document.body) {
-      document.body.appendChild(menu);
+  // Picker/FX open-close owned by overlay-controller.js
+
+
+  function ensureBottomBar() {
+    const bar = document.getElementById('stageScaleBar');
+    const rail = document.getElementById('looperRail');
+    const rootRow = document.querySelector('.stage-root-row') || document.querySelector('#stageScaleBar .control-row');
+    if (!bar) return;
+    if (rail && rail.parentElement !== bar) {
+      bar.insertBefore(rail, bar.firstChild);
     }
-    const isPhone = window.matchMedia('(max-width: 700px)').matches;
-    menu.classList.add(isPhone ? 'picker-sheet' : 'picker-popover');
-    menu.classList.remove(isPhone ? 'picker-popover' : 'picker-sheet');
-    menu.style.setProperty('position', 'fixed', 'important');
-    menu.style.setProperty('z-index', '5200', 'important');
-    menu.style.setProperty('visibility', 'visible', 'important');
-    menu.style.setProperty('opacity', '1', 'important');
-    menu.style.setProperty('pointer-events', 'auto', 'important');
-    menu.style.setProperty('display', 'block', 'important');
-    if (isPhone) {
-      menu.style.setProperty('left', '0', 'important');
-      menu.style.setProperty('right', '0', 'important');
-      menu.style.setProperty('bottom', '0', 'important');
-      menu.style.setProperty('top', 'auto', 'important');
-      menu.style.setProperty('width', '100%', 'important');
-      menu.style.setProperty('max-width', '100%', 'important');
-      menu.style.setProperty('max-height', 'min(55dvh, 420px)', 'important');
-      menu.style.setProperty('border-radius', '16px 16px 0 0', 'important');
-      menu.style.setProperty('transform', 'none', 'important');
-    } else {
-      const r = toggle.getBoundingClientRect();
-      const width = Math.min(320, window.innerWidth - 24);
-      const left = Math.max(12, Math.min(r.left + r.width / 2 - width / 2, window.innerWidth - width - 12));
-      const above = r.top - 12;
-      menu.style.setProperty('left', left + 'px', 'important');
-      menu.style.setProperty('right', 'auto', 'important');
-      menu.style.setProperty('width', width + 'px', 'important');
-      menu.style.setProperty('top', 'auto', 'important');
-      menu.style.setProperty('bottom', Math.max(12, window.innerHeight - r.top + 6) + 'px', 'important');
-      menu.style.setProperty('max-height', Math.max(120, Math.min(360, above)) + 'px', 'important');
-      menu.style.setProperty('transform', 'none', 'important');
-      menu.style.setProperty('border-radius', '12px', 'important');
+    if (rootRow && rootRow.parentElement !== bar) {
+      bar.appendChild(rootRow);
+    }
+    if (rail) {
+      ['position','top','right','bottom','left','transform'].forEach((prop) => {
+        rail.style.setProperty(prop, prop === 'position' ? 'relative' : 'auto', 'important');
+      });
+      rail.style.setProperty('width', 'auto', 'important');
     }
   }
 
-  function ensurePickerBackdrop() {
-    let bd = document.getElementById('pickerBackdrop');
-    if (!bd) {
-      bd = document.createElement('div');
-      bd.id = 'pickerBackdrop';
-      bd.className = 'picker-backdrop';
-      bd.hidden = true;
-      bd.addEventListener('click', () => closeAllPickers());
-      document.body.appendChild(bd);
-    }
-    return bd;
-  }
-
-  function closeAllPickers() {
-    ['instrumentMenu', 'scaleMenu'].forEach((id) => {
-      const m = document.getElementById(id);
-      if (m) {
-        m.hidden = true;
-        m.classList.remove('is-open', 'picker-sheet', 'picker-popover');
-      }
-    });
-    document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false');
-    document.getElementById('scaleLabel')?.setAttribute('aria-expanded', 'false');
-    const bd = document.getElementById('pickerBackdrop');
-    if (bd) bd.hidden = true;
-  }
-
-  function positionPickerMenus() {
-    const instrumentToggle = document.getElementById('instrumentDropdownToggle');
-    const instrumentMenu = document.getElementById('instrumentMenu');
-    const scaleToggle = document.getElementById('scaleLabel');
-    const scaleMenu = document.getElementById('scaleMenu');
-    const anyOpen =
-      (instrumentMenu && !instrumentMenu.hidden) ||
-      (scaleMenu && !scaleMenu.hidden);
-    const bd = ensurePickerBackdrop();
-    bd.hidden = !anyOpen;
-    if (instrumentMenu && !instrumentMenu.hidden) {
-      // close scale when instrument opens
-      if (scaleMenu && !scaleMenu.hidden) {
-        scaleMenu.hidden = true;
-        scaleToggle?.setAttribute('aria-expanded', 'false');
-      }
-      placePickerMenu(instrumentMenu, instrumentToggle, 'instrument');
-    }
-    if (scaleMenu && !scaleMenu.hidden) {
-      if (instrumentMenu && !instrumentMenu.hidden) {
-        instrumentMenu.hidden = true;
-        instrumentToggle?.setAttribute('aria-expanded', 'false');
-      }
-      placePickerMenu(scaleMenu, scaleToggle, 'scale');
-    }
-  }
-
-  const boot = () => { run(); positionEffectBubbles(); positionPickerMenus(); };
-  const pickerObserver = new MutationObserver(() => requestAnimationFrame(positionPickerMenus));
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeAllPickers();
-  });
-  const observePickerMenus = () => {
-    ['instrumentMenu', 'scaleMenu'].forEach((id) => {
-      const menu = document.getElementById(id);
-      if (menu && menu.dataset.positionObserved !== '1') {
-        menu.dataset.positionObserved = '1';
-        pickerObserver.observe(menu, { attributes: true, attributeFilter: ['hidden', 'class'] });
-      }
-    });
-  };
-  observePickerMenus();
-  setTimeout(observePickerMenus, 250);
-  setTimeout(observePickerMenus, 900);
+  const boot = () => { run(); ensureBottomBar(); positionEffectBubbles(); centerPan(); };
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);
   } else {
@@ -431,6 +332,9 @@
   setTimeout(centerPan, 100);
   setTimeout(centerPan, 400);
   setTimeout(centerPan, 1200);
+  setTimeout(ensureBottomBar, 50);
+  setTimeout(ensureBottomBar, 300);
+  setTimeout(ensureBottomBar, 1000);
   window.addEventListener('resize', () => {
     clearTimeout(window.__panCenterT);
     window.__panCenterT = setTimeout(centerPan, 50);
@@ -439,44 +343,6 @@
 })();
 
 /* Keep the published control layer aligned with the current rounded layout. */
-
-
-  // FX panel + settings gear placement
-  (function wireFxPanel() {
-    let openBtn = document.getElementById('fxPanelOpen');
-    if (!openBtn) {
-      openBtn = document.createElement('button');
-      openBtn.type = 'button';
-      openBtn.id = 'fxPanelOpen';
-      openBtn.className = 'fx-panel-open';
-      openBtn.setAttribute('aria-label', 'Open effects');
-      openBtn.setAttribute('aria-controls', 'fxPanel');
-      openBtn.textContent = 'FX';
-      document.body.appendChild(openBtn);
-    }
-    const panel = document.getElementById('fxPanel');
-    const closeBtn = document.getElementById('fxPanelClose');
-    function setOpen(open) {
-      if (!panel) return;
-      if (open) {
-        const sheet = document.getElementById('settingsSheet');
-        const backdrop = document.getElementById('settingsSheetBackdrop');
-        if (sheet) { sheet.classList.remove('is-open'); sheet.hidden = true; }
-        if (backdrop) { backdrop.classList.remove('is-open'); backdrop.hidden = true; }
-        document.getElementById('settingsOpenBtn')?.setAttribute('aria-expanded', 'false');
-        document.getElementById('soundscapesPanel')?.setAttribute('hidden', '');
-        document.body.classList.remove('soundscapes-active');
-      }
-      panel.hidden = !open;
-      openBtn.setAttribute('aria-expanded', String(open));
-      document.body.classList.toggle('fx-panel-open', open);
-    }
-    openBtn.addEventListener('click', () => setOpen(panel?.hidden !== false));
-    closeBtn?.addEventListener('click', () => setOpen(false));
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && panel && !panel.hidden) setOpen(false);
-    });
-  })();
 
 
   // Record button chrome (ring/core) — source of truth, not a patch file

@@ -37,14 +37,16 @@ test('core exposes addNote/removeNote and clamps note count 9–14', () => {
   assert.match(core, /noteCountLabel/);
 });
 
-test('layout-boot portals pickers and does not use hidden Controls toggle for pan top', () => {
+test('overlay-controller owns pickers; layout-boot only sets chrome CSS vars', () => {
+  const overlay = read('handpan-app/js/overlay-controller.js');
   const boot = read('handpan-app/js/layout-boot.js');
-  assert.match(boot, /closeAllPickers/);
-  assert.match(boot, /pickerBackdrop/);
-  assert.match(boot, /document\.body\.appendChild\(menu\)/);
-  // Must prefer pionierTopDock, not mobileControlsToggle for top edge
+  assert.match(overlay, /closePickers/);
+  assert.match(overlay, /pickerBackdrop/);
+  assert.match(overlay, /PionierOverlay/);
+  assert.match(boot, /--chrome-top/);
+  assert.match(boot, /--chrome-bottom/);
   assert.match(boot, /pionierTopDock/);
-  assert.doesNotMatch(boot, /topEdge = toggle\s*\n\s*\? toggle\.getBoundingClientRect/);
+  assert.doesNotMatch(boot, /positionPickerMenus/);
 });
 
 test('looper.css owns relative rail and 52px record; no fixed top:25%', () => {

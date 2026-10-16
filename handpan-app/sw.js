@@ -3,29 +3,30 @@
  * CACHE_VERSION and SHELL query stamps must match index.html / pionier-app.js.
  * Bump CACHE_VERSION on every deploy that changes shell assets.
  */
-const CACHE_VERSION = 'pionier-v8';
+const CACHE_VERSION = 'pionier-v10';
 
 const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icon.svg',
-  './pionier.css?v=122',
+  './pionier.css?v=126',
   './atelier.css?v=9',
-  './ui-layout-extras.css?v=40',
+  './ui-layout-extras.css?v=41',
   './looper.css?v=204',
-  './scale-menu.css?v=4',
+  './scale-menu.css?v=5',
   './settings-panel.css?v=10',
   './topbar-narrow.css?v=6',
   './js/skin-palette.js?v=1',
   './js/customization-catalog.js?v=5',
-  './js/layout-boot.js?v=52',
+  './js/overlay-controller.js?v=3',
+  './js/layout-boot.js?v=56',
   './js/settings-panel.js?v=13',
   './js/ambient-fx.js?v=12',
   './js/skin-mandala.js?v=4',
-  './pionier-app.js?v=172',
+  './pionier-app.js?v=174',
   './registerSW.js',
-  './pionier-core.js?v=27',
+  './pionier-core.js?v=28',
   './js/audio-core.js',
   './js/instrument.js',
   './js/gesture.js',
@@ -33,7 +34,7 @@ const SHELL = [
   './js/pionier-surface.js',
   './js/note-sample-bank.js',
   './js/soundscapes.js?v=7',
-  './js/scale-selector.js?v=2',
+  './js/scale-selector.js?v=3',
   './js/looper.js?v=206',
   './js/instruments/handpan.js',
   './js/instruments/arp-family.js',

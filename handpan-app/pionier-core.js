@@ -524,21 +524,19 @@ function renderInstrumentMenu() {
     btn.textContent = item.name || item.id;
     btn.addEventListener('click', () => {
       setInstrument(item.id);
-      menu.hidden = true;
-      document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false');
+      if (window.PionierOverlay) window.PionierOverlay.closePickers();
+      else {
+        menu.hidden = true;
+        document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false');
+      }
     });
     menu.appendChild(btn);
   }
 }
 
-document.getElementById('instrumentDropdownToggle')?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  const menu = document.getElementById('instrumentMenu');
-  if (!menu) return;
-  const open = menu.hidden;
-  menu.hidden = !open;
-  e.currentTarget.setAttribute('aria-expanded', open ? 'true' : 'false');
-  if (open) renderInstrumentMenu();
+/* instrument menu open/close: overlay-controller.js */
+document.getElementById('instrumentDropdownToggle')?.addEventListener('click', () => {
+  renderInstrumentMenu();
 });
 document.getElementById('voicePrev')?.addEventListener('click', () => {
   const list = InstrumentRegistry.list();
