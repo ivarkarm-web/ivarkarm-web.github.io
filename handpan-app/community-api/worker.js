@@ -13,7 +13,7 @@
  *   GET  /songs  -> public community song list
  *   POST /songs  -> validate and commit WAV + metadata
  */
-const MAX_AUDIO_BYTES = 8 * 1024 * 1024;
+const MAX_AUDIO_BYTES = 16 * 1024 * 1024;
 const SONGS_DIR = "handpan-app/community-songs";
 const memoryRate = new Map();
 
@@ -118,7 +118,7 @@ async function submitSong(request, env, origin) {
   const duration = Number(form.get("duration") || 0);
   if (!title) return json({ error: "Add a song title." }, 400, origin);
   if (!(audio instanceof File) || audio.size < 44 || audio.size > MAX_AUDIO_BYTES) {
-    return json({ error: "Audio must be a WAV file under 8 MB. Try a shorter recording." }, 413, origin);
+    return json({ error: "Audio must be a WAV file under 16 MB. Try a shorter recording." }, 413, origin);
   }
   const head = new Uint8Array(await audio.slice(0, 12).arrayBuffer());
   if (String.fromCharCode(...head.slice(0, 4)) !== "RIFF" || String.fromCharCode(...head.slice(8, 12)) !== "WAVE") {
