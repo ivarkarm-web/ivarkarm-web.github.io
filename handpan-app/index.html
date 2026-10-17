@@ -16,7 +16,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./pionier.css?v=144" />
   <link rel="stylesheet" href="./topbar-narrow.css?v=6" />
-  <link rel="stylesheet" href="./looper.css?v=207" />
+  <link rel="stylesheet" href="./looper.css?v=208" />
   <link rel="stylesheet" href="./scale-menu.css?v=7" />
   <link rel="stylesheet" href="./settings-panel.css?v=18" />
   <style>
@@ -180,14 +180,14 @@
     </div>
   </section>
 
-  <section id="soundscapesPanel" class="soundscapes-panel" hidden aria-label="Bedroom Sessions">
+  <section id="soundscapesPanel" class="soundscapes-panel" hidden aria-label="Soundscapes">
     <header class="soundscapes-header">
       <h2>Bedroom Sessions</h2>
       <button type="button" id="closeSoundscapes" class="soundscapes-return-btn" aria-label="Return to Handpan">
         ← Return to Handpan
       </button>
     </header>
-    <main class="soundscapes-body" id="soundscapesBody">
+    <main class="soundscapes-body" id="soundscapesBody">\n      <div class="soundscape-tabs" role="group" aria-label="Soundscape collection"><button type="button" id="soundscapeBedroomTab" class="soundscape-tab is-active" aria-pressed="true">Bedroom Sessions</button><button type="button" id="soundscapeCommunityTab" class="soundscape-tab" aria-pressed="false">User-Created</button></div>
       <div class="soundscape-now">
         <p id="soundscapeTitle" class="soundscape-title">E Amara · Improvisation 1</p>
         <p id="soundscapeNote" class="soundscape-note">Owner recordings</p>
@@ -207,7 +207,7 @@
         <input id="soundscapeVolume" type="range" min="0" max="1" step="0.01" value="0.85" aria-label="Track volume">
       </label>
       <p class="soundscape-status" id="soundscapeStatus" role="status">Bedroom Sessions · 8 tracks</p>
-      <div id="soundscapeQueue" class="soundscape-queue" role="list" aria-label="Track list"></div>
+      <div id="soundscapeQueue" class="soundscape-queue" role="list" aria-label="Bedroom Sessions tracks"></div>\n      <div id="soundscapeCommunityQueue" class="soundscape-queue soundscape-community-queue" role="list" aria-label="User-created songs" hidden></div>
     </main>
   </section>
 
@@ -237,7 +237,7 @@
   <script src="./js/settings-panel.js?v=27"></script>
   <script src="./js/ambient-fx.js?v=12"></script>
   <script src="./js/skin-mandala.js?v=5"></script>
-  <script type="module" src="./pionier-app.js?v=207"></script>
+  <script type="module" src="./pionier-app.js?v=208"></script>
   <script src="./registerSW.js"></script>
 </body>
 </html>
