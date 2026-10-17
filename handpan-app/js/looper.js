@@ -10,7 +10,7 @@
  * Clear: wipe all layers
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
-import { encodeLoopMix, uploadLoopToRepository } from './repository-loop-save.js?v=1';
+import { encodeLoopMix, uploadLoopToRepository } from './repository-loop-save.js?v=2';
 
 const MAX_LAYERS = 8;
 const LONG_MS = 480;
@@ -517,69 +517,65 @@ export function mountLooper({ root } = {}) {
     dialog.className = 'looper-save-dialog';
     dialog.innerHTML = `
       <form method="dialog" class="looper-save-form">
-        <p class="looper-save-eyebrow">PIONIER · LESSON SOURCE</p>
-        <h2>Save recording</h2>
-        <p class="looper-save-copy">Upload your loop WAV and its metadata to <code>handpan-app/lesson-source/</code> on GitHub, ready to build a lesson later.</p>
-        <label for="looperSaveName">Recording name</label>
+        <p class="looper-save-eyebrow">PIONIER · COMMUNITY</p>
+        <h2>Share your song</h2>
+        <p class="looper-save-copy">Your loop will be added to User-Created in Soundscapes so other players can listen. Keep it under 8 MB.</p>
+        <label for="looperSaveName">Song title</label>
         <input id="looperSaveName" name="title" maxlength="80" value="Loop ${String(Date.now()).slice(-4)}" autocomplete="off" required />
-        <label for="looperSaveToken">GitHub fine-grained token</label>
-        <input id="looperSaveToken" name="token" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…" required />
-        <p class="looper-save-copy">Token must be scoped to this repository with Contents: Read and write. It is used only for this upload and is not saved by Pionier.</p>
+        <label for="looperSaveCreator">Creator name (optional)</label>
+        <input id="looperSaveCreator" name="creator" maxlength="40" autocomplete="nickname" placeholder="Your name or alias" />
+        <label class="looper-save-honeypot" for="looperSaveWebsite">Leave this field empty</label>
+        <input class="looper-save-honeypot" id="looperSaveWebsite" tabindex="-1" autocomplete="off" />
+        <p class="looper-save-copy">By sharing, you confirm this is audio you have the right to publish. Submissions are public in this repository.</p>
         <p class="looper-save-status" role="status" aria-live="polite"></p>
         <div class="looper-save-actions">
           <button type="button" class="looper-save-cancel">Cancel</button>
-          <button type="submit" class="looper-save-confirm">Upload to repo</button>
+          <button type="submit" class="looper-save-confirm">Share song</button>
         </div>
       </form>`;
     document.body.appendChild(dialog);
     const form = dialog.querySelector('form');
     const input = dialog.querySelector('#looperSaveName');
-    const tokenInput = dialog.querySelector('#looperSaveToken');
+    const creatorInput = dialog.querySelector('#looperSaveCreator');
+    const websiteInput = dialog.querySelector('#looperSaveWebsite');
     const status = dialog.querySelector('.looper-save-status');
     const confirm = dialog.querySelector('.looper-save-confirm');
     dialog.querySelector('.looper-save-cancel').addEventListener('click', () => dialog.close());
-    dialog.addEventListener('close', () => { tokenInput.value = ''; });
     dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const title = input.value.trim();
-      const token = tokenInput.value.trim();
       if (!title) { input.focus(); return; }
-      if (!token) { tokenInput.focus(); return; }
       confirm.disabled = true;
       input.disabled = true;
-      tokenInput.disabled = true;
-      status.textContent = 'Preparing WAV…';
+      creatorInput.disabled = true;
+      status.textContent = 'Preparing your mix…';
       try {
         const ctx = getAudioContext();
         const duration = Math.max(...layers.map((layer) => layer.buffer?.duration || 0));
         if (!ctx || !duration) throw new Error('There is no recorded audio to save yet.');
         const blob = encodeLoopMix(layers, ctx.sampleRate, duration);
-        status.textContent = 'Uploading audio and metadata to GitHub…';
-        const saved = await uploadLoopToRepository({ blob, title, duration, token });
-        tokenInput.value = '';
-        status.textContent = 'Saved to repository: ' + saved.audioPath;
+        status.textContent = 'Uploading song…';
+        const saved = await uploadLoopToRepository({ blob, title, creator: creatorInput.value.trim(), duration });
+        status.textContent = 'Song shared! It will appear in User-Created.';
         status.classList.add('is-success');
-        saveBtn.textContent = 'Saved ✓';
-        saveBtn.title = 'Recording committed to GitHub';
-        setTimeout(() => { saveBtn.textContent = 'Save'; }, 1800);
+        saveBtn.textContent = 'Shared ✓';
+        saveBtn.title = 'Song added to User-Created';
         const link = document.createElement('a');
         link.href = saved.audioUrl;
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
-        link.textContent = 'Open saved recording in GitHub';
+        link.textContent = 'Open shared audio';
         link.className = 'looper-save-result-link';
         status.after(link);
         confirm.textContent = 'Done';
         confirm.disabled = false;
         confirm.onclick = (e) => { e.preventDefault(); dialog.close(); };
       } catch (error) {
-        status.textContent = error?.message || 'Could not upload this loop. Try again.';
+        status.textContent = error?.message || 'Could not share this song. Try again.';
         confirm.disabled = false;
         input.disabled = false;
-        tokenInput.disabled = false;
-        tokenInput.value = '';
-        tokenInput.placeholder = 'Re-enter token to retry';
+        creatorInput.disabled = false;
       }
     });
     if (typeof dialog.showModal === 'function') dialog.showModal();
