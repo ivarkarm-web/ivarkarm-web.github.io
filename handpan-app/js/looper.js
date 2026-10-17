@@ -519,7 +519,7 @@ export function mountLooper({ root } = {}) {
       <form method="dialog" class="looper-save-form">
         <p class="looper-save-eyebrow">PIONIER · COMMUNITY</p>
         <h2>Share your song</h2>
-        <p class="looper-save-copy">Your loop will be added to User-Created in Soundscapes so other players can listen. Keep it under 8 MB.</p>
+        <p class="looper-save-copy">Your loop will be added to User-Created in Soundscapes so other players can listen. Keep it under 16 MB.</p>
         <label for="looperSaveName">Song title</label>
         <input id="looperSaveName" name="title" maxlength="80" value="Loop ${String(Date.now()).slice(-4)}" autocomplete="off" required />
         <label for="looperSaveCreator">Creator name (optional)</label>
