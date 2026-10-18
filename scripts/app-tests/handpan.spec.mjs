@@ -139,8 +139,7 @@ test('stale saved instrument selection safely falls back to Handpan', async ({ p
 test('boots the local core without runtime source-fetch errors', async ({ page }) => {
   await expect(page.locator('#instrumentMenu')).toBeAttached();
   await expect(page.locator('#mobileControlDrawer')).toBeAttached();
-  await page.locator('#mobileControlsToggle').click();
-  await expect(page.locator('#mobileControlDrawer')).toHaveClass(/is-open/);
+  await expect(page.locator('#mobileControlPanel')).toBeVisible();
   await expect(page.locator('#knobMaster')).toBeAttached();
   const boot = await page.evaluate(() => ({
     core: !!window.PionierCore,
