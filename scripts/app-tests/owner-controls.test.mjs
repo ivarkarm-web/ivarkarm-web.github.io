@@ -65,3 +65,25 @@ test('no exclusivity-fix or chrome-fix patch files remain', () => {
   const html = read('handpan-app/index.html');
   assert.doesNotMatch(html, /exclusivity-fix|chrome-fix/);
 });
+
+
+test('desktop scale, root and octave controls are wired to shared pitch state', () => {
+  const html = read('handpan-app/index.html');
+  const core = read('handpan-app/pionier-core.js');
+  for (const id of ['scalePrevDesktop', 'scaleNextDesktop', 'scaleLabelDesktop', 'rootPrevDesktop', 'rootNextDesktop', 'rootLabelDesktop', 'octavePrev', 'octaveNext', 'octaveLabel']) {
+    assert.match(html, new RegExp(`id="${id}"`), `missing #${id}`);
+  }
+  for (const id of ['scalePrevDesktop', 'scaleNextDesktop', 'rootPrevDesktop', 'rootNextDesktop', 'octavePrev', 'octaveNext']) {
+    assert.match(core, new RegExp(`wire\\('${id}'`), `missing event wiring for #${id}`);
+  }
+  assert.match(core, /setOctaveOffset/);
+  assert.match(core, /rootLabelDesktop/);
+  assert.match(core, /scaleLabelDesktop/);
+});
+
+test('scale picker opens from both mobile and desktop scale labels', () => {
+  const overlay = read('handpan-app/js/overlay-controller.js');
+  assert.match(overlay, /scaleLabelDesktop/);
+  assert.match(overlay, /togglePicker\('scaleMenu', e\.currentTarget\)/);
+  assert.match(overlay, /function setPickerExpanded/);
+});
