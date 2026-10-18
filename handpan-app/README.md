@@ -6,20 +6,21 @@ Live: https://ivarkarm-web.github.io/handpan-app/
 
 ## What it is
 
-- Radial pan surface (9–14 notes)
-- Multiple scales and roots
+- Radial pan surface (9–14 notes) with note labels
+- Multiple scales and roots (searchable scale browser)
 - Sampled notes where available, synthesis fallback
 - Instrument voices (handpan + library / ambient synths)
-- Looper
+- Looper + transport bar (record, BPM, metronome, volume)
+- Visual Filter editor (cutoff / resonance / type) wired to Web Audio
 - **Bedroom Sessions** soundscapes — the owner’s eight archive.org recordings only
-- Skins and mandalas
+- Touch ripple feedback (skins, ambients, tonefield shapes, and mandala aura removed for mobile performance)
 
 ## What it is not
 
-- No Learn mode / lessons
+- No Learn mode / lessons (panel still present experimentally)
 - No user uploads
 - No third-party platform embeds
-- No generated ambient beds (rain/storm/etc.)
+- No generated ambient particle beds
 
 ## Play
 
@@ -27,8 +28,9 @@ Live: https://ivarkarm-web.github.io/handpan-app/
 |-------|--------|
 | Touch / mouse | Strike pads; multi-touch chords |
 | Keys `1`–`9` or `Q`–`O` | Pads 0–8 (hold to sustain) |
-| Bottom bar | Instrument, scale, base note, note count |
-| ♫ | Bedroom Sessions player |
+| Bottom bar / sidebars | Scale, base note, octave / note count |
+| Transport | Record, BPM, metronome, volume |
+| Filter panel | Drag handle or knobs for cutoff / resonance |
 
 Audio unlocks on the first gesture (required by browsers, including iOS Safari).
 
