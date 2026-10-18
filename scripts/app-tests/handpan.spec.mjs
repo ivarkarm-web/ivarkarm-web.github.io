@@ -98,6 +98,72 @@ test('rapid touch taps on scale steppers are not swallowed', async ({ page }, te
 
 
 
+test('rapid pad strikes each retrigger and release cleanly', async ({ page }) => {
+  const result = await page.evaluate(() => {
+    const canvas = document.querySelector('#pan');
+    const inst = window.PionierCore.activeInstrument();
+    const originalHitVector = window.PionierCore.surface.hitVector.bind(window.PionierCore.surface);
+    const field = window.PionierCore.surface.fields[0];
+    const hit = { ...field, index: field.index ?? 0, x: field.x ?? 0, y: field.y ?? 0, radial: field.radial ?? 0.4, angleRad: field.angleRad ?? 0 };
+    window.PionierCore.surface.hitVector = () => hit;
+    let on = 0;
+    let off = 0;
+    const originalOn = inst.noteOn.bind(inst);
+    const originalOff = inst.noteOff.bind(inst);
+    inst.noteOn = (...args) => { on++; return originalOn(...args); };
+    inst.noteOff = (...args) => { off++; return originalOff(...args); };
+    const send = (type, pointerId) => canvas.dispatchEvent(new PointerEvent(type, {
+      bubbles: true, cancelable: true, pointerId, pointerType: 'touch',
+      clientX: canvas.getBoundingClientRect().left + canvas.clientWidth / 2,
+      clientY: canvas.getBoundingClientRect().top + canvas.clientHeight / 2,
+      button: 0, buttons: type === 'pointerdown' ? 1 : 0, pressure: type === 'pointerdown' ? 0.8 : 0
+    }));
+    send('pointerdown', 41); send('pointerup', 41);
+    send('pointerdown', 42); send('pointerup', 42);
+    const counts = { on, off };
+    inst.noteOn = originalOn; inst.noteOff = originalOff;
+    window.PionierCore.surface.hitVector = originalHitVector;
+    return counts;
+  });
+  expect(result.on).toBe(2);
+  expect(result.off).toBe(2);
+});
+
+test('multitouch on one pad does not damp the note until the last pointer releases', async ({ page }) => {
+  const result = await page.evaluate(() => {
+    const canvas = document.querySelector('#pan');
+    const inst = window.PionierCore.activeInstrument();
+    const originalHitVector = window.PionierCore.surface.hitVector.bind(window.PionierCore.surface);
+    const field = window.PionierCore.surface.fields[0];
+    const hit = { ...field, index: field.index ?? 0, x: field.x ?? 0, y: field.y ?? 0, radial: field.radial ?? 0.4, angleRad: field.angleRad ?? 0 };
+    window.PionierCore.surface.hitVector = () => hit;
+    let on = 0;
+    let off = 0;
+    const originalOn = inst.noteOn.bind(inst);
+    const originalOff = inst.noteOff.bind(inst);
+    inst.noteOn = (...args) => { on++; return originalOn(...args); };
+    inst.noteOff = (...args) => { off++; return originalOff(...args); };
+    const send = (type, pointerId) => canvas.dispatchEvent(new PointerEvent(type, {
+      bubbles: true, cancelable: true, pointerId, pointerType: 'touch',
+      clientX: canvas.getBoundingClientRect().left + canvas.clientWidth / 2,
+      clientY: canvas.getBoundingClientRect().top + canvas.clientHeight / 2,
+      button: 0, buttons: type === 'pointerdown' ? 1 : 0, pressure: type === 'pointerdown' ? 0.8 : 0
+    }));
+    send('pointerdown', 51);
+    send('pointerdown', 52);
+    send('pointerup', 51);
+    const offAfterFirstRelease = off;
+    send('pointerup', 52);
+    const counts = { on, offAfterFirstRelease, off };
+    inst.noteOn = originalOn; inst.noteOff = originalOff;
+    window.PionierCore.surface.hitVector = originalHitVector;
+    return counts;
+  });
+  expect(result.on).toBe(1);
+  expect(result.offAfterFirstRelease).toBe(0);
+  expect(result.off).toBe(1);
+});
+
 test('handpan uses owner samples and refuses synthetic replacement when recordings are unavailable', async ({ page }) => {
   const result = await page.evaluate(async () => {
     const instrument = window.PionierCore?.activeInstrument?.();
