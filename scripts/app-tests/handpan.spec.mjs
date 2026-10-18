@@ -55,20 +55,23 @@ test('blocked storage is reported as degraded without breaking Handpan', async (
 
 test('optional soundscapes module failure leaves core playable and reports degraded state', async ({ page }) => {
   let failOnce = true;
-  await page.route(/soundscapes\.js\?v=\d+/, async (route) => {
+  let intercepted = false;
+  // Match the module path independent of its cache-busting query string.
+  await page.route('**/js/soundscapes.js*', async (route) => {
     if (failOnce) {
       failOnce = false;
+      intercepted = true;
       await route.fulfill({ status: 503, contentType: 'text/javascript', body: '/* simulated optional module outage */' });
     } else {
       await route.continue();
     }
   });
   await page.reload();
+  await expect.poll(() => intercepted).toBe(true);
   await expect(page.locator('#appStatus')).toBeVisible();
   await expect(page.locator('#appStatusMessage')).toContainText('Soundscapes');
   await expect.poll(() => page.evaluate(() => !!window.PionierCore?.activeInstrument?.())).toBe(true);
 });
-
 test('viewport keeps browser zoom available while the instrument canvas owns gestures', async ({ page }) => {
   const viewport = await page.locator('meta[name="viewport"]').getAttribute('content');
   expect(viewport).toContain('width=device-width');
