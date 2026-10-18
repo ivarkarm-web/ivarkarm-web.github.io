@@ -88,8 +88,14 @@ if (/looper-crop-editor/.test(loopControls) && /data-control="crop-start"/.test(
 else fail('Loop crop editor wiring is incomplete');
 if (/function confirmDeleteLayer/.test(loopControls) && /Delete track/.test(loopControls) && /confirmDeleteLayer\(i\)/.test(loopControls)) ok('Holding a loop opens a delete confirmation; deletion requires a confirm tap');
 else fail('Loop hold-to-delete confirmation wiring is incomplete');
-if (/\.looper-track-overlay/.test(loopStyles) && /looper\.css\?v=210/.test(appHtml) && /js\/looper\.js\?v=213/.test(shell) && /pionier-v73/.test(serviceWorker)) ok('Loop mixer styles and service-worker cache versions are refreshed');
+if (/\.looper-track-overlay/.test(loopStyles) && /looper\.css\?v=210/.test(appHtml) && /js\/looper\.js\?v=213/.test(shell) && /pionier-v74/.test(serviceWorker)) ok('Loop mixer styles and service-worker cache versions are refreshed');
 else fail('Loop mixer cache versions are stale');
+
+const scaleSelector = read('handpan-app/js/scale-selector.js');
+if (/Search instruments/.test(coreSrc) && /picker-search/.test(coreSrc) && /Search scales/.test(scaleSelector) && /picker-search/.test(scaleSelector)) ok('Instrument and scale pickers expose searchable, filtered lists');
+else fail('Searchable scale/instrument picker wiring is incomplete');
+if (/scale-menu.css\\?v=8/.test(appHtml) && /pionier-app.js\\?v=213/.test(appHtml) && /pionier-core.js\\?v=59/.test(shell) && /scale-selector.js\\?v=8/.test(shell) && /pionier-v74/.test(serviceWorker)) ok('Search picker assets use fresh cache versions');
+else fail('Search picker asset cache versions are stale');
 
 // Current shell uses soundscapesPanel + soundscapeAudio (+ optional play control).
 if (
