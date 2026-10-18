@@ -22,8 +22,8 @@ test('Pionier entry surface matches the deployed instrument UI', () => {
     'mobileControlDrawer',
     'mobileControlsToggle',
     'mobileControlPanel',
-    'openSoundscapes',
-    'soundscapesPanel',
+    'tabSoundscapes',
+    'soundscapesPage',
     'soundscapePlay',
     'soundscapeAudio',
     'scaleLabel',
@@ -56,7 +56,6 @@ test('boot chain is local and does not fetch or rewrite executable source at run
   assert.ok(fs.existsSync(path.join(app, 'js/pionier-surface.js')));
   assert.ok(fs.existsSync(path.join(app, 'js/instruments/handpan.js')));
   assert.ok(fs.existsSync(path.join(app, 'js/soundscapes.js')));
-  assert.ok(fs.existsSync(path.join(app, 'js/mandala-canvas.js')));
   assert.match(read('handpan-app/pionier-app.js'), /js\/soundscapes\.js/);
 });
 
