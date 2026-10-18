@@ -1,6 +1,6 @@
 /* Screenshot UI v2 */
 :root{--bg:#0a0a0b;--fg:#f0eeea;--muted:rgba(240,238,234,.45);--muted-strong:rgba(240,238,234,.65);--accent:#ff3b30;--blue:#0a84ff;--panel:#1c1c1e;--panel-deep:#121214}
-.settings-panel,#settingsPanel,.customization-panel,#customizationPanel,.create-page,#createPage,.create-launch,#createLaunch,.backdrop-player,.learn-open-btn,#openLearn,.soundscapes-open-btn,#openSoundscapes,.atelier-fab,.skin-picker,.mandala-layer,#ambientCanvas,.ambient-fx{display:none!important}
+.settings-panel,#settingsPanel,.create-page,#createPage,.create-launch,#createLaunch,.soundscapes-open-btn,#openSoundscapes,.atelier-fab,.skin-picker{display:none!important}
 body,html{background:var(--bg)!important;color:var(--fg);overflow:hidden}
 body::before{background:var(--bg)!important}
 .app{position:relative;width:100%;height:100%;min-height:100dvh;display:flex;flex-direction:column;overflow:hidden}
