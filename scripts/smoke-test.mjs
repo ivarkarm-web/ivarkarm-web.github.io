@@ -84,7 +84,7 @@ else fail('Pionier instrument entry surface is missing');
 
 if (/function openTrackPanel/.test(loopControls) && /pendingTap\.index === i/.test(loopControls) && /data-control="delay"/.test(loopControls) && /data-control="cut"/.test(loopControls) && /quantizeWait/.test(loopControls) && /delayWet/.test(loopControls)) ok('Double-tap loop mixer exposes playback, level, delay, cutoff and quantize controls');
 else fail('Dedicated loop track mixer wiring is incomplete');
-if (loopControls.includes('looper-crop-editor') && loopControls.includes('crop-start') && loopControls.includes('crop-end') && loopControls.includes('copyToChannel') && /Crop/.test(loopStyles)) ok('Loop mixer supports waveform-based in/out cropping with apply and cancel');
+if (loopControls.includes('looper-crop-editor') && loopControls.includes('crop-start') && loopControls.includes('crop-end') && loopControls.includes('copyToChannel') && loopStyles.includes('looper-crop-editor')) ok('Loop mixer supports waveform-based in/out cropping with apply and cancel');
 else fail('Loop crop editor wiring is incomplete');
 if (/function confirmDeleteLayer/.test(loopControls) && /Delete track/.test(loopControls) && /confirmDeleteLayer\(i\)/.test(loopControls)) ok('Holding a loop opens a delete confirmation; deletion requires a confirm tap');
 else fail('Loop hold-to-delete confirmation wiring is incomplete');
