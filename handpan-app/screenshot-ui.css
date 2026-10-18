@@ -105,3 +105,11 @@ body::before{background:var(--bg)!important}
 .fx-panel{left:180px!important;right:110px!important;bottom:90px!important}
 .looper-rail{right:100px!important}
 }
+
+
+/* Phone composition: move the playing surface down into the visual center of gravity. */
+@media (max-width: 899px) {
+  #app:not(.soundscapes-active) .stage #pan {
+    transform: translateY(clamp(22px, 6dvh, 54px)) !important;
+  }
+}
