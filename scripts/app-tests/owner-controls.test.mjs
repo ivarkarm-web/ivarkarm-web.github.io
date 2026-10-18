@@ -92,7 +92,7 @@ test('scale picker opens from both mobile and desktop scale labels', () => {
 
 
 test('Learn Mode and generated decorative ambience modules are removed', () => {
-  for (const path of [
+  for (const rel of [
     'handpan-app/js/learn-mode.js',
     'handpan-app/learn-mode.css',
     'handpan-app/learn-lessons.json',
@@ -101,7 +101,7 @@ test('Learn Mode and generated decorative ambience modules are removed', () => {
     'handpan-app/js/customization-catalog.js',
     'handpan-app/js/mandala-canvas.js',
     'handpan-app/js/backdrop-soundscape-bridge.js'
-  ]) assert.equal(fs.existsSync(path.join(root, path)), false, path + ' should be retired');
+  ]) assert.equal(fs.existsSync(path.join(root, rel)), false, rel + ' should be retired');
   const shell = read('handpan-app/pionier-app.js');
   assert.doesNotMatch(shell, /learn-mode\.js/);
 });
