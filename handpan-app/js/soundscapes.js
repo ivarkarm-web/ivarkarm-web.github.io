@@ -262,6 +262,16 @@ if (page && audio) {
 
   function showSoundscapes(show) {
     if (show) {
+      // Never leave the floating Loop Studio or compact app menu layered over the library.
+      const loopRail = document.getElementById('looperRail');
+      if (loopRail) {
+        loopRail.hidden = true;
+        loopRail.setAttribute('hidden', '');
+        loopRail.classList.remove('is-open');
+      }
+      const appMenu = document.getElementById('appMenu');
+      if (appMenu) appMenu.hidden = true;
+      document.getElementById('topMenuBtn')?.setAttribute('aria-expanded', 'false');
       page.hidden = false;
       page.classList.add('is-active');
       page.setAttribute('aria-hidden', 'false');
