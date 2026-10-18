@@ -471,7 +471,7 @@ export function mountLooper({ root } = {}) {
     const position = panel.querySelector('[data-control="position"]');
     const elapsed = panel.querySelector('.looper-track-elapsed');
     const waveform = panel.querySelector('.looper-waveform');
-    const duration = Math.max(0.01, layer.buffer.duration || 0.01);
+    let duration = Math.max(0.01, layer.buffer.duration || 0.01);
     let waveformPeaks = [];
     let waveformPeakWidth = 0;
     let cropStart = 0;
@@ -597,6 +597,7 @@ export function mountLooper({ root } = {}) {
       layer.buffer = nextBuffer;
       layer.offset = 0;
       const nextDuration = Math.max(0.01, nextBuffer.duration || 0.01);
+      duration = nextDuration;
       const titleDuration = panel.querySelector('.looper-track-header p');
       if (titleDuration) titleDuration.textContent = nextBuffer.duration.toFixed(1) + ' sec loop';
       panel.querySelector('.looper-track-duration').textContent = formatLoopTime(nextDuration);
