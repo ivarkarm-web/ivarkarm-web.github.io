@@ -306,6 +306,12 @@ test('mobile instrument and scale pickers open as visible, tappable sheets', asy
   await expect(page.locator('#scaleMenu .scale-menu-item').first()).toBeVisible();
   await page.locator('#pickerBackdrop').tap({ position: { x: 10, y: 10 } });
   await expect(page.locator('#scaleMenu')).toBeHidden();
+
+  const touchAction = await page.locator('#pan').evaluate((canvas) => getComputedStyle(canvas).pointerEvents);
+  expect(touchAction).not.toBe('none');
+  const before = await page.evaluate(() => window.PionierCore.noteCount());
+  await page.locator('#notePlus').click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.noteCount())).toBe(before + 1);
 });
 
 test('desktop scale, base-note and octave steppers update the shared handpan state', async ({ page }) => {
