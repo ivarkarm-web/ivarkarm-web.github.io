@@ -232,8 +232,9 @@
       </div>
       <div class="recording-actions">
         <button type="button" class="rec-btn rec-discard" id="recDiscard">Discard</button>
-        <button type="button" class="rec-btn rec-share" id="recShare">Share</button>
+        <button type="button" class="rec-btn rec-share" id="recShare" disabled aria-describedby="recShareEmptyState" title="Audio sharing is not available for this recording yet">Share unavailable</button>
       </div>
+      <p id="recShareEmptyState" class="recording-share-empty" role="status">This recorder currently shows a preview only. Use Loop Studio’s WAV export to share real audio.</p>
     </div>
   </div>
 
