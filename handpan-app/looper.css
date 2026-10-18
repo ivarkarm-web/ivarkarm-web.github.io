@@ -510,3 +510,31 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 .looper-save-form input[type="password"] { letter-spacing: .04em; }
 .looper-save-status.is-success { color: #a9d8a4; }
 .looper-save-result-link { color: #e5ca70; font: 12px Inter,system-ui,sans-serif; overflow-wrap: anywhere; }
+
+
+/* Dedicated per-track mixer opened by double-tapping a loop circle. */
+.looper-track-overlay { position:fixed; inset:0; z-index:6000; display:flex; align-items:center; justify-content:center; padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom)); background:rgba(5,6,9,.72); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); animation:looper-sheet-in .16s ease-out; }
+.looper-track-panel { width:min(100%,420px); max-height:100%; overflow-y:auto; overscroll-behavior:contain; padding:22px; border:1px solid rgba(212,176,74,.32); border-radius:22px; color:#f0ebe3; background:linear-gradient(155deg,rgba(30,29,31,.99),rgba(13,14,18,.99)); box-shadow:0 24px 80px rgba(0,0,0,.6); font-family:Inter,system-ui,sans-serif; -webkit-overflow-scrolling:touch; }
+.looper-track-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
+.looper-track-eyebrow { color:#d4b04a; font-size:9px; font-weight:700; letter-spacing:.18em; }
+.looper-track-header h2 { margin:5px 0 2px; font-size:25px; line-height:1.1; font-weight:500; }
+.looper-track-header p { margin:0; color:rgba(240,235,227,.5); font-size:11px; }
+.looper-track-close { width:36px; height:36px; flex:none; border:1px solid rgba(255,255,255,.12); border-radius:50%; color:#f0ebe3; background:rgba(255,255,255,.05); font-size:23px; }
+.looper-track-transport { display:flex; align-items:center; gap:12px; margin-bottom:22px; }
+.looper-track-play { flex:1; min-height:46px; border:1px solid rgba(212,176,74,.5); border-radius:12px; background:rgba(212,176,74,.14); color:#f6dfa0; font-size:13px; font-weight:650; }
+.looper-track-status { min-width:62px; color:rgba(240,235,227,.55); font-size:9px; letter-spacing:.12em; text-align:right; }
+.looper-track-control { margin:0 0 18px; }
+.looper-track-control label { display:flex; justify-content:space-between; gap:12px; margin-bottom:8px; color:rgba(240,235,227,.72); font-size:12px; }
+.looper-track-control output { color:#f6dfa0; font-variant-numeric:tabular-nums; }
+.looper-track-control input[type=range] { display:block; width:100%; margin:0; accent-color:#d4b04a; height:24px; touch-action:pan-y; }
+.looper-track-control select { width:100%; min-height:42px; padding:0 12px; border:1px solid rgba(255,255,255,.14); border-radius:10px; color:#f0ebe3; background:#242329; font-size:13px; }
+.looper-track-footer { display:flex; gap:10px; margin-top:8px; }
+.looper-track-footer button { flex:1; min-height:42px; border:1px solid rgba(255,255,255,.14); border-radius:10px; color:#f0ebe3; background:rgba(255,255,255,.05); font-size:12px; font-weight:600; }
+.looper-track-footer .looper-track-mute.is-active { border-color:rgba(236,90,90,.5); color:#ff9b9b; background:rgba(236,90,90,.12); }
+.looper-track-footer .looper-track-delete { flex:0 0 auto; color:rgba(255,155,155,.9); }
+@media (max-width:480px) { .looper-track-overlay { align-items:flex-end; padding:8px 8px max(8px,env(safe-area-inset-bottom)); } .looper-track-panel { width:100%; max-height:92dvh; padding:20px 18px; border-radius:22px 22px 16px 16px; } }
+
+.looper-track-position { margin: -8px 0 22px; }
+.looper-track-position input[type=range] { display:block; width:100%; height:22px; margin:0 0 5px; accent-color:#d4b04a; touch-action:pan-y; }
+.looper-track-position > div { display:flex; justify-content:space-between; gap:5px; color:rgba(240,235,227,.42); font-size:10px; font-variant-numeric:tabular-nums; }
+.looper-track-position output { color:#f6dfa0; }

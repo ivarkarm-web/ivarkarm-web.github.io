@@ -75,6 +75,12 @@ async function boot() {
     return false;
   }
 
+  // Keep the app usable when browser capabilities are restricted, but explain
+  // why audio or saved preferences may be unavailable instead of hiding status.
+  const coreHealth = window.PionierCore?.health?.();
+  if (coreHealth && !coreHealth.audioAvailable) degraded.push('audio output');
+  if (coreHealth && !coreHealth.storageAvailable) degraded.push('saved settings');
+
   try {
     const { createArpInstruments } = await import(new URL('./js/instruments/arp-family.js?v=3', BASE).href);
     const { InstrumentRegistry } = await import(new URL('./js/instrument.js', BASE).href);
@@ -116,7 +122,7 @@ async function boot() {
   }
 
   try {
-    const { mountLooper } = await import(new URL('./js/looper.js?v=209', BASE).href);
+    const { mountLooper } = await import(new URL('./js/looper.js?v=212', BASE).href);
     mountLooper();
   } catch (err) {
     console.warn('[looper] mount failed', err);
@@ -151,7 +157,8 @@ async function boot() {
   }
 
   if (degraded.length) {
-    setBootStatus('degraded', 'Some features unavailable: ' + degraded.join(', '), true);
+    const labels = degraded.map(name => ({ soundscapes: 'Soundscapes', 'note-plus': 'note controls', looper: 'Loop Studio', 'scale-selector': 'scale selector', learn: 'Learn mode', arpeggiators: 'arpeggiators' }[name] || name));
+    setBootStatus('degraded', 'Some features unavailable: ' + labels.join(', '), true);
   } else {
     setBootStatus('ready');
   }

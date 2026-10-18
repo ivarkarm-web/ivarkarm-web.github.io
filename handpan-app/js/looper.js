@@ -6,7 +6,7 @@
  *   LOOP  — secondary tracks snap to exact multiples of layer-1 duration
  *   BEAT  — start/stop quantized to beat grid derived from layer 1
  *   SERIAL — tracks play one after another (song sections)
- * Circles: tap play/pause · long-press layer sheet (level/pan/mute/solo/delete)
+ * Circles: tap play/pause · double-tap opens track controls · hold asks to confirm delete
  * Clear: wipe all layers
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
@@ -135,6 +135,10 @@ export function mountLooper({ root } = {}) {
   let tapSource = null;
   let pressTimer = null;
   let longFired = false;
+  let pendingTap = null;
+  let trackPanelEl = null;
+  let trackPanelKeyHandler = null;
+  let trackPanelProgressTimer = null;
   let openSheetIndex = -1;
   let sheetEl = null;
   let syncModeIndex = 0;
@@ -268,7 +272,7 @@ export function mountLooper({ root } = {}) {
     syncBtn.title = mode.title + ' · tap to change';
   }
 
-  function startLayerSource(layer, offset) {
+  function startLayerSource(layer, offset, delaySeconds = 0) {
     const ctx = getAudioContext();
     if (!ctx || !layer.gain || layer.paused) return;
     try { layer.source?.stop(); } catch (_) {}
@@ -277,10 +281,11 @@ export function mountLooper({ root } = {}) {
     source.loop = syncMode() !== 'serial';
     source.connect(layer.gain);
     const off = Math.max(0, offset || 0) % (layer.buffer.duration || 1);
-    source.start(0, off);
+    const startAt = ctx.currentTime + Math.max(0, delaySeconds || 0);
+    source.start(startAt, off);
     layer.source = source;
     layer.offset = off;
-    layer.startedAt = ctx.currentTime - off;
+    layer.startedAt = startAt - off;
 
     if (syncMode() === 'serial') {
       source.loop = false;
@@ -306,11 +311,22 @@ export function mountLooper({ root } = {}) {
     if (!ctx) return;
     const now = ctx.currentTime;
     const dur = layer.buffer.duration || 1;
-    layer.offset = ((now - (layer.startedAt || now)) % dur + dur) % dur;
+    layer.offset = layer.startedAt > now ? 0 : ((now - (layer.startedAt || now)) % dur + dur) % dur;
     try { layer.source?.stop(); } catch (_) {}
     layer.source = null;
     layer.paused = true;
     renderCircles();
+  }
+
+  function quantizeWait(layer) {
+    const ctx = getAudioContext();
+    const mode = layer?.quantize || 'off';
+    if (!ctx || mode === 'off' || !layers[0] || cycleDuration() <= 0) return 0;
+    const beat = beatDuration();
+    const grid = mode === 'beat' ? beat : mode === 'eighth' ? beat / 2 : beat / 4;
+    if (!grid || grid <= 0.01) return 0;
+    const phase = cyclePhase(ctx.currentTime);
+    return (grid - (phase % grid)) % grid;
   }
 
   function resumeLayer(index) {
@@ -318,17 +334,13 @@ export function mountLooper({ root } = {}) {
     if (!layer || !layer.paused) return;
     resumeAudio();
     if (syncMode() === 'serial') {
-      layers.forEach((l, i) => {
-        if (i !== index && !l.paused) pauseLayer(i);
-      });
+      layers.forEach((l, i) => { if (i !== index && !l.paused) pauseLayer(i); });
     }
     layer.paused = false;
     const mode = syncMode();
     let off = layer.offset || 0;
-    if ((mode === 'loop' || mode === 'beat') && layers[0] && index > 0) {
-      off = cyclePhase();
-    }
-    startLayerSource(layer, off);
+    if ((mode === 'loop' || mode === 'beat') && layers[0] && index > 0) off = cyclePhase();
+    startLayerSource(layer, off, quantizeWait(layer));
     renderCircles();
   }
 
@@ -341,8 +353,9 @@ export function mountLooper({ root } = {}) {
 
   function disconnectLayer(layer) {
     try { layer.source?.stop(); } catch (_) {}
-    try { layer.gain?.disconnect(); } catch (_) {}
-    try { layer.panner?.disconnect(); } catch (_) {}
+    for (const node of [layer.gain, layer.filter, layer.delay, layer.feedback, layer.delayWet, layer.panner]) {
+      try { node?.disconnect(); } catch (_) {}
+    }
     layer.source = null;
   }
 
@@ -386,6 +399,110 @@ export function mountLooper({ root } = {}) {
     if (beat <= 0.02) return dur;
     const n = Math.max(1, Math.round(dur / beat));
     return n * beat;
+  }
+
+  function formatLoopTime(seconds) {
+    const safe = Math.max(0, Math.floor(Number(seconds) || 0));
+    return Math.floor(safe / 60) + ':' + String(safe % 60).padStart(2, '0');
+  }
+
+  function closeTrackPanel() {
+    if (trackPanelKeyHandler) {
+      document.removeEventListener('keydown', trackPanelKeyHandler);
+      trackPanelKeyHandler = null;
+    }
+    if (trackPanelProgressTimer) { clearInterval(trackPanelProgressTimer); trackPanelProgressTimer = null; }
+    if (trackPanelEl) { trackPanelEl.remove(); trackPanelEl = null; }
+  }
+
+  function openTrackPanel(index) {
+    const layer = layers[index];
+    if (!layer) return;
+    closeSheet();
+    closeTrackPanel();
+    const overlay = document.createElement('div');
+    overlay.className = 'looper-track-overlay';
+    overlay.innerHTML = `
+      <section class="looper-track-panel" role="dialog" aria-modal="true" aria-label="Track ${index + 1} controls">
+        <header class="looper-track-header">
+          <div><div class="looper-track-eyebrow">PIONIER · LOOP MIXER</div><h2>Track ${index + 1}</h2><p>${(layer.buffer.duration || 0).toFixed(1)} sec loop</p></div>
+          <button type="button" class="looper-track-close" aria-label="Close track controls">×</button>
+        </header>
+        <div class="looper-track-transport"><button type="button" class="looper-track-play"></button><span class="looper-track-status"></span></div>
+        <div class="looper-track-position"><input data-control="position" aria-label="Track playback position" type="range" min="0" max="${Math.max(0.01, layer.buffer.duration || 0.01)}" step="0.01"><div><output class="looper-track-elapsed">0:00</output><span>/</span><span class="looper-track-duration">${formatLoopTime(layer.buffer.duration || 0)}</span></div></div>
+        <div class="looper-track-control"><label for="track-level-${index}"><span>Track level</span><output></output></label><input id="track-level-${index}" data-control="level" type="range" min="0" max="1" step="0.01"></div>
+        <div class="looper-track-control"><label for="track-master-${index}"><span>Master output</span><output></output></label><input id="track-master-${index}" data-control="master" type="range" min="0" max="1.5" step="0.01"></div>
+        <div class="looper-track-control"><label for="track-delay-${index}"><span>Delay send</span><output></output></label><input id="track-delay-${index}" data-control="delay" type="range" min="0" max="0.75" step="0.01"></div>
+        <div class="looper-track-control"><label for="track-cut-${index}"><span>Low-pass cut</span><output></output></label><input id="track-cut-${index}" data-control="cut" type="range" min="300" max="20000" step="10"></div>
+        <div class="looper-track-control looper-track-quantize"><label for="track-quantize-${index}"><span>Quantize on resume</span></label><select id="track-quantize-${index}" data-control="quantize"><option value="off">Off</option><option value="beat">Beat</option><option value="eighth">1/8 note</option><option value="sixteenth">1/16 note</option></select></div>
+        <footer class="looper-track-footer"><button type="button" class="looper-track-mute"></button><button type="button" class="looper-track-delete">Delete track</button></footer>
+      </section>`;
+    document.body.appendChild(overlay);
+    trackPanelEl = overlay;
+    const panel = overlay.querySelector('.looper-track-panel');
+    const close = () => closeTrackPanel();
+    overlay.addEventListener('pointerdown', event => { if (event.target === overlay) close(); });
+    overlay.querySelector('.looper-track-close').addEventListener('click', close);
+    const play = overlay.querySelector('.looper-track-play');
+    const status = overlay.querySelector('.looper-track-status');
+    const updateTransport = () => {
+      const current = layers[index];
+      if (!current) return;
+      play.textContent = current.paused ? '▶  Play track' : 'Ⅱ  Pause track';
+      status.textContent = current.paused ? 'PAUSED' : 'PLAYING';
+    };
+    play.addEventListener('click', () => { toggleLayer(index); updateTransport(); });
+    const position = panel.querySelector('[data-control="position"]');
+    const elapsed = panel.querySelector('.looper-track-elapsed');
+    const duration = Math.max(0.01, layer.buffer.duration || 0.01);
+    const updatePosition = () => {
+      const ctx = getAudioContext();
+      const value = layer.paused || !ctx ? (layer.offset || 0) : layer.startedAt > ctx.currentTime ? 0 : ((ctx.currentTime - layer.startedAt) % duration + duration) % duration;
+      if (document.activeElement !== position) position.value = String(Math.min(duration, value));
+      elapsed.textContent = formatLoopTime(value);
+      updateTransport();
+    };
+    position.addEventListener('input', () => { elapsed.textContent = formatLoopTime(Number(position.value)); });
+    position.addEventListener('change', () => {
+      layer.offset = Math.min(duration, Math.max(0, Number(position.value) || 0));
+      if (!layer.paused) startLayerSource(layer, layer.offset);
+      updatePosition();
+    });
+    trackPanelProgressTimer = setInterval(updatePosition, 120);
+    const addRange = (name, value, format, apply) => {
+      const input = panel.querySelector(`[data-control="${name}"]`);
+      const output = input.parentElement.querySelector('output');
+      input.value = String(value);
+      output.textContent = format(Number(input.value));
+      input.addEventListener('input', () => {
+        const next = Number(input.value);
+        output.textContent = format(next);
+        apply(next);
+      });
+    };
+    addRange('level', layer.level ?? DEFAULT_LEVEL, v => `${Math.round(v * 100)}%`, v => { layer.level = v; applyLayerGain(layer); });
+    const master = getAudioMaster();
+    addRange('master', master?.gain?.value ?? 1.15, v => `${Math.round(v * 100)}%`, v => { if (master) master.gain.setTargetAtTime(v, getAudioContext()?.currentTime || 0, 0.025); });
+    addRange('delay', layer.delayAmount ?? 0, v => `${Math.round(v * 100)}%`, v => {
+      layer.delayAmount = v;
+      if (layer.delayWet?.gain) layer.delayWet.gain.setTargetAtTime(v, getAudioContext()?.currentTime || 0, 0.025);
+    });
+    addRange('cut', layer.cutoff ?? 20000, v => v >= 19990 ? 'Open' : `${Math.round(v)} Hz`, v => {
+      layer.cutoff = v;
+      if (layer.filter?.frequency) layer.filter.frequency.setTargetAtTime(v, getAudioContext()?.currentTime || 0, 0.025);
+    });
+    const quantize = panel.querySelector('[data-control="quantize"]');
+    quantize.value = layer.quantize || 'off';
+    quantize.addEventListener('change', () => { layer.quantize = quantize.value; });
+    const mute = overlay.querySelector('.looper-track-mute');
+    const updateMute = () => { mute.textContent = layer.muted ? 'Unmute track' : 'Cut / mute track'; mute.classList.toggle('is-active', layer.muted); };
+    mute.addEventListener('click', () => { layer.muted = !layer.muted; applyLayerGain(layer); updateMute(); renderCircles(); });
+    overlay.querySelector('.looper-track-delete').addEventListener('click', () => { deleteLayer(index); closeTrackPanel(); });
+    updateTransport();
+    updateMute();
+    trackPanelKeyHandler = event => { if (event.key === 'Escape') closeTrackPanel(); };
+    document.addEventListener('keydown', trackPanelKeyHandler);
+    overlay.querySelector('.looper-track-close').focus({ preventScroll: true });
   }
 
   function closeSheet() {
@@ -478,6 +595,36 @@ export function mountLooper({ root } = {}) {
     setTimeout(() => document.addEventListener('pointerdown', onDoc, true), 0);
   }
 
+  function confirmDeleteLayer(index) {
+    const layer = layers[index];
+    if (!layer) return;
+    document.getElementById('looperDeleteDialog')?.remove();
+    const dialog = document.createElement('dialog');
+    dialog.id = 'looperDeleteDialog';
+    dialog.className = 'looper-save-dialog looper-delete-dialog';
+    dialog.innerHTML = `
+      <form method="dialog" class="looper-save-form">
+        <p class="looper-save-eyebrow">PIONIER · LOOP</p>
+        <h2>Delete track ${index + 1}?</h2>
+        <p class="looper-save-copy">This removes the recorded track. This cannot be undone.</p>
+        <div class="looper-save-actions">
+          <button type="button" class="looper-save-cancel">Keep track</button>
+          <button type="button" class="looper-save-confirm">Delete track</button>
+        </div>
+      </form>`;
+    document.body.appendChild(dialog);
+    dialog.querySelector('.looper-save-cancel').addEventListener('click', () => dialog.close());
+    dialog.querySelector('.looper-save-confirm').addEventListener('click', () => {
+      if (layers[index] === layer) deleteLayer(index);
+      dialog.close();
+    });
+    dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+    dialog.addEventListener('close', () => dialog.remove(), { once: true });
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+    else dialog.setAttribute('open', '');
+    dialog.querySelector('.looper-save-cancel').focus({ preventScroll: true });
+  }
+
   function renderCircles() {
     layersEl.innerHTML = '';
     layers.forEach((layer, i) => {
@@ -492,13 +639,27 @@ export function mountLooper({ root } = {}) {
         longFired = false;
         pressTimer = setTimeout(() => {
           longFired = true;
-          openSheet(i, c);
+          if (pendingTap) { clearTimeout(pendingTap.timer); pendingTap = null; }
+          confirmDeleteLayer(i);
         }, LONG_MS);
       });
       const end = (e) => {
         if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-        if (longFired) return;
-        if (e.type === 'pointerup') toggleLayer(i);
+        if (longFired || e.type !== 'pointerup') return;
+        if (pendingTap && pendingTap.index === i) {
+          clearTimeout(pendingTap.timer);
+          pendingTap = null;
+          openTrackPanel(i);
+          return;
+        }
+        if (pendingTap) {
+          clearTimeout(pendingTap.timer);
+          toggleLayer(pendingTap.index);
+        }
+        const timer = setTimeout(() => {
+          if (pendingTap?.timer === timer) { pendingTap = null; toggleLayer(i); }
+        }, 260);
+        pendingTap = { index: i, timer };
       };
       c.addEventListener('pointerup', end);
       c.addEventListener('pointercancel', end);
@@ -658,12 +819,28 @@ export function mountLooper({ root } = {}) {
     panner.pan.value = 0;
     const gain = ctx.createGain();
     gain.gain.value = DEFAULT_LEVEL;
-    gain.connect(panner);
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 20000;
+    const delay = ctx.createDelay(1.5);
+    delay.delayTime.value = 0.28;
+    const feedback = ctx.createGain();
+    feedback.gain.value = 0.28;
+    const delayWet = ctx.createGain();
+    delayWet.gain.value = 0;
+    gain.connect(filter);
+    filter.connect(panner);
+    filter.connect(delay);
+    delay.connect(feedback);
+    feedback.connect(delay);
+    delay.connect(delayWet);
+    delayWet.connect(panner);
     panner.connect(master);
 
     const layer = {
-      buffer, source: null, gain, panner,
+      buffer, source: null, gain, panner, filter, delay, feedback, delayWet,
       level: DEFAULT_LEVEL, pan: 0, muted: false, solo: false,
+      delayAmount: 0, cutoff: 20000, quantize: 'off',
       startedAt: ctx.currentTime, offset: 0, paused: false
     };
     layers.push(layer);
@@ -759,5 +936,9 @@ export function mountLooper({ root } = {}) {
 
   setBtnState();
   renderCircles();
-  return { clearAll, layers };
+  const api = { clearAll, layers, openTrackPanel, closeTrackPanel };
+  // Keep a stable debug/test handle so browser checks and support diagnostics can
+  // inspect the mounted loop engine without reaching into module internals.
+  window.PionierLooper = api;
+  return api;
 }
