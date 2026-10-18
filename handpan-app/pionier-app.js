@@ -30,6 +30,18 @@ loopMenuButton?.addEventListener('click', () => {
   loopMenuButton.setAttribute('aria-expanded', open ? 'true' : 'false');
   if (open) document.getElementById('looperBtn')?.focus?.();
 });
+const loopCloseButton = document.getElementById('looperCloseBtn');
+function closeLoopStudio() {
+  if (!loopRail) return;
+  loopRail.hidden = true;
+  loopRail.classList.remove('is-open');
+  loopMenuButton?.setAttribute('aria-expanded', 'false');
+}
+loopCloseButton?.addEventListener('click', closeLoopStudio);
+document.getElementById('tabSoundscapes')?.addEventListener('click', closeLoopStudio);
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') closeLoopStudio();
+});
 document.addEventListener('pointerdown', (event) => {
   if (appMenu && !appMenu.hidden && !appMenu.contains(event.target) && !topMenuButton?.contains(event.target)) {
     appMenu.hidden = true;
