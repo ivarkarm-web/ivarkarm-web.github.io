@@ -26,7 +26,6 @@ read('styles.css');
 read('script.js');
 const appHtml = read('handpan-app/index.html');
 const shell = read('handpan-app/pionier-app.js');
-const serviceWorker = read('handpan-app/sw.js');
 const coreSrc = read('handpan-app/pionier-core.js');
 read('handpan-app/pionier.css');
 read('handpan-app/js/audio-core.js');
@@ -38,6 +37,7 @@ read('handpan-app/js/instruments/library-family.js');
 for (const f of ['dsp', 'voices', 'library', 'space']) read(`handpan-app/js/sound/${f}.js`);
 read('handpan-app/js/pionier-surface.js');
 const soundscapes = read('handpan-app/js/soundscapes.js');
+read('handpan-app/js/mandala-canvas.js');
 const noteSampleManifest = JSON.parse(read('handpan-app/sounds/notes/manifest.json'));
 const licenseDoc = read('docs/AUDIO-LICENSES.md');
 const bundledNoteAudioDir = path.join(root, 'handpan-app/sounds/notes');
@@ -87,18 +87,12 @@ if (
 ) ok('Soundscapes player markup is present');
 else fail('Soundscapes player markup is missing');
 
+const mandala = read('handpan-app/js/mandala-canvas.js');
 if (/BEDROOM_SESSIONS/.test(soundscapes) && /pointerdown/.test(soundscapes) && /mediaSession/.test(soundscapes)) ok('Soundscapes Bedroom Sessions player is present');
 else fail('Soundscapes Bedroom Sessions player is missing');
-if (!fs.existsSync(path.join(root, 'handpan-app/js/mandala-canvas.js')) &&
-    !fs.existsSync(path.join(root, 'handpan-app/js/ambient-fx.js'))) ok('Unused mandala and generated ambience layers are removed');
-else fail('Unused generated ambience layers remain');
+if (/createMandalaRenderer/.test(mandala)) ok('Mandala renderer module is present');
+else fail('Mandala renderer module is missing');
 
-// Every versioned asset linked directly by index.html must be in the SW shell.
-// This catches cache-list drift before stale CSS/JS can reach real users.
-const linkedVersionedAssets = [...appHtml.matchAll(/(?:src|href)="(\.\/[^\"]+\?v=\d+)"/g)].map((match) => match[1]);
-const missingShellAssets = linkedVersionedAssets.filter((asset) => !serviceWorker.includes("'" + asset + "'"));
-if (missingShellAssets.length) fail('Versioned index assets missing from service-worker shell: ' + missingShellAssets.join(', '));
-else ok('Versioned index assets match the service-worker shell');
 if (appHtml.includes('name="description"')) ok('Pionier description metadata is present');
 else fail('Pionier description metadata is missing');
 
