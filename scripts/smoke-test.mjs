@@ -84,6 +84,8 @@ else fail('Pionier instrument entry surface is missing');
 
 if (/function openTrackPanel/.test(loopControls) && /pendingTap\.index === i/.test(loopControls) && /data-control="delay"/.test(loopControls) && /data-control="cut"/.test(loopControls) && /quantizeWait/.test(loopControls) && /delayWet/.test(loopControls)) ok('Double-tap loop mixer exposes playback, level, delay, cutoff and quantize controls');
 else fail('Dedicated loop track mixer wiring is incomplete');
+if (/looper-crop-editor/.test(loopControls) && /data-control="crop-start"/.test(loopControls) && /data-control="crop-end"/.test(loopControls) && /copyToChannel/.test(loopControls) && /Crop/.test(loopStyles)) ok('Loop mixer supports waveform-based in/out cropping with apply and cancel');
+else fail('Loop crop editor wiring is incomplete');
 if (/function confirmDeleteLayer/.test(loopControls) && /Delete track/.test(loopControls) && /confirmDeleteLayer\(i\)/.test(loopControls)) ok('Holding a loop opens a delete confirmation; deletion requires a confirm tap');
 else fail('Loop hold-to-delete confirmation wiring is incomplete');
 if (/\.looper-track-overlay/.test(loopStyles) && /looper\.css\?v=210/.test(appHtml) && /js\/looper\.js\?v=213/.test(shell) && /pionier-v73/.test(serviceWorker)) ok('Loop mixer styles and service-worker cache versions are refreshed');
