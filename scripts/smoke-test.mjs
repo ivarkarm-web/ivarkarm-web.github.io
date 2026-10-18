@@ -86,7 +86,7 @@ if (/function openTrackPanel/.test(loopControls) && /pendingTap\.index === i/.te
 else fail('Dedicated loop track mixer wiring is incomplete');
 if (/function confirmDeleteLayer/.test(loopControls) && /Delete track/.test(loopControls) && /confirmDeleteLayer\(i\)/.test(loopControls)) ok('Holding a loop opens a delete confirmation; deletion requires a confirm tap');
 else fail('Loop hold-to-delete confirmation wiring is incomplete');
-if (/\.looper-track-overlay/.test(loopStyles) && /looper\.css\?v=209/.test(appHtml) && /js\/looper\.js\?v=210/.test(shell) && /pionier-v68/.test(serviceWorker)) ok('Loop mixer styles and service-worker cache versions are refreshed');
+if (/\.looper-track-overlay/.test(loopStyles) && /looper\.css\?v=209/.test(appHtml) && /js\/looper\.js\?v=211/.test(shell) && /pionier-v69/.test(serviceWorker)) ok('Loop mixer styles and service-worker cache versions are refreshed');
 else fail('Loop mixer cache versions are stale');
 
 // Current shell uses soundscapesPanel + soundscapeAudio (+ optional play control).
