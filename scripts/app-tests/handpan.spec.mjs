@@ -230,7 +230,8 @@ test('Handpan can be reselected after switching to another instrument', async ({
   await expect.poll(() => page.evaluate(() => !!window.PionierCore?.activeInstrument?.()?.ready)).toBe(true);
 });
 
-test('visible FX selectors open the effects panel and update its title', async ({ page }) => {
+test('visible FX selectors open the effects panel and update its title', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.startsWith('mobile'), 'side FX selectors are a landscape control');
   await page.locator('#fxSideKnobs [data-fx="filter"]').click();
   await expect(page.locator('#fxPanel')).toBeVisible();
   await expect(page.locator('#fxPanelTitle')).toHaveText('Filter');
