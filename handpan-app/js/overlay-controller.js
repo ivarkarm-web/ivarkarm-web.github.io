@@ -140,7 +140,9 @@
     // Solid portal styles so the menu never inherits a transparent/zero-opacity state.
     // Clear any display:none !important left by closePickers.
     menu.style.removeProperty('display');
-    menu.style.setProperty('display', 'block', 'important');
+    // The scale browser is a flex column (search row + scrollable grid); forcing
+    // it to block collapses the intended sheet layout on mobile Safari.
+    menu.style.setProperty('display', menu.id === 'scaleMenu' ? 'flex' : 'block', 'important');
     menu.style.position = 'fixed';
     menu.style.zIndex = '5200';
     menu.style.visibility = 'visible';
