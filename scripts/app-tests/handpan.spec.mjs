@@ -161,7 +161,7 @@ for (const [instrumentName, instrumentId] of [
     const menu = page.locator('#instrumentMenu');
     await trigger.click();
     await expect(menu).toBeVisible();
-    await menu.getByRole('button', { name: instrumentName, exact: true }).click();
+    await menu.getByRole('menuitem', { name: instrumentName, exact: true }).click();
     await expect(trigger).toContainText(instrumentName);
     await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe(instrumentId);
     await expect.poll(() => page.evaluate(() => !!window.PionierCore?.activeInstrument?.()?.ready)).toBe(true);
