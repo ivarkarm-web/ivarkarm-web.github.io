@@ -10,7 +10,14 @@
 - **Smoke checks:** 73 passed.
 - **App unit tests:** 27 passed, 0 failed, 0 skipped.
 - **Playwright:** 72 tests scheduled across all three projects; **65 passed, 0 failed, 7 skipped, 0 flaky**.
-- **Projects executed:** `mobile-360x640`, `mobile-390x844`, and `desktop-1280x800`. The overall browser-test step and the workflow completed successfully; all three projects ran tests, with project-specific skips for desktop-only controls and touch-only behavior.
+- **Projects executed:** `mobile-360x640`, `mobile-390x844`, and `desktop-1280x800`. All three projects ran and passed; the skips are layout-specific, not projects skipped wholesale.
+
+| Playwright project | Passed | Failed | Skipped | Flaky |
+|---|---:|---:|---:|---:|
+| `mobile-360x640` | 22 | 0 | 2 | 0 |
+| `mobile-390x844` | 22 | 0 | 2 | 0 |
+| `desktop-1280x800` | 21 | 0 | 3 | 0 |
+| **Total** | **65** | **0** | **7** | **0** |
 - **Pages deployment:** not run for this PR. Nothing in this handoff claims the changes are live.
 - **Physical iOS Safari / Android Chrome:** not tested; Chromium emulation is not device verification.
 
