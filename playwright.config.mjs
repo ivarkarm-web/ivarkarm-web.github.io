@@ -10,6 +10,10 @@ export default defineConfig({
   reporter: process.env.CI ? [['line'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL: 'http://127.0.0.1:4173',
+    // Failure-injection tests use page.route() to simulate asset outages.
+    // A controlling service worker bypasses those routes, making the tests flaky
+    // and hiding the app's recovery UI. SW behavior is covered separately.
+    serviceWorkers: 'block',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure'
