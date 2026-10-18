@@ -797,6 +797,7 @@ export function mountLooper({ root } = {}) {
     clearAll,
     layers,
     exportWav,
+    refresh: setBtnState,
     getState: () => ({ recording, pendingLoopStop, layerCount: layers.length, maxLayers: MAX_LAYERS, syncMode: syncMode() })
   };
   return { clearAll, layers, exportWav };
