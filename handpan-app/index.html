@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Handpan — Ivar Karm</title>
   <meta name="description" content="Playable virtual handpan — radial instrument that grows from 9 to 14 notes, with sampled notes, interval scales, and expressive effects." />
-  <meta name="theme-color" content="#070708" />
+  <meta name="theme-color" content="#0a0a0b" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -14,44 +14,34 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=144" />
+  <link rel="stylesheet" href="./pionier.css?v=150" />
   <link rel="stylesheet" href="./topbar-narrow.css?v=6" />
   <link rel="stylesheet" href="./looper.css?v=208" />
-  <link rel="stylesheet" href="./scale-menu.css?v=7" />
+  <link rel="stylesheet" href="./scale-menu.css?v=8" />
   <link rel="stylesheet" href="./settings-panel.css?v=18" />
   <style>
     .backdrop-player { display: none !important; }
     .play-pill, #modePlay, #btnHelp, #btnExit, .top-actions,
     #createLaunch, .create-launch, #createPage, .create-page { display: none !important; }
-
     .stage {
-      --stage-bottom-reserve: calc(var(--chrome-bottom, 160px) + var(--pan-bottom-gap, 10px));
-      padding: max(8px, var(--chrome-top, 48px)) 8px var(--stage-bottom-reserve) 8px !important;
-      flex-direction: column;
-      position: relative !important;
-      align-items: center !important;
-      justify-content: flex-end !important;
-      overflow: hidden !important;
-      min-height: 0 !important;
-      flex: 1 1 auto !important;
-      box-sizing: border-box !important;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+      padding: 8px;
     }
     #pan {
-      display: block !important;
-      aspect-ratio: 1 !important;
-      margin-bottom: 0 !important;
-    }
-    .stage::before {
-      left: 50% !important;
-      top: auto !important;
-      bottom: calc(var(--stage-bottom-reserve) + var(--pan-budget, 40vw) / 2) !important;
-      transform: translate(-50%, 50%) !important;
-      width: min(80vw, calc(100dvh - 260px), 640px) !important;
-      height: min(80vw, calc(100dvh - 260px), 640px) !important;
+      display: block;
+      aspect-ratio: 1;
+      width: min(86vw, 70vh, 640px);
+      height: auto;
+      max-width: 100%;
     }
   </style>
   <link rel="stylesheet" href="./atelier.css?v=10">
-  <!-- ui-layout-extras.css retired: layout lives in pionier.css -->
   <link rel="stylesheet" href="./ui-stability.css?v=5" />
   <link rel="stylesheet" href="./learn-mode.css?v=8" />
 </head>
@@ -61,17 +51,26 @@
     <button type="button" id="appStatusRetry" class="app-status-retry" hidden>Retry</button>
   </div>
   <div id="app" class="app">
-    <header class="topbar topbar-minimal">
-      <div class="center-nav">
-        <div class="instrument-nav" id="instrumentNav">
-          <button type="button" class="icon-btn" id="voicePrev" aria-label="Previous voice">‹</button>
-          <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Handpan ▾</button>
-          <button type="button" class="icon-btn" id="voiceNext" aria-label="Next voice">›</button>
-          <button type="button" class="icon-btn soundscapes-open-btn" id="openSoundscapes" aria-label="Open Soundscapes" title="Soundscapes">♫</button>
-          <button type="button" class="learn-open-btn" id="openLearn" aria-label="Open Learn" title="Learn">Learn</button>
-        </div>
+    <header class="topbar">
+      <button type="button" class="icon-btn topbar-menu" id="topMenuBtn" aria-label="Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div class="topbar-center">
+        <span class="topbar-mode" id="topModeLabel">play</span>
+      </div>
+      <div class="topbar-actions">
+        <button type="button" class="icon-btn topbar-add" id="topAddBtn" aria-label="Add">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+        </button>
+        <button type="button" class="icon-btn topbar-help" id="topHelpBtn" aria-label="Help">?</button>
       </div>
     </header>
+
+    <div class="instrument-row" id="instrumentRow">
+      <button type="button" class="icon-btn inst-nav" id="voicePrev" aria-label="Previous instrument">‹</button>
+      <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Pionier</button>
+      <button type="button" class="icon-btn inst-nav" id="voiceNext" aria-label="Next instrument">›</button>
+    </div>
     <div class="instrument-menu" id="instrumentMenu" role="menu" aria-label="Choose instrument" hidden></div>
 
     <div class="mobile-control-drawer" id="mobileControlDrawer">
@@ -80,36 +79,55 @@
         <span class="mobile-controls-label">Controls</span>
       </button>
       <div class="mobile-control-panel" id="mobileControlPanel">
-    <aside class="sidebar left">
-      <div class="control-block control-scale">
-        <label class="control-label">Scale</label>
-        <div class="stepper scale-stepper">
-          <button type="button" class="step" id="scalePrev" aria-label="Previous scale">‹</button>
-          <button type="button" class="step-value scale-name scale-dropdown-toggle" id="scaleLabel" aria-haspopup="true" aria-expanded="false" aria-controls="scaleMenu" title="Choose scale">D3 Kurd ▾</button>
-          <button type="button" class="step" id="scaleNext" aria-label="Next scale">›</button>
-        </div>
-        <div class="scale-menu" id="scaleMenu" role="menu" aria-label="Choose scale" hidden></div>
-      </div>
-
-      <div class="control-row">
-        <div class="control-block control-half">
-          <label class="control-label">Base Note</label>
-          <div class="stepper">
-            <button type="button" class="step" id="rootPrev" aria-label="Previous base note">‹</button>
-            <span class="step-value" id="rootLabel">D3</span>
-            <button type="button" class="step" id="rootNext" aria-label="Next base note">›</button>
+        <div class="mobile-bottom-controls">
+          <div class="pill-stepper scale-pill">
+            <button type="button" class="pill-step" id="scalePrev" aria-label="Previous scale">‹</button>
+            <button type="button" class="pill-value scale-dropdown-toggle" id="scaleLabel" aria-haspopup="true" aria-expanded="false" aria-controls="scaleMenu">Chromatic</button>
+            <button type="button" class="pill-step" id="scaleNext" aria-label="Next scale">›</button>
+          </div>
+          <div class="scale-menu" id="scaleMenu" role="menu" aria-label="Choose scale" hidden></div>
+          <div class="mobile-stepper-row">
+            <div class="pill-stepper note-pill">
+              <button type="button" class="pill-step" id="rootPrev" aria-label="Previous base note">−</button>
+              <span class="pill-value" id="rootLabel">C♯</span>
+              <button type="button" class="pill-step" id="rootNext" aria-label="Next base note">+</button>
+            </div>
+            <div class="pill-stepper octave-pill">
+              <button type="button" class="pill-step" id="noteCountPrev" aria-label="Fewer notes">−</button>
+              <span class="pill-value" id="noteCountLabel">0</span>
+              <button type="button" class="pill-step" id="noteCountNext" aria-label="More notes">+</button>
+            </div>
+          </div>
+          <div class="page-dots" aria-hidden="true">
+            <span class="dot active"></span><span class="dot"></span><span class="dot"></span>
           </div>
         </div>
-        <div class="control-block control-half">
-          <label class="control-label">Notes</label>
-          <div class="stepper">
-            <button type="button" class="step" id="noteCountPrev" aria-label="Fewer notes">‹</button>
-            <span class="step-value" id="noteCountLabel">9</span>
-            <button type="button" class="step" id="noteCountNext" aria-label="More notes">›</button>
+        <aside class="sidebar left" id="leftSidebar">
+          <div class="control-block control-scale">
+            <label class="control-label">Scale</label>
+            <div class="stepper scale-stepper">
+              <button type="button" class="step" id="scalePrevDesktop" aria-label="Previous scale">▲</button>
+              <button type="button" class="step-value scale-name scale-dropdown-toggle" id="scaleLabelDesktop" aria-haspopup="true" aria-expanded="false" aria-controls="scaleMenu">Aeolian</button>
+              <button type="button" class="step" id="scaleNextDesktop" aria-label="Next scale">▼</button>
+            </div>
           </div>
-        </div>
-      </div>
-    </aside>
+          <div class="control-block">
+            <label class="control-label">Base Note</label>
+            <div class="stepper">
+              <button type="button" class="step" id="rootPrevDesktop" aria-label="Previous base note">−</button>
+              <span class="step-value" id="rootLabelDesktop">C</span>
+              <button type="button" class="step" id="rootNextDesktop" aria-label="Next base note">+</button>
+            </div>
+          </div>
+          <div class="control-block">
+            <label class="control-label">Octave</label>
+            <div class="stepper">
+              <button type="button" class="step" id="octavePrev" aria-label="Lower octave">−</button>
+              <span class="step-value" id="octaveLabel">0</span>
+              <button type="button" class="step" id="octaveNext" aria-label="Higher octave">+</button>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
 
@@ -124,119 +142,113 @@
     <main class="stage" id="stage">
       <canvas id="pan" width="680" height="680" role="img" aria-label="Handpan instrument"></canvas>
     </main>
+
+    <aside class="sidebar right fx-side-knobs" id="fxSideKnobs" aria-label="Effects">
+      <button type="button" class="fx-circle-knob is-active" data-fx="filter" aria-label="Filter">
+        <svg viewBox="0 0 48 48" width="28" height="28"><path d="M8 32c6-14 12-20 16-20s10 6 16 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="24" cy="18" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+        <span class="fx-arc"></span>
+      </button>
+      <button type="button" class="fx-circle-knob" data-fx="delay" aria-label="Delay">
+        <svg viewBox="0 0 48 48" width="28" height="28"><path d="M14 14v20M24 10v28M34 16v16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <span class="fx-arc"></span>
+      </button>
+      <button type="button" class="fx-circle-knob" data-fx="reverb" aria-label="Reverb">
+        <svg viewBox="0 0 48 48" width="28" height="28"><circle cx="24" cy="24" r="6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="24" r="12" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.7"/><circle cx="24" cy="24" r="17" fill="none" stroke="currentColor" stroke-width="1.3" opacity="0.4"/></svg>
+        <span class="fx-arc"></span>
+      </button>
+      <button type="button" class="fx-circle-knob" data-fx="env" aria-label="Envelope">
+        <svg viewBox="0 0 48 48" width="28" height="28"><path d="M8 34 L18 14 L28 28 L40 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="fx-arc"></span>
+      </button>
+    </aside>
   </div>
 
-  <section id="learnPanel" class="learn-panel" hidden aria-label="Learn Catch the Note">
-    <div class="learn-card">
-      <div class="learn-eyebrow">PIONIER · LEARN</div>
-      <button type="button" id="learnClose" class="learn-close" aria-label="Close Learn">×</button>
-      <h2 id="learnHeading">Catch the Note</h2>
-      <p id="learnDescription">Catch the contracting ring at the moment it reaches its tonefield.</p>
-      <div id="learnLessonList" class="learn-lesson-list">
-        <button type="button" class="learn-lesson" data-lesson="0"><span class="learn-lesson-number">01</span><span><strong>Scale Up &amp; Down</strong><small>Follow the scale · return home</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="1"><span class="learn-lesson-number">02</span><span><strong>Two-Note Chords</strong><small>Play glowing notes together · multi-touch</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="2"><span class="learn-lesson-number">03</span><span><strong>Ode to Joy</strong><small>Beethoven · public-domain composition · 30 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="3"><span class="learn-lesson-number">04</span><span><strong>Frère Jacques</strong><small>Traditional · public-domain melody · 26 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="4"><span class="learn-lesson-number">05</span><span><strong>Twinkle, Twinkle</strong><small>Traditional · public-domain melody · 42 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="5"><span class="learn-lesson-number">06</span><span><strong>Mary Had a Little Lamb</strong><small>Traditional · public-domain melody · 26 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="6"><span class="learn-lesson-number">07</span><span><strong>Row, Row, Row Your Boat</strong><small>Traditional · public-domain melody · 27 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="7"><span class="learn-lesson-number">08</span><span><strong>London Bridge Is Falling Down</strong><small>Traditional · public-domain melody · 22 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="8"><span class="learn-lesson-number">09</span><span><strong>Old MacDonald Had a Farm</strong><small>Traditional · public-domain melody · 21 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="9"><span class="learn-lesson-number">10</span><span><strong>Amazing Grace</strong><small>Traditional hymn · public-domain melody · 20 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="10"><span class="learn-lesson-number">11</span><span><strong>Greensleeves</strong><small>Traditional · public-domain melody · 24 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="11"><span class="learn-lesson-number">12</span><span><strong>Scarborough Fair</strong><small>Traditional · public-domain melody · 22 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="12"><span class="learn-lesson-number">13</span><span><strong>When the Saints Go Marching In</strong><small>Traditional · public-domain melody · 23 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="13"><span class="learn-lesson-number">14</span><span><strong>Oh! Susanna</strong><small>Stephen Foster · public-domain composition · 24 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="14"><span class="learn-lesson-number">15</span><span><strong>Yankee Doodle</strong><small>Traditional · public-domain melody · 20 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="15"><span class="learn-lesson-number">16</span><span><strong>Jingle Bells</strong><small>James Lord Pierpont · public-domain composition · 26 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="16"><span class="learn-lesson-number">17</span><span><strong>Silent Night</strong><small>Franz Xaver Gruber · public-domain composition · 22 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="17"><span class="learn-lesson-number">18</span><span><strong>Auld Lang Syne</strong><small>Traditional · public-domain melody · 22 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="18"><span class="learn-lesson-number">19</span><span><strong>Au clair de la lune</strong><small>Traditional French · public-domain melody · 23 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="19"><span class="learn-lesson-number">20</span><span><strong>Brahms’ Lullaby</strong><small>Johannes Brahms · public-domain composition · 27 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="20"><span class="learn-lesson-number">21</span><span><strong>Canon in D</strong><small>Johann Pachelbel · public-domain composition · 24 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="21"><span class="learn-lesson-number">22</span><span><strong>Minuet in G</strong><small>Christian Petzold · public-domain composition · 29 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="22"><span class="learn-lesson-number">23</span><span><strong>Turkish March</strong><small>W. A. Mozart · public-domain composition · 32 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="23"><span class="learn-lesson-number">24</span><span><strong>Für Elise (theme)</strong><small>Ludwig van Beethoven · public-domain composition · 28 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="24"><span class="learn-lesson-number">25</span><span><strong>Spring (theme)</strong><small>Antonio Vivaldi · public-domain composition · 24 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="25"><span class="learn-lesson-number">26</span><span><strong>Swan Lake (theme)</strong><small>Pyotr Ilyich Tchaikovsky · public-domain composition · 20 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="26"><span class="learn-lesson-number">27</span><span><strong>Morning Mood</strong><small>Edvard Grieg · public-domain composition · 21 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="27"><span class="learn-lesson-number">28</span><span><strong>Dance of the Sugar Plum Fairy</strong><small>Pyotr Ilyich Tchaikovsky · public-domain composition · 22 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="28"><span class="learn-lesson-number">29</span><span><strong>William Tell Overture (theme)</strong><small>Gioachino Rossini · public-domain composition · 25 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="29"><span class="learn-lesson-number">30</span><span><strong>Habanera (Carmen)</strong><small>Georges Bizet · public-domain composition · 22 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="30"><span class="learn-lesson-number">31</span><span><strong>Sakura Sakura</strong><small>Traditional Japanese folk song · traditional melody · 19 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="31"><span class="learn-lesson-number">32</span><span><strong>Symphony No. 5 (opening motif)</strong><small>Ludwig van Beethoven · public-domain composition · 16 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="32"><span class="learn-lesson-number">33</span><span><strong>Flow Pygmy → Tine Piano</strong><small>Choose your scale and instrument · follow 3 waves</small></span><span class="learn-lesson-arrow">↗</span></button>
-      </div>
-      <div id="learnRunControls" class="learn-run-controls" hidden>
-        <div id="learnProgress" class="learn-progress">READY WHEN YOU ARE</div>
-        <button type="button" id="learnStart" class="learn-action">Start</button>
-        <button type="button" id="learnListen" class="learn-action" aria-pressed="false" hidden>Listen to phrase</button>
-        <button type="button" id="learnCatch" class="learn-action" aria-pressed="true" hidden>Catch the phrase</button>
-        <button type="button" id="learnTranspose" class="learn-secondary">Transpose: Original</button>
-        <button type="button" id="learnRestart" class="learn-secondary">Restart lesson</button>
-        <button type="button" id="learnBack" class="learn-secondary">All lessons</button>
-      </div>
-      <p class="learn-footnote">Press Start when you are ready, then play the highlighted tonefields yourself. Phrases are editable prototypes, not transcriptions of the source recordings yet.</p>
+  <div class="transport-bar" id="transportBar" aria-label="Transport">
+    <button type="button" class="transport-record" id="transportRecord" aria-label="Record">
+      <span class="rec-dot"></span>
+    </button>
+    <span class="transport-time" id="transportTime">00 : 00 : 00</span>
+    <div class="transport-bpm">
+      <button type="button" class="bpm-btn" id="bpmDown" aria-label="Decrease BPM">−</button>
+      <span class="bpm-value"><span id="bpmValue">120</span> <small>BPM</small></span>
+      <button type="button" class="bpm-btn" id="bpmUp" aria-label="Increase BPM">+</button>
     </div>
-  </section>
+    <button type="button" class="transport-metro" id="transportMetro" aria-label="Metronome" aria-pressed="false">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3M8 21h8l-1.5-9h-5L8 21zM12 6l4 6H8l4-6z"/></svg>
+    </button>
+    <div class="transport-vol">
+      <input type="range" id="masterVolume" min="0" max="1" step="0.01" value="0.85" aria-label="Master volume">
+    </div>
+  </div>
 
-  <section id="soundscapesPanel" class="soundscapes-panel" hidden aria-label="Soundscapes">
-    <header class="soundscapes-header">
-      <h2>Bedroom Sessions</h2>
-      <button type="button" id="closeSoundscapes" class="soundscapes-return-btn" aria-label="Return to Handpan">
-        ← Return to Handpan
-      </button>
-    </header>
-    <main class="soundscapes-body" id="soundscapesBody">\n      <div class="soundscape-tabs" role="group" aria-label="Soundscape collection"><button type="button" id="soundscapeBedroomTab" class="soundscape-tab is-active" aria-pressed="true">Bedroom Sessions</button><button type="button" id="soundscapeCommunityTab" class="soundscape-tab" aria-pressed="false">User-Created</button></div>
-      <div class="soundscape-now">
-        <p id="soundscapeTitle" class="soundscape-title">E Amara · Improvisation 1</p>
-        <p id="soundscapeNote" class="soundscape-note">Owner recordings</p>
+  <div class="recording-modal" id="recordingModal" hidden>
+    <div class="recording-card">
+      <h3 class="recording-title">New Recording</h3>
+      <div class="recording-waveform" id="recordingWaveform">
+        <canvas id="waveformCanvas" width="320" height="64"></canvas>
       </div>
-      <div class="soundscape-transport">
-        <button type="button" class="soundscape-transport-btn" id="soundscapePrev" aria-label="Previous track">‹</button>
-        <button type="button" class="soundscape-play" id="soundscapePlay" aria-label="Play">▶</button>
-        <button type="button" class="soundscape-transport-btn" id="soundscapeNext" aria-label="Next track">›</button>
-        <button type="button" class="soundscape-transport-btn" id="soundscapeRepeat" aria-label="Repeat" aria-pressed="false">↻</button>
+      <div class="recording-controls">
+        <span class="rec-time-left" id="recTimeLeft">00:00:00</span>
+        <button type="button" class="rec-icon-btn" id="recTrim" aria-label="Trim">⊞</button>
+        <button type="button" class="rec-icon-btn rec-stop" id="recStop" aria-label="Stop">■</button>
+        <button type="button" class="rec-icon-btn" id="recDiscardIcon" aria-label="Discard">✕</button>
+        <span class="rec-time-right" id="recTimeRight">-00:00:00</span>
       </div>
-      <div class="soundscape-seek-row">
-        <span id="soundscapeTime">0:00</span>
-        <input id="soundscapeSeek" type="range" min="0" max="1000" value="0" aria-label="Seek">
-        <span id="soundscapeTimeTotal">0:00</span>
+      <div class="recording-actions">
+        <button type="button" class="rec-btn rec-discard" id="recDiscard">Discard</button>
+        <button type="button" class="rec-btn rec-share" id="recShare">Share</button>
       </div>
-      <label class="soundscape-vol-row"><span>Volume</span>
-        <input id="soundscapeVolume" type="range" min="0" max="1" step="0.01" value="0.85" aria-label="Track volume">
-      </label>
-      <p class="soundscape-status" id="soundscapeStatus" role="status">Bedroom Sessions · 8 tracks</p>
-      <div id="soundscapeQueue" class="soundscape-queue" role="list" aria-label="Bedroom Sessions tracks"></div>\n      <div id="soundscapeCommunityQueue" class="soundscape-queue soundscape-community-queue" role="list" aria-label="User-created songs" hidden></div>
-    </main>
-  </section>
+    </div>
+  </div>
 
   <div id="fxPanel" class="fx-panel" hidden>
     <header class="fx-panel-header">
-      <h2>Effects</h2>
+      <h2 id="fxPanelTitle">Filter</h2>
       <button type="button" id="fxPanelClose" class="icon-btn" aria-label="Close effects">×</button>
     </header>
-    <div class="fx-panel-body knobs-panel">
-      <div class="effect-knob-wrap" id="knobCompress"><canvas class="knob-canvas" width="68" height="68"></canvas><span class="knob-label">Comp</span><span class="knob-val" id="valCompress">40%</span></div>
-      <div class="effect-knob-wrap" id="knobDelay"><canvas class="knob-canvas" width="68" height="68"></canvas><span class="knob-label">Delay</span><span class="knob-val" id="valDelay">15%</span></div>
-      <div class="effect-knob-wrap" id="knobReverb"><canvas class="knob-canvas" width="68" height="68"></canvas><span class="knob-label">Reverb</span><span class="knob-val" id="valReverb">25%</span></div>
-      <div class="effect-knob-wrap" id="knobFilter"><canvas class="knob-canvas" width="68" height="68"></canvas><span class="knob-label">Filter</span><span class="knob-val" id="valFilter">12%</span></div>
-      <div class="effect-knob-wrap" id="knobBass"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Bass</span><span class="knob-val" id="valBass">50%</span></div>
-      <div class="effect-knob-wrap" id="knobLow"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Low</span><span class="knob-val" id="valLow">50%</span></div>
-      <div class="effect-knob-wrap" id="knobMid"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Mid</span><span class="knob-val" id="valMid">50%</span></div>
-      <div class="effect-knob-wrap" id="knobMaster"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Master</span><span class="knob-val" id="valMaster">82%</span></div>
+    <div class="fx-panel-body">
+      <div class="filter-graph-wrap" id="filterGraphWrap">
+        <div class="filter-graph" id="filterGraph">
+          <canvas id="filterCurveCanvas" width="340" height="200"></canvas>
+          <div class="filter-handle" id="filterHandle" style="left:45%;top:35%;"></div>
+          <span class="filter-axis filter-axis-y">Resonance</span>
+          <span class="filter-axis filter-axis-x">Cutoff</span>
+        </div>
+        <div class="filter-types">
+          <button type="button" class="filter-type is-active" data-type="lowpass" aria-label="Low-pass">⌞</button>
+          <button type="button" class="filter-type" data-type="highpass" aria-label="High-pass">⌝</button>
+          <button type="button" class="filter-type" data-type="bandpass" aria-label="Band-pass">⌢</button>
+          <button type="button" class="filter-type" data-type="notch" aria-label="Notch">⌣</button>
+        </div>
+        <div class="filter-knobs-row">
+          <div class="filter-mini-knob">
+            <canvas class="knob-canvas" id="cutoffKnob" width="56" height="56"></canvas>
+            <span>Cutoff</span>
+          </div>
+          <div class="filter-mini-knob">
+            <canvas class="knob-canvas" id="resKnob" width="56" height="56"></canvas>
+            <span>Resonance</span>
+          </div>
+        </div>
+      </div>
+      <div class="fx-knobs-grid knobs-panel">
+        <div class="effect-knob-wrap" id="knobDelay"><canvas class="knob-canvas" width="68" height="68"></canvas><span class="knob-label">Delay</span><span class="knob-val" id="valDelay">15%</span></div>
+        <div class="effect-knob-wrap" id="knobReverb"><canvas class="knob-canvas" width="68" height="68"></canvas><span class="knob-label">Reverb</span><span class="knob-val" id="valReverb">25%</span></div>
+        <div class="effect-knob-wrap" id="knobCompress"><canvas class="knob-canvas" width="68" height="68"></canvas><span class="knob-label">Comp</span><span class="knob-val" id="valCompress">40%</span></div>
+        <div class="effect-knob-wrap" id="knobMaster"><canvas class="knob-canvas" width="68" height="68"></canvas><span class="knob-label">Master</span><span class="knob-val" id="valMaster">82%</span></div>
+      </div>
     </div>
   </div>
 
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
 
-  <script src="./js/skin-palette.js?v=1"></script>
+  <script src="./js/skin-palette.js?v=2"></script>
   <script src="./js/customization-catalog.js?v=6"></script>
   <script src="./js/overlay-controller.js?v=10"></script>
   <script src="./js/layout-boot.js?v=65"></script>
-  <script src="./js/settings-panel.js?v=27"></script>
-  <script src="./js/ambient-fx.js?v=12"></script>
-  <script src="./js/skin-mandala.js?v=5"></script>
+  <script src="./js/settings-panel.js?v=28"></script>
+  <!-- ambient-fx + skin-mandala disabled for mobile performance -->
+  <script src="./js/ui-extras.js?v=2"></script>
   <script type="module" src="./pionier-app.js?v=208"></script>
   <script src="./registerSW.js"></script>
 </body>
