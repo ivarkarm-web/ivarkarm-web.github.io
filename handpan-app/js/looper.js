@@ -429,11 +429,17 @@ export function mountLooper({ root } = {}) {
           <button type="button" class="looper-track-close" aria-label="Close track controls">×</button>
         </header>
         <div class="looper-track-transport"><button type="button" class="looper-track-play"></button><span class="looper-track-status"></span></div>
-        <div class="looper-track-position"><input data-control="position" aria-label="Track playback position" type="range" min="0" max="${Math.max(0.01, layer.buffer.duration || 0.01)}" step="0.01"><div><output class="looper-track-elapsed">0:00</output><span>/</span><span class="looper-track-duration">${formatLoopTime(layer.buffer.duration || 0)}</span></div></div>
-        <div class="looper-track-control"><label for="track-level-${index}"><span>Track level</span><output></output></label><input id="track-level-${index}" data-control="level" type="range" min="0" max="1" step="0.01"></div>
-        <div class="looper-track-control"><label for="track-master-${index}"><span>Master output</span><output></output></label><input id="track-master-${index}" data-control="master" type="range" min="0" max="1.5" step="0.01"></div>
-        <div class="looper-track-control"><label for="track-delay-${index}"><span>Delay send</span><output></output></label><input id="track-delay-${index}" data-control="delay" type="range" min="0" max="0.75" step="0.01"></div>
-        <div class="looper-track-control"><label for="track-cut-${index}"><span>Low-pass cut</span><output></output></label><input id="track-cut-${index}" data-control="cut" type="range" min="300" max="20000" step="10"></div>
+        <div class="looper-waveform-wrap">
+          <canvas class="looper-waveform" aria-label="Recorded audio waveform" role="img"></canvas>
+          <div class="looper-waveform-scrub"><input data-control="position" aria-label="Track playback position" type="range" min="0" max="${Math.max(0.01, layer.buffer.duration || 0.01)}" step="0.01"></div>
+          <div class="looper-track-position"><output class="looper-track-elapsed">0:00</output><span>/</span><span class="looper-track-duration">${formatLoopTime(layer.buffer.duration || 0)}</span></div>
+        </div>
+        <div class="looper-knob-grid">
+          <div class="looper-knob-control"><span class="looper-knob-label">Track level</span><button type="button" class="looper-knob" data-control="level" role="slider" aria-label="Track level" aria-valuemin="0" aria-valuemax="1"><span class="looper-knob-face"><i></i></span></button><output class="looper-knob-value" data-output="level"></output></div>
+          <div class="looper-knob-control"><span class="looper-knob-label">Master output</span><button type="button" class="looper-knob" data-control="master" role="slider" aria-label="Master output" aria-valuemin="0" aria-valuemax="1.5"><span class="looper-knob-face"><i></i></span></button><output class="looper-knob-value" data-output="master"></output></div>
+          <div class="looper-knob-control"><span class="looper-knob-label">Delay send</span><button type="button" class="looper-knob" data-control="delay" role="slider" aria-label="Delay send" aria-valuemin="0" aria-valuemax="0.75"><span class="looper-knob-face"><i></i></span></button><output class="looper-knob-value" data-output="delay"></output></div>
+          <div class="looper-knob-control"><span class="looper-knob-label">Low-pass cut</span><button type="button" class="looper-knob" data-control="cut" role="slider" aria-label="Low-pass cutoff" aria-valuemin="300" aria-valuemax="20000"><span class="looper-knob-face"><i></i></span></button><output class="looper-knob-value" data-output="cut"></output></div>
+        </div>
         <div class="looper-track-control looper-track-quantize"><label for="track-quantize-${index}"><span>Quantize on resume</span></label><select id="track-quantize-${index}" data-control="quantize"><option value="off">Off</option><option value="beat">Beat</option><option value="eighth">1/8 note</option><option value="sixteenth">1/16 note</option></select></div>
         <footer class="looper-track-footer"><button type="button" class="looper-track-mute"></button><button type="button" class="looper-track-delete">Delete track</button></footer>
       </section>`;
@@ -454,43 +460,100 @@ export function mountLooper({ root } = {}) {
     play.addEventListener('click', () => { toggleLayer(index); updateTransport(); });
     const position = panel.querySelector('[data-control="position"]');
     const elapsed = panel.querySelector('.looper-track-elapsed');
+    const waveform = panel.querySelector('.looper-waveform');
     const duration = Math.max(0.01, layer.buffer.duration || 0.01);
+    const drawWaveform = (playhead = 0) => {
+      if (!waveform) return;
+      const rect = waveform.getBoundingClientRect();
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const width = Math.max(1, Math.round(rect.width * dpr));
+      const height = Math.max(1, Math.round(rect.height * dpr));
+      if (waveform.width !== width || waveform.height !== height) { waveform.width = width; waveform.height = height; }
+      const ctx2d = waveform.getContext('2d');
+      if (!ctx2d) return;
+      ctx2d.clearRect(0, 0, width, height);
+      const mid = height / 2;
+      ctx2d.strokeStyle = 'rgba(232,220,177,.12)';
+      ctx2d.lineWidth = 1 * dpr;
+      ctx2d.beginPath(); ctx2d.moveTo(0, mid); ctx2d.lineTo(width, mid); ctx2d.stroke();
+      const samples = layer.buffer.getChannelData(0);
+      const bins = Math.max(1, Math.floor(width / (2 * dpr)));
+      const step = Math.max(1, Math.floor(samples.length / bins));
+      for (let x = 0; x < bins; x++) {
+        let peak = 0;
+        const start = x * step;
+        const end = Math.min(samples.length, start + step);
+        for (let n = start; n < end; n++) peak = Math.max(peak, Math.abs(samples[n]));
+        const bar = Math.max(1.2 * dpr, peak * height * .78);
+        const px = x * width / bins;
+        ctx2d.fillStyle = px <= (playhead / duration) * width ? 'rgba(246,218,132,.98)' : 'rgba(210,190,125,.56)';
+        ctx2d.fillRect(px, mid - bar / 2, Math.max(1, width / bins * .58), bar);
+      }
+      const headX = Math.max(0, Math.min(width, (playhead / duration) * width));
+      ctx2d.fillStyle = '#fff2bd';
+      ctx2d.fillRect(headX - dpr, 0, 2 * dpr, height);
+    };
     const updatePosition = () => {
       const ctx = getAudioContext();
       const value = layer.paused || !ctx ? (layer.offset || 0) : layer.startedAt > ctx.currentTime ? 0 : ((ctx.currentTime - layer.startedAt) % duration + duration) % duration;
       if (document.activeElement !== position) position.value = String(Math.min(duration, value));
       elapsed.textContent = formatLoopTime(value);
+      drawWaveform(value);
       updateTransport();
     };
-    position.addEventListener('input', () => { elapsed.textContent = formatLoopTime(Number(position.value)); });
+    position.addEventListener('input', () => { elapsed.textContent = formatLoopTime(Number(position.value)); drawWaveform(Number(position.value)); });
     position.addEventListener('change', () => {
       layer.offset = Math.min(duration, Math.max(0, Number(position.value) || 0));
       if (!layer.paused) startLayerSource(layer, layer.offset);
       updatePosition();
     });
-    trackPanelProgressTimer = setInterval(updatePosition, 120);
-    const addRange = (name, value, format, apply) => {
-      const input = panel.querySelector(`[data-control="${name}"]`);
-      const output = input.parentElement.querySelector('output');
-      input.value = String(value);
-      output.textContent = format(Number(input.value));
-      input.addEventListener('input', () => {
-        const next = Number(input.value);
+    const addKnob = (name, value, min, max, format, apply, scale = 1) => {
+      const knob = panel.querySelector(`[data-control="${name}"]`);
+      const output = panel.querySelector(`[data-output="${name}"]`);
+      const set = raw => {
+        const next = Math.max(min, Math.min(max, Number(raw)));
+        knob.dataset.value = String(next);
+        knob.style.setProperty('--knob-angle', `${-135 + ((next - min) / (max - min)) * 270}deg`);
+        knob.setAttribute('aria-valuenow', String(next));
+        knob.setAttribute('aria-valuetext', format(next));
         output.textContent = format(next);
         apply(next);
+      };
+      set(value);
+      let dragY = 0, dragValue = value;
+      knob.addEventListener('pointerdown', event => {
+        if (event.button !== undefined && event.button !== 0) return;
+        event.preventDefault();
+        dragY = event.clientY;
+        dragValue = Number(knob.dataset.value);
+        knob.setPointerCapture?.(event.pointerId);
+      });
+      knob.addEventListener('pointermove', event => {
+        if (!knob.hasPointerCapture?.(event.pointerId)) return;
+        set(dragValue + (dragY - event.clientY) * (max - min) / (140 * scale));
+      });
+      knob.addEventListener('keydown', event => {
+        let next = Number(knob.dataset.value);
+        if (event.key === 'ArrowUp' || event.key === 'ArrowRight') next += (max - min) / 100;
+        else if (event.key === 'ArrowDown' || event.key === 'ArrowLeft') next -= (max - min) / 100;
+        else if (event.key === 'Home') next = min;
+        else if (event.key === 'End') next = max;
+        else return;
+        event.preventDefault(); set(next);
       });
     };
-    addRange('level', layer.level ?? DEFAULT_LEVEL, v => `${Math.round(v * 100)}%`, v => { layer.level = v; applyLayerGain(layer); });
+    trackPanelProgressTimer = setInterval(updatePosition, 120);
     const master = getAudioMaster();
-    addRange('master', master?.gain?.value ?? 1.15, v => `${Math.round(v * 100)}%`, v => { if (master) master.gain.setTargetAtTime(v, getAudioContext()?.currentTime || 0, 0.025); });
-    addRange('delay', layer.delayAmount ?? 0, v => `${Math.round(v * 100)}%`, v => {
+    addKnob('level', layer.level ?? DEFAULT_LEVEL, 0, 1, v => `${Math.round(v * 100)}%`, v => { layer.level = v; applyLayerGain(layer); });
+    addKnob('master', master?.gain?.value ?? 1.15, 0, 1.5, v => `${Math.round(v * 100)}%`, v => { if (master) master.gain.setTargetAtTime(v, getAudioContext()?.currentTime || 0, 0.025); });
+    addKnob('delay', layer.delayAmount ?? 0, 0, 0.75, v => `${Math.round(v * 100)}%`, v => {
       layer.delayAmount = v;
       if (layer.delayWet?.gain) layer.delayWet.gain.setTargetAtTime(v, getAudioContext()?.currentTime || 0, 0.025);
     });
-    addRange('cut', layer.cutoff ?? 20000, v => v >= 19990 ? 'Open' : `${Math.round(v)} Hz`, v => {
+    addKnob('cut', layer.cutoff ?? 20000, 300, 20000, v => v >= 19990 ? 'Open' : `${Math.round(v)} Hz`, v => {
       layer.cutoff = v;
       if (layer.filter?.frequency) layer.filter.frequency.setTargetAtTime(v, getAudioContext()?.currentTime || 0, 0.025);
-    });
+    }, 1.5);
     const quantize = panel.querySelector('[data-control="quantize"]');
     quantize.value = layer.quantize || 'off';
     quantize.addEventListener('change', () => { layer.quantize = quantize.value; });
