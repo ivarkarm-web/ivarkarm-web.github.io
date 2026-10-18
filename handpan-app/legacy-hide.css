@@ -1,12 +1,4 @@
 /* Force-hide legacy UI that fights the screenshot shell */
-#looperRail,
-#looperRecordCluster,
-#looperLayers,
-#looperClearBtn,
-#looperBtn,
-.looper-rail,
-.looper-btn,
-.looper-clear-btn,
 #fxPanelOpen,
 button.fx-panel-open,
 #settingsOpenBtn,

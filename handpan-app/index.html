@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Handpan — Ivar Karm</title>
+  <meta name="description" content="Pionier is a touch-responsive virtual handpan and resonant instrument playground by Ivar Karm." />
   <meta name="theme-color" content="#0a0a0b" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -14,12 +15,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./pionier.css?v=151" />
   <link rel="stylesheet" href="./screenshot-ui.css?v=10" />
+  <link rel="stylesheet" href="./soundscapes-shell.css?v=2" />
   <link rel="stylesheet" href="./legacy-hide.css?v=1" />
   <link rel="stylesheet" href="./topbar-narrow.css?v=6" />
   <link rel="stylesheet" href="./looper.css?v=208" />
   <link rel="stylesheet" href="./scale-menu.css?v=9" />
   <link rel="stylesheet" href="./atelier.css?v=10" />
   <link rel="stylesheet" href="./ui-stability.css?v=5" />
+  <link rel="stylesheet" href="./desktop-reference.css?v=4" />
 </head>
 <body>
   <div id="appStatus" class="app-status" data-state="loading" role="status" aria-live="polite">
@@ -31,6 +34,10 @@
       <button type="button" class="icon-btn topbar-menu" id="topMenuBtn" aria-label="Menu">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
+      <div id="appMenu" class="app-menu" hidden>
+        <button type="button" class="page-tab" id="tabSoundscapes">Soundscapes</button>
+        <button type="button" class="page-tab" id="toggleLooper">Loop Studio</button>
+      </div>
       <div class="topbar-center"><span class="topbar-mode" id="topModeLabel">play</span></div>
       <div class="topbar-actions">
         <button type="button" class="icon-btn topbar-add" id="topAddBtn" aria-label="Add">
@@ -127,12 +134,7 @@
       </div>
     </div>
 
-    <div id="looperRail" class="looper-rail" aria-label="Looper" hidden style="display:none!important">
-      <div id="looperRecordCluster" class="looper-record-cluster">
-        <button type="button" id="looperBtn" class="looper-btn looper-record" aria-label="Record loop" title="Record loop"><span class="looper-btn-ring" aria-hidden="true"></span><span class="looper-btn-core" aria-hidden="true"></span></button>
-      </div>
-      <div id="looperLayers" class="looper-layers" aria-label="Loop layers"></div>
-    </div>
+
 
     <main class="stage" id="stage">
       <canvas id="pan" width="680" height="680" role="img" aria-label="Handpan instrument"></canvas>
@@ -157,6 +159,47 @@
       </button>
     </aside>
   </div>
+
+  <div id="looperRail" class="looper-rail" aria-label="Looper" hidden>
+    <button type="button" id="looperCloseBtn" class="looper-close-btn" aria-label="Close Loop Studio">×</button>
+    <div id="looperRecordCluster" class="looper-record-cluster">
+      <button type="button" id="looperBtn" class="looper-btn looper-record" aria-label="Record loop" title="Record loop"><span class="looper-btn-ring" aria-hidden="true"></span><span class="looper-btn-core" aria-hidden="true"></span></button>
+    </div>
+    <div id="looperLayers" class="looper-layers" aria-label="Loop tracks"></div>
+  </div>
+
+  <section id="soundscapesPage" class="soundscapes-page" aria-label="Soundscapes" aria-hidden="true">
+    <header class="soundscapes-header">
+      <button type="button" class="soundscapes-back" id="tabHandpanFromSS" aria-label="Back to instrument">‹</button>
+      <div><p class="soundscapes-eyebrow">PIONIER / LISTEN</p><h1>Soundscapes</h1></div>
+      <button type="button" class="soundscapes-close" id="closeSoundscapes" aria-label="Close Soundscapes">×</button>
+    </header>
+    <div class="soundscapes-tabs" role="tablist" aria-label="Song collection">
+      <button type="button" class="page-tab is-active" id="soundscapeBedroomTab" role="tab" aria-selected="true">Bedroom Sessions</button>
+      <button type="button" class="page-tab" id="soundscapeCommunityTab" role="tab" aria-selected="false">User-Created</button>
+    </div>
+    <div class="soundscapes-now">
+      <p class="soundscapes-eyebrow">NOW PLAYING</p>
+      <h2 id="soundscapeTitle">E Amara · Improvisation 1</h2>
+      <p id="soundscapeNote">Raw take. Kept as it was.</p>
+      <div class="soundscapes-seek-row"><span id="soundscapeTime">0:00</span><input id="soundscapeSeek" type="range" min="0" max="100" step="0.1" value="0" aria-label="Seek track"><span id="soundscapeTimeTotal">1:25</span></div>
+      <div class="soundscapes-player-controls">
+        <button type="button" id="soundscapePrev" aria-label="Previous track">‹</button>
+        <button type="button" id="soundscapePlay" aria-label="Play">▶</button>
+        <button type="button" id="soundscapeNext" aria-label="Next track">›</button>
+        <button type="button" id="soundscapeRepeat" aria-label="Repeat" aria-pressed="false">↻</button>
+      </div>
+      <label class="soundscapes-volume-label" for="soundscapeVolume">Volume</label>
+      <input id="soundscapeVolume" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Soundscapes volume">
+      <p id="soundscapeStatus" role="status" aria-live="polite">Ready</p>
+    </div>
+    <section class="soundscapes-library" aria-label="Tracks">
+      <h2 id="soundscapeQueueHeading">Bedroom Sessions</h2>
+      <div id="soundscapeQueue" class="soundscape-queue"></div>
+      <div id="soundscapeCommunityQueue" class="soundscape-queue" hidden></div>
+    </section>
+    <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
+  </section>
 
   <div class="transport-bar" id="transportBar" aria-label="Transport">
     <button type="button" class="transport-record" id="transportRecord" aria-label="Record"><span class="rec-dot"></span></button>
@@ -189,8 +232,9 @@
       </div>
       <div class="recording-actions">
         <button type="button" class="rec-btn rec-discard" id="recDiscard">Discard</button>
-        <button type="button" class="rec-btn rec-share" id="recShare">Share</button>
+        <button type="button" class="rec-btn rec-share" id="recShare" disabled aria-describedby="recShareEmptyState" title="Audio sharing is not available for this recording yet">Share unavailable</button>
       </div>
+      <p id="recShareEmptyState" class="recording-share-empty" role="status">This recorder currently shows a preview only. Use Loop Studio’s WAV export to share real audio.</p>
     </div>
   </div>
 
@@ -228,11 +272,11 @@
   </div>
 
   <script src="./js/skin-palette.js?v=2"></script>
-  <script src="./js/overlay-controller.js?v=10"></script>
+  <script src="./js/overlay-controller.js?v=14"></script>
   <script src="./js/layout-boot.js?v=100"></script>
   <script src="./js/boot-fix.js?v=1"></script>
   <script src="./js/ui-extras.js?v=5"></script>
-  <script type="module" src="./pionier-app.js?v=220"></script>
+  <script type="module" src="./pionier-app.js?v=224"></script>
   <script src="./js/filter-bridge.js?v=1"></script>
   <script src="./registerSW.js"></script>
 </body>

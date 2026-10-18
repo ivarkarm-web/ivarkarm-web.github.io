@@ -522,3 +522,31 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 .soundscape-queue-item .sq-creator { grid-column:2 / 4; color:rgba(230,224,210,.48); font:10px Inter,system-ui,sans-serif; margin-top:-3px; }
 html.theme-light .soundscape-tab { color:rgba(33,31,26,.7); }
 html.theme-light .soundscape-tab.is-active { color:#55451a; }
+
+
+/* Keep the Loop Studio record target fully inside its control cluster on short phones. */
+@media (max-width: 899px) {
+  #looperRail.is-open {
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    padding: 42px 12px 12px !important;
+    max-height: min(42dvh, 300px) !important;
+  }
+  #looperRail.is-open .looper-record-cluster {
+    box-sizing: border-box !important;
+    min-height: 60px !important;
+    padding: 0 40px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: visible !important;
+  }
+  #looperRail.is-open #looperBtn {
+    display: block !important;
+    flex: 0 0 46px !important;
+    width: 46px !important;
+    min-width: 46px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    margin: 0 auto !important;
+  }
+}

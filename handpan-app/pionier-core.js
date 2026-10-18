@@ -163,17 +163,22 @@ app.catchMode = new CatchMode({
 app.catchMode.reducedMotion = app.reducedMotion;
 
 function updateLabels() {
-  const scaleEl = document.getElementById('scaleLabel');
-  const rootEl = document.getElementById('rootLabel');
-  const noteCountEl = document.getElementById('noteCountLabel');
-  if (scaleEl && handpan.scaleLabel) scaleEl.textContent = handpan.scaleLabel + ' \u25be';
-  if (rootEl && handpan.rootLabel) rootEl.textContent = handpan.rootLabel;
-  if (noteCountEl) {
-    const n = Number.isFinite(handpan.noteCount) ? handpan.noteCount : 9;
-    noteCountEl.textContent = String(n);
-  }
-  // Disable note-count steppers at limits (9–14)
   const n = Number.isFinite(handpan.noteCount) ? handpan.noteCount : 9;
+  const scaleText = handpan.scaleLabel || 'Scale';
+  const rootText = handpan.rootLabel || 'C';
+  const octaveText = String(Number.isFinite(handpan.octaveOffset) ? handpan.octaveOffset : 0);
+  for (const id of ['scaleLabel', 'scaleLabelDesktop']) {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = scaleText + ' \u25be'; el.title = scaleText; }
+  }
+  for (const id of ['rootLabel', 'rootLabelDesktop']) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = rootText;
+  }
+  const noteCountEl = document.getElementById('noteCountLabel');
+  if (noteCountEl) noteCountEl.textContent = String(n);
+  const octaveEl = document.getElementById('octaveLabel');
+  if (octaveEl) octaveEl.textContent = octaveText;
   const prevN = document.getElementById('noteCountPrev');
   const nextN = document.getElementById('noteCountNext');
   if (prevN) prevN.disabled = n <= 9;
@@ -583,22 +588,45 @@ function refreshPitch() {
     if (typeof window.__pionierCenterPan === 'function') window.__pionierCenterPan();
   } catch (_) {}
 }
-wire('scalePrev', () => {
-  const n = HANDPAN_SCALES.length;
-  handpan.setScaleIndex((handpan.scaleIndex - 1 + n) % n);
+function stepScale(delta) {
+  const count = HANDPAN_SCALES.length;
+  handpan.setScaleIndex((handpan.scaleIndex + delta + count) % count);
   refreshPitch();
-});
-wire('scaleNext', () => {
-  const n = HANDPAN_SCALES.length;
-  handpan.setScaleIndex((handpan.scaleIndex + 1) % n);
+}
+function stepRoot(delta) {
+  handpan.setRootIndex((handpan.rootIndex + delta + 12) % 12);
   refreshPitch();
-});
-// HTML ids: rootPrev / rootNext (root wraps over 12)
-wire('rootPrev', () => { handpan.setRootIndex((handpan.rootIndex - 1 + 12) % 12); refreshPitch(); });
-wire('rootNext', () => { handpan.setRootIndex((handpan.rootIndex + 1) % 12); refreshPitch(); });
-// HTML ids: noteCountPrev / noteCountNext (clamp 9–14 via changeNoteCount)
-wire('noteCountPrev', () => { changeNoteCount(-1); });
-wire('noteCountNext', () => { changeNoteCount(1); });
+}
+function stepOctave(delta) {
+  handpan.setOctaveOffset((Number(handpan.octaveOffset) || 0) + delta);
+  refreshPitch();
+}
+// Delegate tuning controls from the document so they remain wired if the responsive
+// layout reparents controls between the mobile panel and desktop sidebar.
+const TUNING_ACTIONS = {
+  scalePrev: () => stepScale(-1),
+  scalePrevDesktop: () => stepScale(-1),
+  scaleNext: () => stepScale(1),
+  scaleNextDesktop: () => stepScale(1),
+  rootPrev: () => stepRoot(-1),
+  rootPrevDesktop: () => stepRoot(-1),
+  rootNext: () => stepRoot(1),
+  rootNextDesktop: () => stepRoot(1),
+  octavePrev: () => stepOctave(-1),
+  octaveNext: () => stepOctave(1),
+  noteCountPrev: () => changeNoteCount(-1),
+  noteCountNext: () => changeNoteCount(1),
+};
+document.addEventListener('click', (event) => {
+  const target = event.target instanceof Element ? event.target.closest('button') : null;
+  const action = target && TUNING_ACTIONS[target.id];
+  if (!action) return;
+  event.preventDefault();
+  // This is the single source of truth for tuning buttons. Stop legacy target/bubble
+  // handlers from applying the same step a second time and making pitch appear unchanged.
+  event.stopImmediatePropagation();
+  action();
+}, true);
 
 const INSTRUMENT_GROUP_ORDER = [
   { id: 'handpan', label: 'Handpan' },
@@ -714,6 +742,7 @@ function changeNoteCount(delta) {
   if (active && active.zoneFlash && after > before && after - 1 < active.zoneFlash.length) active.zoneFlash[after - 1] = 0.3;
   updateLabels();
   draw();
+  window.dispatchEvent(new CustomEvent('pionier:note-count', { detail: { count: after } }));
   return true;
 }
 

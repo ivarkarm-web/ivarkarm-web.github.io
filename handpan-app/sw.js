@@ -1,14 +1,10 @@
 /**
- * Pionier service worker
- * CACHE_VERSION and SHELL query stamps MUST match index.html / pionier-app.js.
- * Bump CACHE_VERSION on every deploy that changes shell assets.
- *
- * Strategy:
- *  - HTML / navigations: network-first (fallback to cache offline)
- *  - Versioned shell assets (?v=): network-first when online, cache fallback
- *  - Other same-origin GET: cache-first, then network
+ * Pionier service worker.
+ * Keep versioned shell URLs aligned with handpan-app/index.html and the
+ * app's dynamic imports. Network-first for versioned assets prevents stale
+ * code from surviving a deployment; CACHE_VERSION invalidates the old shell.
  */
-const CACHE_VERSION = 'pionier-v80';
+const CACHE_VERSION = 'pionier-v82';
 
 const SHELL = [
   './',
@@ -17,22 +13,32 @@ const SHELL = [
   './icon.svg',
   './pionier.css?v=151',
   './screenshot-ui.css?v=10',
-  './atelier.css?v=10',
+  './soundscapes-shell.css?v=2',
+  './legacy-hide.css?v=1',
+  './topbar-narrow.css?v=6',
   './looper.css?v=208',
   './scale-menu.css?v=9',
+  './atelier.css?v=10',
   './ui-stability.css?v=5',
-  './topbar-narrow.css?v=6',
+  './desktop-reference.css?v=4',
   './js/skin-palette.js?v=2',
-  './js/overlay-controller.js?v=10',
+  './js/overlay-controller.js?v=14',
   './js/layout-boot.js?v=100',
   './js/boot-fix.js?v=1',
   './js/ui-extras.js?v=5',
   './js/filter-bridge.js?v=1',
-  './pionier-app.js?v=220',
-  './registerSW.js',
-  './js/fx.js',
+  './pionier-app.js?v=224',
+  './pionier-core.js?v=59',
+  './js/soundscapes.js?v=10',
+  './js/instruments/arp-family.js?v=3',
+  './js/instruments/handpan.js?v=11',
+  './js/note-plus.js?v=3',
+  './js/looper.js?v=213',
+  './js/scale-selector.js?v=7',
   './js/pionier-surface.js?v=160',
+  './js/fx.js',
   './js/pad-layout.js',
+  './registerSW.js',
 ];
 
 self.addEventListener('install', (event) => {
@@ -82,7 +88,7 @@ self.addEventListener('fetch', (event) => {
       try {
         const res = await fetch(req);
         const cache = await caches.open(CACHE_VERSION);
-        cache.put(req, res.clone());
+        if (res && res.ok) await cache.put(req, res.clone());
         return res;
       } catch (_) {
         const cached = await caches.match(req);
@@ -98,7 +104,7 @@ self.addEventListener('fetch', (event) => {
         const res = await fetch(req, { cache: 'no-cache' });
         if (res && res.ok) {
           const cache = await caches.open(CACHE_VERSION);
-          cache.put(req, res.clone());
+          await cache.put(req, res.clone());
         }
         return res;
       } catch (_) {
@@ -112,8 +118,10 @@ self.addEventListener('fetch', (event) => {
     caches.match(req).then((cached) => {
       if (cached) return cached;
       return fetch(req).then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
+        if (res && res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
+        }
         return res;
       });
     })

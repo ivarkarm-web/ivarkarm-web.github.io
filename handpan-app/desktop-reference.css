@@ -1,0 +1,190 @@
+/* Reference-matched landscape work surface; portrait layout remains unchanged. */
+@media (min-width: 900px) and (orientation: landscape) {
+  html, body { height: 100%; min-height: 100%; }
+  .app {
+    display: grid !important;
+    grid-template-columns: minmax(190px, 19vw) minmax(0, 1fr) minmax(150px, 19vw);
+    grid-template-rows: 58px 38px minmax(0, 1fr);
+    width: 100%;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+  .topbar { grid-column: 1 / -1; grid-row: 1; min-width: 0; }
+  .topbar-center { justify-content: center; }
+  .instrument-row { grid-column: 1 / -1; grid-row: 2; padding: 0 16px 2px; }
+  .mobile-control-drawer, .mobile-control-panel { display: contents !important; }
+  .mobile-control-panel > :not(#leftSidebar) { display: none !important; }
+  #leftSidebar {
+    display: flex !important;
+    visibility: visible !important;
+    position: relative !important;
+    grid-column: 1;
+    grid-row: 3;
+    width: auto !important;
+    min-width: 0;
+    height: 100%;
+    padding: 28px 18px;
+    flex-direction: column;
+    justify-content: space-evenly;
+    gap: 20px;
+    border-right: 1px solid rgba(255,255,255,.08);
+    background: #171719;
+    overflow: visible;
+  }
+  #leftSidebar .control-block { width: 100%; }
+  #leftSidebar .control-label { display: block; text-align: center; margin-bottom: 10px; }
+  #leftSidebar .stepper { width: min(100%, 200px); margin: 0 auto; }
+  .stage {
+    grid-column: 2;
+    grid-row: 3;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    padding: 12px !important;
+    border-left: 1px solid rgba(255,255,255,.04);
+    border-right: 1px solid rgba(255,255,255,.04);
+  }
+  #pan { width: min(58vw, calc(100dvh - 170px), 860px) !important; max-width: 100%; }
+  #fxSideKnobs {
+    display: flex !important;
+    visibility: visible !important;
+    position: relative !important;
+    grid-column: 3;
+    grid-row: 3;
+    width: auto !important;
+    height: 100%;
+    padding: 26px 18px;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    gap: 14px;
+    border-left: 1px solid rgba(255,255,255,.08);
+    background: #171719;
+  }
+  #fxSideKnobs .fx-circle-knob { width: clamp(64px, 8vw, 100px); height: clamp(64px, 8vw, 100px); }
+  #transportBar { z-index: 5000; }
+}
+
+/* Loop Studio floats above the persistent transport and is hidden until requested. */
+#looperRail.is-open {
+  position: fixed !important;
+  inset: auto 12px calc(env(safe-area-inset-bottom) + 82px) 12px !important;
+  z-index: 6000 !important;
+  display: flex !important;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 10px;
+  width: auto !important;
+  min-height: 0;
+  max-height: min(34dvh, 240px);
+  padding: 12px;
+  overflow: visible;
+  border: 1px solid rgba(212,176,74,.2);
+  border-radius: 18px;
+  background: rgba(18,18,20,.98);
+  box-shadow: 0 16px 50px rgba(0,0,0,.5);
+  backdrop-filter: blur(18px);
+}
+#looperRail.is-open .looper-record-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+#looperRail.is-open .looper-layers {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: center;
+  justify-content: stretch;
+  gap: 8px;
+  width: 100%;
+  max-width: none;
+  pointer-events: auto;
+}
+#looperRail.is-open .looper-circle {
+  width: 100%;
+  min-width: 34px;
+  height: 38px;
+  border-radius: 12px;
+}
+#looperRail.is-open .looper-circle-progress { border-radius: 12px; }
+.looper-export-btn {
+  appearance: none;
+  border: 1px solid rgba(212,176,74,.3);
+  border-radius: 999px;
+  background: rgba(212,176,74,.08);
+  color: #f1d982;
+  min-height: 36px;
+  padding: 0 12px;
+  font: 500 12px/1 Inter, sans-serif;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.looper-export-btn:disabled { opacity: .3; cursor: default; }
+.looper-export-btn.is-available { border-color: rgba(212,176,74,.75); }
+.looper-save-btn { min-height: 36px; padding: 0 12px; font-size: 12px; }
+@media (min-width: 900px) and (orientation: landscape) {
+  #looperRail.is-open { left: 20vw !important; right: 20vw !important; bottom: 84px !important; }
+  #looperRail.is-open .looper-record-cluster { gap: 12px; }
+}
+
+.looper-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 50%;
+  background: rgba(255,255,255,.04);
+  color: rgba(240,238,234,.72);
+  font: 20px/1 Inter, sans-serif;
+  cursor: pointer;
+}
+#looperRail.is-open .looper-clear-btn { position: absolute; top: 8px; left: 10px; }
+#looperRail.is-open .looper-record-cluster { padding: 4px 34px; }
+
+
+/* Keep Loop Studio's record target fully inside the floating sheet on short phones. */
+@media (max-width: 899px) {
+  #looperRail.is-open {
+    box-sizing: border-box !important;
+    min-height: 118px !important;
+    max-height: min(38dvh, 280px) !important;
+    padding: 14px 12px 12px !important;
+    overflow: visible !important;
+  }
+  #looperRail.is-open .looper-record-cluster {
+    box-sizing: border-box !important;
+    min-height: 54px !important;
+    padding: 4px 38px !important;
+    overflow: visible !important;
+    flex: 0 0 auto !important;
+  }
+  #looperRail.is-open #looperBtn {
+    flex: 0 0 46px !important;
+    width: 46px !important;
+    min-width: 46px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    margin: 0 auto !important;
+  }
+}
+
+
+/* Hidden must win over the rail's explicit display:flex rules. */
+#looperRail[hidden] { display: none !important; }
+
+/* Keep the reference desktop tuning column visible even when the legacy mobile
+   drawer's hidden toggle would otherwise collapse its ancestor. */
+@media (min-width: 900px) and (orientation: landscape) {
+  #app #mobileControlDrawer { display: contents !important; visibility: visible !important; opacity: 1 !important; }
+  #app #mobileControlPanel { display: contents !important; visibility: visible !important; opacity: 1 !important; }
+  #app #leftSidebar { display: flex !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; }
+}

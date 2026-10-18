@@ -149,12 +149,8 @@
     if (modal) modal.hidden = true;
     if (timeEl) timeEl.textContent = '00 : 00 : 00';
   });
-  document.getElementById('recShare')?.addEventListener('click', () => {
-    if (navigator.share) navigator.share({ title: 'Pionier recording', text: 'Made with Pionier handpan' }).catch(() => {});
-    if (modal) modal.hidden = true;
-    recording = false; clearInterval(timer);
-    recBtn?.classList.remove('is-recording');
-  });
+  // Recording modal is a preview only; Share stays disabled in index.html until
+  // this path owns a real audio Blob. Do not expose navigator.share for placeholder text.
   document.getElementById('recStop')?.addEventListener('click', () => {
     recording = false; clearInterval(timer);
     recBtn?.classList.remove('is-recording');
@@ -206,25 +202,9 @@
     }, { passive: true });
   })();
 
-  document.querySelectorAll('.fx-circle-knob').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.fx-circle-knob').forEach((b) => b.classList.remove('is-active'));
-      btn.classList.add('is-active');
-      if (btn.dataset.fx === 'filter') {
-        const panel = document.getElementById('fxPanel');
-        if (panel) {
-          panel.hidden = false;
-          const title = document.getElementById('fxPanelTitle');
-          if (title) title.textContent = 'Filter';
-        }
-      }
-    });
-  });
+  // FX panel open/close and selector state are owned by overlay-controller.js.
+  // Avoid a second listener toggling the same panel during the same click.
 
-  document.getElementById('fxPanelClose')?.addEventListener('click', () => {
-    const panel = document.getElementById('fxPanel');
-    if (panel) panel.hidden = true;
-  });
 
   document.getElementById('looperBtn')?.addEventListener('click', () => {
     document.getElementById('transportRecord')?.click();

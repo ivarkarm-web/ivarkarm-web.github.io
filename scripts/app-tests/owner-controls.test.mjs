@@ -17,10 +17,10 @@ test('HTML exposes rootPrev/Next and noteCountPrev/Next; core binds them', () =>
   for (const id of ['rootPrev', 'rootNext', 'noteCountPrev', 'noteCountNext', 'rootLabel', 'noteCountLabel']) {
     assert.match(html, new RegExp(`id="${id}"`), `missing #${id} in HTML`);
   }
-  assert.match(core, /wire\('rootPrev'/);
-  assert.match(core, /wire\('rootNext'/);
-  assert.match(core, /wire\('noteCountPrev'/);
-  assert.match(core, /wire\('noteCountNext'/);
+  assert.match(core, /rootPrev:\s*\(\)\s*=>\s*stepRoot\(-1\)/);
+  assert.match(core, /rootNext:\s*\(\)\s*=>\s*stepRoot\(1\)/);
+  assert.match(core, /noteCountPrev:\s*\(\)\s*=>\s*changeNoteCount\(-1\)/);
+  assert.match(core, /noteCountNext:\s*\(\)\s*=>\s*changeNoteCount\(1\)/);
   // Dead ids must not be wired
   assert.doesNotMatch(core, /wire\('rootDown'/);
   assert.doesNotMatch(core, /wire\('rootUp'/);
@@ -37,15 +37,14 @@ test('core exposes addNote/removeNote and clamps note count 9–14', () => {
   assert.match(core, /noteCountLabel/);
 });
 
-test('overlay-controller owns pickers; layout-boot only sets chrome CSS vars', () => {
+test('overlay-controller owns pickers and boot does not hide Loop Studio', () => {
   const overlay = read('handpan-app/js/overlay-controller.js');
   const boot = read('handpan-app/js/layout-boot.js');
   assert.match(overlay, /closePickers/);
   assert.match(overlay, /pickerBackdrop/);
   assert.match(overlay, /PionierOverlay/);
-  assert.match(boot, /--chrome-top/);
-  assert.match(boot, /--chrome-bottom/);
-  assert.match(boot, /pionierTopDock/);
+  assert.match(boot, /bindMobileDrawer/);
+  assert.doesNotMatch(boot, /looperRail|looperRecordCluster|looperLayers/);
   assert.doesNotMatch(boot, /positionPickerMenus/);
 });
 
@@ -64,4 +63,45 @@ test('no exclusivity-fix or chrome-fix patch files remain', () => {
   assert.equal(fs.existsSync(path.join(root, 'handpan-app/chrome-fix-addon.css')), false);
   const html = read('handpan-app/index.html');
   assert.doesNotMatch(html, /exclusivity-fix|chrome-fix/);
+});
+
+
+test('desktop scale, root and octave controls are wired to shared pitch state', () => {
+  const html = read('handpan-app/index.html');
+  const core = read('handpan-app/pionier-core.js');
+  for (const id of ['scalePrevDesktop', 'scaleNextDesktop', 'scaleLabelDesktop', 'rootPrevDesktop', 'rootNextDesktop', 'rootLabelDesktop', 'octavePrev', 'octaveNext', 'octaveLabel']) {
+    assert.match(html, new RegExp(`id="${id}"`), `missing #${id}`);
+  }
+  assert.match(core, /scalePrev:\s*\(\)\s*=>\s*stepScale\(-1\)/);
+  assert.match(core, /scaleNext:\s*\(\)\s*=>\s*stepScale\(1\)/);
+  assert.match(core, /rootPrevDesktop:\s*\(\)\s*=>\s*stepRoot\(-1\)/);
+  assert.match(core, /rootNextDesktop:\s*\(\)\s*=>\s*stepRoot\(1\)/);
+  assert.match(core, /octavePrev:\s*\(\)\s*=>\s*stepOctave\(-1\)/);
+  assert.match(core, /octaveNext:\s*\(\)\s*=>\s*stepOctave\(1\)/);
+  assert.match(core, /setOctaveOffset/);
+  assert.match(core, /rootLabelDesktop/);
+  assert.match(core, /scaleLabelDesktop/);
+});
+
+test('scale picker opens from both mobile and desktop scale labels', () => {
+  const overlay = read('handpan-app/js/overlay-controller.js');
+  assert.match(overlay, /scaleLabelDesktop/);
+  assert.match(overlay, /togglePicker\('scaleMenu', e\.currentTarget\)/);
+  assert.match(overlay, /function setPickerExpanded/);
+});
+
+
+test('Learn Mode and generated decorative ambience modules are removed', () => {
+  for (const rel of [
+    'handpan-app/js/learn-mode.js',
+    'handpan-app/learn-mode.css',
+    'handpan-app/learn-lessons.json',
+    'handpan-app/js/ambient-fx.js',
+    'handpan-app/js/skin-mandala.js',
+    'handpan-app/js/customization-catalog.js',
+    'handpan-app/js/mandala-canvas.js',
+    'handpan-app/js/backdrop-soundscape-bridge.js'
+  ]) assert.equal(fs.existsSync(path.join(root, rel)), false, rel + ' should be retired');
+  const shell = read('handpan-app/pionier-app.js');
+  assert.doesNotMatch(shell, /learn-mode\.js/);
 });
