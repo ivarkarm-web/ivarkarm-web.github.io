@@ -26,6 +26,7 @@ read('styles.css');
 read('script.js');
 const appHtml = read('handpan-app/index.html');
 const shell = read('handpan-app/pionier-app.js');
+const serviceWorker = read('handpan-app/sw.js');
 const coreSrc = read('handpan-app/pionier-core.js');
 read('handpan-app/pionier.css');
 read('handpan-app/js/audio-core.js');
@@ -92,6 +93,12 @@ if (!fs.existsSync(path.join(root, 'handpan-app/js/mandala-canvas.js')) &&
     !fs.existsSync(path.join(root, 'handpan-app/js/ambient-fx.js'))) ok('Unused mandala and generated ambience layers are removed');
 else fail('Unused generated ambience layers remain');
 
+// Every versioned asset linked directly by index.html must be in the SW shell.
+// This catches cache-list drift before stale CSS/JS can reach real users.
+const linkedVersionedAssets = [...appHtml.matchAll(/(?:src|href)="(\.\/[^\"]+\?v=\d+)"/g)].map((match) => match[1]);
+const missingShellAssets = linkedVersionedAssets.filter((asset) => !serviceWorker.includes("'" + asset + "'"));
+if (missingShellAssets.length) fail('Versioned index assets missing from service-worker shell: ' + missingShellAssets.join(', '));
+else ok('Versioned index assets match the service-worker shell');
 if (appHtml.includes('name="description"')) ok('Pionier description metadata is present');
 else fail('Pionier description metadata is missing');
 
