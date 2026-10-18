@@ -8,44 +8,31 @@
  *  - Versioned shell assets (?v=): network-first when online, cache fallback
  *  - Other same-origin GET: cache-first, then network
  */
-const CACHE_VERSION = 'pionier-v67';
+const CACHE_VERSION = 'pionier-v80';
 
 const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icon.svg',
-  './pionier.css?v=144',
+  './pionier.css?v=151',
+  './screenshot-ui.css?v=10',
   './atelier.css?v=10',
-  './looper.css?v=207',
-  './scale-menu.css?v=7',
-  './settings-panel.css?v=18',
+  './looper.css?v=208',
+  './scale-menu.css?v=9',
   './ui-stability.css?v=5',
   './topbar-narrow.css?v=6',
-  './js/skin-palette.js?v=1',
-  './js/customization-catalog.js?v=6',
+  './js/skin-palette.js?v=2',
   './js/overlay-controller.js?v=10',
-  './js/layout-boot.js?v=65',
-  './js/settings-panel.js?v=27',
-  './js/ambient-fx.js?v=12',
-  './js/skin-mandala.js?v=5',
-  './pionier-app.js?v=206',
+  './js/layout-boot.js?v=100',
+  './js/boot-fix.js?v=1',
+  './js/ui-extras.js?v=5',
+  './js/filter-bridge.js?v=1',
+  './pionier-app.js?v=220',
   './registerSW.js',
-  './pionier-core.js?v=55',
-  './js/audio-core.js?v=2',
-  './js/instrument.js',
-  './js/gesture.js',
   './js/fx.js',
-  './js/pionier-surface.js?v=141',
-  './js/note-sample-bank.js',
-  './js/soundscapes.js?v=8',
-  './js/scale-selector.js?v=5',
-  './js/looper.js?v=209',
-  './js/repository-loop-save.js?v=1',
-  './js/instruments/handpan.js?v=7',
-  './js/instruments/handpan-scales.js?v=3',
-  './js/instruments/arp-family.js',
-  './js/note-plus.js?v=3',
+  './js/pionier-surface.js?v=160',
+  './js/pad-layout.js',
 ];
 
 self.addEventListener('install', (event) => {
@@ -81,7 +68,7 @@ function isDocumentRequest(req, url) {
 }
 
 function isVersionedAsset(url) {
-  return url.search.includes('v=');
+  return url.searchParams.has('v');
 }
 
 self.addEventListener('fetch', (event) => {
@@ -90,47 +77,43 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // HTML: network-first
   if (isDocumentRequest(req, url)) {
-    event.respondWith(
-      fetch(req)
-        .then((res) => {
-          if (res && res.ok) {
-            const copy = res.clone();
-            caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});
-          }
-          return res;
-        })
-        .catch(() => caches.match(req).then((r) => r || caches.match('./index.html')))
-    );
+    event.respondWith((async () => {
+      try {
+        const res = await fetch(req);
+        const cache = await caches.open(CACHE_VERSION);
+        cache.put(req, res.clone());
+        return res;
+      } catch (_) {
+        const cached = await caches.match(req);
+        return cached || caches.match('./index.html');
+      }
+    })());
     return;
   }
 
-  // Versioned shell JS/CSS: network-first so deploys win over stale cache
-  if (isVersionedAsset(url) && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {
-    event.respondWith(
-      fetch(req)
-        .then((res) => {
-          if (res && res.ok) {
-            const copy = res.clone();
-            caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});
-          }
-          return res;
-        })
-        .catch(() => caches.match(req))
-    );
+  if (isVersionedAsset(url)) {
+    event.respondWith((async () => {
+      try {
+        const res = await fetch(req, { cache: 'no-cache' });
+        if (res && res.ok) {
+          const cache = await caches.open(CACHE_VERSION);
+          cache.put(req, res.clone());
+        }
+        return res;
+      } catch (_) {
+        return (await caches.match(req)) || fetch(req);
+      }
+    })());
     return;
   }
 
-  // Everything else: cache-first
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
       return fetch(req).then((res) => {
-        if (res && res.status === 200 && res.type !== 'opaque') {
-          const copy = res.clone();
-          caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});
-        }
+        const copy = res.clone();
+        caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
         return res;
       });
     })
