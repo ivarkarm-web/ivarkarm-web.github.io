@@ -149,12 +149,8 @@
     if (modal) modal.hidden = true;
     if (timeEl) timeEl.textContent = '00 : 00 : 00';
   });
-  document.getElementById('recShare')?.addEventListener('click', () => {
-    if (navigator.share) navigator.share({ title: 'Pionier recording', text: 'Made with Pionier handpan' }).catch(() => {});
-    if (modal) modal.hidden = true;
-    recording = false; clearInterval(timer);
-    recBtn?.classList.remove('is-recording');
-  });
+  // Recording modal is a preview only; Share stays disabled in index.html until
+  // this path owns a real audio Blob. Do not expose navigator.share for placeholder text.
   document.getElementById('recStop')?.addEventListener('click', () => {
     recording = false; clearInterval(timer);
     recBtn?.classList.remove('is-recording');
