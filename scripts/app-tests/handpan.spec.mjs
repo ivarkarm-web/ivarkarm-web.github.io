@@ -81,7 +81,6 @@ test('viewport keeps browser zoom available while the instrument canvas owns ges
 test('rapid touch taps on scale steppers are not swallowed', async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.startsWith('mobile'), 'touchscreen emulation runs in the mobile projects');
   await expect.poll(() => page.evaluate(() => !!window.PionierCore?.activeInstrument?.())).toBe(true);
-  await page.locator('#mobileControlsToggle').tap();
   const next = page.locator('#scaleNext');
   await expect(next).toBeVisible();
   const before = await page.evaluate(() => window.PionierCore.activeInstrument().scaleIndex);
@@ -232,24 +231,21 @@ test('Handpan can be reselected after switching to another instrument', async ({
   await expect.poll(() => page.evaluate(() => !!window.PionierCore?.activeInstrument?.()?.ready)).toBe(true);
 });
 
-test('effect type menus open and update their selected state', async ({ page }) => {
-  await page.locator('#mobileControlsToggle').click();
-  await page.locator('.knob-effect-trigger[aria-controls="bubbleComp"]').click();
-  const bubble = page.locator('#bubbleComp');
-  await expect(bubble).toBeVisible();
-  await bubble.getByRole('button', { name: 'Punch', exact: true }).click();
-  await expect(bubble.locator('[data-comp="punch"]')).toHaveAttribute('aria-pressed', 'true');
+test('visible FX selectors open the effects panel and update its title', async ({ page }) => {
+  await page.locator('#fxSideKnobs [data-fx="filter"]').click();
+  await expect(page.locator('#fxPanel')).toBeVisible();
+  await expect(page.locator('#fxPanelTitle')).toHaveText('Filter');
+  await page.locator('#fxSideKnobs [data-fx="delay"]').click();
+  await expect(page.locator('#fxPanel')).toBeVisible();
+  await expect(page.locator('#fxPanelTitle')).toHaveText('Delay');
 });
 
-test('controls drawer toggles and keeps its expanded state accessible', async ({ page }) => {
-  const toggle = page.locator('#mobileControlsToggle');
-  const drawer = page.locator('#mobileControlDrawer');
-  await toggle.click();
-  await expect(drawer).toHaveClass(/is-open/);
-  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
-  await toggle.click();
-  await expect(drawer).not.toHaveClass(/is-open/);
-  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+test('mobile scale controls remain visible without a hidden drawer toggle', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith('mobile'), 'portrait layout only');
+  await expect(page.locator('#scaleNext')).toBeVisible();
+  await expect(page.locator('#rootNext')).toBeVisible();
+  await expect(page.locator('#noteCountNext')).toBeVisible();
+  await expect(page.locator('#mobileControlsToggle')).toBeHidden();
 });
 
 test('Soundscapes opens from the app menu and returns to the instrument', async ({ page }) => {
