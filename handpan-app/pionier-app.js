@@ -6,18 +6,26 @@ const statusEl = document.getElementById('appStatus');
 const statusMessage = document.getElementById('appStatusMessage');
 const statusRetry = document.getElementById('appStatusRetry');
 
-// Keep the Learn sheet reachable even if the optional lesson engine fails to import.
-const learnButton = document.getElementById('openLearn');
-const learnPanel = document.getElementById('learnPanel');
-const learnClose = document.getElementById('learnClose');
-learnButton?.addEventListener('click', () => {
-  if (learnPanel) learnPanel.hidden = false;
-  document.body.classList.add('learn-active');
+// Compact app menu; Soundscapes is an optional listening page, not a blocking mode.
+const topMenuButton = document.getElementById('topMenuBtn');
+const appMenu = document.getElementById('appMenu');
+topMenuButton?.addEventListener('click', (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  if (!appMenu) return;
+  appMenu.hidden = !appMenu.hidden;
+  topMenuButton.setAttribute('aria-expanded', appMenu.hidden ? 'false' : 'true');
 });
-learnClose?.addEventListener('click', () => {
-  if (learnPanel) learnPanel.hidden = true;
-  document.body.classList.remove('learn-active');
-});
+appMenu?.querySelectorAll('button').forEach((button) => button.addEventListener('click', () => {
+  appMenu.hidden = true;
+  topMenuButton?.setAttribute('aria-expanded', 'false');
+}));
+document.addEventListener('pointerdown', (event) => {
+  if (appMenu && !appMenu.hidden && !appMenu.contains(event.target) && !topMenuButton?.contains(event.target)) {
+    appMenu.hidden = true;
+    topMenuButton?.setAttribute('aria-expanded', 'false');
+  }
+}, true);
 
 function setBootStatus(state, message = '', retry = false) {
   window.PionierBootState = state;
@@ -140,14 +148,6 @@ async function boot() {
   } catch (err) {
     console.warn('[scale-selector] mount failed', err);
     degraded.push('scale-selector');
-  }
-
-  try {
-    const { mountLearnMode } = await import(new URL('./js/learn-mode.js?v=25', BASE).href);
-    mountLearnMode();
-  } catch (err) {
-    console.warn('[learn] mount failed', err);
-    degraded.push('learn');
   }
 
   if (degraded.length) {
