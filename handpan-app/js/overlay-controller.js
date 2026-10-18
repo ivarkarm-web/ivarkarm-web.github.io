@@ -9,6 +9,15 @@
     instrumentMenu: 'instrumentDropdownToggle',
     scaleMenu: 'scaleLabel',
   };
+  const TOGGLES_FOR = {
+    instrumentMenu: ['instrumentDropdownToggle'],
+    scaleMenu: ['scaleLabel', 'scaleLabelDesktop'],
+  };
+  function setPickerExpanded(menuId, expanded) {
+    (TOGGLES_FOR[menuId] || [TOGGLE_FOR[menuId]]).forEach((id) => {
+      if (id) document.getElementById(id)?.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    });
+  }
 
   function isLightTheme() {
     if (document.documentElement.classList.contains('theme-light') ||
@@ -57,8 +66,7 @@
       clearInlineLayout(m);
       // Force closed even if a prior open left display:block inline
       m.style.setProperty('display', 'none', 'important');
-      const tid = TOGGLE_FOR[id];
-      if (tid) document.getElementById(tid)?.setAttribute('aria-expanded', 'false');
+      setPickerExpanded(id, false);
     });
     const bd = document.getElementById('pickerBackdrop');
     if (bd) {
@@ -191,9 +199,9 @@
     }
   }
 
-  function openPicker(menuId) {
+  function openPicker(menuId, preferredToggle = null) {
     const menu = document.getElementById(menuId);
-    const toggle = document.getElementById(TOGGLE_FOR[menuId]);
+    const toggle = preferredToggle || document.getElementById(TOGGLE_FOR[menuId]);
     if (!menu || !toggle) return;
     closeAll('pickers');
     // Close other pickers only was wrong — close everything else first
@@ -207,11 +215,11 @@
         m.hidden = true;
         m.classList.remove('is-open', 'picker-sheet', 'picker-popover');
         clearInlineLayout(m);
-        document.getElementById(TOGGLE_FOR[id])?.setAttribute('aria-expanded', 'false');
+        setPickerExpanded(id, false);
       }
     });
     placePicker(menu, toggle);
-    toggle.setAttribute('aria-expanded', 'true');
+    setPickerExpanded(menuId, true);
     // Ensure instrument list is fresh when opening
     if (menuId === 'instrumentMenu' && typeof window.__pionierRenderInstrumentMenu === 'function') {
       try { window.__pionierRenderInstrumentMenu(); } catch (_) {}
@@ -228,14 +236,14 @@
     });
   }
 
-  function togglePicker(menuId) {
+  function togglePicker(menuId, preferredToggle = null) {
     const menu = document.getElementById(menuId);
     if (!menu) return;
     if (!menu.hidden && menu.classList.contains('is-open')) {
       closePickers();
-      document.getElementById(TOGGLE_FOR[menuId])?.focus?.();
+      (preferredToggle || document.getElementById(TOGGLE_FOR[menuId]))?.focus?.();
     } else {
-      openPicker(menuId);
+      openPicker(menuId, preferredToggle);
     }
   }
 
@@ -289,11 +297,13 @@
       }
       togglePicker('instrumentMenu');
     }, true);
-    document.getElementById('scaleLabel')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      togglePicker('scaleMenu');
-    }, true); // capture so we win over other handlers
+    for (const toggleId of ['scaleLabel', 'scaleLabelDesktop']) {
+      document.getElementById(toggleId)?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        togglePicker('scaleMenu', e.currentTarget);
+      }, true); // capture so we win over other handlers
+    }
 
     // Close pickers when an item is chosen (event delegation)
     document.addEventListener('click', (e) => {
