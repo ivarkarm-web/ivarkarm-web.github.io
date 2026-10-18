@@ -329,3 +329,46 @@ test('desktop scale, base-note and octave steppers update the shared handpan sta
   await expect(page.locator('#scaleMenu')).toBeVisible();
   await expect(page.locator('#scaleLabelDesktop')).toHaveAttribute('aria-expanded', 'true');
 });
+
+
+test('Loop Studio is reachable and the four-track controls fit the viewport', async ({ page }) => {
+  await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
+  await page.locator('#topMenuBtn').click();
+  await page.locator('#toggleLooper').click();
+  const rail = page.locator('#looperRail');
+  await expect(rail).toBeVisible();
+  await expect(page.locator('#looperBtn')).toBeVisible();
+  await expect(page.locator('#looperExportBtn')).toBeDisabled();
+  const state = await page.evaluate(() => window.PionierLooper.getState());
+  expect(state.maxLayers).toBe(4);
+  const bounds = await page.locator('#looperBtn').boundingBox();
+  const viewport = page.viewportSize();
+  expect(bounds).not.toBeNull();
+  expect(bounds.x).toBeGreaterThanOrEqual(0);
+  expect(bounds.y).toBeGreaterThanOrEqual(0);
+  expect(bounds.x + bounds.width).toBeLessThanOrEqual(viewport.width);
+  expect(bounds.y + bounds.height).toBeLessThanOrEqual(viewport.height);
+});
+
+test('Loop Studio exports a valid WAV mix after a track exists', async ({ page }) => {
+  await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
+  await page.evaluate(() => {
+    const ctx = window.PionierCore.activeInstrument().audioCtx;
+    const length = Math.floor(ctx.sampleRate * 0.12);
+    const buffer = ctx.createBuffer(2, length, ctx.sampleRate);
+    for (let channel = 0; channel < 2; channel++) {
+      const data = buffer.getChannelData(channel);
+      for (let i = 0; i < data.length; i++) data[i] = Math.sin(2 * Math.PI * 220 * i / ctx.sampleRate) * 0.15;
+    }
+    window.PionierLooper.layers.push({
+      buffer, level: 0.8, pan: 0, offset: 0, muted: false, solo: false, paused: false
+    });
+    window.PionierLooper.refresh();
+  });
+  await page.locator('#topMenuBtn').click();
+  await page.locator('#toggleLooper').click();
+  const downloadPromise = page.waitForEvent('download');
+  await page.locator('#looperExportBtn').click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe('pionier-loop.wav');
+});
