@@ -6,18 +6,26 @@ Repository: `ivarkarm-web/ivarkarm-web.github.io`, default branch `main`.
 Live route: `/handpan-app/`. Static HTML/CSS/ES modules; no build step is required.
 This is a source-level audit. No physical iOS/Android device or browser automation was run as part of this audit, so the user-reported mobile failures below remain reproduction targets rather than independently reproduced findings.
 
-## Reference screenshots found
+## Reference screenshots — inspected individually
 
-The app folder contains five reference captures dated 2026-10-18:
+All six PNGs were visually inspected. The capture set shows the same dark, restrained interface with orange active controls, blue add action, thin borders, generous negative space, and no decorative mandala background.
 
-- `Screenshot 2026-10-18 at 15.42.51.png`
-- `Screenshot 2026-10-18 at 15.43.33.png`
-- `Screenshot 2026-10-18 at 15.43.54.png`
-- `Screenshot 2026-10-18 at 15.44.25.png`
-- `Screenshot 2026-10-18 at 15.44.46.png`
-- `Screenshot 2026-10-18 at 15.45.06.png`
+1. **15.42.51 — portrait play surface (338 × 982):** top bar with hamburger, centered `play`, blue plus, help; instrument selector row; large centered radial pan with 8 surrounding notes plus center note; bottom scale pill and paired base-note / note-count steppers; page dots. This is the mobile hierarchy to preserve.
+2. **15.43.33 — portrait filter view (634 × 1156):** top bar remains; a single large rounded filter graph dominates the upper/middle screen, with Filter title, orange response curve, Cutoff/Resonance labels and four filter-type buttons. Four large circular effect controls sit along the bottom with a page indicator.
+3. **15.43.54 — portrait recording modal (634 × 1156):** dimmed play surface behind a centered rounded “New Recording” dialog. The dialog contains a waveform, elapsed/remaining time, trim/stop/discard icons, and bottom Discard/Share actions. Transport bar remains visible underneath the scrim.
+4. **15.44.25 — landscape play surface (1406 × 1054):** narrow top bar with play control at far left, centered instrument selector, add/settings/help at right. Left sidebar holds Scale, Base Note, Octave; radial pan dominates the central column; four large effect knobs are vertically aligned on the right; bottom transport centers record, time, BPM and metronome, with master volume at far right.
+5. **15.44.46 — landscape filter view (1440 × 1054):** same landscape chrome and left tuning sidebar. Central column shows Filter title, large graph and four filter-type buttons plus Cutoff/Resonance controls. Right column retains four circular effect selectors; bottom transport and master-volume placement remain stable.
+6. **15.45.06 — landscape scale browser (1406 × 1054):** left sidebar remains visible; scale browser fills the central/right content area with a search field, filter action, and dense three-column scale grid. Selected scale is clearly highlighted; top and bottom bars remain stable.
 
-There are six files, despite the original task's wording not specifying a count. Image pixels have not yet been visually inspected in this source-only pass, so I do not claim an exact per-capture screen inventory. The current HTML identifies the visible screen elements below; screenshot-by-screenshot comparison is a required next verification step.
+### Reference-derived visual acceptance criteria
+
+- Portrait and landscape are distinct layouts, not one mobile layout scaled up.
+- Landscape must use a true three-column work area (tuning / pan or FX / effect controls) and a persistent bottom transport.
+- The pan stays the primary element in play mode; FX mode replaces the center content with a graph without moving the global chrome.
+- Scale browsing is searchable, dense, and keeps tuning controls visible in landscape.
+- Recording is a focused modal with waveform and explicit Discard/Share; it must not be confused with loop-track recording.
+- Use orange for active/record state, blue for add, muted gray for inactive controls. Avoid new mandala/stick decorations and excess motion.
+- Do not claim parity until automated screenshots at matching portrait/landscape dimensions are compared to these references.
 
 ## Current screen / UI inventory from source
 
