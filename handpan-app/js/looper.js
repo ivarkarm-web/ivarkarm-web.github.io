@@ -433,6 +433,16 @@ export function mountLooper({ root } = {}) {
           <canvas class="looper-waveform" aria-label="Recorded audio waveform" role="img"></canvas>
           <div class="looper-waveform-scrub"><input data-control="position" aria-label="Track playback position" type="range" min="0" max="${Math.max(0.01, layer.buffer.duration || 0.01)}" step="0.01"></div>
           <div class="looper-track-position"><output class="looper-track-elapsed">0:00</output><span>/</span><span class="looper-track-duration">${formatLoopTime(layer.buffer.duration || 0)}</span></div>
+          <button type="button" class="looper-crop-toggle" aria-expanded="false">Crop</button>
+          <div class="looper-crop-editor" hidden>
+            <p class="looper-crop-hint">Drag either edge to trim the beginning or end</p>
+            <div class="looper-crop-range">
+              <input data-control="crop-start" aria-label="Crop beginning" type="range" min="0" max="${Math.max(0.01, layer.buffer.duration || 0.01)}" step="0.01" value="0">
+              <input data-control="crop-end" aria-label="Crop end" type="range" min="0" max="${Math.max(0.01, layer.buffer.duration || 0.01)}" step="0.01" value="${Math.max(0.01, layer.buffer.duration || 0.01)}">
+            </div>
+            <div class="looper-crop-times"><span>In <output data-output="crop-start">0:00</output></span><span>Out <output data-output="crop-end">${formatLoopTime(layer.buffer.duration || 0)}</output></span></div>
+            <div class="looper-crop-actions"><button type="button" data-action="crop-cancel">Cancel</button><button type="button" data-action="crop-apply">Apply crop</button></div>
+          </div>
         </div>
         <div class="looper-knob-grid">
           <div class="looper-knob-control"><span class="looper-knob-label">Track level</span><button type="button" class="looper-knob" data-control="level" role="slider" aria-label="Track level" aria-valuemin="0" aria-valuemax="1"><span class="looper-knob-face"><i></i></span></button><output class="looper-knob-value" data-output="level"></output></div>
@@ -464,6 +474,8 @@ export function mountLooper({ root } = {}) {
     const duration = Math.max(0.01, layer.buffer.duration || 0.01);
     let waveformPeaks = [];
     let waveformPeakWidth = 0;
+    let cropStart = 0;
+    let cropEnd = duration;
     const drawWaveform = (playhead = 0) => {
       if (!waveform) return;
       const rect = waveform.getBoundingClientRect();
@@ -495,8 +507,20 @@ export function mountLooper({ root } = {}) {
       for (let x = 0; x < bins; x++) {
         const bar = Math.max(1.2 * dpr, waveformPeaks[x] * height * .78);
         const px = x * width / bins;
-        ctx2d.fillStyle = px <= (playhead / duration) * width ? 'rgba(246,218,132,.98)' : 'rgba(210,190,125,.56)';
+        const t = (x / bins) * duration;
+        const insideCrop = t >= cropStart && t <= cropEnd;
+        ctx2d.fillStyle = insideCrop
+          ? (px <= (playhead / duration) * width ? 'rgba(246,218,132,.98)' : 'rgba(210,190,125,.72)')
+          : 'rgba(15,15,18,.48)';
         ctx2d.fillRect(px, mid - bar / 2, Math.max(1, width / bins * .58), bar);
+      }
+      if (panel.classList.contains('is-cropping')) {
+        ctx2d.fillStyle = 'rgba(4,5,8,.52)';
+        ctx2d.fillRect(0, 0, cropStart / duration * width, height);
+        ctx2d.fillRect(cropEnd / duration * width, 0, width - cropEnd / duration * width, height);
+        ctx2d.fillStyle = '#ffe7a1';
+        ctx2d.fillRect(cropStart / duration * width - dpr, 0, 2 * dpr, height);
+        ctx2d.fillRect(cropEnd / duration * width - dpr, 0, 2 * dpr, height);
       }
       const headX = Math.max(0, Math.min(width, (playhead / duration) * width));
       ctx2d.fillStyle = '#fff2bd';
@@ -515,6 +539,78 @@ export function mountLooper({ root } = {}) {
       layer.offset = Math.min(duration, Math.max(0, Number(position.value) || 0));
       if (!layer.paused) startLayerSource(layer, layer.offset);
       updatePosition();
+    });
+    const cropToggle = panel.querySelector('.looper-crop-toggle');
+    const cropEditor = panel.querySelector('.looper-crop-editor');
+    const cropStartInput = panel.querySelector('[data-control="crop-start"]');
+    const cropEndInput = panel.querySelector('[data-control="crop-end"]');
+    const cropStartOutput = panel.querySelector('[data-output="crop-start"]');
+    const cropEndOutput = panel.querySelector('[data-output="crop-end"]');
+    const updateCropPreview = () => {
+      cropStart = Math.max(0, Math.min(duration, Number(cropStartInput.value) || 0));
+      cropEnd = Math.max(0, Math.min(duration, Number(cropEndInput.value) || duration));
+      if (cropEnd - cropStart < 0.1) {
+        if (document.activeElement === cropStartInput) {
+          cropStart = Math.max(0, cropEnd - 0.1);
+          cropStartInput.value = String(cropStart);
+        } else {
+          cropEnd = Math.min(duration, cropStart + 0.1);
+          cropEndInput.value = String(cropEnd);
+        }
+      }
+      cropStartOutput.textContent = formatLoopTime(cropStart);
+      cropEndOutput.textContent = formatLoopTime(cropEnd);
+      drawWaveform(0);
+    };
+    const setCropMode = enabled => {
+      panel.classList.toggle('is-cropping', enabled);
+      cropEditor.hidden = !enabled;
+      cropToggle.setAttribute('aria-expanded', String(enabled));
+      cropToggle.classList.toggle('is-active', enabled);
+      cropToggle.textContent = enabled ? 'Close crop' : 'Crop';
+      if (!enabled) { cropStart = 0; cropEnd = duration; drawWaveform(0); }
+    };
+    cropToggle.addEventListener('click', () => {
+      if (cropEditor.hidden) {
+        cropStartInput.value = '0';
+        cropEndInput.value = String(duration);
+        updateCropPreview();
+        setCropMode(true);
+      } else setCropMode(false);
+    });
+    cropStartInput.addEventListener('input', updateCropPreview);
+    cropEndInput.addEventListener('input', updateCropPreview);
+    panel.querySelector('[data-action="crop-cancel"]').addEventListener('click', () => setCropMode(false));
+    panel.querySelector('[data-action="crop-apply"]').addEventListener('click', () => {
+      const ctx = getAudioContext();
+      if (!ctx || !layer.buffer) return;
+      const start = Math.max(0, Math.min(duration, cropStart));
+      const end = Math.max(start + 0.1, Math.min(duration, cropEnd));
+      const startFrame = Math.min(layer.buffer.length - 1, Math.floor(start * layer.buffer.sampleRate));
+      const endFrame = Math.max(startFrame + 1, Math.min(layer.buffer.length, Math.floor(end * layer.buffer.sampleRate)));
+      const nextBuffer = ctx.createBuffer(layer.buffer.numberOfChannels, endFrame - startFrame, layer.buffer.sampleRate);
+      for (let channel = 0; channel < layer.buffer.numberOfChannels; channel++) {
+        nextBuffer.copyToChannel(layer.buffer.getChannelData(channel).subarray(startFrame, endFrame), channel);
+      }
+      const wasPlaying = !layer.paused;
+      if (wasPlaying) pauseLayer(index);
+      layer.buffer = nextBuffer;
+      layer.offset = 0;
+      const nextDuration = Math.max(0.01, nextBuffer.duration || 0.01);
+      const titleDuration = panel.querySelector('.looper-track-header p');
+      if (titleDuration) titleDuration.textContent = nextBuffer.duration.toFixed(1) + ' sec loop';
+      panel.querySelector('.looper-track-duration').textContent = formatLoopTime(nextDuration);
+      position.max = String(nextDuration);
+      cropStartInput.max = String(nextDuration);
+      cropEndInput.max = String(nextDuration);
+      waveformPeaks = [];
+      waveformPeakWidth = 0;
+      cropStart = 0;
+      cropEnd = nextDuration;
+      if (wasPlaying) { layer.paused = false; startLayerSource(layer, 0); }
+      setCropMode(false);
+      updatePosition();
+      renderCircles();
     });
     const addKnob = (name, value, min, max, format, apply, scale = 1) => {
       const knob = panel.querySelector(`[data-control="${name}"]`);
