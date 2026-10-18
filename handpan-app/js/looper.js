@@ -135,6 +135,9 @@ export function mountLooper({ root } = {}) {
   let tapSource = null;
   let pressTimer = null;
   let longFired = false;
+  let pendingTap = null;
+  let trackPanelEl = null;
+  let trackPanelKeyHandler = null;
   let openSheetIndex = -1;
   let sheetEl = null;
   let syncModeIndex = 0;
@@ -268,7 +271,7 @@ export function mountLooper({ root } = {}) {
     syncBtn.title = mode.title + ' · tap to change';
   }
 
-  function startLayerSource(layer, offset) {
+  function startLayerSource(layer, offset, delaySeconds = 0) {
     const ctx = getAudioContext();
     if (!ctx || !layer.gain || layer.paused) return;
     try { layer.source?.stop(); } catch (_) {}
@@ -277,10 +280,11 @@ export function mountLooper({ root } = {}) {
     source.loop = syncMode() !== 'serial';
     source.connect(layer.gain);
     const off = Math.max(0, offset || 0) % (layer.buffer.duration || 1);
-    source.start(0, off);
+    const startAt = ctx.currentTime + Math.max(0, delaySeconds || 0);
+    source.start(startAt, off);
     layer.source = source;
     layer.offset = off;
-    layer.startedAt = ctx.currentTime - off;
+    layer.startedAt = startAt - off;
 
     if (syncMode() === 'serial') {
       source.loop = false;
@@ -306,11 +310,22 @@ export function mountLooper({ root } = {}) {
     if (!ctx) return;
     const now = ctx.currentTime;
     const dur = layer.buffer.duration || 1;
-    layer.offset = ((now - (layer.startedAt || now)) % dur + dur) % dur;
+    layer.offset = layer.startedAt > now ? 0 : ((now - (layer.startedAt || now)) % dur + dur) % dur;
     try { layer.source?.stop(); } catch (_) {}
     layer.source = null;
     layer.paused = true;
     renderCircles();
+  }
+
+  function quantizeWait(layer) {
+    const ctx = getAudioContext();
+    const mode = layer?.quantize || 'off';
+    if (!ctx || mode === 'off' || !layers[0] || cycleDuration() <= 0) return 0;
+    const beat = beatDuration();
+    const grid = mode === 'beat' ? beat : mode === 'eighth' ? beat / 2 : beat / 4;
+    if (!grid || grid <= 0.01) return 0;
+    const phase = cyclePhase(ctx.currentTime);
+    return (grid - (phase % grid)) % grid;
   }
 
   function resumeLayer(index) {
@@ -318,17 +333,13 @@ export function mountLooper({ root } = {}) {
     if (!layer || !layer.paused) return;
     resumeAudio();
     if (syncMode() === 'serial') {
-      layers.forEach((l, i) => {
-        if (i !== index && !l.paused) pauseLayer(i);
-      });
+      layers.forEach((l, i) => { if (i !== index && !l.paused) pauseLayer(i); });
     }
     layer.paused = false;
     const mode = syncMode();
     let off = layer.offset || 0;
-    if ((mode === 'loop' || mode === 'beat') && layers[0] && index > 0) {
-      off = cyclePhase();
-    }
-    startLayerSource(layer, off);
+    if ((mode === 'loop' || mode === 'beat') && layers[0] && index > 0) off = cyclePhase();
+    startLayerSource(layer, off, quantizeWait(layer));
     renderCircles();
   }
 
@@ -341,8 +352,9 @@ export function mountLooper({ root } = {}) {
 
   function disconnectLayer(layer) {
     try { layer.source?.stop(); } catch (_) {}
-    try { layer.gain?.disconnect(); } catch (_) {}
-    try { layer.panner?.disconnect(); } catch (_) {}
+    for (const node of [layer.gain, layer.filter, layer.delay, layer.feedback, layer.delayWet, layer.panner]) {
+      try { node?.disconnect(); } catch (_) {}
+    }
     layer.source = null;
   }
 
@@ -386,6 +398,86 @@ export function mountLooper({ root } = {}) {
     if (beat <= 0.02) return dur;
     const n = Math.max(1, Math.round(dur / beat));
     return n * beat;
+  }
+
+  function closeTrackPanel() {
+    if (trackPanelKeyHandler) {
+      document.removeEventListener('keydown', trackPanelKeyHandler);
+      trackPanelKeyHandler = null;
+    }
+    if (trackPanelEl) { trackPanelEl.remove(); trackPanelEl = null; }
+  }
+
+  function openTrackPanel(index) {
+    const layer = layers[index];
+    if (!layer) return;
+    closeSheet();
+    closeTrackPanel();
+    const overlay = document.createElement('div');
+    overlay.className = 'looper-track-overlay';
+    overlay.innerHTML = `
+      <section class="looper-track-panel" role="dialog" aria-modal="true" aria-label="Track ${index + 1} controls">
+        <header class="looper-track-header">
+          <div><div class="looper-track-eyebrow">PIONIER · LOOP MIXER</div><h2>Track ${index + 1}</h2><p>${(layer.buffer.duration || 0).toFixed(1)} sec loop</p></div>
+          <button type="button" class="looper-track-close" aria-label="Close track controls">×</button>
+        </header>
+        <div class="looper-track-transport"><button type="button" class="looper-track-play"></button><span class="looper-track-status"></span></div>
+        <div class="looper-track-control"><label for="track-level-${index}"><span>Track level</span><output></output></label><input id="track-level-${index}" data-control="level" type="range" min="0" max="1" step="0.01"></div>
+        <div class="looper-track-control"><label for="track-master-${index}"><span>Master output</span><output></output></label><input id="track-master-${index}" data-control="master" type="range" min="0" max="1.5" step="0.01"></div>
+        <div class="looper-track-control"><label for="track-delay-${index}"><span>Delay send</span><output></output></label><input id="track-delay-${index}" data-control="delay" type="range" min="0" max="0.75" step="0.01"></div>
+        <div class="looper-track-control"><label for="track-cut-${index}"><span>Low-pass cut</span><output></output></label><input id="track-cut-${index}" data-control="cut" type="range" min="300" max="20000" step="10"></div>
+        <div class="looper-track-control looper-track-quantize"><label for="track-quantize-${index}"><span>Quantize on resume</span></label><select id="track-quantize-${index}" data-control="quantize"><option value="off">Off</option><option value="beat">Beat</option><option value="eighth">1/8 note</option><option value="sixteenth">1/16 note</option></select></div>
+        <footer class="looper-track-footer"><button type="button" class="looper-track-mute"></button><button type="button" class="looper-track-delete">Delete track</button></footer>
+      </section>`;
+    document.body.appendChild(overlay);
+    trackPanelEl = overlay;
+    const panel = overlay.querySelector('.looper-track-panel');
+    const close = () => closeTrackPanel();
+    overlay.addEventListener('pointerdown', event => { if (event.target === overlay) close(); });
+    overlay.querySelector('.looper-track-close').addEventListener('click', close);
+    const play = overlay.querySelector('.looper-track-play');
+    const status = overlay.querySelector('.looper-track-status');
+    const updateTransport = () => {
+      const current = layers[index];
+      if (!current) return;
+      play.textContent = current.paused ? '▶  Play track' : 'Ⅱ  Pause track';
+      status.textContent = current.paused ? 'PAUSED' : 'PLAYING';
+    };
+    play.addEventListener('click', () => { toggleLayer(index); updateTransport(); });
+    const addRange = (name, value, format, apply) => {
+      const input = panel.querySelector(`[data-control="${name}"]`);
+      const output = input.parentElement.querySelector('output');
+      input.value = String(value);
+      output.textContent = format(Number(input.value));
+      input.addEventListener('input', () => {
+        const next = Number(input.value);
+        output.textContent = format(next);
+        apply(next);
+      });
+    };
+    addRange('level', layer.level ?? DEFAULT_LEVEL, v => `${Math.round(v * 100)}%`, v => { layer.level = v; applyLayerGain(layer); });
+    const master = getAudioMaster();
+    addRange('master', master?.gain?.value ?? 1.15, v => `${Math.round(v * 100)}%`, v => { if (master) master.gain.setTargetAtTime(v, getAudioContext()?.currentTime || 0, 0.025); });
+    addRange('delay', layer.delayAmount ?? 0, v => `${Math.round(v * 100)}%`, v => {
+      layer.delayAmount = v;
+      if (layer.delayWet?.gain) layer.delayWet.gain.setTargetAtTime(v, getAudioContext()?.currentTime || 0, 0.025);
+    });
+    addRange('cut', layer.cutoff ?? 20000, v => v >= 19990 ? 'Open' : `${Math.round(v)} Hz`, v => {
+      layer.cutoff = v;
+      if (layer.filter?.frequency) layer.filter.frequency.setTargetAtTime(v, getAudioContext()?.currentTime || 0, 0.025);
+    });
+    const quantize = panel.querySelector('[data-control="quantize"]');
+    quantize.value = layer.quantize || 'off';
+    quantize.addEventListener('change', () => { layer.quantize = quantize.value; });
+    const mute = overlay.querySelector('.looper-track-mute');
+    const updateMute = () => { mute.textContent = layer.muted ? 'Unmute track' : 'Cut / mute track'; mute.classList.toggle('is-active', layer.muted); };
+    mute.addEventListener('click', () => { layer.muted = !layer.muted; applyLayerGain(layer); updateMute(); renderCircles(); });
+    overlay.querySelector('.looper-track-delete').addEventListener('click', () => { deleteLayer(index); closeTrackPanel(); });
+    updateTransport();
+    updateMute();
+    trackPanelKeyHandler = event => { if (event.key === 'Escape') closeTrackPanel(); };
+    document.addEventListener('keydown', trackPanelKeyHandler);
+    overlay.querySelector('.looper-track-close').focus({ preventScroll: true });
   }
 
   function closeSheet() {
@@ -492,13 +584,27 @@ export function mountLooper({ root } = {}) {
         longFired = false;
         pressTimer = setTimeout(() => {
           longFired = true;
+          if (pendingTap) { clearTimeout(pendingTap.timer); pendingTap = null; }
           openSheet(i, c);
         }, LONG_MS);
       });
       const end = (e) => {
         if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-        if (longFired) return;
-        if (e.type === 'pointerup') toggleLayer(i);
+        if (longFired || e.type !== 'pointerup') return;
+        if (pendingTap && pendingTap.index === i) {
+          clearTimeout(pendingTap.timer);
+          pendingTap = null;
+          openTrackPanel(i);
+          return;
+        }
+        if (pendingTap) {
+          clearTimeout(pendingTap.timer);
+          toggleLayer(pendingTap.index);
+        }
+        const timer = setTimeout(() => {
+          if (pendingTap?.timer === timer) { pendingTap = null; toggleLayer(i); }
+        }, 260);
+        pendingTap = { index: i, timer };
       };
       c.addEventListener('pointerup', end);
       c.addEventListener('pointercancel', end);
@@ -658,12 +764,28 @@ export function mountLooper({ root } = {}) {
     panner.pan.value = 0;
     const gain = ctx.createGain();
     gain.gain.value = DEFAULT_LEVEL;
-    gain.connect(panner);
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 20000;
+    const delay = ctx.createDelay(1.5);
+    delay.delayTime.value = 0.28;
+    const feedback = ctx.createGain();
+    feedback.gain.value = 0.28;
+    const delayWet = ctx.createGain();
+    delayWet.gain.value = 0;
+    gain.connect(filter);
+    filter.connect(panner);
+    filter.connect(delay);
+    delay.connect(feedback);
+    feedback.connect(delay);
+    delay.connect(delayWet);
+    delayWet.connect(panner);
     panner.connect(master);
 
     const layer = {
-      buffer, source: null, gain, panner,
+      buffer, source: null, gain, panner, filter, delay, feedback, delayWet,
       level: DEFAULT_LEVEL, pan: 0, muted: false, solo: false,
+      delayAmount: 0, cutoff: 20000, quantize: 'off',
       startedAt: ctx.currentTime, offset: 0, paused: false
     };
     layers.push(layer);
