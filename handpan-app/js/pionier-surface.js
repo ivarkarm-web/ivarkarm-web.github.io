@@ -100,31 +100,40 @@ export function createSurface(canvas){
         hg.addColorStop(0,rgba(mixLed(gc[0],theme.led,0.5),0.35*glow));hg.addColorStop(1,rgba(gc[1],0));
         ctx2.fillStyle=hg;pathPad({x:f.x,y:f.y,rx:f.rx*1.08,ry:f.ry*1.08,rot:f.rot},tf);ctx2.fill();
       }
-      // Screenshot-style LED tick + note label
+
+      // Note label + LED tick (screenshot style)
+      // Label sits near pad center; tick is a short stroke just inward (toward ding).
       ctx2.save();
-      if(f.kind==='ring'&&f.ux!=null){
-        const inset=0.42;
-        const baseX=f.x-f.ux*f.rx*inset;
-        const baseY=f.y-f.uy*f.ry*inset;
-        const tickLen=Math.max(5,Math.min(f.rx,f.ry)*0.38);
-        ctx2.strokeStyle='rgba(235,233,230,0.72)';
-        ctx2.lineWidth=Math.max(1.4,R*0.004);
-        ctx2.lineCap='round';
-        ctx2.beginPath();ctx2.moveTo(baseX,baseY);ctx2.lineTo(baseX-f.ux*tickLen,baseY-f.uy*tickLen);ctx2.stroke();
-      } else if(f.kind==='ding'){
-        const tickLen=Math.max(5,f.rx*0.28);
-        ctx2.strokeStyle='rgba(235,233,230,0.7)';
-        ctx2.lineWidth=Math.max(1.4,R*0.004);
-        ctx2.lineCap='round';
-        ctx2.beginPath();ctx2.moveTo(f.x,f.y-f.ry*0.22);ctx2.lineTo(f.x,f.y-f.ry*0.22-tickLen);ctx2.stroke();
+      const fs = Math.max(11, Math.round(R * 0.04));
+      if (f.label) {
+        ctx2.font = '500 ' + fs + 'px Inter, system-ui, sans-serif';
+        ctx2.fillStyle = 'rgba(230,228,224,' + (0.9 * dim) + ')';
+        ctx2.textAlign = 'center';
+        ctx2.textBaseline = 'middle';
+        // Slight bias outward so the tick has room toward the center
+        let lx = f.x, ly = f.y;
+        if (f.kind === 'ring' && f.ux != null) {
+          lx = f.x + f.ux * fs * 0.15;
+          ly = f.y + f.uy * fs * 0.15;
+        }
+        ctx2.fillText(f.label, lx, ly);
       }
-      if(f.label){
-        const fs=Math.max(12,Math.round(R*0.042));
-        ctx2.font='500 '+fs+'px Inter, system-ui, sans-serif';
-        ctx2.fillStyle='rgba(242,240,236,0.92)';
-        ctx2.textAlign='center';ctx2.textBaseline='middle';
-        const ly=f.kind==='ding'?f.y+fs*0.15:f.y+fs*0.12;
-        ctx2.fillText(f.label,f.x,ly);
+      // Ring pads only: short radial tick between label and handpan center
+      if (f.kind === 'ring' && f.ux != null) {
+        // Unit vector toward center (opposite of outward ux,uy)
+        const ix = -f.ux, iy = -f.uy;
+        // Start just below the label (inward), short dash
+        const gap = fs * 0.55;
+        const tickLen = Math.max(6, Math.min(f.rx, f.ry) * 0.22);
+        const sx = f.x + f.ux * fs * 0.15 + ix * gap;
+        const sy = f.y + f.uy * fs * 0.15 + iy * gap;
+        ctx2.strokeStyle = 'rgba(210,208,204,' + (0.75 * dim) + ')';
+        ctx2.lineWidth = Math.max(1.25, R * 0.0032);
+        ctx2.lineCap = 'round';
+        ctx2.beginPath();
+        ctx2.moveTo(sx, sy);
+        ctx2.lineTo(sx + ix * tickLen, sy + iy * tickLen);
+        ctx2.stroke();
       }
       ctx2.restore();
     });
