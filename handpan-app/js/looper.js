@@ -6,7 +6,7 @@
  *   LOOP  — secondary tracks snap to exact multiples of layer-1 duration
  *   BEAT  — start/stop quantized to beat grid derived from layer 1
  *   SERIAL — tracks play one after another (song sections)
- * Circles: tap play/pause · long-press layer sheet (level/pan/mute/solo/delete)
+ * Circles: tap play/pause · double-tap opens track controls · hold asks to confirm delete
  * Clear: wipe all layers
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
@@ -595,6 +595,36 @@ export function mountLooper({ root } = {}) {
     setTimeout(() => document.addEventListener('pointerdown', onDoc, true), 0);
   }
 
+  function confirmDeleteLayer(index) {
+    const layer = layers[index];
+    if (!layer) return;
+    document.getElementById('looperDeleteDialog')?.remove();
+    const dialog = document.createElement('dialog');
+    dialog.id = 'looperDeleteDialog';
+    dialog.className = 'looper-save-dialog looper-delete-dialog';
+    dialog.innerHTML = `
+      <form method="dialog" class="looper-save-form">
+        <p class="looper-save-eyebrow">PIONIER · LOOP</p>
+        <h2>Delete track ${index + 1}?</h2>
+        <p class="looper-save-copy">This removes the recorded track. This cannot be undone.</p>
+        <div class="looper-save-actions">
+          <button type="button" class="looper-save-cancel">Keep track</button>
+          <button type="button" class="looper-save-confirm">Delete track</button>
+        </div>
+      </form>`;
+    document.body.appendChild(dialog);
+    dialog.querySelector('.looper-save-cancel').addEventListener('click', () => dialog.close());
+    dialog.querySelector('.looper-save-confirm').addEventListener('click', () => {
+      if (layers[index] === layer) deleteLayer(index);
+      dialog.close();
+    });
+    dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+    dialog.addEventListener('close', () => dialog.remove(), { once: true });
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+    else dialog.setAttribute('open', '');
+    dialog.querySelector('.looper-save-cancel').focus({ preventScroll: true });
+  }
+
   function renderCircles() {
     layersEl.innerHTML = '';
     layers.forEach((layer, i) => {
@@ -610,7 +640,7 @@ export function mountLooper({ root } = {}) {
         pressTimer = setTimeout(() => {
           longFired = true;
           if (pendingTap) { clearTimeout(pendingTap.timer); pendingTap = null; }
-          openSheet(i, c);
+          confirmDeleteLayer(i);
         }, LONG_MS);
       });
       const end = (e) => {
