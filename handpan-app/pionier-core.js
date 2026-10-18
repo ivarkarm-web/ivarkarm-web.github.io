@@ -622,6 +622,9 @@ document.addEventListener('click', (event) => {
   const action = target && TUNING_ACTIONS[target.id];
   if (!action) return;
   event.preventDefault();
+  // This is the single source of truth for tuning buttons. Stop legacy target/bubble
+  // handlers from applying the same step a second time and making pitch appear unchanged.
+  event.stopImmediatePropagation();
   action();
 }, true);
 
