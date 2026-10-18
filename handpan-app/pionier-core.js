@@ -163,17 +163,22 @@ app.catchMode = new CatchMode({
 app.catchMode.reducedMotion = app.reducedMotion;
 
 function updateLabels() {
-  const scaleEl = document.getElementById('scaleLabel');
-  const rootEl = document.getElementById('rootLabel');
-  const noteCountEl = document.getElementById('noteCountLabel');
-  if (scaleEl && handpan.scaleLabel) scaleEl.textContent = handpan.scaleLabel + ' \u25be';
-  if (rootEl && handpan.rootLabel) rootEl.textContent = handpan.rootLabel;
-  if (noteCountEl) {
-    const n = Number.isFinite(handpan.noteCount) ? handpan.noteCount : 9;
-    noteCountEl.textContent = String(n);
-  }
-  // Disable note-count steppers at limits (9–14)
   const n = Number.isFinite(handpan.noteCount) ? handpan.noteCount : 9;
+  const scaleText = handpan.scaleLabel || 'Scale';
+  const rootText = handpan.rootLabel || 'C';
+  const octaveText = String(Number.isFinite(handpan.octaveOffset) ? handpan.octaveOffset : 0);
+  for (const id of ['scaleLabel', 'scaleLabelDesktop']) {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = scaleText + ' \u25be'; el.title = scaleText; }
+  }
+  for (const id of ['rootLabel', 'rootLabelDesktop']) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = rootText;
+  }
+  const noteCountEl = document.getElementById('noteCountLabel');
+  if (noteCountEl) noteCountEl.textContent = String(n);
+  const octaveEl = document.getElementById('octaveLabel');
+  if (octaveEl) octaveEl.textContent = octaveText;
   const prevN = document.getElementById('noteCountPrev');
   const nextN = document.getElementById('noteCountNext');
   if (prevN) prevN.disabled = n <= 9;
@@ -583,20 +588,25 @@ function refreshPitch() {
     if (typeof window.__pionierCenterPan === 'function') window.__pionierCenterPan();
   } catch (_) {}
 }
-wire('scalePrev', () => {
-  const n = HANDPAN_SCALES.length;
-  handpan.setScaleIndex((handpan.scaleIndex - 1 + n) % n);
+function stepScale(delta) {
+  const count = HANDPAN_SCALES.length;
+  handpan.setScaleIndex((handpan.scaleIndex + delta + count) % count);
   refreshPitch();
-});
-wire('scaleNext', () => {
-  const n = HANDPAN_SCALES.length;
-  handpan.setScaleIndex((handpan.scaleIndex + 1) % n);
+}
+function stepRoot(delta) {
+  handpan.setRootIndex((handpan.rootIndex + delta + 12) % 12);
   refreshPitch();
-});
-// HTML ids: rootPrev / rootNext (root wraps over 12)
-wire('rootPrev', () => { handpan.setRootIndex((handpan.rootIndex - 1 + 12) % 12); refreshPitch(); });
-wire('rootNext', () => { handpan.setRootIndex((handpan.rootIndex + 1) % 12); refreshPitch(); });
-// HTML ids: noteCountPrev / noteCountNext (clamp 9–14 via changeNoteCount)
+}
+function stepOctave(delta) {
+  handpan.setOctaveOffset((Number(handpan.octaveOffset) || 0) + delta);
+  refreshPitch();
+}
+for (const id of ['scalePrev', 'scalePrevDesktop']) wire(id, () => stepScale(-1));
+for (const id of ['scaleNext', 'scaleNextDesktop']) wire(id, () => stepScale(1));
+for (const id of ['rootPrev', 'rootPrevDesktop']) wire(id, () => stepRoot(-1));
+for (const id of ['rootNext', 'rootNextDesktop']) wire(id, () => stepRoot(1));
+wire('octavePrev', () => stepOctave(-1));
+wire('octaveNext', () => stepOctave(1));
 wire('noteCountPrev', () => { changeNoteCount(-1); });
 wire('noteCountNext', () => { changeNoteCount(1); });
 
