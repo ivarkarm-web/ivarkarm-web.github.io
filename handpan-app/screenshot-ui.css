@@ -153,3 +153,15 @@ body::before{background:var(--bg)!important}
   cursor: not-allowed !important;
   filter: saturate(.35);
 }
+
+
+/* The legacy :has() rule hides the entire drawer when its obsolete toggle is hidden.
+   The compact reference UI uses always-visible controls, so override that ancestor too. */
+@media (max-width: 899px) {
+  #app #mobileControlDrawer:has(#mobileControlsToggle[hidden]) {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+}
