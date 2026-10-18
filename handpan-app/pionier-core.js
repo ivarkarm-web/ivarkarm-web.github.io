@@ -601,14 +601,29 @@ function stepOctave(delta) {
   handpan.setOctaveOffset((Number(handpan.octaveOffset) || 0) + delta);
   refreshPitch();
 }
-for (const id of ['scalePrev', 'scalePrevDesktop']) wire(id, () => stepScale(-1));
-for (const id of ['scaleNext', 'scaleNextDesktop']) wire(id, () => stepScale(1));
-for (const id of ['rootPrev', 'rootPrevDesktop']) wire(id, () => stepRoot(-1));
-for (const id of ['rootNext', 'rootNextDesktop']) wire(id, () => stepRoot(1));
-wire('octavePrev', () => stepOctave(-1));
-wire('octaveNext', () => stepOctave(1));
-wire('noteCountPrev', () => { changeNoteCount(-1); });
-wire('noteCountNext', () => { changeNoteCount(1); });
+// Delegate tuning controls from the document so they remain wired if the responsive
+// layout reparents controls between the mobile panel and desktop sidebar.
+const TUNING_ACTIONS = {
+  scalePrev: () => stepScale(-1),
+  scalePrevDesktop: () => stepScale(-1),
+  scaleNext: () => stepScale(1),
+  scaleNextDesktop: () => stepScale(1),
+  rootPrev: () => stepRoot(-1),
+  rootPrevDesktop: () => stepRoot(-1),
+  rootNext: () => stepRoot(1),
+  rootNextDesktop: () => stepRoot(1),
+  octavePrev: () => stepOctave(-1),
+  octaveNext: () => stepOctave(1),
+  noteCountPrev: () => changeNoteCount(-1),
+  noteCountNext: () => changeNoteCount(1),
+};
+document.addEventListener('click', (event) => {
+  const target = event.target instanceof Element ? event.target.closest('button') : null;
+  const action = target && TUNING_ACTIONS[target.id];
+  if (!action) return;
+  event.preventDefault();
+  action();
+}, true);
 
 const INSTRUMENT_GROUP_ORDER = [
   { id: 'handpan', label: 'Handpan' },
@@ -724,6 +739,7 @@ function changeNoteCount(delta) {
   if (active && active.zoneFlash && after > before && after - 1 < active.zoneFlash.length) active.zoneFlash[after - 1] = 0.3;
   updateLabels();
   draw();
+  window.dispatchEvent(new CustomEvent('pionier:note-count', { detail: { count: after } }));
   return true;
 }
 
