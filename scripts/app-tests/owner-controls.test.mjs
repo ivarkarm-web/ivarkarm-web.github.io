@@ -17,10 +17,10 @@ test('HTML exposes rootPrev/Next and noteCountPrev/Next; core binds them', () =>
   for (const id of ['rootPrev', 'rootNext', 'noteCountPrev', 'noteCountNext', 'rootLabel', 'noteCountLabel']) {
     assert.match(html, new RegExp(`id="${id}"`), `missing #${id} in HTML`);
   }
-  assert.match(core, /for \(const id of \['rootPrev', 'rootPrevDesktop'\]\) wire\(id/);
-  assert.match(core, /for \(const id of \['rootNext', 'rootNextDesktop'\]\) wire\(id/);
-  assert.match(core, /wire\('noteCountPrev'/);
-  assert.match(core, /wire\('noteCountNext'/);
+  assert.match(core, /rootPrev:\s*\(\)\s*=>\s*stepRoot\(-1\)/);
+  assert.match(core, /rootNext:\s*\(\)\s*=>\s*stepRoot\(1\)/);
+  assert.match(core, /noteCountPrev:\s*\(\)\s*=>\s*changeNoteCount\(-1\)/);
+  assert.match(core, /noteCountNext:\s*\(\)\s*=>\s*changeNoteCount\(1\)/);
   // Dead ids must not be wired
   assert.doesNotMatch(core, /wire\('rootDown'/);
   assert.doesNotMatch(core, /wire\('rootUp'/);
@@ -72,12 +72,12 @@ test('desktop scale, root and octave controls are wired to shared pitch state', 
   for (const id of ['scalePrevDesktop', 'scaleNextDesktop', 'scaleLabelDesktop', 'rootPrevDesktop', 'rootNextDesktop', 'rootLabelDesktop', 'octavePrev', 'octaveNext', 'octaveLabel']) {
     assert.match(html, new RegExp(`id="${id}"`), `missing #${id}`);
   }
-  assert.match(core, /for \(const id of \['scalePrev', 'scalePrevDesktop'\]\) wire\(id/);
-  assert.match(core, /for \(const id of \['scaleNext', 'scaleNextDesktop'\]\) wire\(id/);
-  assert.match(core, /for \(const id of \['rootPrev', 'rootPrevDesktop'\]\) wire\(id/);
-  assert.match(core, /for \(const id of \['rootNext', 'rootNextDesktop'\]\) wire\(id/);
-  assert.match(core, /wire\('octavePrev'/);
-  assert.match(core, /wire\('octaveNext'/);
+  assert.match(core, /scalePrev:\s*\(\)\s*=>\s*stepScale\(-1\)/);
+  assert.match(core, /scaleNext:\s*\(\)\s*=>\s*stepScale\(1\)/);
+  assert.match(core, /rootPrevDesktop:\s*\(\)\s*=>\s*stepRoot\(-1\)/);
+  assert.match(core, /rootNextDesktop:\s*\(\)\s*=>\s*stepRoot\(1\)/);
+  assert.match(core, /octavePrev:\s*\(\)\s*=>\s*stepOctave\(-1\)/);
+  assert.match(core, /octaveNext:\s*\(\)\s*=>\s*stepOctave\(1\)/);
   assert.match(core, /setOctaveOffset/);
   assert.match(core, /rootLabelDesktop/);
   assert.match(core, /scaleLabelDesktop/);
