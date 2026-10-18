@@ -402,6 +402,30 @@
         document.getElementById('fxPanelOpen')?.focus?.();
       });
     }
+    document.querySelectorAll('.fx-circle-knob[data-fx]').forEach((button) => {
+      if (button.dataset.overlayWired) return;
+      button.dataset.overlayWired = '1';
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const panel = document.getElementById('fxPanel');
+        if (!panel) return;
+        const fx = button.dataset.fx || 'filter';
+        const active = panel.dataset.activeFx || 'filter';
+        if (!panel.hidden && active === fx) {
+          closeFx();
+          return;
+        }
+        if (panel.hidden) openFx();
+        panel.dataset.activeFx = fx;
+        const title = document.getElementById('fxPanelTitle');
+        if (title) title.textContent = ({ filter: 'Filter', delay: 'Delay', reverb: 'Reverb', env: 'Envelope' })[fx] || 'Effects';
+        document.querySelectorAll('.fx-circle-knob[data-fx]').forEach((item) => {
+          item.classList.toggle('is-active', item === button);
+          item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
+        });
+      });
+    });
   }
 
   function recoverChrome() {
