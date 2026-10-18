@@ -139,3 +139,17 @@ body::before{background:var(--bg)!important}
   }
   #app .mobile-controls-toggle { display: none !important; }
 }
+
+
+/* Clearly communicate the unavailable recording-share action without suggesting it works. */
+.recording-share-empty {
+  margin: 10px 0 0;
+  color: var(--muted, rgba(232,230,227,.58));
+  font: 12px/1.5 Inter, system-ui, sans-serif;
+  text-align: center;
+}
+#recShare:disabled {
+  opacity: .42 !important;
+  cursor: not-allowed !important;
+  filter: saturate(.35);
+}
