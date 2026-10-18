@@ -138,6 +138,7 @@ export function mountLooper({ root } = {}) {
   let pendingTap = null;
   let trackPanelEl = null;
   let trackPanelKeyHandler = null;
+  let trackPanelProgressTimer = null;
   let openSheetIndex = -1;
   let sheetEl = null;
   let syncModeIndex = 0;
@@ -400,11 +401,17 @@ export function mountLooper({ root } = {}) {
     return n * beat;
   }
 
+  function formatLoopTime(seconds) {
+    const safe = Math.max(0, Math.floor(Number(seconds) || 0));
+    return Math.floor(safe / 60) + ':' + String(safe % 60).padStart(2, '0');
+  }
+
   function closeTrackPanel() {
     if (trackPanelKeyHandler) {
       document.removeEventListener('keydown', trackPanelKeyHandler);
       trackPanelKeyHandler = null;
     }
+    if (trackPanelProgressTimer) { clearInterval(trackPanelProgressTimer); trackPanelProgressTimer = null; }
     if (trackPanelEl) { trackPanelEl.remove(); trackPanelEl = null; }
   }
 
@@ -422,6 +429,7 @@ export function mountLooper({ root } = {}) {
           <button type="button" class="looper-track-close" aria-label="Close track controls">×</button>
         </header>
         <div class="looper-track-transport"><button type="button" class="looper-track-play"></button><span class="looper-track-status"></span></div>
+        <div class="looper-track-position"><input data-control="position" aria-label="Track playback position" type="range" min="0" max="${Math.max(0.01, layer.buffer.duration || 0.01)}" step="0.01"><div><output class="looper-track-elapsed">0:00</output><span>/</span><span class="looper-track-duration">${formatLoopTime(layer.buffer.duration || 0)}</span></div></div>
         <div class="looper-track-control"><label for="track-level-${index}"><span>Track level</span><output></output></label><input id="track-level-${index}" data-control="level" type="range" min="0" max="1" step="0.01"></div>
         <div class="looper-track-control"><label for="track-master-${index}"><span>Master output</span><output></output></label><input id="track-master-${index}" data-control="master" type="range" min="0" max="1.5" step="0.01"></div>
         <div class="looper-track-control"><label for="track-delay-${index}"><span>Delay send</span><output></output></label><input id="track-delay-${index}" data-control="delay" type="range" min="0" max="0.75" step="0.01"></div>
@@ -444,6 +452,23 @@ export function mountLooper({ root } = {}) {
       status.textContent = current.paused ? 'PAUSED' : 'PLAYING';
     };
     play.addEventListener('click', () => { toggleLayer(index); updateTransport(); });
+    const position = panel.querySelector('[data-control="position"]');
+    const elapsed = panel.querySelector('.looper-track-elapsed');
+    const duration = Math.max(0.01, layer.buffer.duration || 0.01);
+    const updatePosition = () => {
+      const ctx = getAudioContext();
+      const value = layer.paused || !ctx ? (layer.offset || 0) : layer.startedAt > ctx.currentTime ? 0 : ((ctx.currentTime - layer.startedAt) % duration + duration) % duration;
+      if (document.activeElement !== position) position.value = String(Math.min(duration, value));
+      elapsed.textContent = formatLoopTime(value);
+      updateTransport();
+    };
+    position.addEventListener('input', () => { elapsed.textContent = formatLoopTime(Number(position.value)); });
+    position.addEventListener('change', () => {
+      layer.offset = Math.min(duration, Math.max(0, Number(position.value) || 0));
+      if (!layer.paused) startLayerSource(layer, layer.offset);
+      updatePosition();
+    });
+    trackPanelProgressTimer = setInterval(updatePosition, 120);
     const addRange = (name, value, format, apply) => {
       const input = panel.querySelector(`[data-control="${name}"]`);
       const output = input.parentElement.querySelector('output');
