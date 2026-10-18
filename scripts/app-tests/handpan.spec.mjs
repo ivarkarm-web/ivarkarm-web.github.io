@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/handpan-app/index.html');
+  await page.goto('/handpan-app/index.html', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#pan')).toBeVisible();
   await expect(page.locator('#instrumentDropdownToggle')).toBeVisible();
   await expect.poll(() => page.evaluate(() => {
