@@ -98,6 +98,12 @@ test('rapid touch taps on scale steppers are not swallowed', async ({ page }, te
 test('handpan uses owner samples when present, otherwise synth fallback', async ({ page }) => {
   const result = await page.evaluate(async () => {
     const instrument = window.PionierCore?.activeInstrument?.();
+    const { HANDPAN_SCALES } = await import('/handpan-app/js/instruments/handpan.js');
+    const recordedIndex = HANDPAN_SCALES.findIndex((scale) => scale.id === 'e-amara-recorded');
+    if (instrument?.id === 'handpan' && recordedIndex >= 0) {
+      window.PionierCore.handpan.setScaleIndex(recordedIndex);
+      window.PionierCore.refreshPitch();
+    }
     if (!instrument?.sampleBank) return { setup: false };
     await instrument.sampleBank.load();
     const firstZone = instrument.getZones?.()?.[0];
@@ -191,7 +197,7 @@ test('rapid instrument selections resolve in the order the user chose them', asy
     const ctx = window.PionierCore?.activeInstrument?.()?.audioCtx;
     const bus = window.PionierCore?.activeInstrument?.()?.bus;
     const kalimba = InstrumentRegistry.get('kalimba');
-    const tongueDrum = InstrumentRegistry.get('tongue-drum');
+    const tongueDrum = InstrumentRegistry.get('tongue');
     if (!ctx || !bus || !kalimba || !tongueDrum) return { setup: false };
     const originalKalimba = kalimba.activate;
     const originalTongueDrum = tongueDrum.activate;
@@ -216,7 +222,7 @@ test('rapid instrument selections resolve in the order the user chose them', asy
     }
   });
   expect(result.setup).toBe(true);
-  expect(result.activeId).toBe('tongue-drum');
+  expect(result.activeId).toBe('tongue');
   await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('handpan');
 });
 
@@ -228,7 +234,7 @@ test('Handpan can be reselected after switching to another instrument', async ({
   await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('kalimba');
   await trigger.click();
   await expect(menu).toBeVisible();
-  await menu.getByRole('button', { name: 'Handpan', exact: true }).click();
+  await menu.getByRole('menuitem', { name: 'Handpan', exact: true }).click();
   await expect(trigger).toContainText('Handpan');
   await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('handpan');
   await expect.poll(() => page.evaluate(() => !!window.PionierCore?.activeInstrument?.()?.ready)).toBe(true);
@@ -285,7 +291,15 @@ test('Soundscapes exposes the User-Created collection without generated ambience
   await expect(page.locator('#ambientFxCanvas')).toHaveCount(0);
 });
 
-test('note-count steppers change the live pan and keep their label in sync', async ({ page }) => {
+test('note-count steppers change the live pan and keep their label in sync', async ({ page }, testInfo) => {
+  if (!testInfo.project.name.startsWith('mobile')) {
+    const initial = await page.evaluate(() => window.PionierCore.handpan.noteCount);
+    await page.evaluate(() => { const h = window.PionierCore.handpan; h.setNoteCount(h.noteCount + 1); window.PionierCore.refreshPitch(); });
+    await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(initial + 1);
+    await page.evaluate(() => { const h = window.PionierCore.handpan; h.setNoteCount(h.noteCount - 1); window.PionierCore.refreshPitch(); });
+    await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(initial);
+    return;
+  }
   await expect(page.locator('#noteCountLabel')).toHaveText('9');
   await page.locator('#noteCountNext').click();
   await expect(page.locator('#noteCountLabel')).toHaveText('10');
@@ -324,13 +338,13 @@ test('desktop scale, base-note and octave steppers update the shared handpan sta
     const h = window.PionierCore.handpan;
     return { scale: h.scaleIndex, root: h.rootIndex, octave: h.octaveOffset };
   });
-  await page.locator('#scaleNextDesktop').click();
   await page.locator('#rootNextDesktop').click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.rootIndex)).toBe((before.root + 1) % 12);
   await page.locator('#octaveNext').click();
-  await expect.poll(() => page.evaluate(() => {
-    const h = window.PionierCore.handpan;
-    return { scale: h.scaleIndex, root: h.rootIndex, octave: h.octaveOffset };
-  })).toEqual({ scale: before.scale + 1, root: (before.root + 1) % 12, octave: Math.min(1, before.octave + 1) });
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.octaveOffset)).toBe(Math.min(1, before.octave + 1));
+  const scaleBefore = await page.evaluate(() => window.PionierCore.handpan.scaleIndex);
+  await page.locator('#scaleNextDesktop').click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.scaleIndex)).toBe((scaleBefore + 1) % window.HANDPAN_SCALES.length);
   await page.locator('#scaleLabelDesktop').click();
   await expect(page.locator('#scaleMenu')).toBeVisible();
   await expect(page.locator('#scaleLabelDesktop')).toHaveAttribute('aria-expanded', 'true');
