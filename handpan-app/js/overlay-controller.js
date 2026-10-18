@@ -451,11 +451,10 @@
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', wire);
-  } else {
-    wire();
-  }
+  // This classic script is loaded at the end of the document, so every owned
+  // control already exists. Wire immediately: the module app shell uses top-level
+  // await, which can delay DOMContentLoaded while users/tests can already interact.
+  wire();
   // Safety net for stuck backdrop / translated app after rapid switches
   setInterval(recoverChrome, 1500);
   document.addEventListener('visibilitychange', () => {
