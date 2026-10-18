@@ -782,7 +782,6 @@ export function mountLooper({ root } = {}) {
     e.preventDefault();
     e.stopPropagation();
   });
-  clearBtn.addEventListener('pointerup', onClear);
   clearBtn.addEventListener('click', onClear);
 
   syncBtn.addEventListener('click', (e) => {
