@@ -6,10 +6,6 @@
   'use strict';
   function hideLegacy() {
     const legacyIds = [
-      'looperRail',
-      'looperRecordCluster',
-      'looperLayers',
-      'looperClearBtn',
       'fxPanelOpen',
       'settingsOpenBtn',
       'settingsSheet',
