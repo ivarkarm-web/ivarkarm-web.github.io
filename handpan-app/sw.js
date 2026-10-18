@@ -4,7 +4,7 @@
  * app's dynamic imports. Network-first for versioned assets prevents stale
  * code from surviving a deployment; CACHE_VERSION invalidates the old shell.
  */
-const CACHE_VERSION = 'pionier-v82';
+const CACHE_VERSION = 'pionier-v83';
 
 const SHELL = [
   './',
@@ -16,7 +16,7 @@ const SHELL = [
   './soundscapes-shell.css?v=2',
   './legacy-hide.css?v=1',
   './topbar-narrow.css?v=6',
-  './looper.css?v=208',
+  './looper.css?v=209',
   './scale-menu.css?v=9',
   './atelier.css?v=10',
   './ui-stability.css?v=5',
