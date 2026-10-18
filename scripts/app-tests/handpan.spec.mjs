@@ -95,7 +95,7 @@ test('rapid touch taps on scale steppers are not swallowed', async ({ page }, te
 
 
 
-test('handpan uses owner samples when present, otherwise synth fallback', async ({ page }) => {
+test('handpan uses owner samples and refuses synthetic replacement when recordings are unavailable', async ({ page }) => {
   const result = await page.evaluate(async () => {
     const instrument = window.PionierCore?.activeInstrument?.();
     const { HANDPAN_SCALES } = await import('/handpan-app/js/instruments/handpan.js');
@@ -116,6 +116,7 @@ test('handpan uses owner samples when present, otherwise synth fallback', async 
       sampleCount: instrument.sampleBank.byMidi.size,
       sampleReady: instrument.sampleBank.ready,
       voiceKind: voice?.kind,
+      voiceCount: instrument.activeVoices.size,
       status: instrument.sampleBank.manifest?.status || null
     };
     instrument.dampAll();
@@ -128,9 +129,11 @@ test('handpan uses owner samples when present, otherwise synth fallback', async 
     expect(result.sampleCount).toBeGreaterThanOrEqual(9);
     expect(['sample', 'synth']).toContain(result.voiceKind);
   } else {
-    // Empty bank → procedural synth fallback.
+    // Empty bank: recorded E Amara intentionally stays silent rather than
+    // substituting a synthetic timbre that would misrepresent the owner sample.
     expect(result.sampleReady).toBe(false);
-    expect(result.voiceKind).toBe('synth');
+    expect(result.voiceCount).toBe(0);
+    expect(result.voiceKind).toBeUndefined();
   }
 });
 
@@ -212,7 +215,7 @@ test('rapid instrument selections resolve in the order the user chose them', asy
     try {
       await Promise.all([
         InstrumentRegistry.setActive('kalimba', ctx, bus),
-        InstrumentRegistry.setActive('tongue-drum', ctx, bus)
+        InstrumentRegistry.setActive('tongue', ctx, bus)
       ]);
       return { setup: true, activeId: InstrumentRegistry.activeId };
     } finally {
@@ -332,7 +335,8 @@ test('mobile instrument and scale pickers open as visible, tappable sheets', asy
   await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(before + 1);
 });
 
-test('desktop scale, base-note and octave steppers update the shared handpan state', async ({ page }) => {
+test('desktop scale, base-note and octave steppers update the shared handpan state', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.startsWith('mobile'), 'desktop control layout only');
   await page.setViewportSize({ width: 1280, height: 800 });
   const before = await page.evaluate(() => {
     const h = window.PionierCore.handpan;
@@ -342,9 +346,12 @@ test('desktop scale, base-note and octave steppers update the shared handpan sta
   await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.rootIndex)).toBe((before.root + 1) % 12);
   await page.locator('#octaveNext').click();
   await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.octaveOffset)).toBe(Math.min(1, before.octave + 1));
-  const scaleBefore = await page.evaluate(() => window.PionierCore.handpan.scaleIndex);
+  const { scaleBefore, scaleCount } = await page.evaluate(() => ({
+    scaleBefore: window.PionierCore.handpan.scaleIndex,
+    scaleCount: window.HANDPAN_SCALES.length
+  }));
   await page.locator('#scaleNextDesktop').click();
-  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.scaleIndex)).toBe((scaleBefore + 1) % window.HANDPAN_SCALES.length);
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.scaleIndex)).toBe((scaleBefore + 1) % scaleCount);
   await page.locator('#scaleLabelDesktop').click();
   await expect(page.locator('#scaleMenu')).toBeVisible();
   await expect(page.locator('#scaleLabelDesktop')).toHaveAttribute('aria-expanded', 'true');
