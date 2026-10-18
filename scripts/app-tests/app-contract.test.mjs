@@ -29,7 +29,9 @@ test('Pionier entry surface matches the deployed instrument UI', () => {
     'scaleLabel',
     'scaleMenu',
     'looperRail',
-    'looperClearBtn',
+    'looperBtn',
+    'looperCloseBtn',
+    'toggleLooper',
     'voicePrev',
     'voiceNext',
   ]) {
