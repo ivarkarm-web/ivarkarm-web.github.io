@@ -12,7 +12,7 @@
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
 import { encodeLoopMix, uploadLoopToRepository } from './repository-loop-save.js?v=2';
 
-const MAX_LAYERS = 8;
+const MAX_LAYERS = 4;
 const LONG_MS = 480;
 const DEFAULT_LEVEL = 0.92;
 const BEATS_PER_BAR = 4;
@@ -124,6 +124,19 @@ export function mountLooper({ root } = {}) {
     saveBtn.title = 'Save recording to repository';
   }
   if (saveBtn.parentElement !== cluster) cluster.appendChild(saveBtn);
+
+  let exportBtn = document.getElementById('looperExportBtn');
+  if (!exportBtn) {
+    exportBtn = document.createElement('button');
+    exportBtn.type = 'button';
+    exportBtn.id = 'looperExportBtn';
+    exportBtn.className = 'looper-export-btn';
+    exportBtn.textContent = 'Export WAV';
+    exportBtn.setAttribute('aria-label', 'Export loop mix as WAV');
+    exportBtn.title = 'Export loop mix as WAV';
+  }
+  if (exportBtn.parentElement !== cluster) cluster.insertBefore(exportBtn, saveBtn);
+
   syncBtn.setAttribute('aria-label', 'Sync mode: Free');
   syncBtn.title = SYNC_MODES[0].title;
 
@@ -255,6 +268,8 @@ export function mountLooper({ root } = {}) {
     clearBtn.hidden = false;
     saveBtn.disabled = !hasLayers || recording || pendingLoopStop;
     saveBtn.classList.toggle('is-available', hasLayers && !recording && !pendingLoopStop);
+    exportBtn.disabled = !hasLayers || recording || pendingLoopStop;
+    exportBtn.classList.toggle('is-available', hasLayers && !recording && !pendingLoopStop);
 
     const mode = SYNC_MODES[syncModeIndex];
     syncBtn.dataset.mode = mode.id;
@@ -584,6 +599,25 @@ export function mountLooper({ root } = {}) {
     input.select();
   }
   saveBtn.addEventListener('click', openSaveDialog);
+
+  function exportWav() {
+    if (!layers.length || recording || pendingLoopStop) return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const duration = Math.max(...layers.map((layer) => Number(layer.buffer?.duration) || 0));
+    if (!(duration > 0)) return;
+    const blob = encodeLoopMix(layers, ctx.sampleRate, duration);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'pionier-loop.wav';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+  exportBtn.addEventListener('click', exportWav);
 
   function startRecord() {
     if (layers.length >= MAX_LAYERS) return;
