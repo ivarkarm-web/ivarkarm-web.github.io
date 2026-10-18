@@ -136,10 +136,14 @@ test('stale saved instrument selection safely falls back to Handpan', async ({ p
   await expect.poll(() => page.evaluate(() => localStorage.getItem('pionier.activeInstrument'))).toBe('handpan');
 });
 
-test('boots the local core without runtime source-fetch errors', async ({ page }) => {
+test('boots the local core without runtime source-fetch errors', async ({ page }, testInfo) => {
   await expect(page.locator('#instrumentMenu')).toBeAttached();
   await expect(page.locator('#mobileControlDrawer')).toBeAttached();
-  await expect(page.locator('#mobileControlPanel')).toBeVisible();
+  if (testInfo.project.name.startsWith('mobile')) {
+    await expect(page.locator('#mobileControlPanel')).toBeVisible();
+  } else {
+    await expect(page.locator('#leftSidebar')).toBeVisible();
+  }
   await expect(page.locator('#knobMaster')).toBeAttached();
   const boot = await page.evaluate(() => ({
     core: !!window.PionierCore,
@@ -154,7 +158,7 @@ test('boots the local core without runtime source-fetch errors', async ({ page }
 
 for (const [instrumentName, instrumentId] of [
   ['Kalimba', 'kalimba'],
-  ['Tongue Drum', 'tongue']
+  ['Steel Tongue Drum', 'tongue']
 ]) {
   test(`${instrumentName} selection activates its actual engine`, async ({ page }) => {
     const trigger = page.locator('#instrumentDropdownToggle');
@@ -220,7 +224,7 @@ test('Handpan can be reselected after switching to another instrument', async ({
   const trigger = page.locator('#instrumentDropdownToggle');
   const menu = page.locator('#instrumentMenu');
   await trigger.click();
-  await menu.getByRole('button', { name: 'Kalimba', exact: true }).click();
+  await menu.getByRole('menuitem', { name: 'Kalimba', exact: true }).click();
   await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('kalimba');
   await trigger.click();
   await expect(menu).toBeVisible();
@@ -281,14 +285,14 @@ test('Soundscapes exposes the User-Created collection without generated ambience
   await expect(page.locator('#ambientFxCanvas')).toHaveCount(0);
 });
 
-test('note-count controls add and remove notes without losing the instrument core', async ({ page }) => {
-  await expect(page.locator('#notePlusCount')).toHaveText('9/13');
-  await page.locator('#notePlus').click();
-  await expect(page.locator('#notePlusCount')).toHaveText('10/13');
-  await expect(page.locator('#noteMinus')).toBeVisible();
-  await page.locator('#noteMinus').click();
-  await expect(page.locator('#notePlusCount')).toHaveText('9/13');
-  const core = await page.evaluate(() => window.PionierCore.noteCount());
+test('note-count steppers change the live pan and keep their label in sync', async ({ page }) => {
+  await expect(page.locator('#noteCountLabel')).toHaveText('9');
+  await page.locator('#noteCountNext').click();
+  await expect(page.locator('#noteCountLabel')).toHaveText('10');
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(10);
+  await page.locator('#noteCountPrev').click();
+  await expect(page.locator('#noteCountLabel')).toHaveText('9');
+  const core = await page.evaluate(() => window.PionierCore.handpan.noteCount);
   expect(core).toBe(9);
 });
 
@@ -310,8 +314,8 @@ test('mobile instrument and scale pickers open as visible, tappable sheets', asy
   const touchAction = await page.locator('#pan').evaluate((canvas) => getComputedStyle(canvas).pointerEvents);
   expect(touchAction).not.toBe('none');
   const before = await page.evaluate(() => window.PionierCore.noteCount());
-  await page.locator('#notePlus').click();
-  await expect.poll(() => page.evaluate(() => window.PionierCore.noteCount())).toBe(before + 1);
+  await page.locator('#noteCountNext').click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(before + 1);
 });
 
 test('desktop scale, base-note and octave steppers update the shared handpan state', async ({ page }) => {
