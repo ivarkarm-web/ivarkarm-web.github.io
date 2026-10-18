@@ -121,7 +121,7 @@ async function boot() {
     await import(new URL('./js/soundscapes.js?v=10', BASE).href);
   } catch (err) {
     console.error('[soundscapes] module failed to initialize', err);
-    degraded.push('soundscapes');
+    degraded.push('Soundscapes');
   }
 
   try {
@@ -172,8 +172,16 @@ async function boot() {
     degraded.push('scale-selector');
   }
 
+  // Core can load successfully while audio output or browser storage is unavailable.
+  // Surface those degraded states instead of silently marking the app ready.
+  try {
+    const health = window.PionierCore?.health?.();
+    if (health?.audioAvailable === false) degraded.push('audio output');
+    if (health?.storageAvailable === false) degraded.push('saved settings');
+  } catch (_) {}
+
   if (degraded.length) {
-    setBootStatus('degraded', 'Some features unavailable: ' + degraded.join(', '), true);
+    setBootStatus('degraded', 'Some features unavailable: ' + [...new Set(degraded)].join(', '), true);
   } else {
     setBootStatus('ready');
   }
