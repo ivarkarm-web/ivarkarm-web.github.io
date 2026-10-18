@@ -299,6 +299,9 @@ if (page && audio) {
   communityTab?.addEventListener('click', () => { setCollection('community'); refreshCommunitySongs(); });
   openButton?.addEventListener('click', () => { showSoundscapes(true); refreshCommunitySongs(); });
   closeButton?.addEventListener('click', () => showSoundscapes(false));
+  // Keep the dedicated back-to-instrument control in sync with the Soundscapes
+  // module's hidden state as well as the core page-tab state.
+  document.getElementById('tabHandpanFromSS')?.addEventListener('click', () => showSoundscapes(false));
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && page.classList.contains('is-active')) showSoundscapes(false);
   });
