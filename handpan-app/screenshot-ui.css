@@ -194,3 +194,11 @@ body::before{background:var(--bg)!important}
     pointer-events: auto !important;
   }
 }
+
+
+/* Phone play surface: lower the pan into the space just above the bottom controls. */
+@media (max-width: 899px) {
+  #app:not(.soundscapes-active) .stage #pan {
+    transform: translateY(clamp(42px, 10dvh, 86px)) !important;
+  }
+}
