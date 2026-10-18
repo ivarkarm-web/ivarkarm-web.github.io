@@ -27,6 +27,9 @@ read('script.js');
 const appHtml = read('handpan-app/index.html');
 const shell = read('handpan-app/pionier-app.js');
 const coreSrc = read('handpan-app/pionier-core.js');
+const loopControls = read('handpan-app/js/looper.js');
+const loopStyles = read('handpan-app/looper.css');
+const serviceWorker = read('handpan-app/sw.js');
 read('handpan-app/pionier.css');
 read('handpan-app/js/audio-core.js');
 read('handpan-app/js/instrument.js');
@@ -78,6 +81,11 @@ else fail('Portfolio HTML document is incomplete');
 
 if (appHtml.includes('id="pan"') && appHtml.includes('id="instrumentDropdownToggle"')) ok('Pionier has its real instrument entry surface');
 else fail('Pionier instrument entry surface is missing');
+
+if (/function openTrackPanel/.test(loopControls) && /pendingTap\.index === i/.test(loopControls) && /data-control="delay"/.test(loopControls) && /data-control="cut"/.test(loopControls) && /quantizeWait/.test(loopControls) && /delayWet/.test(loopControls)) ok('Double-tap loop mixer exposes playback, level, delay, cutoff and quantize controls');
+else fail('Dedicated loop track mixer wiring is incomplete');
+if (/\.looper-track-overlay/.test(loopStyles) && /looper\.css\?v=209/.test(appHtml) && /js\/looper\.js\?v=210/.test(shell) && /pionier-v68/.test(serviceWorker)) ok('Loop mixer styles and service-worker cache versions are refreshed');
+else fail('Loop mixer cache versions are stale');
 
 // Current shell uses soundscapesPanel + soundscapeAudio (+ optional play control).
 if (
