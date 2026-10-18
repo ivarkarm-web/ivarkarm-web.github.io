@@ -154,7 +154,7 @@ test('boots the local core without runtime source-fetch errors', async ({ page }
 
 for (const [instrumentName, instrumentId] of [
   ['Kalimba', 'kalimba'],
-  ['Tongue Drum', 'tongue-drum']
+  ['Tongue Drum', 'tongue']
 ]) {
   test(`${instrumentName} selection activates its actual engine`, async ({ page }) => {
     const trigger = page.locator('#instrumentDropdownToggle');
