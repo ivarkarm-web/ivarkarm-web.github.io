@@ -23,9 +23,9 @@ export function createSurface(canvas) {
   function getTheme() {
     const p = window.PionierSkinPalette || {};
     const skin = p.classic || {
-      body: ['#3a3a42', '#1c1c22', '#0a0a0e'],
-      pad: [[72, 72, 80], [40, 40, 46], [22, 22, 26]],
-      lip: [110, 110, 120],
+      body: ['#747983', '#343942', '#121419'],
+      pad: [[103, 108, 116], [54, 59, 67], [25, 29, 35]],
+      lip: [172, 181, 194],
       glow: [[250, 252, 255], [200, 220, 250]],
       sheen: 0.14,
     };
@@ -115,7 +115,7 @@ export function createSurface(canvas) {
     ctx2.fill();
     ctx2.restore();
 
-    const body = theme.skin.body || ['#3a3a42', '#1c1c22', '#0a0a0e'];
+    const body = theme.skin.body || ['#747983', '#343942', '#121419'];
     const g = ctx2.createRadialGradient(CX - R * 0.28, CY - R * 0.32, R * 0.05, CX, CY, R);
     g.addColorStop(0, body[0]);
     g.addColorStop(0.5, body[1]);
@@ -137,8 +137,14 @@ export function createSurface(canvas) {
     ctx2.save();
     ctx2.beginPath();
     ctx2.arc(CX, CY, R * 0.965, 0, Math.PI * 2);
-    ctx2.strokeStyle = 'rgba(160,160,170,0.22)';
-    ctx2.lineWidth = Math.max(1.2, R * 0.006);
+    const rimMetal = ctx2.createLinearGradient(CX - R, CY - R, CX + R, CY + R);
+    rimMetal.addColorStop(0, 'rgba(235,239,245,0.72)');
+    rimMetal.addColorStop(0.22, 'rgba(145,153,166,0.34)');
+    rimMetal.addColorStop(0.52, 'rgba(65,71,81,0.78)');
+    rimMetal.addColorStop(0.78, 'rgba(180,188,199,0.42)');
+    rimMetal.addColorStop(1, 'rgba(225,230,238,0.68)');
+    ctx2.strokeStyle = rimMetal;
+    ctx2.lineWidth = Math.max(2, R * 0.012);
     ctx2.stroke();
 
     ctx2.beginPath();
@@ -149,8 +155,8 @@ export function createSurface(canvas) {
 
     ctx2.beginPath();
     ctx2.arc(CX, CY, R * 0.965, Math.PI * 1.15, Math.PI * 1.72);
-    ctx2.strokeStyle = 'rgba(255,255,255,0.14)';
-    ctx2.lineWidth = Math.max(1.4, R * 0.0055);
+    ctx2.strokeStyle = 'rgba(255,255,255,0.42)';
+    ctx2.lineWidth = Math.max(2, R * 0.008);
     ctx2.lineCap = 'round';
     ctx2.stroke();
     ctx2.restore();

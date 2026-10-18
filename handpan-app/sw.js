@@ -4,7 +4,7 @@
  * app's dynamic imports. Network-first for versioned assets prevents stale
  * code from surviving a deployment; CACHE_VERSION invalidates the old shell.
  */
-const CACHE_VERSION = 'pionier-v82';
+const CACHE_VERSION = 'pionier-v84';
 
 const SHELL = [
   './',
@@ -16,26 +16,26 @@ const SHELL = [
   './soundscapes-shell.css?v=2',
   './legacy-hide.css?v=1',
   './topbar-narrow.css?v=6',
-  './looper.css?v=208',
+  './looper.css?v=209',
   './scale-menu.css?v=9',
   './atelier.css?v=10',
   './ui-stability.css?v=5',
   './desktop-reference.css?v=4',
-  './js/skin-palette.js?v=2',
+  './js/skin-palette.js?v=3',
   './js/overlay-controller.js?v=14',
   './js/layout-boot.js?v=100',
   './js/boot-fix.js?v=1',
   './js/ui-extras.js?v=5',
   './js/filter-bridge.js?v=1',
-  './pionier-app.js?v=224',
-  './pionier-core.js?v=59',
+  './pionier-app.js?v=225',
+  './pionier-core.js?v=60',
   './js/soundscapes.js?v=10',
   './js/instruments/arp-family.js?v=3',
   './js/instruments/handpan.js?v=11',
   './js/note-plus.js?v=3',
   './js/looper.js?v=213',
   './js/scale-selector.js?v=7',
-  './js/pionier-surface.js?v=160',
+  './js/pionier-surface.js?v=142',
   './js/fx.js',
   './js/pad-layout.js',
   './registerSW.js',
