@@ -793,5 +793,11 @@ export function mountLooper({ root } = {}) {
 
   setBtnState();
   renderCircles();
-  return { clearAll, layers };
+  window.PionierLooper = {
+    clearAll,
+    layers,
+    exportWav,
+    getState: () => ({ recording, pendingLoopStop, layerCount: layers.length, maxLayers: MAX_LAYERS, syncMode: syncMode() })
+  };
+  return { clearAll, layers, exportWav };
 }
