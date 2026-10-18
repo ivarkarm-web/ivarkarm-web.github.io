@@ -462,6 +462,8 @@ export function mountLooper({ root } = {}) {
     const elapsed = panel.querySelector('.looper-track-elapsed');
     const waveform = panel.querySelector('.looper-waveform');
     const duration = Math.max(0.01, layer.buffer.duration || 0.01);
+    let waveformPeaks = [];
+    let waveformPeakWidth = 0;
     const drawWaveform = (playhead = 0) => {
       if (!waveform) return;
       const rect = waveform.getBoundingClientRect();
@@ -478,13 +480,20 @@ export function mountLooper({ root } = {}) {
       ctx2d.beginPath(); ctx2d.moveTo(0, mid); ctx2d.lineTo(width, mid); ctx2d.stroke();
       const samples = layer.buffer.getChannelData(0);
       const bins = Math.max(1, Math.floor(width / (2 * dpr)));
-      const step = Math.max(1, Math.floor(samples.length / bins));
+      if (waveformPeakWidth !== bins || waveformPeaks.length !== bins) {
+        waveformPeaks = new Array(bins);
+        const step = Math.max(1, Math.floor(samples.length / bins));
+        for (let x = 0; x < bins; x++) {
+          let peak = 0;
+          const start = x * step;
+          const end = Math.min(samples.length, start + step);
+          for (let n = start; n < end; n++) peak = Math.max(peak, Math.abs(samples[n]));
+          waveformPeaks[x] = peak;
+        }
+        waveformPeakWidth = bins;
+      }
       for (let x = 0; x < bins; x++) {
-        let peak = 0;
-        const start = x * step;
-        const end = Math.min(samples.length, start + step);
-        for (let n = start; n < end; n++) peak = Math.max(peak, Math.abs(samples[n]));
-        const bar = Math.max(1.2 * dpr, peak * height * .78);
+        const bar = Math.max(1.2 * dpr, waveformPeaks[x] * height * .78);
         const px = x * width / bins;
         ctx2d.fillStyle = px <= (playhead / duration) * width ? 'rgba(246,218,132,.98)' : 'rgba(210,190,125,.56)';
         ctx2d.fillRect(px, mid - bar / 2, Math.max(1, width / bins * .58), bar);
