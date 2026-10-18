@@ -222,9 +222,10 @@
     bd.removeAttribute('hidden');
     // Focus active item if present, else first menuitem
     requestAnimationFrame(() => {
+      const search = menu.querySelector('.picker-search');
       const active = menu.querySelector('[role="menuitem"].is-active, [aria-current="true"]');
       const first = menu.querySelector('[role="menuitem"], button.scale-menu-item, button');
-      (active || first)?.focus?.();
+      (search || active || first)?.focus?.();
     });
   }
 
