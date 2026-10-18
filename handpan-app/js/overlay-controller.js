@@ -181,6 +181,19 @@
       menu.style.maxHeight = 'min(55dvh, 420px)';
       menu.style.borderRadius = '16px 16px 0 0';
       menu.style.transform = 'none';
+    } else if (menu.id === 'scaleMenu') {
+      // The landscape reference uses a wide scale browser while keeping the
+      // left tuning sidebar visible. Do not constrain this menu to a 320px popover.
+      menu.style.left = '20vw';
+      menu.style.right = '12px';
+      menu.style.width = 'auto';
+      menu.style.maxWidth = 'none';
+      menu.style.top = '100px';
+      menu.style.bottom = '90px';
+      menu.style.maxHeight = 'none';
+      menu.style.height = 'auto';
+      menu.style.transform = 'none';
+      menu.style.borderRadius = '20px';
     } else {
       const r = toggle.getBoundingClientRect();
       const width = Math.min(320, window.innerWidth - 24);
