@@ -165,3 +165,32 @@ body::before{background:var(--bg)!important}
     pointer-events: auto !important;
   }
 }
+
+
+/* A real full-screen dismiss layer sits below the picker sheet, not in normal document flow. */
+.picker-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 5100 !important;
+  display: block;
+  width: 100vw !important;
+  height: 100dvh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: rgba(0,0,0,.42) !important;
+  cursor: default;
+}
+.picker-backdrop[hidden] { display: none !important; }
+#instrumentMenu:not([hidden]), #scaleMenu:not([hidden]) { z-index: 5200 !important; }
+
+/* The legacy hidden toggle also hides the entire drawer on desktop; expose its sidebar contents. */
+@media (min-width: 900px) {
+  #app #mobileControlDrawer:has(#mobileControlsToggle[hidden]) {
+    display: contents !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+}
