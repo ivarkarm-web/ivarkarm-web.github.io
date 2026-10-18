@@ -182,3 +182,14 @@
 .instrument-menu .instrument-menu-item {
   min-height: 44px;
 }
+
+/* Searchable scale and instrument pickers */
+.picker-search { display:block; position:sticky; top:0; z-index:2; box-sizing:border-box; width:100%; min-height:44px; margin:0 0 6px; padding:11px 13px; border:1px solid rgba(255,255,255,.13); border-radius:9px; outline:none; background:rgba(255,255,255,.055); color:#eceae6; font:inherit; font-size:14px; -webkit-appearance:none; appearance:none; }
+.picker-search::placeholder { color:rgba(232,230,227,.42); }
+.picker-search:focus { border-color:rgba(212,176,74,.72); box-shadow:0 0 0 2px rgba(212,176,74,.12); }
+.picker-results { min-width:0; }
+.picker-group[hidden], .picker-empty[hidden] { display:none !important; }
+.picker-empty { padding:18px 12px; color:rgba(232,230,227,.55); font-size:13px; text-align:center; }
+.scale-menu .picker-search, .instrument-menu .picker-search { flex:0 0 auto; }
+.scale-menu .picker-results, .instrument-menu .picker-results { min-width:0; }
+@media (max-width:900px) { .picker-search { min-height:48px; font-size:16px; } }
