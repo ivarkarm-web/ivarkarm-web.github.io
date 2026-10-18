@@ -375,3 +375,37 @@ test('note-count controls add and remove notes without losing the instrument cor
   const core = await page.evaluate(() => window.PionierCore.noteCount());
   expect(core).toBe(9);
 });
+
+
+test('mobile instrument and scale pickers open as visible, tappable sheets', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith('mobile'), 'mobile picker behavior is tested in touch projects');
+  await page.locator('#instrumentDropdownToggle').tap();
+  await expect(page.locator('#instrumentMenu')).toBeVisible();
+  await expect(page.locator('#instrumentMenu button[role="menuitem"]').first()).toBeVisible();
+  await page.locator('#pickerBackdrop').tap({ position: { x: 10, y: 10 } });
+  await expect(page.locator('#instrumentMenu')).toBeHidden();
+
+  await page.locator('#scaleLabel').tap();
+  await expect(page.locator('#scaleMenu')).toBeVisible();
+  await expect(page.locator('#scaleMenu .scale-menu-item').first()).toBeVisible();
+  await page.locator('#pickerBackdrop').tap({ position: { x: 10, y: 10 } });
+  await expect(page.locator('#scaleMenu')).toBeHidden();
+});
+
+test('desktop scale, base-note and octave steppers update the shared handpan state', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const before = await page.evaluate(() => {
+    const h = window.PionierCore.handpan;
+    return { scale: h.scaleIndex, root: h.rootIndex, octave: h.octaveOffset };
+  });
+  await page.locator('#scaleNextDesktop').click();
+  await page.locator('#rootNextDesktop').click();
+  await page.locator('#octaveNext').click();
+  await expect.poll(() => page.evaluate(() => {
+    const h = window.PionierCore.handpan;
+    return { scale: h.scaleIndex, root: h.rootIndex, octave: h.octaveOffset };
+  })).toEqual({ scale: before.scale + 1, root: (before.root + 1) % 12, octave: Math.min(1, before.octave + 1) });
+  await page.locator('#scaleLabelDesktop').click();
+  await expect(page.locator('#scaleMenu')).toBeVisible();
+  await expect(page.locator('#scaleLabelDesktop')).toHaveAttribute('aria-expanded', 'true');
+});
