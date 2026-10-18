@@ -372,3 +372,23 @@ test('Loop Studio exports a valid WAV mix after a track exists', async ({ page }
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe('pionier-loop.wav');
 });
+
+
+test('Loop Studio records and overdubs a second independent track', async ({ page }) => {
+  await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
+  await page.locator('#topMenuBtn').click();
+  await page.locator('#toggleLooper').click();
+  const record = page.locator('#looperBtn');
+  await record.click();
+  await page.waitForTimeout(320);
+  await record.click();
+  await expect.poll(() => page.evaluate(() => window.PionierLooper.getState().layerCount)).toBe(1);
+
+  await record.click();
+  await page.waitForTimeout(320);
+  await record.click();
+  await expect.poll(() => page.evaluate(() => window.PionierLooper.getState().layerCount)).toBe(2);
+  const durations = await page.evaluate(() => window.PionierLooper.layers.map(layer => layer.buffer.duration));
+  expect(durations).toHaveLength(2);
+  expect(durations.every(duration => Number.isFinite(duration) && duration > 0.1)).toBe(true);
+});
