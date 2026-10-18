@@ -1,9 +1,5 @@
 /**
- * ui-extras.js — screenshot UI interactions:
- * - Filter graph draw + drag handle
- * - Transport bar (record toggle, BPM, metro, volume)
- * - Recording modal open/close
- * - Right-side FX knob activation
+ * ui-extras.js — screenshot UI interactions
  */
 (function uiExtras() {
   const canvas = document.getElementById('filterCurveCanvas');
@@ -32,19 +28,13 @@
     ctx.moveTo(0, h * 0.7);
     ctx.bezierCurveTo(peakX * 0.4, h * 0.65, peakX * 0.7, peakY, peakX, peakY);
     ctx.bezierCurveTo(peakX + (w - peakX) * 0.25, peakY, peakX + (w - peakX) * 0.5, h * 0.9, w, h);
-    ctx.lineTo(w, h);
-    ctx.lineTo(0, h);
-    ctx.closePath();
-    ctx.fillStyle = grad;
-    ctx.fill();
+    ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+    ctx.fillStyle = grad; ctx.fill();
     ctx.beginPath();
     ctx.moveTo(0, h * 0.7);
     ctx.bezierCurveTo(peakX * 0.4, h * 0.65, peakX * 0.7, peakY, peakX, peakY);
     ctx.bezierCurveTo(peakX + (w - peakX) * 0.25, peakY, peakX + (w - peakX) * 0.5, h * 0.9, w, h);
-    ctx.strokeStyle = '#ff3b30';
-    ctx.lineWidth = 2.5;
-    ctx.lineJoin = 'round';
-    ctx.stroke();
+    ctx.strokeStyle = '#ff3b30'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.stroke();
   }
 
   function positionHandle() {
@@ -60,8 +50,7 @@
       const rect = graph.getBoundingClientRect();
       cutoff = Math.max(0.05, Math.min(0.95, (clientX - rect.left) / rect.width));
       resonance = Math.max(0.05, Math.min(0.95, 1 - (clientY - rect.top) / rect.height));
-      positionHandle();
-      drawFilterCurve();
+      positionHandle(); drawFilterCurve();
       window.dispatchEvent(new CustomEvent('pionier:filter', { detail: { cutoff, resonance, type: filterType } }));
     };
     const start = (e) => {
@@ -134,16 +123,13 @@
             const ctx = wc.getContext('2d');
             const w = wc.width, h = wc.height;
             ctx.clearRect(0, 0, w, h);
-            ctx.strokeStyle = '#ff3b30';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
+            ctx.strokeStyle = '#ff3b30'; ctx.lineWidth = 1.5; ctx.beginPath();
             for (let x = 0; x < w * 0.4; x++) {
               const y = h / 2 + Math.sin(x * 0.15) * (8 + Math.random() * 18);
               if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
             }
             ctx.stroke();
-            ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.beginPath();
             for (let x = Math.floor(w * 0.4); x < w; x++) {
               const y = h / 2 + Math.sin(x * 0.12) * (6 + Math.random() * 10);
               if (x === Math.floor(w * 0.4)) ctx.moveTo(x, y); else ctx.lineTo(x, y);
@@ -152,57 +138,79 @@
           }
         }
       } else {
-        clearInterval(timer);
-        timer = null;
+        clearInterval(timer); timer = null;
       }
     });
   }
 
   document.getElementById('recDiscard')?.addEventListener('click', () => {
-    recording = false;
-    clearInterval(timer);
+    recording = false; clearInterval(timer);
     recBtn?.classList.remove('is-recording');
     if (modal) modal.hidden = true;
     if (timeEl) timeEl.textContent = '00 : 00 : 00';
   });
   document.getElementById('recShare')?.addEventListener('click', () => {
-    if (navigator.share) {
-      navigator.share({ title: 'Pionier recording', text: 'Made with Pionier handpan' }).catch(() => {});
-    }
+    if (navigator.share) navigator.share({ title: 'Pionier recording', text: 'Made with Pionier handpan' }).catch(() => {});
     if (modal) modal.hidden = true;
-    recording = false;
-    clearInterval(timer);
+    recording = false; clearInterval(timer);
     recBtn?.classList.remove('is-recording');
   });
   document.getElementById('recStop')?.addEventListener('click', () => {
-    recording = false;
-    clearInterval(timer);
+    recording = false; clearInterval(timer);
     recBtn?.classList.remove('is-recording');
   });
 
   document.getElementById('bpmDown')?.addEventListener('click', () => {
-    bpm = Math.max(40, bpm - 1);
-    if (bpmVal) bpmVal.textContent = String(bpm);
+    bpm = Math.max(40, bpm - 1); if (bpmVal) bpmVal.textContent = String(bpm);
   });
   document.getElementById('bpmUp')?.addEventListener('click', () => {
-    bpm = Math.min(240, bpm + 1);
-    if (bpmVal) bpmVal.textContent = String(bpm);
+    bpm = Math.min(240, bpm + 1); if (bpmVal) bpmVal.textContent = String(bpm);
   });
   metro?.addEventListener('click', () => {
     const on = metro.getAttribute('aria-pressed') === 'true';
     metro.setAttribute('aria-pressed', on ? 'false' : 'true');
   });
   vol?.addEventListener('input', () => {
-    const v = Number(vol.value);
-    window.dispatchEvent(new CustomEvent('pionier:master-volume', { detail: { value: v } }));
+    window.dispatchEvent(new CustomEvent('pionier:master-volume', { detail: { value: Number(vol.value) } }));
   });
+
+  positionHandle(); drawFilterCurve(); bindFilterDrag();
+  window.addEventListener('resize', () => { drawFilterCurve(); positionHandle(); });
+
+  // Mobile page dots: 0 = scale, 1 = FX horizontal row
+  (function pageDots() {
+    const dots = document.querySelectorAll('#pageDots .dot');
+    const scalePage = document.querySelector('.mobile-bottom-controls');
+    const fxPage = document.getElementById('mobileFxRow');
+    if (!dots.length || !scalePage || !fxPage) return;
+    function show(page) {
+      dots.forEach((d) => d.classList.toggle('active', Number(d.dataset.page) === page));
+      if (page === 0) {
+        scalePage.classList.remove('is-hidden');
+        fxPage.classList.remove('is-visible');
+      } else {
+        scalePage.classList.add('is-hidden');
+        fxPage.classList.add('is-visible');
+      }
+    }
+    dots.forEach((d) => d.addEventListener('click', () => show(Number(d.dataset.page) || 0)));
+    let sx = 0;
+    const zone = document.querySelector('.mobile-control-panel');
+    zone?.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });
+    zone?.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - sx;
+      if (Math.abs(dx) < 40) return;
+      const active = document.querySelector('#pageDots .dot.active');
+      const cur = Number(active?.dataset.page) || 0;
+      show(dx < 0 ? Math.min(1, cur + 1) : Math.max(0, cur - 1));
+    }, { passive: true });
+  })();
 
   document.querySelectorAll('.fx-circle-knob').forEach((btn) => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.fx-circle-knob').forEach((b) => b.classList.remove('is-active'));
       btn.classList.add('is-active');
-      const fx = btn.dataset.fx;
-      if (fx === 'filter') {
+      if (btn.dataset.fx === 'filter') {
         const panel = document.getElementById('fxPanel');
         if (panel) {
           panel.hidden = false;
@@ -213,8 +221,12 @@
     });
   });
 
-  positionHandle();
-  drawFilterCurve();
-  bindFilterDrag();
-  window.addEventListener('resize', () => { drawFilterCurve(); positionHandle(); });
+  document.getElementById('fxPanelClose')?.addEventListener('click', () => {
+    const panel = document.getElementById('fxPanel');
+    if (panel) panel.hidden = true;
+  });
+
+  document.getElementById('looperBtn')?.addEventListener('click', () => {
+    document.getElementById('transportRecord')?.click();
+  });
 })();
