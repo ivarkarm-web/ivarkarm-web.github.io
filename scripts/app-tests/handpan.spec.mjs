@@ -469,7 +469,7 @@ test('Loop Studio record state stays gold and reserves red for destructive actio
     clear.classList.remove('is-fired');
     return values;
   });
-  expect(result.recordRing).toBe('rgb(244, 207, 105)');
+  expect(result.recordRing).toBe('rgba(212, 176, 74, 0.95)');
   expect(result.recordCore).toBe('rgb(212, 176, 74)');
   expect(result.clearRing).toBe('rgb(255, 107, 107)');
 });
