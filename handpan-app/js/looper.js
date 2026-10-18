@@ -12,7 +12,7 @@
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
 import { encodeLoopMix, uploadLoopToRepository } from './repository-loop-save.js?v=2';
 
-const MAX_LAYERS = 4;
+const MAX_LAYERS = 8;
 const LONG_MS = 480;
 const DEFAULT_LEVEL = 0.92;
 const BEATS_PER_BAR = 4;
@@ -124,19 +124,6 @@ export function mountLooper({ root } = {}) {
     saveBtn.title = 'Save recording to repository';
   }
   if (saveBtn.parentElement !== cluster) cluster.appendChild(saveBtn);
-
-  let exportBtn = document.getElementById('looperExportBtn');
-  if (!exportBtn) {
-    exportBtn = document.createElement('button');
-    exportBtn.type = 'button';
-    exportBtn.id = 'looperExportBtn';
-    exportBtn.className = 'looper-export-btn';
-    exportBtn.textContent = 'Export WAV';
-    exportBtn.setAttribute('aria-label', 'Export loop mix as WAV');
-    exportBtn.title = 'Export loop mix as WAV';
-  }
-  if (exportBtn.parentElement !== cluster) cluster.insertBefore(exportBtn, saveBtn);
-
   syncBtn.setAttribute('aria-label', 'Sync mode: Free');
   syncBtn.title = SYNC_MODES[0].title;
 
@@ -268,8 +255,6 @@ export function mountLooper({ root } = {}) {
     clearBtn.hidden = false;
     saveBtn.disabled = !hasLayers || recording || pendingLoopStop;
     saveBtn.classList.toggle('is-available', hasLayers && !recording && !pendingLoopStop);
-    exportBtn.disabled = !hasLayers || recording || pendingLoopStop;
-    exportBtn.classList.toggle('is-available', hasLayers && !recording && !pendingLoopStop);
 
     const mode = SYNC_MODES[syncModeIndex];
     syncBtn.dataset.mode = mode.id;
@@ -534,7 +519,7 @@ export function mountLooper({ root } = {}) {
       <form method="dialog" class="looper-save-form">
         <p class="looper-save-eyebrow">PIONIER · COMMUNITY</p>
         <h2>Share your song</h2>
-        <p class="looper-save-copy">Your loop will be added to User-Created in Soundscapes so other players can listen. Keep it under 16 MB.</p>
+        <p class="looper-save-copy">Your loop will be added to User-Created in Soundscapes so other players can listen. Keep it under 8 MB.</p>
         <label for="looperSaveName">Song title</label>
         <input id="looperSaveName" name="title" maxlength="80" value="Loop ${String(Date.now()).slice(-4)}" autocomplete="off" required />
         <label for="looperSaveCreator">Creator name (optional)</label>
@@ -599,25 +584,6 @@ export function mountLooper({ root } = {}) {
     input.select();
   }
   saveBtn.addEventListener('click', openSaveDialog);
-
-  function exportWav() {
-    if (!layers.length || recording || pendingLoopStop) return;
-    const ctx = getAudioContext();
-    if (!ctx) return;
-    const duration = Math.max(...layers.map((layer) => Number(layer.buffer?.duration) || 0));
-    if (!(duration > 0)) return;
-    const blob = encodeLoopMix(layers, ctx.sampleRate, duration);
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'pionier-loop.wav';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1500);
-  }
-  exportBtn.addEventListener('click', exportWav);
 
   function startRecord() {
     if (layers.length >= MAX_LAYERS) return;
@@ -782,6 +748,7 @@ export function mountLooper({ root } = {}) {
     e.preventDefault();
     e.stopPropagation();
   });
+  clearBtn.addEventListener('pointerup', onClear);
   clearBtn.addEventListener('click', onClear);
 
   syncBtn.addEventListener('click', (e) => {
@@ -792,12 +759,5 @@ export function mountLooper({ root } = {}) {
 
   setBtnState();
   renderCircles();
-  window.PionierLooper = {
-    clearAll,
-    layers,
-    exportWav,
-    refresh: setBtnState,
-    getState: () => ({ recording, pendingLoopStop, layerCount: layers.length, maxLayers: MAX_LAYERS, syncMode: syncMode() })
-  };
-  return { clearAll, layers, exportWav };
+  return { clearAll, layers };
 }

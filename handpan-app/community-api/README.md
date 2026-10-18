@@ -20,7 +20,7 @@ This Worker is the trusted server-side bridge between the public GitHub Pages ap
 ## Behaviour and safeguards
 
 - Public visitors submit a rendered WAV and title/creator name without a GitHub account or token.
-- Worker validates WAV headers, caps audio at 16 MB, sanitizes metadata, and uses a repository-scoped secret.
+- Worker validates WAV headers, caps audio at 8 MB, sanitizes metadata, and uses a repository-scoped secret.
 - WAV and JSON metadata are stored in `handpan-app/community-songs/`; the app reads the JSON entries to build the User-Created list.
 - Submissions become public immediately. Add Cloudflare Turnstile or a moderation queue before promoting this broadly if spam becomes a problem.
 - This static app cannot deploy or configure the Worker secret on your behalf. The frontend becomes live after the Worker URL is configured and committed.

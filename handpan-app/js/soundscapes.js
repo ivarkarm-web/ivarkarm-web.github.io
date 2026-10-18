@@ -93,7 +93,7 @@ if (page && audio) {
   const seekEl = document.getElementById('soundscapeSeek');
   const volEl = document.getElementById('soundscapeVolume');
   const queueEl = document.getElementById('soundscapeQueue');
-  const openButton = document.getElementById('openSoundscapes') || document.getElementById('tabSoundscapes');
+  const openButton = document.getElementById('openSoundscapes');
   const closeButton = document.getElementById('closeSoundscapes');
   const repeatBtn = document.getElementById('soundscapeRepeat');
   const communityQueueEl = document.getElementById('soundscapeCommunityQueue');
@@ -191,7 +191,7 @@ if (page && audio) {
     communityTab?.classList.toggle('is-active', collection === 'community');
     bedroomTab?.setAttribute('aria-pressed', String(collection === 'bedroom'));
     communityTab?.setAttribute('aria-pressed', String(collection === 'community'));
-    const heading = document.querySelector('.soundscapes-header h1');
+    const heading = document.querySelector('.soundscapes-header h2');
     if (heading) heading.textContent = collection === 'community' ? 'User-Created' : 'Bedroom Sessions';
     if (collection === 'community' && !communityConfigured) {
       setStatus('Community songs need the upload service to be configured.');
@@ -262,16 +262,6 @@ if (page && audio) {
 
   function showSoundscapes(show) {
     if (show) {
-      // Never leave the floating Loop Studio or compact app menu layered over the library.
-      const loopRail = document.getElementById('looperRail');
-      if (loopRail) {
-        loopRail.hidden = true;
-        loopRail.setAttribute('hidden', '');
-        loopRail.classList.remove('is-open');
-      }
-      const appMenu = document.getElementById('appMenu');
-      if (appMenu) appMenu.hidden = true;
-      document.getElementById('topMenuBtn')?.setAttribute('aria-expanded', 'false');
       page.hidden = false;
       page.classList.add('is-active');
       page.setAttribute('aria-hidden', 'false');
@@ -299,9 +289,6 @@ if (page && audio) {
   communityTab?.addEventListener('click', () => { setCollection('community'); refreshCommunitySongs(); });
   openButton?.addEventListener('click', () => { showSoundscapes(true); refreshCommunitySongs(); });
   closeButton?.addEventListener('click', () => showSoundscapes(false));
-  // Keep the dedicated back-to-instrument control in sync with the Soundscapes
-  // module's hidden state as well as the core page-tab state.
-  document.getElementById('tabHandpanFromSS')?.addEventListener('click', () => showSoundscapes(false));
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && page.classList.contains('is-active')) showSoundscapes(false);
   });

@@ -6,48 +6,18 @@ const statusEl = document.getElementById('appStatus');
 const statusMessage = document.getElementById('appStatusMessage');
 const statusRetry = document.getElementById('appStatusRetry');
 
-// Compact app menu; Soundscapes is an optional listening page, not a blocking mode.
-const topMenuButton = document.getElementById('topMenuBtn');
-const appMenu = document.getElementById('appMenu');
-topMenuButton?.addEventListener('click', (event) => {
-  event.preventDefault();
-  event.stopPropagation();
-  if (!appMenu) return;
-  appMenu.hidden = !appMenu.hidden;
-  topMenuButton.setAttribute('aria-expanded', appMenu.hidden ? 'false' : 'true');
+// Keep the Learn sheet reachable even if the optional lesson engine fails to import.
+const learnButton = document.getElementById('openLearn');
+const learnPanel = document.getElementById('learnPanel');
+const learnClose = document.getElementById('learnClose');
+learnButton?.addEventListener('click', () => {
+  if (learnPanel) learnPanel.hidden = false;
+  document.body.classList.add('learn-active');
 });
-appMenu?.querySelectorAll('button').forEach((button) => button.addEventListener('click', () => {
-  appMenu.hidden = true;
-  topMenuButton?.setAttribute('aria-expanded', 'false');
-}));
-const loopMenuButton = document.getElementById('toggleLooper');
-const loopRail = document.getElementById('looperRail');
-loopMenuButton?.addEventListener('click', () => {
-  if (!loopRail) return;
-  const open = loopRail.hidden;
-  loopRail.hidden = !open;
-  loopRail.classList.toggle('is-open', open);
-  loopMenuButton.setAttribute('aria-expanded', open ? 'true' : 'false');
-  if (open) document.getElementById('looperBtn')?.focus?.();
+learnClose?.addEventListener('click', () => {
+  if (learnPanel) learnPanel.hidden = true;
+  document.body.classList.remove('learn-active');
 });
-const loopCloseButton = document.getElementById('looperCloseBtn');
-function closeLoopStudio() {
-  if (!loopRail) return;
-  loopRail.hidden = true;
-  loopRail.classList.remove('is-open');
-  loopMenuButton?.setAttribute('aria-expanded', 'false');
-}
-loopCloseButton?.addEventListener('click', closeLoopStudio);
-document.getElementById('tabSoundscapes')?.addEventListener('click', closeLoopStudio);
-document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') closeLoopStudio();
-});
-document.addEventListener('pointerdown', (event) => {
-  if (appMenu && !appMenu.hidden && !appMenu.contains(event.target) && !topMenuButton?.contains(event.target)) {
-    appMenu.hidden = true;
-    topMenuButton?.setAttribute('aria-expanded', 'false');
-  }
-}, true);
 
 function setBootStatus(state, message = '', retry = false) {
   window.PionierBootState = state;
@@ -98,7 +68,7 @@ async function boot() {
   const degraded = [];
 
   try {
-    await import(new URL('./pionier-core.js?v=59', BASE).href);
+    await import(new URL('./pionier-core.js?v=58', BASE).href);
   } catch (err) {
     console.error('[pionier] required core failed to load', err);
     setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
@@ -118,10 +88,10 @@ async function boot() {
   }
 
   try {
-    await import(new URL('./js/soundscapes.js?v=10', BASE).href);
+    await import(new URL('./js/soundscapes.js?v=8', BASE).href);
   } catch (err) {
     console.error('[soundscapes] module failed to initialize', err);
-    degraded.push('Soundscapes');
+    degraded.push('soundscapes');
   }
 
   try {
@@ -146,7 +116,7 @@ async function boot() {
   }
 
   try {
-    const { mountLooper } = await import(new URL('./js/looper.js?v=213', BASE).href);
+    const { mountLooper } = await import(new URL('./js/looper.js?v=209', BASE).href);
     mountLooper();
   } catch (err) {
     console.warn('[looper] mount failed', err);
@@ -172,16 +142,16 @@ async function boot() {
     degraded.push('scale-selector');
   }
 
-  // Core can load successfully while audio output or browser storage is unavailable.
-  // Surface those degraded states instead of silently marking the app ready.
   try {
-    const health = window.PionierCore?.health?.();
-    if (health?.audioAvailable === false) degraded.push('audio output');
-    if (health?.storageAvailable === false) degraded.push('saved settings');
-  } catch (_) {}
+    const { mountLearnMode } = await import(new URL('./js/learn-mode.js?v=25', BASE).href);
+    mountLearnMode();
+  } catch (err) {
+    console.warn('[learn] mount failed', err);
+    degraded.push('learn');
+  }
 
   if (degraded.length) {
-    setBootStatus('degraded', 'Some features unavailable: ' + [...new Set(degraded)].join(', '), true);
+    setBootStatus('degraded', 'Some features unavailable: ' + degraded.join(', '), true);
   } else {
     setBootStatus('ready');
   }

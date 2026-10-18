@@ -19,7 +19,7 @@ export function mountScaleSelector({ getHandpan, onScaleChange }) {
     const s = HANDPAN_SCALES[handpan.scaleIndex];
     const short = s?.short || s?.label || handpan.scaleLabel || 'Scale';
     const full = s?.label || handpan.scaleLabel || short;
-    toggle.textContent = short;
+    toggle.textContent = short + ' ▾';
     toggle.title = full;
   }
 
@@ -27,61 +27,44 @@ export function mountScaleSelector({ getHandpan, onScaleChange }) {
     const handpan = getHandpan();
     if (!handpan) return;
     menu.replaceChildren();
-    menu.classList.add('scale-browser');
-
-    // Search row
-    const searchRow = document.createElement('div');
-    searchRow.className = 'scale-browser-search';
-    const input = document.createElement('input');
-    input.type = 'search';
-    input.placeholder = 'Search';
-    input.setAttribute('aria-label', 'Search scales');
-    input.autocomplete = 'off';
-    const filterBtn = document.createElement('button');
-    filterBtn.type = 'button';
-    filterBtn.className = 'scale-browser-filter';
-    filterBtn.setAttribute('aria-label', 'Filter');
-    filterBtn.textContent = '☰';
-    searchRow.appendChild(input);
-    searchRow.appendChild(filterBtn);
-    menu.appendChild(searchRow);
-
-    const grid = document.createElement('div');
-    grid.className = 'scale-browser-grid';
-    menu.appendChild(grid);
-
-    function paint(filter = '') {
-      grid.replaceChildren();
-      const q = filter.trim().toLowerCase();
-      HANDPAN_SCALES.forEach((scale, index) => {
-        const label = scale.label || scale.short || '';
-        if (q && !label.toLowerCase().includes(q)) return;
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'scale-menu-item' + (index === handpan.scaleIndex ? ' is-active' : '');
-        button.setAttribute('role', 'menuitem');
-        button.textContent = label;
-        button.addEventListener('click', (e) => {
-          e.stopPropagation();
-          handpan.setScaleIndex(index);
-          onScaleChange?.();
-          render();
-          updateLabel();
-          if (window.PionierOverlay) window.PionierOverlay.closePickers();
-          else {
-            menu.hidden = true;
-            toggle.setAttribute('aria-expanded', 'false');
-          }
-          toggle.focus?.();
-        });
-        grid.appendChild(button);
+    let lastTuning = null;
+    HANDPAN_SCALES.forEach((scale, index) => {
+      const tuning = scale.tuning || '12-TET';
+      if (tuning !== lastTuning) {
+        lastTuning = tuning;
+        const head = document.createElement('div');
+        head.className = 'scale-menu-group';
+        head.textContent = tuning;
+        menu.appendChild(head);
+      }
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'scale-menu-item' + (index === handpan.scaleIndex ? ' is-active' : '');
+      button.setAttribute('role', 'menuitem');
+      const name = document.createElement('span');
+      name.textContent = scale.label;
+      button.appendChild(name);
+      if (tuning !== '12-TET') {
+        const sub = document.createElement('span');
+        sub.className = 'scale-item-tuning';
+        sub.textContent = tuning;
+        button.appendChild(sub);
+      }
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        handpan.setScaleIndex(index);
+        onScaleChange?.();
+        render();
+        updateLabel();
+        if (window.PionierOverlay) window.PionierOverlay.closePickers();
+        else {
+          menu.hidden = true;
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+        toggle.focus?.();
       });
-    }
-
-    paint();
-    input.addEventListener('input', () => paint(input.value));
-    // Keep focus in search when opening
-    requestAnimationFrame(() => input.focus?.());
+      menu.appendChild(button);
+    });
   }
 
   const mo = new MutationObserver(() => {

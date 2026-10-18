@@ -19,7 +19,7 @@ export async function uploadLoopToRepository({ blob, title, creator, duration })
     throw new Error('Community uploads are not configured yet. The site owner needs to deploy the Cloudflare Worker and add its /songs URL.');
   }
   if (!(blob instanceof Blob) || blob.size < 44) throw new Error('The rendered loop audio is empty.');
-  if (blob.size > 16 * 1024 * 1024) throw new Error('This WAV is over 16 MB. Record a shorter loop to share it.');
+  if (blob.size > 8 * 1024 * 1024) throw new Error('This WAV is over 8 MB. Record a shorter loop to share it.');
   const form = new FormData();
   form.append('title', String(title || '').trim().slice(0, 80));
   form.append('creator', String(creator || '').trim().slice(0, 40));

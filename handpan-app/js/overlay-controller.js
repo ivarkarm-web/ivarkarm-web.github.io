@@ -9,15 +9,6 @@
     instrumentMenu: 'instrumentDropdownToggle',
     scaleMenu: 'scaleLabel',
   };
-  const TOGGLES_FOR = {
-    instrumentMenu: ['instrumentDropdownToggle'],
-    scaleMenu: ['scaleLabel', 'scaleLabelDesktop'],
-  };
-  function setPickerExpanded(menuId, expanded) {
-    (TOGGLES_FOR[menuId] || [TOGGLE_FOR[menuId]]).forEach((id) => {
-      if (id) document.getElementById(id)?.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-    });
-  }
 
   function isLightTheme() {
     if (document.documentElement.classList.contains('theme-light') ||
@@ -66,7 +57,8 @@
       clearInlineLayout(m);
       // Force closed even if a prior open left display:block inline
       m.style.setProperty('display', 'none', 'important');
-      setPickerExpanded(id, false);
+      const tid = TOGGLE_FOR[id];
+      if (tid) document.getElementById(tid)?.setAttribute('aria-expanded', 'false');
     });
     const bd = document.getElementById('pickerBackdrop');
     if (bd) {
@@ -140,9 +132,7 @@
     // Solid portal styles so the menu never inherits a transparent/zero-opacity state.
     // Clear any display:none !important left by closePickers.
     menu.style.removeProperty('display');
-    // The scale browser is a flex column (search row + scrollable grid); forcing
-    // it to block collapses the intended sheet layout on mobile Safari.
-    menu.style.setProperty('display', menu.id === 'scaleMenu' ? 'flex' : 'block', 'important');
+    menu.style.setProperty('display', 'block', 'important');
     menu.style.position = 'fixed';
     menu.style.zIndex = '5200';
     menu.style.visibility = 'visible';
@@ -183,19 +173,6 @@
       menu.style.maxHeight = 'min(55dvh, 420px)';
       menu.style.borderRadius = '16px 16px 0 0';
       menu.style.transform = 'none';
-    } else if (menu.id === 'scaleMenu') {
-      // The landscape reference uses a wide scale browser while keeping the
-      // left tuning sidebar visible. Do not constrain this menu to a 320px popover.
-      menu.style.left = '20vw';
-      menu.style.right = '12px';
-      menu.style.width = 'auto';
-      menu.style.maxWidth = 'none';
-      menu.style.top = '100px';
-      menu.style.bottom = '90px';
-      menu.style.maxHeight = 'none';
-      menu.style.height = 'auto';
-      menu.style.transform = 'none';
-      menu.style.borderRadius = '20px';
     } else {
       const r = toggle.getBoundingClientRect();
       const width = Math.min(320, window.innerWidth - 24);
@@ -214,9 +191,9 @@
     }
   }
 
-  function openPicker(menuId, preferredToggle = null) {
+  function openPicker(menuId) {
     const menu = document.getElementById(menuId);
-    const toggle = preferredToggle || document.getElementById(TOGGLE_FOR[menuId]);
+    const toggle = document.getElementById(TOGGLE_FOR[menuId]);
     if (!menu || !toggle) return;
     closeAll('pickers');
     // Close other pickers only was wrong — close everything else first
@@ -230,11 +207,11 @@
         m.hidden = true;
         m.classList.remove('is-open', 'picker-sheet', 'picker-popover');
         clearInlineLayout(m);
-        setPickerExpanded(id, false);
+        document.getElementById(TOGGLE_FOR[id])?.setAttribute('aria-expanded', 'false');
       }
     });
     placePicker(menu, toggle);
-    setPickerExpanded(menuId, true);
+    toggle.setAttribute('aria-expanded', 'true');
     // Ensure instrument list is fresh when opening
     if (menuId === 'instrumentMenu' && typeof window.__pionierRenderInstrumentMenu === 'function') {
       try { window.__pionierRenderInstrumentMenu(); } catch (_) {}
@@ -251,14 +228,14 @@
     });
   }
 
-  function togglePicker(menuId, preferredToggle = null) {
+  function togglePicker(menuId) {
     const menu = document.getElementById(menuId);
     if (!menu) return;
     if (!menu.hidden && menu.classList.contains('is-open')) {
       closePickers();
-      (preferredToggle || document.getElementById(TOGGLE_FOR[menuId]))?.focus?.();
+      document.getElementById(TOGGLE_FOR[menuId])?.focus?.();
     } else {
-      openPicker(menuId, preferredToggle);
+      openPicker(menuId);
     }
   }
 
@@ -312,13 +289,11 @@
       }
       togglePicker('instrumentMenu');
     }, true);
-    for (const toggleId of ['scaleLabel', 'scaleLabelDesktop']) {
-      document.getElementById(toggleId)?.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        togglePicker('scaleMenu', e.currentTarget);
-      }, true); // capture so we win over other handlers
-    }
+    document.getElementById('scaleLabel')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      togglePicker('scaleMenu');
+    }, true); // capture so we win over other handlers
 
     // Close pickers when an item is chosen (event delegation)
     document.addEventListener('click', (e) => {
@@ -404,30 +379,6 @@
         document.getElementById('fxPanelOpen')?.focus?.();
       });
     }
-    document.querySelectorAll('.fx-circle-knob[data-fx]').forEach((button) => {
-      if (button.dataset.overlayWired) return;
-      button.dataset.overlayWired = '1';
-      button.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        const panel = document.getElementById('fxPanel');
-        if (!panel) return;
-        const fx = button.dataset.fx || 'filter';
-        const active = panel.dataset.activeFx || 'filter';
-        if (!panel.hidden && active === fx) {
-          closeFx();
-          return;
-        }
-        if (panel.hidden) openFx();
-        panel.dataset.activeFx = fx;
-        const title = document.getElementById('fxPanelTitle');
-        if (title) title.textContent = ({ filter: 'Filter', delay: 'Delay', reverb: 'Reverb', env: 'Envelope' })[fx] || 'Effects';
-        document.querySelectorAll('.fx-circle-knob[data-fx]').forEach((item) => {
-          item.classList.toggle('is-active', item === button);
-          item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
-        });
-      });
-    });
   }
 
   function recoverChrome() {
@@ -451,10 +402,11 @@
     }
   }
 
-  // This classic script is loaded at the end of the document, so every owned
-  // control already exists. Wire immediately: the module app shell uses top-level
-  // await, which can delay DOMContentLoaded while users/tests can already interact.
-  wire();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wire);
+  } else {
+    wire();
+  }
   // Safety net for stuck backdrop / translated app after rapid switches
   setInterval(recoverChrome, 1500);
   document.addEventListener('visibilitychange', () => {
