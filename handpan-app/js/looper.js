@@ -936,5 +936,9 @@ export function mountLooper({ root } = {}) {
 
   setBtnState();
   renderCircles();
-  return { clearAll, layers };
+  const api = { clearAll, layers, openTrackPanel, closeTrackPanel };
+  // Keep a stable debug/test handle so browser checks and support diagnostics can
+  // inspect the mounted loop engine without reaching into module internals.
+  window.PionierLooper = api;
+  return api;
 }
