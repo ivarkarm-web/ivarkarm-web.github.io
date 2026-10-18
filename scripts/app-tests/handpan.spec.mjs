@@ -446,6 +446,34 @@ test('Loop Studio is reachable and the four-track controls fit the viewport', as
   expect(bounds.y + bounds.height).toBeLessThanOrEqual(viewport.height);
 });
 
+test('Loop Studio record state stays gold and reserves red for destructive actions', async ({ page }) => {
+  await page.locator('#appMenuToggle, #topMenuBtn').first().click().catch(() => {});
+  const loopEntry = page.locator('#appMenu [data-action="looper"], #appMenu [data-page="looper"], #openLoopStudio').first();
+  if (await loopEntry.count()) await loopEntry.click();
+  else await page.locator('#looperRail').evaluate((el) => { el.hidden = false; el.classList.add('is-open'); });
+  const result = await page.evaluate(() => {
+    const btn = document.querySelector('#looperBtn');
+    const clear = document.querySelector('#looperClearBtn');
+    btn.classList.add('is-recording');
+    clear.classList.add('is-fired');
+    const ring = btn.querySelector('.looper-btn-ring');
+    const core = btn.querySelector('.looper-btn-core');
+    const clearRing = clear.querySelector('.looper-clear-ring');
+    const computed = (el, prop) => getComputedStyle(el).getPropertyValue(prop);
+    const values = {
+      recordRing: computed(ring, 'border-top-color'),
+      recordCore: computed(core, 'background-color'),
+      clearRing: computed(clearRing, 'border-top-color')
+    };
+    btn.classList.remove('is-recording');
+    clear.classList.remove('is-fired');
+    return values;
+  });
+  expect(result.recordRing).toBe('rgb(244, 207, 105)');
+  expect(result.recordCore).toBe('rgb(212, 176, 74)');
+  expect(result.clearRing).toBe('rgb(255, 107, 107)');
+});
+
 test('Loop Studio exports a valid WAV mix after a track exists', async ({ page }) => {
   await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
   await page.evaluate(() => {
