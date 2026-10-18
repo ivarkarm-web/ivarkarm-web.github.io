@@ -36,6 +36,7 @@
       </button>
       <div id="appMenu" class="app-menu" hidden>
         <button type="button" class="page-tab" id="tabSoundscapes">Soundscapes</button>
+        <button type="button" class="page-tab" id="toggleLooper">Loop Studio</button>
       </div>
       <div class="topbar-center"><span class="topbar-mode" id="topModeLabel">play</span></div>
       <div class="topbar-actions">
@@ -133,12 +134,7 @@
       </div>
     </div>
 
-    <div id="looperRail" class="looper-rail" aria-label="Looper" hidden style="display:none!important">
-      <div id="looperRecordCluster" class="looper-record-cluster">
-        <button type="button" id="looperBtn" class="looper-btn looper-record" aria-label="Record loop" title="Record loop"><span class="looper-btn-ring" aria-hidden="true"></span><span class="looper-btn-core" aria-hidden="true"></span></button>
-      </div>
-      <div id="looperLayers" class="looper-layers" aria-label="Loop layers"></div>
-    </div>
+
 
     <main class="stage" id="stage">
       <canvas id="pan" width="680" height="680" role="img" aria-label="Handpan instrument"></canvas>
@@ -162,6 +158,13 @@
         <span class="fx-arc"></span>
       </button>
     </aside>
+  </div>
+
+  <div id="looperRail" class="looper-rail" aria-label="Looper" hidden>
+    <div id="looperRecordCluster" class="looper-record-cluster">
+      <button type="button" id="looperBtn" class="looper-btn looper-record" aria-label="Record loop" title="Record loop"><span class="looper-btn-ring" aria-hidden="true"></span><span class="looper-btn-core" aria-hidden="true"></span></button>
+    </div>
+    <div id="looperLayers" class="looper-layers" aria-label="Loop tracks"></div>
   </div>
 
   <section id="soundscapesPage" class="soundscapes-page" aria-label="Soundscapes" aria-hidden="true">
