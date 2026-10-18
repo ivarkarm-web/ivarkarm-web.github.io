@@ -93,7 +93,7 @@ if (page && audio) {
   const seekEl = document.getElementById('soundscapeSeek');
   const volEl = document.getElementById('soundscapeVolume');
   const queueEl = document.getElementById('soundscapeQueue');
-  const openButton = document.getElementById('openSoundscapes');
+  const openButton = document.getElementById('openSoundscapes') || document.getElementById('tabSoundscapes');
   const closeButton = document.getElementById('closeSoundscapes');
   const repeatBtn = document.getElementById('soundscapeRepeat');
   const communityQueueEl = document.getElementById('soundscapeCommunityQueue');
@@ -191,7 +191,7 @@ if (page && audio) {
     communityTab?.classList.toggle('is-active', collection === 'community');
     bedroomTab?.setAttribute('aria-pressed', String(collection === 'bedroom'));
     communityTab?.setAttribute('aria-pressed', String(collection === 'community'));
-    const heading = document.querySelector('.soundscapes-header h2');
+    const heading = document.querySelector('.soundscapes-header h1');
     if (heading) heading.textContent = collection === 'community' ? 'User-Created' : 'Bedroom Sessions';
     if (collection === 'community' && !communityConfigured) {
       setStatus('Community songs need the upload service to be configured.');
