@@ -37,7 +37,6 @@ read('handpan-app/js/instruments/library-family.js');
 for (const f of ['dsp', 'voices', 'library', 'space']) read(`handpan-app/js/sound/${f}.js`);
 read('handpan-app/js/pionier-surface.js');
 const soundscapes = read('handpan-app/js/soundscapes.js');
-read('handpan-app/js/mandala-canvas.js');
 const noteSampleManifest = JSON.parse(read('handpan-app/sounds/notes/manifest.json'));
 const licenseDoc = read('docs/AUDIO-LICENSES.md');
 const bundledNoteAudioDir = path.join(root, 'handpan-app/sounds/notes');
@@ -87,11 +86,11 @@ if (
 ) ok('Soundscapes player markup is present');
 else fail('Soundscapes player markup is missing');
 
-const mandala = read('handpan-app/js/mandala-canvas.js');
 if (/BEDROOM_SESSIONS/.test(soundscapes) && /pointerdown/.test(soundscapes) && /mediaSession/.test(soundscapes)) ok('Soundscapes Bedroom Sessions player is present');
 else fail('Soundscapes Bedroom Sessions player is missing');
-if (/createMandalaRenderer/.test(mandala)) ok('Mandala renderer module is present');
-else fail('Mandala renderer module is missing');
+if (!fs.existsSync(path.join(root, 'handpan-app/js/mandala-canvas.js')) &&
+    !fs.existsSync(path.join(root, 'handpan-app/js/ambient-fx.js'))) ok('Unused mandala and generated ambience layers are removed');
+else fail('Unused generated ambience layers remain');
 
 if (appHtml.includes('name="description"')) ok('Pionier description metadata is present');
 else fail('Pionier description metadata is missing');
