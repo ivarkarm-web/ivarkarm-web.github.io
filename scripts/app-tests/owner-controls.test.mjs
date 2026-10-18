@@ -19,8 +19,8 @@ test('HTML exposes rootPrev/Next and noteCountPrev/Next; core binds them', () =>
   }
   assert.match(core, /wire\('rootPrev',\s*\(\)\s*=>\s*\{\s*handpan\.setRootIndex/);
   assert.match(core, /wire\('rootNext',\s*\(\)\s*=>\s*\{\s*handpan\.setRootIndex/);
-  assert.match(core, /noteCountPrev:\s*\(\)\s*=>\s*changeNoteCount\(-1\)/);
-  assert.match(core, /noteCountNext:\s*\(\)\s*=>\s*changeNoteCount\(1\)/);
+  assert.match(core, /wire\('noteCountPrev',\s*\(\)\s*=>\s*\{\s*changeNoteCount\(-1\)/);
+  assert.match(core, /wire\('noteCountNext',\s*\(\)\s*=>\s*\{\s*changeNoteCount\(1\)/);
   // Dead ids must not be wired
   assert.doesNotMatch(core, /wire\('rootDown'/);
   assert.doesNotMatch(core, /wire\('rootUp'/);
