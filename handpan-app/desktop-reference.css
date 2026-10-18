@@ -176,3 +176,15 @@
     margin: 0 auto !important;
   }
 }
+
+
+/* Hidden must win over the rail's explicit display:flex rules. */
+#looperRail[hidden] { display: none !important; }
+
+/* Keep the reference desktop tuning column visible even when the legacy mobile
+   drawer's hidden toggle would otherwise collapse its ancestor. */
+@media (min-width: 900px) and (orientation: landscape) {
+  #app #mobileControlDrawer { display: contents !important; visibility: visible !important; opacity: 1 !important; }
+  #app #mobileControlPanel { display: contents !important; visibility: visible !important; opacity: 1 !important; }
+  #app #leftSidebar { display: flex !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; }
+}
