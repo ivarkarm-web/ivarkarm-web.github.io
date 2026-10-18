@@ -20,6 +20,16 @@ appMenu?.querySelectorAll('button').forEach((button) => button.addEventListener(
   appMenu.hidden = true;
   topMenuButton?.setAttribute('aria-expanded', 'false');
 }));
+const loopMenuButton = document.getElementById('toggleLooper');
+const loopRail = document.getElementById('looperRail');
+loopMenuButton?.addEventListener('click', () => {
+  if (!loopRail) return;
+  const open = loopRail.hidden;
+  loopRail.hidden = !open;
+  loopRail.classList.toggle('is-open', open);
+  loopMenuButton.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if (open) document.getElementById('looperBtn')?.focus?.();
+});
 document.addEventListener('pointerdown', (event) => {
   if (appMenu && !appMenu.hidden && !appMenu.contains(event.target) && !topMenuButton?.contains(event.target)) {
     appMenu.hidden = true;
