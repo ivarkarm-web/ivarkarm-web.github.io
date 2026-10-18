@@ -94,7 +94,7 @@ else fail('Loop mixer cache versions are stale');
 const scaleSelector = read('handpan-app/js/scale-selector.js');
 if (/Search instruments/.test(coreSrc) && /picker-search/.test(coreSrc) && /Search scales/.test(scaleSelector) && /picker-search/.test(scaleSelector)) ok('Instrument and scale pickers expose searchable, filtered lists');
 else fail('Searchable scale/instrument picker wiring is incomplete');
-if (/scale-menu.css\\?v=8/.test(appHtml) && /pionier-app.js\\?v=213/.test(appHtml) && /pionier-core.js\\?v=59/.test(shell) && /scale-selector.js\\?v=8/.test(shell) && /pionier-v74/.test(serviceWorker)) ok('Search picker assets use fresh cache versions');
+if (appHtml.includes('scale-menu.css?v=8') && appHtml.includes('pionier-app.js?v=213') && shell.includes('pionier-core.js?v=59') && shell.includes('scale-selector.js?v=8') && /pionier-v74/.test(serviceWorker)) ok('Search picker assets use fresh cache versions');
 else fail('Search picker asset cache versions are stale');
 
 // Current shell uses soundscapesPanel + soundscapeAudio (+ optional play control).
