@@ -392,8 +392,8 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 2.5px solid rgba(46, 204, 113, 0.95);
-  box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.14), 0 6px 20px rgba(0, 0, 0, 0.35);
+  border: 2.5px solid rgba(212, 176, 74, 0.95);
+  box-shadow: 0 0 0 3px rgba(212, 176, 74, 0.14), 0 6px 20px rgba(0, 0, 0, 0.35);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .looper-btn-core {
@@ -404,22 +404,22 @@
   height: 18px;
   margin: -9px 0 0 -9px;
   border-radius: 50%;
-  background: #2ecc71;
-  box-shadow: 0 0 12px rgba(46, 204, 113, 0.5);
+  background: #d4b04a;
+  box-shadow: 0 0 12px rgba(212, 176, 74, 0.35);
   transition: border-radius 0.18s ease, width 0.18s ease, height 0.18s ease, margin 0.18s ease, background 0.18s ease;
 }
 .looper-btn.is-recording .looper-btn-ring {
   animation: looper-pulse-rec 1s ease-in-out infinite;
-  border-color: #ff3b3b;
-  box-shadow: 0 0 0 3px rgba(224, 54, 54, 0.22), 0 6px 20px rgba(0, 0, 0, 0.35);
+  border-color: #f4cf69;
+  box-shadow: 0 0 0 3px rgba(212, 176, 74, 0.22), 0 6px 20px rgba(0, 0, 0, 0.35);
 }
 .looper-btn.is-recording .looper-btn-core {
   width: 16px;
   height: 16px;
   margin: -8px 0 0 -8px;
   border-radius: 3px;
-  background: #e03636;
-  box-shadow: 0 0 14px rgba(224, 54, 54, 0.55);
+  background: #d4b04a;
+  box-shadow: 0 0 14px rgba(212, 176, 74, 0.4);
 }
 .looper-btn.is-pending-stop .looper-btn-ring {
   border-color: #f4cf69;
@@ -435,8 +435,8 @@
 }
 
 @keyframes looper-pulse-rec {
-  0%, 100% { box-shadow: 0 0 0 3px rgba(224, 54, 54, 0.25), 0 6px 20px rgba(0, 0, 0, 0.35); }
-  50% { box-shadow: 0 0 0 8px rgba(224, 54, 54, 0.15), 0 6px 24px rgba(224, 54, 54, 0.3); }
+  0%, 100% { box-shadow: 0 0 0 3px rgba(212, 176, 74, 0.25), 0 6px 20px rgba(0, 0, 0, 0.35); }
+  50% { box-shadow: 0 0 0 8px rgba(212, 176, 74, 0.15), 0 6px 24px rgba(212, 176, 74, 0.3); }
 }
 
 @media (max-width: 380px) {
