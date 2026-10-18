@@ -282,7 +282,7 @@ test('Soundscapes exposes the User-Created collection without generated ambience
   await expect(page.locator('#soundscapeCommunityQueue')).toBeAttached();
   const legacyAmbientPlayer = await page.evaluate(() => !!window.PionierBackdropPlayer);
   expect(legacyAmbientPlayer).toBe(false);
-  await expect(page.locator('#ambientCanvas')).toHaveCount(0);
+  await expect(page.locator('#ambientFxCanvas')).toHaveCount(0);
 });
 
 test('note-count controls add and remove notes without losing the instrument core', async ({ page }) => {
