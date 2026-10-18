@@ -149,3 +149,30 @@
 }
 #looperRail.is-open .looper-clear-btn { position: absolute; top: 8px; left: 10px; }
 #looperRail.is-open .looper-record-cluster { padding: 4px 34px; }
+
+
+/* Keep Loop Studio's record target fully inside the floating sheet on short phones. */
+@media (max-width: 899px) {
+  #looperRail.is-open {
+    box-sizing: border-box !important;
+    min-height: 118px !important;
+    max-height: min(38dvh, 280px) !important;
+    padding: 14px 12px 12px !important;
+    overflow: visible !important;
+  }
+  #looperRail.is-open .looper-record-cluster {
+    box-sizing: border-box !important;
+    min-height: 54px !important;
+    padding: 4px 38px !important;
+    overflow: visible !important;
+    flex: 0 0 auto !important;
+  }
+  #looperRail.is-open #looperBtn {
+    flex: 0 0 46px !important;
+    width: 46px !important;
+    min-width: 46px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    margin: 0 auto !important;
+  }
+}
