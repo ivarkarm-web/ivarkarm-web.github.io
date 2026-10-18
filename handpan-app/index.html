@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Handpan — Ivar Karm</title>
   <meta name="theme-color" content="#0a0a0b" />
-  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="icon" type="image/svg+xml" href="./icon.svg" />
@@ -14,17 +13,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./pionier.css?v=151" />
-  <link rel="stylesheet" href="./screenshot-ui.css?v=2" />
+  <link rel="stylesheet" href="./screenshot-ui.css?v=10" />
   <link rel="stylesheet" href="./topbar-narrow.css?v=6" />
   <link rel="stylesheet" href="./looper.css?v=208" />
   <link rel="stylesheet" href="./scale-menu.css?v=9" />
-  <style>
-    .backdrop-player, .play-pill, #modePlay, #btnHelp, #btnExit, .top-actions,
-    #createLaunch, .create-launch, #createPage, .create-page { display: none !important; }
-    .stage { position: relative; display: flex; align-items: center; justify-content: center;
-      flex: 1 1 auto; min-height: 0; overflow: hidden; padding: 4px; }
-    #pan { display: block; aspect-ratio: 1; width: min(86vw, 70vh, 640px); height: auto; max-width: 100%; }
-  </style>
   <link rel="stylesheet" href="./atelier.css?v=10" />
   <link rel="stylesheet" href="./ui-stability.css?v=5" />
 </head>
@@ -36,12 +28,12 @@
   <div id="app" class="app">
     <header class="topbar">
       <button type="button" class="icon-btn topbar-menu" id="topMenuBtn" aria-label="Menu">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
       <div class="topbar-center"><span class="topbar-mode" id="topModeLabel">play</span></div>
       <div class="topbar-actions">
         <button type="button" class="icon-btn topbar-add" id="topAddBtn" aria-label="Add">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
         </button>
         <button type="button" class="icon-btn topbar-help" id="topHelpBtn" aria-label="Help">?</button>
       </div>
@@ -60,7 +52,7 @@
         <span class="mobile-controls-label">Controls</span>
       </button>
       <div class="mobile-control-panel" id="mobileControlPanel">
-        <div class="mobile-bottom-controls">
+        <div class="mobile-scale-page is-visible" id="mobileScalePage">
           <div class="pill-stepper scale-pill">
             <button type="button" class="pill-step" id="scalePrev" aria-label="Previous scale">‹</button>
             <button type="button" class="pill-value scale-dropdown-toggle" id="scaleLabel" aria-haspopup="true" aria-expanded="false" aria-controls="scaleMenu">Chromatic</button>
@@ -134,7 +126,7 @@
       </div>
     </div>
 
-    <div id="looperRail" class="looper-rail" aria-label="Looper">
+    <div id="looperRail" class="looper-rail" aria-label="Looper" hidden style="display:none!important">
       <div id="looperRecordCluster" class="looper-record-cluster">
         <button type="button" id="looperBtn" class="looper-btn looper-record" aria-label="Record loop" title="Record loop"><span class="looper-btn-ring" aria-hidden="true"></span><span class="looper-btn-core" aria-hidden="true"></span></button>
       </div>
@@ -169,9 +161,9 @@
     <button type="button" class="transport-record" id="transportRecord" aria-label="Record"><span class="rec-dot"></span></button>
     <span class="transport-time" id="transportTime">00 : 00 : 00</span>
     <div class="transport-bpm">
-      <button type="button" class="bpm-btn" id="bpmDown" aria-label="Decrease BPM">−</button>
-      <span class="bpm-value"><span id="bpmValue">120</span> <small>BPM</small></span>
-      <button type="button" class="bpm-btn" id="bpmUp" aria-label="Increase BPM">+</button>
+      <button type="button" class="bpm-step" id="bpmDown" aria-label="Decrease BPM">−</button>
+      <span class="bpm-value" id="bpmValue">120 <small>BPM</small></span>
+      <button type="button" class="bpm-step" id="bpmUp" aria-label="Increase BPM">+</button>
     </div>
     <button type="button" class="transport-metro" id="transportMetro" aria-label="Metronome" aria-pressed="false">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3M8 21h8l-1.5-9h-5L8 21zM12 6l4 6H8l4-6z"/></svg>
@@ -236,9 +228,10 @@
 
   <script src="./js/skin-palette.js?v=2"></script>
   <script src="./js/overlay-controller.js?v=10"></script>
-  <script src="./js/layout-boot.js?v=65"></script>
-  <script src="./js/ui-extras.js?v=3"></script>
-  <script type="module" src="./pionier-app.js?v=208"></script>
+  <script src="./js/layout-boot.js?v=100"></script>
+  <script src="./js/boot-fix.js?v=1"></script>
+  <script src="./js/ui-extras.js?v=5"></script>
+  <script type="module" src="./pionier-app.js?v=220"></script>
   <script src="./js/filter-bridge.js?v=1"></script>
   <script src="./registerSW.js"></script>
 </body>
