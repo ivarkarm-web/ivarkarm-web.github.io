@@ -206,25 +206,9 @@
     }, { passive: true });
   })();
 
-  document.querySelectorAll('.fx-circle-knob').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.fx-circle-knob').forEach((b) => b.classList.remove('is-active'));
-      btn.classList.add('is-active');
-      if (btn.dataset.fx === 'filter') {
-        const panel = document.getElementById('fxPanel');
-        if (panel) {
-          panel.hidden = false;
-          const title = document.getElementById('fxPanelTitle');
-          if (title) title.textContent = 'Filter';
-        }
-      }
-    });
-  });
+  // FX panel open/close and selector state are owned by overlay-controller.js.
+  // Avoid a second listener toggling the same panel during the same click.
 
-  document.getElementById('fxPanelClose')?.addEventListener('click', () => {
-    const panel = document.getElementById('fxPanel');
-    if (panel) panel.hidden = true;
-  });
 
   document.getElementById('looperBtn')?.addEventListener('click', () => {
     document.getElementById('transportRecord')?.click();
