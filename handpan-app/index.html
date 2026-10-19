@@ -230,8 +230,9 @@
 
   <div id="fxEditorBackdrop" class="fx-editor-backdrop" hidden></div>
   <section id="fxEditor" class="fx-editor" role="dialog" aria-modal="true" aria-labelledby="fxEditorTitle" hidden>
-    <header class="fx-editor-header">
-      <div><p class="fx-editor-eyebrow">EFFECT DESIGNER</p><h2 id="fxEditorTitle">Compressor</h2><p id="fxEditorSubtitle">Shape the response and fine-tune the sound.</p></div>
+    <header class="fx-editor-header fx-editor-header-compact">
+      <span id="fxEditorTitle" class="fx-editor-current-title">Comp</span>
+      <span id="fxEditorSubtitle" hidden></span>
       <button type="button" id="fxEditorClose" class="icon-btn" aria-label="Close effect editor">×</button>
     </header>
     <div class="fx-editor-toolbar"><div id="fxEditorPresets" class="fx-editor-presets" aria-label="Effect presets"></div><button type="button" id="fxEditorBypass" class="fx-editor-bypass" aria-pressed="false">Bypass</button></div>
