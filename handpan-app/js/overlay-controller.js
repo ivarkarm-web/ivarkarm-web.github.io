@@ -116,6 +116,8 @@
   function placePicker(menu, toggle) {
     if (!menu || !toggle) return;
     if (menu.parentElement !== document.body) document.body.appendChild(menu);
+    // Clear the previous close-state's important display:none before reopening.
+    menu.style.removeProperty('display');
     const rect = toggle.getBoundingClientRect();
     const margin = 12;
     const gap = 8;
