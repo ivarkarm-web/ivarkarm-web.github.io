@@ -88,13 +88,13 @@ if (loopControls.includes('looper-crop-editor') && loopControls.includes('crop-s
 else fail('Loop crop editor wiring is incomplete');
 if (/function confirmDeleteLayer/.test(loopControls) && /Delete track/.test(loopControls) && /confirmDeleteLayer\(i\)/.test(loopControls)) ok('Holding a loop opens a delete confirmation; deletion requires a confirm tap');
 else fail('Loop hold-to-delete confirmation wiring is incomplete');
-if (/\.looper-track-overlay/.test(loopStyles) && /looper\.css\?v=210/.test(appHtml) && /js\/looper\.js\?v=213/.test(shell) && /pionier-v77/.test(serviceWorker)) ok('Loop mixer styles and service-worker cache versions are refreshed');
+if (/\.looper-track-overlay/.test(loopStyles) && /looper\.css\?v=210/.test(appHtml) && /js\/looper\.js\?v=213/.test(shell) && /pionier-v78/.test(serviceWorker)) ok('Loop mixer styles and service-worker cache versions are refreshed');
 else fail('Loop mixer cache versions are stale');
 
 const scaleSelector = read('handpan-app/js/scale-selector.js');
 if (/Search instruments/.test(coreSrc) && /picker-search/.test(coreSrc) && /Search scales/.test(scaleSelector) && /picker-search/.test(scaleSelector)) ok('Instrument and scale pickers expose searchable, filtered lists');
 else fail('Searchable scale/instrument picker wiring is incomplete');
-if (appHtml.includes('scale-menu.css?v=8') && appHtml.includes('pionier-app.js?v=215') && shell.includes('pionier-core.js?v=61') && shell.includes('scale-selector.js?v=8') && /pionier-v77/.test(serviceWorker)) ok('Search picker assets use fresh cache versions');
+if (appHtml.includes('scale-menu.css?v=8') && appHtml.includes('pionier-app.js?v=215') && shell.includes('pionier-core.js?v=61') && shell.includes('scale-selector.js?v=8') && /pionier-v78/.test(serviceWorker)) ok('Search picker assets use fresh cache versions');
 else fail('Search picker asset cache versions are stale');
 
 // Current shell uses soundscapesPanel + soundscapeAudio (+ optional play control).
@@ -140,6 +140,11 @@ if (/pionier:fx-editor-open/.test(coreSrc) && /lastTapAt/.test(coreSrc) && /fxEd
 else fail('FX editor shortcut, curve, or preset wiring is missing');
 if ((appHtml.match(/class="fx-settings-shortcut"/g) || []).length === 4) ok('All four effects expose an S shortcut to advanced settings');
 else fail('Expected S shortcuts for Comp, Delay, Reverb, and Filter');
+const presetCounts = ['Vocal Glue','Punchy Drums','Parallel Crush','Bass Tightener','Acoustic Strummer','Mastering Limiter','Snare Smasher','Sustain Builder','Sidechain Duck','Subtle Leveler','Slapback Echo','Dotted Eighth','Tape Saturation','Ping-Pong','Stereo Widener','Ambient Wash','Modulated Echo','Dub Echo','Quarter Note Lead','Trippy Reverse','Studio Room','Vocal Plate','Cathedral Hall','Spring Tank','Gated Snare','Shimmer Pad','Ambiance / Glue','Concert Hall','Tiled Bathroom','Deep Abyss','Telephone / Lo-Fi','Sub Bass Cut','HF Brilliance','Club Next Door','Auto-Wah / Envelope','Sweeping LFO LPF','Phaser Sweep','Vocal Formant','Crisp Vinyl','The Kill Switch'];
+if (presetCounts.every((name) => fxEditor.includes(`label:'${name}'`)) && (fxEditor.match(/label:'(?:Vocal Glue|Slapback Echo|Studio Room|Telephone \/ Lo-Fi)'/g) || []).length === 4) ok('FX editor includes all 40 named presets across four effect types');
+else fail('FX preset library is incomplete');
+if (fxEditor.includes('fx-editor-preset-select') && appHtml.includes('fx-editor-header-compact') === false && !appHtml.includes('RESPONSE CURVE') && !appHtml.includes('Drag the point to shape it')) ok('FX editor uses a preset dropdown and a simplified curve layout');
+else fail('FX editor dropdown or compact layout is missing');
 if (/setTargetAtTime/.test(read('handpan-app/js/fx.js')) && /settings\.threshold/.test(read('handpan-app/js/fx.js')) && /settings\.feedback/.test(read('handpan-app/js/fx.js')) && /settings\.resonance/.test(read('handpan-app/js/fx.js'))) ok('FX editor parameters are wired to the live audio modules');
 else fail('FX editor parameters are not wired to the live audio modules');
 
