@@ -25,8 +25,8 @@ const DEFS = {
  {key:'time',label:'Time',min:.04,max:.72,step:.005,fmt:v=>Math.round(v*1000)+' ms',get:m=>m.settings.time??.34},
  {key:'feedback',label:'Feedback',min:.05,max:.75,step:.01,fmt:v=>Math.round(v*100)+'%',get:m=>m.settings.feedback??.38}]},
  reverb:{title:'Reverb',subtitle:'Shape the tail from intimate room to vast space.',x:'Decay length',y:'Brightness',presets:[
- {id:'room',label:'Room',v:{decay:1,tone:1}},{id:'hall',label:'Hall',v:{decay:1.55,tone:.86}},
- {id:'plate',label:'Plate',v:{decay:.88,tone:1.45}},{id:'cave',label:'Cave',v:{decay:2.25,tone:.62}}],
+ {id:'room',label:'Room',v:{decay:1,tone:1}},{id:'hall',label:'Hall',v:{decay:1,tone:.86}},
+ {id:'plate',label:'Plate',v:{decay:1,tone:1.45}},{id:'cave',label:'Cave',v:{decay:1,tone:.62}}],
  knobs:[
  {key:'value',label:'Mix',min:0,max:1,step:.01,fmt:v=>Math.round(v*100)+'%',get:m=>m.value,set:(m,v,c)=>m.setValue(v,c)},
  {key:'decay',label:'Decay',min:.6,max:3,step:.05,fmt:v=>Number(v).toFixed(2)+'×',get:m=>m.settings.decay??1},
@@ -52,7 +52,17 @@ const audio=()=>window.PionierCore?.getAudioContext?.();
 function ensureSettings(id,m){
  m.settings||={};
  const preset=(DEFS[id]?.presets||[]).find(p=>p.id===m.type);
- const seed=id==='filter'?{resonance:preset?.v?.resonance??1.1}:{...(DEFAULTS[id]||{}),...(preset?.v||{})};
+ let seed;
+ if(id==='filter'){
+  const v=m.value||0;
+  const resonance=m.type==='highpass'?.7+v*2.2:m.type==='band'?1.2+v*6:m.type==='notch'?.8+v*10:.6+v*3.5;
+  seed={resonance};
+ }else if(id==='delay'){
+  const ranges={echo:[.22,.48,.22,.55],slap:[.055,.12,.05,.18],ping:[.28,.55,.35,.68],ambient:[.4,.72,.28,.52]};
+  const p=ranges[m.type]||ranges.echo,v=m.value||0;
+  seed={time:p[0]+v*(p[1]-p[0]),feedback:p[2]+v*(p[3]-p[2])};
+ }else if(id==='reverb') seed={decay:1,tone:1};
+ else seed={...(DEFAULTS[id]||{}),...(preset?.v||{})};
  Object.entries(seed).forEach(([k,v])=>{if(!Number.isFinite(m.settings[k]))m.settings[k]=v;});
 }
 function refresh(){activeModule?._apply?.(audio());window.PionierCore?.refreshFxKnobs?.();drawCurve();drawKnobs();}
