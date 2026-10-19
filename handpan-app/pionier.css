@@ -2775,3 +2775,43 @@ html.theme-light .instrument-name {
 .instrument-menu.picker-popover.looper-bubble-menu .picker-results::-webkit-scrollbar,
 .fx-preset-picker .fx-preset-list::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
 .looper-track-close,.looper-menu-close{position:relative;z-index:5;pointer-events:auto!important;touch-action:manipulation;cursor:pointer}
+
+
+/* The FX preset list uses the exact same floating looper bubble and option buttons. */
+.fx-preset-picker .fx-preset-list:not([hidden]) {
+  box-sizing:border-box!important; padding:12px!important; max-height:min(48dvh,320px)!important;
+  overflow-x:hidden!important; overflow-y:auto!important; overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+  border:1px solid rgba(226,195,117,.24)!important; border-radius:16px!important;
+  background:rgba(16,16,19,.88)!important; color:#eee9dd!important;
+  box-shadow:0 20px 60px rgba(0,0,0,.46),inset 0 1px 0 rgba(255,255,255,.035)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(125%)!important;
+  backdrop-filter:blur(24px) saturate(125%)!important;
+  scrollbar-width:none!important; -ms-overflow-style:none!important;
+}
+.fx-preset-picker .fx-preset-option {
+  display:block!important; box-sizing:border-box!important; width:100%!important;
+  min-height:34px!important; padding:7px 8px!important; margin:1px 0!important;
+  border:1px solid rgba(230,224,210,.1)!important; border-radius:9px!important;
+  background:rgba(255,255,255,.035)!important; box-shadow:none!important;
+  color:rgba(236,230,217,.78)!important;
+  font:500 11px/1.2 Inter,system-ui,sans-serif!important; text-align:left!important;
+  transition:background .15s ease,border-color .15s ease,color .15s ease!important;
+}
+.fx-preset-picker .fx-preset-option:hover,
+.fx-preset-picker .fx-preset-option:focus-visible,
+.fx-preset-picker .fx-preset-option.is-active,
+.fx-preset-picker .fx-preset-option[aria-selected="true"] {
+  outline:none!important; color:#f6dfa0!important;
+  border-color:rgba(219,184,91,.52)!important; background:rgba(219,184,91,.12)!important;
+  box-shadow:none!important;
+}
+.fx-preset-picker .fx-preset-option .pionier-menu-check {display:none!important}
+.fx-preset-picker.is-open .fx-preset-list:not([hidden]) {
+  animation:looper-picker-bubble-spring .38s cubic-bezier(.2,.85,.25,1.22) both!important;
+  transform-origin:top center!important;
+}
+.fx-preset-picker .fx-preset-list::-webkit-scrollbar {display:none!important;width:0!important;height:0!important}
+@media(prefers-reduced-motion:reduce) {
+ .fx-preset-picker.is-open .fx-preset-list:not([hidden]) {animation:none!important}
+}
