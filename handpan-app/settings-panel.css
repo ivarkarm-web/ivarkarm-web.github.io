@@ -199,14 +199,92 @@
 }
 
 /* Dropdowns */
-.settings-select { margin-bottom: 12px; }
-.settings-select-label {
+.settings-dd { margin-bottom: 12px; }
+.settings-dd-label {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: rgba(245, 242, 236, 0.4);
   margin-bottom: 6px;
+}
+.settings-dd-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(22, 22, 26, 0.9);
+  color: rgba(245, 242, 236, 0.92);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+}
+.settings-dd-toggle:hover,
+.settings-dd-toggle[aria-expanded="true"] {
+  border-color: rgba(212, 176, 74, 0.4);
+  background: rgba(28, 26, 22, 0.95);
+}
+.settings-dd-value {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.settings-dd-chevron {
+  flex: 0 0 auto;
+  opacity: 0.55;
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+.settings-dd-toggle[aria-expanded="true"] .settings-dd-chevron {
+  transform: rotate(180deg);
+}
+.settings-dd-menu {
+  position: fixed;
+  z-index: 4500;
+  max-height: 360px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+  border: 1px solid rgba(230, 224, 210, 0.18);
+  background: #141416 !important;
+  background-image: none !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(230, 224, 210, 0.06);
+  padding: 8px;
+  color: #e6e0d2;
+}
+.settings-dd-menu[hidden] { display: none !important; }
+.settings-dd-menu.is-open { display: block !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; z-index: 4500 !important; }
+.settings-dd-group {
+  padding: 8px 10px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(245, 242, 236, 0.35);
+}
+.settings-dd-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(245, 242, 236, 0.88);
+  font-size: 14px;
+  cursor: pointer;
+}
+.settings-dd-item:hover { background: rgba(255, 255, 255, 0.06); }
+.settings-dd-item.is-active {
+  background: rgba(212, 176, 74, 0.16);
+  color: #e8c86a;
 }
 
 /* ---- Light theme ---- */
@@ -256,8 +334,49 @@ html.theme-light .settings-row span,
 html.theme-light .settings-row {
   color: #2a2824 !important;
 }
-html.theme-light .settings-select-label {
+html.theme-light .settings-dd-label {
   color: rgba(40, 36, 28, 0.5) !important;
+}
+html.theme-light .settings-dd-toggle {
+  background: #ffffff !important;
+  border: 1px solid rgba(40, 36, 28, 0.14) !important;
+  color: #1c1b1a !important;
+  box-shadow: 0 1px 2px rgba(40, 30, 10, 0.04) !important;
+}
+html.theme-light .settings-dd-toggle:hover,
+html.theme-light .settings-dd-toggle[aria-expanded="true"] {
+  border-color: rgba(160, 120, 30, 0.45) !important;
+  background: #fffdf8 !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-dd-value {
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-dd-chevron {
+  color: rgba(40, 36, 28, 0.5) !important;
+  opacity: 1 !important;
+}
+html.theme-light .settings-dd-menu {
+  background: #faf8f4 !important;
+  background-image: none !important;
+  border: 1px solid rgba(40, 36, 28, 0.14) !important;
+  box-shadow: 0 16px 40px rgba(40, 30, 10, 0.16) !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-dd-item {
+  background: transparent !important;
+  color: #2a2824 !important;
+}
+html.theme-light .settings-dd-item:hover {
+  background: rgba(40, 36, 28, 0.06) !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-dd-item.is-active {
+  background: rgba(196, 160, 70, 0.22) !important;
+  color: #6b4e0e !important;
+}
+html.theme-light .settings-dd-group {
+  color: rgba(40, 36, 28, 0.4) !important;
 }
 
 /* Toggles / sliders / values inside sheet */
@@ -384,6 +503,53 @@ html.theme-light .settings-rgb-grid input[type="range"] {
   scrollbar-color: rgba(190, 151, 53, .48) transparent;
   touch-action: pan-y;
 }
+.settings-sheet-body::-webkit-scrollbar,
+.settings-dd-menu::-webkit-scrollbar {
+  width: 4px;
+}
+.settings-sheet-body::-webkit-scrollbar-track,
+.settings-dd-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+.settings-sheet-body::-webkit-scrollbar-thumb,
+.settings-dd-menu::-webkit-scrollbar-thumb {
+  border-radius: 99px;
+  background: rgba(190, 151, 53, .42);
+}
+.settings-dd-menu {
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(190, 151, 53, .48) transparent;
+  /* Avoid costly blur while a long option list is moving under the finger. */
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .24) !important;
+  border-radius: 16px !important;
+  padding: 6px !important;
+}
+.settings-dd-item {
+  min-height: 42px;
+  border-radius: 10px !important;
+  padding: 10px 12px !important;
+  transition: background-color 140ms ease, color 140ms ease, transform 140ms ease !important;
+  touch-action: manipulation;
+}
+.settings-dd-item:active {
+  transform: scale(.985);
+}
+.settings-dd-toggle,
+.settings-sheet-close,
+.settings-open-btn {
+  touch-action: manipulation;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease,
+    box-shadow 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1) !important;
+}
+.settings-dd-toggle:active,
+.settings-sheet-close:active,
+.settings-open-btn:active {
+  transform: scale(.975);
+}
 .settings-toggle {
   width: 46px !important;
   height: 28px !important;
@@ -497,7 +663,17 @@ html.theme-light .settings-toggle-track::after {
   background: #fffdf8 !important;
   box-shadow: 0 1px 3px rgba(40,30,10,.2) !important;
 }
+html.theme-light .settings-dd-menu {
+  box-shadow: 0 10px 28px rgba(43,35,20,.13) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
 @media (prefers-reduced-motion: reduce) {
+  .settings-sheet *, .settings-dd-menu, .settings-dd-menu * {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
 }
 
 
@@ -605,9 +781,37 @@ html.theme-light .settings-toggle-track::after {
   outline: 2px solid rgba(197,160,74,.78) !important;
   outline-offset: 3px;
 }
-.settings-select {
+.settings-dd {
   margin-bottom: 14px !important;
 }
+.settings-dd-toggle {
+  min-height: 48px !important;
+  padding: 11px 15px !important;
+  border-radius: 15px !important;
+  border: 1px solid rgba(230,224,210,.095) !important;
+  background: rgba(255,255,255,.025) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
+  transition: background-color 180ms ease, border-color 180ms ease, transform 220ms cubic-bezier(.2,.8,.2,1) !important;
+}
+.settings-dd-toggle:hover,
+.settings-dd-toggle[aria-expanded="true"] {
+  background: rgba(200,164,114,.055) !important;
+  border-color: rgba(200,164,114,.26) !important;
+}
+.settings-dd-toggle:active { transform: scale(.99); }
+.settings-dd-menu {
+  border-radius: 16px !important;
+  border: 1px solid rgba(230,224,210,.09) !important;
+  padding: 6px !important;
+  box-shadow: 0 14px 38px rgba(0,0,0,.26) !important;
+}
+.settings-dd-item {
+  min-height: 44px !important;
+  padding: 11px 13px !important;
+  border-radius: 11px !important;
+  transition: background-color 160ms ease, color 160ms ease, transform 180ms cubic-bezier(.2,.8,.2,1) !important;
+}
+.settings-dd-item:active { transform: scale(.99); }
 .settings-sheet-close {
   border: 1px solid transparent !important;
   background: rgba(255,255,255,.045) !important;
@@ -654,6 +858,23 @@ html.theme-light .settings-toggle input:checked + .settings-toggle-track {
   background: #b99752 !important;
   border: 0 !important;
 }
+html.theme-light .settings-dd-toggle {
+  background: rgba(255,255,255,.72) !important;
+  border-color: rgba(46,40,28,.085) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8) !important;
+}
+html.theme-light .settings-dd-toggle:hover,
+html.theme-light .settings-dd-toggle[aria-expanded="true"] {
+  background: #fff !important;
+  border-color: rgba(151,116,43,.30) !important;
+}
+html.theme-light .settings-dd-menu {
+  background: #fcfbf8 !important;
+  border-color: rgba(46,40,28,.085) !important;
+  box-shadow: 0 14px 36px rgba(34,29,19,.14) !important;
+}
+html.theme-light .settings-dd-item:hover { background: rgba(46,40,28,.045) !important; }
+html.theme-light .settings-dd-item.is-active { background: rgba(185,151,82,.14) !important; color: #624b1d !important; }
 html.theme-light .settings-sheet-close {
   color: #37332c !important;
   background: rgba(46,40,28,.045) !important;
@@ -661,8 +882,14 @@ html.theme-light .settings-sheet-close {
 html.theme-light .settings-sheet-close:hover { background: rgba(46,40,28,.085) !important; }
 
 @media (hover: none) {
+  .settings-dd-toggle:hover,
+  .settings-sheet-close:hover { filter: none; }
 }
 @media (prefers-reduced-motion: reduce) {
+  .settings-sheet, .settings-sheet *, .settings-dd-menu, .settings-dd-menu * {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
 }
 
 
