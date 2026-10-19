@@ -322,6 +322,17 @@ test('visible FX selectors open the effects panel and update its title', async (
   await expect(page.locator('#fxPanelTitle')).toHaveText('Delay');
 });
 
+test('double-clicking an effect knob opens its live curve editor', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.startsWith('mobile'), 'desktop double-click interaction');
+  await page.locator('#fxSideKnobs [data-fx="filter"]').click();
+  await expect(page.locator('#fxPanel')).toBeVisible();
+  await page.locator('#knobFilter').dblclick();
+  await expect(page.locator('#fxEditor')).toBeVisible();
+  await expect(page.locator('#fxEditorTitle')).toHaveText('Filter');
+  await expect(page.locator('#fxEditorCurve')).toBeVisible();
+  await expect(page.locator('#fxEditorPresets button')).toHaveCount(4);
+});
+
 test('mobile scale controls remain visible without a hidden drawer toggle', async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.startsWith('mobile'), 'portrait layout only');
   await expect(page.locator('#scaleNext')).toBeVisible();
