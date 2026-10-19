@@ -55,7 +55,7 @@ async function boot() {
   const degraded = [];
 
   try {
-    await import(new URL('./pionier-core.js?v=65', BASE).href);
+    await import(new URL('./pionier-core.js?v=66', BASE).href);
   } catch (err) {
     console.error('[pionier] required core failed to load', err);
     setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
@@ -166,6 +166,9 @@ async function boot() {
         const scale = scales[next];
         if (label && scale) label.textContent = (scale.short || scale.label || 'Scale') + ' ▾';
       }
+      // Randomize the layout too: always choose from the complete 8–13 note range.
+      const randomNoteCount = 8 + Math.floor(Math.random() * 6);
+      window.PionierCore?.setNoteCount?.(randomNoteCount);
     } catch (err) { console.warn('[randomize] setup selection failed', err); }
     finally {
       if (dice) { delete dice.dataset.rolling; dice.classList.remove('is-rolling'); }
