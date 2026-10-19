@@ -2176,7 +2176,7 @@ button.fx-panel-open {
 
 /* SOUNDSCAPES — minimal listening player */
 #soundscapesPanel:not([hidden]) {
-  position:fixed!important; z-index:8000!important;
+  position:fixed!important; z-index:4300!important;
   top:max(18px,env(safe-area-inset-top,0px))!important; left:50%!important; transform:translateX(-50%)!important;
   width:min(820px,calc(100vw - 32px))!important;
   max-height:calc(100dvh - 36px - env(safe-area-inset-bottom,0px))!important;
