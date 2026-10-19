@@ -8,7 +8,7 @@
  *  - Versioned shell assets (?v=): network-first when online, cache fallback
  *  - Other same-origin GET: cache-first, then network
  */
-const CACHE_VERSION = 'pionier-v92';
+const CACHE_VERSION = 'pionier-v93';
 
 const SHELL = [
   './',
@@ -32,13 +32,13 @@ const SHELL = [
   './js/skin-mandala.js?v=5',
   './pionier-app.js?v=229',
   './registerSW.js',
-  './pionier-core.js?v=67',
+  './pionier-core.js?v=68',
   './js/audio-core.js?v=2',
   './js/instrument.js',
   './js/gesture.js',
   './js/fx.js',
   './js/fx-editor.js?v=3',
-  './js/pionier-surface.js?v=142',
+  './js/pionier-surface.js?v=143',
   './js/note-sample-bank.js',
   './js/soundscapes.js?v=8',
   './js/scale-selector.js?v=9',
