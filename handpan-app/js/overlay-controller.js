@@ -173,6 +173,41 @@
     }
   }
 
+  // Give the floating picker the same tactile overscroll as the looper's settings bubble.
+  // The list remains the scroll container; only a small elastic response is applied at its edges.
+  function wirePickerElasticScroll(menu, scrollRegion) {
+    if (!menu || !scrollRegion || scrollRegion.dataset.elasticBounce === 'wired') return;
+    scrollRegion.dataset.elasticBounce = 'wired';
+    let startY = 0;
+    let edge = '';
+    const reset = () => {
+      menu.style.transition = 'transform 260ms cubic-bezier(.2,.85,.25,1.2)';
+      menu.style.transform = 'translate3d(0,0,0) scale(1)';
+      edge = '';
+    };
+    scrollRegion.addEventListener('touchstart', (event) => {
+      if (!event.touches.length) return;
+      startY = event.touches[0].clientY;
+      edge = '';
+      menu.style.transition = 'none';
+    }, { passive: true });
+    scrollRegion.addEventListener('touchmove', (event) => {
+      if (!event.touches.length) return;
+      const delta = event.touches[0].clientY - startY;
+      const atTop = scrollRegion.scrollTop <= 0;
+      const atBottom = scrollRegion.scrollTop + scrollRegion.clientHeight >= scrollRegion.scrollHeight - 1;
+      if ((atTop && delta > 0) || (atBottom && delta < 0)) {
+        edge = atTop ? 'top' : 'bottom';
+        const pull = Math.sign(delta) * Math.min(10, Math.abs(delta) * .18);
+        menu.style.transform = 'translate3d(0,' + pull + 'px,0) scale(.997)';
+      } else if (edge) {
+        menu.style.transform = 'translate3d(0,0,0) scale(1)';
+        edge = '';
+      }
+    }, { passive: true });
+    ['touchend', 'touchcancel'].forEach((name) => scrollRegion.addEventListener(name, reset, { passive: true }));
+  }
+
   function ensurePickerScrollRegion(menu) {
     if (!menu || menu.querySelector('.picker-results')) return;
     const close = menu.querySelector(':scope > .picker-close');
@@ -224,6 +259,7 @@
       menu.prepend(closeButton);
     }
     ensurePickerScrollRegion(menu);
+    wirePickerElasticScroll(menu, menu.querySelector('.picker-results'));
     // These are compact anchored popovers, not modal sheets: never dim or cover the instrument.
     const bd = ensureBackdrop();
     bd.hidden = true;
