@@ -26,7 +26,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <script>document.documentElement.classList.add("pionier-welcome-active");</script>
+  <script>document.documentElement.classList.add("pionier-welcome-active");window.PionierWelcomeState={hideTonefields:true};</script>
   <link rel="stylesheet" href="./pionier.css?v=166" />
   <link rel="stylesheet" href="./welcome-screen.css?v=1" />
   <link rel="stylesheet" href="./topbar-narrow.css?v=6" />
@@ -75,9 +75,20 @@
     <button type="button" id="appStatusRetry" class="app-status-retry" hidden>Retry</button>
   </div>
   <section id="pionierWelcome" aria-label="Welcome to Pionier">
+    <div class="welcome-masthead">
+      <span class="welcome-brand">PIONIER<span class="welcome-brand-mark">®</span></span>
+      <span class="welcome-edition">POCKET INSTRUMENT&nbsp; / &nbsp;NO. 01</span>
+    </div>
     <div class="pionier-welcome-content">
-      <p class="pionier-welcome-wordmark">PIONIER</p>
-      <button type="button" id="enterPionier">Enter Pionier</button>
+      <span class="welcome-kicker"><span class="welcome-kicker-dot"></span> SOUND, SHAPED BY YOU</span>
+      <h1 class="welcome-headline">A little space<br><em>to make sound.</em></h1>
+      <p class="welcome-deck">A touch-responsive instrument for exploring tones, textures and loops.</p>
+      <button type="button" id="enterPionier"><span>Enter Pionier</span><span class="welcome-enter-arrow" aria-hidden="true">↗</span></button>
+    </div>
+    <div class="welcome-foot">
+      <span>LISTEN&nbsp; · &nbsp;EXPLORE&nbsp; · &nbsp;CREATE</span>
+      <span class="welcome-foot-rule"></span>
+      <span>MADE FOR THE MOMENT</span>
     </div>
   </section>
   <div id="headphonesHint" role="status" aria-live="polite">Headphones recommended…</div>
