@@ -94,7 +94,7 @@ else fail('Loop mixer cache versions are stale');
 const scaleSelector = read('handpan-app/js/scale-selector.js');
 if (/Search instruments/.test(coreSrc) && /picker-search/.test(coreSrc) && /Search scales/.test(scaleSelector) && /picker-search/.test(scaleSelector)) ok('Instrument and scale pickers expose searchable, filtered lists');
 else fail('Searchable scale/instrument picker wiring is incomplete');
-if (appHtml.includes('scale-menu.css?v=8') && appHtml.includes('pionier-app.js?v=215') && shell.includes('pionier-core.js?v=61') && shell.includes('scale-selector.js?v=8') && /pionier-v76/.test(serviceWorker)) ok('Search picker assets use fresh cache versions');
+if (appHtml.includes('scale-menu.css?v=8') && appHtml.includes('pionier-app.js?v=215') && shell.includes('pionier-core.js?v=61') && shell.includes('scale-selector.js?v=8') && /pionier-v77/.test(serviceWorker)) ok('Search picker assets use fresh cache versions');
 else fail('Search picker asset cache versions are stale');
 
 // Current shell uses soundscapesPanel + soundscapeAudio (+ optional play control).
@@ -136,9 +136,9 @@ if (/window\.PionierCore/.test(coreSrc) && /async function setInstrument/.test(c
 
 
 const fxEditor = read('handpan-app/js/fx-editor.js');
-if (/pionier:fx-editor-open/.test(coreSrc) && /lastTapAt/.test(coreSrc) && /fxEditorCurve/.test(fxEditor) && /fxEditorPresets/.test(fxEditor) && /fx-settings-shortcut/.test(rootHtml)) ok('FX settings shortcuts and touch-safe curve editor wiring are present');
+if (/pionier:fx-editor-open/.test(coreSrc) && /lastTapAt/.test(coreSrc) && /fxEditorCurve/.test(fxEditor) && /fxEditorPresets/.test(fxEditor) && /fx-settings-shortcut/.test(appHtml)) ok('FX settings shortcuts and touch-safe curve editor wiring are present');
 else fail('FX editor shortcut, curve, or preset wiring is missing');
-if ((rootHtml.match(/class="fx-settings-shortcut"/g) || []).length === 4) ok('All four effects expose an S shortcut to advanced settings');
+if ((appHtml.match(/class="fx-settings-shortcut"/g) || []).length === 4) ok('All four effects expose an S shortcut to advanced settings');
 else fail('Expected S shortcuts for Comp, Delay, Reverb, and Filter');
 if (/setTargetAtTime/.test(read('handpan-app/js/fx.js')) && /settings\.threshold/.test(read('handpan-app/js/fx.js')) && /settings\.feedback/.test(read('handpan-app/js/fx.js')) && /settings\.resonance/.test(read('handpan-app/js/fx.js'))) ok('FX editor parameters are wired to the live audio modules');
 else fail('FX editor parameters are not wired to the live audio modules');
