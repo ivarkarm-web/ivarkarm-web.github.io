@@ -8,7 +8,7 @@
  *  - Versioned shell assets (?v=): network-first when online, cache fallback
  *  - Other same-origin GET: cache-first, then network
  */
-const CACHE_VERSION = 'pionier-v79';
+const CACHE_VERSION = 'pionier-v80';
 
 const SHELL = [
   './',
