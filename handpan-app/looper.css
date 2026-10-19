@@ -987,3 +987,69 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
     flex-basis:32px !important;
   }
 }
+
+
+/* Center the timing artwork as a group inside each circular button. */
+#looperRail #looperUtilityControls > .looper-timing-btn {
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  align-content:center !important;
+  text-align:center !important;
+  line-height:1 !important;
+  gap:2px !important;
+  overflow:hidden !important;
+}
+#looperRail #looperUtilityControls > .looper-timing-btn > .looper-icon {
+  position:static !important;
+  display:block !important;
+  flex:0 0 auto !important;
+  margin:0 !important;
+  transform:none !important;
+}
+#looperRail #looperUtilityControls .looper-count-in-btn .looper-countin-icon {
+  width:13px !important;
+  height:10px !important;
+}
+#looperRail #looperUtilityControls .looper-count-in-btn .looper-timing-main {
+  display:block !important;
+  position:static !important;
+  margin:0 !important;
+  transform:none !important;
+  font-size:6px !important;
+  line-height:1 !important;
+}
+#looperRail #looperUtilityControls .looper-metronome-btn .looper-timing-led {
+  position:absolute !important;
+  top:4px !important;
+  right:4px !important;
+}
+#looperRail #looperUtilityControls .looper-bpm-btn {
+  gap:1px !important;
+}
+#looperRail #looperUtilityControls .looper-bpm-btn .looper-tempo-icon {
+  width:11px !important;
+  height:11px !important;
+}
+#looperRail #looperUtilityControls .looper-bpm-value {
+  display:inline !important;
+  position:static !important;
+  margin:0 !important;
+  transform:none !important;
+  font-size:8px !important;
+  line-height:1 !important;
+}
+#looperRail #looperUtilityControls .looper-bpm-unit {
+  display:inline !important;
+  position:static !important;
+  margin:0 !important;
+  transform:none !important;
+  font-size:4px !important;
+  line-height:1 !important;
+}
+@media(max-width:390px) {
+  #looperRail #looperUtilityControls .looper-count-in-btn .looper-countin-icon { width:11px !important; height:9px !important; }
+  #looperRail #looperUtilityControls .looper-count-in-btn .looper-timing-main { font-size:5px !important; }
+  #looperRail #looperUtilityControls .looper-bpm-btn .looper-tempo-icon { width:10px !important; height:10px !important; }
+}
