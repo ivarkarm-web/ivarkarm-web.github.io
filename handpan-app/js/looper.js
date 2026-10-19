@@ -1,7 +1,7 @@
 /**
  * looper.js — multi-layer phrase looper v3 (max 8)
  * Record: arm/stop layer (pre-FX instrument bus)
- * SYNC modes (cycle button, 4 segments above record):
+ * Recording uses optional count-in, metronome and tempo controls:
  *   FREE  — independent lengths
  *   LOOP  — secondary tracks snap to exact multiples of layer-1 duration
  *   BEAT  — start/stop quantized to beat grid derived from layer 1
@@ -16,6 +16,18 @@ const MAX_LAYERS = 8;
 const LONG_MS = 480;
 const DEFAULT_LEVEL = 0.92;
 const BEATS_PER_BAR = 4;
+const CLICK_TYPES = [
+  { id:'woodblock', label:'Woodblock', wave:'triangle', frequency:1450, duration:.045 },
+  { id:'soft-wood', label:'Soft Wood', wave:'sine', frequency:950, duration:.055 },
+  { id:'rim-click', label:'Rim Click', wave:'square', frequency:2100, duration:.022 },
+  { id:'handpan-tap', label:'Handpan Tap', wave:'sine', frequency:520, duration:.11 },
+  { id:'bell', label:'Bell', wave:'sine', frequency:1760, duration:.16 },
+  { id:'shaker', label:'Shaker', wave:'sawtooth', frequency:4200, duration:.018 },
+  { id:'tick', label:'Soft Tick', wave:'square', frequency:1200, duration:.012 },
+  { id:'clave', label:'Clave', wave:'triangle', frequency:2500, duration:.03 },
+  { id:'low-pulse', label:'Low Pulse', wave:'sine', frequency:180, duration:.08 },
+  { id:'digital', label:'Digital Click', wave:'square', frequency:3000, duration:.018 },
+];
 
 const SYNC_MODES = [
   { id: 'free', label: 'FREE', title: 'Free — each layer independent' },
@@ -99,19 +111,13 @@ export function mountLooper({ root } = {}) {
     syncBtn.type = 'button';
     syncBtn.id = 'looperSyncBtn';
   }
+  // Retain the internal FREE sync state for legacy recorded tracks, but replace
+  // the visible sync dial with the Count-in control requested for this workflow.
   syncBtn.className = 'looper-sync-dial';
-  syncBtn.innerHTML =
-    '<span class="looper-sync-ring" aria-hidden="true">' +
-    SYNC_MODES.map((m, i) =>
-      `<span class="looper-sync-seg" data-mode="${m.id}" style="--seg:${i}"></span>`
-    ).join('') +
-    '</span>' +
-    '<span class="looper-sync-core">' +
-    '<span class="looper-sync-label" id="looperSyncLabel">FREE</span>' +
-    '</span>';
-  if (syncBtn.parentElement !== cluster) {
-    cluster.insertBefore(syncBtn, btn);
-  }
+  syncBtn.hidden = true;
+  syncBtn.setAttribute('aria-hidden', 'true');
+  syncBtn.innerHTML = '<span class="looper-sync-label">FREE</span>';
+  if (syncBtn.parentElement !== cluster) cluster.insertBefore(syncBtn, btn);
 
   let saveBtn = document.getElementById('looperSaveBtn');
   if (!saveBtn) {
@@ -124,6 +130,22 @@ export function mountLooper({ root } = {}) {
     saveBtn.title = 'Save recording to repository';
   }
   if (saveBtn.parentElement !== cluster) cluster.appendChild(saveBtn);
+
+  function ensureTimingButton(id, className, aria, html) {
+    let control = document.getElementById(id);
+    if (!control) { control = document.createElement('button'); control.type = 'button'; control.id = id; }
+    control.className = 'looper-timing-btn ' + className;
+    control.setAttribute('aria-label', aria);
+    control.title = aria;
+    control.innerHTML = html;
+    return control;
+  }
+  const countInBtn = ensureTimingButton('looperCountInBtn','looper-count-in-btn','Toggle count-in','<span class="looper-timing-main">1·2·3·4</span>');
+  const metronomeBtn = ensureTimingButton('looperMetronomeBtn','looper-metronome-btn','Toggle metronome','<span class="looper-metronome-icon" aria-hidden="true">♩</span><span class="looper-timing-led" aria-hidden="true"></span>');
+  const bpmBtn = ensureTimingButton('looperBpmBtn','looper-bpm-btn','Tempo settings','<span class="looper-bpm-value">90</span><span class="looper-bpm-unit">BPM</span>');
+  btn.after(countInBtn, metronomeBtn, bpmBtn);
+  // The save action remains available beside the new transport controls.
+  cluster.appendChild(saveBtn);
   syncBtn.setAttribute('aria-label', 'Sync mode: Free');
   syncBtn.title = SYNC_MODES[0].title;
 
@@ -144,6 +166,22 @@ export function mountLooper({ root } = {}) {
   let syncModeIndex = 0;
   let pendingLoopStop = false;
   let progressRaf = 0;
+  let countInEnabled = false;
+  let countInBars = 1;
+  let countInPending = false;
+  let countInCurrent = 0;
+  let countInTimer = null;
+  let metronomeOn = false;
+  let metronomeTimer = null;
+  let bpm = 90;
+  let beatsPerBar = 4;
+  let clickType = 'woodblock';
+  let lastTapTimes = [];
+  let timingMenu = null;
+  let timingMenuType = null;
+  let timingPressTimer = null;
+  let timingLongFired = false;
+  let bpmPointer = null;
 
   function syncMode() {
     return SYNC_MODES[syncModeIndex].id;
@@ -270,6 +308,18 @@ export function mountLooper({ root } = {}) {
     });
     syncBtn.setAttribute('aria-label', 'Sync mode: ' + mode.label);
     syncBtn.title = mode.title + ' · tap to change';
+    countInBtn.classList.toggle('is-active', countInEnabled);
+    countInBtn.classList.toggle('is-counting', countInPending);
+    const countLabel = countInBtn.querySelector('.looper-timing-main');
+    if (countLabel) countLabel.textContent = countInPending ? String(countInCurrent || '•') : '1·2·3·4';
+    countInBtn.setAttribute('aria-pressed', String(countInEnabled));
+    countInBtn.title = countInEnabled ? 'Count-in on · hold for settings' : 'Count-in off · hold for settings';
+    metronomeBtn.classList.toggle('is-active', metronomeOn);
+    metronomeBtn.setAttribute('aria-pressed', String(metronomeOn));
+    metronomeBtn.title = metronomeOn ? 'Metronome on · hold for click sounds' : 'Metronome off · hold for click sounds';
+    const bpmValue = bpmBtn.querySelector('.looper-bpm-value');
+    if (bpmValue) bpmValue.textContent = String(Math.round(bpm));
+    bpmBtn.title = 'Tempo ' + Math.round(bpm) + ' BPM · drag to adjust, hold for settings';
   }
 
   function startLayerSource(layer, offset, delaySeconds = 0) {
@@ -915,7 +965,7 @@ export function mountLooper({ root } = {}) {
   }
   saveBtn.addEventListener('click', openSaveDialog);
 
-  function startRecord() {
+  function beginRecording() {
     if (layers.length >= MAX_LAYERS) return;
     const ctx = ensureTap();
     if (!ctx) return;
@@ -928,7 +978,196 @@ export function mountLooper({ root } = {}) {
     setBtnState();
   }
 
+  function playClick(beatIndex = 0) {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const spec = CLICK_TYPES.find((item) => item.id === clickType) || CLICK_TYPES[0];
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const now = ctx.currentTime;
+      const accent = beatIndex % Math.max(1, beatsPerBar) === 0;
+      osc.type = spec.wave;
+      osc.frequency.setValueAtTime(spec.frequency * (accent ? 1.12 : 1), now);
+      gain.gain.setValueAtTime(accent ? 0.14 : 0.085, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + spec.duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + spec.duration + 0.01);
+    } catch (_) {}
+  }
+
+  function cancelCountIn() {
+    countInPending = false;
+    countInCurrent = 0;
+    if (countInTimer) clearTimeout(countInTimer);
+    countInTimer = null;
+    setBtnState();
+  }
+
+  function runCountIn() {
+    if (countInPending) return;
+    countInPending = true;
+    countInCurrent = 0;
+    const total = Math.max(1, countInBars * beatsPerBar);
+    const beatMs = 60000 / bpm;
+    const tick = () => {
+      if (!countInPending) return;
+      countInCurrent += 1;
+      playClick(countInCurrent - 1);
+      setBtnState();
+      if (countInCurrent >= total) {
+        countInTimer = setTimeout(() => {
+          if (!countInPending) return;
+          countInPending = false; countInCurrent = 0; countInTimer = null;
+          setBtnState(); beginRecording();
+        }, beatMs);
+      } else countInTimer = setTimeout(tick, beatMs);
+    };
+    tick();
+  }
+
+  function startRecord() {
+    if (layers.length >= MAX_LAYERS || recording || pendingLoopStop || countInPending) return;
+    const ctx = ensureTap();
+    if (!ctx) return;
+    resumeAudio();
+    try { window.PionierCore?.ensureAudio?.(); } catch (_) {}
+    ensureTap();
+    if (countInEnabled) { runCountIn(); return; }
+    beginRecording();
+  }
+
+  function setMetronome(enabled) {
+    metronomeOn = !!enabled;
+    if (metronomeTimer) clearTimeout(metronomeTimer);
+    metronomeTimer = null;
+    if (metronomeOn) {
+      resumeAudio();
+      let beat = 0;
+      const tick = () => {
+        if (!metronomeOn) return;
+        playClick(beat++);
+        metronomeTimer = setTimeout(tick, 60000 / bpm);
+      };
+      tick();
+    }
+    setBtnState();
+  }
+
+  function setBpm(value) {
+    bpm = Math.max(40, Math.min(200, Math.round(Number(value) || 90)));
+    setBtnState();
+    if (metronomeOn) setMetronome(true);
+  }
+
+  function closeTimingMenu() {
+    timingMenu?.remove();
+    timingMenu = null;
+    timingMenuType = null;
+  }
+
+  function showTimingMenu(type, anchor) {
+    closeTimingMenu();
+    timingMenuType = type;
+    const menu = document.createElement('div');
+    menu.className = 'looper-timing-menu';
+    menu.setAttribute('role', 'dialog');
+    menu.setAttribute('aria-label', type === 'metronome' ? 'Metronome settings' : type === 'countin' ? 'Count-in settings' : 'Tempo settings');
+    const title = document.createElement('div'); title.className = 'looper-timing-menu-title';
+    title.textContent = type === 'metronome' ? 'Metronome' : type === 'countin' ? 'Count-in' : 'Tempo';
+    menu.appendChild(title);
+    const addSelect = (labelText, values, selected, onChange) => {
+      const label = document.createElement('label'); label.className = 'looper-timing-field';
+      const text = document.createElement('span'); text.textContent = labelText; label.appendChild(text);
+      const select = document.createElement('select'); select.className = 'looper-timing-select';
+      values.forEach((entry) => { const option = document.createElement('option'); option.value = entry.value; option.textContent = entry.label; select.appendChild(option); });
+      select.value = String(selected); select.addEventListener('change', () => onChange(select.value)); label.appendChild(select); menu.appendChild(label);
+    };
+    if (type === 'metronome') {
+      const options = document.createElement('div'); options.className = 'looper-click-options';
+      CLICK_TYPES.forEach((spec) => {
+        const option = document.createElement('button'); option.type = 'button'; option.className = 'looper-timing-option' + (spec.id === clickType ? ' is-active' : '');
+        option.textContent = spec.label; option.addEventListener('click', () => { clickType = spec.id; closeTimingMenu(); showTimingMenu(type, anchor); });
+        options.appendChild(option);
+      });
+      menu.appendChild(options);
+      addSelect('Time signature', [{value:3,label:'3 / 4'},{value:4,label:'4 / 4'},{value:5,label:'5 / 4'},{value:6,label:'6 / 8'}], beatsPerBar, (v) => { beatsPerBar = Number(v); setBtnState(); });
+    } else if (type === 'countin') {
+      addSelect('Count-in length', [{value:1,label:'1 bar'},{value:2,label:'2 bars'},{value:3,label:'3 bars'}], countInBars, (v) => { countInBars = Number(v); setBtnState(); });
+      addSelect('Click sound', CLICK_TYPES.map((item) => ({value:item.id,label:item.label})), clickType, (v) => { clickType = v; });
+      addSelect('Time signature', [{value:3,label:'3 / 4'},{value:4,label:'4 / 4'},{value:5,label:'5 / 4'},{value:6,label:'6 / 8'}], beatsPerBar, (v) => { beatsPerBar = Number(v); setBtnState(); });
+    } else {
+      const value = document.createElement('div'); value.className = 'looper-bpm-editor-value'; value.textContent = Math.round(bpm) + ' BPM'; menu.appendChild(value);
+      const range = document.createElement('input'); range.type = 'range'; range.min = '40'; range.max = '200'; range.step = '1'; range.value = String(Math.round(bpm)); range.className = 'looper-bpm-range'; range.setAttribute('aria-label','Tempo in beats per minute');
+      range.addEventListener('input', () => { setBpm(range.value); value.textContent = Math.round(bpm) + ' BPM'; }); menu.appendChild(range);
+      const row = document.createElement('div'); row.className = 'looper-timing-menu-row';
+      for (const [label, delta] of [['−5',-5],['−1',-1],['+1',1],['+5',5]]) { const b = document.createElement('button'); b.type='button'; b.className='looper-timing-option'; b.textContent=label; b.addEventListener('click',()=>{setBpm(bpm+delta);value.textContent=Math.round(bpm)+' BPM';range.value=String(Math.round(bpm));}); row.appendChild(b); }
+      menu.appendChild(row);
+      addSelect('Time signature', [{value:3,label:'3 / 4'},{value:4,label:'4 / 4'},{value:5,label:'5 / 4'},{value:6,label:'6 / 8'}], beatsPerBar, (v) => { beatsPerBar = Number(v); });
+      const close = document.createElement('button'); close.type='button'; close.className='looper-timing-option'; close.textContent='Done'; close.addEventListener('click',closeTimingMenu); menu.appendChild(close);
+    }
+    document.body.appendChild(menu);
+    const rect = anchor.getBoundingClientRect();
+    const width = Math.min(280, window.innerWidth - 24);
+    menu.style.width = width + 'px';
+    menu.style.left = Math.max(12, Math.min(rect.left + rect.width / 2 - width / 2, window.innerWidth - width - 12)) + 'px';
+    menu.style.top = 'auto';
+    menu.style.bottom = Math.max(12, window.innerHeight - rect.top + 8) + 'px';
+    menu.style.maxHeight = Math.min(420, window.innerHeight - rect.top - 20) + 'px';
+    menu.querySelector('button,select,input')?.focus({preventScroll:true});
+    requestAnimationFrame(() => menu.classList.add('is-open'));
+  }
+
+  function wireTimingToggle(control, type) {
+    let holdTimer = null, held = false;
+    control.addEventListener('pointerdown', (e) => {
+      e.preventDefault(); e.stopPropagation(); held = false;
+      holdTimer = setTimeout(() => { held = true; timingLongFired = true; showTimingMenu(type, control); }, LONG_MS);
+    });
+    const finish = (e) => {
+      e?.preventDefault?.(); e?.stopPropagation?.();
+      if (holdTimer) clearTimeout(holdTimer); holdTimer = null;
+      if (held) return;
+      if (type === 'countin') { countInEnabled = !countInEnabled; setBtnState(); }
+      else setMetronome(!metronomeOn);
+    };
+    control.addEventListener('pointerup', finish);
+    control.addEventListener('pointercancel', () => { if (holdTimer) clearTimeout(holdTimer); holdTimer = null; });
+    control.addEventListener('contextmenu', (e) => e.preventDefault());
+  }
+  wireTimingToggle(countInBtn, 'countin');
+  wireTimingToggle(metronomeBtn, 'metronome');
+
+  let bpmDownX = 0, bpmStart = 90, bpmMoved = false, bpmHeld = false, bpmHoldTimer = null;
+  bpmBtn.addEventListener('pointerdown', (e) => {
+    e.preventDefault(); e.stopPropagation(); bpmDownX = e.clientX; bpmStart = bpm; bpmMoved = false; bpmHeld = false;
+    bpmBtn.setPointerCapture?.(e.pointerId);
+    bpmHoldTimer = setTimeout(() => { bpmHeld = true; showTimingMenu('bpm', bpmBtn); }, LONG_MS);
+  });
+  bpmBtn.addEventListener('pointermove', (e) => {
+    if (e.buttons === 0 || !Number.isFinite(e.clientX)) return;
+    const delta = e.clientX - bpmDownX;
+    if (Math.abs(delta) > 4) { bpmMoved = true; if (bpmHoldTimer) clearTimeout(bpmHoldTimer); bpmHoldTimer = null; setBpm(bpmStart + delta * .65); }
+  });
+  const endBpm = (e) => {
+    e?.preventDefault?.(); e?.stopPropagation?.();
+    if (bpmHoldTimer) clearTimeout(bpmHoldTimer); bpmHoldTimer = null;
+    if (!bpmMoved && !bpmHeld) {
+      const now = Date.now(); lastTapTimes.push(now); lastTapTimes = lastTapTimes.filter(t => now-t < 2500).slice(-5);
+      if (lastTapTimes.length >= 2) { const intervals = lastTapTimes.slice(1).map((t,i)=>t-lastTapTimes[i]).filter(d=>d>0); if(intervals.length) setBpm(60000/(intervals.reduce((a,b)=>a+b,0)/intervals.length)); }
+    }
+    bpmPointer = null;
+  };
+  bpmBtn.addEventListener('pointerup', endBpm);
+  bpmBtn.addEventListener('pointercancel', endBpm);
+  bpmBtn.addEventListener('contextmenu', (e) => e.preventDefault());
+  document.addEventListener('pointerdown', (e) => { if (timingMenu && !timingMenu.contains(e.target) && !e.target.closest('.looper-timing-btn')) closeTimingMenu(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeTimingMenu(); });
+
   function requestStopRecord() {
+    if (countInPending) { cancelCountIn(); return; }
     if (!recording) return;
     const mode = syncMode();
     if (mode === 'loop' && layers.length > 0 && cycleDuration() > 0.2) {
@@ -1022,6 +1261,7 @@ export function mountLooper({ root } = {}) {
   function clearAll() {
     recording = false;
     pendingLoopStop = false;
+    if (countInPending) cancelCountIn();
     recChunks = null;
     closeSheet();
     for (const layer of layers) disconnectLayer(layer);
@@ -1097,15 +1337,11 @@ export function mountLooper({ root } = {}) {
   clearBtn.addEventListener('pointerup', onClear);
   clearBtn.addEventListener('click', onClear);
 
-  syncBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    cycleSyncMode();
-  });
+  // Sync modes remain internal for legacy layer timing; the visible control is Count-in.
 
   setBtnState();
   renderCircles();
-  const api = { clearAll, layers, openTrackPanel, closeTrackPanel };
+  const api = { clearAll, layers, openTrackPanel, closeTrackPanel, setBpm, setMetronome, getTimingState: () => ({ bpm, metronomeOn, countInEnabled, countInBars, beatsPerBar, clickType }) };
   // Keep a stable debug/test handle so browser checks and support diagnostics can
   // inspect the mounted loop engine without reaching into module internals.
   window.PionierLooper = api;
