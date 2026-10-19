@@ -877,3 +877,11 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
   color:#f6dfa0; font-size:14px; font-weight:700; opacity:1;
 }
 .scale-menu .scale-menu-item:active, .instrument-menu .instrument-menu-item:active { transform:scale(.985); }
+
+
+/* Close affordances must sit above popup content and respond on first touch. */
+.looper-menu-close,.looper-track-close {
+  position:relative!important; z-index:20!important; pointer-events:auto!important;
+  touch-action:manipulation!important; -webkit-tap-highlight-color:transparent;
+}
+.looper-menu-close::before,.looper-track-close::before { pointer-events:none!important; }
