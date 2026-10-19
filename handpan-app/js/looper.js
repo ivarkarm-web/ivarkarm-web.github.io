@@ -1137,6 +1137,7 @@ export function mountLooper({ root } = {}) {
       addSelect('Time signature', [{value:3,label:'3 / 4'},{value:4,label:'4 / 4'},{value:5,label:'5 / 4'},{value:6,label:'6 / 8'}], beatsPerBar, (v) => { beatsPerBar = Number(v); });
       const close = document.createElement('button'); close.type='button'; close.className='looper-timing-option'; close.textContent='Done'; close.addEventListener('click',closeTimingMenu); menu.appendChild(close);
     }
+    timingMenu = menu;
     document.body.appendChild(menu);
     const rect = anchor.getBoundingClientRect();
     const width = Math.min(280, window.innerWidth - 24);
@@ -1148,6 +1149,19 @@ export function mountLooper({ root } = {}) {
     menu.querySelector('button,select,input')?.focus({preventScroll:true});
     requestAnimationFrame(() => menu.classList.add('is-open'));
   }
+
+  // Route close-button touches at document capture phase. This remains reliable on
+  // mobile even when popup-level handlers or nested touch targets interfere.
+  document.addEventListener('pointerdown', (event) => {
+    const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+    const close = target?.closest('.looper-menu-close, .looper-track-close');
+    if (!close) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (close.classList.contains('looper-track-close')) closeTrackPanel();
+    else if (close.closest('.looper-sheet')) closeSheet();
+    else if (close.closest('.looper-timing-menu')) closeTimingMenu();
+  }, true);
 
   function wireTimingToggle(control, type) {
     let holdTimer = null, held = false;
