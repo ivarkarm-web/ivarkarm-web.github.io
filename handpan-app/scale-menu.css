@@ -493,3 +493,17 @@ html.theme-light .instrument-menu.picker-popover:not([hidden]), html.theme-light
   .scale-menu.picker-popover.is-open:not([hidden]),
   .instrument-menu.picker-popover.is-open:not([hidden]) { animation:none !important; }
 }
+
+
+/* Popover results scroll cleanly without visible scrollbar tracks. */
+.scale-menu.picker-popover .picker-results,
+.instrument-menu.picker-popover .picker-results {
+  scrollbar-width:none !important;
+  -ms-overflow-style:none !important;
+}
+.scale-menu.picker-popover .picker-results::-webkit-scrollbar,
+.instrument-menu.picker-popover .picker-results::-webkit-scrollbar {
+  display:none !important;
+  width:0 !important;
+  height:0 !important;
+}
