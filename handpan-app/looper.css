@@ -844,41 +844,6 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
   #looperRail #looperLayers .looper-circle { width:24px !important; height:24px !important; min-width:24px !important; min-height:24px !important; flex-basis:24px !important; }
 }
 
-/* Keep picker chrome stationary while only the option list scrolls. */
-.scale-menu.picker-popover:not([hidden]), .instrument-menu.picker-popover:not([hidden]) {
-  display:flex !important; flex-direction:column !important; align-items:stretch !important;
-  overflow:hidden !important; overscroll-behavior:contain !important;
-}
-.scale-menu.picker-popover .picker-close, .instrument-menu.picker-popover .picker-close {
-  position:relative !important; top:auto !important; float:none !important;
-  align-self:flex-end !important; flex:0 0 28px !important; margin:0 0 4px auto !important;
-}
-.scale-menu.picker-popover .picker-search, .instrument-menu.picker-popover .picker-search {
-  position:relative !important; top:auto !important; flex:0 0 auto !important;
-  width:100% !important; margin:0 0 6px !important; z-index:2 !important;
-}
-.scale-menu.picker-popover .picker-results, .instrument-menu.picker-popover .picker-results {
-  display:block !important; flex:1 1 auto !important; min-height:0 !important;
-  overflow-x:hidden !important; overflow-y:auto !important; overscroll-behavior-y:contain !important;
-  -webkit-overflow-scrolling:touch !important; scrollbar-width:thin; scrollbar-color:rgba(219,184,91,.45) transparent;
-}
-.scale-menu .scale-menu-item, .instrument-menu .instrument-menu-item {
-  position:relative !important; padding-right:38px !important;
-  transition:background .16s ease,color .16s ease,transform .22s cubic-bezier(.2,1.35,.35,1) !important;
-}
-.scale-menu .scale-menu-item.is-active, .instrument-menu .instrument-menu-item.is-active,
-.scale-menu [role="menuitem"].is-active, .instrument-menu [role="menuitem"].is-active {
-  background:rgba(219,184,91,.14) !important; color:#f6dfa0 !important;
-  box-shadow:inset 2px 0 0 #d9b85b !important;
-}
-.scale-menu .scale-menu-item.is-active::after, .instrument-menu .instrument-menu-item.is-active::after,
-.scale-menu [role="menuitem"].is-active::after, .instrument-menu [role="menuitem"].is-active::after {
-  content:"✓"; position:absolute; right:13px; top:50%; transform:translateY(-50%);
-  color:#f6dfa0; font-size:14px; font-weight:700; opacity:1;
-}
-.scale-menu .scale-menu-item:active, .instrument-menu .instrument-menu-item:active { transform:scale(.985); }
-
-
 /* Quiet, consistent close affordance: a fine-line cross matching Pionier's icon language. */
 .looper-menu-close,.looper-track-close {
   position:relative!important; z-index:20!important; pointer-events:auto!important;
