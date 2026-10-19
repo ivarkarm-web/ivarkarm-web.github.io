@@ -90,9 +90,9 @@
 
   function buildDropdown(sectionEl, { id, label, items, activeId, onPick }) {
     const row = document.createElement('div');
-    row.className = 'settings-dd';
+    row.className = 'settings-select';
     const labelEl = document.createElement('label');
-    labelEl.className = 'settings-dd-label';
+    labelEl.className = 'settings-select-label';
     labelEl.htmlFor = id + 'Select';
     labelEl.textContent = label;
     const select = document.createElement('select');
