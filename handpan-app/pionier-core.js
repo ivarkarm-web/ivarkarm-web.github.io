@@ -178,7 +178,9 @@ function updateLabels() {
   const nextN = document.getElementById('noteCountNext');
   if (prevN) prevN.disabled = n <= 9;
   if (nextN) nextN.disabled = n >= 14;
-  const scaleSelect = document.getElementById('scaleMenu');\n  if (scaleSelect) scaleSelect.value = String(handpan.scaleIndex);\n  const voiceEl = document.getElementById('instrumentDropdownToggle');
+  const scaleSelect = document.getElementById('scaleMenu');
+  if (scaleSelect) scaleSelect.value = String(handpan.scaleIndex);
+  const voiceEl = document.getElementById('instrumentDropdownToggle');
   const inst = activeInstrument();
   if (voiceEl) voiceEl.textContent = (inst.name || inst.id) + ' \u25be';
 }
