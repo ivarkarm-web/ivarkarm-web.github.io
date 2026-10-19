@@ -572,3 +572,20 @@ html.theme-light .instrument-menu.picker-popover:not([hidden]), html.theme-light
  .scale-menu.picker-popover.looper-bubble-menu.is-open,
  .instrument-menu.picker-popover.looper-bubble-menu.is-open {animation:none!important}
 }
+
+
+/* Final parity with the looper Time signature bubble: same calm entry, no spring or scroll bounce. */
+.scale-menu.picker-popover.looper-bubble-menu.is-open,
+.instrument-menu.picker-popover.looper-bubble-menu.is-open {
+  animation:picker-menu-drop .24s cubic-bezier(.2,.8,.2,1) both!important;
+  transform-origin:bottom center!important;
+}
+.scale-menu.picker-popover.looper-bubble-menu .picker-results,
+.instrument-menu.picker-popover.looper-bubble-menu .picker-results {
+  overscroll-behavior:contain!important;
+  scroll-behavior:auto!important;
+}
+@media(prefers-reduced-motion:reduce){
+  .scale-menu.picker-popover.looper-bubble-menu.is-open,
+  .instrument-menu.picker-popover.looper-bubble-menu.is-open {animation:none!important}
+}
