@@ -55,7 +55,7 @@ async function boot() {
   const degraded = [];
 
   try {
-    await import(new URL('./pionier-core.js?v=64', BASE).href);
+    await import(new URL('./pionier-core.js?v=65', BASE).href);
   } catch (err) {
     console.error('[pionier] required core failed to load', err);
     setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
@@ -63,7 +63,7 @@ async function boot() {
   }
 
   try {
-    await import(new URL('./js/fx-editor.js?v=9', BASE).href);
+    await import(new URL('./js/fx-editor.js?v=10', BASE).href);
   } catch (err) {
     console.warn('[fx-editor] detailed effect editor failed to load', err);
     degraded.push('effect editor');
@@ -124,7 +124,7 @@ async function boot() {
   }
 
   try {
-    const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=12', BASE).href);
+    const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=13', BASE).href);
     mountScaleSelector({
       getHandpan: () => window.PionierCore?.handpan,
       onScaleChange: () => {
