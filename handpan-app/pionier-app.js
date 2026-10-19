@@ -63,7 +63,7 @@ async function boot() {
   }
 
   try {
-    await import(new URL('./js/fx-editor.js?v=8', BASE).href);
+    await import(new URL('./js/fx-editor.js?v=9', BASE).href);
   } catch (err) {
     console.warn('[fx-editor] detailed effect editor failed to load', err);
     degraded.push('effect editor');
@@ -116,7 +116,7 @@ async function boot() {
   }
 
   try {
-    const { mountLooper } = await import(new URL('./js/looper.js?v=216', BASE).href);
+    const { mountLooper } = await import(new URL('./js/looper.js?v=217', BASE).href);
     mountLooper();
   } catch (err) {
     console.warn('[looper] mount failed', err);
