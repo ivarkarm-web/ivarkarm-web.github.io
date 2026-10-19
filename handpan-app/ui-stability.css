@@ -373,8 +373,8 @@ html body #scaleMenu.pionier-select {
   border-radius: 9px !important;
 }
 html body .settings-native-select { width: 100% !important; }
-html body .settings-dd { min-width: 0; }
-html body .settings-dd-label { display: block; margin-bottom: 6px; }
+html body .settings-select { min-width: 0; }
+html body .settings-select-label { display: block; margin-bottom: 6px; }
 html body .fx-editor-preset-select { min-width: 0; width: 100%; }
 html.theme-light body select.pionier-select {
   background-color: rgba(19,19,22,.92) !important;
