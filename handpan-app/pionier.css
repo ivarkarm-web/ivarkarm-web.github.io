@@ -2222,8 +2222,9 @@ button.fx-panel-open {
 #soundscapesPanel .soundscape-tab.is-active:after{content:""!important;position:absolute!important;left:0!important;right:0!important;bottom:-12px!important;height:1px!important;background:#d4b04a!important}
 #soundscapesPanel .soundscape-now{grid-column:1!important;grid-row:2!important;min-width:0!important;padding:0 0 20px!important}
 #soundscapesPanel .soundscape-title{
-  margin:0!important;color:#f0eadf!important;font:400 clamp(23px,3.2vw,34px)/1.16 "Playfair Display",Georgia,serif!important;
-  letter-spacing:-.025em!important;overflow-wrap:anywhere!important;
+  margin:0!important;color:var(--fg, #eceae6)!important;
+  font:500 14px/1.45 Inter,system-ui,sans-serif!important;
+  letter-spacing:.005em!important;overflow-wrap:anywhere!important;
 }
 #soundscapesPanel .soundscape-note,#soundscapesPanel .soundscape-status{display:none!important}
 #soundscapesPanel .soundscape-transport{
