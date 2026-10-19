@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Pionier Audio — Handpan</title>
+  <desc id="desc">Minimal tech-editorial preview for Pionier Audio, a virtual handpan instrument.</desc>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#0a0a0a"/>
+  
+  <!-- Subtle grid (tech editorial) -->
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1a1a1a" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)" opacity="0.6"/>
+  
+  <!-- Left red vertical accent bar -->
+  <rect x="0" y="0" width="6" height="630" fill="#e11d48"/>
+  
+  <!-- Thin horizontal red line near top -->
+  <line x1="48" y1="72" x2="180" y2="72" stroke="#e11d48" stroke-width="2"/>
+  
+  <!-- Main wordmark -->
+  <text x="48" y="280" 
+        font-family="Inter, system-ui, -apple-system, sans-serif" 
+        font-size="72" 
+        font-weight="600" 
+        letter-spacing="4"
+        fill="#f5f5f5">PIONIER</text>
+  
+  <text x="48" y="360" 
+        font-family="Inter, system-ui, -apple-system, sans-serif" 
+        font-size="72" 
+        font-weight="600" 
+        letter-spacing="4"
+        fill="#f5f5f5">AUDIO</text>
+  
+  <!-- Small red tagline -->
+  <text x="48" y="420" 
+        font-family="Inter, system-ui, -apple-system, sans-serif" 
+        font-size="18" 
+        font-weight="500" 
+        letter-spacing="6"
+        fill="#e11d48">HANDPAN</text>
+  
+  <!-- Right side subtle geometric accent (minimal circle motif) -->
+  <g transform="translate(980, 315)" opacity="0.9">
+    <!-- Outer thin ring -->
+    <circle r="110" fill="none" stroke="#1f1f1f" stroke-width="1.5"/>
+    <!-- Mid ring -->
+    <circle r="70" fill="none" stroke="#2a2a2a" stroke-width="1"/>
+    <!-- Inner red accent ring -->
+    <circle r="28" fill="none" stroke="#e11d48" stroke-width="2"/>
+    <!-- Center dot -->
+    <circle r="4" fill="#e11d48"/>
+  </g>
+  
+  <!-- Bottom right micro label -->
+  <text x="1152" y="598" 
+        font-family="Inter, system-ui, -apple-system, sans-serif" 
+        font-size="12" 
+        font-weight="400" 
+        letter-spacing="2"
+        fill="#555555"
+        text-anchor="end">PIONIER AUDIO</text>
+</svg>
