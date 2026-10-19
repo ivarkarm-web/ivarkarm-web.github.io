@@ -88,99 +88,6 @@
     return hit ? hit.label : id;
   }
 
-  function isLightTheme() {
-    if (document.documentElement.classList.contains('theme-light') ||
-        document.body.classList.contains('theme-light') ||
-        document.documentElement.dataset.theme === 'light' ||
-        document.body.dataset.theme === 'light' ||
-        window.PionierSettings?.lightMode === true) return true;
-    // The stored preference is authoritative while classes/UI are still initializing.
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('pionier.settings.v1');
-      if (raw && JSON.parse(raw).lightMode === true) return true;
-    } catch (_) {}
-    return false;
-  }
-
-  let openMenuEl = null;
-  let openToggleEl = null;
-
-  function closeMenus() {
-    if (openMenuEl) {
-      openMenuEl.hidden = true;
-      openMenuEl.classList.remove('is-open');
-      openMenuEl = null;
-    }
-    if (openToggleEl) {
-      openToggleEl.setAttribute('aria-expanded', 'false');
-      openToggleEl = null;
-    }
-    document.querySelectorAll('.settings-dd-toggle[aria-expanded="true"]').forEach((t) => {
-      t.setAttribute('aria-expanded', 'false');
-    });
-    document.querySelectorAll('.settings-dd-menu.is-open, .settings-dd-menu').forEach((m) => {
-      m.hidden = true;
-      m.setAttribute('hidden', '');
-      m.classList.remove('is-open');
-      m.style.removeProperty('display');
-    });
-  }
-
-  function positionMenu(menu, toggle) {
-    const rect = toggle.getBoundingClientRect();
-    const width = Math.max(rect.width, Math.min(320, window.innerWidth - 24));
-    let left = rect.left;
-    if (left + width > window.innerWidth - 12) left = window.innerWidth - 12 - width;
-    if (left < 12) left = 12;
-
-    const spaceBelow = Math.max(80, window.innerHeight - rect.bottom - 16);
-    const spaceAbove = Math.max(80, rect.top - 16);
-    const preferBelow = spaceBelow >= 140 || spaceBelow >= spaceAbove;
-    const maxH = Math.min(window.innerHeight * 0.55, 360, preferBelow ? spaceBelow : spaceAbove);
-    let top = preferBelow ? (rect.bottom + 6) : (rect.top - 6 - maxH);
-    // Clamp fully into the viewport
-    if (top < 8) top = 8;
-    if (top + maxH > window.innerHeight - 8) top = Math.max(8, window.innerHeight - 8 - maxH);
-
-    const light = isLightTheme();
-    const surface = light ? '#fcfbf8' : '#17171a';
-    const text = light ? '#24221e' : '#e6e0d2';
-    const border = light ? 'rgba(46,40,28,0.085)' : 'rgba(230,224,210,0.09)';
-    const shadow = light ? '0 14px 36px rgba(34,29,19,0.14)' : '0 14px 38px rgba(0,0,0,0.30)';
-    menu.style.cssText = [
-      'position:fixed',
-      'z-index:9999',
-      'left:' + left + 'px',
-      'top:' + top + 'px',
-      'bottom:auto',
-      'right:auto',
-      'width:' + width + 'px',
-      'max-height:' + maxH + 'px',
-      'display:block',
-      'visibility:visible',
-      'opacity:1',
-      'pointer-events:auto',
-      'background:' + surface,
-      'background-color:' + surface,
-      'background-image:none',
-      'color:' + text,
-      'border:1px solid ' + border,
-      'border-radius:16px',
-      'box-shadow:' + shadow,
-      'padding:8px',
-      'overflow-y:auto',
-      '-webkit-overflow-scrolling:touch',
-    ].join(';');
-    menu.style.setProperty('z-index', '99999', 'important');
-    // Do not hard-code a dark inline-important surface: it overrides the light
-    // theme stylesheet because these menus are portalled directly under body.
-    menu.style.setProperty('background', surface, 'important');
-    menu.style.setProperty('background-image', 'none', 'important');
-    menu.style.setProperty('color', text, 'important');
-    menu.style.setProperty('border-color', border, 'important');
-    menu.style.setProperty('box-shadow', shadow, 'important');
-  }
-
   function buildDropdown(sectionEl, { id, label, items, activeId, onPick }) {
     const row = document.createElement('div');
     row.className = 'settings-dd';
@@ -484,7 +391,6 @@
   }
 
   function closeSheet(els) {
-    closeMenus();
     els.sheet.classList.remove('is-open');
     els.backdrop.classList.remove('is-open');
     if (els.btn) els.btn.setAttribute('aria-expanded', 'false');
@@ -525,24 +431,10 @@
 
     if (!window.__settingsPanelWired) {
       window.__settingsPanelWired = true;
-      document.addEventListener('click', (e) => {
-        if (!openMenuEl) return;
-        if (e.target.closest('.settings-dd-toggle') || e.target.closest('.settings-dd-menu')) return;
-        closeMenus();
+      document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape' || !document.getElementById('settingsSheet')?.classList.contains('is-open')) return;
+        closeSheet(els);
       });
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          if (openMenuEl) closeMenus();
-          else if (document.getElementById('settingsSheet')?.classList.contains('is-open')) {
-            const sheet = document.getElementById('settingsSheet');
-            const backdrop = document.getElementById('settingsSheetBackdrop');
-            if (sheet) { sheet.classList.remove('is-open'); sheet.hidden = true; }
-            if (backdrop) { backdrop.classList.remove('is-open'); backdrop.hidden = true; }
-            document.getElementById('settingsOpenBtn')?.setAttribute('aria-expanded', 'false');
-          }
-        }
-      });
-      window.addEventListener('resize', () => closeMenus());
     }
   }
 
