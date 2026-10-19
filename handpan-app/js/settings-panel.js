@@ -283,7 +283,7 @@
       btn.setAttribute('aria-label', 'Open settings');
       btn.setAttribute('aria-expanded', 'false');
       btn.setAttribute('aria-controls', 'settingsSheet');
-      btn.innerHTML = '⚙';
+      btn.innerHTML = '<svg class="settings-orbit-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.2"></circle><circle cx="12" cy="12" r="2.3"></circle><path d="M12 1.8v2.4M12 19.8v2.4M1.8 12h2.4M19.8 12h2.4M4.8 4.8l1.7 1.7M17.5 17.5l1.7 1.7M19.2 4.8l-1.7 1.7M6.5 17.5l-1.7 1.7"></path><path d="M15.7 7.2 17 6.1" class="settings-orbit-spark"></path></svg>';
       document.body.appendChild(btn);
     }
     btn.hidden = false;
