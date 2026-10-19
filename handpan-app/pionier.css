@@ -1272,7 +1272,6 @@ button.fx-panel-open,
 /* exclusivity + record chrome addon v9 */
 #settingsSheetBackdrop, .settings-sheet-backdrop { z-index: 4300 !important; }
 #settingsSheet, .settings-sheet { z-index: 4350 !important; }
-.settings-dd-menu, .settings-dd-menu.is-open { z-index: 4500 !important; }
 #fxPanel, .fx-panel { z-index: 4200 !important; }
 #settingsOpenBtn, #fxPanelOpen, button.fx-panel-open { z-index: 4400 !important; }
 #looperRail.looper-rail, .looper-rail {
