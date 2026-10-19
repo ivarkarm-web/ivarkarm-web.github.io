@@ -35,10 +35,9 @@ export function createSurface(canvas) {
   function pathPad(f){
     const{x,y,rx,ry}=f;const rot=f.rot||0;
     ctx2.beginPath();
-    ctx2.ellipse(x,y,rx,ry,rot,0,Math.PI*2);
     // Subtle hand-shaped contour: four soft shoulders, with a little variation
     // in width along the length. The touch target remains a forgiving oval.
-    const k=0.55228475, c=Math.cos(rot), sn=Math.sin(rot);
+    const c=Math.cos(rot), sn=Math.sin(rot);
     const p=(lx,ly)=>({x:x+lx*c-ly*sn,y:y+lx*sn+ly*c});
     const top=p(-rx*0.025,-ry), tr=p(rx*0.68,-ry*0.91),
       right=p(rx*1.015,-ry*0.03), br=p(rx*0.83,ry*0.83),
