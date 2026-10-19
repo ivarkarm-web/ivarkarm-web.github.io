@@ -193,6 +193,48 @@ body::before {
   .pill { padding: 7px 12px; font-size: 10px; }
 }
 
+.instrument-menu {
+  position: absolute;
+  top: 68px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(320px, calc(100vw - 24px));
+  max-height: min(62dvh, 430px);
+  overflow-y: auto;
+  z-index: 40;
+  background: rgba(12, 12, 14, 0.96);
+  border: 1px solid var(--stroke-strong);
+  border-radius: var(--radius-md);
+  padding: 6px;
+  box-shadow: var(--shadow-lg);
+  -webkit-overflow-scrolling: touch;
+}
+.instrument-menu[hidden] { display: none !important; }
+.instrument-menu-item {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--muted-strong);
+  text-align: left;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s var(--ease), color 0.15s var(--ease);
+}
+.instrument-menu-item:hover {
+  background: rgba(212, 176, 74, 0.1);
+  color: var(--fg);
+}
+.instrument-menu-item.is-active {
+  background: rgba(212, 176, 74, 0.14);
+  color: var(--gold);
+  box-shadow: inset 2px 0 0 var(--gold);
+}
+
 .stage {
   flex: 1 1 auto;
   display: flex;
@@ -906,6 +948,50 @@ body.soundscapes-active .soundscape-only { display: grid; }
   display: none !important;
 }
 
+/* Menus: [hidden] closes; open state is owned by overlay-controller
+   (.picker-sheet / .picker-popover). Do not pin geometry here — that
+   fought the bottom-sheet and left menus invisible on many phones. */
+#scaleMenu[hidden],
+#instrumentMenu[hidden] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+#scaleMenu:not([hidden]),
+#instrumentMenu:not([hidden]) {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: var(--pionier-z-menu) !important;
+  background: rgba(12, 12, 14, 0.98) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+/* Full-width bottom sheet (phone / touch) */
+#scaleMenu.picker-sheet:not([hidden]),
+#instrumentMenu.picker-sheet:not([hidden]) {
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  top: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  max-height: min(55dvh, 420px) !important;
+  border-radius: 16px 16px 0 0 !important;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.55) !important;
+}
+/* Anchored popover (wide desktop) */
+#scaleMenu.picker-popover:not([hidden]),
+#instrumentMenu.picker-popover:not([hidden]) {
+  border-radius: 12px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55) !important;
+  max-width: min(320px, calc(100vw - 24px)) !important;
+}
+
 /* Soundscapes: [hidden] authoritative; above looper rail */
 #soundscapesPanel[hidden] {
   display: none !important;
@@ -1272,6 +1358,7 @@ button.fx-panel-open,
 /* exclusivity + record chrome addon v9 */
 #settingsSheetBackdrop, .settings-sheet-backdrop { z-index: 4300 !important; }
 #settingsSheet, .settings-sheet { z-index: 4350 !important; }
+.settings-dd-menu, .settings-dd-menu.is-open { z-index: 4500 !important; }
 #fxPanel, .fx-panel { z-index: 4200 !important; }
 #settingsOpenBtn, #fxPanelOpen, button.fx-panel-open { z-index: 4400 !important; }
 #looperRail.looper-rail, .looper-rail {
@@ -1453,7 +1540,7 @@ html, body {
 }
 
 #stageScaleBar .stage-instrument-nav .instrument-name,
-#stageScaleBar #instrumentMenu {
+#stageScaleBar #instrumentDropdownToggle {
   min-height: 34px;
   height: 34px;
   padding: 0 10px;
@@ -1476,7 +1563,7 @@ html, body {
 }
 
 #stageScaleBar .stage-scale-btn,
-#stageScaleBar #scaleMenu {
+#stageScaleBar #scaleLabel {
   min-height: 34px;
   height: 34px;
   padding: 0 10px;
@@ -1769,7 +1856,7 @@ html, body {
   align-items: center !important;
 }
 
-#stageScaleBar #scaleMenu,
+#stageScaleBar #scaleLabel,
 #stageScaleBar .stage-scale-btn,
 #stageScaleBar .scale-dropdown-toggle {
   flex: 1 1 auto !important;
@@ -1815,7 +1902,7 @@ html, body {
   gap: 2px !important;
 }
 
-#stageScaleBar #instrumentMenu,
+#stageScaleBar #instrumentDropdownToggle,
 #stageScaleBar .stage-instrument-nav .instrument-name {
   flex: 1 1 auto !important;
   min-width: 0 !important;
@@ -1938,10 +2025,10 @@ html.theme-light .stage-scale-bar {
 }
 
 /* Primary selectors */
-html.theme-light #stageScaleBar #scaleMenu,
+html.theme-light #stageScaleBar #scaleLabel,
 html.theme-light #stageScaleBar .stage-scale-btn,
 html.theme-light #stageScaleBar .scale-dropdown-toggle,
-html.theme-light #stageScaleBar #instrumentMenu,
+html.theme-light #stageScaleBar #instrumentDropdownToggle,
 html.theme-light #stageScaleBar .stage-instrument-nav .instrument-name {
   background: rgba(255, 255, 255, 0.92) !important;
   color: rgba(28, 28, 32, 0.92) !important;
@@ -2008,6 +2095,29 @@ html.theme-light #looperSyncBtn {
 }
 html.theme-light .looper-sync-label {
   color: rgba(40, 40, 44, 0.7) !important;
+}
+
+/* Menus / sheets */
+html.theme-light .instrument-menu,
+html.theme-light .scale-menu,
+html.theme-light .instrument-menu.picker-sheet,
+html.theme-light .scale-menu.picker-sheet {
+  background: linear-gradient(180deg, #faf9f6, #eceae4) !important;
+  color: #1a1a1c !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+html.theme-light .instrument-menu-item,
+html.theme-light .scale-menu-item {
+  color: rgba(28, 28, 32, 0.88) !important;
+}
+html.theme-light .instrument-menu-item.is-active,
+html.theme-light .scale-menu-item.is-active {
+  background: rgba(212, 176, 74, 0.18) !important;
+  color: #7a5c12 !important;
+}
+html.theme-light .instrument-menu-group,
+html.theme-light .scale-menu-group {
+  color: rgba(28, 28, 32, 0.4) !important;
 }
 
 /* FX panel */
