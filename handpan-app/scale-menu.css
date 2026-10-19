@@ -236,3 +236,108 @@
   border-radius:50% !important; background:rgba(255,255,255,.055) !important;
   color:#eee9dd !important; font-size:19px !important; line-height:1 !important; cursor:pointer;
 }
+
+
+/* Full-screen instrument / scale browser. Search and close stay put; results scroll independently. */
+.picker-backdrop:not([hidden]) {
+  display:block !important;
+  background:rgba(0,0,0,.62) !important;
+  -webkit-backdrop-filter:blur(8px);
+  backdrop-filter:blur(8px);
+}
+.scale-menu.picker-sheet:not([hidden]),
+.instrument-menu.picker-sheet:not([hidden]) {
+  display:flex !important;
+  flex-direction:column !important;
+  box-sizing:border-box !important;
+  inset: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)) !important;
+  width:auto !important;
+  max-width:none !important;
+  max-height:none !important;
+  min-height:0 !important;
+  padding:14px !important;
+  border-radius:18px !important;
+  overflow:hidden !important;
+  background:rgba(16,16,19,.94) !important;
+  border:1px solid rgba(226,195,117,.24) !important;
+  box-shadow:0 24px 80px rgba(0,0,0,.62), inset 0 1px 0 rgba(255,255,255,.04) !important;
+  -webkit-backdrop-filter:blur(28px) saturate(125%) !important;
+  backdrop-filter:blur(28px) saturate(125%) !important;
+}
+.scale-menu.picker-sheet.is-open:not([hidden]),
+.instrument-menu.picker-sheet.is-open:not([hidden]) {
+  animation:fx-preset-dropdown-in .28s cubic-bezier(.2,.8,.2,1) both !important;
+}
+.scale-menu.picker-sheet .picker-close,
+.instrument-menu.picker-sheet .picker-close {
+  position:absolute !important;
+  top:12px !important;
+  right:12px !important;
+  z-index:8 !important;
+  float:none !important;
+  flex:0 0 36px !important;
+  width:36px !important;
+  height:36px !important;
+  margin:0 !important;
+  background:rgba(255,255,255,.07) !important;
+  border-color:rgba(226,195,117,.3) !important;
+  font-size:23px !important;
+}
+.scale-menu.picker-sheet .picker-search,
+.instrument-menu.picker-sheet .picker-search {
+  position:relative !important;
+  flex:0 0 auto !important;
+  width:100% !important;
+  min-height:48px !important;
+  margin:0 0 12px !important;
+  padding:12px 52px 12px 14px !important;
+  border-radius:12px !important;
+  font-size:16px !important;
+}
+.scale-menu.picker-sheet .picker-results,
+.instrument-menu.picker-sheet .picker-results {
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  overscroll-behavior:contain !important;
+  -webkit-overflow-scrolling:touch !important;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(219,184,91,.45) transparent;
+  padding-bottom:max(12px, env(safe-area-inset-bottom)) !important;
+}
+.scale-menu.picker-sheet .scale-menu-item,
+.instrument-menu.picker-sheet .instrument-menu-item {
+  min-height:50px !important;
+  padding:13px 14px !important;
+  border-radius:11px !important;
+  font-size:15px !important;
+  text-align:left !important;
+  transition:background .16s ease, color .16s ease, transform .16s cubic-bezier(.2,.8,.2,1) !important;
+}
+.scale-menu.picker-sheet .scale-menu-item:active,
+.instrument-menu.picker-sheet .instrument-menu-item:active { transform:scale(.985); }
+.scale-menu .scale-menu-item.is-active::after,
+.instrument-menu .instrument-menu-item.is-active::after {
+  content:'✓';
+  float:right;
+  margin-left:12px;
+  color:#dfbd62;
+  font-weight:700;
+}
+.scale-menu.picker-sheet .scale-menu-group,
+.instrument-menu.picker-sheet .instrument-menu-group {
+  padding:16px 12px 8px;
+  font-size:11px;
+}
+@media (min-width:700px) {
+  .scale-menu.picker-sheet:not([hidden]),
+  .instrument-menu.picker-sheet:not([hidden]) {
+    inset: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)) !important;
+    padding:22px !important;
+  }
+  .scale-menu.picker-sheet .picker-search,
+  .instrument-menu.picker-sheet .picker-search { min-height:54px !important; font-size:17px !important; }
+  .scale-menu.picker-sheet .scale-menu-item,
+  .instrument-menu.picker-sheet .instrument-menu-item { min-height:54px !important; font-size:16px !important; }
+}
