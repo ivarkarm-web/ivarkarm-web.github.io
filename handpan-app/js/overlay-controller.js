@@ -161,12 +161,11 @@
 
   function ensurePickerScrollRegion(menu) {
     if (!menu || menu.querySelector('.picker-results')) return;
-    const search = menu.querySelector(':scope > .picker-search');
     const close = menu.querySelector(':scope > .picker-close');
     const results = document.createElement('div');
     results.className = 'picker-results picker-results-generated';
     Array.from(menu.children).forEach((child) => {
-      if (child === search || child === close) return;
+      if (child === close) return;
       results.appendChild(child);
     });
     menu.appendChild(results);
