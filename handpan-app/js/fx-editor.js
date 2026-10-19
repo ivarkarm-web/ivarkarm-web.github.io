@@ -197,9 +197,14 @@ function renderPresets(){
  });
  trigger.addEventListener('click',()=>{
   const opening=list.hidden;list.hidden=!opening;trigger.setAttribute('aria-expanded',String(opening));picker.classList.toggle('is-open',opening);
-  if(opening){const active=list.querySelector('.is-active')||list.querySelector('.pionier-menu-option');requestAnimationFrame(()=>active?.focus({preventScroll:true}));}
+  if(opening){
+   outsideHandler=e=>{if(!picker.contains(e.target))close();};
+   document.addEventListener('pointerdown',outsideHandler);
+   const active=list.querySelector('.is-active')||list.querySelector('.pionier-menu-option');
+   requestAnimationFrame(()=>active?.focus({preventScroll:true}));
+  } else close();
  });
- trigger.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='Enter'||e.key===' '){e.preventDefault();if(list.hidden){list.hidden=false;trigger.setAttribute('aria-expanded','true');picker.classList.add('is-open');requestAnimationFrame(()=>list.querySelector('.is-active')?.focus());}}});
+ trigger.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='Enter'||e.key===' '){e.preventDefault();if(list.hidden){list.hidden=false;trigger.setAttribute('aria-expanded','true');picker.classList.add('is-open');outsideHandler=e=>{if(!picker.contains(e.target))close();};document.addEventListener('pointerdown',outsideHandler);requestAnimationFrame(()=>list.querySelector('.is-active')?.focus());}}});
  list.addEventListener('keydown',e=>{
   const options=[...list.querySelectorAll('.pionier-menu-option')];const i=options.indexOf(document.activeElement);
   if(e.key==='Escape'){e.preventDefault();close();trigger.focus();}
@@ -208,7 +213,6 @@ function renderPresets(){
   else if(e.key==='Home'){e.preventDefault();options[0]?.focus();}
   else if(e.key==='End'){e.preventDefault();options.at(-1)?.focus();}
  });
- document.addEventListener('pointerdown',e=>{if(!picker.contains(e.target))close();});
  picker.append(trigger,list);host.appendChild(picker);
 }
 function openEditor(id){
