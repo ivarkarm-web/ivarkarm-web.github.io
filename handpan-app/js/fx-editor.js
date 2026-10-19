@@ -35,17 +35,18 @@ const DEFS = {
  {id:'lowpass',label:'Low-pass',v:{frequency:4200,resonance:1.1}},{id:'highpass',label:'High-pass',v:{frequency:160,resonance:1.2}},
  {id:'band',label:'Band-pass',v:{frequency:1200,resonance:2.5}},{id:'notch',label:'Notch',v:{frequency:900,resonance:5}}],
  knobs:[
- {key:'value',label:'Amount',min:0,max:1,step:.01,fmt:v=>Math.round(v*100)+'%',get:m=>m.value,set:(m,v,c)=>m.setValue(v,c)},
- {key:'frequency',label:'Cutoff',min:80,max:16000,step:1,fmt:v=>v>=1000?(v/1000).toFixed(1)+' kHz':Math.round(v)+' Hz',get:m=>m.settings.frequency??4200},
+ {key:'cutoff',label:'Cutoff',min:80,max:16220,step:1,fmt:v=>v>=1000?(v/1000).toFixed(1)+' kHz':Math.round(v)+' Hz',get:m=>filterFrequency(m),set:(m,v,c)=>m.setValue(filterValue(v,m.type),c)},
  {key:'resonance',label:'Resonance',min:.5,max:12,step:.1,fmt:v=>'Q '+Number(v).toFixed(1),get:m=>m.settings.resonance??1.1}]}
 };
 const DEFAULTS = {
  compressor:{threshold:-18,ratio:2.2,knee:24,attack:.012,release:.28},
- delay:{time:.34,feedback:.38}, reverb:{decay:1,tone:1}, filter:{frequency:4200,resonance:1.1}
+ delay:{time:.34,feedback:.38}, reverb:{decay:1,tone:1}, filter:{resonance:1.1}
 };
 const BASE_VALUE = {compressor:.4,delay:.15,reverb:.25,filter:.12};
 const BASE_TYPE = {compressor:'soft',delay:'echo',reverb:'room',filter:'lowpass'};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function filterFrequency(m){const v=m.value||0;if(m.type==='highpass')return 40+Math.pow(v,1.35)*4000;if(m.type==='band')return 200+Math.pow(v,1.2)*3800;if(m.type==='notch')return 300+Math.pow(v,1.15)*3200;return v<.02?20000:220+Math.pow(1-v,1.6)*16000;}
+function filterValue(hz,type){if(type==='highpass')return clamp(Math.pow(Math.max(0,hz-40)/4000,1/1.35),0,1);if(type==='band')return clamp(Math.pow(Math.max(0,hz-200)/3800,1/1.2),0,1);if(type==='notch')return clamp(Math.pow(Math.max(0,hz-300)/3200,1/1.15),0,1);return clamp(1-Math.pow(Math.max(0,hz-220)/16000,1/1.6),0,1);}
 const audio=()=>window.PionierCore?.getAudioContext?.();
 function ensureSettings(id,m){m.settings||={};Object.entries(DEFAULTS[id]||{}).forEach(([k,v])=>{if(!Number.isFinite(m.settings[k]))m.settings[k]=v;});}
 function refresh(){activeModule?._apply?.(audio());window.PionierCore?.refreshFxKnobs?.();drawCurve();drawKnobs();}
@@ -61,7 +62,7 @@ function paintDial(c,amount){
 }
 function changeKnob(def,v){
  const value=clamp(Number(v),def.min,def.max);
- if(def.key==='value')def.set(activeModule,value,audio());
+ if(def.set)def.set(activeModule,value,audio());
  else{activeModule.settings[def.key]=value;activeModule._apply?.(audio());}
  const label=$('fx-knob-value-'+def.key),dial=$('fx-knob-dial-'+def.key);
  if(label)label.textContent=def.fmt(value);if(dial)paintDial(dial,(value-def.min)/(def.max-def.min));
@@ -89,14 +90,14 @@ function graphState(){
  if(activeId==='compressor')return{x:clamp(((m.settings.threshold??-18)+36)/30,0,1),y:clamp(((m.settings.ratio??2.2)-1)/11,0,1)};
  if(activeId==='delay')return{x:clamp(((m.settings.time??.34)-.04)/.68,0,1),y:clamp(((m.settings.feedback??.38)-.05)/.7,0,1)};
  if(activeId==='reverb')return{x:clamp(((m.settings.decay??1)-.6)/2.4,0,1),y:clamp(((m.settings.tone??1)-.4)/1.2,0,1)};
- return{x:clamp(Math.log((m.settings.frequency??4200)/80)/Math.log(200),0,1),y:clamp(((m.settings.resonance??1.1)-.5)/11.5,0,1)};
+ return{x:clamp(Math.log(filterFrequency(m)/40)/Math.log(16220/40),0,1),y:clamp(((m.settings.resonance??1.1)-.5)/11.5,0,1)};
 }
 function changeCurve(x,y){
  const m=activeModule,nx=clamp(x,0,1),ny=clamp(1-y,0,1);
  if(activeId==='compressor'){m.settings.threshold=-36+nx*30;m.settings.ratio=1+ny*11;}
  else if(activeId==='delay'){m.settings.time=.04+nx*.68;m.settings.feedback=.05+ny*.7;}
  else if(activeId==='reverb'){m.settings.decay=.6+nx*2.4;m.settings.tone=.4+ny*1.2;}
- else{m.settings.frequency=80*Math.pow(200,nx);m.settings.resonance=.5+ny*11.5;}
+ else{m.setValue(filterValue(40*Math.pow(16220/40,nx),m.type),audio());m.settings.resonance=.5+ny*11.5;}
  m._apply?.(audio());window.PionierCore?.refreshFxKnobs?.();drawKnobs();drawCurve();$('fxEditorStatus').textContent='Curve adjusted · live';
 }
 function drawCurve(){
@@ -114,7 +115,7 @@ function drawCurve(){
   if(activeId==='compressor'){const th=clamp(((activeModule.settings.threshold??-18)+36)/30,.01,.99),ratio=activeModule.settings.ratio??2.2;y=x<th?x:th+(x-th)/ratio;}
   else if(activeId==='delay'){y=.08+.82*Math.pow(activeModule.settings.feedback??.38,x*4.4);}
   else if(activeId==='reverb'){y=.08+.84*Math.exp(-x*4/(activeModule.settings.decay??1));}
-  else{const f=clamp(Math.log((activeModule.settings.frequency??4200)/80)/Math.log(200),.01,.99),q=activeModule.settings.resonance??1.1;if(activeModule.type==='highpass')y=1/(1+Math.exp(-(x-f)*(8+q)));else if(activeModule.type==='band')y=Math.exp(-Math.pow((x-f)*(8+q),2));else if(activeModule.type==='notch')y=1-.85*Math.exp(-Math.pow((x-f)*(8+q),2));else y=1/(1+Math.exp((x-f)*(8+q)));}
+  else{const f=clamp(Math.log(filterFrequency(activeModule)/40)/Math.log(16220/40),.01,.99),q=activeModule.settings.resonance??1.1;if(activeModule.type==='highpass')y=1/(1+Math.exp(-(x-f)*(8+q)));else if(activeModule.type==='band')y=Math.exp(-Math.pow((x-f)*(8+q),2));else if(activeModule.type==='notch')y=1-.85*Math.exp(-Math.pow((x-f)*(8+q),2));else y=1/(1+Math.exp((x-f)*(8+q)));}
   if(i===0)g.moveTo(px(x),py(y));else g.lineTo(px(x),py(y));
  }
  g.strokeStyle='#d9b85e';g.lineWidth=2.5;g.lineJoin='round';g.stroke();
@@ -125,7 +126,7 @@ function renderPresets(){
  DEFS[activeId].presets.forEach(p=>{
   const b=document.createElement('button');b.type='button';b.className='fx-editor-preset';b.textContent=p.label;b.dataset.preset=p.id;
   const selected=activeModule.type===p.id;b.classList.toggle('is-active',selected);b.setAttribute('aria-pressed',String(selected));
-  b.addEventListener('click',()=>{activeModule.type=p.id;Object.assign(activeModule.settings,p.v);activeModule._apply?.(audio());renderPresets();drawKnobs();drawCurve();$('fxEditorStatus').textContent=p.label+' preset · live';});
+  b.addEventListener('click',()=>{activeModule.type=p.id;if(activeId==='filter'){activeModule.settings.resonance=p.v.resonance;activeModule.setValue(filterValue(p.v.frequency,p.id),audio());}else{Object.assign(activeModule.settings,p.v);activeModule._apply?.(audio());}renderPresets();drawKnobs();drawCurve();$('fxEditorStatus').textContent=p.label+' preset · live';});
   host.appendChild(b);
  });
 }
