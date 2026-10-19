@@ -140,9 +140,9 @@ export function mountLooper({ root } = {}) {
     control.innerHTML = html;
     return control;
   }
-  const countInBtn = ensureTimingButton('looperCountInBtn','looper-count-in-btn','Toggle count-in','<span class="looper-timing-main">1·2·3·4</span>');
-  const metronomeBtn = ensureTimingButton('looperMetronomeBtn','looper-metronome-btn','Toggle metronome','<span class="looper-metronome-icon" aria-hidden="true">♩</span><span class="looper-timing-led" aria-hidden="true"></span>');
-  const bpmBtn = ensureTimingButton('looperBpmBtn','looper-bpm-btn','Tempo settings','<span class="looper-bpm-value">90</span><span class="looper-bpm-unit">BPM</span>');
+  const countInBtn = ensureTimingButton('looperCountInBtn','looper-count-in-btn','Toggle count-in','<svg class="looper-icon looper-countin-icon" viewBox="0 0 18 16" aria-hidden="true"><path d="M2 12V8M6.7 12V4M11.3 12V6M16 12V2.5" /><path d="M1 14.2H17" /></svg><span class="looper-timing-main">1·2·3·4</span>');
+  const metronomeBtn = ensureTimingButton('looperMetronomeBtn','looper-metronome-btn','Toggle metronome','<svg class="looper-icon looper-metronome-icon" viewBox="0 0 18 18" aria-hidden="true"><path d="M5 15.5 7.2 2.5h3.6L13 15.5Z"/><path d="M9 4.3 12.1 7.1M9 4.3 8 10.4"/><circle cx="8" cy="10.4" r="1.15" /></svg><span class="looper-timing-led" aria-hidden="true"></span>');
+  const bpmBtn = ensureTimingButton('looperBpmBtn','looper-bpm-btn','Tempo settings','<svg class="looper-icon looper-tempo-icon" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.1 12.8a7 7 0 1 1 11.8 0"/><path d="M9 9 12.3 5.8"/><circle cx="9" cy="9" r="1.1"/><path d="M4.7 12.8h8.6"/></svg><span class="looper-bpm-value">90</span><span class="looper-bpm-unit">BPM</span>');
   // Keep every transport control in the same flex row. The previous version
   // placed timing/save buttons outside the cluster, so the sizing/layout rules
   // missed them and the row wrapped on mobile.
