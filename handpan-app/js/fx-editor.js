@@ -175,7 +175,7 @@ function renderPresets(){
  const trigger=document.createElement('button');trigger.type='button';trigger.className='pionier-menu-trigger fx-editor-preset-select';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');trigger.textContent=chosen.label+'  ▾';
  const list=document.createElement('div');list.className='pionier-menu-list fx-preset-list';list.setAttribute('role','listbox');list.setAttribute('aria-label',DEFS[activeId].title+' presets');list.hidden=true;
  let outsideHandler=null;
- const close=()=>{list.hidden=true;trigger.setAttribute('aria-expanded','false');picker.classList.remove('is-open');if(outsideHandler){document.removeEventListener('pointerdown',outsideHandler);outsideHandler=null;}};
+ const close=()=>{list.hidden=true;trigger.setAttribute('aria-expanded','false');picker.classList.remove('is-open','looper-bubble-menu');picker.style.transform='translate3d(0,0,0) scale(1)';if(outsideHandler){document.removeEventListener('pointerdown',outsideHandler);outsideHandler=null;}};
  const applyPreset=p=>{
   if(!p)return;
   activeModule._presetId=p.id;activeModule.type=p.engineType;Object.assign(activeModule.settings,p.v);
@@ -196,7 +196,7 @@ function renderPresets(){
   option.append(label,check);option.addEventListener('click',()=>applyPreset(p));list.appendChild(option);
  });
  trigger.addEventListener('click',()=>{
-  const opening=list.hidden;list.hidden=!opening;trigger.setAttribute('aria-expanded',String(opening));picker.classList.toggle('is-open',opening);
+  const opening=list.hidden;list.hidden=!opening;trigger.setAttribute('aria-expanded',String(opening));picker.classList.toggle('is-open',opening);picker.classList.toggle('looper-bubble-menu',opening);
   if(opening){
    outsideHandler=e=>{if(!picker.contains(e.target))close();};
    document.addEventListener('pointerdown',outsideHandler);
@@ -204,7 +204,7 @@ function renderPresets(){
    requestAnimationFrame(()=>active?.focus({preventScroll:true}));
   } else close();
  });
- trigger.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='Enter'||e.key===' '){e.preventDefault();if(list.hidden){list.hidden=false;trigger.setAttribute('aria-expanded','true');picker.classList.add('is-open');outsideHandler=e=>{if(!picker.contains(e.target))close();};document.addEventListener('pointerdown',outsideHandler);requestAnimationFrame(()=>list.querySelector('.is-active')?.focus());}}});
+ trigger.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='Enter'||e.key===' '){e.preventDefault();if(list.hidden){list.hidden=false;trigger.setAttribute('aria-expanded','true');picker.classList.add('is-open','looper-bubble-menu');outsideHandler=e=>{if(!picker.contains(e.target))close();};document.addEventListener('pointerdown',outsideHandler);requestAnimationFrame(()=>list.querySelector('.is-active')?.focus());}}});
  list.addEventListener('keydown',e=>{
   const options=[...list.querySelectorAll('.pionier-menu-option')];const i=options.indexOf(document.activeElement);
   if(e.key==='Escape'){e.preventDefault();close();trigger.focus();}
