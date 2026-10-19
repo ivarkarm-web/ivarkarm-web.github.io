@@ -362,6 +362,13 @@ test('looper timing controls are aligned, count-in toggles, and metronome menu h
   await page.locator('#looperCountInBtn').click();
   await expect(page.locator('#looperCountInBtn')).not.toHaveClass(/is-active/);
 
+  await page.locator('#looperCountInBtn').hover();
+  await page.mouse.down();
+  await page.waitForTimeout(540);
+  await expect(page.locator('.looper-timing-menu')).toContainText('Count-in');
+  await expect(page.locator('.looper-timing-menu select').first()).toHaveValue('1');
+  await page.mouse.up();
+  await page.keyboard.press('Escape');
   await page.locator('#looperMetronomeBtn').hover();
   await page.mouse.down();
   await page.waitForTimeout(540);
@@ -370,6 +377,13 @@ test('looper timing controls are aligned, count-in toggles, and metronome menu h
   await page.mouse.up();
   await page.locator('.looper-click-options').getByRole('button', { name: 'Digital Click' }).click();
   await expect(page.locator('.looper-timing-menu')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.locator('#looperBpmBtn').hover();
+  await page.mouse.down();
+  await page.waitForTimeout(540);
+  await expect(page.locator('.looper-timing-menu')).toContainText('Tempo');
+  await expect(page.locator('.looper-bpm-range')).toBeVisible();
+  await page.mouse.up();
   await page.keyboard.press('Escape');
   await expect(page.locator('.looper-timing-menu')).toHaveCount(0);
 });
