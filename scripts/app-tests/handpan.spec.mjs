@@ -348,6 +348,8 @@ test('dice randomizer replaces Learn and chooses a new instrument', async ({ pag
 });
 
 test('looper timing controls are aligned, count-in toggles, and metronome menu has ten click styles', async ({ page }) => {
+  await page.locator('#topMenuBtn').click();
+  await page.locator('#toggleLooper').click();
   const controls = ['#looperClearBtn','#looperBtn','#looperCountInBtn','#looperMetronomeBtn','#looperBpmBtn'];
   for (const selector of controls) await expect(page.locator(selector)).toBeVisible();
   const sizes = await Promise.all(controls.map(selector => page.locator(selector).boundingBox()));
