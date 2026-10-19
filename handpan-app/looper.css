@@ -879,9 +879,29 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 .scale-menu .scale-menu-item:active, .instrument-menu .instrument-menu-item:active { transform:scale(.985); }
 
 
-/* Close affordances must sit above popup content and respond on first touch. */
+/* Quiet, consistent close affordance: a fine-line cross matching Pionier's icon language. */
 .looper-menu-close,.looper-track-close {
   position:relative!important; z-index:20!important; pointer-events:auto!important;
   touch-action:manipulation!important; -webkit-tap-highlight-color:transparent;
+  display:grid!important; place-items:center!important; padding:0!important;
+  color:transparent!important; font-size:0!important; line-height:0!important;
+  border:1px solid rgba(230,224,210,.13)!important;
+  background:rgba(230,224,210,.035)!important;
+  transition:color .18s ease,border-color .18s ease,background .18s ease,transform .18s ease!important;
 }
-.looper-menu-close::before,.looper-track-close::before { pointer-events:none!important; }
+.looper-menu-close::before,.looper-track-close::before,
+.looper-menu-close::after,.looper-track-close::after {
+  content:""!important; position:absolute!important; left:50%!important; top:50%!important;
+  width:12px!important; height:1.5px!important; margin:0!important; border:0!important;
+  border-radius:2px!important; background:rgba(230,224,210,.68)!important;
+  transform:translate(-50%,-50%) rotate(45deg)!important; pointer-events:none!important;
+}
+.looper-menu-close::after,.looper-track-close::after { transform:translate(-50%,-50%) rotate(-45deg)!important; }
+.looper-menu-close:hover,.looper-track-close:hover,
+.looper-menu-close:focus-visible,.looper-track-close:focus-visible {
+  border-color:rgba(212,176,74,.48)!important; background:rgba(212,176,74,.08)!important;
+  outline:none!important;
+}
+.looper-menu-close:hover::before,.looper-menu-close:hover::after,
+.looper-track-close:hover::before,.looper-track-close:hover::after { background:#f0d58a!important; }
+.looper-menu-close:active,.looper-track-close:active { transform:scale(.94)!important; }
