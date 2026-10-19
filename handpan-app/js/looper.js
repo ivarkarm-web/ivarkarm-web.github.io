@@ -146,10 +146,15 @@ export function mountLooper({ root } = {}) {
   // Keep every transport control in the same flex row. The previous version
   // placed timing/save buttons outside the cluster, so the sizing/layout rules
   // missed them and the row wrapped on mobile.
-  cluster.insertBefore(countInBtn, btn);
-  cluster.insertBefore(metronomeBtn, btn);
-  cluster.insertBefore(bpmBtn, btn);
-  cluster.appendChild(saveBtn);
+  let utilityGroup = document.getElementById('looperUtilityControls');
+  if (!utilityGroup) {
+    utilityGroup = document.createElement('div');
+    utilityGroup.id = 'looperUtilityControls';
+    utilityGroup.className = 'looper-utility-controls';
+  }
+  if (utilityGroup.parentElement !== rail) rail.insertBefore(utilityGroup, cluster);
+  [countInBtn, metronomeBtn, bpmBtn, saveBtn].forEach((control) => utilityGroup.appendChild(control));
+  if (btn.parentElement !== cluster) cluster.appendChild(btn);
   syncBtn.setAttribute('aria-label', 'Sync mode: Free');
   syncBtn.title = SYNC_MODES[0].title;
 
