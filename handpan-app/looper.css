@@ -712,3 +712,14 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
   #looperClearBtn,#looperCountInBtn,#looperMetronomeBtn,#looperBpmBtn,#looperSaveBtn { transform:scale(.88); transform-origin:left center; }
   #looperLayers { gap:4px; }
 }
+
+/* Reset legacy fixed/absolute placement so the grid owns every transport control. */
+#looperRail #looperClearBtn,#looperRail #looperCountInBtn,#looperRail #looperMetronomeBtn,#looperRail #looperBpmBtn,#looperRail #looperSaveBtn,#looperRail #looperRecordCluster,#looperRail #looperLayers { position:relative !important; inset:auto !important; top:auto !important; right:auto !important; bottom:auto !important; left:auto !important; transform:none; }
+#looperRail #looperClearBtn { grid-column:1; grid-row:1; justify-self:start; margin:0; }
+#looperRail #looperCountInBtn { grid-column:1; grid-row:1; justify-self:start; margin-left:42px; }
+#looperRail #looperMetronomeBtn { grid-column:1; grid-row:1; justify-self:start; margin-left:94px; }
+#looperRail #looperBpmBtn { grid-column:1; grid-row:1; justify-self:start; margin-left:146px; }
+#looperRail #looperSaveBtn { grid-column:1; grid-row:1; justify-self:start; margin-left:198px; }
+#looperRail #looperRecordCluster { grid-column:2; grid-row:1; justify-self:center; }
+#looperRail #looperLayers { grid-column:3; grid-row:1; justify-self:end; }
+@media (max-width:520px) { #looperRail #looperCountInBtn {margin-left:38px;} #looperRail #looperMetronomeBtn {margin-left:80px;} #looperRail #looperBpmBtn {margin-left:122px;} #looperRail #looperSaveBtn {margin-left:164px;} }
