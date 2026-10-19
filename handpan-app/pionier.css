@@ -948,50 +948,6 @@ body.soundscapes-active .soundscape-only { display: grid; }
   display: none !important;
 }
 
-/* Menus: [hidden] closes; open state is owned by overlay-controller
-   (.picker-sheet / .picker-popover). Do not pin geometry here — that
-   fought the bottom-sheet and left menus invisible on many phones. */
-#scaleMenu[hidden],
-#instrumentMenu[hidden] {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
-#scaleMenu:not([hidden]),
-#instrumentMenu:not([hidden]) {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  z-index: var(--pionier-z-menu) !important;
-  background: rgba(12, 12, 14, 0.98) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  overflow: auto !important;
-  -webkit-overflow-scrolling: touch;
-}
-/* Full-width bottom sheet (phone / touch) */
-#scaleMenu.picker-sheet:not([hidden]),
-#instrumentMenu.picker-sheet:not([hidden]) {
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  top: auto !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 !important;
-  max-height: min(55dvh, 420px) !important;
-  border-radius: 16px 16px 0 0 !important;
-  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.55) !important;
-}
-/* Anchored popover (wide desktop) */
-#scaleMenu.picker-popover:not([hidden]),
-#instrumentMenu.picker-popover:not([hidden]) {
-  border-radius: 12px !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55) !important;
-  max-width: min(320px, calc(100vw - 24px)) !important;
-}
-
 /* Soundscapes: [hidden] authoritative; above looper rail */
 #soundscapesPanel[hidden] {
   display: none !important;
@@ -2095,29 +2051,6 @@ html.theme-light #looperSyncBtn {
 }
 html.theme-light .looper-sync-label {
   color: rgba(40, 40, 44, 0.7) !important;
-}
-
-/* Menus / sheets */
-html.theme-light .instrument-menu,
-html.theme-light .scale-menu,
-html.theme-light .instrument-menu.picker-sheet,
-html.theme-light .scale-menu.picker-sheet {
-  background: linear-gradient(180deg, #faf9f6, #eceae4) !important;
-  color: #1a1a1c !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
-}
-html.theme-light .instrument-menu-item,
-html.theme-light .scale-menu-item {
-  color: rgba(28, 28, 32, 0.88) !important;
-}
-html.theme-light .instrument-menu-item.is-active,
-html.theme-light .scale-menu-item.is-active {
-  background: rgba(212, 176, 74, 0.18) !important;
-  color: #7a5c12 !important;
-}
-html.theme-light .instrument-menu-group,
-html.theme-light .scale-menu-group {
-  color: rgba(28, 28, 32, 0.4) !important;
 }
 
 /* FX panel */
