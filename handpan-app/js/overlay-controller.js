@@ -118,10 +118,9 @@
 
     // Prefer bottom sheet on phones, tablets in portrait, touch devices, or short viewports.
     // Previous 700px breakpoint left many real phones (and 750px emulators) on the broken popover path.
-    const isPhone =
-      window.matchMedia('(max-width: 900px)').matches ||
-      window.matchMedia('(pointer: coarse)').matches ||
-      window.innerHeight < 720;
+    // Keep the compact, anchored scroll-dropdown on touch screens too.
+    // The old full-width sheet looked like the legacy picker, not the FX preset menu.
+    const isPhone = false;
 
     menu.classList.remove('picker-sheet', 'picker-popover');
     menu.classList.add(isPhone ? 'picker-sheet' : 'picker-popover');
@@ -236,7 +235,7 @@
     requestAnimationFrame(() => {
       const search = menu.querySelector('.picker-search');
       const active = menu.querySelector('[role="menuitem"].is-active, [aria-current="true"]');
-      const first = menu.querySelector('[role="menuitem"], button.scale-menu-item, button');
+      const first = menu.querySelector('[role="menuitem"], button.scale-menu-item, .picker-search, button:not(.picker-close)');
       (search || active || first)?.focus?.();
     });
   }
