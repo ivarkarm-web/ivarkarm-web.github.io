@@ -199,8 +199,8 @@
 }
 
 /* Dropdowns */
-.settings-dd { margin-bottom: 12px; }
-.settings-dd-label {
+.settings-select { margin-bottom: 12px; }
+.settings-select-label {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -256,7 +256,7 @@ html.theme-light .settings-row span,
 html.theme-light .settings-row {
   color: #2a2824 !important;
 }
-html.theme-light .settings-dd-label {
+html.theme-light .settings-select-label {
   color: rgba(40, 36, 28, 0.5) !important;
 }
 
@@ -605,7 +605,7 @@ html.theme-light .settings-toggle-track::after {
   outline: 2px solid rgba(197,160,74,.78) !important;
   outline-offset: 3px;
 }
-.settings-dd {
+.settings-select {
   margin-bottom: 14px !important;
 }
 .settings-sheet-close {
