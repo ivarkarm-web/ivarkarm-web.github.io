@@ -30,20 +30,11 @@ export function createSurface(canvas) {
     const tt=Number.isFinite(t)?t:0;
     return[Math.round(p(base,0,'r')*(1-tt)+p(led,0,'r')*tt),Math.round(p(base,1,'g')*(1-tt)+p(led,1,'g')*tt),Math.round(p(base,2,'b')*(1-tt)+p(led,2,'b')*tt)];
   }
-  function softTone(st){
-    const ok={classic:1,round:1,petal:1,teardrop:1,seed:1,halo:1};
-    return ok[st]?st:'classic';
-  }
-  function pathPad(f,st){
-    st=softTone(st||window.PionierSettings?.tonefield||'classic');
+  // One restrained, consistent oval tonefield geometry across every note.
+  function pathPad(f){
     const{x,y,rx,ry}=f;const rot=f.rot||0;
     ctx2.beginPath();
-    if(st==='round'){const r=Math.max(rx,ry)*0.92;ctx2.ellipse(x,y,r,r,0,0,Math.PI*2)}
-    else if(st==='petal')ctx2.ellipse(x,y,rx*0.75,ry*1.25,rot,0,Math.PI*2);
-    else if(st==='teardrop')ctx2.ellipse(x,y-ry*0.15,rx*0.85,ry*1.1,rot,0,Math.PI*2);
-    else if(st==='seed')ctx2.ellipse(x,y,rx*0.7,ry*1.28,rot,0,Math.PI*2);
-    else if(st==='halo'){ctx2.ellipse(x,y,rx,ry,rot,0,Math.PI*2);ctx2.ellipse(x,y,rx*0.5,ry*0.5,rot,0,Math.PI*2,true)}
-    else ctx2.ellipse(x,y,rx,ry,rot,0,Math.PI*2);
+    ctx2.ellipse(x,y,rx,ry,rot,0,Math.PI*2);
   }
   function mandalaStyle(){const s=window.PionierSettings||{};return ['glow','petals','sacred','orbit','wave'].includes(s.auraStyle)?s.auraStyle:'petals';}
   function mandalaEnabled(){const s=window.PionierSettings;return !(s&&s.mandala===false);}
@@ -373,12 +364,7 @@ export function createSurface(canvas) {
     const rect=canvas.getBoundingClientRect();
     if(!rect.width||!rect.height)return;
     const sx=rect.width/W,sy=rect.height/H;
-    const toneStyle=softTone(window.PionierSettings?.tonefield||document.documentElement?.dataset?.tonefield||'classic');
-    let padRx=note.rx,padRy=note.ry,offsetY=0,rotation=note.rot||0;
-    if(toneStyle==='round'){padRx=padRy=Math.max(note.rx,note.ry)*0.92;rotation=0}
-    else if(toneStyle==='petal'){padRx=note.rx*0.75;padRy=note.ry*1.25}
-    else if(toneStyle==='teardrop'){padRx=note.rx*0.85;padRy=note.ry*1.1;offsetY=-note.ry*0.15}
-    else if(toneStyle==='seed'){padRx=note.rx*0.7;padRy=note.ry*1.28}
+    const padRx=note.rx,padRy=note.ry,offsetY=0,rotation=note.rot||0;
     // Convert the rendered tonefield center into the overlay's own CSS-pixel space.
     // Using both real element rectangles avoids drift from scaling and layout offsets.
     const overlayRect=rippleCanvas.getBoundingClientRect();
@@ -428,11 +414,11 @@ export function createSurface(canvas) {
       const hlx=f.ux!=null?f.ux:-0.35,hly=f.uy!=null?f.uy:-0.45,baseR=Math.max(f.rx,f.ry);
       const lipCol=theme.skin.lip||theme.skin.stroke;
       ctx2.fillStyle=rgba(theme.skin.pad[2],0.95*dim);
-      pathPad({x:f.x,y:f.y,rx:f.rx*1.08,ry:f.ry*1.08,rot:f.rot},tf);ctx2.fill();
+      pathPad({x:f.x,y:f.y,rx:f.rx*1.08,ry:f.ry*1.08,rot:f.rot});ctx2.fill();
       const pad=ctx2.createRadialGradient(f.x+hlx*f.rx*0.38,f.y+hly*f.ry*0.38,0,f.x,f.y,baseR);
       pad.addColorStop(0,rgba(theme.skin.pad[0],dim));pad.addColorStop(0.45,rgba(theme.skin.pad[1],dim));
       pad.addColorStop(0.85,rgba(theme.skin.pad[2],dim));pad.addColorStop(1,rgba(theme.skin.pad[2],0.92*dim));
-      ctx2.fillStyle=pad;pathPad(f,tf);ctx2.fill();
+      ctx2.fillStyle=pad;pathPad(f);ctx2.fill();
       ctx2.strokeStyle=rgba(lipCol,0.55*dim);ctx2.lineWidth=Math.max(1.2,R*0.0045);
       pathPad(f,tf);ctx2.stroke();
       const glow=inst&&inst.glow?inst.glow[f.index]||0:0;
@@ -487,26 +473,12 @@ export function createSurface(canvas) {
   function armTransition(){armed=true}
   function hitVector(x,y){
     let best=null,bestD=1e9;
-    const toneStyle=softTone(window.PionierSettings?.tonefield||'classic');
     for(const f of fields){
-      // Hit-test the same organic silhouette that is actually drawn.
-      // A small tolerance beyond the visible edge makes phone taps forgiving
-      // without letting the old, oversized invisible ellipse steal neighbors.
-      let hx=f.rx||1,hy=f.ry||1,cx=f.x,cy=f.y;
-      if(toneStyle==='round'){
-        hx=hy=Math.max(f.rx||1,f.ry||1)*0.92;
-      }else if(toneStyle==='petal'){
-        hx=(f.rx||1)*0.75;hy=(f.ry||1)*1.25;
-      }else if(toneStyle==='teardrop'){
-        hx=(f.rx||1)*0.85;hy=(f.ry||1)*1.1;cy-=((f.ry||1)*0.15);
-      }else if(toneStyle==='seed'){
-        hx=(f.rx||1)*0.7;hy=(f.ry||1)*1.28;
-      }
-      const dx=x-cx,dy=y-cy;
-      const c=Math.cos(-(toneStyle==='round'?0:(f.rot||0)));
-      const s=Math.sin(-(toneStyle==='round'?0:(f.rot||0)));
+      // Match the visible oval, with a modest forgiving touch margin.
+      const dx=x-f.x,dy=y-f.y;
+      const c=Math.cos(-(f.rot||0)),s=Math.sin(-(f.rot||0));
       const lx=dx*c-dy*s,ly=dx*s+dy*c;
-      const nx=lx/hx,ny=ly/hy;
+      const nx=lx/(f.rx||1),ny=ly/(f.ry||1);
       const d=nx*nx+ny*ny;
       if(d<1.28&&d<bestD){bestD=d;best=f}
     }
