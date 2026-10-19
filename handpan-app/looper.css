@@ -678,3 +678,37 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
   #looperRecordCluster.looper-record-cluster { gap:5px !important; }
   #looperRecordCluster .looper-count-in-btn .looper-timing-main { font-size:7px; }
 }
+
+
+/* Looper transport: utility controls left, record anchored at the visual centre. */
+#looperRail.looper-rail { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; justify-content:stretch; gap:8px; }
+#looperClearBtn { grid-column:1; grid-row:1; justify-self:start; }
+#looperCountInBtn { grid-column:1; grid-row:1; justify-self:start; margin-left:42px; }
+#looperMetronomeBtn { grid-column:1; grid-row:1; justify-self:start; margin-left:94px; }
+#looperBpmBtn { grid-column:1; grid-row:1; justify-self:start; margin-left:146px; }
+#looperSaveBtn { grid-column:1; grid-row:1; justify-self:start; margin-left:198px; }
+#looperRecordCluster { grid-column:2; grid-row:1; justify-self:center; display:flex; align-items:center; gap:8px; }
+#looperRecordCluster #looperSaveBtn { display:none; }
+#looperLayers { grid-column:3; grid-row:1; justify-self:end; max-width:100%; }
+.looper-timing-menu-header,.looper-sheet-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+.looper-timing-menu-header .looper-timing-menu-title,.looper-sheet-header .looper-sheet-title { margin:0; }
+.looper-menu-close { flex:0 0 30px; width:30px; height:30px; border-radius:50%; border:1px solid rgba(255,255,255,.13); background:rgba(255,255,255,.06); color:rgba(246,239,222,.86); font-size:22px; line-height:1; cursor:pointer; display:grid; place-items:center; }
+.looper-menu-close:hover { border-color:rgba(226,195,117,.55); color:#f6dfa0; background:rgba(226,195,117,.1); }
+.looper-timing-menu,.looper-sheet { animation:picker-menu-drop .24s cubic-bezier(.2,.8,.2,1) both; backdrop-filter:blur(24px) saturate(125%); -webkit-backdrop-filter:blur(24px) saturate(125%); }
+.looper-sheet { padding-top:10px; }
+.picker-close { position:sticky; top:0; float:right; z-index:10; width:30px; height:30px; margin:0 0 4px 8px; border-radius:50%; border:1px solid rgba(226,195,117,.24); background:rgba(12,12,14,.8); color:rgba(246,239,222,.85); font-size:22px; line-height:1; cursor:pointer; display:grid; place-items:center; }
+.picker-close:hover { color:#f6dfa0; border-color:rgba(226,195,117,.6); background:rgba(212,176,74,.12); }
+.scale-menu.picker-popover.is-open:not([hidden]),.instrument-menu.picker-popover.is-open:not([hidden]) { animation:picker-menu-bounce .38s cubic-bezier(.2,1.35,.35,1) both !important; }
+.scale-menu.picker-sheet.is-open:not([hidden]),.instrument-menu.picker-sheet.is-open:not([hidden]) { animation:picker-menu-sheet-bounce .38s cubic-bezier(.2,1.25,.35,1) both !important; }
+@keyframes picker-menu-bounce { 0% { opacity:0; translate:0 12px; scale:.97; } 72% { opacity:1; translate:0 -2px; scale:1.008; } 100% { opacity:1; translate:0 0; scale:1; } }
+@keyframes picker-menu-sheet-bounce { 0% { opacity:.55; translate:0 26px; } 72% { opacity:1; translate:0 -3px; } 100% { opacity:1; translate:0 0; } }
+@media (max-width:520px) {
+  #looperRail.looper-rail { grid-template-columns:1fr auto 1fr; gap:4px; }
+  #looperClearBtn { margin-left:0; }
+  #looperCountInBtn { margin-left:38px; }
+  #looperMetronomeBtn { margin-left:80px; }
+  #looperBpmBtn { margin-left:122px; }
+  #looperSaveBtn { margin-left:164px; }
+  #looperClearBtn,#looperCountInBtn,#looperMetronomeBtn,#looperBpmBtn,#looperSaveBtn { transform:scale(.88); transform-origin:left center; }
+  #looperLayers { gap:4px; }
+}
