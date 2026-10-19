@@ -30,11 +30,26 @@ export function createSurface(canvas) {
     const tt=Number.isFinite(t)?t:0;
     return[Math.round(p(base,0,'r')*(1-tt)+p(led,0,'r')*tt),Math.round(p(base,1,'g')*(1-tt)+p(led,1,'g')*tt),Math.round(p(base,2,'b')*(1-tt)+p(led,2,'b')*tt)];
   }
-  // One restrained, consistent oval tonefield geometry across every note.
+  // One unified, softly irregular oval tonefield. Gentle asymmetry keeps the
+  // pads organic without turning them into novelty shapes or changing per-note style.
   function pathPad(f){
     const{x,y,rx,ry}=f;const rot=f.rot||0;
     ctx2.beginPath();
     ctx2.ellipse(x,y,rx,ry,rot,0,Math.PI*2);
+    // Subtle hand-shaped contour: four soft shoulders, with a little variation
+    // in width along the length. The touch target remains a forgiving oval.
+    const k=0.55228475, c=Math.cos(rot), sn=Math.sin(rot);
+    const p=(lx,ly)=>({x:x+lx*c-ly*sn,y:y+lx*sn+ly*c});
+    const top=p(-rx*0.025,-ry), tr=p(rx*0.68,-ry*0.91),
+      right=p(rx*1.015,-ry*0.03), br=p(rx*0.83,ry*0.83),
+      bottom=p(rx*0.035,ry*1.015), bl=p(-rx*0.78,ry*0.88),
+      left=p(-rx*0.985,ry*0.015), tl=p(-rx*0.72,-ry*0.86);
+    ctx2.beginPath();ctx2.moveTo(top.x,top.y);
+    ctx2.bezierCurveTo(p(rx*0.27,-ry*1.02).x,p(rx*0.27,-ry*1.02).y,tr.x,tr.y,right.x,right.y);
+    ctx2.bezierCurveTo(p(rx*1.06,ry*0.35).x,p(rx*1.06,ry*0.35).y,br.x,br.y,bottom.x,bottom.y);
+    ctx2.bezierCurveTo(p(-rx*0.32,ry*1.06).x,p(-rx*0.32,ry*1.06).y,bl.x,bl.y,left.x,left.y);
+    ctx2.bezierCurveTo(p(-rx*1.04,-ry*0.34).x,p(-rx*1.04,-ry*0.34).y,tl.x,tl.y,top.x,top.y);
+    ctx2.closePath();
   }
   function mandalaStyle(){const s=window.PionierSettings||{};return ['glow','petals','sacred','orbit','wave'].includes(s.auraStyle)?s.auraStyle:'petals';}
   function mandalaEnabled(){const s=window.PionierSettings;return !(s&&s.mandala===false);}
@@ -157,7 +172,7 @@ export function createSurface(canvas) {
       const deg=angles[slot]!=null?angles[slot]:(slot/ringCount)*360;
       const a=(deg*Math.PI)/180,d=R*0.59;
       const ux=Math.sin(a),uy=-Math.cos(a);
-      return{i:n.index,index:n.index,x:CX+ux*d,y:CY+uy*d,rx:R*0.14*size*padScale,ry:R*0.09*size*padScale,rot:Math.atan2(uy,ux),ux,uy,label:n.name,playable,kind:'ring'};
+      return{i:n.index,index:n.index,x:CX+ux*d,y:CY+uy*d,rx:R*0.165*size*padScale,ry:R*0.105*size*padScale,rot:Math.atan2(uy,ux),ux,uy,label:n.name,playable,kind:'ring'};
     });
     anim=previous&&!reducedMotion?{t0:performance.now(),dur:ADD_NOTE_MS,from:new Map(previous.map(f=>[f.index,f]))}:null;
     return fields;
