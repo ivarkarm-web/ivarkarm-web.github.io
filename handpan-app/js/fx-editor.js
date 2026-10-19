@@ -45,10 +45,16 @@ const DEFAULTS = {
 const BASE_VALUE = {compressor:.4,delay:.15,reverb:.25,filter:.12};
 const BASE_TYPE = {compressor:'soft',delay:'echo',reverb:'room',filter:'lowpass'};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function filterBounds(type){if(type==='highpass')return[40,4040];if(type==='band')return[200,4000];if(type==='notch')return[300,3500];return[220,16220];}
 function filterFrequency(m){const v=m.value||0;if(m.type==='highpass')return 40+Math.pow(v,1.35)*4000;if(m.type==='band')return 200+Math.pow(v,1.2)*3800;if(m.type==='notch')return 300+Math.pow(v,1.15)*3200;return v<.02?20000:220+Math.pow(1-v,1.6)*16000;}
 function filterValue(hz,type){if(type==='highpass')return clamp(Math.pow(Math.max(0,hz-40)/4000,1/1.35),0,1);if(type==='band')return clamp(Math.pow(Math.max(0,hz-200)/3800,1/1.2),0,1);if(type==='notch')return clamp(Math.pow(Math.max(0,hz-300)/3200,1/1.15),0,1);return clamp(1-Math.pow(Math.max(0,hz-220)/16000,1/1.6),0,1);}
 const audio=()=>window.PionierCore?.getAudioContext?.();
-function ensureSettings(id,m){m.settings||={};Object.entries(DEFAULTS[id]||{}).forEach(([k,v])=>{if(!Number.isFinite(m.settings[k]))m.settings[k]=v;});}
+function ensureSettings(id,m){
+ m.settings||={};
+ const preset=(DEFS[id]?.presets||[]).find(p=>p.id===m.type);
+ const seed=id==='filter'?{resonance:preset?.v?.resonance??1.1}:{...(DEFAULTS[id]||{}),...(preset?.v||{})};
+ Object.entries(seed).forEach(([k,v])=>{if(!Number.isFinite(m.settings[k]))m.settings[k]=v;});
+}
 function refresh(){activeModule?._apply?.(audio());window.PionierCore?.refreshFxKnobs?.();drawCurve();drawKnobs();}
 function paintDial(c,amount){
  if(!c)return;const r=c.getBoundingClientRect(),s=Math.max(1,Math.round(r.width||74)),d=window.devicePixelRatio||1;
@@ -90,14 +96,14 @@ function graphState(){
  if(activeId==='compressor')return{x:clamp(((m.settings.threshold??-18)+36)/30,0,1),y:clamp(((m.settings.ratio??2.2)-1)/11,0,1)};
  if(activeId==='delay')return{x:clamp(((m.settings.time??.34)-.04)/.68,0,1),y:clamp(((m.settings.feedback??.38)-.05)/.7,0,1)};
  if(activeId==='reverb')return{x:clamp(((m.settings.decay??1)-.6)/2.4,0,1),y:clamp(((m.settings.tone??1)-.4)/1.2,0,1)};
- return{x:clamp(Math.log(filterFrequency(m)/40)/Math.log(16220/40),0,1),y:clamp(((m.settings.resonance??1.1)-.5)/11.5,0,1)};
+ const bounds=filterBounds(m.type);return{x:clamp(Math.log(filterFrequency(m)/bounds[0])/Math.log(bounds[1]/bounds[0]),0,1),y:clamp(((m.settings.resonance??1.1)-.5)/11.5,0,1)};
 }
 function changeCurve(x,y){
  const m=activeModule,nx=clamp(x,0,1),ny=clamp(1-y,0,1);
  if(activeId==='compressor'){m.settings.threshold=-36+nx*30;m.settings.ratio=1+ny*11;}
  else if(activeId==='delay'){m.settings.time=.04+nx*.68;m.settings.feedback=.05+ny*.7;}
  else if(activeId==='reverb'){m.settings.decay=.6+nx*2.4;m.settings.tone=.4+ny*1.2;}
- else{m.setValue(filterValue(40*Math.pow(16220/40,nx),m.type),audio());m.settings.resonance=.5+ny*11.5;}
+ else{const bounds=filterBounds(m.type);m.setValue(filterValue(bounds[0]*Math.pow(bounds[1]/bounds[0],nx),m.type),audio());m.settings.resonance=.5+ny*11.5;}
  m._apply?.(audio());window.PionierCore?.refreshFxKnobs?.();drawKnobs();drawCurve();$('fxEditorStatus').textContent='Curve adjusted · live';
 }
 function drawCurve(){
@@ -115,7 +121,7 @@ function drawCurve(){
   if(activeId==='compressor'){const th=clamp(((activeModule.settings.threshold??-18)+36)/30,.01,.99),ratio=activeModule.settings.ratio??2.2;y=x<th?x:th+(x-th)/ratio;}
   else if(activeId==='delay'){y=.08+.82*Math.pow(activeModule.settings.feedback??.38,x*4.4);}
   else if(activeId==='reverb'){y=.08+.84*Math.exp(-x*4/(activeModule.settings.decay??1));}
-  else{const f=clamp(Math.log(filterFrequency(activeModule)/40)/Math.log(16220/40),.01,.99),q=activeModule.settings.resonance??1.1;if(activeModule.type==='highpass')y=1/(1+Math.exp(-(x-f)*(8+q)));else if(activeModule.type==='band')y=Math.exp(-Math.pow((x-f)*(8+q),2));else if(activeModule.type==='notch')y=1-.85*Math.exp(-Math.pow((x-f)*(8+q),2));else y=1/(1+Math.exp((x-f)*(8+q)));}
+  else{const bounds=filterBounds(activeModule.type),f=clamp(Math.log(filterFrequency(activeModule)/bounds[0])/Math.log(bounds[1]/bounds[0]),.01,.99),q=activeModule.settings.resonance??1.1;if(activeModule.type==='highpass')y=1/(1+Math.exp(-(x-f)*(8+q)));else if(activeModule.type==='band')y=Math.exp(-Math.pow((x-f)*(8+q),2));else if(activeModule.type==='notch')y=1-.85*Math.exp(-Math.pow((x-f)*(8+q),2));else y=1/(1+Math.exp((x-f)*(8+q)));}
   if(i===0)g.moveTo(px(x),py(y));else g.lineTo(px(x),py(y));
  }
  g.strokeStyle='#d9b85e';g.lineWidth=2.5;g.lineJoin='round';g.stroke();
