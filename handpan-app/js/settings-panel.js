@@ -386,19 +386,7 @@
       onPick: (id) => { state.skin = id; save(state); apply(state); },
     });
 
-    const tfSec = document.createElement('section');
-    tfSec.className = 'settings-section';
-    tfSec.innerHTML = '<div class="settings-section-label">Tonefields</div>';
-    body.appendChild(tfSec);
-    buildDropdown(tfSec, {
-      id: 'settingTonefield',
-      label: 'Shape',
-      items: cat.TONEFIELDS,
-      activeId: state.tonefield,
-      onPick: (id) => { state.tonefield = id; save(state); apply(state); },
-    });
-
-    const trSec = document.createElement('section');
+const trSec = document.createElement('section');
     trSec.className = 'settings-section';
     trSec.innerHTML =
       '<div class="settings-section-label">Handpan transparency</div>' +
