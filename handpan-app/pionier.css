@@ -1454,7 +1454,7 @@ html, body {
 }
 
 #stageScaleBar .stage-instrument-nav .instrument-name,
-#stageScaleBar #instrumentDropdownToggle {
+#stageScaleBar #instrumentMenu {
   min-height: 34px;
   height: 34px;
   padding: 0 10px;
@@ -1477,7 +1477,7 @@ html, body {
 }
 
 #stageScaleBar .stage-scale-btn,
-#stageScaleBar #scaleLabel {
+#stageScaleBar #scaleMenu {
   min-height: 34px;
   height: 34px;
   padding: 0 10px;
@@ -1770,7 +1770,7 @@ html, body {
   align-items: center !important;
 }
 
-#stageScaleBar #scaleLabel,
+#stageScaleBar #scaleMenu,
 #stageScaleBar .stage-scale-btn,
 #stageScaleBar .scale-dropdown-toggle {
   flex: 1 1 auto !important;
@@ -1816,7 +1816,7 @@ html, body {
   gap: 2px !important;
 }
 
-#stageScaleBar #instrumentDropdownToggle,
+#stageScaleBar #instrumentMenu,
 #stageScaleBar .stage-instrument-nav .instrument-name {
   flex: 1 1 auto !important;
   min-width: 0 !important;
@@ -1939,10 +1939,10 @@ html.theme-light .stage-scale-bar {
 }
 
 /* Primary selectors */
-html.theme-light #stageScaleBar #scaleLabel,
+html.theme-light #stageScaleBar #scaleMenu,
 html.theme-light #stageScaleBar .stage-scale-btn,
 html.theme-light #stageScaleBar .scale-dropdown-toggle,
-html.theme-light #stageScaleBar #instrumentDropdownToggle,
+html.theme-light #stageScaleBar #instrumentMenu,
 html.theme-light #stageScaleBar .stage-instrument-nav .instrument-name {
   background: rgba(255, 255, 255, 0.92) !important;
   color: rgba(28, 28, 32, 0.92) !important;
