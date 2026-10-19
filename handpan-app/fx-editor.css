@@ -44,3 +44,20 @@
   .fx-editor-knobs { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
 @media (prefers-reduced-motion:reduce) { .fx-editor,.fx-editor-backdrop { transition:none !important; animation:none !important; } }
+
+
+.fx-editor-knob { display:flex; flex-direction:column; align-items:center; gap:5px; padding:8px 4px; border:1px solid rgba(235,229,215,.075); border-radius:12px; background:rgba(255,255,255,.018); }
+.fx-editor-dial { display:block; width:50px; height:50px; max-width:100%; touch-action:none; cursor:ns-resize; }
+.fx-editor-knob-name { color:rgba(242,238,229,.68); font-size:11px; text-align:center; }
+.fx-editor-knob-value { color:rgba(242,238,229,.92); font-size:12px; font-variant-numeric:tabular-nums; text-align:center; }
+.fx-settings-shortcut {
+  display:inline-grid !important; place-items:center !important; flex:0 0 44px !important;
+  width:44px !important; height:44px !important; min-width:44px !important; min-height:44px !important;
+  padding:0 !important; border:1px solid rgba(235,229,215,.13) !important; border-radius:50% !important;
+  color:rgba(242,238,229,.84) !important; background:rgba(255,255,255,.045) !important;
+  box-shadow:none !important; font-size:13px !important; line-height:1 !important;
+}
+.fx-settings-shortcut:hover,.fx-settings-shortcut:focus-visible {
+  color:#f1eee6 !important; background:rgba(255,255,255,.085) !important;
+  border-color:rgba(235,229,215,.26) !important; outline:none;
+}
