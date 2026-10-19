@@ -285,7 +285,12 @@ if (page && audio) {
 
   bedroomTab?.addEventListener('click', () => setCollection('bedroom'));
   communityTab?.addEventListener('click', () => { setCollection('community'); refreshCommunitySongs(); });
-  openButton?.addEventListener('click', () => { showSoundscapes(true); refreshCommunitySongs(); });
+  openButton?.addEventListener('click', () => {
+    // Soundscapes must be exclusive with FX and Customize, not layered beneath them.
+    window.PionierOverlay?.closeAll?.('soundscapes');
+    showSoundscapes(true);
+    refreshCommunitySongs();
+  });
   closeButton?.addEventListener('click', () => showSoundscapes(false));
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && page.classList.contains('is-active')) showSoundscapes(false);
