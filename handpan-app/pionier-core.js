@@ -651,9 +651,7 @@ function instrumentGroupId(item) {
 function renderInstrumentMenu() {
   const menu = document.getElementById('instrumentMenu');
   if (!menu) return;
-  const queryBeforeRender = menu.querySelector('.picker-search')?.value || '';
   menu.replaceChildren(); menu.setAttribute('role', 'menu'); menu.setAttribute('aria-label', 'Choose instrument');
-  const search = document.createElement('input'); search.type = 'search'; search.className = 'picker-search instrument-menu-search'; search.placeholder = 'Search instruments…'; search.setAttribute('aria-label', 'Search instruments'); search.setAttribute('role', 'searchbox'); search.autocomplete = 'off'; search.spellcheck = false; search.value = queryBeforeRender; menu.appendChild(search);
   const results = document.createElement('div'); results.className = 'picker-results instrument-menu-results'; menu.appendChild(results);
   const seen = new Set(); const groups = new Map(INSTRUMENT_GROUP_ORDER.map((g) => [g.id, []]));
   for (const item of InstrumentRegistry.list()) { if (!item || !item.id || seen.has(item.id)) continue; seen.add(item.id); const gid = instrumentGroupId(item); if (!groups.has(gid)) groups.set(gid, []); groups.get(gid).push(item); }
@@ -669,8 +667,7 @@ function renderInstrumentMenu() {
     } results.appendChild(section);
   }
   const empty = document.createElement('div'); empty.className = 'picker-empty'; empty.textContent = 'No instruments found'; empty.hidden = true; results.appendChild(empty);
-  const filter = () => { const q = search.value.trim().toLowerCase(); let total = 0; results.querySelectorAll('.picker-group').forEach((section) => { let count = 0; section.querySelectorAll('.instrument-menu-item').forEach((btn) => { const show = !q || btn.dataset.searchText.includes(q); btn.hidden = !show; if (show) count++; }); section.hidden = count === 0; total += count; }); empty.hidden = total !== 0; };
-  search.addEventListener('input', filter); search.addEventListener('keydown', (e) => { if (['ArrowDown','ArrowUp','ArrowLeft','ArrowRight','Home','End'].includes(e.key)) e.stopPropagation(); }); filter(); if (focusTarget) menu.dataset.focusItem = focusTarget.dataset.instrumentId || '';
+  if (focusTarget) menu.dataset.focusItem = focusTarget.dataset.instrumentId || '';
 }
 window.__pionierRenderInstrumentMenu = renderInstrumentMenu;
 document.addEventListener('pionier:picker-open', (e) => {
