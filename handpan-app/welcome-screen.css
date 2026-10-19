@@ -117,3 +117,109 @@ html.pionier-welcome-active #pan { visibility: visible; }
   .pionier-welcome-content { animation:none !important; }
   #headphonesHint.is-visible { animation-duration:.01ms !important; }
 }
+
+/* Requested PIONIER AUDIO / HANDPAN identity and true full-screen welcome gate. */
+:root {
+  --welcome-bg: #0a0a0a;
+  --welcome-grid: #1a1a1a;
+  --welcome-red: #e11d48;
+  --welcome-white: #f5f5f5;
+  --welcome-ring-a: #1f1f1f;
+  --welcome-ring-b: #2a2a2a;
+  --welcome-micro: #555555;
+  --welcome-ink: var(--welcome-white);
+  --welcome-dim: var(--welcome-micro);
+  --welcome-gold: var(--welcome-red);
+}
+#pionierWelcome {
+  z-index: 2147483000;
+  color: var(--welcome-white);
+  background-color: var(--welcome-bg);
+  background-image:
+    linear-gradient(var(--welcome-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--welcome-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+#pionierWelcome::before {
+  border-color: var(--welcome-ring-b);
+  border-radius: 0;
+}
+#pionierWelcome::after {
+  width: min(78vw, 660px);
+  border-color: var(--welcome-ring-a);
+  box-shadow: 0 0 0 26px rgba(31,31,31,.24), 0 0 0 54px rgba(42,42,42,.14);
+}
+.welcome-masthead { border-bottom-color: var(--welcome-ring-b); }
+.welcome-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  color: var(--welcome-white);
+  font-size: 15px;
+  letter-spacing: .12em;
+  font-weight: 600;
+}
+.welcome-brand-main, .welcome-brand-audio { color: var(--welcome-white); }
+.welcome-brand-audio { font-size: 10px; letter-spacing: .24em; }
+.welcome-brand-handpan {
+  color: var(--welcome-red);
+  font-size: 9px;
+  letter-spacing: .2em;
+  margin-left: 2px;
+}
+.welcome-edition, .welcome-foot { color: var(--welcome-micro); }
+.welcome-kicker { color: var(--welcome-red); }
+.welcome-kicker-dot {
+  background: var(--welcome-red);
+  box-shadow: none;
+}
+.welcome-headline { color: var(--welcome-white); }
+.welcome-headline em { color: var(--welcome-red); }
+.welcome-deck { color: #999999; }
+#enterPionier {
+  border-color: var(--welcome-red);
+  border-radius: 0;
+  color: var(--welcome-white);
+  background: var(--welcome-red);
+  box-shadow: none;
+}
+#enterPionier:hover {
+  border-color: #fb315d;
+  background: #fb315d;
+  box-shadow: 0 0 0 4px rgba(225,29,72,.12);
+}
+.welcome-enter-arrow { color: var(--welcome-white); }
+.welcome-foot { border-top-color: var(--welcome-ring-b); }
+.welcome-foot-rule { background: var(--welcome-red); }
+/* The opaque gate must sit above every app panel, toolbar, sheet and canvas. */
+html.pionier-welcome-active #app {
+  opacity: 0;
+  visibility: hidden;
+  filter: none;
+  transform: none;
+  pointer-events: none;
+}
+html.pionier-welcome-active #pan { visibility: hidden; }
+html.pionier-welcome-active #soundscapesPanel,
+html.pionier-welcome-active #fxPanel,
+html.pionier-welcome-active #fxEditor,
+html.pionier-welcome-active #fxEditorBackdrop,
+html.pionier-welcome-active .settings-sheet,
+html.pionier-welcome-active .settings-sheet-backdrop {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+html.pionier-entering #app {
+  visibility: visible;
+  opacity: 0;
+  filter: blur(3px);
+  transform: scale(.985);
+}
+html:not(.pionier-welcome-active) #app {
+  visibility: visible;
+}
+@media (prefers-reduced-motion: reduce) {
+  html.pionier-entering #app, #app, #pan { transition-duration: 1ms !important; }
+}
