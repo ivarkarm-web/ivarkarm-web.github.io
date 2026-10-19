@@ -26,7 +26,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script>document.documentElement.classList.add("pionier-welcome-active");</script>
   <link rel="stylesheet" href="./pionier.css?v=166" />
+  <link rel="stylesheet" href="./welcome-screen.css?v=1" />
   <link rel="stylesheet" href="./topbar-narrow.css?v=6" />
   <link rel="stylesheet" href="./looper.css?v=222" />
   <link rel="stylesheet" href="./scale-menu.css?v=19" />
@@ -72,6 +74,13 @@
     <span id="appStatusMessage">Starting Pionier…</span>
     <button type="button" id="appStatusRetry" class="app-status-retry" hidden>Retry</button>
   </div>
+  <section id="pionierWelcome" aria-label="Welcome to Pionier">
+    <div class="pionier-welcome-content">
+      <p class="pionier-welcome-wordmark">PIONIER</p>
+      <button type="button" id="enterPionier">Enter Pionier</button>
+    </div>
+  </section>
+  <div id="headphonesHint" role="status" aria-live="polite">Headphones recommended…</div>
   <div id="app" class="app">
     <header class="topbar topbar-minimal">
       <div class="center-nav">
@@ -208,6 +217,7 @@
   <script src="./js/ambient-fx.js?v=12"></script>
   <script src="./js/skin-mandala.js?v=5"></script>
   <script type="module" src="./pionier-app.js?v=232"></script>
+  <script src="./welcome-screen.js?v=1"></script>
   <script src="./registerSW.js"></script>
 </body>
 </html>
