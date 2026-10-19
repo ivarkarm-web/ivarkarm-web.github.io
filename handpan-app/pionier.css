@@ -2306,6 +2306,45 @@ button.fx-panel-open,
   color: rgba(230, 224, 210, 0.7) !important;
 }
 
+/* Small, explicit shortcut for opening each effect's curve/preset editor. */
+#fxPanel .fx-knob-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 22px;
+}
+#fxPanel .fx-settings-shortcut {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+  padding: 0;
+  border: 1px solid rgba(217,184,94,.62);
+  border-radius: 6px;
+  background: rgba(217,184,94,.10);
+  color: #f0d17b;
+  font: 700 10px/1 Inter, system-ui, sans-serif;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+#fxPanel .fx-settings-shortcut:active {
+  background: rgba(217,184,94,.28);
+  transform: scale(.94);
+}
+#fxPanel .fx-settings-shortcut:focus-visible {
+  outline: 2px solid #f0d17b;
+  outline-offset: 2px;
+}
+html.theme-light #fxPanel .fx-settings-shortcut {
+  color: #765b15;
+  border-color: rgba(118,91,21,.5);
+  background: rgba(217,184,94,.16);
+}
+
 html.theme-light #fxPanel.fx-panel {
   background: rgba(250, 249, 246, 0.98) !important;
   border-color: rgba(0, 0, 0, 0.12) !important;
