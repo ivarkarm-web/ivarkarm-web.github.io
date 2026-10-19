@@ -166,12 +166,12 @@ export function createSurface(canvas) {
       const low=Math.max(0,Math.min(1,(midiMax-(n.midi||60))/midiSpan));
       const size=(1.12+low*0.36)*1.16;
       const playable=typeof isFieldPlayable==='function'?isFieldPlayable(n.index):true;
-      if(n.kind==='ding'){const rr=R*0.17*size;return{i:n.index,index:n.index,x:CX,y:CY,rx:rr,ry:rr,rot:0,label:n.name,playable,kind:'ding'}}
+      if(n.kind==='ding'){const rr=R*0.195*size;return{i:n.index,index:n.index,x:CX,y:CY,rx:rr,ry:rr*0.96,rot:0,label:n.name,playable,kind:'ding'}}
       const slot=(n.index!=null?n.index:pos)-1;
       const deg=angles[slot]!=null?angles[slot]:(slot/ringCount)*360;
       const a=(deg*Math.PI)/180,d=R*0.59;
       const ux=Math.sin(a),uy=-Math.cos(a);
-      return{i:n.index,index:n.index,x:CX+ux*d,y:CY+uy*d,rx:R*0.165*size*padScale,ry:R*0.105*size*padScale,rot:Math.atan2(uy,ux),ux,uy,label:n.name,playable,kind:'ring'};
+      return{i:n.index,index:n.index,x:CX+ux*d,y:CY+uy*d,rx:R*0.178*size*padScale,ry:R*0.126*size*padScale,rot:Math.atan2(uy,ux),ux,uy,label:n.name,playable,kind:'ring'};
     });
     anim=previous&&!reducedMotion?{t0:performance.now(),dur:ADD_NOTE_MS,from:new Map(previous.map(f=>[f.index,f]))}:null;
     return fields;
@@ -494,7 +494,7 @@ export function createSurface(canvas) {
       const lx=dx*c-dy*s,ly=dx*s+dy*c;
       const nx=lx/(f.rx||1),ny=ly/(f.ry||1);
       const d=nx*nx+ny*ny;
-      if(d<1.28&&d<bestD){bestD=d;best=f}
+      if(d<1.38&&d<bestD){bestD=d;best=f}
     }
     return best;
   }
