@@ -2682,3 +2682,35 @@ html.theme-light .instrument-name {
 @media(prefers-reduced-motion:reduce) {
   .fx-preset-picker.is-open .fx-preset-list { animation:none !important; }
 }
+
+
+/* Final popup-bubble contract: hide browser scrollbar chrome, retain touch/trackpad scrolling. */
+.scale-menu.picker-popover:not([hidden]),
+.instrument-menu.picker-popover:not([hidden]),
+.fx-preset-picker .fx-preset-list {
+  scrollbar-width:none !important;
+  -ms-overflow-style:none !important;
+}
+.scale-menu.picker-popover:not([hidden])::-webkit-scrollbar,
+.instrument-menu.picker-popover:not([hidden])::-webkit-scrollbar,
+.scale-menu.picker-popover .picker-results::-webkit-scrollbar,
+.instrument-menu.picker-popover .picker-results::-webkit-scrollbar,
+.fx-preset-picker .fx-preset-list::-webkit-scrollbar {
+  display:none !important;
+  width:0 !important;
+  height:0 !important;
+}
+.scale-menu.picker-popover .picker-results,
+.instrument-menu.picker-popover .picker-results {
+  scrollbar-width:none !important;
+  -ms-overflow-style:none !important;
+}
+.scale-menu.picker-popover:not([hidden]),
+.instrument-menu.picker-popover:not([hidden]) {
+  border-radius:16px !important;
+  background:rgba(16,16,19,.88) !important;
+  border:1px solid rgba(226,195,117,.24) !important;
+  box-shadow:0 20px 60px rgba(0,0,0,.46),inset 0 1px 0 rgba(255,255,255,.035) !important;
+  -webkit-backdrop-filter:blur(24px) saturate(125%) !important;
+  backdrop-filter:blur(24px) saturate(125%) !important;
+}
