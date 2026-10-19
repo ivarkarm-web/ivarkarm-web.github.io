@@ -905,3 +905,65 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 .looper-menu-close:hover::before,.looper-menu-close:hover::after,
 .looper-track-close:hover::before,.looper-track-close:hover::after { background:#f0d58a!important; }
 .looper-menu-close:active,.looper-track-close:active { transform:scale(.94)!important; }
+
+
+/* Fine-line timing glyphs — a consistent visual family for count-in, metronome and tempo. */
+#looperRail #looperUtilityControls > .looper-timing-btn {
+  gap:1px !important;
+  overflow:visible !important;
+  color:rgba(236,230,217,.86);
+  background:linear-gradient(145deg,rgba(30,30,34,.88),rgba(13,13,16,.92)) !important;
+  border-color:rgba(230,224,210,.15) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 3px 10px rgba(0,0,0,.2) !important;
+}
+#looperRail #looperUtilityControls > .looper-timing-btn:hover {
+  border-color:rgba(226,195,117,.45) !important;
+  background:rgba(226,195,117,.075) !important;
+}
+#looperRail #looperUtilityControls .looper-icon {
+  display:block;
+  width:13px;
+  height:13px;
+  flex:0 0 auto;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.25;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  pointer-events:none;
+  overflow:visible;
+}
+#looperRail #looperUtilityControls .looper-countin-icon { width:13px; height:11px; color:rgba(236,230,217,.75); }
+#looperRail #looperUtilityControls .looper-count-in-btn .looper-timing-main {
+  color:rgba(236,230,217,.72) !important;
+  font:600 5px/1 Inter,system-ui,sans-serif !important;
+  letter-spacing:.015em !important;
+  white-space:nowrap;
+}
+#looperRail #looperUtilityControls .looper-count-in-btn.is-active {
+  color:#f6dfa0 !important;
+  border-color:rgba(219,184,91,.72) !important;
+  background:linear-gradient(145deg,rgba(219,184,91,.16),rgba(34,29,18,.88)) !important;
+}
+#looperRail #looperUtilityControls .looper-count-in-btn.is-active .looper-icon,
+#looperRail #looperUtilityControls .looper-count-in-btn.is-active .looper-timing-main { color:#f6dfa0 !important; }
+#looperRail #looperUtilityControls .looper-metronome-icon { width:14px; height:14px; color:rgba(236,230,217,.82); }
+#looperRail #looperUtilityControls .looper-metronome-btn.is-active {
+  color:#bdf5dd !important;
+  border-color:rgba(136,213,186,.72) !important;
+  background:linear-gradient(145deg,rgba(73,171,139,.17),rgba(13,26,22,.9)) !important;
+}
+#looperRail #looperUtilityControls .looper-metronome-btn.is-active .looper-icon { color:#bdf5dd; }
+#looperRail #looperUtilityControls .looper-timing-led {
+  top:4px; right:4px; width:3px; height:3px;
+  background:rgba(255,255,255,.16);
+}
+#looperRail #looperUtilityControls .looper-bpm-btn { gap:0 !important; border-color:rgba(219,184,91,.3) !important; }
+#looperRail #looperUtilityControls .looper-tempo-icon { width:12px; height:12px; color:rgba(240,209,123,.9); }
+#looperRail #looperUtilityControls .looper-bpm-value { font:650 8px/1 Inter,system-ui,sans-serif !important; color:#f0d17b !important; font-variant-numeric:tabular-nums; }
+#looperRail #looperUtilityControls .looper-bpm-unit { font:700 4px/1.1 Inter,system-ui,sans-serif !important; letter-spacing:.09em; color:rgba(235,228,211,.55) !important; }
+@media(max-width:390px) {
+  #looperRail #looperUtilityControls .looper-icon { width:11px; height:11px; }
+  #looperRail #looperUtilityControls .looper-metronome-icon { width:12px; height:12px; }
+  #looperRail #looperUtilityControls .looper-count-in-btn .looper-timing-main { font-size:4.5px !important; }
+}
