@@ -319,7 +319,8 @@ test('double-clicking an effect knob opens its live curve editor', async ({ page
   await expect(page.locator('#fxEditor')).toBeVisible();
   await expect(page.locator('#fxEditorTitle')).toHaveText('Filter');
   await expect(page.locator('#fxEditorCurve')).toBeVisible();
-  await expect(page.locator('#fxEditorPresets button')).toHaveCount(4);
+  await expect(page.locator('#fxEditorPresets select')).toBeVisible();
+  await expect(page.locator('#fxEditorPresets select option')).toHaveCount(10);
 });
 
 test('lowercase s shortcuts open the correct advanced editor for all four effects', async ({ page }) => {
