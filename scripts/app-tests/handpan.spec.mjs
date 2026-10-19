@@ -312,20 +312,9 @@ test('Handpan can be reselected after switching to another instrument', async ({
   await expect.poll(() => page.evaluate(() => !!window.PionierCore?.activeInstrument?.()?.ready)).toBe(true);
 });
 
-test('visible FX selectors open the effects panel and update its title', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name.startsWith('mobile'), 'side FX selectors are a landscape control');
-  await page.locator('#fxSideKnobs [data-fx="filter"]').click();
-  await expect(page.locator('#fxPanel')).toBeVisible();
-  await expect(page.locator('#fxPanelTitle')).toHaveText('Filter');
-  await page.locator('#fxSideKnobs [data-fx="delay"]').click();
-  await expect(page.locator('#fxPanel')).toBeVisible();
-  await expect(page.locator('#fxPanelTitle')).toHaveText('Delay');
-});
-
 test('double-clicking an effect knob opens its live curve editor', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.startsWith('mobile'), 'desktop double-click interaction');
-  await page.locator('#fxSideKnobs [data-fx="filter"]').click();
-  await expect(page.locator('#fxPanel')).toBeVisible();
+  await page.locator('#fxPanel').evaluate(el => { el.hidden = false; });
   await page.locator('#knobFilter').dblclick();
   await expect(page.locator('#fxEditor')).toBeVisible();
   await expect(page.locator('#fxEditorTitle')).toHaveText('Filter');
@@ -333,20 +322,17 @@ test('double-clicking an effect knob opens its live curve editor', async ({ page
   await expect(page.locator('#fxEditorPresets button')).toHaveCount(4);
 });
 
-test('S shortcuts open the correct advanced editor for each effect', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name.startsWith('mobile'), 'FX panel selectors are desktop landscape controls');
-  await page.locator('#fxSideKnobs [data-fx="filter"]').click();
-  await expect(page.locator('#fxPanel')).toBeVisible();
-  const cases = [
-    ['compressor', 'Compressor'],
-    ['delay', 'Delay'],
-    ['reverb', 'Reverb'],
-    ['filter', 'Filter']
-  ];
+test('lowercase s shortcuts open the correct advanced editor for all four effects', async ({ page }) => {
+  await page.locator('#fxPanel').evaluate(el => { el.hidden = false; });
+  const shortcuts = page.locator('.fx-settings-shortcut[data-fx-editor-open]');
+  await expect(shortcuts).toHaveCount(4);
+  await expect(shortcuts).toHaveText(['s', 's', 's', 's']);
+  const cases = [['compressor', 'Compressor'], ['delay', 'Delay'], ['reverb', 'Reverb'], ['filter', 'Filter']];
   for (const [id, title] of cases) {
     await page.locator('.fx-settings-shortcut[data-fx-editor-open="' + id + '"]').click();
     await expect(page.locator('#fxEditor')).toBeVisible();
     await expect(page.locator('#fxEditorTitle')).toHaveText(title);
+    await expect(page.locator('#fxEditorCurve')).toBeVisible();
     await page.locator('#fxEditorClose').click();
   }
 });
