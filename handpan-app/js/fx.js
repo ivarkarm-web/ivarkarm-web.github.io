@@ -46,13 +46,13 @@ export class CompressorFx extends FxModule {
     const threshold = this.settings.threshold ?? p.threshold;
     const ratio = this.settings.ratio ?? p.ratio;
     const knee = this.settings.knee ?? p.knee;
-    this.comp.threshold.setTargetAtTime(-2 + (threshold + 2) * Math.pow(amt, 0.75), t, 0.04);
-    this.comp.ratio.setTargetAtTime(1.05 + (ratio - 1.05) * amt, t, 0.04);
-    this.comp.knee.setTargetAtTime(0.5 + knee * amt, t, 0.04);
+    this.comp.threshold.setTargetAtTime(threshold, t, 0.04);
+    this.comp.ratio.setTargetAtTime(ratio, t, 0.04);
+    this.comp.knee.setTargetAtTime(knee, t, 0.04);
     this.comp.attack.setTargetAtTime(this.settings.attack ?? p.attack, t, 0.04);
     this.comp.release.setTargetAtTime(this.settings.release ?? p.release, t, 0.04);
     this.makeup.gain.setTargetAtTime(1 + (p.makeup - 1) * amt * 1.4, t, 0.06);
-    this.wet.gain.setTargetAtTime(amt > 0.01 ? 1 : 0, t, 0.04);
+    this.wet.gain.setTargetAtTime(amt, t, 0.04);
     this.dry.gain.setTargetAtTime(1, t, 0.04);
   }
 }
