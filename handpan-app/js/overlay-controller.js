@@ -139,13 +139,13 @@
     menu.style.opacity = '1';
     menu.style.pointerEvents = 'auto';
     const lightTheme = isLightTheme();
-    const pickerSurface = lightTheme ? '#faf8f4' : 'rgba(12, 12, 14, 0.98)';
+    const pickerSurface = lightTheme ? '#faf8f4' : 'rgba(16, 16, 19, 0.86)';
     const pickerText = lightTheme ? '#24221e' : '#e6e0d2';
     menu.style.setProperty('background', pickerSurface, 'important');
     menu.style.setProperty('background-color', pickerSurface, 'important');
     menu.style.setProperty('background-image', 'none', 'important');
     menu.style.setProperty('color', pickerText, 'important');
-    menu.style.setProperty('border-color', lightTheme ? 'rgba(52,44,28,0.14)' : 'rgba(230,224,210,0.18)', 'important');
+    menu.style.setProperty('border-color', lightTheme ? 'rgba(52,44,28,0.14)' : 'rgba(226,195,117,0.22)', 'important');
     menu.style.setProperty('box-shadow', lightTheme
       ? '0 16px 42px rgba(43,35,20,0.16)'
       : '0 20px 60px rgba(0,0,0,0.55)', 'important');

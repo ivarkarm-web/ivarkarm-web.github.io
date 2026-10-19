@@ -338,6 +338,67 @@ test('lowercase s shortcuts open the correct advanced editor for all four effect
   }
 });
 
+
+test('dice randomizer replaces Learn and chooses a new instrument', async ({ page }) => {
+  await expect(page.locator('#learnPanel')).toHaveCount(0);
+  const before = await page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id);
+  await page.locator('#randomizeSetup').click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).not.toBe(before);
+  await expect(page.locator('#scaleLabel')).not.toBeEmpty();
+});
+
+test('looper timing controls are aligned, count-in toggles, and metronome menu has ten click styles', async ({ page }) => {
+  await page.locator('#topMenuBtn').click();
+  await page.locator('#toggleLooper').click();
+  const controls = ['#looperClearBtn','#looperBtn','#looperCountInBtn','#looperMetronomeBtn','#looperBpmBtn'];
+  for (const selector of controls) await expect(page.locator(selector)).toBeVisible();
+  const sizes = await Promise.all(controls.map(selector => page.locator(selector).boundingBox()));
+  for (const size of sizes) {
+    expect(size).not.toBeNull();
+    expect(Math.abs(size.width - size.height)).toBeLessThanOrEqual(1);
+  }
+  await page.locator('#looperCountInBtn').click();
+  await expect(page.locator('#looperCountInBtn')).toHaveClass(/is-active/);
+  await page.locator('#looperCountInBtn').click();
+  await expect(page.locator('#looperCountInBtn')).not.toHaveClass(/is-active/);
+
+  await page.locator('#looperCountInBtn').hover();
+  await page.mouse.down();
+  await page.waitForTimeout(540);
+  await expect(page.locator('.looper-timing-menu')).toContainText('Count-in');
+  await expect(page.locator('.looper-timing-menu select').first()).toHaveValue('1');
+  await page.mouse.up();
+  await page.keyboard.press('Escape');
+  await page.locator('#looperMetronomeBtn').hover();
+  await page.mouse.down();
+  await page.waitForTimeout(540);
+  await expect(page.locator('.looper-timing-menu')).toBeVisible();
+  await expect(page.locator('.looper-click-options .looper-timing-option')).toHaveCount(10);
+  await page.mouse.up();
+  await page.locator('.looper-click-options').getByRole('button', { name: 'Digital Click' }).click();
+  await expect(page.locator('.looper-timing-menu')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.locator('#looperBpmBtn').hover();
+  await page.mouse.down();
+  await page.waitForTimeout(540);
+  await expect(page.locator('.looper-timing-menu')).toContainText('Tempo');
+  await expect(page.locator('.looper-bpm-range')).toBeVisible();
+  await page.mouse.up();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.looper-timing-menu')).toHaveCount(0);
+});
+
+test('FX designer uses the compact main-FX width and drops in from the top', async ({ page }) => {
+  await page.locator('#fxPanel').evaluate(el => { el.hidden = false; });
+  await page.locator('.fx-settings-shortcut[data-fx-editor-open="filter"]').click();
+  const mainFx = await page.locator('#fxPanel').boundingBox();
+  const editor = await page.locator('#fxEditor').boundingBox();
+  expect(mainFx).not.toBeNull();
+  expect(editor).not.toBeNull();
+  expect(Math.abs(mainFx.width - editor.width)).toBeLessThanOrEqual(4);
+  expect(editor.y).toBeLessThan(120);
+});
+
 test('mobile scale controls remain visible without a hidden drawer toggle', async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.startsWith('mobile'), 'portrait layout only');
   await expect(page.locator('#scaleNext')).toBeVisible();

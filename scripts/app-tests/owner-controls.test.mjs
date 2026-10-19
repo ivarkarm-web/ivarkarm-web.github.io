@@ -91,15 +91,18 @@ test('scale picker opens from the restored scale label', () => {
 });
 
 
-test('restored Learn Mode and ambience modules remain available', () => {
+test('Learn system is retired and dice randomizer replaces the entry point', () => {
   for (const rel of [
     'handpan-app/js/learn-mode.js',
     'handpan-app/learn-mode.css',
-    'handpan-app/learn-lessons.json',
-    'handpan-app/js/ambient-fx.js',
-    'handpan-app/js/skin-mandala.js',
-    'handpan-app/js/mandala-canvas.js'
-  ]) assert.equal(fs.existsSync(path.join(root, rel)), true, rel + ' should be present in the restored baseline');
+    'handpan-app/learn-lessons.json'
+  ]) assert.equal(fs.existsSync(path.join(root, rel)), false, rel + ' should be removed');
+  const html = read('handpan-app/index.html');
   const shell = read('handpan-app/pionier-app.js');
-  assert.match(shell, /learn-mode\.js/);
+  assert.match(html, /id="randomizeSetup"/);
+  assert.doesNotMatch(html, /id="learnPanel"|id="openLearn"/);
+  assert.doesNotMatch(shell, /learn-mode\.js/);
+  for (const rel of ['handpan-app/js/ambient-fx.js','handpan-app/js/skin-mandala.js','handpan-app/js/mandala-canvas.js']) {
+    assert.equal(fs.existsSync(path.join(root, rel)), true, rel + ' should remain available');
+  }
 });
