@@ -24,10 +24,10 @@ html body #stageScaleBar #stageScaleRow {
   margin-inline: auto !important;
 }
 
-html body #stageScaleBar .stage-instrument-nav #instrumentDropdownToggle,
-html body #stageScaleBar #instrumentNav #instrumentDropdownToggle,
-html body #stageScaleBar #stageScaleRow #scaleLabel,
-html body #stageScaleBar .stage-control-scale #scaleLabel {
+html body #stageScaleBar .stage-instrument-nav #instrumentMenu,
+html body #stageScaleBar #instrumentNav #instrumentMenu,
+html body #stageScaleBar #stageScaleRow #scaleMenu,
+html body #stageScaleBar .stage-control-scale #scaleMenu {
   box-sizing: border-box !important;
   display: inline-flex !important;
   flex: 0 0 clamp(116px, 34vw, 176px) !important;
@@ -134,10 +134,10 @@ html.theme-light body * {
     gap: 4px !important;
   }
 
-  html body #stageScaleBar .stage-instrument-nav #instrumentDropdownToggle,
-  html body #stageScaleBar #instrumentNav #instrumentDropdownToggle,
-  html body #stageScaleBar #stageScaleRow #scaleLabel,
-  html body #stageScaleBar .stage-control-scale #scaleLabel {
+  html body #stageScaleBar .stage-instrument-nav #instrumentMenu,
+  html body #stageScaleBar #instrumentNav #instrumentMenu,
+  html body #stageScaleBar #stageScaleRow #scaleMenu,
+  html body #stageScaleBar .stage-control-scale #scaleMenu {
     flex-basis: clamp(108px, 35vw, 138px) !important;
     width: clamp(108px, 35vw, 138px) !important;
     max-width: calc(100vw - 116px) !important;
@@ -186,8 +186,8 @@ html body #stageScaleBar #stageInstrumentRow .stage-instrument-nav {
   margin: 0 !important;
 }
 
-html body #stageScaleBar #instrumentDropdownToggle,
-html body #stageScaleBar #stageScaleRow #scaleLabel {
+html body #stageScaleBar #instrumentMenu,
+html body #stageScaleBar #stageScaleRow #scaleMenu {
   box-sizing: border-box !important;
   flex: 0 0 clamp(136px, calc(100vw - 220px), 190px) !important;
   width: clamp(136px, calc(100vw - 220px), 190px) !important;
@@ -207,7 +207,7 @@ html body #stageScaleBar #stageScaleRow #scaleLabel {
   transform: none !important;
 }
 
-html body #stageScaleBar #instrumentDropdownToggle {
+html body #stageScaleBar #instrumentMenu {
   flex-shrink: 0 !important;
 }
 
@@ -306,8 +306,8 @@ html.theme-light body #scaleMenu button.is-active {
     gap: 4px !important;
   }
 
-  html body #stageScaleBar #instrumentDropdownToggle,
-  html body #stageScaleBar #stageScaleRow #scaleLabel {
+  html body #stageScaleBar #instrumentMenu,
+  html body #stageScaleBar #stageScaleRow #scaleMenu {
     flex-basis: clamp(124px, calc(100vw - 220px), 190px) !important;
     width: clamp(124px, calc(100vw - 220px), 190px) !important;
     max-width: calc(100vw - 220px) !important;
