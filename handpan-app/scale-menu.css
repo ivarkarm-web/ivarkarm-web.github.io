@@ -341,3 +341,61 @@
   .scale-menu.picker-sheet .scale-menu-item,
   .instrument-menu.picker-sheet .instrument-menu-item { min-height:54px !important; font-size:16px !important; }
 }
+
+
+/* Universal instrument + scale scroll menu: shared glassmorphism and spring bounce. */
+.scale-menu.picker-sheet:not([hidden]), .instrument-menu.picker-sheet:not([hidden]) {
+ display:flex !important; flex-direction:column !important; box-sizing:border-box !important;
+ inset:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left)) !important;
+ width:auto !important; max-width:none !important; max-height:none !important; min-height:0 !important;
+ padding:12px !important; border-radius:20px !important; overflow:hidden !important;
+ background:rgba(17,17,20,.88) !important; border:1px solid rgba(226,195,117,.26) !important;
+ box-shadow:0 28px 90px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.07),inset 0 0 32px rgba(255,255,255,.018) !important;
+ -webkit-backdrop-filter:blur(30px) saturate(140%) !important; backdrop-filter:blur(30px) saturate(140%) !important;
+ transform-origin:50% 10%;
+}
+.scale-menu.picker-sheet.is-open:not([hidden]), .instrument-menu.picker-sheet.is-open:not([hidden]) {
+ animation:universal-glass-bounce .42s cubic-bezier(.2,.85,.25,1.22) both !important;
+}
+@keyframes universal-glass-bounce {
+ 0% {opacity:0;transform:translateY(-14px) scale(.965)}
+ 62% {opacity:1;transform:translateY(3px) scale(1.008)}
+ 82% {transform:translateY(-1px) scale(.998)}
+ 100% {opacity:1;transform:translateY(0) scale(1)}
+}
+.scale-menu.picker-sheet .picker-results, .instrument-menu.picker-sheet .picker-results {
+ display:block !important; flex:1 1 auto !important; min-height:0 !important; width:100% !important;
+ overflow-x:hidden !important; overflow-y:auto !important; overscroll-behavior:contain !important;
+ -webkit-overflow-scrolling:touch !important; scrollbar-width:thin;
+ scrollbar-color:rgba(219,184,91,.48) transparent;
+ padding:2px 2px max(16px,env(safe-area-inset-bottom)) !important;
+}
+.scale-menu.picker-sheet .picker-close, .instrument-menu.picker-sheet .picker-close {
+ position:relative !important; align-self:flex-end !important; top:auto !important; right:auto !important;
+ z-index:8 !important; float:none !important; flex:0 0 34px !important;
+ width:34px !important; height:34px !important; margin:0 0 4px !important; border-radius:50% !important;
+ background:rgba(255,255,255,.055) !important; border:1px solid rgba(226,195,117,.25) !important; color:#eee9dd !important;
+}
+.scale-menu.picker-sheet .scale-menu-item, .instrument-menu.picker-sheet .instrument-menu-item {
+ display:block !important; width:100% !important; box-sizing:border-box !important; min-height:50px !important;
+ padding:13px 14px !important; margin:2px 0 !important; border-radius:12px !important; text-align:left !important;
+ transition:background .18s ease,color .18s ease,transform .28s cubic-bezier(.2,.85,.25,1.2),border-color .18s ease !important;
+}
+.scale-menu.picker-sheet .scale-menu-item:active, .instrument-menu.picker-sheet .instrument-menu-item:active {transform:scale(.985) !important}
+.scale-menu.picker-sheet .scale-menu-item.is-active, .instrument-menu.picker-sheet .instrument-menu-item.is-active {
+ background:rgba(217,184,94,.13) !important; border-color:rgba(217,184,94,.4) !important;
+}
+.scale-menu.picker-sheet .scale-menu-item.is-active::after, .instrument-menu.picker-sheet .instrument-menu-item.is-active::after {
+ content:'✓'; float:right; margin-left:12px; color:#e5c36c; font-weight:700;
+}
+.scale-menu.picker-sheet .scale-menu-group, .instrument-menu.picker-sheet .instrument-menu-group {
+ padding:17px 12px 8px !important; color:rgba(226,195,117,.68) !important; font-size:10px !important; letter-spacing:.14em !important;
+}
+html.theme-light .scale-menu.picker-sheet:not([hidden]), html.theme-light .instrument-menu.picker-sheet:not([hidden]) {
+ background:rgba(250,248,244,.91) !important; border-color:rgba(93,73,35,.2) !important;
+ box-shadow:0 28px 90px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.8) !important;
+}
+@media (min-width:700px) {
+ .scale-menu.picker-sheet:not([hidden]), .instrument-menu.picker-sheet:not([hidden]) {inset:24px !important;padding:20px !important;border-radius:24px !important}
+ .scale-menu.picker-sheet .scale-menu-item, .instrument-menu.picker-sheet .instrument-menu-item {min-height:54px !important;font-size:16px !important}
+}
