@@ -2714,3 +2714,30 @@ html.theme-light .instrument-name {
   -webkit-backdrop-filter:blur(24px) saturate(125%) !important;
   backdrop-filter:blur(24px) saturate(125%) !important;
 }
+
+/* Shared looper-style picker scrolling: invisible scrollbar, native scroll, elastic edge feedback. */
+.instrument-menu.picker-popover,
+.scale-menu.picker-popover,
+.fx-preset-picker .fx-preset-list,
+.instrument-menu.picker-popover .picker-results,
+.scale-menu.picker-popover .picker-results {
+  overscroll-behavior-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.instrument-menu.picker-popover::-webkit-scrollbar,
+.scale-menu.picker-popover::-webkit-scrollbar,
+.instrument-menu.picker-popover .picker-results::-webkit-scrollbar,
+.scale-menu.picker-popover .picker-results::-webkit-scrollbar,
+.fx-preset-picker .fx-preset-list::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+.instrument-menu.picker-popover,
+.scale-menu.picker-popover,
+.fx-preset-picker {
+  will-change: transform;
+  transition: transform 260ms cubic-bezier(.2,.85,.25,1.2);
+}
