@@ -2175,11 +2175,13 @@ button.fx-panel-open {
 }
 
 /* SOUNDSCAPES — minimal listening player */
+/* Keep the global chrome above the sheet so Soundscapes can always be toggled closed. */
+.topbar.topbar-minimal { position: relative !important; z-index: 4401 !important; }
 #soundscapesPanel:not([hidden]) {
   position:fixed!important; z-index:4300!important;
-  top:max(18px,env(safe-area-inset-top,0px))!important; left:50%!important; transform:translateX(-50%)!important;
+  top:max(76px,calc(env(safe-area-inset-top,0px) + 64px))!important; left:50%!important; transform:translateX(-50%)!important;
   width:min(820px,calc(100vw - 32px))!important;
-  max-height:calc(100dvh - 36px - env(safe-area-inset-bottom,0px))!important;
+  max-height:calc(100dvh - max(76px,calc(env(safe-area-inset-top,0px) + 64px)) - 16px - env(safe-area-inset-bottom,0px))!important;
   overflow:hidden!important; display:flex!important; flex-direction:column!important;
   padding:24px!important; border:1px solid rgba(230,224,210,.12)!important; border-radius:18px!important;
   background:radial-gradient(ellipse at 50% 0%,rgba(201,162,39,.07),transparent 54%),rgba(12,12,14,.97)!important;
@@ -2270,7 +2272,7 @@ button.fx-panel-open {
 #soundscapesPanel .sq-dur{color:rgba(232,226,214,.3)!important;font:9px/1 Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums!important}
 #soundscapesPanel .soundscape-community-empty{margin:0!important;padding:14px 4px!important;color:rgba(232,226,214,.4)!important;font:400 11px/1.6 Inter,system-ui,sans-serif!important}
 @media(max-width:600px){
- #soundscapesPanel:not([hidden]){top:max(8px,env(safe-area-inset-top,0px))!important;width:calc(100vw - 16px)!important;max-width:calc(100vw - 16px)!important;max-height:calc(100dvh - 16px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))!important;padding:17px 16px max(14px,env(safe-area-inset-bottom,0px))!important;border-radius:16px!important}
+ #soundscapesPanel:not([hidden]){top:max(64px,calc(env(safe-area-inset-top,0px) + 56px))!important;max-height:calc(100dvh - max(64px,calc(env(safe-area-inset-top,0px) + 56px)) - 8px - env(safe-area-inset-bottom,0px))!important;width:calc(100vw - 16px)!important;max-width:calc(100vw - 16px)!important;max-height:calc(100dvh - 16px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))!important;padding:17px 16px max(14px,env(safe-area-inset-bottom,0px))!important;border-radius:16px!important}
  #soundscapesPanel .soundscapes-header{margin-bottom:15px!important;padding:0 40px 13px!important}
  #soundscapesPanel .soundscapes-header h2{font-size:22px!important}
  #soundscapesPanel .soundscapes-return-btn{width:34px!important;height:34px!important;font-size:22px!important}
