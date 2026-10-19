@@ -169,19 +169,46 @@ function drawCurve(){
 }
 function renderPresets(){
  const host=$('fxEditorPresets');host.replaceChildren();
- const select=document.createElement('select');select.className='fx-editor-preset-select';select.setAttribute('aria-label',DEFS[activeId].title+' preset');
- DEFS[activeId].presets.forEach(p=>{const option=document.createElement('option');option.value=p.id;option.textContent=p.label;select.appendChild(option);});
- const chosen=DEFS[activeId].presets.find(p=>p.id===activeModule._presetId)||DEFS[activeId].presets.find(p=>p.engineType===activeModule.type)||DEFS[activeId].presets[0];
- select.value=chosen.id;
- select.addEventListener('change',()=>{
-  const p=DEFS[activeId].presets.find(item=>item.id===select.value);if(!p)return;
+ const presets=DEFS[activeId].presets;
+ const chosen=presets.find(p=>p.id===activeModule._presetId)||presets.find(p=>p.engineType===activeModule.type)||presets[0];
+ const picker=document.createElement('div');picker.className='pionier-menu-picker fx-preset-picker';
+ const trigger=document.createElement('button');trigger.type='button';trigger.className='pionier-menu-trigger fx-editor-preset-select';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');trigger.textContent=chosen.label+'  ▾';
+ const list=document.createElement('div');list.className='pionier-menu-list fx-preset-list';list.setAttribute('role','listbox');list.setAttribute('aria-label',DEFS[activeId].title+' presets');list.hidden=true;
+ const close=()=>{list.hidden=true;trigger.setAttribute('aria-expanded','false');picker.classList.remove('is-open');};
+ const applyPreset=p=>{
+  if(!p)return;
   activeModule._presetId=p.id;activeModule.type=p.engineType;Object.assign(activeModule.settings,p.v);
   if(p.amount!==undefined)activeModule.setValue(p.amount,audio());
   if(activeId==='filter')activeModule.setValue(filterValue(p.v.frequency,p.engineType),audio());
   else activeModule._apply?.(audio());
-  drawKnobs();drawCurve();$('fxEditorStatus').textContent=p.label;
+  trigger.firstChild.textContent=p.label+'  ▾';
+  list.querySelectorAll('.pionier-menu-option').forEach(option=>{
+   const selected=option.dataset.presetId===p.id;
+   option.classList.toggle('is-active',selected);option.setAttribute('aria-selected',String(selected));
+  });
+  close();drawKnobs();drawCurve();$('fxEditorStatus').textContent=p.label;
+ };
+ presets.forEach(p=>{
+  const option=document.createElement('button');option.type='button';option.className='pionier-menu-option fx-preset-option'+(p.id===chosen.id?' is-active':'');option.dataset.presetId=p.id;option.setAttribute('role','option');option.setAttribute('aria-selected',String(p.id===chosen.id));
+  const label=document.createElement('span');label.className='pionier-menu-option-label';label.textContent=p.label;
+  const check=document.createElement('span');check.className='pionier-menu-check';check.setAttribute('aria-hidden','true');check.textContent='✓';
+  option.append(label,check);option.addEventListener('click',()=>applyPreset(p));list.appendChild(option);
  });
- host.appendChild(select);
+ trigger.addEventListener('click',()=>{
+  const opening=list.hidden;list.hidden=!opening;trigger.setAttribute('aria-expanded',String(opening));picker.classList.toggle('is-open',opening);
+  if(opening){const active=list.querySelector('.is-active')||list.querySelector('.pionier-menu-option');requestAnimationFrame(()=>active?.focus({preventScroll:true}));}
+ });
+ trigger.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='Enter'||e.key===' '){e.preventDefault();if(list.hidden){list.hidden=false;trigger.setAttribute('aria-expanded','true');picker.classList.add('is-open');requestAnimationFrame(()=>list.querySelector('.is-active')?.focus());}}});
+ list.addEventListener('keydown',e=>{
+  const options=[...list.querySelectorAll('.pionier-menu-option')];const i=options.indexOf(document.activeElement);
+  if(e.key==='Escape'){e.preventDefault();close();trigger.focus();}
+  else if(e.key==='ArrowDown'){e.preventDefault();options[(i+1+options.length)%options.length]?.focus();}
+  else if(e.key==='ArrowUp'){e.preventDefault();options[(i-1+options.length)%options.length]?.focus();}
+  else if(e.key==='Home'){e.preventDefault();options[0]?.focus();}
+  else if(e.key==='End'){e.preventDefault();options.at(-1)?.focus();}
+ });
+ document.addEventListener('pointerdown',e=>{if(!picker.contains(e.target))close();});
+ picker.append(trigger,list);host.appendChild(picker);
 }
 function openEditor(id){
  const def=DEFS[id],m=window.PionierCore?.getFxModule?.(id);if(!def||!m||!dialog||!backdrop)return;
