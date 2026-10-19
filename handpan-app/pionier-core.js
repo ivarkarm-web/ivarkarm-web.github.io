@@ -166,7 +166,7 @@ function updateLabels() {
   const scaleEl = document.getElementById('scaleLabel');
   const rootEl = document.getElementById('rootLabel');
   const noteCountEl = document.getElementById('noteCountLabel');
-  if (scaleEl && handpan.scaleLabel) scaleEl.textContent = handpan.scaleLabel + ' \u25be';
+  if (scaleEl && handpan.scaleLabel) scaleEl.textContent = handpan.scaleLabel;
   if (rootEl && handpan.rootLabel) rootEl.textContent = handpan.rootLabel;
   if (noteCountEl) {
     const n = Number.isFinite(handpan.noteCount) ? handpan.noteCount : 9;
