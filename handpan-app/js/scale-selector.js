@@ -3,17 +3,14 @@ import { HANDPAN_SCALES } from './instruments/handpan.js?v=10';
 
 export function mountScaleSelector({ getHandpan, onScaleChange }) {
   const select = document.getElementById('scaleMenu');
-  const label = document.getElementById('scaleLabel');
-  if (!select || !label) return { render() {}, updateLabel() {} };
+  if (!select) return { render() {}, updateLabel() {} };
 
   function updateLabel() {
     const handpan = getHandpan();
     if (!handpan) return;
     const scale = HANDPAN_SCALES[handpan.scaleIndex];
-    const short = scale?.short || scale?.label || handpan.scaleLabel || 'Scale';
     select.value = String(handpan.scaleIndex);
-    label.textContent = short;
-    label.title = scale?.label || handpan.scaleLabel || short;
+    select.title = scale?.label || handpan.scaleLabel || scale?.short || 'Scale';
   }
 
   function render() {
@@ -48,7 +45,6 @@ export function mountScaleSelector({ getHandpan, onScaleChange }) {
     updateLabel();
   });
 
-  // A native select is rendered once; only the selected value changes thereafter.
   render();
   updateLabel();
   return { render, updateLabel };
