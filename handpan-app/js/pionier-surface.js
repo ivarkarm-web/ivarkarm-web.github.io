@@ -487,13 +487,28 @@ export function createSurface(canvas) {
   function armTransition(){armed=true}
   function hitVector(x,y){
     let best=null,bestD=1e9;
+    const toneStyle=softTone(window.PionierSettings?.tonefield||'classic');
     for(const f of fields){
-      const dx=x-f.x,dy=y-f.y;
-      const c=Math.cos(-(f.rot||0)),s=Math.sin(-(f.rot||0));
+      // Hit-test the same organic silhouette that is actually drawn.
+      // A small tolerance beyond the visible edge makes phone taps forgiving
+      // without letting the old, oversized invisible ellipse steal neighbors.
+      let hx=f.rx||1,hy=f.ry||1,cx=f.x,cy=f.y;
+      if(toneStyle==='round'){
+        hx=hy=Math.max(f.rx||1,f.ry||1)*0.92;
+      }else if(toneStyle==='petal'){
+        hx=(f.rx||1)*0.75;hy=(f.ry||1)*1.25;
+      }else if(toneStyle==='teardrop'){
+        hx=(f.rx||1)*0.85;hy=(f.ry||1)*1.1;cy-=((f.ry||1)*0.15);
+      }else if(toneStyle==='seed'){
+        hx=(f.rx||1)*0.7;hy=(f.ry||1)*1.28;
+      }
+      const dx=x-cx,dy=y-cy;
+      const c=Math.cos(-(toneStyle==='round'?0:(f.rot||0)));
+      const s=Math.sin(-(toneStyle==='round'?0:(f.rot||0)));
       const lx=dx*c-dy*s,ly=dx*s+dy*c;
-      const nx=lx/(f.rx||1),ny=ly/(f.ry||1);
+      const nx=lx/hx,ny=ly/hy;
       const d=nx*nx+ny*ny;
-      if(d<1.65&&d<bestD){bestD=d;best=f}
+      if(d<1.28&&d<bestD){bestD=d;best=f}
     }
     return best;
   }
