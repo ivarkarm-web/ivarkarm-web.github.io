@@ -430,6 +430,7 @@ export function createSurface(canvas) {
     ctx2.globalCompositeOperation='source-over';
     ctx2.globalAlpha=(theme.alpha!=null?theme.alpha:1)*(catchActive?0.88:1);
     view.forEach(f=>{
+      if(window.PionierWelcomeState&&window.PionierWelcomeState.hideTonefields)return;
       const isDing=f.kind==='ding',playable=f.playable!==false;
       const dim=(playable?1:0.32)*(f.appear??1);
       const hlx=f.ux!=null?f.ux:-0.35,hly=f.uy!=null?f.uy:-0.45,baseR=Math.max(f.rx,f.ry);
