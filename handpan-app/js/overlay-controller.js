@@ -236,7 +236,7 @@
       const search = menu.querySelector('.picker-search');
       const active = menu.querySelector('[role="menuitem"].is-active, [aria-current="true"]');
       const first = menu.querySelector('[role="menuitem"], button.scale-menu-item, .picker-search, button:not(.picker-close)');
-      (search || active || first)?.focus?.();
+      (active || first || search)?.focus?.({ preventScroll: true });
     });
   }
 
