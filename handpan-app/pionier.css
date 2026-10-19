@@ -2562,3 +2562,42 @@ html.theme-light .instrument-name {
 
 /* The dice control inherits the topbar icon button's visibility and touch behavior. */
 .instrument-nav .randomize-setup-btn { display:inline-flex !important; visibility:visible !important; opacity:1 !important; pointer-events:auto !important; }
+
+
+/* Shared Pionier custom menu: same option component for FX presets, instruments and scales. */
+.pionier-menu-picker { position:relative; min-width:0; width:100%; }
+.pionier-menu-trigger {
+ box-sizing:border-box; display:flex; align-items:center; justify-content:space-between; gap:12px;
+ width:100%; min-height:42px; padding:10px 13px; text-align:left; color:#eee9dd;
+ background:rgba(19,19,22,.78); border:1px solid rgba(219,184,91,.28); border-radius:12px;
+ font:inherit; font-size:13px; cursor:pointer; transition:border-color .18s ease,background .18s ease;
+}
+.pionier-menu-trigger:hover,.pionier-menu-trigger[aria-expanded="true"] { border-color:rgba(219,184,91,.58); background:rgba(30,28,23,.84); }
+.pionier-menu-list {
+ position:absolute; left:0; right:0; top:calc(100% + 7px); z-index:7000; box-sizing:border-box;
+ max-height:min(52dvh,360px); overflow-y:auto; overscroll-behavior:contain; padding:6px;
+ border:1px solid rgba(226,195,117,.24); border-radius:14px;
+ background:rgba(16,16,19,.88); color:#e9e2d4;
+ box-shadow:0 20px 60px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.055);
+ -webkit-backdrop-filter:blur(28px) saturate(140%); backdrop-filter:blur(28px) saturate(140%);
+ scrollbar-width:thin; scrollbar-color:rgba(219,184,91,.45) transparent;
+ transform-origin:top center;
+}
+.pionier-menu-list[hidden] { display:none !important; }
+.pionier-menu-picker.is-open .pionier-menu-list { animation:pionier-menu-spring .38s cubic-bezier(.2,.85,.25,1.2) both; }
+.pionier-menu-option {
+ display:flex; align-items:center; justify-content:space-between; gap:12px; box-sizing:border-box;
+ width:100%; min-height:42px; padding:10px 12px; margin:1px 0; border:1px solid transparent;
+ border-radius:10px; background:transparent; color:rgba(236,230,218,.76); text-align:left;
+ font:inherit; font-size:13px; cursor:pointer;
+ transition:background .16s ease,color .16s ease,border-color .16s ease,transform .22s cubic-bezier(.2,.85,.25,1.2);
+}
+.pionier-menu-option:hover,.pionier-menu-option:focus-visible { outline:none; color:#f4ecd9; background:rgba(219,184,91,.09); border-color:rgba(219,184,91,.16); }
+.pionier-menu-option:active { transform:scale(.987); }
+.pionier-menu-option.is-active,.pionier-menu-option[aria-selected="true"] { color:#f5d781; background:rgba(217,184,94,.13); border-color:rgba(217,184,94,.2); }
+.pionier-menu-check { flex:0 0 auto; color:#e5c36c; font-size:14px; font-weight:700; opacity:0; transform:scale(.7); transition:opacity .16s ease,transform .2s cubic-bezier(.2,.85,.25,1.2); }
+.pionier-menu-option.is-active .pionier-menu-check,.pionier-menu-option[aria-selected="true"] .pionier-menu-check { opacity:1; transform:scale(1); }
+@keyframes pionier-menu-spring { 0%{opacity:0;transform:translateY(-9px) scale(.975)} 68%{opacity:1;transform:translateY(2px) scale(1.006)} 86%{transform:translateY(-1px) scale(.998)} 100%{opacity:1;transform:translateY(0) scale(1)} }
+.scale-menu .scale-menu-item,.instrument-menu .instrument-menu-item { position:relative; }
+.scale-menu .scale-menu-item.is-active::after,.instrument-menu .instrument-menu-item.is-active::after { content:'✓'; float:right; margin-left:12px; color:#e5c36c; font-weight:700; }
+@media(prefers-reduced-motion:reduce) { .pionier-menu-picker.is-open .pionier-menu-list { animation:none; } }
