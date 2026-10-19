@@ -817,7 +817,7 @@ export function mountLooper({ root } = {}) {
     };
     const onKey = (ev) => { if (ev.key === 'Escape') { closeSheet(); document.removeEventListener('pointerdown', onDoc, true); document.removeEventListener('keydown', onKey); } };
     setTimeout(() => document.addEventListener('pointerdown', onDoc, true), 0);
-    document.addEventListener('keydown', onKey, { once: true });
+    document.addEventListener('keydown', onKey);
   }
 
   function confirmDeleteLayer(index) {
