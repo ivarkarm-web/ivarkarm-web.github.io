@@ -1115,7 +1115,7 @@ export function mountLooper({ root } = {}) {
     menu.style.left = Math.max(12, Math.min(rect.left + rect.width / 2 - width / 2, window.innerWidth - width - 12)) + 'px';
     menu.style.top = 'auto';
     menu.style.bottom = Math.max(12, window.innerHeight - rect.top + 8) + 'px';
-    menu.style.maxHeight = Math.min(420, window.innerHeight - rect.top - 20) + 'px';
+    menu.style.maxHeight = Math.max(120, Math.min(420, rect.top - 20)) + 'px';
     menu.querySelector('button,select,input')?.focus({preventScroll:true});
     requestAnimationFrame(() => menu.classList.add('is-open'));
   }
