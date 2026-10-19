@@ -116,61 +116,22 @@
   function placePicker(menu, toggle) {
     if (!menu || !toggle) return;
     if (menu.parentElement !== document.body) document.body.appendChild(menu);
-    // Clear the previous close-state's important display:none before reopening.
     menu.style.removeProperty('display');
-    const rect = toggle.getBoundingClientRect();
-    const margin = 12;
-    const gap = 8;
-    const viewportW = document.documentElement.clientWidth;
-    const viewportH = window.visualViewport?.height || window.innerHeight;
-    const width = Math.min(Math.max(rect.width, 248), viewportW - margin * 2, 320);
-    const left = Math.max(margin, Math.min(rect.left + rect.width / 2 - width / 2, viewportW - width - margin));
-    const below = viewportH - rect.bottom - margin - gap;
-    const above = rect.top - margin - gap;
-    const openAbove = below < 210 && above > below;
-    const available = Math.max(150, (openAbove ? above : below));
+    const rect=toggle.getBoundingClientRect(), margin=12, gap=8;
+    const vw=document.documentElement.clientWidth, vh=window.visualViewport?.height||window.innerHeight;
+    const width=Math.min(Math.max(rect.width,248),vw-margin*2,320);
+    const left=Math.max(margin,Math.min(rect.left+rect.width/2-width/2,vw-width-margin));
+    const below=vh-rect.bottom-margin-gap, above=rect.top-margin-gap, up=below<210&&above>below;
+    const maxHeight=Math.min(Math.max(150,up?above:below),vh*.48,320);
     menu.classList.remove('picker-sheet');
-    menu.classList.add('picker-popover', 'is-open');
-    menu.hidden = false;
-    menu.removeAttribute('hidden');
-    Object.assign(menu.style, {
-      position: 'fixed',
-      zIndex: '5200',
-      visibility: 'visible',
-      opacity: '1',
-      pointerEvents: 'auto',
-      left: left + 'px',
-      right: 'auto',
-      top: (openAbove ? Math.max(margin, rect.top - Math.min(available, Math.min(viewportH * .48, 320)) - gap) : rect.bottom + gap) + 'px',
-      bottom: 'auto',
-      width: width + 'px',
-      maxWidth: 'calc(100vw - 24px)',
-      maxHeight: Math.min(available, Math.min(viewportH * .48, 320)) + 'px',
-      transform: 'none',
-      borderRadius: '16px',
-      overflow: 'hidden',
-      display: 'flex',
-      flexDirection: 'column',
-      background: isLightTheme() ? 'rgba(250,248,244,.94)' : 'rgba(16,16,19,.88)',
-      backgroundColor: isLightTheme() ? 'rgba(250,248,244,.94)' : 'rgba(16,16,19,.88)',
-      color: isLightTheme() ? '#24221e' : '#e6e0d2',
-      borderColor: isLightTheme() ? 'rgba(52,44,28,.16)' : 'rgba(226,195,117,.24)',
-      boxShadow: '0 24px 80px rgba(0,0,0,.52), inset 0 1px 0 rgba(255,255,255,.06)',
-      webkitBackdropFilter: 'blur(28px) saturate(140%)',
-      backdropFilter: 'blur(28px) saturate(140%)',
-    });
-    const results = menu.querySelector('.picker-results');
-    if (results) {
-      Object.assign(results.style, {
-        flex: '1 1 auto',
-        minHeight: '0',
-        overflowY: 'auto',
-        overflowX: 'hidden',
-        maxHeight: 'inherit',
-        overscrollBehavior: 'contain',
-        webkitOverflowScrolling: 'touch',
-      });
-    }
+    menu.classList.add('picker-popover','looper-bubble-menu','is-open');
+    menu.hidden=false;menu.removeAttribute('hidden');
+    Object.assign(menu.style,{position:'fixed',zIndex:'7200',visibility:'visible',opacity:'1',pointerEvents:'auto',
+      left:left+'px',right:'auto',top:(up?Math.max(margin,rect.top-maxHeight-gap):rect.bottom+gap)+'px',bottom:'auto',
+      width:width+'px',maxWidth:'calc(100vw - 24px)',maxHeight:maxHeight+'px',display:'flex',flexDirection:'column',overflow:'hidden'});
+    const results=menu.querySelector('.picker-results');
+    if(results)Object.assign(results.style,{flex:'1 1 auto',minHeight:'0',minWidth:'0',overflowY:'auto',overflowX:'hidden',
+      maxHeight:'inherit',overscrollBehaviorY:'auto',webkitOverflowScrolling:'touch'});
   }
 
   // Give the floating picker the same tactile overscroll as the looper's settings bubble.
