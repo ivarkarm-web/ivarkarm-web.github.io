@@ -1,4 +1,4 @@
-pionier-v25
-2026-10-16
-shell: overlay v6, core v32, app v179, scales v3
-audits: instrument groups, iOS unlock, SW network-first versioned, menu a11y
+pionier-v26
+2026-10-19
+shell: native selectors, FX editor stylesheet, overlay cleanup
+cache: pionier-v81
