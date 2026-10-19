@@ -217,6 +217,18 @@
       try { window.__pionierRenderInstrumentMenu(); } catch (_) {}
     }
     document.dispatchEvent(new CustomEvent('pionier:picker-open', { detail: { id: menuId } }));
+    // Use a compact close affordance in the same animated glass menu, rather than
+    // forcing people to tap the dimmed backdrop to dismiss a long picker.
+    let closeButton = menu.querySelector(':scope > .picker-close');
+    if (!closeButton) {
+      closeButton = document.createElement('button');
+      closeButton.type = 'button';
+      closeButton.className = 'picker-close';
+      closeButton.setAttribute('aria-label', 'Close selector');
+      closeButton.textContent = '×';
+      closeButton.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); closePickers(); });
+      menu.prepend(closeButton);
+    }
     const bd = ensureBackdrop();
     bd.hidden = false;
     bd.removeAttribute('hidden');
