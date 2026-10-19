@@ -1,7 +1,7 @@
 /**
  * overlay-controller.js — one open overlay at a time.
  * Owns: instrument menu, scale menu, FX panel, Settings sheet, Soundscapes.
- * Mechanism: [hidden] + optional .is-open class; clears inline layout styles on close.
+ * Instrument and scale share one animated glass scroll-menu shell.
  */
 (function overlayController() {
   const PICKER_IDS = ['instrumentMenu', 'scaleMenu'];
@@ -131,13 +131,13 @@
     menu.style.pointerEvents = 'auto';
     menu.style.left = 'max(8px, env(safe-area-inset-left))';
     menu.style.right = 'max(8px, env(safe-area-inset-right))';
-    menu.style.top = 'max(8px, env(safe-area-inset-top))';
-    menu.style.bottom = 'max(8px, env(safe-area-inset-bottom))';
+    menu.style.top = 'max(10px, env(safe-area-inset-top))';
+    menu.style.bottom = 'max(10px, env(safe-area-inset-bottom))';
     menu.style.width = 'auto';
     menu.style.maxWidth = 'none';
     menu.style.maxHeight = 'none';
     menu.style.transform = 'none';
-    menu.style.borderRadius = '18px';
+    menu.style.borderRadius = '20px';
     menu.style.overflow = 'hidden';
     menu.style.flexDirection = 'column';
     menu.style.background = isLightTheme() ? 'rgba(250,248,244,.97)' : 'rgba(16,16,19,.94)';
@@ -148,15 +148,8 @@
     menu.style.webkitOverflowScrolling = 'touch';
     menu.style.overscrollBehavior = 'contain';
 
-    // The search field stays at the top; only the results list scrolls.
-    const search = menu.querySelector('.picker-search');
+    // One universal scroll region; no legacy search input or competing scroll container.
     const results = menu.querySelector('.picker-results');
-    if (search) {
-      search.style.position = 'relative';
-      search.style.flex = '0 0 auto';
-      search.style.width = '100%';
-      search.style.boxSizing = 'border-box';
-    }
     if (results) {
       results.style.flex = '1 1 auto';
       results.style.minHeight = '0';
@@ -223,10 +216,9 @@
     bd.removeAttribute('hidden');
     // Focus active item if present, else first menuitem
     requestAnimationFrame(() => {
-      const search = menu.querySelector('.picker-search');
       const active = menu.querySelector('[role="menuitem"].is-active, [aria-current="true"]');
-      const first = menu.querySelector('[role="menuitem"], button.scale-menu-item, .picker-search, button:not(.picker-close)');
-      (active || first || search)?.focus?.({ preventScroll: true });
+      const first = menu.querySelector('[role="menuitem"], button.scale-menu-item, button:not(.picker-close)');
+      (active || first)?.focus?.({ preventScroll: true });
     });
   }
 
