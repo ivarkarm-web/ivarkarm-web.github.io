@@ -262,26 +262,24 @@ if (page && audio) {
 
   function showSoundscapes(show) {
     if (show) {
+      // Soundscapes is a floating sheet over the instrument, not a route/page.
       page.hidden = false;
+      page.removeAttribute('hidden');
       page.classList.add('is-active');
       page.setAttribute('aria-hidden', 'false');
-      app?.classList.add('soundscapes-away');
-      document.body.classList.add('soundscapes-active');
-      // Hide instrument chrome while panel is open
-      const bar = document.getElementById('stageScaleBar');
-      if (bar) bar.style.visibility = 'hidden';
-      const dock = document.getElementById('pionierTopDock');
-      if (dock) dock.style.visibility = 'hidden';
+      requestAnimationFrame(() => {
+        if (!page.hidden && page.classList.contains('is-active')) page.classList.add('is-open');
+      });
     } else {
-      page.hidden = true;
+      page.classList.remove('is-open', 'is-active');
       page.setAttribute('aria-hidden', 'true');
-      page.classList.remove('is-active');
-      app?.classList.remove('soundscapes-away');
-      document.body.classList.remove('soundscapes-active');
-      const bar = document.getElementById('stageScaleBar');
-      if (bar) bar.style.visibility = '';
-      const dock = document.getElementById('pionierTopDock');
-      if (dock) dock.style.visibility = '';
+      // Let the same soft spring-out finish before hiding the sheet.
+      window.setTimeout(() => {
+        if (!page.classList.contains('is-open') && !page.classList.contains('is-active')) {
+          page.hidden = true;
+          page.setAttribute('hidden', '');
+        }
+      }, 220);
     }
   }
 
