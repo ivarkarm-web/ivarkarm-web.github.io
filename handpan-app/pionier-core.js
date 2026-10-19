@@ -447,6 +447,18 @@ function wireKnobs() {
     let dragging = false;
     let startY = 0;
     let startVal = 0;
+    if (m.fxId) {
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('aria-label', `${m.fxId} effect knob. Double-click to open detailed editor.`);
+      el.addEventListener('dblclick', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        window.dispatchEvent(new CustomEvent('pionier:fx-editor-open', { detail: { id: m.fxId } }));
+      });
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.altKey) { e.preventDefault(); window.dispatchEvent(new CustomEvent('pionier:fx-editor-open', { detail: { id: m.fxId } })); }
+      });
+    }
     el.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       dragging = true;
@@ -759,6 +771,9 @@ window.PionierCore = {
   setInstrument: (id) => setInstrument(id),
   ensureAudio: () => ensureAudio(),
   paintFxKnobs: () => { ensureAudio(); wireKnobs(); paintAllKnobs(); },
+  getFxModule: (id) => app.fxChain?.modules?.find((m) => m.id === id) || null,
+  getAudioContext: () => getAudioContext(),
+  refreshFxKnobs: () => paintAllKnobs(),
   getInstrumentBus: () => {
     if (!app.instrumentBus) ensureAudio();
     return app.instrumentBus;
