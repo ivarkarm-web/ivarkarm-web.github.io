@@ -507,3 +507,68 @@ html.theme-light .instrument-menu.picker-popover:not([hidden]), html.theme-light
   width:0 !important;
   height:0 !important;
 }
+
+
+/* AUTHORITATIVE shared looper-bubble menu skin. Keep this last: older picker rules above
+   intentionally remain for layout, but must not restyle these option buttons. */
+.scale-menu.picker-popover.looper-bubble-menu,
+.instrument-menu.picker-popover.looper-bubble-menu {
+  box-sizing:border-box!important;
+  padding:12px!important;
+  border:1px solid rgba(226,195,117,.24)!important;
+  border-radius:16px!important;
+  background:rgba(16,16,19,.88)!important;
+  color:#eee9dd!important;
+  box-shadow:0 20px 60px rgba(0,0,0,.46),inset 0 1px 0 rgba(255,255,255,.035)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(125%)!important;
+  backdrop-filter:blur(24px) saturate(125%)!important;
+}
+.scale-menu.picker-popover.looper-bubble-menu .picker-results,
+.instrument-menu.picker-popover.looper-bubble-menu .picker-results {
+  display:block!important; flex:1 1 auto!important; min-height:0!important;
+  overflow-x:hidden!important; overflow-y:auto!important; padding:2px!important;
+  overscroll-behavior:contain!important; -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:none!important; -ms-overflow-style:none!important;
+}
+.scale-menu.picker-popover.looper-bubble-menu .scale-menu-item,
+.instrument-menu.picker-popover.looper-bubble-menu .instrument-menu-item {
+  display:block!important; box-sizing:border-box!important; width:100%!important;
+  min-height:34px!important; padding:7px 8px!important; margin:1px 0!important;
+  border:1px solid rgba(230,224,210,.1)!important; border-radius:9px!important;
+  background:rgba(255,255,255,.035)!important;
+  box-shadow:none!important; color:rgba(236,230,217,.78)!important;
+  font:500 11px/1.2 Inter,system-ui,sans-serif!important; text-align:left!important;
+  transition:background .15s ease,border-color .15s ease,color .15s ease!important;
+}
+.scale-menu.picker-popover.looper-bubble-menu .scale-menu-item:hover,
+.instrument-menu.picker-popover.looper-bubble-menu .instrument-menu-item:hover,
+.scale-menu.picker-popover.looper-bubble-menu .scale-menu-item.is-active,
+.instrument-menu.picker-popover.looper-bubble-menu .instrument-menu-item.is-active {
+  color:#f6dfa0!important; border-color:rgba(219,184,91,.52)!important;
+  background:rgba(219,184,91,.12)!important; box-shadow:none!important;
+}
+.scale-menu.picker-popover.looper-bubble-menu .scale-menu-item.is-active::after,
+.instrument-menu.picker-popover.looper-bubble-menu .instrument-menu-item.is-active::after {display:none!important;content:none!important}
+.scale-menu.picker-popover.looper-bubble-menu .scale-menu-group,
+.instrument-menu.picker-popover.looper-bubble-menu .instrument-menu-group {
+  padding:10px 0 6px!important; color:rgba(235,228,211,.62)!important;
+  font:700 9px/1.2 Inter,system-ui,sans-serif!important; letter-spacing:.12em!important;
+}
+.scale-menu.picker-popover.looper-bubble-menu .picker-search,
+.instrument-menu.picker-popover.looper-bubble-menu .picker-search {
+  border:1px solid rgba(230,224,210,.1)!important; border-radius:9px!important;
+  background:rgba(255,255,255,.035)!important; color:#eee9dd!important;
+}
+.scale-menu.picker-popover.looper-bubble-menu .picker-close,
+.instrument-menu.picker-popover.looper-bubble-menu .picker-close {
+  border:1px solid rgba(255,255,255,.13)!important; border-radius:50%!important;
+  background:rgba(255,255,255,.06)!important; color:rgba(246,239,222,.86)!important;
+}
+.scale-menu.picker-popover.looper-bubble-menu.is-open,
+.instrument-menu.picker-popover.looper-bubble-menu.is-open {
+  animation:looper-picker-bubble-spring .38s cubic-bezier(.2,.85,.25,1.22) both!important;
+}
+@media(prefers-reduced-motion:reduce) {
+ .scale-menu.picker-popover.looper-bubble-menu.is-open,
+ .instrument-menu.picker-popover.looper-bubble-menu.is-open {animation:none!important}
+}
