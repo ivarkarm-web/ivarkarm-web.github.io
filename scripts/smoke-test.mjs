@@ -88,7 +88,7 @@ if (loopControls.includes('looper-crop-editor') && loopControls.includes('crop-s
 else fail('Loop crop editor wiring is incomplete');
 if (/function confirmDeleteLayer/.test(loopControls) && /Delete track/.test(loopControls) && /confirmDeleteLayer\(i\)/.test(loopControls)) ok('Holding a loop opens a delete confirmation; deletion requires a confirm tap');
 else fail('Loop hold-to-delete confirmation wiring is incomplete');
-if (/\.looper-track-overlay/.test(loopStyles) && /looper\.css\?v=210/.test(appHtml) && /js\/looper\.js\?v=213/.test(shell) && /pionier-v80/.test(serviceWorker)) ok('Loop mixer styles and service-worker cache versions are refreshed');
+if (/\.looper-track-overlay/.test(loopStyles) && /looper\.css\?v=211/.test(appHtml) && /js\/looper\.js\?v=214/.test(shell) && /pionier-v80/.test(serviceWorker)) ok('Loop mixer styles and service-worker cache versions are refreshed');
 else fail('Loop mixer cache versions are stale');
 
 const scaleSelector = read('handpan-app/js/scale-selector.js');
