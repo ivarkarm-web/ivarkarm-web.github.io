@@ -168,31 +168,68 @@ function drawCurve(){
  const s=graphState(),hx=px(s.x),hy=py(s.y);g.beginPath();g.arc(hx,hy,9,0,Math.PI*2);g.fillStyle='rgba(217,184,94,.2)';g.fill();g.beginPath();g.arc(hx,hy,4.5,0,Math.PI*2);g.fillStyle='#f5d781';g.fill();
 }
 function renderPresets(){
- const host=$('fxEditorPresets');
- host.replaceChildren();
+ const host=$('fxEditorPresets');host.replaceChildren();
  const presets=DEFS[activeId].presets;
  const chosen=presets.find(p=>p.id===activeModule._presetId)||presets.find(p=>p.engineType===activeModule.type)||presets[0];
- const select=document.createElement('select');
- select.className='pionier-select fx-editor-preset-select';
- select.setAttribute('aria-label',DEFS[activeId].title+' presets');
- presets.forEach(p=>{
-  const option=document.createElement('option');
-  option.value=p.id;option.textContent=p.label;
-  select.appendChild(option);
- });
- select.value=chosen.id;
+ const picker=document.createElement('div');picker.className='pionier-menu-picker fx-preset-picker';
+ const trigger=document.createElement('button');trigger.type='button';trigger.className='pionier-menu-trigger fx-editor-preset-select';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');trigger.textContent=chosen.label+'  ▾';
+ const list=document.createElement('div');list.className='pionier-menu-list fx-preset-list';list.setAttribute('role','listbox');list.setAttribute('aria-label',DEFS[activeId].title+' presets');list.hidden=true;
+ let outsideHandler=null;
+ const close=()=>{list.hidden=true;trigger.setAttribute('aria-expanded','false');picker.classList.remove('is-open','looper-bubble-menu');picker.style.transform='translate3d(0,0,0) scale(1)';if(outsideHandler){document.removeEventListener('pointerdown',outsideHandler);outsideHandler=null;}};
  const applyPreset=p=>{
   if(!p)return;
   activeModule._presetId=p.id;activeModule.type=p.engineType;Object.assign(activeModule.settings,p.v);
   if(p.amount!==undefined)activeModule.setValue(p.amount,audio());
   if(activeId==='filter')activeModule.setValue(filterValue(p.v.frequency,p.engineType),audio());
   else activeModule._apply?.(audio());
-  select.value=p.id;drawKnobs();drawCurve();$('fxEditorStatus').textContent=p.label;
+  trigger.firstChild.textContent=p.label+'  ▾';
+  list.querySelectorAll('.pionier-menu-option').forEach(option=>{
+   const selected=option.dataset.presetId===p.id;
+   option.classList.toggle('is-active',selected);option.setAttribute('aria-selected',String(selected));
+  });
+  close();drawKnobs();drawCurve();$('fxEditorStatus').textContent=p.label;
  };
- select.addEventListener('change',()=>applyPreset(presets.find(p=>p.id===select.value)));
- host.appendChild(select);
+ presets.forEach(p=>{
+  const option=document.createElement('button');option.type='button';option.className='pionier-menu-option fx-preset-option'+(p.id===chosen.id?' is-active':'');option.dataset.presetId=p.id;option.setAttribute('role','option');option.setAttribute('aria-selected',String(p.id===chosen.id));
+  const label=document.createElement('span');label.className='pionier-menu-option-label';label.textContent=p.label;
+  const check=document.createElement('span');check.className='pionier-menu-check';check.setAttribute('aria-hidden','true');check.textContent='✓';
+  option.append(label,check);option.addEventListener('click',()=>applyPreset(p));list.appendChild(option);
+ });
+ trigger.addEventListener('click',()=>{
+  const opening=list.hidden;list.hidden=!opening;trigger.setAttribute('aria-expanded',String(opening));picker.classList.toggle('is-open',opening);picker.classList.toggle('looper-bubble-menu',opening);
+  if(opening){
+   outsideHandler=e=>{if(!picker.contains(e.target))close();};
+   document.addEventListener('pointerdown',outsideHandler);
+   const active=list.querySelector('.is-active')||list.querySelector('.pionier-menu-option');
+   requestAnimationFrame(()=>active?.focus({preventScroll:true}));
+  } else close();
+ });
+ trigger.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='Enter'||e.key===' '){e.preventDefault();if(list.hidden){list.hidden=false;trigger.setAttribute('aria-expanded','true');picker.classList.add('is-open','looper-bubble-menu');outsideHandler=e=>{if(!picker.contains(e.target))close();};document.addEventListener('pointerdown',outsideHandler);requestAnimationFrame(()=>list.querySelector('.is-active')?.focus());}}});
+ list.addEventListener('keydown',e=>{
+  const options=[...list.querySelectorAll('.pionier-menu-option')];const i=options.indexOf(document.activeElement);
+  if(e.key==='Escape'){e.preventDefault();close();trigger.focus();}
+  else if(e.key==='ArrowDown'){e.preventDefault();options[(i+1+options.length)%options.length]?.focus();}
+  else if(e.key==='ArrowUp'){e.preventDefault();options[(i-1+options.length)%options.length]?.focus();}
+  else if(e.key==='Home'){e.preventDefault();options[0]?.focus();}
+  else if(e.key==='End'){e.preventDefault();options.at(-1)?.focus();}
+ });
+ // Native touch scrolling stays inside the preset bubble; pull past either edge for a soft spring.
+ const resetPresetBounce=()=>{picker.style.transition='transform 260ms cubic-bezier(.2,.85,.25,1.2)';picker.style.transform='translate3d(0,0,0) scale(1)';};
+ let presetTouchY=0;
+ list.addEventListener('touchstart',e=>{if(!e.touches.length)return;presetTouchY=e.touches[0].clientY;picker.style.transition='none';},{passive:true});
+ list.addEventListener('touchmove',e=>{
+  if(!e.touches.length)return;
+  const delta=e.touches[0].clientY-presetTouchY;
+  const atTop=list.scrollTop<=0,atBottom=list.scrollTop+list.clientHeight>=list.scrollHeight-1;
+  if((atTop&&delta>0)||(atBottom&&delta<0)){
+   const pull=Math.sign(delta)*Math.min(10,Math.abs(delta)*.18);
+   picker.style.transform='translate3d(0,'+pull+'px,0) scale(.997)';
+  }
+ },{passive:true});
+ list.addEventListener('touchend',resetPresetBounce,{passive:true});
+ list.addEventListener('touchcancel',resetPresetBounce,{passive:true});
+ picker.append(trigger,list);host.appendChild(picker);
 }
-
 function openEditor(id){
  const def=DEFS[id],m=window.PionierCore?.getFxModule?.(id);if(!def||!m||!dialog||!backdrop)return;
  activeId=id;activeModule=m;ensureSettings(id,m);lastFocus=document.activeElement;
