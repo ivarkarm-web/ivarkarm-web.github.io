@@ -8,34 +8,64 @@ const curve = $('fxEditorCurve');
 const g = curve && curve.getContext('2d');
 let activeId = null, activeModule = null, lastFocus = null, draggingCurve = false;
 const DEFS = {
- compressor:{title:'Compressor',subtitle:'Control dynamics, punch and glue.',x:'Input level (dB)',y:'Output level (dB)',presets:[
- {id:'soft',label:'Soft',v:{threshold:-18,ratio:2.2,knee:24,attack:.012,release:.28}},
- {id:'punch',label:'Punch',v:{threshold:-14,ratio:4,knee:8,attack:.002,release:.12}},
- {id:'glue',label:'Glue',v:{threshold:-20,ratio:3.2,knee:16,attack:.02,release:.35}},
- {id:'limit',label:'Limit',v:{threshold:-8,ratio:12,knee:2,attack:.001,release:.08}}],
+ compressor:{title:'Compressor',presets:[
+ {id:'vocal-glue',label:'Vocal Glue',engineType:'glue',v:{threshold:-20,ratio:2,attack:.02,release:.12,knee:24}},
+ {id:'punchy-drums',label:'Punchy Drums',engineType:'punch',v:{threshold:-14,ratio:4,attack:.02,release:.12,knee:8}},
+ {id:'parallel-crush',label:'Parallel Crush',engineType:'limit',v:{threshold:-24,ratio:10,attack:.001,release:.08,knee:2},amount:.22},
+ {id:'bass-tightener',label:'Bass Tightener',engineType:'glue',v:{threshold:-18,ratio:4,attack:.01,release:.4,knee:10}},
+ {id:'acoustic-strummer',label:'Acoustic Strummer',engineType:'soft',v:{threshold:-16,ratio:3,attack:.002,release:.22,knee:14}},
+ {id:'mastering-limiter',label:'Mastering Limiter',engineType:'limit',v:{threshold:-8,ratio:20,attack:.001,release:.08,knee:0}},
+ {id:'snare-smasher',label:'Snare Smasher',engineType:'punch',v:{threshold:-18,ratio:6,attack:.01,release:.1,knee:5}},
+ {id:'sustain-builder',label:'Sustain Builder',engineType:'glue',v:{threshold:-22,ratio:4,attack:.002,release:.4,knee:6}},
+ {id:'sidechain-duck',label:'Sidechain Duck',engineType:'punch',v:{threshold:-24,ratio:5,attack:.002,release:.22,knee:4}},
+ {id:'subtle-leveler',label:'Subtle Leveler',engineType:'soft',v:{threshold:-18,ratio:1.5,attack:.02,release:.4,knee:24}}],
  knobs:[
  {key:'value',label:'Amount',min:0,max:1,step:.01,fmt:v=>Math.round(v*100)+'%',get:m=>m.value,set:(m,v,c)=>m.setValue(v,c)},
  {key:'threshold',label:'Threshold',min:-36,max:-6,step:1,fmt:v=>Math.round(v)+' dB',get:m=>m.settings.threshold??-18},
- {key:'ratio',label:'Ratio',min:1,max:12,step:.1,fmt:v=>Number(v).toFixed(1)+':1',get:m=>m.settings.ratio??2.2}]},
- delay:{title:'Delay',subtitle:'Tune echo timing, feedback and space.',x:'Delay time',y:'Feedback',presets:[
- {id:'echo',label:'Echo',v:{time:.34,feedback:.38}},{id:'slap',label:'Slap',v:{time:.085,feedback:.12}},
- {id:'ping',label:'Ping-pong',v:{time:.42,feedback:.54}},{id:'ambient',label:'Ambient',v:{time:.58,feedback:.42}}],
+ {key:'ratio',label:'Ratio',min:1,max:20,step:.1,fmt:v=>Number(v).toFixed(1)+':1',get:m=>m.settings.ratio??2.2}]},
+ delay:{title:'Delay',presets:[
+ {id:'slapback-echo',label:'Slapback Echo',engineType:'slap',v:{time:.11,feedback:.08}},
+ {id:'dotted-eighth',label:'Dotted Eighth',engineType:'ping',v:{time:.375,feedback:.38}},
+ {id:'tape-saturation',label:'Tape Saturation',engineType:'echo',v:{time:.5,feedback:.38}},
+ {id:'ping-pong',label:'Ping-Pong',engineType:'ping',v:{time:.25,feedback:.58}},
+ {id:'stereo-widener',label:'Stereo Widener',engineType:'slap',v:{time:.025,feedback:0}},
+ {id:'ambient-wash',label:'Ambient Wash',engineType:'ambient',v:{time:.72,feedback:.72}},
+ {id:'modulated-echo',label:'Modulated Echo',engineType:'echo',v:{time:.5,feedback:.22}},
+ {id:'dub-echo',label:'Dub Echo',engineType:'ping',v:{time:.75,feedback:.7}},
+ {id:'quarter-note-lead',label:'Quarter Note Lead',engineType:'echo',v:{time:.5,feedback:.28}},
+ {id:'trippy-reverse',label:'Trippy Reverse',engineType:'ambient',v:{time:.72,feedback:.48}}],
  knobs:[
  {key:'value',label:'Mix',min:0,max:1,step:.01,fmt:v=>Math.round(v*100)+'%',get:m=>m.value,set:(m,v,c)=>m.setValue(v,c)},
- {key:'time',label:'Time',min:.04,max:.72,step:.005,fmt:v=>Math.round(v*1000)+' ms',get:m=>m.settings.time??.34},
- {key:'feedback',label:'Feedback',min:.05,max:.75,step:.01,fmt:v=>Math.round(v*100)+'%',get:m=>m.settings.feedback??.38}]},
- reverb:{title:'Reverb',subtitle:'Shape the tail from intimate room to vast space.',x:'Decay length',y:'Brightness',presets:[
- {id:'room',label:'Room',v:{decay:1,tone:1}},{id:'hall',label:'Hall',v:{decay:1,tone:.86}},
- {id:'plate',label:'Plate',v:{decay:1,tone:1.45}},{id:'cave',label:'Cave',v:{decay:1,tone:.62}}],
+ {key:'time',label:'Time',min:.015,max:1.2,step:.005,fmt:v=>Math.round(v*1000)+' ms',get:m=>m.settings.time??.34},
+ {key:'feedback',label:'Feedback',min:0,max:.78,step:.01,fmt:v=>Math.round(v*100)+'%',get:m=>m.settings.feedback??.38}]},
+ reverb:{title:'Reverb',presets:[
+ {id:'studio-room',label:'Studio Room',engineType:'room',v:{decay:.6,tone:1.2},amount:.18},
+ {id:'vocal-plate',label:'Vocal Plate',engineType:'plate',v:{decay:1.8,tone:1.35}},
+ {id:'cathedral-hall',label:'Cathedral Hall',engineType:'hall',v:{decay:3,tone:.65},amount:.42},
+ {id:'spring-tank',label:'Spring Tank',engineType:'plate',v:{decay:.8,tone:1.45}},
+ {id:'gated-snare',label:'Gated Snare',engineType:'room',v:{decay:.8,tone:1.1},amount:.25},
+ {id:'shimmer-pad',label:'Shimmer Pad',engineType:'cave',v:{decay:3,tone:1.6},amount:.45},
+ {id:'ambiance-glue',label:'Ambiance / Glue',engineType:'room',v:{decay:.6,tone:1},amount:.12},
+ {id:'concert-hall',label:'Concert Hall',engineType:'hall',v:{decay:2.2,tone:1}},
+ {id:'tiled-bathroom',label:'Tiled Bathroom',engineType:'plate',v:{decay:1,tone:1.6}},
+ {id:'deep-abyss',label:'Deep Abyss',engineType:'cave',v:{decay:3,tone:.4},amount:.48}],
  knobs:[
  {key:'value',label:'Mix',min:0,max:1,step:.01,fmt:v=>Math.round(v*100)+'%',get:m=>m.value,set:(m,v,c)=>m.setValue(v,c)},
- {key:'decay',label:'Decay',min:.6,max:3,step:.05,fmt:v=>Number(v).toFixed(2)+'×',get:m=>m.settings.decay??1},
+ {key:'decay',label:'Decay',min:.3,max:3,step:.05,fmt:v=>Number(v).toFixed(2)+'×',get:m=>m.settings.decay??1},
  {key:'tone',label:'Tone',min:.4,max:1.6,step:.05,fmt:v=>Math.round(v*100)+'%',get:m=>m.settings.tone??1}]},
- filter:{title:'Filter',subtitle:'Sweep the spectrum and sculpt resonance.',x:'Frequency (Hz)',y:'Resonance (Q)',presets:[
- {id:'lowpass',label:'Low-pass',v:{frequency:4200,resonance:1.1}},{id:'highpass',label:'High-pass',v:{frequency:160,resonance:1.2}},
- {id:'band',label:'Band-pass',v:{frequency:1200,resonance:2.5}},{id:'notch',label:'Notch',v:{frequency:900,resonance:5}}],
+ filter:{title:'Filter',presets:[
+ {id:'telephone-lofi',label:'Telephone / Lo-Fi',engineType:'band',v:{frequency:1200,resonance:1.4}},
+ {id:'sub-bass-cut',label:'Sub Bass Cut',engineType:'highpass',v:{frequency:40,resonance:.7}},
+ {id:'hf-brilliance',label:'HF Brilliance',engineType:'lowpass',v:{frequency:16000,resonance:.6}},
+ {id:'club-next-door',label:'Club Next Door',engineType:'lowpass',v:{frequency:250,resonance:.7}},
+ {id:'auto-wah',label:'Auto-Wah / Envelope',engineType:'band',v:{frequency:900,resonance:8}},
+ {id:'sweeping-lfo-lpf',label:'Sweeping LFO LPF',engineType:'lowpass',v:{frequency:1800,resonance:2.5}},
+ {id:'phaser-sweep',label:'Phaser Sweep',engineType:'notch',v:{frequency:1200,resonance:8}},
+ {id:'vocal-formant',label:'Vocal Formant',engineType:'band',v:{frequency:700,resonance:5}},
+ {id:'crisp-vinyl',label:'Crisp Vinyl',engineType:'highpass',v:{frequency:150,resonance:.7}},
+ {id:'kill-switch',label:'The Kill Switch',engineType:'lowpass',v:{frequency:220,resonance:.5}}],
  knobs:[
- {key:'cutoff',label:'Cutoff',min:80,max:16220,step:1,fmt:v=>v>=1000?(v/1000).toFixed(1)+' kHz':Math.round(v)+' Hz',get:m=>filterFrequency(m),set:(m,v,c)=>m.setValue(filterValue(v,m.type),c)},
+ {key:'cutoff',label:'Cutoff',min:40,max:16220,step:1,fmt:v=>v>=1000?(v/1000).toFixed(1)+' kHz':Math.round(v)+' Hz',get:m=>filterFrequency(m),set:(m,v,c)=>m.setValue(filterValue(v,m.type),c)},
  {key:'resonance',label:'Resonance',min:.5,max:12,step:.1,fmt:v=>'Q '+Number(v).toFixed(1),get:m=>m.settings.resonance??1.1}]}
 };
 const DEFAULTS = {
@@ -88,7 +118,7 @@ function drawKnobs(){
  if(!activeModule)return;const host=$('fxEditorKnobs');host.replaceChildren();
  DEFS[activeId].knobs.forEach(def=>{
   const wrap=document.createElement('div');wrap.className='fx-editor-knob';
-  const dial=document.createElement('canvas');dial.className='fx-editor-dial';dial.id='fx-knob-dial-'+def.key;dial.width=74;dial.height=74;dial.tabIndex=0;dial.setAttribute('role','slider');dial.setAttribute('aria-label',def.label);dial.setAttribute('aria-valuemin',String(def.min));dial.setAttribute('aria-valuemax',String(def.max));
+  const dial=document.createElement('canvas');dial.className='fx-editor-dial';dial.id='fx-knob-dial-'+def.key;dial.width=50;dial.height=50;dial.tabIndex=0;dial.setAttribute('role','slider');dial.setAttribute('aria-label',def.label);dial.setAttribute('aria-valuemin',String(def.min));dial.setAttribute('aria-valuemax',String(def.max));
   const name=document.createElement('div');name.className='fx-editor-knob-name';name.textContent=def.label;
   const value=document.createElement('div');value.className='fx-editor-knob-value';value.id='fx-knob-value-'+def.key;
   wrap.append(dial,name,value);host.appendChild(wrap);
@@ -139,17 +169,24 @@ function drawCurve(){
 }
 function renderPresets(){
  const host=$('fxEditorPresets');host.replaceChildren();
- DEFS[activeId].presets.forEach(p=>{
-  const b=document.createElement('button');b.type='button';b.className='fx-editor-preset';b.textContent=p.label;b.dataset.preset=p.id;
-  const selected=activeModule.type===p.id;b.classList.toggle('is-active',selected);b.setAttribute('aria-pressed',String(selected));
-  b.addEventListener('click',()=>{activeModule.type=p.id;if(activeId==='filter'){activeModule.settings.resonance=p.v.resonance;activeModule.setValue(filterValue(p.v.frequency,p.id),audio());}else{Object.assign(activeModule.settings,p.v);activeModule._apply?.(audio());}renderPresets();drawKnobs();drawCurve();$('fxEditorStatus').textContent=p.label+' preset · live';});
-  host.appendChild(b);
+ const select=document.createElement('select');select.className='fx-editor-preset-select';select.setAttribute('aria-label',DEFS[activeId].title+' preset');
+ DEFS[activeId].presets.forEach(p=>{const option=document.createElement('option');option.value=p.id;option.textContent=p.label;select.appendChild(option);});
+ const chosen=DEFS[activeId].presets.find(p=>p.id===activeModule._presetId)||DEFS[activeId].presets.find(p=>p.engineType===activeModule.type)||DEFS[activeId].presets[0];
+ select.value=chosen.id;
+ select.addEventListener('change',()=>{
+  const p=DEFS[activeId].presets.find(item=>item.id===select.value);if(!p)return;
+  activeModule._presetId=p.id;activeModule.type=p.engineType;Object.assign(activeModule.settings,p.v);
+  if(p.amount!==undefined)activeModule.setValue(p.amount,audio());
+  if(activeId==='filter')activeModule.setValue(filterValue(p.v.frequency,p.engineType),audio());
+  else activeModule._apply?.(audio());
+  drawKnobs();drawCurve();$('fxEditorStatus').textContent=p.label;
  });
+ host.appendChild(select);
 }
 function openEditor(id){
  const def=DEFS[id],m=window.PionierCore?.getFxModule?.(id);if(!def||!m||!dialog||!backdrop)return;
  activeId=id;activeModule=m;ensureSettings(id,m);lastFocus=document.activeElement;
- $('fxEditorTitle').textContent=def.title;$('fxEditorSubtitle').textContent=def.subtitle;$('fxEditorAxisX').textContent=def.x;$('fxEditorAxisY').textContent=def.y;
+ $('fxEditorTitle').textContent=def.title;$('fxEditorSubtitle').textContent='';$('fxEditorAxisX').textContent=def.x||'';$('fxEditorAxisY').textContent=def.y||'';
  $('fxEditorBypass').setAttribute('aria-pressed',String(!!m.bypassed));$('fxEditorBypass').textContent=m.bypassed?'Bypassed':'Bypass';
  renderPresets();drawKnobs();backdrop.hidden=false;dialog.hidden=false;document.body.classList.add('is-fx-editor-open');
  requestAnimationFrame(()=>{drawCurve();$('fxEditorClose')?.focus();});
