@@ -115,47 +115,58 @@
   function placePicker(menu, toggle) {
     if (!menu || !toggle) return;
     if (menu.parentElement !== document.body) document.body.appendChild(menu);
-
-    // Instrument and scale lists are deliberately immersive: the same glass,
-    // spring-in feel as the FX preset dropdown, but with room to browse the full library.
-    menu.classList.remove('picker-popover');
-    menu.classList.add('picker-sheet', 'is-open');
+    const rect = toggle.getBoundingClientRect();
+    const margin = 12;
+    const gap = 8;
+    const viewportW = document.documentElement.clientWidth;
+    const viewportH = window.visualViewport?.height || window.innerHeight;
+    const width = Math.min(Math.max(rect.width, 280), viewportW - margin * 2, 380);
+    const left = Math.max(margin, Math.min(rect.left + rect.width / 2 - width / 2, viewportW - width - margin));
+    const below = viewportH - rect.bottom - margin - gap;
+    const above = rect.top - margin - gap;
+    const openAbove = below < 210 && above > below;
+    const available = Math.max(150, (openAbove ? above : below));
+    menu.classList.remove('picker-sheet');
+    menu.classList.add('picker-popover', 'is-open');
     menu.hidden = false;
     menu.removeAttribute('hidden');
-    menu.style.removeProperty('display');
-    menu.style.setProperty('display', 'flex', 'important');
-    menu.style.position = 'fixed';
-    menu.style.zIndex = '5200';
-    menu.style.visibility = 'visible';
-    menu.style.opacity = '1';
-    menu.style.pointerEvents = 'auto';
-    menu.style.left = 'max(8px, env(safe-area-inset-left))';
-    menu.style.right = 'max(8px, env(safe-area-inset-right))';
-    menu.style.top = 'max(10px, env(safe-area-inset-top))';
-    menu.style.bottom = 'max(10px, env(safe-area-inset-bottom))';
-    menu.style.width = 'auto';
-    menu.style.maxWidth = 'none';
-    menu.style.maxHeight = 'none';
-    menu.style.transform = 'none';
-    menu.style.borderRadius = '20px';
-    menu.style.overflow = 'hidden';
-    menu.style.flexDirection = 'column';
-    menu.style.background = isLightTheme() ? 'rgba(250,248,244,.97)' : 'rgba(16,16,19,.94)';
-    menu.style.backgroundColor = isLightTheme() ? 'rgba(250,248,244,.97)' : 'rgba(16,16,19,.94)';
-    menu.style.color = isLightTheme() ? '#24221e' : '#e6e0d2';
-    menu.style.borderColor = isLightTheme() ? 'rgba(52,44,28,.16)' : 'rgba(226,195,117,.24)';
-    menu.style.boxShadow = '0 24px 80px rgba(0,0,0,.62), inset 0 1px 0 rgba(255,255,255,.04)';
-    menu.style.webkitOverflowScrolling = 'touch';
-    menu.style.overscrollBehavior = 'contain';
-
-    // One universal scroll region; no legacy search input or competing scroll container.
+    Object.assign(menu.style, {
+      position: 'fixed',
+      zIndex: '5200',
+      visibility: 'visible',
+      opacity: '1',
+      pointerEvents: 'auto',
+      left: left + 'px',
+      right: 'auto',
+      top: (openAbove ? Math.max(margin, rect.top - Math.min(available, Math.min(viewportH * .62, 430)) - gap) : rect.bottom + gap) + 'px',
+      bottom: 'auto',
+      width: width + 'px',
+      maxWidth: 'calc(100vw - 24px)',
+      maxHeight: Math.min(available, Math.min(viewportH * .62, 430)) + 'px',
+      transform: 'none',
+      borderRadius: '16px',
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      background: isLightTheme() ? 'rgba(250,248,244,.94)' : 'rgba(16,16,19,.88)',
+      backgroundColor: isLightTheme() ? 'rgba(250,248,244,.94)' : 'rgba(16,16,19,.88)',
+      color: isLightTheme() ? '#24221e' : '#e6e0d2',
+      borderColor: isLightTheme() ? 'rgba(52,44,28,.16)' : 'rgba(226,195,117,.24)',
+      boxShadow: '0 24px 80px rgba(0,0,0,.52), inset 0 1px 0 rgba(255,255,255,.06)',
+      webkitBackdropFilter: 'blur(28px) saturate(140%)',
+      backdropFilter: 'blur(28px) saturate(140%)',
+    });
     const results = menu.querySelector('.picker-results');
     if (results) {
-      results.style.flex = '1 1 auto';
-      results.style.minHeight = '0';
-      results.style.overflowY = 'auto';
-      results.style.overscrollBehavior = 'contain';
-      results.style.webkitOverflowScrolling = 'touch';
+      Object.assign(results.style, {
+        flex: '1 1 auto',
+        minHeight: '0',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        maxHeight: 'inherit',
+        overscrollBehavior: 'contain',
+        webkitOverflowScrolling: 'touch',
+      });
     }
   }
 
