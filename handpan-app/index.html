@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=144" />
+  <link rel="stylesheet" href="./pionier.css?v=145" />
   <link rel="stylesheet" href="./topbar-narrow.css?v=6" />
   <link rel="stylesheet" href="./looper.css?v=210" />
   <link rel="stylesheet" href="./scale-menu.css?v=8" />
@@ -228,6 +228,18 @@
     </div>
   </div>
 
+  <div id="fxEditorBackdrop" class="fx-editor-backdrop" hidden></div>
+  <section id="fxEditor" class="fx-editor" role="dialog" aria-modal="true" aria-labelledby="fxEditorTitle" hidden>
+    <header class="fx-editor-header">
+      <div><p class="fx-editor-eyebrow">EFFECT DESIGNER</p><h2 id="fxEditorTitle">Compressor</h2><p id="fxEditorSubtitle">Shape the response and fine-tune the sound.</p></div>
+      <button type="button" id="fxEditorClose" class="icon-btn" aria-label="Close effect editor">×</button>
+    </header>
+    <div class="fx-editor-toolbar"><div id="fxEditorPresets" class="fx-editor-presets" aria-label="Effect presets"></div><button type="button" id="fxEditorBypass" class="fx-editor-bypass" aria-pressed="false">Bypass</button></div>
+    <div class="fx-editor-curve-wrap"><div class="fx-editor-curve-heading"><span>RESPONSE CURVE</span><span id="fxEditorCurveHint">Drag the point to shape it</span></div><canvas id="fxEditorCurve" class="fx-editor-curve" aria-label="Interactive effect response curve" role="img"></canvas><div class="fx-editor-axis-labels"><span id="fxEditorAxisX">Input</span><span id="fxEditorAxisY">Output</span></div></div>
+    <div id="fxEditorKnobs" class="fx-editor-knobs" aria-label="Effect parameters"></div>
+    <footer class="fx-editor-footer"><span id="fxEditorStatus" role="status">Changes apply live</span><button type="button" id="fxEditorReset" class="fx-editor-reset">Reset effect</button></footer>
+  </section>
+
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
 
   <script src="./js/skin-palette.js?v=1"></script>
@@ -237,7 +249,7 @@
   <script src="./js/settings-panel.js?v=27"></script>
   <script src="./js/ambient-fx.js?v=12"></script>
   <script src="./js/skin-mandala.js?v=5"></script>
-  <script type="module" src="./pionier-app.js?v=213"></script>
+  <script type="module" src="./pionier-app.js?v=214"></script>
   <script src="./registerSW.js"></script>
 </body>
 </html>
