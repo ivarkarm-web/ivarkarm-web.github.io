@@ -399,3 +399,42 @@ html.theme-light .scale-menu.picker-sheet:not([hidden]), html.theme-light .instr
  .scale-menu.picker-sheet:not([hidden]), .instrument-menu.picker-sheet:not([hidden]) {inset:24px !important;padding:20px !important;border-radius:24px !important}
  .scale-menu.picker-sheet .scale-menu-item, .instrument-menu.picker-sheet .instrument-menu-item {min-height:54px !important;font-size:16px !important}
 }
+
+
+/* Instrument and scale use the same anchored popover behavior as the FX preset dropdown. */
+.instrument-menu.picker-popover:not([hidden]), .scale-menu.picker-popover:not([hidden]) {
+  display:flex !important; flex-direction:column !important; box-sizing:border-box !important;
+  padding:6px !important; inset:auto !important; width:var(--picker-width, auto);
+  max-width:calc(100vw - 24px) !important; min-height:0 !important;
+  border-radius:16px !important; overflow:hidden !important;
+  background:rgba(16,16,19,.88) !important;
+  border:1px solid rgba(226,195,117,.24) !important;
+  box-shadow:0 24px 80px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  -webkit-backdrop-filter:blur(28px) saturate(140%) !important;
+  backdrop-filter:blur(28px) saturate(140%) !important;
+  transform-origin:top center;
+}
+.instrument-menu.picker-popover.is-open:not([hidden]), .scale-menu.picker-popover.is-open:not([hidden]) {
+  animation:pionier-menu-spring .38s cubic-bezier(.2,.85,.25,1.2) both !important;
+}
+.instrument-menu.picker-popover .picker-results, .scale-menu.picker-popover .picker-results {
+  flex:1 1 auto !important; min-height:0 !important; width:100% !important;
+  overflow-x:hidden !important; overflow-y:auto !important; overscroll-behavior:contain !important;
+  -webkit-overflow-scrolling:touch !important; padding:2px !important;
+}
+.instrument-menu.picker-popover .picker-close, .scale-menu.picker-popover .picker-close {
+  align-self:flex-end !important; flex:0 0 28px !important; width:28px !important; height:28px !important;
+  margin:0 0 3px !important; border-radius:50% !important;
+  background:rgba(255,255,255,.045) !important; border:1px solid rgba(226,195,117,.2) !important;
+}
+.instrument-menu.picker-popover .instrument-menu-item, .scale-menu.picker-popover .scale-menu-item {
+  min-height:42px !important; padding:10px 12px !important; margin:1px 0 !important;
+  border-radius:10px !important; font-size:13px !important;
+}
+html.theme-light .instrument-menu.picker-popover:not([hidden]), html.theme-light .scale-menu.picker-popover:not([hidden]) {
+  background:rgba(250,248,244,.94) !important; color:#24221e !important;
+  border-color:rgba(93,73,35,.2) !important;
+}
+@media(prefers-reduced-motion:reduce) {
+ .instrument-menu.picker-popover.is-open:not([hidden]), .scale-menu.picker-popover.is-open:not([hidden]) {animation:none !important;}
+}
