@@ -649,29 +649,46 @@ function instrumentGroupId(item) {
 }
 
 function renderInstrumentMenu() {
-  const menu = document.getElementById('instrumentMenu');
-  if (!menu) return;
-  menu.replaceChildren(); menu.setAttribute('role', 'menu'); menu.setAttribute('aria-label', 'Choose instrument');
-  const results = document.createElement('div'); results.className = 'picker-results instrument-menu-results'; menu.appendChild(results);
-  const seen = new Set(); const groups = new Map(INSTRUMENT_GROUP_ORDER.map((g) => [g.id, []]));
-  for (const item of InstrumentRegistry.list()) { if (!item || !item.id || seen.has(item.id)) continue; seen.add(item.id); const gid = instrumentGroupId(item); if (!groups.has(gid)) groups.set(gid, []); groups.get(gid).push(item); }
-  let focusTarget = null;
+  const select = document.getElementById('instrumentMenu');
+  if (!select) return;
+  const current = InstrumentRegistry.active?.id || 'handpan';
+  const seen = new Set();
+  select.replaceChildren();
   for (const meta of INSTRUMENT_GROUP_ORDER) {
-    const items = groups.get(meta.id) || []; if (!items.length) continue;
-    const section = document.createElement('section'); section.className = 'picker-group instrument-picker-group';
-    const head = document.createElement('div'); head.className = 'instrument-menu-group'; head.textContent = meta.label; head.setAttribute('role', 'presentation'); section.appendChild(head);
+    const items = InstrumentRegistry.list().filter((item) =>
+      item && item.id && !seen.has(item.id) && instrumentGroupId(item) === meta.id
+    );
+    if (!items.length) continue;
+    const group = document.createElement('optgroup');
+    group.label = meta.label;
     for (const item of items) {
-      const btn = document.createElement('button'); btn.type = 'button'; const active = InstrumentRegistry.active?.id === item.id; btn.className = 'instrument-menu-item pionier-menu-option' + (active ? ' is-active' : ''); btn.setAttribute('role', 'menuitem'); btn.dataset.instrumentId = item.id; btn.textContent = item.name || item.id; btn.dataset.searchText = [item.name, item.id, item.category, meta.label].filter(Boolean).join(' ').toLowerCase();
-      if (active) { btn.setAttribute('aria-current', 'true'); focusTarget = btn; }
-      btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); setInstrument(item.id).catch(() => {}); if (window.PionierOverlay) window.PionierOverlay.closePickers(); else { menu.hidden = true; menu.setAttribute('hidden', ''); document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false'); } }); section.appendChild(btn);
-    } results.appendChild(section);
+      seen.add(item.id);
+      const option = document.createElement('option');
+      option.value = item.id;
+      option.textContent = item.name || item.id;
+      group.appendChild(option);
+    }
+    select.appendChild(group);
   }
-  const empty = document.createElement('div'); empty.className = 'picker-empty'; empty.textContent = 'No instruments found'; empty.hidden = true; results.appendChild(empty);
-  if (focusTarget) menu.dataset.focusItem = focusTarget.dataset.instrumentId || '';
+  // Include any future registry category not represented in the known group order.
+  const remaining = InstrumentRegistry.list().filter((item) => item?.id && !seen.has(item.id));
+  if (remaining.length) {
+    const group = document.createElement('optgroup');
+    group.label = 'Other';
+    for (const item of remaining) {
+      const option = document.createElement('option');
+      option.value = item.id;
+      option.textContent = item.name || item.id;
+      group.appendChild(option);
+    }
+    select.appendChild(group);
+  }
+  select.value = current;
 }
 window.__pionierRenderInstrumentMenu = renderInstrumentMenu;
-document.addEventListener('pionier:picker-open', (e) => {
-  if (e.detail?.id === 'instrumentMenu') renderInstrumentMenu();
+document.getElementById('instrumentMenu')?.addEventListener('change', (event) => {
+  const id = event.currentTarget.value;
+  if (id) setInstrument(id).catch((err) => console.warn('Instrument selection failed', err));
 });
 
 /* instrument menu open/close: overlay-controller.js */
