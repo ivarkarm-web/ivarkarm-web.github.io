@@ -438,3 +438,58 @@ html.theme-light .instrument-menu.picker-popover:not([hidden]), html.theme-light
 @media(prefers-reduced-motion:reduce) {
  .instrument-menu.picker-popover.is-open:not([hidden]), .scale-menu.picker-popover.is-open:not([hidden]) {animation:none !important;}
 }
+
+
+/* Instrument and scale pickers: match the looper's floating settings bubble, not a full-screen sheet. */
+.scale-menu.picker-popover:not([hidden]),
+.instrument-menu.picker-popover:not([hidden]) {
+  box-sizing:border-box !important;
+  padding:12px !important;
+  border:1px solid rgba(226,195,117,.24) !important;
+  border-radius:16px !important;
+  background:rgba(16,16,19,.88) !important;
+  color:#eee9dd !important;
+  box-shadow:0 20px 60px rgba(0,0,0,.46),inset 0 1px 0 rgba(255,255,255,.035) !important;
+  -webkit-backdrop-filter:blur(24px) saturate(125%) !important;
+  backdrop-filter:blur(24px) saturate(125%) !important;
+  overflow:hidden !important;
+  transform-origin:bottom center !important;
+}
+.scale-menu.picker-popover.is-open:not([hidden]),
+.instrument-menu.picker-popover.is-open:not([hidden]) {
+  animation:looper-bubble-in .2s cubic-bezier(.2,.8,.2,1) both !important;
+}
+.scale-menu.picker-popover .picker-results,
+.instrument-menu.picker-popover .picker-results {
+  overflow-y:auto !important;
+  min-height:0 !important;
+  overscroll-behavior:contain !important;
+  -webkit-overflow-scrolling:touch !important;
+}
+.scale-menu.picker-popover .scale-menu-item,
+.instrument-menu.picker-popover .instrument-menu-item {
+  min-height:34px !important;
+  padding:8px 10px !important;
+  margin:1px 0 !important;
+  border-radius:9px !important;
+  font-size:12px !important;
+  transition:background .15s ease,border-color .15s ease,color .15s ease !important;
+}
+.scale-menu.picker-popover .scale-menu-item.is-active,
+.instrument-menu.picker-popover .instrument-menu-item.is-active {
+  color:#f6dfa0 !important;
+  background:rgba(219,184,91,.12) !important;
+  border-color:rgba(219,184,91,.52) !important;
+  box-shadow:none !important;
+}
+.scale-menu.picker-popover .scale-menu-group,
+.instrument-menu.picker-popover .instrument-menu-group {
+  padding:10px 8px 6px !important;
+  color:rgba(235,228,211,.62) !important;
+  font-size:10px !important;
+  letter-spacing:.08em !important;
+}
+@media(prefers-reduced-motion:reduce) {
+  .scale-menu.picker-popover.is-open:not([hidden]),
+  .instrument-menu.picker-popover.is-open:not([hidden]) { animation:none !important; }
+}
