@@ -113,60 +113,37 @@
     if (except !== 'soundscapes') closeSoundscapes();
   }
 
+  // Match the looper timing bubble: fixed-width, centred on its trigger and opening
+  // upward, with the list itself scrolling inside a stable panel.
   function placePicker(menu, toggle) {
     if (!menu || !toggle) return;
     if (menu.parentElement !== document.body) document.body.appendChild(menu);
     menu.style.removeProperty('display');
-    const rect=toggle.getBoundingClientRect(), margin=12, gap=8;
-    const vw=document.documentElement.clientWidth, vh=window.visualViewport?.height||window.innerHeight;
-    const width=Math.min(Math.max(rect.width,248),vw-margin*2,320);
-    const left=Math.max(margin,Math.min(rect.left+rect.width/2-width/2,vw-width-margin));
-    const below=vh-rect.bottom-margin-gap, above=rect.top-margin-gap, up=below<210&&above>below;
-    const maxHeight=Math.min(Math.max(150,up?above:below),vh*.48,320);
+    const rect = toggle.getBoundingClientRect();
+    const margin = 12;
+    const gap = 8;
+    const vw = document.documentElement.clientWidth;
+    const vh = window.visualViewport?.height || window.innerHeight;
+    const width = Math.min(280, vw - 24);
+    const left = Math.max(12, Math.min(rect.left + rect.width / 2 - width / 2, vw - width - 12));
+    const maxHeight = Math.max(120, Math.min(420, rect.top - 20, vh - 32));
     menu.classList.remove('picker-sheet');
-    menu.classList.add('picker-popover','looper-bubble-menu','is-open');
-    menu.hidden=false;menu.removeAttribute('hidden');
-    Object.assign(menu.style,{position:'fixed',zIndex:'7200',visibility:'visible',opacity:'1',pointerEvents:'auto',
-      left:left+'px',right:'auto',top:(up?Math.max(margin,rect.top-maxHeight-gap):rect.bottom+gap)+'px',bottom:'auto',
-      width:width+'px',maxWidth:'calc(100vw - 24px)',maxHeight:maxHeight+'px',display:'flex',flexDirection:'column',overflow:'hidden'});
-    const results=menu.querySelector('.picker-results');
-    if(results)Object.assign(results.style,{flex:'1 1 auto',minHeight:'0',minWidth:'0',overflowY:'auto',overflowX:'hidden',
-      maxHeight:'inherit',overscrollBehaviorY:'auto',webkitOverflowScrolling:'touch'});
-  }
-
-  // Give the floating picker the same tactile overscroll as the looper's settings bubble.
-  // The list remains the scroll container; only a small elastic response is applied at its edges.
-  function wirePickerElasticScroll(menu, scrollRegion) {
-    if (!menu || !scrollRegion || scrollRegion.dataset.elasticBounce === 'wired') return;
-    scrollRegion.dataset.elasticBounce = 'wired';
-    let startY = 0;
-    let edge = '';
-    const reset = () => {
-      menu.style.transition = 'transform 260ms cubic-bezier(.2,.85,.25,1.2)';
-      menu.style.transform = 'translate3d(0,0,0) scale(1)';
-      edge = '';
-    };
-    scrollRegion.addEventListener('touchstart', (event) => {
-      if (!event.touches.length) return;
-      startY = event.touches[0].clientY;
-      edge = '';
-      menu.style.transition = 'none';
-    }, { passive: true });
-    scrollRegion.addEventListener('touchmove', (event) => {
-      if (!event.touches.length) return;
-      const delta = event.touches[0].clientY - startY;
-      const atTop = scrollRegion.scrollTop <= 0;
-      const atBottom = scrollRegion.scrollTop + scrollRegion.clientHeight >= scrollRegion.scrollHeight - 1;
-      if ((atTop && delta > 0) || (atBottom && delta < 0)) {
-        edge = atTop ? 'top' : 'bottom';
-        const pull = Math.sign(delta) * Math.min(10, Math.abs(delta) * .18);
-        menu.style.transform = 'translate3d(0,' + pull + 'px,0) scale(.997)';
-      } else if (edge) {
-        menu.style.transform = 'translate3d(0,0,0) scale(1)';
-        edge = '';
-      }
-    }, { passive: true });
-    ['touchend', 'touchcancel'].forEach((name) => scrollRegion.addEventListener(name, reset, { passive: true }));
+    menu.classList.add('picker-popover', 'looper-bubble-menu', 'is-open');
+    menu.hidden = false;
+    menu.removeAttribute('hidden');
+    Object.assign(menu.style, {
+      position: 'fixed', zIndex: '7200', visibility: 'visible', opacity: '1',
+      pointerEvents: 'auto', left: left + 'px', right: 'auto', top: 'auto',
+      bottom: Math.max(12, vh - rect.top + gap) + 'px', width: width + 'px',
+      maxWidth: 'calc(100vw - 24px)', maxHeight: maxHeight + 'px',
+      display: 'flex', flexDirection: 'column', overflow: 'hidden', transform: 'none'
+    });
+    const results = menu.querySelector('.picker-results');
+    if (results) Object.assign(results.style, {
+      flex: '1 1 auto', minHeight: '0', minWidth: '0', overflowY: 'auto',
+      overflowX: 'hidden', maxHeight: 'inherit', overscrollBehavior: 'contain',
+      webkitOverflowScrolling: 'touch', transform: 'none'
+    });
   }
 
   function ensurePickerScrollRegion(menu) {
@@ -220,7 +197,7 @@
       menu.prepend(closeButton);
     }
     ensurePickerScrollRegion(menu);
-    wirePickerElasticScroll(menu, menu.querySelector('.picker-results'));
+    // No elastic overscroll: the time-signature menu stays fixed while its options scroll.
     // These are compact anchored popovers, not modal sheets: never dim or cover the instrument.
     const bd = ensureBackdrop();
     bd.hidden = true;
