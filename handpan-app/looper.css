@@ -1095,3 +1095,25 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
   }
   #looperRail > #looperLayers { padding-right:34px !important; }
 }
+
+
+/* Loop tracks match Record, while preserving room for four tracks on phones. */
+#looperRail #looperLayers .looper-circle {
+  box-sizing: border-box !important;
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  max-width: 34px !important;
+  max-height: 34px !important;
+  flex: 0 0 34px !important;
+}
+#looperRail #looperLayers { gap: 3px !important; overflow-x: hidden !important; }
+@media (max-width: 390px) {
+  #looperRail #looperLayers .looper-circle {
+    width: 32px !important; height: 32px !important;
+    min-width: 32px !important; min-height: 32px !important;
+    max-width: 32px !important; max-height: 32px !important;
+    flex-basis: 32px !important;
+  }
+}
