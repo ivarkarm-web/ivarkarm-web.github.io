@@ -6,19 +6,6 @@ const statusEl = document.getElementById('appStatus');
 const statusMessage = document.getElementById('appStatusMessage');
 const statusRetry = document.getElementById('appStatusRetry');
 
-// Keep the Learn sheet reachable even if the optional lesson engine fails to import.
-const learnButton = document.getElementById('openLearn');
-const learnPanel = document.getElementById('learnPanel');
-const learnClose = document.getElementById('learnClose');
-learnButton?.addEventListener('click', () => {
-  if (learnPanel) learnPanel.hidden = false;
-  document.body.classList.add('learn-active');
-});
-learnClose?.addEventListener('click', () => {
-  if (learnPanel) learnPanel.hidden = true;
-  document.body.classList.remove('learn-active');
-});
-
 function setBootStatus(state, message = '', retry = false) {
   window.PionierBootState = state;
   if (!statusEl) return;
@@ -129,7 +116,7 @@ async function boot() {
   }
 
   try {
-    const { mountLooper } = await import(new URL('./js/looper.js?v=213', BASE).href);
+    const { mountLooper } = await import(new URL('./js/looper.js?v=214', BASE).href);
     mountLooper();
   } catch (err) {
     console.warn('[looper] mount failed', err);
@@ -137,7 +124,7 @@ async function boot() {
   }
 
   try {
-    const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=8', BASE).href);
+    const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=9', BASE).href);
     mountScaleSelector({
       getHandpan: () => window.PionierCore?.handpan,
       onScaleChange: () => {
@@ -155,13 +142,35 @@ async function boot() {
     degraded.push('scale-selector');
   }
 
-  try {
-    const { mountLearnMode } = await import(new URL('./js/learn-mode.js?v=25', BASE).href);
-    mountLearnMode();
-  } catch (err) {
-    console.warn('[learn] mount failed', err);
-    degraded.push('learn');
-  }
+
+  // Dice: jump to a random registered instrument and a random scale.
+  document.getElementById('randomizeSetup')?.addEventListener('click', async () => {
+    const dice = document.getElementById('randomizeSetup');
+    if (dice?.dataset.rolling === '1') return;
+    if (dice) { dice.dataset.rolling = '1'; dice.classList.add('is-rolling'); }
+    try {
+      const { InstrumentRegistry } = await import(new URL('./js/instrument.js', BASE).href);
+      const instruments = InstrumentRegistry.list().filter((item) => item?.id);
+      const scales = window.HANDPAN_SCALES || [];
+      const currentId = window.PionierCore?.activeInstrument?.()?.id;
+      const choices = instruments.filter((item) => item.id !== currentId);
+      const instrument = (choices.length ? choices : instruments)[Math.floor(Math.random() * Math.max(1, (choices.length || instruments.length)))];
+      if (instrument?.id) await window.PionierCore?.setInstrument?.(instrument.id);
+      const handpan = window.PionierCore?.handpan;
+      if (handpan && scales.length > 1) {
+        const next = Math.floor(Math.random() * scales.length);
+        handpan.setScaleIndex(next);
+        window.PionierCore?.refreshPitch?.();
+        window.PionierCore?.draw?.();
+        const label = document.getElementById('scaleLabel');
+        const scale = scales[next];
+        if (label && scale) label.textContent = (scale.short || scale.label || 'Scale') + ' ▾';
+      }
+    } catch (err) { console.warn('[randomize] setup selection failed', err); }
+    finally {
+      if (dice) { delete dice.dataset.rolling; dice.classList.remove('is-rolling'); }
+    }
+  });
 
   if (degraded.length) {
     const labels = degraded.map(name => ({ soundscapes: 'Soundscapes', 'note-plus': 'note controls', looper: 'Loop Studio', 'scale-selector': 'scale selector', learn: 'Learn mode', arpeggiators: 'arpeggiators' }[name] || name));
