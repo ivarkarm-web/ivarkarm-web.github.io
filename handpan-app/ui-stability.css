@@ -385,3 +385,37 @@ html.theme-light body select.pionier-select {
   html body select.pionier-select { min-height: 44px !important; font-size: 16px !important; }
   html body #instrumentMenu.pionier-select { font-size: 13px !important; }
 }
+
+/* Hide legacy visible scrollbars across Pionier while preserving touch/mouse scrolling.
+   Native <select> option popups remain browser/OS controlled. */
+html body .settings-sheet-body,
+html body .mobile-control-panel,
+html body .fx-panel,
+html body .fx-editor,
+html body .soundscapes-body,
+html body #soundscapesPanel .soundscape-queue,
+html body .looper-track-panel,
+html body .looper-sheet,
+html body .looper-timing-menu,
+html body .looper-menu,
+html body .looper-popup,
+html body .looper-track-editor {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+html body .settings-sheet-body::-webkit-scrollbar,
+html body .mobile-control-panel::-webkit-scrollbar,
+html body .fx-panel::-webkit-scrollbar,
+html body .fx-editor::-webkit-scrollbar,
+html body .soundscapes-body::-webkit-scrollbar,
+html body #soundscapesPanel .soundscape-queue::-webkit-scrollbar,
+html body .looper-track-panel::-webkit-scrollbar,
+html body .looper-sheet::-webkit-scrollbar,
+html body .looper-timing-menu::-webkit-scrollbar,
+html body .looper-menu::-webkit-scrollbar,
+html body .looper-popup::-webkit-scrollbar,
+html body .looper-track-editor::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
