@@ -82,7 +82,7 @@ html.pionier-welcome-active #pan { visibility: visible; }
 #headphonesHint {
   position: fixed;
   z-index: 2147483001;
-  top: clamp(86px, 17.5vh, 150px);
+  top: clamp(77px, 15.75vh, 135px);
   left: 50%;
   width: max-content;
   max-width: calc(100vw - 36px);
@@ -98,7 +98,7 @@ html.pionier-welcome-active #pan { visibility: visible; }
   box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-  font: 600 22px/1.25 var(--font, Inter, sans-serif);
+  font: 600 25px/1.25 var(--font, Inter, sans-serif);
   letter-spacing: .1em;
   text-shadow: 0 2px 18px rgba(245,245,245,.2), 0 0 34px rgba(225,29,72,.12);
   text-align: center;
@@ -110,26 +110,27 @@ html.pionier-welcome-active #pan { visibility: visible; }
 }
 #headphonesHint.is-visible {
   visibility: visible;
-  animation: headphones-hint-exit 3.8s ease 0s both;
+  animation: headphones-hint-exit 4.8s cubic-bezier(.22,1,.36,1) 0s both;
 }
 .headphones-word { opacity: 0; filter: blur(3px); }
 .headphones-word-two { color: var(--welcome-red, #e11d48); }
 #headphonesHint.is-visible .headphones-word-one {
-  animation: headphones-word-arrive 520ms cubic-bezier(.16,1,.3,1) 120ms both;
+  animation: headphones-word-arrive 850ms cubic-bezier(.16,1,.3,1) 180ms both;
 }
 #headphonesHint.is-visible .headphones-word-two {
-  animation: headphones-word-arrive 520ms cubic-bezier(.16,1,.3,1) 620ms both;
+  animation: headphones-word-arrive 850ms cubic-bezier(.16,1,.3,1) 780ms both;
 }
 @keyframes headphones-word-arrive {
-  from { opacity: 0; filter: blur(3px); transform: translateY(5px); }
-  to { opacity: 1; filter: blur(0); transform: translateY(0); }
+  from { opacity: 0; filter: blur(7px); transform: translateY(9px); letter-spacing: .18em; }
+  65% { opacity: .82; filter: blur(1px); }
+  to { opacity: 1; filter: blur(0); transform: translateY(0); letter-spacing: inherit; }
 }
 @keyframes headphones-hint-exit {
-  0%, 68% { opacity: 1; }
+  0%, 72% { opacity: 1; }
   100% { opacity: 0; visibility: hidden; }
 }
 @media (max-width:560px) {
-  #headphonesHint { top: clamp(84px, 19vh, 135px); font-size: clamp(18px, 5.2vw, 22px); letter-spacing: .08em; gap: .3em; }
+  #headphonesHint { top: clamp(76px, 17.1vh, 122px); font-size: clamp(21px, 6vw, 25px); letter-spacing: .08em; gap: .3em; }
 }
 @media (prefers-reduced-motion:reduce) {
   #headphonesHint.is-visible { animation-duration: 1ms !important; }
