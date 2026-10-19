@@ -116,77 +116,53 @@
     if (!menu || !toggle) return;
     if (menu.parentElement !== document.body) document.body.appendChild(menu);
 
-    // Prefer bottom sheet on phones, tablets in portrait, touch devices, or short viewports.
-    // Previous 700px breakpoint left many real phones (and 750px emulators) on the broken popover path.
-    // Keep the compact, anchored scroll-dropdown on touch screens too.
-    // The old full-width sheet looked like the legacy picker, not the FX preset menu.
-    const isPhone = false;
-
-    menu.classList.remove('picker-sheet', 'picker-popover');
-    menu.classList.add(isPhone ? 'picker-sheet' : 'picker-popover');
-    menu.classList.add('is-open');
+    // Instrument and scale lists are deliberately immersive: the same glass,
+    // spring-in feel as the FX preset dropdown, but with room to browse the full library.
+    menu.classList.remove('picker-popover');
+    menu.classList.add('picker-sheet', 'is-open');
     menu.hidden = false;
     menu.removeAttribute('hidden');
-
-    // Solid portal styles so the menu never inherits a transparent/zero-opacity state.
-    // Clear any display:none !important left by closePickers.
     menu.style.removeProperty('display');
-    menu.style.setProperty('display', 'block', 'important');
+    menu.style.setProperty('display', 'flex', 'important');
     menu.style.position = 'fixed';
     menu.style.zIndex = '5200';
     menu.style.visibility = 'visible';
     menu.style.opacity = '1';
     menu.style.pointerEvents = 'auto';
-    const lightTheme = isLightTheme();
-    const pickerSurface = lightTheme ? '#faf8f4' : 'rgba(16, 16, 19, 0.86)';
-    const pickerText = lightTheme ? '#24221e' : '#e6e0d2';
-    menu.style.setProperty('background', pickerSurface, 'important');
-    menu.style.setProperty('background-color', pickerSurface, 'important');
-    menu.style.setProperty('background-image', 'none', 'important');
-    menu.style.setProperty('color', pickerText, 'important');
-    menu.style.setProperty('border-color', lightTheme ? 'rgba(52,44,28,0.14)' : 'rgba(226,195,117,0.22)', 'important');
-    menu.style.setProperty('box-shadow', lightTheme
-      ? '0 16px 42px rgba(43,35,20,0.16)'
-      : '0 20px 60px rgba(0,0,0,0.55)', 'important');
-    // Picker options can carry their own legacy dark inline styles; normalize every
-    // visible option whenever the portal opens, not just the menu container.
-    if (lightTheme) {
-      menu.querySelectorAll('button, [role="menuitem"], [role="option"]').forEach((item) => {
-        item.style.setProperty('color', '#302d27', 'important');
-        item.style.setProperty('background-color', 'transparent', 'important');
-        item.style.setProperty('background-image', 'none', 'important');
-        item.style.setProperty('border-color', 'transparent', 'important');
-        item.style.setProperty('box-shadow', 'none', 'important');
-      });
-    }
-    menu.style.overflowY = 'auto';
+    menu.style.left = 'max(8px, env(safe-area-inset-left))';
+    menu.style.right = 'max(8px, env(safe-area-inset-right))';
+    menu.style.top = 'max(8px, env(safe-area-inset-top))';
+    menu.style.bottom = 'max(8px, env(safe-area-inset-bottom))';
+    menu.style.width = 'auto';
+    menu.style.maxWidth = 'none';
+    menu.style.maxHeight = 'none';
+    menu.style.transform = 'none';
+    menu.style.borderRadius = '18px';
+    menu.style.overflow = 'hidden';
+    menu.style.flexDirection = 'column';
+    menu.style.background = isLightTheme() ? 'rgba(250,248,244,.97)' : 'rgba(16,16,19,.94)';
+    menu.style.backgroundColor = isLightTheme() ? 'rgba(250,248,244,.97)' : 'rgba(16,16,19,.94)';
+    menu.style.color = isLightTheme() ? '#24221e' : '#e6e0d2';
+    menu.style.borderColor = isLightTheme() ? 'rgba(52,44,28,.16)' : 'rgba(226,195,117,.24)';
+    menu.style.boxShadow = '0 24px 80px rgba(0,0,0,.62), inset 0 1px 0 rgba(255,255,255,.04)';
     menu.style.webkitOverflowScrolling = 'touch';
+    menu.style.overscrollBehavior = 'contain';
 
-    if (isPhone) {
-      menu.style.left = '0';
-      menu.style.right = '0';
-      menu.style.bottom = '0';
-      menu.style.top = 'auto';
-      menu.style.width = '100%';
-      menu.style.maxWidth = '100%';
-      menu.style.maxHeight = 'min(55dvh, 420px)';
-      menu.style.borderRadius = '16px 16px 0 0';
-      menu.style.transform = 'none';
-    } else {
-      const r = toggle.getBoundingClientRect();
-      const width = Math.min(320, window.innerWidth - 24);
-      const left = Math.max(12, Math.min(r.left + r.width / 2 - width / 2, window.innerWidth - width - 12));
-      // Open upward above the toggle (bottom bar lives at the viewport bottom).
-      const spaceAbove = Math.max(120, r.top - 16);
-      menu.style.left = left + 'px';
-      menu.style.right = 'auto';
-      menu.style.width = width + 'px';
-      menu.style.maxWidth = width + 'px';
-      menu.style.top = 'auto';
-      menu.style.bottom = Math.max(12, window.innerHeight - r.top + 8) + 'px';
-      menu.style.maxHeight = Math.min(360, spaceAbove) + 'px';
-      menu.style.transform = 'none';
-      menu.style.borderRadius = '12px';
+    // The search field stays at the top; only the results list scrolls.
+    const search = menu.querySelector('.picker-search');
+    const results = menu.querySelector('.picker-results');
+    if (search) {
+      search.style.position = 'relative';
+      search.style.flex = '0 0 auto';
+      search.style.width = '100%';
+      search.style.boxSizing = 'border-box';
+    }
+    if (results) {
+      results.style.flex = '1 1 auto';
+      results.style.minHeight = '0';
+      results.style.overflowY = 'auto';
+      results.style.overscrollBehavior = 'contain';
+      results.style.webkitOverflowScrolling = 'touch';
     }
   }
 
