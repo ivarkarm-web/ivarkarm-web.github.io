@@ -162,9 +162,9 @@ async function boot() {
         handpan.setScaleIndex(next);
         window.PionierCore?.refreshPitch?.();
         window.PionierCore?.draw?.();
-        const label = document.getElementById('scaleLabel');
+        const select = document.getElementById('scaleMenu');
         const scale = scales[next];
-        if (label && scale) label.textContent = (scale.short || scale.label || 'Scale') + ' ▾';
+        if (select) { select.value = String(next); if (scale) select.title = scale.label || scale.short || 'Scale'; }
       }
     } catch (err) { console.warn('[randomize] setup selection failed', err); }
     finally {
