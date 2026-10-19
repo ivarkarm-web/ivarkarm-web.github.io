@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="./pionier.css?v=165" />
   <link rel="stylesheet" href="./topbar-narrow.css?v=6" />
   <link rel="stylesheet" href="./looper.css?v=221" />
-  <link rel="stylesheet" href="./scale-menu.css?v=19" />
+  <link rel="stylesheet" href="./scale-menu.css?v=20" />\n  <link rel="stylesheet" href="./fx-editor.css?v=1" />
   <link rel="stylesheet" href="./settings-panel.css?v=18" />
   <style>
     .backdrop-player { display: none !important; }
@@ -64,7 +64,7 @@
       <div class="center-nav">
         <div class="instrument-nav" id="instrumentNav">
           <button type="button" class="icon-btn" id="voicePrev" aria-label="Previous voice">‹</button>
-          <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Handpan ▾</button>
+          <select class="pionier-select instrument-name" id="instrumentMenu" aria-label="Choose instrument"></select>
           <button type="button" class="icon-btn" id="voiceNext" aria-label="Next voice">›</button>
           <button type="button" class="icon-btn soundscapes-open-btn" id="openSoundscapes" aria-label="Open Soundscapes" title="Soundscapes">♫</button>
           <button type="button" class="randomize-setup-btn" id="randomizeSetup" aria-label="Randomize instrument and scale" title="Surprise me">⚄</button>
@@ -84,10 +84,10 @@
         <label class="control-label">Scale</label>
         <div class="stepper scale-stepper">
           <button type="button" class="step" id="scalePrev" aria-label="Previous scale">‹</button>
-          <button type="button" class="step-value scale-name scale-dropdown-toggle" id="scaleLabel" aria-haspopup="true" aria-expanded="false" aria-controls="scaleMenu" title="Choose scale">D3 Kurd ▾</button>
+          <span class="step-value scale-name" id="scaleLabel" title="Current scale">D3 Kurd</span>
           <button type="button" class="step" id="scaleNext" aria-label="Next scale">›</button>
         </div>
-        <div class="scale-menu" id="scaleMenu" role="menu" aria-label="Choose scale" hidden></div>
+        <select class="pionier-select scale-menu" id="scaleMenu" aria-label="Choose scale"></select>
       </div>
 
       <div class="control-row">
@@ -189,12 +189,12 @@
 
   <script src="./js/skin-palette.js?v=1"></script>
   <script src="./js/customization-catalog.js?v=6"></script>
-  <script src="./js/overlay-controller.js?v=22"></script>
+  <script src="./js/overlay-controller.js?v=23"></script>
   <script src="./js/layout-boot.js?v=65"></script>
-  <script src="./js/settings-panel.js?v=27"></script>
+  <script src="./js/settings-panel.js?v=28"></script>
   <script src="./js/ambient-fx.js?v=12"></script>
   <script src="./js/skin-mandala.js?v=5"></script>
-  <script type="module" src="./pionier-app.js?v=226"></script>
+  <script type="module" src="./pionier-app.js?v=227"></script>
   <script src="./registerSW.js"></script>
 </body>
 </html>
