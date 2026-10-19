@@ -404,7 +404,7 @@ html.theme-light .scale-menu.picker-sheet:not([hidden]), html.theme-light .instr
 /* Instrument and scale use the same anchored popover behavior as the FX preset dropdown. */
 .instrument-menu.picker-popover:not([hidden]), .scale-menu.picker-popover:not([hidden]) {
   display:flex !important; flex-direction:column !important; box-sizing:border-box !important;
-  padding:6px !important; inset:auto !important; width:var(--picker-width, auto);
+  padding:6px !important; width:var(--picker-width, auto);
   max-width:calc(100vw - 24px) !important; min-height:0 !important;
   border-radius:16px !important; overflow:hidden !important;
   background:rgba(16,16,19,.88) !important;
