@@ -152,27 +152,26 @@ export class FilterFx extends FxModule {
     const amt = this.bypassed ? 0 : this.value;
     const type = this.type || 'lowpass';
 
-    const cutoff = this.settings.frequency;
     const resonance = this.settings.resonance;
     if (type === 'highpass') {
       this.filter.type = 'highpass';
-      const target = cutoff ?? (amt < 0.02 ? 20 : 40 + Math.pow(amt, 1.35) * 4000);
-      this.filter.frequency.setTargetAtTime(20 + (target - 20) * amt, t, 0.04);
+      const hz = amt < 0.02 ? 20 : 40 + Math.pow(amt, 1.35) * 4000;
+      this.filter.frequency.setTargetAtTime(hz, t, 0.04);
       this.filter.Q.setTargetAtTime(resonance ?? (0.7 + amt * 2.2), t, 0.05);
     } else if (type === 'band') {
       this.filter.type = 'bandpass';
-      const target = cutoff ?? (200 + Math.pow(amt, 1.2) * 3800);
-      this.filter.frequency.setTargetAtTime(80 + (target - 80) * amt, t, 0.04);
+      const hz = 200 + Math.pow(amt, 1.2) * 3800;
+      this.filter.frequency.setTargetAtTime(hz, t, 0.04);
       this.filter.Q.setTargetAtTime(resonance ?? (1.2 + amt * 6), t, 0.05);
     } else if (type === 'notch') {
       this.filter.type = 'notch';
-      const target = cutoff ?? (300 + Math.pow(amt, 1.15) * 3200);
-      this.filter.frequency.setTargetAtTime(80 + (target - 80) * amt, t, 0.04);
+      const hz = 300 + Math.pow(amt, 1.15) * 3200;
+      this.filter.frequency.setTargetAtTime(hz, t, 0.04);
       this.filter.Q.setTargetAtTime(resonance ?? (0.8 + amt * 10), t, 0.05);
     } else {
       this.filter.type = 'lowpass';
-      const target = cutoff ?? (amt < 0.02 ? 20000 : 220 + Math.pow(1 - amt, 1.6) * 16000);
-      this.filter.frequency.setTargetAtTime(20000 + (target - 20000) * amt, t, 0.04);
+      const hz = amt < 0.02 ? 20000 : 220 + Math.pow(1 - amt, 1.6) * 16000;
+      this.filter.frequency.setTargetAtTime(hz, t, 0.04);
       this.filter.Q.setTargetAtTime(resonance ?? (0.6 + amt * 3.5), t, 0.05);
     }
   }
