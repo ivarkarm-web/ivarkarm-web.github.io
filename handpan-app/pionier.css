@@ -2601,3 +2601,61 @@ html.theme-light .instrument-name {
 .scale-menu .scale-menu-item,.instrument-menu .instrument-menu-item { position:relative; }
 .scale-menu .scale-menu-item.is-active::after,.instrument-menu .instrument-menu-item.is-active::after { content:'✓'; float:right; margin-left:12px; color:#e5c36c; font-weight:700; }
 @media(prefers-reduced-motion:reduce) { .pionier-menu-picker.is-open .pionier-menu-list { animation:none; } }
+
+
+/* Restore the original FX preset dropdown independently of the instrument/scale pickers. */
+.fx-preset-picker { position:relative; min-width:0; width:100%; }
+.fx-preset-picker .fx-editor-preset-select {
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  width:100%; min-height:36px; padding:8px 12px;
+  border:1px solid rgba(219,184,91,.3); border-radius:10px;
+  background:rgba(21,21,23,.72); color:#eee9dd;
+  font:inherit; font-size:12px; text-align:left; cursor:pointer;
+  transition:background .16s ease,border-color .16s ease;
+}
+.fx-preset-picker .fx-editor-preset-select:hover,
+.fx-preset-picker .fx-editor-preset-select[aria-expanded="true"] {
+  border-color:rgba(219,184,91,.58); background:rgba(30,28,23,.84);
+}
+.fx-preset-picker .fx-preset-list {
+  position:absolute; left:0; right:0; top:calc(100% + 7px); z-index:7000;
+  box-sizing:border-box; max-height:min(52dvh,360px); overflow-y:auto;
+  overscroll-behavior:contain; padding:6px;
+  border:1px solid rgba(226,195,117,.24); border-radius:14px;
+  background:rgba(16,16,19,.88); color:#e9e2d4;
+  box-shadow:0 20px 60px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.055);
+  -webkit-backdrop-filter:blur(28px) saturate(140%); backdrop-filter:blur(28px) saturate(140%);
+  scrollbar-width:thin; scrollbar-color:rgba(219,184,91,.45) transparent;
+  transform-origin:top center;
+}
+.fx-preset-picker .fx-preset-list[hidden] { display:none !important; }
+.fx-preset-picker.is-open .fx-preset-list {
+  animation:pionier-menu-spring .38s cubic-bezier(.2,.85,.25,1.2) both;
+}
+.fx-preset-picker .fx-preset-option {
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  box-sizing:border-box; width:100%; min-height:42px; padding:10px 12px; margin:1px 0;
+  border:1px solid transparent; border-radius:10px; background:transparent;
+  color:rgba(236,230,218,.76); text-align:left; font:inherit; font-size:13px; cursor:pointer;
+  transition:background .16s ease,color .16s ease,border-color .16s ease,transform .22s cubic-bezier(.2,.85,.25,1.2);
+}
+.fx-preset-picker .fx-preset-option:hover,
+.fx-preset-picker .fx-preset-option:focus-visible {
+  outline:none; color:#f4ecd9; background:rgba(219,184,91,.09); border-color:rgba(219,184,91,.16);
+}
+.fx-preset-picker .fx-preset-option:active { transform:scale(.987); }
+.fx-preset-picker .fx-preset-option.is-active,
+.fx-preset-picker .fx-preset-option[aria-selected="true"] {
+  color:#f5d781; background:rgba(217,184,94,.13); border-color:rgba(217,184,94,.2);
+}
+.fx-preset-picker .fx-preset-option .pionier-menu-check {
+  flex:0 0 auto; color:#e5c36c; font-size:14px; font-weight:700;
+  opacity:0; transform:scale(.7); transition:opacity .16s ease,transform .2s cubic-bezier(.2,.85,.25,1.2);
+}
+.fx-preset-picker .fx-preset-option.is-active .pionier-menu-check,
+.fx-preset-picker .fx-preset-option[aria-selected="true"] .pionier-menu-check {
+  opacity:1; transform:scale(1);
+}
+@media(prefers-reduced-motion:reduce) {
+  .fx-preset-picker.is-open .fx-preset-list { animation:none; }
+}
