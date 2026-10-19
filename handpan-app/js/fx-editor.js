@@ -213,6 +213,21 @@ function renderPresets(){
   else if(e.key==='Home'){e.preventDefault();options[0]?.focus();}
   else if(e.key==='End'){e.preventDefault();options.at(-1)?.focus();}
  });
+ // Native touch scrolling stays inside the preset bubble; pull past either edge for a soft spring.
+ const resetPresetBounce=()=>{picker.style.transition='transform 260ms cubic-bezier(.2,.85,.25,1.2)';picker.style.transform='translate3d(0,0,0) scale(1)';};
+ let presetTouchY=0;
+ list.addEventListener('touchstart',e=>{if(!e.touches.length)return;presetTouchY=e.touches[0].clientY;picker.style.transition='none';},{passive:true});
+ list.addEventListener('touchmove',e=>{
+  if(!e.touches.length)return;
+  const delta=e.touches[0].clientY-presetTouchY;
+  const atTop=list.scrollTop<=0,atBottom=list.scrollTop+list.clientHeight>=list.scrollHeight-1;
+  if((atTop&&delta>0)||(atBottom&&delta<0)){
+   const pull=Math.sign(delta)*Math.min(10,Math.abs(delta)*.18);
+   picker.style.transform='translate3d(0,'+pull+'px,0) scale(.997)';
+  }
+ },{passive:true});
+ list.addEventListener('touchend',resetPresetBounce,{passive:true});
+ list.addEventListener('touchcancel',resetPresetBounce,{passive:true});
  picker.append(trigger,list);host.appendChild(picker);
 }
 function openEditor(id){
