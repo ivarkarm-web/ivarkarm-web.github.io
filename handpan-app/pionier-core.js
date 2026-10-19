@@ -207,9 +207,10 @@ function draw() {
 }
 
 function triggerTouchFeedback(x, y, noteIndex) {
-  // Visual response belongs to the instrument; haptic feedback remains optional.
-  surface.addRipple?.(x, y, noteIndex);
+  // The Touch ripples preference controls the visual ripple and haptic feedback together.
+  // Do not draw first and then return: that made ripples appear while the setting was off.
   if (window.PionierSettings?.touchFeedback !== true) return;
+  surface.addRipple?.(x, y, noteIndex);
   // Browsers expose vibration as a pulse pattern, not an adjustable intensity.
   // A firm double-pulse gives supported Android phones a more tactile strike.
   try {
