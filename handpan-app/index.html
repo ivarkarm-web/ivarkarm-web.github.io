@@ -14,10 +14,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./pionier.css?v=147" />
+  <link rel="stylesheet" href="./pionier.css?v=148" />
   <link rel="stylesheet" href="./topbar-narrow.css?v=6" />
-  <link rel="stylesheet" href="./looper.css?v=210" />
-  <link rel="stylesheet" href="./scale-menu.css?v=8" />
+  <link rel="stylesheet" href="./looper.css?v=211" />
+  <link rel="stylesheet" href="./scale-menu.css?v=9" />
   <link rel="stylesheet" href="./settings-panel.css?v=18" />
   <style>
     .backdrop-player { display: none !important; }
@@ -53,7 +53,7 @@
   <link rel="stylesheet" href="./atelier.css?v=10">
   <!-- ui-layout-extras.css retired: layout lives in pionier.css -->
   <link rel="stylesheet" href="./ui-stability.css?v=5" />
-  <link rel="stylesheet" href="./learn-mode.css?v=8" />
+  <link rel="stylesheet" href="" />
 </head>
 <body>
   <div id="appStatus" class="app-status" data-state="loading" role="status" aria-live="polite">
@@ -68,7 +68,7 @@
           <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Handpan ▾</button>
           <button type="button" class="icon-btn" id="voiceNext" aria-label="Next voice">›</button>
           <button type="button" class="icon-btn soundscapes-open-btn" id="openSoundscapes" aria-label="Open Soundscapes" title="Soundscapes">♫</button>
-          <button type="button" class="learn-open-btn" id="openLearn" aria-label="Open Learn" title="Learn">Learn</button>
+          <button type="button" class="learn-open-btn randomize-setup-btn" id="randomizeSetup" aria-label="Randomize instrument and scale" title="Surprise me">⚄</button>
         </div>
       </div>
     </header>
@@ -125,60 +125,6 @@
       <canvas id="pan" width="680" height="680" role="img" aria-label="Handpan instrument"></canvas>
     </main>
   </div>
-
-  <section id="learnPanel" class="learn-panel" hidden aria-label="Learn Catch the Note">
-    <div class="learn-card">
-      <div class="learn-eyebrow">PIONIER · LEARN</div>
-      <button type="button" id="learnClose" class="learn-close" aria-label="Close Learn">×</button>
-      <h2 id="learnHeading">Catch the Note</h2>
-      <p id="learnDescription">Catch the contracting ring at the moment it reaches its tonefield.</p>
-      <div id="learnLessonList" class="learn-lesson-list">
-        <button type="button" class="learn-lesson" data-lesson="0"><span class="learn-lesson-number">01</span><span><strong>Scale Up &amp; Down</strong><small>Follow the scale · return home</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="1"><span class="learn-lesson-number">02</span><span><strong>Two-Note Chords</strong><small>Play glowing notes together · multi-touch</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="2"><span class="learn-lesson-number">03</span><span><strong>Ode to Joy</strong><small>Beethoven · public-domain composition · 30 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="3"><span class="learn-lesson-number">04</span><span><strong>Frère Jacques</strong><small>Traditional · public-domain melody · 26 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="4"><span class="learn-lesson-number">05</span><span><strong>Twinkle, Twinkle</strong><small>Traditional · public-domain melody · 42 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="5"><span class="learn-lesson-number">06</span><span><strong>Mary Had a Little Lamb</strong><small>Traditional · public-domain melody · 26 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="6"><span class="learn-lesson-number">07</span><span><strong>Row, Row, Row Your Boat</strong><small>Traditional · public-domain melody · 27 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="7"><span class="learn-lesson-number">08</span><span><strong>London Bridge Is Falling Down</strong><small>Traditional · public-domain melody · 22 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="8"><span class="learn-lesson-number">09</span><span><strong>Old MacDonald Had a Farm</strong><small>Traditional · public-domain melody · 21 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="9"><span class="learn-lesson-number">10</span><span><strong>Amazing Grace</strong><small>Traditional hymn · public-domain melody · 20 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="10"><span class="learn-lesson-number">11</span><span><strong>Greensleeves</strong><small>Traditional · public-domain melody · 24 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="11"><span class="learn-lesson-number">12</span><span><strong>Scarborough Fair</strong><small>Traditional · public-domain melody · 22 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="12"><span class="learn-lesson-number">13</span><span><strong>When the Saints Go Marching In</strong><small>Traditional · public-domain melody · 23 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="13"><span class="learn-lesson-number">14</span><span><strong>Oh! Susanna</strong><small>Stephen Foster · public-domain composition · 24 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="14"><span class="learn-lesson-number">15</span><span><strong>Yankee Doodle</strong><small>Traditional · public-domain melody · 20 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="15"><span class="learn-lesson-number">16</span><span><strong>Jingle Bells</strong><small>James Lord Pierpont · public-domain composition · 26 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="16"><span class="learn-lesson-number">17</span><span><strong>Silent Night</strong><small>Franz Xaver Gruber · public-domain composition · 22 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="17"><span class="learn-lesson-number">18</span><span><strong>Auld Lang Syne</strong><small>Traditional · public-domain melody · 22 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="18"><span class="learn-lesson-number">19</span><span><strong>Au clair de la lune</strong><small>Traditional French · public-domain melody · 23 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="19"><span class="learn-lesson-number">20</span><span><strong>Brahms’ Lullaby</strong><small>Johannes Brahms · public-domain composition · 27 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="20"><span class="learn-lesson-number">21</span><span><strong>Canon in D</strong><small>Johann Pachelbel · public-domain composition · 24 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="21"><span class="learn-lesson-number">22</span><span><strong>Minuet in G</strong><small>Christian Petzold · public-domain composition · 29 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="22"><span class="learn-lesson-number">23</span><span><strong>Turkish March</strong><small>W. A. Mozart · public-domain composition · 32 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="23"><span class="learn-lesson-number">24</span><span><strong>Für Elise (theme)</strong><small>Ludwig van Beethoven · public-domain composition · 28 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="24"><span class="learn-lesson-number">25</span><span><strong>Spring (theme)</strong><small>Antonio Vivaldi · public-domain composition · 24 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="25"><span class="learn-lesson-number">26</span><span><strong>Swan Lake (theme)</strong><small>Pyotr Ilyich Tchaikovsky · public-domain composition · 20 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="26"><span class="learn-lesson-number">27</span><span><strong>Morning Mood</strong><small>Edvard Grieg · public-domain composition · 21 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="27"><span class="learn-lesson-number">28</span><span><strong>Dance of the Sugar Plum Fairy</strong><small>Pyotr Ilyich Tchaikovsky · public-domain composition · 22 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="28"><span class="learn-lesson-number">29</span><span><strong>William Tell Overture (theme)</strong><small>Gioachino Rossini · public-domain composition · 25 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="29"><span class="learn-lesson-number">30</span><span><strong>Habanera (Carmen)</strong><small>Georges Bizet · public-domain composition · 22 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="30"><span class="learn-lesson-number">31</span><span><strong>Sakura Sakura</strong><small>Traditional Japanese folk song · traditional melody · 19 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="31"><span class="learn-lesson-number">32</span><span><strong>Symphony No. 5 (opening motif)</strong><small>Ludwig van Beethoven · public-domain composition · 16 notes</small></span><span class="learn-lesson-arrow">↗</span></button>
-        <button type="button" class="learn-lesson" data-lesson="32"><span class="learn-lesson-number">33</span><span><strong>Flow Pygmy → Tine Piano</strong><small>Choose your scale and instrument · follow 3 waves</small></span><span class="learn-lesson-arrow">↗</span></button>
-      </div>
-      <div id="learnRunControls" class="learn-run-controls" hidden>
-        <div id="learnProgress" class="learn-progress">READY WHEN YOU ARE</div>
-        <button type="button" id="learnStart" class="learn-action">Start</button>
-        <button type="button" id="learnListen" class="learn-action" aria-pressed="false" hidden>Listen to phrase</button>
-        <button type="button" id="learnCatch" class="learn-action" aria-pressed="true" hidden>Catch the phrase</button>
-        <button type="button" id="learnTranspose" class="learn-secondary">Transpose: Original</button>
-        <button type="button" id="learnRestart" class="learn-secondary">Restart lesson</button>
-        <button type="button" id="learnBack" class="learn-secondary">All lessons</button>
-      </div>
-      <p class="learn-footnote">Press Start when you are ready, then play the highlighted tonefields yourself. Phrases are editable prototypes, not transcriptions of the source recordings yet.</p>
-    </div>
-  </section>
 
   <section id="soundscapesPanel" class="soundscapes-panel" hidden aria-label="Soundscapes">
     <header class="soundscapes-header">
@@ -250,7 +196,7 @@
   <script src="./js/settings-panel.js?v=27"></script>
   <script src="./js/ambient-fx.js?v=12"></script>
   <script src="./js/skin-mandala.js?v=5"></script>
-  <script type="module" src="./pionier-app.js?v=215"></script>
+  <script type="module" src="./pionier-app.js?v=216"></script>
   <script src="./registerSW.js"></script>
 </body>
 </html>
