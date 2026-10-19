@@ -59,14 +59,5 @@
     { id: 'wave', label: 'Wave Filigree', group: 'Geometry' },
   ];
 
-  const TONEFIELDS = [
-    { id: 'classic', label: 'Classic Oval' },
-    { id: 'round', label: 'Soft Round' },
-    { id: 'petal', label: 'Petal' },
-    { id: 'teardrop', label: 'Teardrop' },
-    { id: 'seed', label: 'Seed' },
-    { id: 'halo', label: 'Halo Ring' },
-  ];
-
-  window.PionierCatalog = { SKINS, AMBIENTS, TONEFIELDS, AURAS };
+window.PionierCatalog = { SKINS, AMBIENTS, AURAS };
 })();
