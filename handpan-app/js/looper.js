@@ -144,8 +144,11 @@ export function mountLooper({ root } = {}) {
   const metronomeBtn = ensureTimingButton('looperMetronomeBtn','looper-metronome-btn','Toggle metronome','<span class="looper-metronome-icon" aria-hidden="true">♩</span><span class="looper-timing-led" aria-hidden="true"></span>');
   const bpmBtn = ensureTimingButton('looperBpmBtn','looper-bpm-btn','Tempo settings','<span class="looper-bpm-value">90</span><span class="looper-bpm-unit">BPM</span>');
   btn.after(countInBtn, metronomeBtn, bpmBtn);
-  // The save action remains available beside the new transport controls.
-  cluster.appendChild(saveBtn);
+  // Put timing/save controls on the left; keep the record button visually centered.
+  rail.insertBefore(countInBtn, cluster);
+  rail.insertBefore(metronomeBtn, cluster);
+  rail.insertBefore(bpmBtn, cluster);
+  rail.insertBefore(saveBtn, cluster);
   syncBtn.setAttribute('aria-label', 'Sync mode: Free');
   syncBtn.title = SYNC_MODES[0].title;
 
@@ -744,7 +747,8 @@ export function mountLooper({ root } = {}) {
 
     const sheet = document.createElement('div');
     sheet.className = 'looper-sheet';
-    sheet.innerHTML = '<div class="looper-sheet-title">Layer ' + (index + 1) + '</div>';
+    sheet.innerHTML = '<header class="looper-sheet-header"><div class="looper-sheet-title">Layer ' + (index + 1) + '</div><button type="button" class="looper-menu-close" aria-label="Close layer controls">×</button></header>';
+    sheet.querySelector('.looper-menu-close').addEventListener('click', closeSheet);
     document.body.appendChild(sheet);
     sheetEl = sheet;
 
@@ -811,7 +815,9 @@ export function mountLooper({ root } = {}) {
         document.removeEventListener('pointerdown', onDoc, true);
       }
     };
+    const onKey = (ev) => { if (ev.key === 'Escape') { closeSheet(); document.removeEventListener('pointerdown', onDoc, true); document.removeEventListener('keydown', onKey); } };
     setTimeout(() => document.addEventListener('pointerdown', onDoc, true), 0);
+    document.addEventListener('keydown', onKey, { once: true });
   }
 
   function confirmDeleteLayer(index) {
@@ -1075,9 +1081,12 @@ export function mountLooper({ root } = {}) {
     menu.className = 'looper-timing-menu';
     menu.setAttribute('role', 'dialog');
     menu.setAttribute('aria-label', type === 'metronome' ? 'Metronome settings' : type === 'countin' ? 'Count-in settings' : 'Tempo settings');
+    const header = document.createElement('div'); header.className = 'looper-timing-menu-header';
     const title = document.createElement('div'); title.className = 'looper-timing-menu-title';
     title.textContent = type === 'metronome' ? 'Metronome' : type === 'countin' ? 'Count-in' : 'Tempo';
-    menu.appendChild(title);
+    const closeButton = document.createElement('button'); closeButton.type = 'button'; closeButton.className = 'looper-menu-close'; closeButton.setAttribute('aria-label', 'Close menu'); closeButton.textContent = '×';
+    closeButton.addEventListener('click', closeTimingMenu);
+    header.append(title, closeButton); menu.appendChild(header);
     const addSelect = (labelText, values, selected, onChange) => {
       const label = document.createElement('label'); label.className = 'looper-timing-field';
       const text = document.createElement('span'); text.textContent = labelText; label.appendChild(text);
