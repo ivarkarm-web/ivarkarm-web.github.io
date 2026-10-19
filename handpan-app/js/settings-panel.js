@@ -194,11 +194,16 @@
     select.setAttribute('aria-label', label);
     let lastGroup = null, group = null;
     items.forEach((item) => {
-      if (item.group && item.group !== lastGroup) {
-        lastGroup = item.group;
-        group = document.createElement('optgroup');
-        group.label = item.group;
-        select.appendChild(group);
+      if (item.group) {
+        if (item.group !== lastGroup) {
+          lastGroup = item.group;
+          group = document.createElement('optgroup');
+          group.label = item.group;
+          select.appendChild(group);
+        }
+      } else {
+        lastGroup = null;
+        group = null;
       }
       const option = document.createElement('option');
       option.value = item.id;
