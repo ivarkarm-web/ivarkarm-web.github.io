@@ -2174,995 +2174,122 @@ button.fx-panel-open {
   transform: translateX(calc(-50% + 52px)) !important;
 }
 
-/* ========== Soundscapes: clear Return to Handpan button ========== */
-.soundscapes-header {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 12px !important;
-  padding: 14px 16px !important;
-  flex-wrap: wrap !important;
-}
-.soundscapes-return-btn,
-#closeSoundscapes.soundscapes-return-btn {
-  appearance: none !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 6px !important;
-  min-height: 44px !important;
-  padding: 10px 18px !important;
-  border-radius: 999px !important;
-  border: 1px solid rgba(212, 176, 74, 0.45) !important;
-  background: linear-gradient(180deg, rgba(212, 176, 74, 0.22), rgba(212, 176, 74, 0.1)) !important;
-  color: #f0e4c0 !important;
-  font-size: 0.92rem !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.02em !important;
-  cursor: pointer !important;
-  white-space: nowrap !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
-}
-.soundscapes-return-btn:hover,
-#closeSoundscapes.soundscapes-return-btn:hover {
-  border-color: rgba(241, 217, 130, 0.7) !important;
-  background: linear-gradient(180deg, rgba(212, 176, 74, 0.32), rgba(212, 176, 74, 0.16)) !important;
-  color: #fff8e6 !important;
-}
-
-/* Light mode: keep return button readable */
-html.theme-light .soundscapes-return-btn,
-html.theme-light #closeSoundscapes.soundscapes-return-btn {
-  background: linear-gradient(180deg, #f5e6b8, #e8d48a) !important;
-  color: #3a2e0a !important;
-  border-color: rgba(120, 90, 20, 0.35) !important;
-}
-
-/* Light mode: stage/canvas area stays neutral */
-html.theme-light .stage,
-html.theme-light #stage {
-  background: transparent !important;
-}
-html.theme-light #app {
-  background: transparent !important;
-}
-html.theme-light .app-status {
-  background: rgba(242, 240, 235, 0.95) !important;
-  color: #1a1a1c !important;
-}
-
-
-/* ========== FX panel: reliable sheet, never style body as button ========== */
-button.fx-panel-open,
-#fxPanelOpen {
-  position: fixed !important;
-  /* centering handled by top-chrome cluster rules */
-}
-
-#fxPanel.fx-panel,
-.fx-panel#fxPanel {
-  position: fixed !important;
-  left: 50% !important;
-  right: auto !important;
-  top: max(64px, calc(env(safe-area-inset-top, 0px) + 56px)) !important;
-  bottom: auto !important;
-  transform: translateX(-50%) !important;
-  width: min(96vw, 420px) !important;
-  max-width: calc(100vw - 20px) !important;
-  max-height: min(70dvh, 520px) !important;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-  z-index: 4600 !important;
-  padding: 14px 16px 18px !important;
-  border-radius: 18px !important;
-  border: 1px solid rgba(212, 176, 74, 0.28) !important;
-  background: rgba(14, 14, 16, 0.97) !important;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55) !important;
-  color: #e6e0d2 !important;
-  -webkit-overflow-scrolling: touch;
-}
-#fxPanel.fx-panel[hidden],
-.fx-panel#fxPanel[hidden] {
-  display: none !important;
-}
-.fx-panel-header {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  margin-bottom: 12px !important;
-}
-.fx-panel-header h2 {
-  margin: 0 !important;
-  font-size: 1rem !important;
-  font-weight: 600 !important;
-  color: #e6e0d2 !important;
-}
-.fx-panel-body.knobs-panel,
-#fxPanel .knobs-panel {
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 12px 8px !important;
-  justify-items: center !important;
-  align-items: start !important;
-}
-#fxPanel .effect-knob-wrap {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  gap: 4px !important;
-  min-width: 0 !important;
-  pointer-events: auto !important;
-}
-#fxPanel .knob-canvas {
-  display: block !important;
-  width: 64px !important;
-  height: 64px !important;
-  max-width: 18vw !important;
-  max-height: 18vw !important;
-}
-#fxPanel .knob-label,
-#fxPanel .knob-val {
-  font-size: 0.7rem !important;
-  color: rgba(230, 224, 210, 0.7) !important;
-}
-
-/* Small, explicit shortcut for opening each effect's curve/preset editor. */
-#fxPanel .fx-knob-label-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  min-height: 22px;
-}
-#fxPanel .fx-settings-shortcut {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 19px;
-  height: 19px;
-  flex: 0 0 19px;
-  padding: 0;
-  border: 1px solid rgba(217,184,94,.62);
-  border-radius: 6px;
-  background: rgba(217,184,94,.10);
-  color: #f0d17b;
-  font: 700 10px/1 Inter, system-ui, sans-serif;
-  cursor: pointer;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-#fxPanel .fx-settings-shortcut:active {
-  background: rgba(217,184,94,.28);
-  transform: scale(.94);
-}
-#fxPanel .fx-settings-shortcut:focus-visible {
-  outline: 2px solid #f0d17b;
-  outline-offset: 2px;
-}
-html.theme-light #fxPanel .fx-settings-shortcut {
-  color: #765b15;
-  border-color: rgba(118,91,21,.5);
-  background: rgba(217,184,94,.16);
-}
-
-html.theme-light #fxPanel.fx-panel {
-  background: rgba(250, 249, 246, 0.98) !important;
-  border-color: rgba(0, 0, 0, 0.12) !important;
-  color: #1a1a1c !important;
-}
-html.theme-light #fxPanel .fx-panel-header h2,
-html.theme-light #fxPanel .knob-label,
-html.theme-light #fxPanel .knob-val {
-  color: rgba(28, 28, 32, 0.85) !important;
-}
-
-/* Do NOT let body.is-fx-open inherit button positioning */
-body.is-fx-open {
-  position: static !important;
-  transform: none !important;
-  left: auto !important;
-  right: auto !important;
-  top: auto !important;
-  width: auto !important;
-  height: auto !important;
-}
-
-/* ========== Light mode: unified bottom-bar control language ========== */
-html.theme-light #stageScaleBar,
-html.theme-light .stage-scale-bar {
-  background: linear-gradient(
-    to top,
-    rgba(244, 241, 235, 0.98) 0%,
-    rgba(244, 241, 235, 0.88) 55%,
-    rgba(244, 241, 235, 0.35) 88%,
-    transparent 100%
-  ) !important;
-}
-
-/* Shared pill token */
-html.theme-light #stageScaleBar .stage-instrument-nav,
-html.theme-light #stageScaleBar #instrumentNav,
-html.theme-light #stageScaleBar .control-scale,
-html.theme-light #stageScaleBar .stage-control-scale,
-html.theme-light #stageScaleBar .scale-stepper,
-html.theme-light #stageScaleBar .stepper,
-html.theme-light #stageScaleBar .stage-base-only .stepper,
-html.theme-light #stageScaleBar .stage-notes-slot .stepper,
-html.theme-light #stageScaleBar #stageBaseOnly .stepper,
-html.theme-light #stageScaleBar #stageNotesSlot .stepper {
-  background: #ffffff !important;
-  border: 1px solid rgba(40, 36, 28, 0.12) !important;
-  border-radius: 999px !important;
-  box-shadow: 0 1px 3px rgba(40, 30, 10, 0.05) !important;
-  overflow: hidden !important;
-}
-
-/* Center labels (scale name, instrument name) — same as pill face */
-html.theme-light #stageScaleBar #scaleLabel,
-html.theme-light #stageScaleBar .stage-scale-btn,
-html.theme-light #stageScaleBar .scale-dropdown-toggle,
-html.theme-light #stageScaleBar #instrumentDropdownToggle,
-html.theme-light #stageScaleBar .instrument-name,
-html.theme-light #stageScaleBar .stage-instrument-nav .instrument-name {
-  background: transparent !important;
-  color: #1c1b1a !important;
-  border: none !important;
-  box-shadow: none !important;
-  font-weight: 600 !important;
-}
-
-/* Chevron / step buttons — transparent inside the shared pill */
-html.theme-light #stageScaleBar #scalePrev,
-html.theme-light #stageScaleBar #scaleNext,
-html.theme-light #stageScaleBar #voicePrev,
-html.theme-light #stageScaleBar #voiceNext,
-html.theme-light #stageScaleBar .stage-scale-step,
-html.theme-light #stageScaleBar .icon-btn,
-html.theme-light #stageScaleBar .step,
-html.theme-light #stageScaleBar .stepper .step {
-  background: transparent !important;
-  color: #3a3834 !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-html.theme-light #stageScaleBar .stepper .step:first-child {
-  border-right: 1px solid rgba(40, 36, 28, 0.1) !important;
-}
-html.theme-light #stageScaleBar .stepper .step:last-child {
-  border-left: 1px solid rgba(40, 36, 28, 0.1) !important;
-}
-html.theme-light #stageScaleBar .step-value,
-html.theme-light #stageScaleBar .stepper .step-value {
-  background: transparent !important;
-  color: #1c1b1a !important;
-  border: none !important;
-  font-weight: 600 !important;
-}
-html.theme-light #stageScaleBar .control-label {
-  color: rgba(40, 36, 28, 0.45) !important;
-}
-
-/* Hover/active feedback — subtle warm tint */
-html.theme-light #stageScaleBar #scalePrev:hover,
-html.theme-light #stageScaleBar #scaleNext:hover,
-html.theme-light #stageScaleBar #voicePrev:hover,
-html.theme-light #stageScaleBar #voiceNext:hover,
-html.theme-light #stageScaleBar .step:hover,
-html.theme-light #stageScaleBar .stepper .step:hover,
-html.theme-light #stageScaleBar #scaleLabel:hover,
-html.theme-light #stageScaleBar #instrumentDropdownToggle:hover {
-  background: rgba(196, 160, 70, 0.12) !important;
-  color: #1c1b1a !important;
-}
-
-/* Looper chrome in light — match the same white language */
-html.theme-light #looperClearBtn,
-html.theme-light .looper-clear-btn,
-html.theme-light #looperSyncBtn,
-html.theme-light .looper-sync-dial {
-  background: #ffffff !important;
-  border: 1px solid rgba(40, 36, 28, 0.12) !important;
-  color: #3a3834 !important;
-  box-shadow: 0 1px 3px rgba(40, 30, 10, 0.05) !important;
-}
-html.theme-light .looper-sync-label {
-  color: #3a3834 !important;
-}
-
-/* Kill residual grey fill on instrument name chip in light mode */
-html.theme-light #stageScaleBar #instrumentDropdownToggle,
-html.theme-light #stageScaleBar #instrumentDropdownToggle.instrument-name,
-html.theme-light #stageScaleBar .instrument-name,
-html.theme-light .instrument-name {
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  color: #1c1b1a !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-/* Full effect designer: opened by double-clicking one of the four FX knobs. */
-.fx-editor-backdrop[hidden], .fx-editor[hidden] { display:none !important; }
-.fx-editor-backdrop { position:fixed; inset:0; z-index:6800; background:rgba(3,4,6,.72); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
-.fx-editor { --editor-line:rgba(235,228,211,.12); position:fixed; z-index:6810; left:50%; top:50%; transform:translate(-50%,-50%); width:min(720px,calc(100vw - 36px)); max-height:min(88dvh,900px); overflow:auto; padding:clamp(18px,3vw,28px); border:1px solid rgba(219,184,91,.25); border-radius:22px; background:linear-gradient(145deg,rgba(24,24,26,.99),rgba(10,11,13,.99)); color:#eee9dd; box-shadow:0 28px 100px rgba(0,0,0,.55); overscroll-behavior:contain; }
-.fx-editor-header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
- .fx-editor-header-compact { margin-bottom:12px; }
- .fx-editor-current-title { color:rgba(235,228,211,.78); font-size:12px; font-weight:600; letter-spacing:.04em; }
- .fx-editor-header-compact .icon-btn { width:32px; height:32px; min-height:32px; }
-.fx-editor-eyebrow { margin:0 0 6px; color:#d7b45a; font-size:10px; letter-spacing:.19em; font-weight:700; }
-.fx-editor-header h2 { margin:0; font-size:clamp(22px,4vw,30px); font-weight:560; letter-spacing:-.035em; }
-.fx-editor-header p:not(.fx-editor-eyebrow) { margin:7px 0 0; color:rgba(235,228,211,.58); font-size:13px; }
-.fx-editor-toolbar { display:flex; align-items:center; gap:8px; justify-content:space-between; margin:0 0 10px; }
-.fx-editor-presets { display:flex; flex:1 1 auto; min-width:0; }
-.fx-editor-preset-select { width:100%; min-width:0; min-height:34px; padding:7px 34px 7px 12px; border-radius:10px; border:1px solid rgba(219,184,91,.3); background:#151517; color:#eee9dd; font:inherit; font-size:12px; cursor:pointer; }
-.fx-editor-preset-select:focus-visible { outline:2px solid #e1bd5c; outline-offset:2px; }
-.fx-editor-bypass { min-height:34px; padding:7px 13px; border-radius:999px; border:1px solid var(--editor-line); color:#eee9dd; background:rgba(255,255,255,.035); font:inherit; font-size:12px; cursor:pointer; white-space:nowrap; }
-.fx-editor-bypass[aria-pressed="true"] { color:#f4d781; border-color:#d7b45a; }
-.fx-editor-curve-wrap { padding:8px 9px 5px; border:1px solid var(--editor-line); border-radius:15px; background:rgba(0,0,0,.2); }
-.fx-editor-curve-heading,.fx-editor-axis-labels { display:flex; justify-content:space-between; gap:10px; color:rgba(235,228,211,.47); font-size:9px; letter-spacing:.11em; }
-.fx-editor-curve-heading span:first-child { color:rgba(235,228,211,.75); font-weight:700; }
-.fx-editor-curve { display:block; width:100%; height:150px; margin:0; touch-action:none; cursor:crosshair; }
-.fx-editor-axis-labels { letter-spacing:.04em; text-transform:none; font-size:10px; }
-.fx-editor-knobs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; padding:12px 0 10px; }
-.fx-editor-knob { display:flex; min-width:0; align-items:center; flex-direction:column; gap:6px; }
-.fx-editor-dial { display:block; width:50px; height:50px; cursor:ns-resize; touch-action:none; user-select:none; }
-.fx-editor-knob-name { color:rgba(235,228,211,.63); font-size:11px; text-align:center; }
-.fx-editor-knob-value { color:#f0d17b; font-size:12px; font-variant-numeric:tabular-nums; text-align:center; }
-.fx-editor-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:14px; border-top:1px solid var(--editor-line); color:rgba(235,228,211,.45); font-size:11px; }
-.fx-editor-reset { min-height:38px; border:1px solid var(--editor-line); border-radius:10px; background:transparent; color:rgba(235,228,211,.76); padding:8px 13px; font:inherit; cursor:pointer; }
-.fx-editor button:focus-visible,.fx-editor-dial:focus-visible { outline:2px solid #e1bd5c; outline-offset:3px; }
-@media (max-width:700px) {
- .fx-editor { left:0; right:0; top:auto; bottom:0; transform:none; width:auto; max-height:min(90dvh,850px); padding:20px 17px calc(18px + env(safe-area-inset-bottom)); border-radius:22px 22px 0 0; border-bottom:0; }
- .fx-editor-curve { height:180px; }
- .fx-editor-toolbar { align-items:flex-start; }
- .fx-editor-presets { gap:6px; }
- .fx-editor-preset { padding:7px 10px; }
- .fx-editor-dial { width:68px; height:68px; }
-}
-@media (prefers-reduced-motion:no-preference) { .fx-editor { animation:fx-editor-in .18s ease-out; } @keyframes fx-editor-in { from { opacity:0; translate:0 8px; } to { opacity:1; translate:0 0; } } }
-
-
-/* Picker surfaces share the refined translucent preset-dropdown treatment. */
-.instrument-menu:not([hidden]),
-.scale-menu:not([hidden]) {
-  background: rgba(16, 16, 19, .86) !important;
-  border-color: rgba(226, 195, 117, .22) !important;
-  box-shadow: 0 20px 60px rgba(0,0,0,.44), inset 0 1px 0 rgba(255,255,255,.035) !important;
-  backdrop-filter: blur(24px) saturate(125%);
-  -webkit-backdrop-filter: blur(24px) saturate(125%);
-}
-.instrument-menu.picker-popover.is-open:not([hidden]),
-.scale-menu.picker-popover.is-open:not([hidden]) { animation: picker-popover-reveal .22s cubic-bezier(.2,.8,.2,1) both; }
-.instrument-menu.picker-sheet.is-open:not([hidden]),
-.scale-menu.picker-sheet.is-open:not([hidden]) { animation: picker-sheet-reveal .24s cubic-bezier(.2,.8,.2,1) both; }
-@keyframes picker-popover-reveal { from { opacity:0; transform:translateY(8px) scale(.985); } to { opacity:1; transform:translateY(0) scale(1); } }
-@keyframes picker-sheet-reveal { from { opacity:.6; translate:0 22px; } to { opacity:1; translate:0 0; } }
-.instrument-menu-item, .scale-menu-item { transition:background .16s ease,color .16s ease,transform .16s ease; }
-.instrument-menu-item:active, .scale-menu-item:active { transform:scale(.99); }
-.randomize-setup-btn { width:34px; min-width:34px; height:34px; padding:0; display:inline-flex; align-items:center; justify-content:center; font-size:20px; line-height:1; color:var(--gold,#d4b04a); border:1px solid rgba(212,176,74,.25); border-radius:50%; background:rgba(212,176,74,.06); }
-.randomize-setup-btn.is-rolling { animation:random-dice-roll .42s cubic-bezier(.22,1,.36,1); }
-@keyframes random-dice-roll { 0%{transform:rotate(0) scale(1)} 45%{transform:rotate(180deg) scale(1.12)} 100%{transform:rotate(360deg) scale(1)} }
-.fx-editor-backdrop { background:rgba(3,4,6,.48); }
-.fx-editor {
-  left:50%; right:auto; top:max(64px,calc(env(safe-area-inset-top,0px) + 56px)); bottom:auto;
-  transform:translateX(-50%); width:min(96vw,420px); max-width:calc(100vw - 20px);
-  max-height:min(70dvh,520px); padding:14px 16px 18px; border-radius:18px;
-  background:linear-gradient(145deg,rgba(24,24,26,.91),rgba(10,11,13,.88));
-  border-color:rgba(219,184,91,.25); box-shadow:0 20px 60px rgba(0,0,0,.46);
-}
-@media (max-width:700px) {
-  .fx-editor { left:50%; right:auto; top:max(64px,calc(env(safe-area-inset-top,0px) + 56px)); bottom:auto; transform:translateX(-50%); width:min(96vw,420px); max-height:min(70dvh,520px); padding:14px 14px 16px; border-radius:18px; border-bottom:1px solid rgba(219,184,91,.25); }
-  .fx-editor-curve { height:130px; }
-}
-@media (prefers-reduced-motion:no-preference) {
- .fx-editor { animation:fx-editor-drop-from-top .24s cubic-bezier(.2,.8,.2,1) both; }
- @keyframes fx-editor-drop-from-top { from { opacity:0; transform:translate(-50%,-16px) scale(.985); } to { opacity:1; transform:translate(-50%,0) scale(1); } }
-}
-
-/* The dice control inherits the topbar icon button's visibility and touch behavior. */
-.instrument-nav .randomize-setup-btn { display:inline-flex !important; visibility:visible !important; opacity:1 !important; pointer-events:auto !important; }
-
-
-/* Shared Pionier custom menu: same option component for FX presets, instruments and scales. */
-.pionier-menu-picker { position:relative; min-width:0; width:100%; }
-.pionier-menu-trigger {
- box-sizing:border-box; display:flex; align-items:center; justify-content:space-between; gap:12px;
- width:100%; min-height:42px; padding:10px 13px; text-align:left; color:#eee9dd;
- background:rgba(19,19,22,.78); border:1px solid rgba(219,184,91,.28); border-radius:12px;
- font:inherit; font-size:13px; cursor:pointer; transition:border-color .18s ease,background .18s ease;
-}
-.pionier-menu-trigger:hover,.pionier-menu-trigger[aria-expanded="true"] { border-color:rgba(219,184,91,.58); background:rgba(30,28,23,.84); }
-.pionier-menu-list {
- position:absolute; left:0; right:0; top:calc(100% + 7px); z-index:7000; box-sizing:border-box;
- max-height:min(52dvh,360px); overflow-y:auto; overscroll-behavior:contain; padding:6px;
- border:1px solid rgba(226,195,117,.24); border-radius:14px;
- background:rgba(16,16,19,.88); color:#e9e2d4;
- box-shadow:0 20px 60px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.055);
- -webkit-backdrop-filter:blur(28px) saturate(140%); backdrop-filter:blur(28px) saturate(140%);
- scrollbar-width:thin; scrollbar-color:rgba(219,184,91,.45) transparent;
- transform-origin:top center;
-}
-.pionier-menu-list[hidden] { display:none !important; }
-.pionier-menu-picker.is-open .pionier-menu-list { animation:pionier-menu-spring .38s cubic-bezier(.2,.85,.25,1.2) both; }
-.pionier-menu-option {
- display:flex; align-items:center; justify-content:space-between; gap:12px; box-sizing:border-box;
- width:100%; min-height:42px; padding:10px 12px; margin:1px 0; border:1px solid transparent;
- border-radius:10px; background:transparent; color:rgba(236,230,218,.76); text-align:left;
- font:inherit; font-size:13px; cursor:pointer;
- transition:background .16s ease,color .16s ease,border-color .16s ease,transform .22s cubic-bezier(.2,.85,.25,1.2);
-}
-.pionier-menu-option:hover,.pionier-menu-option:focus-visible { outline:none; color:#f4ecd9; background:rgba(219,184,91,.09); border-color:rgba(219,184,91,.16); }
-.pionier-menu-option:active { transform:scale(.987); }
-.pionier-menu-option.is-active,.pionier-menu-option[aria-selected="true"] { color:#f5d781; background:rgba(217,184,94,.13); border-color:rgba(217,184,94,.2); }
-.pionier-menu-check { flex:0 0 auto; color:#e5c36c; font-size:14px; font-weight:700; opacity:0; transform:scale(.7); transition:opacity .16s ease,transform .2s cubic-bezier(.2,.85,.25,1.2); }
-.pionier-menu-option.is-active .pionier-menu-check,.pionier-menu-option[aria-selected="true"] .pionier-menu-check { opacity:1; transform:scale(1); }
-@keyframes pionier-menu-spring { 0%{opacity:0;transform:translateY(-9px) scale(.975)} 68%{opacity:1;transform:translateY(2px) scale(1.006)} 86%{transform:translateY(-1px) scale(.998)} 100%{opacity:1;transform:translateY(0) scale(1)} }
-.scale-menu .scale-menu-item,.instrument-menu .instrument-menu-item { position:relative; }
-.scale-menu .scale-menu-item.is-active::after,.instrument-menu .instrument-menu-item.is-active::after { content:'✓'; float:right; margin-left:12px; color:#e5c36c; font-weight:700; }
-@media(prefers-reduced-motion:reduce) { .pionier-menu-picker.is-open .pionier-menu-list { animation:none; } }
-
-
-/* Restore the original FX preset dropdown independently of the instrument/scale pickers. */
-.fx-preset-picker { position:relative; min-width:0; width:100%; }
-.fx-preset-picker .fx-editor-preset-select {
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  width:100%; min-height:36px; padding:8px 12px;
-  border:1px solid rgba(219,184,91,.3); border-radius:10px;
-  background:rgba(21,21,23,.72); color:#eee9dd;
-  font:inherit; font-size:12px; text-align:left; cursor:pointer;
-  transition:background .16s ease,border-color .16s ease;
-}
-.fx-preset-picker .fx-editor-preset-select:hover,
-.fx-preset-picker .fx-editor-preset-select[aria-expanded="true"] {
-  border-color:rgba(219,184,91,.58); background:rgba(30,28,23,.84);
-}
-.fx-preset-picker .fx-preset-list {
-  position:absolute; left:0; right:0; top:calc(100% + 7px); z-index:7000;
-  box-sizing:border-box; max-height:min(52dvh,360px); overflow-y:auto;
-  overscroll-behavior:contain; padding:6px;
-  border:1px solid rgba(226,195,117,.24); border-radius:14px;
-  background:rgba(16,16,19,.88); color:#e9e2d4;
-  box-shadow:0 20px 60px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.055);
-  -webkit-backdrop-filter:blur(28px) saturate(140%); backdrop-filter:blur(28px) saturate(140%);
-  scrollbar-width:thin; scrollbar-color:rgba(219,184,91,.45) transparent;
-  transform-origin:top center;
-}
-.fx-preset-picker .fx-preset-list[hidden] { display:none !important; }
-.fx-preset-picker.is-open .fx-preset-list {
-  animation:pionier-menu-spring .38s cubic-bezier(.2,.85,.25,1.2) both;
-}
-.fx-preset-picker .fx-preset-option {
-  display:flex; align-items:center; justify-content:space-between; gap:12px;
-  box-sizing:border-box; width:100%; min-height:42px; padding:10px 12px; margin:1px 0;
-  border:1px solid transparent; border-radius:10px; background:transparent;
-  color:rgba(236,230,218,.76); text-align:left; font:inherit; font-size:13px; cursor:pointer;
-  transition:background .16s ease,color .16s ease,border-color .16s ease,transform .22s cubic-bezier(.2,.85,.25,1.2);
-}
-.fx-preset-picker .fx-preset-option:hover,
-.fx-preset-picker .fx-preset-option:focus-visible {
-  outline:none; color:#f4ecd9; background:rgba(219,184,91,.09); border-color:rgba(219,184,91,.16);
-}
-.fx-preset-picker .fx-preset-option:active { transform:scale(.987); }
-.fx-preset-picker .fx-preset-option.is-active,
-.fx-preset-picker .fx-preset-option[aria-selected="true"] {
-  color:#f5d781; background:rgba(217,184,94,.13); border-color:rgba(217,184,94,.2);
-}
-.fx-preset-picker .fx-preset-option .pionier-menu-check {
-  flex:0 0 auto; color:#e5c36c; font-size:14px; font-weight:700;
-  opacity:0; transform:scale(.7); transition:opacity .16s ease,transform .2s cubic-bezier(.2,.85,.25,1.2);
-}
-.fx-preset-picker .fx-preset-option.is-active .pionier-menu-check,
-.fx-preset-picker .fx-preset-option[aria-selected="true"] .pionier-menu-check {
-  opacity:1; transform:scale(1);
-}
-@media(prefers-reduced-motion:reduce) {
-  .fx-preset-picker.is-open .fx-preset-list { animation:none; }
-}
-
-
-/* Shared looper settings-bubble language: keep every popup a compact floating bubble. */
-.fx-preset-picker .fx-preset-list {
-  padding:12px !important;
-  border-radius:16px !important;
-  background:rgba(16,16,19,.88) !important;
-  border:1px solid rgba(226,195,117,.24) !important;
-  box-shadow:0 20px 60px rgba(0,0,0,.46),inset 0 1px 0 rgba(255,255,255,.035) !important;
-  -webkit-backdrop-filter:blur(24px) saturate(125%) !important;
-  backdrop-filter:blur(24px) saturate(125%) !important;
-  transform-origin:bottom center;
-}
-.fx-preset-picker.is-open .fx-preset-list {
-  animation:looper-bubble-in .2s cubic-bezier(.2,.8,.2,1) both !important;
-}
-@keyframes looper-bubble-in {
-  from { opacity:0; transform:translateY(8px) scale(.985); }
-  to { opacity:1; transform:translateY(0) scale(1); }
-}
-@media(prefers-reduced-motion:reduce) {
-  .fx-preset-picker.is-open .fx-preset-list { animation:none !important; }
-}
-
-
-/* Final popup-bubble contract: hide browser scrollbar chrome, retain touch/trackpad scrolling. */
-.scale-menu.picker-popover:not([hidden]),
-.instrument-menu.picker-popover:not([hidden]),
-.fx-preset-picker .fx-preset-list {
-  scrollbar-width:none !important;
-  -ms-overflow-style:none !important;
-}
-.scale-menu.picker-popover:not([hidden])::-webkit-scrollbar,
-.instrument-menu.picker-popover:not([hidden])::-webkit-scrollbar,
-.scale-menu.picker-popover .picker-results::-webkit-scrollbar,
-.instrument-menu.picker-popover .picker-results::-webkit-scrollbar,
-.fx-preset-picker .fx-preset-list::-webkit-scrollbar {
-  display:none !important;
-  width:0 !important;
-  height:0 !important;
-}
-.scale-menu.picker-popover .picker-results,
-.instrument-menu.picker-popover .picker-results {
-  scrollbar-width:none !important;
-  -ms-overflow-style:none !important;
-}
-.scale-menu.picker-popover:not([hidden]),
-.instrument-menu.picker-popover:not([hidden]) {
-  border-radius:16px !important;
-  background:rgba(16,16,19,.88) !important;
-  border:1px solid rgba(226,195,117,.24) !important;
-  box-shadow:0 20px 60px rgba(0,0,0,.46),inset 0 1px 0 rgba(255,255,255,.035) !important;
-  -webkit-backdrop-filter:blur(24px) saturate(125%) !important;
-  backdrop-filter:blur(24px) saturate(125%) !important;
-}
-
-/* Shared looper-style picker scrolling: invisible scrollbar, native scroll, elastic edge feedback. */
-.instrument-menu.picker-popover,
-.scale-menu.picker-popover,
-.fx-preset-picker .fx-preset-list,
-.instrument-menu.picker-popover .picker-results,
-.scale-menu.picker-popover .picker-results {
-  overscroll-behavior-y: auto !important;
-  -webkit-overflow-scrolling: touch !important;
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-}
-.instrument-menu.picker-popover::-webkit-scrollbar,
-.scale-menu.picker-popover::-webkit-scrollbar,
-.instrument-menu.picker-popover .picker-results::-webkit-scrollbar,
-.scale-menu.picker-popover .picker-results::-webkit-scrollbar,
-.fx-preset-picker .fx-preset-list::-webkit-scrollbar {
-  width: 0 !important;
-  height: 0 !important;
-  display: none !important;
-}
-.instrument-menu.picker-popover,
-.scale-menu.picker-popover,
-.fx-preset-picker {
-  will-change: transform;
-  transition: transform 260ms cubic-bezier(.2,.85,.25,1.2);
-}
-
-/* Shared looper bubble visual contract for instrument, scale, and FX preset menus. */
-.looper-bubble-menu,
-.scale-menu.picker-popover.looper-bubble-menu,
-.instrument-menu.picker-popover.looper-bubble-menu,
-.fx-preset-picker .fx-preset-list {
- box-sizing:border-box!important;border:1px solid rgba(226,195,117,.26)!important;border-radius:16px!important;
- background:rgba(17,17,20,.90)!important;color:#f0ebe3!important;
- box-shadow:0 20px 60px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.055)!important;
- -webkit-backdrop-filter:blur(28px) saturate(140%)!important;backdrop-filter:blur(28px) saturate(140%)!important;
- scrollbar-width:none!important;-ms-overflow-style:none!important;
-}
-.scale-menu.picker-popover.looper-bubble-menu,.instrument-menu.picker-popover.looper-bubble-menu{padding:8px!important}
-.scale-menu.picker-popover.looper-bubble-menu .picker-results,.instrument-menu.picker-popover.looper-bubble-menu .picker-results{
- min-height:0!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:auto!important;
- -webkit-overflow-scrolling:touch!important;scrollbar-width:none!important;-ms-overflow-style:none!important;
-}
-.scale-menu.picker-popover.looper-bubble-menu .scale-menu-item,.instrument-menu.picker-popover.looper-bubble-menu .instrument-menu-item{
- min-height:38px!important;padding:9px 11px!important;margin:2px 0!important;border-radius:10px!important;
- transition:background .16s ease,color .16s ease,transform .28s cubic-bezier(.2,.85,.25,1.2)!important;
-}
-.scale-menu.picker-popover.looper-bubble-menu.is-open,.instrument-menu.picker-popover.looper-bubble-menu.is-open,
-.fx-preset-picker.is-open .fx-preset-list{animation:looper-picker-bubble-spring .38s cubic-bezier(.2,.85,.25,1.22) both!important;transform-origin:top center!important}
-@keyframes looper-picker-bubble-spring{
- 0%{opacity:0;transform:translateY(10px) scale(.97)}
- 62%{opacity:1;transform:translateY(-2px) scale(1.008)}
- 82%{transform:translateY(1px) scale(.998)}
- 100%{opacity:1;transform:translateY(0) scale(1)}
-}
-.scale-menu.picker-popover.looper-bubble-menu::-webkit-scrollbar,.instrument-menu.picker-popover.looper-bubble-menu::-webkit-scrollbar,
-.scale-menu.picker-popover.looper-bubble-menu .picker-results::-webkit-scrollbar,
-.instrument-menu.picker-popover.looper-bubble-menu .picker-results::-webkit-scrollbar,
-.fx-preset-picker .fx-preset-list::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
-.looper-track-close,.looper-menu-close{position:relative;z-index:5;pointer-events:auto!important;touch-action:manipulation;cursor:pointer}
-
-
-/* The FX preset list uses the exact same floating looper bubble and option buttons. */
-.fx-preset-picker .fx-preset-list:not([hidden]) {
-  box-sizing:border-box!important; padding:12px!important; max-height:min(48dvh,320px)!important;
-  overflow-x:hidden!important; overflow-y:auto!important; overscroll-behavior:contain!important;
-  -webkit-overflow-scrolling:touch!important;
-  border:1px solid rgba(226,195,117,.24)!important; border-radius:16px!important;
-  background:rgba(16,16,19,.88)!important; color:#eee9dd!important;
-  box-shadow:0 20px 60px rgba(0,0,0,.46),inset 0 1px 0 rgba(255,255,255,.035)!important;
-  -webkit-backdrop-filter:blur(24px) saturate(125%)!important;
-  backdrop-filter:blur(24px) saturate(125%)!important;
-  scrollbar-width:none!important; -ms-overflow-style:none!important;
-}
-.fx-preset-picker .fx-preset-option {
-  display:block!important; box-sizing:border-box!important; width:100%!important;
-  min-height:34px!important; padding:7px 8px!important; margin:1px 0!important;
-  border:1px solid rgba(230,224,210,.1)!important; border-radius:9px!important;
-  background:rgba(255,255,255,.035)!important; box-shadow:none!important;
-  color:rgba(236,230,217,.78)!important;
-  font:500 11px/1.2 Inter,system-ui,sans-serif!important; text-align:left!important;
-  transition:background .15s ease,border-color .15s ease,color .15s ease!important;
-}
-.fx-preset-picker .fx-preset-option:hover,
-.fx-preset-picker .fx-preset-option:focus-visible,
-.fx-preset-picker .fx-preset-option.is-active,
-.fx-preset-picker .fx-preset-option[aria-selected="true"] {
-  outline:none!important; color:#f6dfa0!important;
-  border-color:rgba(219,184,91,.52)!important; background:rgba(219,184,91,.12)!important;
-  box-shadow:none!important;
-}
-.fx-preset-picker .fx-preset-option .pionier-menu-check {display:none!important}
-.fx-preset-picker.is-open .fx-preset-list:not([hidden]) {
-  animation:looper-picker-bubble-spring .38s cubic-bezier(.2,.85,.25,1.22) both!important;
-  transform-origin:top center!important;
-}
-.fx-preset-picker .fx-preset-list::-webkit-scrollbar {display:none!important;width:0!important;height:0!important}
-@media(prefers-reduced-motion:reduce) {
- .fx-preset-picker.is-open .fx-preset-list:not([hidden]) {animation:none!important}
-}
-
-
-/* =========================================================
-   SOUNDSCAPES — editorial listening room
-   A considered, magazine-like library rather than a utility page.
-   ========================================================= */
-#soundscapesPanel[hidden] { display:none !important; }
+/* SOUNDSCAPES — minimal listening player */
 #soundscapesPanel:not([hidden]) {
-  display:flex !important;
-  flex-direction:column !important;
-  position:fixed !important;
-  inset:auto !important;
-  left:50% !important;
-  top:max(58px, calc(env(safe-area-inset-top, 0px) + 52px)) !important;
-  width:min(820px, calc(100vw - 32px)) !important;
-  max-width:calc(100vw - 32px) !important;
-  height:auto !important;
-  max-height:calc(100dvh - max(84px, calc(env(safe-area-inset-top, 0px) + 72px)) - env(safe-area-inset-bottom, 8px)) !important;
-  min-height:0 !important;
-  box-sizing:border-box !important;
-  padding:clamp(18px, 3vw, 30px) !important;
-  overflow:hidden !important;
-  border:1px solid rgba(218,190,125,.2) !important;
-  border-radius:20px !important;
-  color:#e9e4d9 !important;
-  background:linear-gradient(145deg, rgba(24,23,23,.97), rgba(13,13,15,.96) 68%) !important;
-  box-shadow:0 28px 90px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.045) !important;
-  -webkit-backdrop-filter:blur(30px) saturate(120%) !important;
-  backdrop-filter:blur(30px) saturate(120%) !important;
-  opacity:0 !important;
-  transform:translate(-50%, -10px) scale(.985) !important;
-  transform-origin:top center !important;
-  pointer-events:none !important;
-  transition:opacity .2s ease, transform .28s cubic-bezier(.2,.85,.25,1.2) !important;
-  z-index:var(--pionier-z-soundscapes, 5000) !important;
+  position:fixed!important; z-index:2400!important;
+  top:max(18px,env(safe-area-inset-top,0px))!important; left:50%!important; transform:translateX(-50%)!important;
+  width:min(820px,calc(100vw - 32px))!important;
+  max-height:calc(100dvh - 36px - env(safe-area-inset-bottom,0px))!important;
+  overflow:hidden!important; display:flex!important; flex-direction:column!important;
+  padding:24px!important; border:1px solid rgba(230,224,210,.12)!important; border-radius:18px!important;
+  background:radial-gradient(ellipse at 50% 0%,rgba(201,162,39,.07),transparent 54%),rgba(12,12,14,.97)!important;
+  box-shadow:0 28px 90px rgba(0,0,0,.62)!important; backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+  color:#eee9df!important;
 }
-#soundscapesPanel.is-active.is-open:not([hidden]) {
-  opacity:1 !important;
-  transform:translate(-50%, 0) scale(1) !important;
-  pointer-events:auto !important;
+#soundscapesPanel[hidden]{display:none!important}
+#soundscapesPanel .soundscapes-header{
+  position:relative!important; display:flex!important; align-items:center!important; justify-content:center!important;
+  margin:0 0 20px!important; padding:0 42px 16px!important; border-bottom:1px solid rgba(230,224,210,.09)!important;
 }
-#soundscapesPanel .soundscapes-header {
-  position:relative !important;
-  display:flex !important;
-  align-items:flex-start !important;
-  justify-content:space-between !important;
-  gap:18px !important;
-  margin:0 0 20px !important;
-  padding:0 0 17px !important;
-  border-bottom:1px solid rgba(230,224,210,.13) !important;
+#soundscapesPanel .soundscapes-header h2{
+  margin:0!important; color:rgba(242,235,222,.9)!important;
+  font:400 clamp(20px,3vw,27px)/1.2 "Playfair Display",Georgia,serif!important; letter-spacing:-.025em!important; text-align:center!important;
 }
-#soundscapesPanel .soundscapes-header::before {
-  content:"PIONIER  /  FIELD NOTES IN SOUND";
-  display:block;
-  position:absolute;
-  left:0;
-  top:-4px;
-  color:rgba(218,190,125,.78);
-  font:500 9px/1.2 Inter,system-ui,sans-serif;
-  letter-spacing:.2em;
+#soundscapesPanel .soundscapes-return-btn{
+  position:absolute!important; top:50%!important; right:0!important; transform:translateY(-50%)!important;
+  display:grid!important; place-items:center!important; width:36px!important; height:36px!important; margin:0!important; padding:0!important;
+  border:1px solid rgba(230,224,210,.12)!important; border-radius:50%!important; background:rgba(255,255,255,.035)!important;
+  color:rgba(238,233,223,.7)!important; font:300 23px/1 Inter,system-ui,sans-serif!important; cursor:pointer!important;
+  transition:background .18s ease,color .18s ease,border-color .18s ease!important;
 }
-#soundscapesPanel .soundscapes-header h2 {
-  margin:15px 0 0 !important;
-  color:#f0eadf !important;
-  font-family:"Playfair Display",Georgia,serif !important;
-  font-size:clamp(25px,3.3vw,36px) !important;
-  font-weight:400 !important;
-  letter-spacing:-.035em !important;
-  line-height:1.08 !important;
+#soundscapesPanel .soundscapes-return-btn:hover{color:#e3c46c!important;border-color:rgba(212,176,74,.35)!important;background:rgba(212,176,74,.08)!important}
+#soundscapesPanel .soundscapes-body{
+  display:grid!important; grid-template-columns:minmax(0,1fr) minmax(210px,.82fr)!important;
+  grid-template-rows:auto auto auto auto auto minmax(0,1fr)!important; gap:0 24px!important; min-height:0!important; overflow:hidden!important;
 }
-#soundscapesPanel .soundscapes-return-btn {
-  margin-top:14px !important;
-  padding:8px 0 8px 10px !important;
-  border:0 !important;
-  border-radius:0 !important;
-  background:transparent !important;
-  color:rgba(232,226,214,.58) !important;
-  font:500 10px/1.3 Inter,system-ui,sans-serif !important;
-  letter-spacing:.035em !important;
-  white-space:nowrap !important;
+#soundscapesPanel .soundscape-tabs{
+  grid-column:1/-1!important; grid-row:1!important; display:flex!important; align-items:center!important; gap:20px!important;
+  margin:0 0 24px!important; padding:0 0 11px!important; border-bottom:1px solid rgba(230,224,210,.08)!important;
 }
-#soundscapesPanel .soundscapes-return-btn:hover { color:#e6c96b !important; }
-#soundscapesPanel .soundscapes-body {
-  display:grid !important;
-  grid-template-columns:minmax(0, .92fr) minmax(0, 1.08fr) !important;
-  grid-template-rows:auto auto auto auto auto 1fr !important;
-  align-content:start !important;
-  align-items:start !important;
-  gap:0 28px !important;
-  width:100% !important;
-  max-width:none !important;
-  flex:1 1 auto !important;
-  min-height:0 !important;
-  margin:0 !important;
-  padding:0 !important;
-  overflow-x:hidden !important;
-  overflow-y:auto !important;
-  overscroll-behavior:contain !important;
-  -webkit-overflow-scrolling:touch !important;
-  scrollbar-width:thin;
-  scrollbar-color:rgba(218,190,125,.24) transparent;
+#soundscapesPanel .soundscape-tab{
+  position:relative!important; padding:4px 0!important; border:0!important; background:transparent!important;
+  color:rgba(232,226,214,.4)!important; font:500 9px/1.4 Inter,system-ui,sans-serif!important;
+  letter-spacing:.12em!important; text-transform:uppercase!important; cursor:pointer!important;
 }
-#soundscapesPanel .soundscape-tabs {
-  grid-column:1 / -1 !important;
-  display:flex !important;
-  align-items:center !important;
-  gap:22px !important;
-  margin:0 0 22px !important;
-  padding:0 0 10px !important;
-  border-bottom:1px solid rgba(230,224,210,.09) !important;
+#soundscapesPanel .soundscape-tab.is-active{color:#e3c46c!important}
+#soundscapesPanel .soundscape-tab.is-active:after{content:""!important;position:absolute!important;left:0!important;right:0!important;bottom:-12px!important;height:1px!important;background:#d4b04a!important}
+#soundscapesPanel .soundscape-now{grid-column:1!important;grid-row:2!important;min-width:0!important;padding:0 0 20px!important}
+#soundscapesPanel .soundscape-title{
+  margin:0!important;color:#f0eadf!important;font:400 clamp(23px,3.2vw,34px)/1.16 "Playfair Display",Georgia,serif!important;
+  letter-spacing:-.025em!important;overflow-wrap:anywhere!important;
 }
-#soundscapesPanel .soundscape-tab {
-  position:relative !important;
-  padding:0 0 7px !important;
-  border:0 !important;
-  border-radius:0 !important;
-  background:transparent !important;
-  color:rgba(232,226,214,.43) !important;
-  font:500 10px/1.4 Inter,system-ui,sans-serif !important;
-  letter-spacing:.075em !important;
-  text-transform:uppercase !important;
+#soundscapesPanel .soundscape-note,#soundscapesPanel .soundscape-status{display:none!important}
+#soundscapesPanel .soundscape-transport{
+  grid-column:1!important;grid-row:3!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  gap:15px!important;padding:0 0 20px!important;
 }
-#soundscapesPanel .soundscape-tab.is-active {
-  color:#e9d39a !important;
-  background:transparent !important;
+#soundscapesPanel .soundscape-transport-btn,#soundscapesPanel .soundscape-play{
+  appearance:none!important;display:grid!important;place-items:center!important;flex:0 0 38px!important;width:38px!important;height:38px!important;
+  padding:0!important;border:1px solid rgba(230,224,210,.13)!important;border-radius:50%!important;background:rgba(255,255,255,.025)!important;
+  color:rgba(238,233,223,.66)!important;font:400 19px/1 Inter,system-ui,sans-serif!important;cursor:pointer!important;transition:all .18s ease!important;
 }
-#soundscapesPanel .soundscape-tab.is-active::after {
-  content:"";
-  position:absolute;
-  left:0; right:0; bottom:-11px;
-  height:1px;
-  background:#c9a75d;
+#soundscapesPanel .soundscape-play{
+  flex-basis:52px!important;width:52px!important;height:52px!important;border-color:rgba(212,176,74,.45)!important;
+  background:rgba(212,176,74,.1)!important;color:#e3c46c!important;font-size:17px!important;box-shadow:0 0 28px rgba(212,176,74,.06)!important;
 }
-#soundscapesPanel .soundscape-now {
-  grid-column:1 !important;
-  grid-row:2 !important;
-  min-width:0 !important;
-  padding:2px 0 15px !important;
+#soundscapesPanel .soundscape-transport-btn:hover,#soundscapesPanel .soundscape-play:hover{border-color:rgba(212,176,74,.5)!important;color:#e3c46c!important}
+#soundscapesPanel .soundscape-seek-row{
+  grid-column:1!important;grid-row:4!important;display:grid!important;grid-template-columns:34px minmax(0,1fr) 34px!important;
+  align-items:center!important;gap:10px!important;padding:0 0 16px!important;color:rgba(232,226,214,.38)!important;
+  font:10px/1 Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums!important;
 }
-#soundscapesPanel .soundscape-title {
-  margin:0 !important;
-  color:#f0eadf !important;
-  font:400 clamp(20px,2.4vw,27px)/1.18 "Playfair Display",Georgia,serif !important;
-  letter-spacing:-.025em !important;
-  overflow-wrap:anywhere !important;
+#soundscapesPanel .soundscape-seek-row input,#soundscapesPanel .soundscape-vol-row input{width:100%!important;min-width:0!important;accent-color:#d4b04a!important;cursor:pointer!important}
+#soundscapesPanel .soundscape-seek-row input{height:3px!important}
+#soundscapesPanel .soundscape-vol-row{
+  grid-column:1!important;grid-row:5!important;display:flex!important;align-items:center!important;gap:12px!important;
+  padding:0 0 18px!important;color:rgba(232,226,214,.32)!important;font:9px/1 Inter,system-ui,sans-serif!important;letter-spacing:.1em!important;text-transform:uppercase!important;
 }
-#soundscapesPanel .soundscape-note {
-  margin:9px 0 0 !important;
-  color:rgba(232,226,214,.48) !important;
-  font:400 11px/1.55 Inter,system-ui,sans-serif !important;
-  letter-spacing:.015em !important;
+#soundscapesPanel .soundscape-vol-row span,#soundscapesPanel .sq-creator{display:none!important}
+#soundscapesPanel .soundscape-queue{
+  grid-column:2!important;grid-row:2/span 4!important;display:flex!important;flex-direction:column!important;gap:0!important;
+  align-self:stretch!important;min-width:0!important;max-height:none!important;margin:0!important;padding:0 0 4px 18px!important;
+  overflow-x:hidden!important;overflow-y:auto!important;border-left:1px solid rgba(230,224,210,.09)!important;
+  scrollbar-width:thin;scrollbar-color:rgba(218,190,125,.2) transparent;
 }
-#soundscapesPanel .soundscape-transport {
-  grid-column:1 !important;
-  grid-row:3 !important;
-  display:flex !important;
-  justify-content:flex-start !important;
-  align-items:center !important;
-  gap:15px !important;
-  padding:4px 0 17px !important;
+#soundscapesPanel .soundscape-queue[hidden]{display:none!important}
+#soundscapesPanel .soundscape-queue-item{
+  display:grid!important;grid-template-columns:22px minmax(0,1fr) auto!important;gap:8px!important;align-items:center!important;
+  min-height:43px!important;width:100%!important;padding:8px 5px!important;border:0!important;
+  border-bottom:1px solid rgba(230,224,210,.06)!important;border-radius:0!important;background:transparent!important;
+  color:rgba(232,226,214,.62)!important;text-align:left!important;cursor:pointer!important;transition:background .16s ease,color .16s ease!important;
 }
-#soundscapesPanel .soundscape-play {
-  display:grid !important;
-  place-items:center !important;
-  width:48px !important;
-  height:48px !important;
-  flex:0 0 48px !important;
-  border:1px solid rgba(218,190,125,.5) !important;
-  border-radius:50% !important;
-  background:rgba(201,162,39,.11) !important;
-  color:#e8d49c !important;
-  font-size:15px !important;
-  box-shadow:0 0 28px rgba(201,162,39,.06) !important;
-  transition:background .18s ease, transform .18s ease !important;
+#soundscapesPanel .soundscape-queue-item:hover{background:rgba(255,255,255,.025)!important;color:#f0eadf!important}
+#soundscapesPanel .soundscape-queue-item.is-active{background:linear-gradient(90deg,rgba(201,162,39,.1),transparent)!important;color:#f2e5c0!important}
+#soundscapesPanel .sq-num{color:rgba(218,190,125,.58)!important;font:500 9px/1 Inter,system-ui,sans-serif!important}
+#soundscapesPanel .sq-title{min-width:0!important;color:inherit!important;font:400 11px/1.4 Inter,system-ui,sans-serif!important;overflow-wrap:anywhere!important}
+#soundscapesPanel .sq-dur{color:rgba(232,226,214,.3)!important;font:9px/1 Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums!important}
+#soundscapesPanel .soundscape-community-empty{margin:0!important;padding:14px 4px!important;color:rgba(232,226,214,.4)!important;font:400 11px/1.6 Inter,system-ui,sans-serif!important}
+@media(max-width:600px){
+ #soundscapesPanel:not([hidden]){top:max(8px,env(safe-area-inset-top,0px))!important;width:calc(100vw - 16px)!important;max-width:calc(100vw - 16px)!important;max-height:calc(100dvh - 16px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))!important;padding:17px 16px max(14px,env(safe-area-inset-bottom,0px))!important;border-radius:16px!important}
+ #soundscapesPanel .soundscapes-header{margin-bottom:15px!important;padding:0 40px 13px!important}
+ #soundscapesPanel .soundscapes-header h2{font-size:22px!important}
+ #soundscapesPanel .soundscapes-return-btn{width:34px!important;height:34px!important;font-size:22px!important}
+ #soundscapesPanel .soundscapes-body{display:flex!important;flex-direction:column!important;gap:0!important;min-height:0!important;overflow:hidden!important}
+ #soundscapesPanel .soundscape-tabs{gap:18px!important;margin-bottom:21px!important}
+ #soundscapesPanel .soundscape-now{padding:0 0 17px!important}
+ #soundscapesPanel .soundscape-title{font-size:27px!important}
+ #soundscapesPanel .soundscape-transport{gap:15px!important;padding:0 0 18px!important}
+ #soundscapesPanel .soundscape-play{width:48px!important;height:48px!important;flex-basis:48px!important}
+ #soundscapesPanel .soundscape-seek-row{padding-bottom:15px!important}
+ #soundscapesPanel .soundscape-vol-row{padding-bottom:14px!important}
+ #soundscapesPanel .soundscape-queue{flex:1 1 auto!important;min-height:100px!important;border-left:0!important;border-top:1px solid rgba(230,224,210,.09)!important;margin-top:3px!important;padding:5px 0 0!important;max-height:none!important}
+ #soundscapesPanel .soundscape-queue-item{min-height:43px!important;padding:8px 4px!important}
 }
-#soundscapesPanel .soundscape-play:hover { background:rgba(201,162,39,.2) !important; }
-#soundscapesPanel .soundscape-play:active { transform:scale(.96) !important; }
-#soundscapesPanel .soundscape-transport-btn {
-  display:grid !important;
-  place-items:center !important;
-  width:34px !important;
-  height:34px !important;
-  border:1px solid rgba(230,224,210,.12) !important;
-  border-radius:50% !important;
-  background:transparent !important;
-  color:rgba(232,226,214,.7) !important;
-  font-size:17px !important;
+@media(max-width:380px){
+ #soundscapesPanel:not([hidden]){padding-left:13px!important;padding-right:13px!important}
+ #soundscapesPanel .soundscape-tabs{gap:14px!important}
+ #soundscapesPanel .soundscape-tab{font-size:8px!important}
 }
-#soundscapesPanel .soundscape-transport-btn:hover,
-#soundscapesPanel .soundscape-transport-btn.is-active {
-  border-color:rgba(218,190,125,.42) !important;
-  color:#e8d49c !important;
-  background:rgba(218,190,125,.07) !important;
-}
-#soundscapesPanel .soundscape-seek-row {
-  grid-column:1 !important;
-  grid-row:4 !important;
-  display:grid !important;
-  grid-template-columns:34px minmax(0,1fr) 34px !important;
-  align-items:center !important;
-  gap:9px !important;
-  padding:0 0 13px !important;
-  color:rgba(232,226,214,.4) !important;
-  font:10px/1 Inter,system-ui,sans-serif !important;
-  font-variant-numeric:tabular-nums !important;
-}
-#soundscapesPanel .soundscape-seek-row input[type="range"],
-#soundscapesPanel .soundscape-vol-row input {
-  min-width:0 !important;
-  accent-color:#c9a75d !important;
-  cursor:pointer !important;
-}
-#soundscapesPanel .soundscape-vol-row {
-  grid-column:1 !important;
-  grid-row:5 !important;
-  display:grid !important;
-  grid-template-columns:52px minmax(0,1fr) !important;
-  align-items:center !important;
-  gap:10px !important;
-  margin:0 !important;
-  padding:0 0 18px !important;
-  color:rgba(232,226,214,.42) !important;
-  font:10px/1 Inter,system-ui,sans-serif !important;
-  letter-spacing:.04em !important;
-  text-transform:uppercase !important;
-}
-#soundscapesPanel .soundscape-status {
-  grid-column:1 !important;
-  grid-row:6 !important;
-  justify-self:start !important;
-  margin:0 !important;
-  padding-top:12px !important;
-  border-top:1px solid rgba(230,224,210,.1) !important;
-  color:rgba(218,190,125,.72) !important;
-  font:500 9px/1.5 Inter,system-ui,sans-serif !important;
-  letter-spacing:.13em !important;
-  text-transform:uppercase !important;
-  text-align:left !important;
-}
-#soundscapesPanel .soundscape-queue {
-  grid-column:2 !important;
-  grid-row:2 / span 5 !important;
-  display:flex !important;
-  flex-direction:column !important;
-  gap:0 !important;
-  align-self:stretch !important;
-  min-width:0 !important;
-  max-height:none !important;
-  margin:0 !important;
-  padding:0 0 8px !important;
-  overflow-x:hidden !important;
-  overflow-y:auto !important;
-  border-left:1px solid rgba(230,224,210,.1) !important;
-  scrollbar-width:thin;
-  scrollbar-color:rgba(218,190,125,.2) transparent;
-}
-#soundscapesPanel .soundscape-queue[hidden] { display:none !important; }
-#soundscapesPanel .soundscape-queue-item {
-  display:grid !important;
-  grid-template-columns:28px minmax(0,1fr) auto !important;
-  gap:10px !important;
-  align-items:center !important;
-  min-height:49px !important;
-  width:100% !important;
-  box-sizing:border-box !important;
-  padding:10px 8px 10px 15px !important;
-  border:0 !important;
-  border-bottom:1px solid rgba(230,224,210,.075) !important;
-  border-radius:0 !important;
-  background:transparent !important;
-  color:rgba(232,226,214,.7) !important;
-  text-align:left !important;
-  cursor:pointer !important;
-  transition:background .16s ease,color .16s ease !important;
-}
-#soundscapesPanel .soundscape-queue-item:hover {
-  background:rgba(255,255,255,.035) !important;
-  color:#f0eadf !important;
-}
-#soundscapesPanel .soundscape-queue-item.is-active {
-  border-color:rgba(230,224,210,.075) !important;
-  background:linear-gradient(90deg,rgba(201,162,39,.12),rgba(201,162,39,.025)) !important;
-  color:#f2e5c0 !important;
-}
-#soundscapesPanel .sq-num {
-  color:rgba(218,190,125,.7) !important;
-  font:500 9px/1 Inter,system-ui,sans-serif !important;
-  letter-spacing:.04em !important;
-  font-variant-numeric:tabular-nums !important;
-}
-#soundscapesPanel .sq-title {
-  min-width:0 !important;
-  color:inherit !important;
-  font:400 11px/1.4 Inter,system-ui,sans-serif !important;
-  overflow-wrap:anywhere !important;
-}
-#soundscapesPanel .sq-dur {
-  color:rgba(232,226,214,.35) !important;
-  font:10px/1 Inter,system-ui,sans-serif !important;
-  font-variant-numeric:tabular-nums !important;
-}
-#soundscapesPanel .sq-creator {
-  grid-column:2 / -1 !important;
-  color:rgba(232,226,214,.35) !important;
-  font:10px/1.3 Inter,system-ui,sans-serif !important;
-}
-#soundscapesPanel .soundscape-community-empty {
-  margin:0 !important;
-  padding:20px 16px !important;
-  color:rgba(232,226,214,.5) !important;
-  font:400 12px/1.7 Inter,system-ui,sans-serif !important;
-}
-@media (max-width:600px) {
-  #soundscapesPanel:not([hidden]) {
-    top:max(48px, calc(env(safe-area-inset-top, 0px) + 44px)) !important;
-    width:calc(100vw - 18px) !important;
-    max-width:calc(100vw - 18px) !important;
-    max-height:calc(100dvh - 62px - env(safe-area-inset-bottom, 8px)) !important;
-    padding:17px 15px max(14px, env(safe-area-inset-bottom, 0px)) !important;
-    border-radius:17px !important;
-  }
-  #soundscapesPanel .soundscapes-header { margin-bottom:15px !important; padding-bottom:13px !important; }
-  #soundscapesPanel .soundscapes-header h2 { font-size:27px !important; }
-  #soundscapesPanel .soundscapes-return-btn { margin-top:11px !important; font-size:9px !important; }
-  #soundscapesPanel .soundscapes-body {
-    display:flex !important;
-    flex-direction:column !important;
-    gap:0 !important;
-  }
-  #soundscapesPanel .soundscape-tabs { gap:18px !important; margin-bottom:16px !important; }
-  #soundscapesPanel .soundscape-now { padding:0 0 12px !important; }
-  #soundscapesPanel .soundscape-title { font-size:23px !important; }
-  #soundscapesPanel .soundscape-transport { justify-content:flex-start !important; padding:4px 0 13px !important; }
-  #soundscapesPanel .soundscape-play { width:44px !important; height:44px !important; flex-basis:44px !important; }
-  #soundscapesPanel .soundscape-seek-row { padding-bottom:12px !important; }
-  #soundscapesPanel .soundscape-vol-row { padding-bottom:14px !important; }
-  #soundscapesPanel .soundscape-status { padding-top:10px !important; margin-bottom:5px !important; }
-  #soundscapesPanel .soundscape-queue {
-    border-left:0 !important;
-    border-top:1px solid rgba(230,224,210,.12) !important;
-    margin-top:14px !important;
-    padding-top:5px !important;
-    max-height:29dvh !important;
-  }
-  #soundscapesPanel .soundscape-queue-item { padding:10px 5px !important; min-height:46px !important; }
-}
-@media (prefers-reduced-motion:reduce) {
-  #soundscapesPanel:not([hidden]),
-  #soundscapesPanel .soundscape-play,
-  #soundscapesPanel .soundscape-queue-item { transition:none !important; }
+@media(prefers-reduced-motion:reduce){
+ #soundscapesPanel:not([hidden]),#soundscapesPanel .soundscape-play,#soundscapesPanel .soundscape-queue-item{transition:none!important}
 }
