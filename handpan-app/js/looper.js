@@ -1086,7 +1086,11 @@ export function mountLooper({ root } = {}) {
   }
 
   function closeTimingMenu() {
-    timingMenu?.remove();
+    const menu = timingMenu || document.querySelector('.looper-timing-menu');
+    if (menu) {
+      menu.classList.remove('is-open');
+      menu.remove();
+    }
     timingMenu = null;
     timingMenuType = null;
   }
@@ -1102,10 +1106,18 @@ export function mountLooper({ root } = {}) {
     const title = document.createElement('div'); title.className = 'looper-timing-menu-title';
     title.textContent = type === 'metronome' ? 'Metronome' : type === 'countin' ? 'Count-in' : 'Tempo';
     const closeButton = document.createElement('button'); closeButton.type = 'button'; closeButton.className = 'looper-menu-close'; closeButton.setAttribute('aria-label', 'Close menu'); closeButton.textContent = '×';
-    closeButton.style.pointerEvents = 'auto';
-    closeButton.addEventListener('pointerdown', event => { event.preventDefault(); event.stopPropagation(); closeTimingMenu(); }, { capture: true });
-    closeButton.addEventListener('pointerup', event => { event.preventDefault(); event.stopPropagation(); closeTimingMenu(); });
-    closeButton.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); closeTimingMenu(); });
+    closeButton.style.cssText += ';position:relative;z-index:9999;pointer-events:auto;touch-action:manipulation;min-width:36px;min-height:36px;flex-shrink:0';
+    const closeFromButton = event => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      closeTimingMenu();
+    };
+    // Touch and mouse paths are handled separately because some mobile browsers
+    // suppress click after a popup changes during pointerdown.
+    closeButton.addEventListener('touchend', closeFromButton, { passive: false });
+    closeButton.addEventListener('pointerup', closeFromButton, true);
+    closeButton.addEventListener('click', closeFromButton, true);
     header.append(title, closeButton); menu.appendChild(header);
     const addSelect = (labelText, values, selected, onChange) => {
       const label = document.createElement('label'); label.className = 'looper-timing-field';
