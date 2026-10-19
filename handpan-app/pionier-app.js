@@ -173,7 +173,7 @@ async function boot() {
   });
 
   if (degraded.length) {
-    const labels = degraded.map(name => ({ soundscapes: 'Soundscapes', 'note-plus': 'note controls', looper: 'Loop Studio', 'scale-selector': 'scale selector', learn: 'Learn mode', arpeggiators: 'arpeggiators' }[name] || name));
+    const labels = degraded.map(name => ({ soundscapes: 'Soundscapes', 'note-plus': 'note controls', looper: 'Loop Studio', 'scale-selector': 'scale selector', arpeggiators: 'arpeggiators' }[name] || name));
     setBootStatus('degraded', 'Some features unavailable: ' + labels.join(', '), true);
   } else {
     setBootStatus('ready');
