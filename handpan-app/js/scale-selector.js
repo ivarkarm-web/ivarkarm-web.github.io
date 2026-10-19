@@ -1,23 +1,51 @@
-/** Searchable scale picker. Overlay ownership remains in overlay-controller.js. */
+/** Native scale selector; the browser owns its option popup. */
 import { HANDPAN_SCALES } from './instruments/handpan.js?v=10';
 
 export function mountScaleSelector({ getHandpan, onScaleChange }) {
-  const menu = document.getElementById('scaleMenu'); const toggle = document.getElementById('scaleLabel');
-  if (!menu || !toggle) return { render() {}, updateLabel() {} };
-  function updateLabel() { const handpan = getHandpan(); if (!handpan) return; const s = HANDPAN_SCALES[handpan.scaleIndex]; const short = s?.short || s?.label || handpan.scaleLabel || 'Scale'; const full = s?.label || handpan.scaleLabel || short; toggle.textContent = short + ' ▾'; toggle.title = full; }
+  const select = document.getElementById('scaleMenu');
+  if (!select) return { render() {}, updateLabel() {} };
+
+  function updateLabel() {
+    const handpan = getHandpan();
+    if (!handpan) return;
+    const scale = HANDPAN_SCALES[handpan.scaleIndex];
+    select.value = String(handpan.scaleIndex);
+    select.title = scale?.label || handpan.scaleLabel || scale?.short || 'Scale';
+  }
+
   function render() {
-    const handpan = getHandpan(); if (!handpan) return; menu.replaceChildren();
-    const results = document.createElement('div'); results.className = 'picker-results scale-menu-results'; menu.appendChild(results);
-    let lastTuning = null; let section = null;
+    const handpan = getHandpan();
+    if (!handpan) return;
+    const selected = String(handpan.scaleIndex);
+    select.replaceChildren();
+    let lastTuning = null;
+    let group = null;
     HANDPAN_SCALES.forEach((scale, index) => {
       const tuning = scale.tuning || '12-TET';
-      if (tuning !== lastTuning) { lastTuning = tuning; section = document.createElement('section'); section.className = 'picker-group scale-picker-group'; const head = document.createElement('div'); head.className = 'scale-menu-group'; head.textContent = tuning; section.appendChild(head); results.appendChild(section); }
-      const button = document.createElement('button'); button.type = 'button'; button.className = 'scale-menu-item pionier-menu-option' + (index === handpan.scaleIndex ? ' is-active' : ''); button.setAttribute('role', 'menuitem'); button.dataset.searchText = [scale.label, scale.short, tuning, scale.root, scale.id].filter(Boolean).join(' ').toLowerCase();
-      const name = document.createElement('span'); name.textContent = scale.label; button.appendChild(name); if (tuning !== '12-TET') { const sub = document.createElement('span'); sub.className = 'scale-item-tuning'; sub.textContent = tuning; button.appendChild(sub); }
-      button.addEventListener('click', (e) => { e.stopPropagation(); handpan.setScaleIndex(index); onScaleChange?.(); render(); updateLabel(); if (window.PionierOverlay) window.PionierOverlay.closePickers(); else { menu.hidden = true; toggle.setAttribute('aria-expanded', 'false'); } toggle.focus?.(); }); section.appendChild(button);
+      if (tuning !== lastTuning) {
+        lastTuning = tuning;
+        group = document.createElement('optgroup');
+        group.label = tuning;
+        select.appendChild(group);
+      }
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = scale.label || scale.short || scale.id || ('Scale ' + (index + 1));
+      group.appendChild(option);
     });
-
+    select.value = selected;
   }
-  const mo = new MutationObserver(() => { if (!menu.hidden) render(); }); mo.observe(menu, { attributes: true, attributeFilter: ['hidden'] });
-  document.addEventListener('pionier:picker-open', (e) => { if (e.detail?.id === 'scaleMenu') render(); }); updateLabel(); return { render, updateLabel };
+
+  select.addEventListener('change', () => {
+    const handpan = getHandpan();
+    const index = Number(select.value);
+    if (!handpan || !Number.isInteger(index) || !HANDPAN_SCALES[index]) return;
+    handpan.setScaleIndex(index);
+    onScaleChange?.();
+    updateLabel();
+  });
+
+  render();
+  updateLabel();
+  return { render, updateLabel };
 }

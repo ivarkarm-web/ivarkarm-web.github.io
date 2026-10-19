@@ -696,12 +696,6 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 .looper-menu-close:hover { border-color:rgba(226,195,117,.55); color:#f6dfa0; background:rgba(226,195,117,.1); }
 .looper-timing-menu,.looper-sheet { animation:picker-menu-drop .24s cubic-bezier(.2,.8,.2,1) both; backdrop-filter:blur(24px) saturate(125%); -webkit-backdrop-filter:blur(24px) saturate(125%); }
 .looper-sheet { padding-top:10px; }
-.picker-close { position:sticky; top:0; float:right; z-index:10; width:30px; height:30px; margin:0 0 4px 8px; border-radius:50%; border:1px solid rgba(226,195,117,.24); background:rgba(12,12,14,.8); color:rgba(246,239,222,.85); font-size:22px; line-height:1; cursor:pointer; display:grid; place-items:center; }
-.picker-close:hover { color:#f6dfa0; border-color:rgba(226,195,117,.6); background:rgba(212,176,74,.12); }
-.scale-menu.picker-popover.is-open:not([hidden]),.instrument-menu.picker-popover.is-open:not([hidden]) { animation:picker-menu-bounce .38s cubic-bezier(.2,1.35,.35,1) both !important; }
-.scale-menu.picker-sheet.is-open:not([hidden]),.instrument-menu.picker-sheet.is-open:not([hidden]) { animation:picker-menu-sheet-bounce .38s cubic-bezier(.2,1.25,.35,1) both !important; }
-@keyframes picker-menu-bounce { 0% { opacity:0; translate:0 12px; scale:.97; } 72% { opacity:1; translate:0 -2px; scale:1.008; } 100% { opacity:1; translate:0 0; scale:1; } }
-@keyframes picker-menu-sheet-bounce { 0% { opacity:.55; translate:0 26px; } 72% { opacity:1; translate:0 -3px; } 100% { opacity:1; translate:0 0; } }
 @media (max-width:520px) {
   #looperRail.looper-rail { grid-template-columns:1fr auto 1fr; gap:4px; }
   #looperClearBtn { margin-left:0; }
@@ -843,41 +837,6 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
   #looperRail #looperRecordCluster, #looperRail #looperRecordCluster > #looperBtn { width:32px !important; height:32px !important; min-width:32px !important; min-height:32px !important; flex-basis:32px !important; }
   #looperRail #looperLayers .looper-circle { width:24px !important; height:24px !important; min-width:24px !important; min-height:24px !important; flex-basis:24px !important; }
 }
-
-/* Keep picker chrome stationary while only the option list scrolls. */
-.scale-menu.picker-popover:not([hidden]), .instrument-menu.picker-popover:not([hidden]) {
-  display:flex !important; flex-direction:column !important; align-items:stretch !important;
-  overflow:hidden !important; overscroll-behavior:contain !important;
-}
-.scale-menu.picker-popover .picker-close, .instrument-menu.picker-popover .picker-close {
-  position:relative !important; top:auto !important; float:none !important;
-  align-self:flex-end !important; flex:0 0 28px !important; margin:0 0 4px auto !important;
-}
-.scale-menu.picker-popover .picker-search, .instrument-menu.picker-popover .picker-search {
-  position:relative !important; top:auto !important; flex:0 0 auto !important;
-  width:100% !important; margin:0 0 6px !important; z-index:2 !important;
-}
-.scale-menu.picker-popover .picker-results, .instrument-menu.picker-popover .picker-results {
-  display:block !important; flex:1 1 auto !important; min-height:0 !important;
-  overflow-x:hidden !important; overflow-y:auto !important; overscroll-behavior-y:contain !important;
-  -webkit-overflow-scrolling:touch !important; scrollbar-width:thin; scrollbar-color:rgba(219,184,91,.45) transparent;
-}
-.scale-menu .scale-menu-item, .instrument-menu .instrument-menu-item {
-  position:relative !important; padding-right:38px !important;
-  transition:background .16s ease,color .16s ease,transform .22s cubic-bezier(.2,1.35,.35,1) !important;
-}
-.scale-menu .scale-menu-item.is-active, .instrument-menu .instrument-menu-item.is-active,
-.scale-menu [role="menuitem"].is-active, .instrument-menu [role="menuitem"].is-active {
-  background:rgba(219,184,91,.14) !important; color:#f6dfa0 !important;
-  box-shadow:inset 2px 0 0 #d9b85b !important;
-}
-.scale-menu .scale-menu-item.is-active::after, .instrument-menu .instrument-menu-item.is-active::after,
-.scale-menu [role="menuitem"].is-active::after, .instrument-menu [role="menuitem"].is-active::after {
-  content:"✓"; position:absolute; right:13px; top:50%; transform:translateY(-50%);
-  color:#f6dfa0; font-size:14px; font-weight:700; opacity:1;
-}
-.scale-menu .scale-menu-item:active, .instrument-menu .instrument-menu-item:active { transform:scale(.985); }
-
 
 /* Quiet, consistent close affordance: a fine-line cross matching Pionier's icon language. */
 .looper-menu-close,.looper-track-close {
