@@ -88,7 +88,7 @@ async function boot() {
   }
 
   try {
-    await import(new URL('./js/soundscapes.js?v=8', BASE).href);
+    await import(new URL('./js/soundscapes.js?v=9', BASE).href);
   } catch (err) {
     console.error('[soundscapes] module failed to initialize', err);
     degraded.push('soundscapes');
