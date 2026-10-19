@@ -153,7 +153,8 @@ export function mountLooper({ root } = {}) {
     utilityGroup.className = 'looper-utility-controls';
   }
   if (utilityGroup.parentElement !== rail) rail.insertBefore(utilityGroup, cluster);
-  [countInBtn, metronomeBtn, bpmBtn, saveBtn].forEach((control) => utilityGroup.appendChild(control));
+  [countInBtn, metronomeBtn, bpmBtn].forEach((control) => utilityGroup.appendChild(control));
+  if (saveBtn.parentElement !== rail) rail.appendChild(saveBtn);
   if (btn.parentElement !== cluster) cluster.appendChild(btn);
   syncBtn.setAttribute('aria-label', 'Sync mode: Free');
   syncBtn.title = SYNC_MODES[0].title;
