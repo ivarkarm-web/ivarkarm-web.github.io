@@ -167,13 +167,16 @@ export function createSurface(canvas) {
     const reference=list.find(n=>Number(n.index)===2)||list.find(n=>n.kind!=='ding')||list[0];
     const referenceLow=reference&&reference.midi!=null?Math.max(0,Math.min(1,(midiMax-reference.midi)/midiSpan)):0.5;
     const size=(1.12+referenceLow*0.36)*1.16;
-    const padRx=R*0.178*size*padScale,padRy=R*0.126*size*padScale;
+    // Keep the outer fields uniform, but give them more reach and size.
+    // The central ding is a true circle and stays visually distinct.
+    const padRx=R*0.205*size*padScale,padRy=R*0.145*size*padScale;
+    const dingR=R*0.195*size;
     fields=list.map((n,pos)=>{
       const playable=typeof isFieldPlayable==='function'?isFieldPlayable(n.index):true;
-      if(n.kind==='ding'){return{i:n.index,index:n.index,x:CX,y:CY,rx:padRx,ry:padRy,rot:0,label:n.name,playable,kind:'ding'}}
+      if(n.kind==='ding'){return{i:n.index,index:n.index,x:CX,y:CY,rx:dingR,ry:dingR,rot:0,label:n.name,playable,kind:'ding'}}
       const slot=(n.index!=null?n.index:pos)-1;
       const deg=angles[slot]!=null?angles[slot]:(slot/ringCount)*360;
-      const a=(deg*Math.PI)/180,d=R*0.59;
+      const a=(deg*Math.PI)/180,d=R*0.68;
       const ux=Math.sin(a),uy=-Math.cos(a);
       return{i:n.index,index:n.index,x:CX+ux*d,y:CY+uy*d,rx:padRx,ry:padRy,rot:Math.atan2(uy,ux),ux,uy,label:n.name,playable,kind:'ring'};
     });
