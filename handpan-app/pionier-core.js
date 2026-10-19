@@ -98,7 +98,7 @@ function syncWorldPitch() {
 }
 
 function isFieldPlayable(fieldIndex) {
-  return fieldIndex >= 0 && fieldIndex < (handpan.noteCount || 9);
+  return fieldIndex >= 0 && fieldIndex < (handpan.noteCount || 8);
 }
 
 async function setInstrument(id) {
@@ -169,15 +169,15 @@ function updateLabels() {
   if (scaleEl && handpan.scaleLabel) scaleEl.textContent = handpan.scaleLabel + ' \u25be';
   if (rootEl && handpan.rootLabel) rootEl.textContent = handpan.rootLabel;
   if (noteCountEl) {
-    const n = Number.isFinite(handpan.noteCount) ? handpan.noteCount : 9;
+    const n = Number.isFinite(handpan.noteCount) ? handpan.noteCount : 8;
     noteCountEl.textContent = String(n);
   }
-  // Disable note-count steppers at limits (9–14)
+  // Disable note-count steppers at limits (8–13)
   const n = Number.isFinite(handpan.noteCount) ? handpan.noteCount : 9;
   const prevN = document.getElementById('noteCountPrev');
   const nextN = document.getElementById('noteCountNext');
-  if (prevN) prevN.disabled = n <= 9;
-  if (nextN) nextN.disabled = n >= 14;
+  if (prevN) prevN.disabled = n <= 8;
+  if (nextN) nextN.disabled = n >= 13;
   const voiceEl = document.getElementById('instrumentDropdownToggle');
   const inst = activeInstrument();
   if (voiceEl) voiceEl.textContent = (inst.name || inst.id) + ' \u25be';
@@ -192,7 +192,7 @@ function layoutFields() {
   if (!handpan.getNotes().length) handpan.rebuildNotes();
   const notes = handpan.getNotes();
   if (!notes.length) return;
-  surface.layoutHandpanFields(notes.slice(0, handpan.noteCount || 9), isFieldPlayable);
+  surface.layoutHandpanFields(notes.slice(0, handpan.noteCount || 8), isFieldPlayable);
   for (const f of surface.fields) f.zoneLabel = null;
   handpan.setZones?.(surface.fields);
   const active = activeInstrument();
@@ -628,7 +628,7 @@ wire('scaleNext', () => {
 // HTML ids: rootPrev / rootNext (root wraps over 12)
 wire('rootPrev', () => { handpan.setRootIndex((handpan.rootIndex - 1 + 12) % 12); refreshPitch(); });
 wire('rootNext', () => { handpan.setRootIndex((handpan.rootIndex + 1) % 12); refreshPitch(); });
-// HTML ids: noteCountPrev / noteCountNext (clamp 9–14 via changeNoteCount)
+// HTML ids: noteCountPrev / noteCountNext (clamp 8–13 via changeNoteCount)
 wire('noteCountPrev', () => { changeNoteCount(-1); });
 wire('noteCountNext', () => { changeNoteCount(1); });
 
@@ -694,10 +694,10 @@ document.getElementById('voiceNext')?.addEventListener('click', () => {
   if (next) setInstrument(next.id);
 });
 
-function padCount() { return handpan.noteCount || 9; }
+function padCount() { return handpan.noteCount || 8; }
 function changeNoteCount(delta) {
-  const MIN = 9;
-  const MAX = 14;
+  const MIN = 8;
+  const MAX = 13;
   const before = Number.isFinite(handpan.noteCount) ? handpan.noteCount : MIN;
   const after = Math.max(MIN, Math.min(MAX, before + delta));
   if (after === before) return false;
@@ -804,6 +804,10 @@ window.PionierCore = {
   draw() { draw(); },
   addNote() { return changeNoteCount(1); },
   removeNote() { return changeNoteCount(-1); },
+  setNoteCount(count) {
+    const target = Math.max(8, Math.min(13, Math.round(Number(count) || 8)));
+    return changeNoteCount(target - padCount());
+  },
   setScaleIndex(i) {
     handpan.setScaleIndex(i);
     refreshPitch();
