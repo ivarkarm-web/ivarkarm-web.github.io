@@ -184,92 +184,35 @@
   function buildDropdown(sectionEl, { id, label, items, activeId, onPick }) {
     const row = document.createElement('div');
     row.className = 'settings-dd';
-    row.innerHTML =
-      '<div class="settings-dd-label">' + label + '</div>' +
-      '<button type="button" class="settings-dd-toggle" id="' + id + 'Toggle" ' +
-      'aria-haspopup="listbox" aria-expanded="false" aria-controls="' + id + 'Menu">' +
-      '<span class="settings-dd-value" id="' + id + 'Value">' + labelFor(items, activeId) + '</span>' +
-      '<span class="settings-dd-chevron" aria-hidden="true">▾</span>' +
-      '</button>';
-    sectionEl.appendChild(row);
-
-    let menu = document.getElementById(id + 'Menu');
-    if (menu) {
-      // Reset for a clean open state after sheet rebuild
-      menu.hidden = true;
-      menu.classList.remove('is-open');
-      menu.innerHTML = '';
-    } else {
-      menu = document.createElement('div');
-      menu.id = id + 'Menu';
-      menu.className = 'settings-dd-menu';
-      menu.setAttribute('role', 'listbox');
-      menu.hidden = true;
-      document.body.appendChild(menu);
-    }
-    if (menu.parentElement !== document.body) document.body.appendChild(menu);
-
-    const toggle = row.querySelector('.settings-dd-toggle');
-    const valueEl = row.querySelector('.settings-dd-value');
-
-    function renderMenu() {
-      menu.innerHTML = '';
-      let lastGroup = null;
-      items.forEach((item) => {
-        if (item.group && item.group !== lastGroup) {
-          lastGroup = item.group;
-          const g = document.createElement('div');
-          g.className = 'settings-dd-group';
-          g.textContent = item.group;
-          if (isLightTheme()) g.style.setProperty('color', '#82796b', 'important');
-          menu.appendChild(g);
-        }
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'settings-dd-item' + (item.id === activeId ? ' is-active' : '');
-        b.setAttribute('role', 'option');
-        b.textContent = item.label;
-        if (isLightTheme()) {
-          b.style.setProperty('color', item.id === activeId ? '#654b12' : '#302d27', 'important');
-          b.style.setProperty('background', item.id === activeId ? 'rgba(190,151,53,0.18)' : 'transparent', 'important');
-          b.style.setProperty('background-color', item.id === activeId ? 'rgba(190,151,53,0.18)' : 'transparent', 'important');
-          b.style.setProperty('background-image', 'none', 'important');
-          b.style.setProperty('border-color', 'transparent', 'important');
-        }
-        b.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          activeId = item.id;
-          valueEl.textContent = item.label;
-          onPick(item.id);
-          closeMenus();
-        });
-        menu.appendChild(b);
-      });
-    }
-
-    toggle.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const wasOpen = openMenuEl === menu && !menu.hidden;
-      closeMenus();
-      if (wasOpen) return;
-      renderMenu();
-      menu.hidden = false;
-      menu.removeAttribute('hidden');
-      menu.classList.add('is-open');
-      positionMenu(menu, toggle);
-      toggle.setAttribute('aria-expanded', 'true');
-      openMenuEl = menu;
-      openToggleEl = toggle;
+    const labelEl = document.createElement('label');
+    labelEl.className = 'settings-dd-label';
+    labelEl.htmlFor = id + 'Select';
+    labelEl.textContent = label;
+    const select = document.createElement('select');
+    select.id = id + 'Select';
+    select.className = 'pionier-select settings-native-select';
+    select.setAttribute('aria-label', label);
+    let lastGroup = null, group = null;
+    items.forEach((item) => {
+      if (item.group && item.group !== lastGroup) {
+        lastGroup = item.group;
+        group = document.createElement('optgroup');
+        group.label = item.group;
+        select.appendChild(group);
+      }
+      const option = document.createElement('option');
+      option.value = item.id;
+      option.textContent = item.label;
+      (group || select).appendChild(option);
     });
-
-    return {
-      setActive(idNext) {
-        activeId = idNext;
-        valueEl.textContent = labelFor(items, idNext);
-      },
-    };
+    select.value = activeId;
+    select.addEventListener('change', () => {
+      activeId = select.value;
+      onPick(activeId);
+    });
+    row.append(labelEl, select);
+    sectionEl.appendChild(row);
+    return { setActive(idNext) { activeId = idNext; select.value = idNext; } };
   }
 
   function ensureDom() {
