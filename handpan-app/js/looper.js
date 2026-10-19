@@ -519,7 +519,9 @@ export function mountLooper({ root } = {}) {
     const panel = overlay.querySelector('.looper-track-panel');
     const close = () => closeTrackPanel();
     overlay.addEventListener('pointerdown', event => { if (event.target === overlay) close(); });
-    overlay.querySelector('.looper-track-close').addEventListener('click', close);
+    const trackCloseButton = overlay.querySelector('.looper-track-close');
+    trackCloseButton.addEventListener('pointerdown', event => { event.stopPropagation(); });
+    trackCloseButton.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); close(); });
     const play = overlay.querySelector('.looper-track-play');
     const status = overlay.querySelector('.looper-track-status');
     const updateTransport = () => {
@@ -758,7 +760,9 @@ export function mountLooper({ root } = {}) {
     const sheet = document.createElement('div');
     sheet.className = 'looper-sheet';
     sheet.innerHTML = '<header class="looper-sheet-header"><div class="looper-sheet-title">Layer ' + (index + 1) + '</div><button type="button" class="looper-menu-close" aria-label="Close layer controls">×</button></header>';
-    sheet.querySelector('.looper-menu-close').addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); closeSheet(); });
+    const sheetCloseButton = sheet.querySelector('.looper-menu-close');
+    sheetCloseButton.addEventListener('pointerdown', event => { event.stopPropagation(); });
+    sheetCloseButton.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); closeSheet(); });
     document.body.appendChild(sheet);
     sheetEl = sheet;
 
@@ -1094,7 +1098,8 @@ export function mountLooper({ root } = {}) {
     const title = document.createElement('div'); title.className = 'looper-timing-menu-title';
     title.textContent = type === 'metronome' ? 'Metronome' : type === 'countin' ? 'Count-in' : 'Tempo';
     const closeButton = document.createElement('button'); closeButton.type = 'button'; closeButton.className = 'looper-menu-close'; closeButton.setAttribute('aria-label', 'Close menu'); closeButton.textContent = '×';
-    closeButton.addEventListener('click', closeTimingMenu);
+    closeButton.addEventListener('pointerdown', event => { event.stopPropagation(); });
+    closeButton.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); closeTimingMenu(); });
     header.append(title, closeButton); menu.appendChild(header);
     const addSelect = (labelText, values, selected, onChange) => {
       const label = document.createElement('label'); label.className = 'looper-timing-field';
@@ -1181,7 +1186,7 @@ export function mountLooper({ root } = {}) {
   bpmBtn.addEventListener('pointerup', endBpm);
   bpmBtn.addEventListener('pointercancel', endBpm);
   bpmBtn.addEventListener('contextmenu', (e) => e.preventDefault());
-  document.addEventListener('pointerdown', (e) => { if (timingMenu && !timingMenu.contains(e.target) && !e.target.closest('.looper-timing-btn')) closeTimingMenu(); });
+  document.addEventListener('pointerdown', (e) => { if (timingMenu && !timingMenu.contains(e.target) && !e.target.closest('.looper-timing-btn')) closeTimingMenu(); }, true);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeTimingMenu(); });
 
   function requestStopRecord() {
