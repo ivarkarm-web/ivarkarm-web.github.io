@@ -68,7 +68,7 @@ async function boot() {
   const degraded = [];
 
   try {
-    await import(new URL('./pionier-core.js?v=60', BASE).href);
+    await import(new URL('./pionier-core.js?v=61', BASE).href);
   } catch (err) {
     console.error('[pionier] required core failed to load', err);
     setBootStatus('failed', 'Pionier could not start. Check your connection and retry.', true);
@@ -76,7 +76,7 @@ async function boot() {
   }
 
   try {
-    await import(new URL('./js/fx-editor.js?v=1', BASE).href);
+    await import(new URL('./js/fx-editor.js?v=2', BASE).href);
   } catch (err) {
     console.warn('[fx-editor] detailed effect editor failed to load', err);
     degraded.push('effect editor');

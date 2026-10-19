@@ -156,6 +156,14 @@ function openEditor(id){
 }
 function closeEditor(){if(!dialog||dialog.hidden)return;dialog.hidden=true;backdrop.hidden=true;document.body.classList.remove('is-fx-editor-open');activeId=null;activeModule=null;draggingCurve=false;lastFocus?.focus?.();}
 function graphCoords(e){const r=curve.getBoundingClientRect();return{x:clamp((e.clientX-r.left-24)/Math.max(1,r.width-36),0,1),y:clamp((e.clientY-r.top-12)/Math.max(1,r.height-27),0,1)};}
+// The S buttons are independent controls inside draggable knob wrappers.
+document.querySelectorAll('.fx-settings-shortcut[data-fx-editor-open]').forEach(button => {
+ button.addEventListener('pointerdown', e => e.stopPropagation());
+ button.addEventListener('click', e => {
+  e.preventDefault(); e.stopPropagation();
+  openEditor(button.dataset.fxEditorOpen);
+ });
+});
 window.addEventListener('pionier:fx-editor-open',e=>openEditor(e.detail?.id));
 $('fxEditorClose')?.addEventListener('click',closeEditor);backdrop?.addEventListener('click',closeEditor);
 $('fxEditorReset')?.addEventListener('click',()=>{
