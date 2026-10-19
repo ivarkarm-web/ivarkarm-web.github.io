@@ -116,7 +116,7 @@ async function boot() {
   }
 
   try {
-    const { mountLooper } = await import(new URL('./js/looper.js?v=219', BASE).href);
+    const { mountLooper } = await import(new URL('./js/looper.js?v=220', BASE).href);
     mountLooper();
   } catch (err) {
     console.warn('[looper] mount failed', err);
