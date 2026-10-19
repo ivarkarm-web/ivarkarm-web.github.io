@@ -134,6 +134,13 @@ if (/window\.PionierCore/.test(coreSrc) && /async function setInstrument/.test(c
   fail('Core API is missing from the vendored source');
 }
 
+
+const fxEditor = read('handpan-app/js/fx-editor.js');
+if (/pionier:fx-editor-open/.test(coreSrc) && /dblclick/.test(coreSrc) && /fxEditorCurve/.test(fxEditor) && /fxEditorPresets/.test(fxEditor)) ok('FX knobs open the curve editor with presets on double-click');
+else fail('FX editor double-click, curve, or preset wiring is missing');
+if (/setTargetAtTime/.test(read('handpan-app/js/fx.js')) && /settings\.threshold/.test(read('handpan-app/js/fx.js')) && /settings\.feedback/.test(read('handpan-app/js/fx.js')) && /settings\.frequency/.test(read('handpan-app/js/fx.js'))) ok('FX editor parameters are wired to the live audio modules');
+else fail('FX editor parameters are not wired to the live audio modules');
+
 const instrumentFamilyImports = coreSrc.match(/from ['"]\.\/js\/instruments\/[^'"]+['"]/g) || [];
 if (instrumentFamilyImports.length === 2) ok('Instrument registry imports only the handpan and tonal families');
 else fail('Unexpected instrument-family imports in the core registry (got ' + instrumentFamilyImports.length + ')');
