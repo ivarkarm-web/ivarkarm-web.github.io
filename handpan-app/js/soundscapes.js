@@ -286,7 +286,11 @@ if (page && audio) {
   bedroomTab?.addEventListener('click', () => setCollection('bedroom'));
   communityTab?.addEventListener('click', () => { setCollection('community'); refreshCommunitySongs(); });
   openButton?.addEventListener('click', () => {
-    // Soundscapes must be exclusive with FX and Customize, not layered beneath them.
+    // Keep the top chrome clickable above the player, and let its button toggle it.
+    if (page.classList.contains('is-active') && !page.hidden) {
+      showSoundscapes(false);
+      return;
+    }
     window.PionierOverlay?.closeAll?.('soundscapes');
     showSoundscapes(true);
     refreshCommunitySongs();
