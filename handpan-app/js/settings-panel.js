@@ -88,43 +88,188 @@
     return hit ? hit.label : id;
   }
 
+  function isLightTheme() {
+    if (document.documentElement.classList.contains('theme-light') ||
+        document.body.classList.contains('theme-light') ||
+        document.documentElement.dataset.theme === 'light' ||
+        document.body.dataset.theme === 'light' ||
+        window.PionierSettings?.lightMode === true) return true;
+    // The stored preference is authoritative while classes/UI are still initializing.
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('pionier.settings.v1');
+      if (raw && JSON.parse(raw).lightMode === true) return true;
+    } catch (_) {}
+    return false;
+  }
+
+  let openMenuEl = null;
+  let openToggleEl = null;
+
+  function closeMenus() {
+    if (openMenuEl) {
+      openMenuEl.hidden = true;
+      openMenuEl.classList.remove('is-open');
+      openMenuEl = null;
+    }
+    if (openToggleEl) {
+      openToggleEl.setAttribute('aria-expanded', 'false');
+      openToggleEl = null;
+    }
+    document.querySelectorAll('.settings-dd-toggle[aria-expanded="true"]').forEach((t) => {
+      t.setAttribute('aria-expanded', 'false');
+    });
+    document.querySelectorAll('.settings-dd-menu.is-open, .settings-dd-menu').forEach((m) => {
+      m.hidden = true;
+      m.setAttribute('hidden', '');
+      m.classList.remove('is-open');
+      m.style.removeProperty('display');
+    });
+  }
+
+  function positionMenu(menu, toggle) {
+    const rect = toggle.getBoundingClientRect();
+    const width = Math.max(rect.width, Math.min(320, window.innerWidth - 24));
+    let left = rect.left;
+    if (left + width > window.innerWidth - 12) left = window.innerWidth - 12 - width;
+    if (left < 12) left = 12;
+
+    const spaceBelow = Math.max(80, window.innerHeight - rect.bottom - 16);
+    const spaceAbove = Math.max(80, rect.top - 16);
+    const preferBelow = spaceBelow >= 140 || spaceBelow >= spaceAbove;
+    const maxH = Math.min(window.innerHeight * 0.55, 360, preferBelow ? spaceBelow : spaceAbove);
+    let top = preferBelow ? (rect.bottom + 6) : (rect.top - 6 - maxH);
+    // Clamp fully into the viewport
+    if (top < 8) top = 8;
+    if (top + maxH > window.innerHeight - 8) top = Math.max(8, window.innerHeight - 8 - maxH);
+
+    const light = isLightTheme();
+    const surface = light ? '#fcfbf8' : '#17171a';
+    const text = light ? '#24221e' : '#e6e0d2';
+    const border = light ? 'rgba(46,40,28,0.085)' : 'rgba(230,224,210,0.09)';
+    const shadow = light ? '0 14px 36px rgba(34,29,19,0.14)' : '0 14px 38px rgba(0,0,0,0.30)';
+    menu.style.cssText = [
+      'position:fixed',
+      'z-index:9999',
+      'left:' + left + 'px',
+      'top:' + top + 'px',
+      'bottom:auto',
+      'right:auto',
+      'width:' + width + 'px',
+      'max-height:' + maxH + 'px',
+      'display:block',
+      'visibility:visible',
+      'opacity:1',
+      'pointer-events:auto',
+      'background:' + surface,
+      'background-color:' + surface,
+      'background-image:none',
+      'color:' + text,
+      'border:1px solid ' + border,
+      'border-radius:16px',
+      'box-shadow:' + shadow,
+      'padding:8px',
+      'overflow-y:auto',
+      '-webkit-overflow-scrolling:touch',
+    ].join(';');
+    menu.style.setProperty('z-index', '99999', 'important');
+    // Do not hard-code a dark inline-important surface: it overrides the light
+    // theme stylesheet because these menus are portalled directly under body.
+    menu.style.setProperty('background', surface, 'important');
+    menu.style.setProperty('background-image', 'none', 'important');
+    menu.style.setProperty('color', text, 'important');
+    menu.style.setProperty('border-color', border, 'important');
+    menu.style.setProperty('box-shadow', shadow, 'important');
+  }
+
   function buildDropdown(sectionEl, { id, label, items, activeId, onPick }) {
     const row = document.createElement('div');
-    row.className = 'settings-select';
-    const labelEl = document.createElement('label');
-    labelEl.className = 'settings-select-label';
-    labelEl.htmlFor = id + 'Select';
-    labelEl.textContent = label;
-    const select = document.createElement('select');
-    select.id = id + 'Select';
-    select.className = 'pionier-select settings-native-select';
-    select.setAttribute('aria-label', label);
-    let lastGroup = null, group = null;
-    items.forEach((item) => {
-      if (item.group) {
-        if (item.group !== lastGroup) {
-          lastGroup = item.group;
-          group = document.createElement('optgroup');
-          group.label = item.group;
-          select.appendChild(group);
-        }
-      } else {
-        lastGroup = null;
-        group = null;
-      }
-      const option = document.createElement('option');
-      option.value = item.id;
-      option.textContent = item.label;
-      (group || select).appendChild(option);
-    });
-    select.value = activeId;
-    select.addEventListener('change', () => {
-      activeId = select.value;
-      onPick(activeId);
-    });
-    row.append(labelEl, select);
+    row.className = 'settings-dd';
+    row.innerHTML =
+      '<div class="settings-dd-label">' + label + '</div>' +
+      '<button type="button" class="settings-dd-toggle" id="' + id + 'Toggle" ' +
+      'aria-haspopup="listbox" aria-expanded="false" aria-controls="' + id + 'Menu">' +
+      '<span class="settings-dd-value" id="' + id + 'Value">' + labelFor(items, activeId) + '</span>' +
+      '<span class="settings-dd-chevron" aria-hidden="true">▾</span>' +
+      '</button>';
     sectionEl.appendChild(row);
-    return { setActive(idNext) { activeId = idNext; select.value = idNext; } };
+
+    let menu = document.getElementById(id + 'Menu');
+    if (menu) {
+      // Reset for a clean open state after sheet rebuild
+      menu.hidden = true;
+      menu.classList.remove('is-open');
+      menu.innerHTML = '';
+    } else {
+      menu = document.createElement('div');
+      menu.id = id + 'Menu';
+      menu.className = 'settings-dd-menu';
+      menu.setAttribute('role', 'listbox');
+      menu.hidden = true;
+      document.body.appendChild(menu);
+    }
+    if (menu.parentElement !== document.body) document.body.appendChild(menu);
+
+    const toggle = row.querySelector('.settings-dd-toggle');
+    const valueEl = row.querySelector('.settings-dd-value');
+
+    function renderMenu() {
+      menu.innerHTML = '';
+      let lastGroup = null;
+      items.forEach((item) => {
+        if (item.group && item.group !== lastGroup) {
+          lastGroup = item.group;
+          const g = document.createElement('div');
+          g.className = 'settings-dd-group';
+          g.textContent = item.group;
+          if (isLightTheme()) g.style.setProperty('color', '#82796b', 'important');
+          menu.appendChild(g);
+        }
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'settings-dd-item' + (item.id === activeId ? ' is-active' : '');
+        b.setAttribute('role', 'option');
+        b.textContent = item.label;
+        if (isLightTheme()) {
+          b.style.setProperty('color', item.id === activeId ? '#654b12' : '#302d27', 'important');
+          b.style.setProperty('background', item.id === activeId ? 'rgba(190,151,53,0.18)' : 'transparent', 'important');
+          b.style.setProperty('background-color', item.id === activeId ? 'rgba(190,151,53,0.18)' : 'transparent', 'important');
+          b.style.setProperty('background-image', 'none', 'important');
+          b.style.setProperty('border-color', 'transparent', 'important');
+        }
+        b.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          activeId = item.id;
+          valueEl.textContent = item.label;
+          onPick(item.id);
+          closeMenus();
+        });
+        menu.appendChild(b);
+      });
+    }
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const wasOpen = openMenuEl === menu && !menu.hidden;
+      closeMenus();
+      if (wasOpen) return;
+      renderMenu();
+      menu.hidden = false;
+      menu.removeAttribute('hidden');
+      menu.classList.add('is-open');
+      positionMenu(menu, toggle);
+      toggle.setAttribute('aria-expanded', 'true');
+      openMenuEl = menu;
+      openToggleEl = toggle;
+    });
+
+    return {
+      setActive(idNext) {
+        activeId = idNext;
+        valueEl.textContent = labelFor(items, idNext);
+      },
+    };
   }
 
   function ensureDom() {
@@ -391,6 +536,7 @@
   }
 
   function closeSheet(els) {
+    closeMenus();
     els.sheet.classList.remove('is-open');
     els.backdrop.classList.remove('is-open');
     if (els.btn) els.btn.setAttribute('aria-expanded', 'false');
@@ -431,10 +577,24 @@
 
     if (!window.__settingsPanelWired) {
       window.__settingsPanelWired = true;
-      document.addEventListener('keydown', (event) => {
-        if (event.key !== 'Escape' || !document.getElementById('settingsSheet')?.classList.contains('is-open')) return;
-        closeSheet(els);
+      document.addEventListener('click', (e) => {
+        if (!openMenuEl) return;
+        if (e.target.closest('.settings-dd-toggle') || e.target.closest('.settings-dd-menu')) return;
+        closeMenus();
       });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (openMenuEl) closeMenus();
+          else if (document.getElementById('settingsSheet')?.classList.contains('is-open')) {
+            const sheet = document.getElementById('settingsSheet');
+            const backdrop = document.getElementById('settingsSheetBackdrop');
+            if (sheet) { sheet.classList.remove('is-open'); sheet.hidden = true; }
+            if (backdrop) { backdrop.classList.remove('is-open'); backdrop.hidden = true; }
+            document.getElementById('settingsOpenBtn')?.setAttribute('aria-expanded', 'false');
+          }
+        }
+      });
+      window.addEventListener('resize', () => closeMenus());
     }
   }
 
