@@ -5,6 +5,7 @@
  */
 (function overlayController() {
   const PICKER_IDS = ['instrumentMenu', 'scaleMenu'];
+  let pickerOutsideHandler = null;
   const TOGGLE_FOR = {
     instrumentMenu: 'instrumentDropdownToggle',
     scaleMenu: 'scaleLabel',
@@ -61,10 +62,10 @@
       if (tid) document.getElementById(tid)?.setAttribute('aria-expanded', 'false');
     });
     const bd = document.getElementById('pickerBackdrop');
-    if (bd) {
-      bd.hidden = true;
-      bd.setAttribute('hidden', '');
-      bd.style.removeProperty('display');
+    if (bd) { bd.hidden = true; bd.setAttribute('hidden', ''); bd.style.removeProperty('display'); }
+    if (pickerOutsideHandler) {
+      document.removeEventListener('pointerdown', pickerOutsideHandler, true);
+      pickerOutsideHandler = null;
     }
   }
 
@@ -120,7 +121,7 @@
     const gap = 8;
     const viewportW = document.documentElement.clientWidth;
     const viewportH = window.visualViewport?.height || window.innerHeight;
-    const width = Math.min(Math.max(rect.width, 280), viewportW - margin * 2, 380);
+    const width = Math.min(Math.max(rect.width, 248), viewportW - margin * 2, 320);
     const left = Math.max(margin, Math.min(rect.left + rect.width / 2 - width / 2, viewportW - width - margin));
     const below = viewportH - rect.bottom - margin - gap;
     const above = rect.top - margin - gap;
@@ -138,11 +139,11 @@
       pointerEvents: 'auto',
       left: left + 'px',
       right: 'auto',
-      top: (openAbove ? Math.max(margin, rect.top - Math.min(available, Math.min(viewportH * .62, 430)) - gap) : rect.bottom + gap) + 'px',
+      top: (openAbove ? Math.max(margin, rect.top - Math.min(available, Math.min(viewportH * .48, 320)) - gap) : rect.bottom + gap) + 'px',
       bottom: 'auto',
       width: width + 'px',
       maxWidth: 'calc(100vw - 24px)',
-      maxHeight: Math.min(available, Math.min(viewportH * .62, 430)) + 'px',
+      maxHeight: Math.min(available, Math.min(viewportH * .48, 320)) + 'px',
       transform: 'none',
       borderRadius: '16px',
       overflow: 'hidden',
@@ -221,9 +222,17 @@
       menu.prepend(closeButton);
     }
     ensurePickerScrollRegion(menu);
+    // These are compact anchored popovers, not modal sheets: never dim or cover the instrument.
     const bd = ensureBackdrop();
-    bd.hidden = false;
-    bd.removeAttribute('hidden');
+    bd.hidden = true;
+    bd.setAttribute('hidden', '');
+    if (pickerOutsideHandler) document.removeEventListener('pointerdown', pickerOutsideHandler, true);
+    pickerOutsideHandler = (event) => {
+      const target = event.target;
+      if (target instanceof Node && (menu.contains(target) || toggle.contains(target))) return;
+      closePickers();
+    };
+    document.addEventListener('pointerdown', pickerOutsideHandler, true);
     // Focus active item if present, else first menuitem
     requestAnimationFrame(() => {
       const active = menu.querySelector('[role="menuitem"].is-active, [aria-current="true"]');
