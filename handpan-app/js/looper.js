@@ -143,12 +143,13 @@ export function mountLooper({ root } = {}) {
   const countInBtn = ensureTimingButton('looperCountInBtn','looper-count-in-btn','Toggle count-in','<span class="looper-timing-main">1·2·3·4</span>');
   const metronomeBtn = ensureTimingButton('looperMetronomeBtn','looper-metronome-btn','Toggle metronome','<span class="looper-metronome-icon" aria-hidden="true">♩</span><span class="looper-timing-led" aria-hidden="true"></span>');
   const bpmBtn = ensureTimingButton('looperBpmBtn','looper-bpm-btn','Tempo settings','<span class="looper-bpm-value">90</span><span class="looper-bpm-unit">BPM</span>');
-  btn.after(countInBtn, metronomeBtn, bpmBtn);
-  // Put timing/save controls on the left; keep the record button visually centered.
-  rail.insertBefore(countInBtn, cluster);
-  rail.insertBefore(metronomeBtn, cluster);
-  rail.insertBefore(bpmBtn, cluster);
-  rail.insertBefore(saveBtn, cluster);
+  // Keep every transport control in the same flex row. The previous version
+  // placed timing/save buttons outside the cluster, so the sizing/layout rules
+  // missed them and the row wrapped on mobile.
+  cluster.insertBefore(countInBtn, btn);
+  cluster.insertBefore(metronomeBtn, btn);
+  cluster.insertBefore(bpmBtn, btn);
+  cluster.appendChild(saveBtn);
   syncBtn.setAttribute('aria-label', 'Sync mode: Free');
   syncBtn.title = SYNC_MODES[0].title;
 
@@ -166,6 +167,8 @@ export function mountLooper({ root } = {}) {
   let trackPanelProgressTimer = null;
   let openSheetIndex = -1;
   let sheetEl = null;
+  let sheetPointerHandler = null;
+  let sheetKeyHandler = null;
   let syncModeIndex = 0;
   let pendingLoopStop = false;
   let progressRaf = 0;
@@ -728,6 +731,8 @@ export function mountLooper({ root } = {}) {
   }
 
   function closeSheet() {
+    if (sheetPointerHandler) { document.removeEventListener('pointerdown', sheetPointerHandler, true); sheetPointerHandler = null; }
+    if (sheetKeyHandler) { document.removeEventListener('keydown', sheetKeyHandler); sheetKeyHandler = null; }
     if (sheetEl) {
       try { sheetEl.remove(); } catch (_) {}
       sheetEl = null;
@@ -748,7 +753,7 @@ export function mountLooper({ root } = {}) {
     const sheet = document.createElement('div');
     sheet.className = 'looper-sheet';
     sheet.innerHTML = '<header class="looper-sheet-header"><div class="looper-sheet-title">Layer ' + (index + 1) + '</div><button type="button" class="looper-menu-close" aria-label="Close layer controls">×</button></header>';
-    sheet.querySelector('.looper-menu-close').addEventListener('click', closeSheet);
+    sheet.querySelector('.looper-menu-close').addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); closeSheet(); });
     document.body.appendChild(sheet);
     sheetEl = sheet;
 
@@ -810,13 +815,12 @@ export function mountLooper({ root } = {}) {
     sheet.style.zIndex = '5000';
 
     const onDoc = (ev) => {
-      if (!sheet.contains(ev.target) && ev.target !== anchorEl) {
-        closeSheet();
-        document.removeEventListener('pointerdown', onDoc, true);
-      }
+      if (!sheet.contains(ev.target) && ev.target !== anchorEl) closeSheet();
     };
-    const onKey = (ev) => { if (ev.key === 'Escape') { closeSheet(); document.removeEventListener('pointerdown', onDoc, true); document.removeEventListener('keydown', onKey); } };
-    setTimeout(() => document.addEventListener('pointerdown', onDoc, true), 0);
+    const onKey = (ev) => { if (ev.key === 'Escape') closeSheet(); };
+    sheetPointerHandler = onDoc;
+    sheetKeyHandler = onKey;
+    setTimeout(() => { if (sheetEl === sheet) document.addEventListener('pointerdown', onDoc, true); }, 0);
     document.addEventListener('keydown', onKey);
   }
 
