@@ -63,7 +63,7 @@ async function boot() {
   }
 
   try {
-    await import(new URL('./js/fx-editor.js?v=2', BASE).href);
+    await import(new URL('./js/fx-editor.js?v=3', BASE).href);
   } catch (err) {
     console.warn('[fx-editor] detailed effect editor failed to load', err);
     degraded.push('effect editor');
