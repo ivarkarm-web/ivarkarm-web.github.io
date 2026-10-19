@@ -1,0 +1,46 @@
+/* Responsive FX editor: dark glass, fixed-ratio graph, touch-friendly controls. */
+.fx-editor-backdrop[hidden], .fx-editor[hidden] { display:none !important; }
+.fx-editor-backdrop {
+  position:fixed; inset:0; z-index:8800;
+  background:rgba(0,0,0,.58);
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+.fx-editor {
+  position:fixed; z-index:8810; left:50%; top:50%; transform:translate(-50%,-50%);
+  display:flex; flex-direction:column; gap:14px;
+  width:min(620px,calc(100vw - 28px)); max-height:min(88dvh,820px);
+  overflow-y:auto; overscroll-behavior:contain; box-sizing:border-box;
+  padding:18px; border:1px solid rgba(235,229,215,.13); border-radius:20px;
+  color:#f1eee6; background:rgba(17,17,20,.94);
+  box-shadow:0 24px 90px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.035);
+  -webkit-backdrop-filter:blur(26px) saturate(120%); backdrop-filter:blur(26px) saturate(120%);
+}
+.fx-editor-header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex:0 0 auto; }
+.fx-editor-current-title { font-size:15px; font-weight:600; letter-spacing:.02em; }
+.fx-editor-toolbar { display:flex; align-items:center; gap:10px; min-width:0; }
+.fx-editor-presets { flex:1 1 auto; min-width:0; }
+.fx-editor-bypass,.fx-editor-reset {
+  min-height:44px; padding:0 14px; border:1px solid rgba(235,229,215,.12); border-radius:10px;
+  color:rgba(242,238,229,.86); background:rgba(255,255,255,.045); font:inherit; cursor:pointer;
+}
+.fx-editor-bypass[aria-pressed="true"] { border-color:rgba(205,170,88,.45); color:#e3c985; }
+.fx-editor-curve-wrap { width:100%; min-width:0; }
+.fx-editor-curve { display:block; width:100%; height:auto; aspect-ratio:16/9; min-height:150px; max-height:300px; border:1px solid rgba(235,229,215,.1); border-radius:12px; background:rgba(5,5,7,.62); touch-action:pan-y; }
+.fx-editor-knobs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.fx-editor-knob { min-width:0; }
+.fx-editor-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:4px; }
+#fxEditorStatus { min-width:0; color:rgba(242,238,229,.52); font-size:12px; }
+.fx-editor-reset { white-space:nowrap; }
+.fx-editor .icon-btn { flex:0 0 44px; width:44px; height:44px; min-height:44px; border-radius:50%; color:rgba(242,238,229,.9); background:rgba(255,255,255,.05); border:1px solid rgba(235,229,215,.12); }
+.fx-editor .pionier-select { width:100%; }
+@media (max-width:600px) {
+  .fx-editor { left:0; right:0; top:auto; bottom:0; transform:none; width:100%; max-height:min(88dvh,820px); padding:16px 14px max(16px,env(safe-area-inset-bottom)); border-radius:20px 20px 0 0; }
+  .fx-editor-curve { aspect-ratio:16/9; min-height:160px; max-height:none; }
+  .fx-editor-knobs { gap:8px; }
+}
+@media (max-width:360px) {
+  .fx-editor { padding-inline:10px; gap:10px; }
+  .fx-editor-toolbar { gap:7px; }
+  .fx-editor-knobs { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (prefers-reduced-motion:reduce) { .fx-editor,.fx-editor-backdrop { transition:none !important; animation:none !important; } }
