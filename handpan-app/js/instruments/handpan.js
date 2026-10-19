@@ -79,7 +79,7 @@ export class HandpanInstrument extends Instrument {
     super({
       id: 'handpan',
       name: 'Handpan',
-      description: 'Radial steel handpan, 9 to 14 notes, with microtonal scales, aftertouch and MPE pitch bend.',
+      description: 'Radial steel handpan, 8 to 13 notes, with microtonal scales, aftertouch and MPE pitch bend.',
       category: 'handpan',
       polyphony: MAX_NOTES,
       compatibleFx: ['compressor', 'delay', 'reverb', 'warmth', 'air', 'chorus', 'shimmer']
@@ -187,8 +187,7 @@ export class HandpanInstrument extends Instrument {
   setScaleIndex(i) {
     this.scaleIndex = ((i % HANDPAN_SCALES.length) + HANDPAN_SCALES.length) % HANDPAN_SCALES.length;
     const s = HANDPAN_SCALES[this.scaleIndex];
-    // E Amara is a 14-note instrument; expose its full recorded range on selection.
-    if (s?.id === 'e-amara-recorded') this.noteCount = MAX_NOTES;
+    // Keep the selected layout size when changing scales; the user can grow it up to MAX_NOTES.
     if (s && typeof s.rootMidi === 'number') {
       const midi = s.rootMidi;
       let bestPc = 0, bestOct = 0, bestDist = 999;
