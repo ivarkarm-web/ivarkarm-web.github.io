@@ -2559,3 +2559,6 @@ html.theme-light .instrument-name {
  .fx-editor { animation:fx-editor-drop-from-top .24s cubic-bezier(.2,.8,.2,1) both; }
  @keyframes fx-editor-drop-from-top { from { opacity:0; transform:translate(-50%,-16px) scale(.985); } to { opacity:1; transform:translate(-50%,0) scale(1); } }
 }
+
+/* The dice control inherits the topbar icon button's visibility and touch behavior. */
+.instrument-nav .randomize-setup-btn { display:inline-flex !important; visibility:visible !important; opacity:1 !important; pointer-events:auto !important; }
