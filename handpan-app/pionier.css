@@ -2659,3 +2659,26 @@ html.theme-light .instrument-name {
 @media(prefers-reduced-motion:reduce) {
   .fx-preset-picker.is-open .fx-preset-list { animation:none; }
 }
+
+
+/* Shared looper settings-bubble language: keep every popup a compact floating bubble. */
+.fx-preset-picker .fx-preset-list {
+  padding:12px !important;
+  border-radius:16px !important;
+  background:rgba(16,16,19,.88) !important;
+  border:1px solid rgba(226,195,117,.24) !important;
+  box-shadow:0 20px 60px rgba(0,0,0,.46),inset 0 1px 0 rgba(255,255,255,.035) !important;
+  -webkit-backdrop-filter:blur(24px) saturate(125%) !important;
+  backdrop-filter:blur(24px) saturate(125%) !important;
+  transform-origin:bottom center;
+}
+.fx-preset-picker.is-open .fx-preset-list {
+  animation:looper-bubble-in .2s cubic-bezier(.2,.8,.2,1) both !important;
+}
+@keyframes looper-bubble-in {
+  from { opacity:0; transform:translateY(8px) scale(.985); }
+  to { opacity:1; transform:translateY(0) scale(1); }
+}
+@media(prefers-reduced-motion:reduce) {
+  .fx-preset-picker.is-open .fx-preset-list { animation:none !important; }
+}
