@@ -2815,3 +2815,73 @@ html.theme-light .instrument-name {
 @media(prefers-reduced-motion:reduce) {
  .fx-preset-picker.is-open .fx-preset-list:not([hidden]) {animation:none!important}
 }
+
+
+/* Soundscapes now reveals as the same compact, translucent spring sheet as Customize. */
+#soundscapesPanel[hidden] { display:none !important; }
+#soundscapesPanel:not([hidden]) {
+  display:flex !important;
+  flex-direction:column !important;
+  position:fixed !important;
+  inset:auto !important;
+  left:50% !important;
+  top:max(58px, calc(env(safe-area-inset-top, 0px) + 52px)) !important;
+  width:min(460px, calc(100vw - 24px)) !important;
+  max-width:calc(100vw - 24px) !important;
+  height:auto !important;
+  max-height:calc(100dvh - max(78px, calc(env(safe-area-inset-top, 0px) + 68px)) - env(safe-area-inset-bottom, 8px)) !important;
+  min-height:0 !important;
+  box-sizing:border-box !important;
+  padding:14px 14px max(14px, env(safe-area-inset-bottom, 0px)) !important;
+  overflow:hidden !important;
+  border:1px solid rgba(226,195,117,.22) !important;
+  border-radius:18px !important;
+  color:var(--pionier-fg, #e6e0d2) !important;
+  background:rgba(16,16,19,.88) !important;
+  box-shadow:0 20px 60px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.04) !important;
+  backdrop-filter:blur(24px) saturate(125%) !important;
+  -webkit-backdrop-filter:blur(24px) saturate(125%) !important;
+  opacity:0 !important;
+  transform:translate(-50%, -8px) scale(.985) !important;
+  transform-origin:top center !important;
+  pointer-events:none !important;
+  transition:opacity .18s ease, transform .22s cubic-bezier(.2,.85,.25,1.2) !important;
+  z-index:var(--pionier-z-soundscapes, 5000) !important;
+}
+#soundscapesPanel.is-active.is-open:not([hidden]) {
+  opacity:1 !important;
+  transform:translate(-50%, 0) scale(1) !important;
+  pointer-events:auto !important;
+}
+#soundscapesPanel .soundscapes-header {
+  flex:0 0 auto !important;
+  gap:10px !important;
+  margin:0 0 12px !important;
+}
+#soundscapesPanel .soundscapes-header h2 { font-size:14px !important; }
+#soundscapesPanel .soundscapes-return-btn { white-space:nowrap !important; font-size:10px !important; padding:7px 9px !important; }
+#soundscapesPanel .soundscapes-body {
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  overscroll-behavior:contain !important;
+  -webkit-overflow-scrolling:touch !important;
+  gap:12px !important;
+  padding-bottom:2px !important;
+}
+#soundscapesPanel .soundscape-queue { max-height:34dvh; overflow-y:auto; }
+@media (prefers-reduced-motion:reduce) {
+  #soundscapesPanel:not([hidden]) { transition:none !important; }
+}
+@media (max-width:390px) {
+  #soundscapesPanel:not([hidden]) {
+    top:max(52px, calc(env(safe-area-inset-top, 0px) + 48px)) !important;
+    width:calc(100vw - 18px) !important;
+    max-width:calc(100vw - 18px) !important;
+    padding:11px 11px max(11px, env(safe-area-inset-bottom, 0px)) !important;
+    max-height:calc(100dvh - 68px - env(safe-area-inset-bottom, 8px)) !important;
+  }
+  #soundscapesPanel .soundscapes-header { margin-bottom:9px !important; }
+  #soundscapesPanel .soundscapes-return-btn { font-size:9px !important; padding:6px 7px !important; }
+}
