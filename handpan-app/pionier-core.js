@@ -661,7 +661,7 @@ function renderInstrumentMenu() {
     const section = document.createElement('section'); section.className = 'picker-group instrument-picker-group';
     const head = document.createElement('div'); head.className = 'instrument-menu-group'; head.textContent = meta.label; head.setAttribute('role', 'presentation'); section.appendChild(head);
     for (const item of items) {
-      const btn = document.createElement('button'); btn.type = 'button'; const active = InstrumentRegistry.active?.id === item.id; btn.className = 'instrument-menu-item' + (active ? ' is-active' : ''); btn.setAttribute('role', 'menuitem'); btn.dataset.instrumentId = item.id; btn.textContent = item.name || item.id; btn.dataset.searchText = [item.name, item.id, item.category, meta.label].filter(Boolean).join(' ').toLowerCase();
+      const btn = document.createElement('button'); btn.type = 'button'; const active = InstrumentRegistry.active?.id === item.id; btn.className = 'instrument-menu-item pionier-menu-option' + (active ? ' is-active' : ''); btn.setAttribute('role', 'menuitem'); btn.dataset.instrumentId = item.id; btn.textContent = item.name || item.id; btn.dataset.searchText = [item.name, item.id, item.category, meta.label].filter(Boolean).join(' ').toLowerCase();
       if (active) { btn.setAttribute('aria-current', 'true'); focusTarget = btn; }
       btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); setInstrument(item.id).catch(() => {}); if (window.PionierOverlay) window.PionierOverlay.closePickers(); else { menu.hidden = true; menu.setAttribute('hidden', ''); document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false'); } }); section.appendChild(btn);
     } results.appendChild(section);
