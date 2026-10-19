@@ -166,6 +166,19 @@
     }
   }
 
+  function ensurePickerScrollRegion(menu) {
+    if (!menu || menu.querySelector('.picker-results')) return;
+    const search = menu.querySelector(':scope > .picker-search');
+    const close = menu.querySelector(':scope > .picker-close');
+    const results = document.createElement('div');
+    results.className = 'picker-results picker-results-generated';
+    Array.from(menu.children).forEach((child) => {
+      if (child === search || child === close) return;
+      results.appendChild(child);
+    });
+    menu.appendChild(results);
+  }
+
   function openPicker(menuId) {
     const menu = document.getElementById(menuId);
     const toggle = document.getElementById(TOGGLE_FOR[menuId]);
@@ -204,6 +217,7 @@
       closeButton.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); closePickers(); });
       menu.prepend(closeButton);
     }
+    ensurePickerScrollRegion(menu);
     const bd = ensureBackdrop();
     bd.hidden = false;
     bd.removeAttribute('hidden');
