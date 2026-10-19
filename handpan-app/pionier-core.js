@@ -163,10 +163,8 @@ app.catchMode = new CatchMode({
 app.catchMode.reducedMotion = app.reducedMotion;
 
 function updateLabels() {
-  const scaleEl = document.getElementById('scaleLabel');
   const rootEl = document.getElementById('rootLabel');
   const noteCountEl = document.getElementById('noteCountLabel');
-  if (scaleEl && handpan.scaleLabel) scaleEl.textContent = handpan.scaleLabel;
   if (rootEl && handpan.rootLabel) rootEl.textContent = handpan.rootLabel;
   if (noteCountEl) {
     const n = Number.isFinite(handpan.noteCount) ? handpan.noteCount : 9;
@@ -180,9 +178,7 @@ function updateLabels() {
   if (nextN) nextN.disabled = n >= 14;
   const scaleSelect = document.getElementById('scaleMenu');
   if (scaleSelect) scaleSelect.value = String(handpan.scaleIndex);
-  const voiceEl = document.getElementById('instrumentDropdownToggle');
   const inst = activeInstrument();
-  if (voiceEl) voiceEl.textContent = (inst.name || inst.id) + ' \u25be';
 }
 
 function updateInstrumentUI() {
@@ -603,14 +599,6 @@ function refreshPitch() {
     console.warn('refreshPitch', err);
     try { updateLabels(); } catch (_) {}
   }
-  // Keep chrome interactive after scale/root changes
-  try {
-    if (window.PionierOverlay?.closePickers) window.PionierOverlay.closePickers();
-    document.getElementById('app')?.classList.remove('soundscapes-away');
-    document.body.classList.remove('soundscapes-active');
-    const bd = document.getElementById('pickerBackdrop');
-    if (bd) { bd.hidden = true; bd.setAttribute('hidden', ''); }
-  } catch (_) {}
   // Re-measure pan slot after label/layout shifts
   try {
     if (typeof window.__pionierCenterPan === 'function') window.__pionierCenterPan();
@@ -687,16 +675,11 @@ function renderInstrumentMenu() {
   }
   select.value = current;
 }
-window.__pionierRenderInstrumentMenu = renderInstrumentMenu;
 document.getElementById('instrumentMenu')?.addEventListener('change', (event) => {
   const id = event.currentTarget.value;
   if (id) setInstrument(id).catch((err) => console.warn('Instrument selection failed', err));
 });
 
-/* instrument menu open/close: overlay-controller.js */
-document.getElementById('instrumentDropdownToggle')?.addEventListener('click', () => {
-  renderInstrumentMenu();
-});
 document.getElementById('voicePrev')?.addEventListener('click', () => {
   const list = InstrumentRegistry.list();
   const cur = InstrumentRegistry.active?.id || 'handpan';
