@@ -174,7 +174,8 @@ function renderPresets(){
  const picker=document.createElement('div');picker.className='pionier-menu-picker fx-preset-picker';
  const trigger=document.createElement('button');trigger.type='button';trigger.className='pionier-menu-trigger fx-editor-preset-select';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');trigger.textContent=chosen.label+'  ▾';
  const list=document.createElement('div');list.className='pionier-menu-list fx-preset-list';list.setAttribute('role','listbox');list.setAttribute('aria-label',DEFS[activeId].title+' presets');list.hidden=true;
- let outsideHandler=null;\n const close=()=>{list.hidden=true;trigger.setAttribute('aria-expanded','false');picker.classList.remove('is-open');if(outsideHandler){document.removeEventListener('pointerdown',outsideHandler);outsideHandler=null;}};
+ let outsideHandler=null;
+ const close=()=>{list.hidden=true;trigger.setAttribute('aria-expanded','false');picker.classList.remove('is-open');if(outsideHandler){document.removeEventListener('pointerdown',outsideHandler);outsideHandler=null;}};
  const applyPreset=p=>{
   if(!p)return;
   activeModule._presetId=p.id;activeModule.type=p.engineType;Object.assign(activeModule.settings,p.v);
