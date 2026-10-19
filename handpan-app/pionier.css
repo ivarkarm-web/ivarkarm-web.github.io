@@ -2741,3 +2741,37 @@ html.theme-light .instrument-name {
   will-change: transform;
   transition: transform 260ms cubic-bezier(.2,.85,.25,1.2);
 }
+
+/* Shared looper bubble visual contract for instrument, scale, and FX preset menus. */
+.looper-bubble-menu,
+.scale-menu.picker-popover.looper-bubble-menu,
+.instrument-menu.picker-popover.looper-bubble-menu,
+.fx-preset-picker .fx-preset-list {
+ box-sizing:border-box!important;border:1px solid rgba(226,195,117,.26)!important;border-radius:16px!important;
+ background:rgba(17,17,20,.90)!important;color:#f0ebe3!important;
+ box-shadow:0 20px 60px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.055)!important;
+ -webkit-backdrop-filter:blur(28px) saturate(140%)!important;backdrop-filter:blur(28px) saturate(140%)!important;
+ scrollbar-width:none!important;-ms-overflow-style:none!important;
+}
+.scale-menu.picker-popover.looper-bubble-menu,.instrument-menu.picker-popover.looper-bubble-menu{padding:8px!important}
+.scale-menu.picker-popover.looper-bubble-menu .picker-results,.instrument-menu.picker-popover.looper-bubble-menu .picker-results{
+ min-height:0!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:auto!important;
+ -webkit-overflow-scrolling:touch!important;scrollbar-width:none!important;-ms-overflow-style:none!important;
+}
+.scale-menu.picker-popover.looper-bubble-menu .scale-menu-item,.instrument-menu.picker-popover.looper-bubble-menu .instrument-menu-item{
+ min-height:38px!important;padding:9px 11px!important;margin:2px 0!important;border-radius:10px!important;
+ transition:background .16s ease,color .16s ease,transform .28s cubic-bezier(.2,.85,.25,1.2)!important;
+}
+.scale-menu.picker-popover.looper-bubble-menu.is-open,.instrument-menu.picker-popover.looper-bubble-menu.is-open,
+.fx-preset-picker.is-open .fx-preset-list{animation:looper-picker-bubble-spring .38s cubic-bezier(.2,.85,.25,1.22) both!important;transform-origin:top center!important}
+@keyframes looper-picker-bubble-spring{
+ 0%{opacity:0;transform:translateY(10px) scale(.97)}
+ 62%{opacity:1;transform:translateY(-2px) scale(1.008)}
+ 82%{transform:translateY(1px) scale(.998)}
+ 100%{opacity:1;transform:translateY(0) scale(1)}
+}
+.scale-menu.picker-popover.looper-bubble-menu::-webkit-scrollbar,.instrument-menu.picker-popover.looper-bubble-menu::-webkit-scrollbar,
+.scale-menu.picker-popover.looper-bubble-menu .picker-results::-webkit-scrollbar,
+.instrument-menu.picker-popover.looper-bubble-menu .picker-results::-webkit-scrollbar,
+.fx-preset-picker .fx-preset-list::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
+.looper-track-close,.looper-menu-close{position:relative;z-index:5;pointer-events:auto!important;touch-action:manipulation;cursor:pointer}
