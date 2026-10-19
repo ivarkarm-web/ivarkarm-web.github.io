@@ -520,7 +520,9 @@ export function mountLooper({ root } = {}) {
     const close = () => closeTrackPanel();
     overlay.addEventListener('pointerdown', event => { if (event.target === overlay) close(); });
     const trackCloseButton = overlay.querySelector('.looper-track-close');
+    trackCloseButton.style.pointerEvents = 'auto';
     trackCloseButton.addEventListener('pointerdown', event => { event.stopPropagation(); });
+    trackCloseButton.addEventListener('pointerup', event => { event.preventDefault(); event.stopPropagation(); closeTrackPanel(); });
     trackCloseButton.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); close(); });
     const play = overlay.querySelector('.looper-track-play');
     const status = overlay.querySelector('.looper-track-status');
@@ -761,7 +763,9 @@ export function mountLooper({ root } = {}) {
     sheet.className = 'looper-sheet';
     sheet.innerHTML = '<header class="looper-sheet-header"><div class="looper-sheet-title">Layer ' + (index + 1) + '</div><button type="button" class="looper-menu-close" aria-label="Close layer controls">×</button></header>';
     const sheetCloseButton = sheet.querySelector('.looper-menu-close');
+    sheetCloseButton.style.pointerEvents = 'auto';
     sheetCloseButton.addEventListener('pointerdown', event => { event.stopPropagation(); });
+    sheetCloseButton.addEventListener('pointerup', event => { event.preventDefault(); event.stopPropagation(); closeSheet(); });
     sheetCloseButton.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); closeSheet(); });
     document.body.appendChild(sheet);
     sheetEl = sheet;
@@ -1098,7 +1102,9 @@ export function mountLooper({ root } = {}) {
     const title = document.createElement('div'); title.className = 'looper-timing-menu-title';
     title.textContent = type === 'metronome' ? 'Metronome' : type === 'countin' ? 'Count-in' : 'Tempo';
     const closeButton = document.createElement('button'); closeButton.type = 'button'; closeButton.className = 'looper-menu-close'; closeButton.setAttribute('aria-label', 'Close menu'); closeButton.textContent = '×';
+    closeButton.style.pointerEvents = 'auto';
     closeButton.addEventListener('pointerdown', event => { event.stopPropagation(); });
+    closeButton.addEventListener('pointerup', event => { event.preventDefault(); event.stopPropagation(); closeTimingMenu(); });
     closeButton.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); closeTimingMenu(); });
     header.append(title, closeButton); menu.appendChild(header);
     const addSelect = (labelText, values, selected, onChange) => {
