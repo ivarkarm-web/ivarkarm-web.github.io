@@ -7,7 +7,7 @@ const MAX_ACTIVE = 5;
 export class FxModule {
   constructor(def) {
     this.id = def.id; this.name = def.name; this.category = def.category;
-    this.value = def.defaultValue ?? 0.35; this.bypassed = false;
+    this.value = def.defaultValue ?? 0.35; this.bypassed = false; this.settings = {};
     this._nodes = []; this._input = null; this._output = null;
   }
   create(ctx) { throw new Error('FxModule.create must be implemented'); }
@@ -43,11 +43,14 @@ export class CompressorFx extends FxModule {
       limit: { threshold: -8, knee: 2, ratio: 12, attack: 0.001, release: 0.08, makeup: 1.15 }
     };
     const p = presets[this.type] || presets.soft;
-    this.comp.threshold.setTargetAtTime(-2 + (p.threshold + 2) * Math.pow(amt, 0.75), t, 0.04);
-    this.comp.ratio.setTargetAtTime(1.05 + (p.ratio - 1.05) * amt, t, 0.04);
-    this.comp.knee.setTargetAtTime(0.5 + p.knee * amt, t, 0.04);
-    this.comp.attack.setTargetAtTime(p.attack, t, 0.04);
-    this.comp.release.setTargetAtTime(p.release, t, 0.04);
+    const threshold = this.settings.threshold ?? p.threshold;
+    const ratio = this.settings.ratio ?? p.ratio;
+    const knee = this.settings.knee ?? p.knee;
+    this.comp.threshold.setTargetAtTime(-2 + (threshold + 2) * Math.pow(amt, 0.75), t, 0.04);
+    this.comp.ratio.setTargetAtTime(1.05 + (ratio - 1.05) * amt, t, 0.04);
+    this.comp.knee.setTargetAtTime(0.5 + knee * amt, t, 0.04);
+    this.comp.attack.setTargetAtTime(this.settings.attack ?? p.attack, t, 0.04);
+    this.comp.release.setTargetAtTime(this.settings.release ?? p.release, t, 0.04);
     this.makeup.gain.setTargetAtTime(1 + (p.makeup - 1) * amt * 1.4, t, 0.06);
     this.wet.gain.setTargetAtTime(amt > 0.01 ? 1 : 0, t, 0.04);
     this.dry.gain.setTargetAtTime(1, t, 0.04);
@@ -77,8 +80,8 @@ export class DelayFx extends FxModule {
       ambient: { timeMin: 0.4, timeMax: 0.72, fbMin: 0.28, fbMax: 0.52, wetScale: 0.6 }
     };
     const d = types[this.type] || types.echo;
-    this.delay.delayTime.setTargetAtTime(d.timeMin + del * (d.timeMax - d.timeMin), t, 0.08);
-    this.fb.gain.setTargetAtTime(d.fbMin + del * (d.fbMax - d.fbMin), t, 0.06);
+    this.delay.delayTime.setTargetAtTime(this.settings.time ?? (d.timeMin + del * (d.timeMax - d.timeMin)), t, 0.08);
+    this.fb.gain.setTargetAtTime(this.settings.feedback ?? (d.fbMin + del * (d.fbMax - d.fbMin)), t, 0.06);
     this.wet.gain.setTargetAtTime(del * d.wetScale, t, 0.06);
     this.dry.gain.setTargetAtTime(1, t, 0.06);
   }
@@ -119,9 +122,9 @@ export class ReverbFx extends FxModule {
     this.dry.gain.setTargetAtTime(1, t, 0.06);
     this.taps.forEach((tap, i) => {
       try {
-        tap.d.delayTime.setTargetAtTime(r.taps[i] ?? r.taps[r.taps.length - 1], t, 0.1);
+        tap.d.delayTime.setTargetAtTime((r.taps[i] ?? r.taps[r.taps.length - 1]) * (this.settings.decay ?? 1), t, 0.1);
         tap.g.gain.setTargetAtTime(r.tapGains[i] ?? 0.15, t, 0.08);
-        tap.f.frequency.setTargetAtTime(r.filters[i] ?? 3000, t, 0.1);
+        tap.f.frequency.setTargetAtTime(Math.max(500, Math.min(12000, (r.filters[i] ?? 3000) * (this.settings.tone ?? 1))), t, 0.1);
         tap.fb.gain.setTargetAtTime(r.fb, t, 0.1);
       } catch (_) {}
     });
@@ -149,26 +152,28 @@ export class FilterFx extends FxModule {
     const amt = this.bypassed ? 0 : this.value;
     const type = this.type || 'lowpass';
 
+    const cutoff = this.settings.frequency;
+    const resonance = this.settings.resonance;
     if (type === 'highpass') {
       this.filter.type = 'highpass';
-      const hz = amt < 0.02 ? 20 : 40 + Math.pow(amt, 1.35) * 4000;
-      this.filter.frequency.setTargetAtTime(hz, t, 0.04);
-      this.filter.Q.setTargetAtTime(0.7 + amt * 2.2, t, 0.05);
+      const target = cutoff ?? (amt < 0.02 ? 20 : 40 + Math.pow(amt, 1.35) * 4000);
+      this.filter.frequency.setTargetAtTime(20 + (target - 20) * amt, t, 0.04);
+      this.filter.Q.setTargetAtTime(resonance ?? (0.7 + amt * 2.2), t, 0.05);
     } else if (type === 'band') {
       this.filter.type = 'bandpass';
-      const hz = 200 + Math.pow(amt, 1.2) * 3800;
-      this.filter.frequency.setTargetAtTime(hz, t, 0.04);
-      this.filter.Q.setTargetAtTime(1.2 + amt * 6, t, 0.05);
+      const target = cutoff ?? (200 + Math.pow(amt, 1.2) * 3800);
+      this.filter.frequency.setTargetAtTime(80 + (target - 80) * amt, t, 0.04);
+      this.filter.Q.setTargetAtTime(resonance ?? (1.2 + amt * 6), t, 0.05);
     } else if (type === 'notch') {
       this.filter.type = 'notch';
-      const hz = 300 + Math.pow(amt, 1.15) * 3200;
-      this.filter.frequency.setTargetAtTime(hz, t, 0.04);
-      this.filter.Q.setTargetAtTime(0.8 + amt * 10, t, 0.05);
+      const target = cutoff ?? (300 + Math.pow(amt, 1.15) * 3200);
+      this.filter.frequency.setTargetAtTime(80 + (target - 80) * amt, t, 0.04);
+      this.filter.Q.setTargetAtTime(resonance ?? (0.8 + amt * 10), t, 0.05);
     } else {
       this.filter.type = 'lowpass';
-      const hz = amt < 0.02 ? 20000 : 220 + Math.pow(1 - amt, 1.6) * 16000;
-      this.filter.frequency.setTargetAtTime(hz, t, 0.04);
-      this.filter.Q.setTargetAtTime(0.6 + amt * 3.5, t, 0.05);
+      const target = cutoff ?? (amt < 0.02 ? 20000 : 220 + Math.pow(1 - amt, 1.6) * 16000);
+      this.filter.frequency.setTargetAtTime(20000 + (target - 20000) * amt, t, 0.04);
+      this.filter.Q.setTargetAtTime(resonance ?? (0.6 + amt * 3.5), t, 0.05);
     }
   }
 }
