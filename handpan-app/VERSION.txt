@@ -1,4 +1,5 @@
-pionier-v26
+pionier-v27
 2026-10-19
-shell: native selectors, FX editor stylesheet, overlay cleanup
-cache: pionier-v81
+shell: native HTML selects for instrument, scale, settings and FX presets
+ui: responsive dark FX editor stylesheet; custom picker overlays removed
+cache: pionier-v82
