@@ -193,48 +193,6 @@ body::before {
   .pill { padding: 7px 12px; font-size: 10px; }
 }
 
-.instrument-menu {
-  position: absolute;
-  top: 68px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(320px, calc(100vw - 24px));
-  max-height: min(62dvh, 430px);
-  overflow-y: auto;
-  z-index: 40;
-  background: rgba(12, 12, 14, 0.96);
-  border: 1px solid var(--stroke-strong);
-  border-radius: var(--radius-md);
-  padding: 6px;
-  box-shadow: var(--shadow-lg);
-  -webkit-overflow-scrolling: touch;
-}
-.instrument-menu[hidden] { display: none !important; }
-.instrument-menu-item {
-  display: block;
-  width: 100%;
-  min-height: 44px;
-  border: 0;
-  background: transparent;
-  color: var(--muted-strong);
-  text-align: left;
-  padding: 11px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s var(--ease), color 0.15s var(--ease);
-}
-.instrument-menu-item:hover {
-  background: rgba(212, 176, 74, 0.1);
-  color: var(--fg);
-}
-.instrument-menu-item.is-active {
-  background: rgba(212, 176, 74, 0.14);
-  color: var(--gold);
-  box-shadow: inset 2px 0 0 var(--gold);
-}
-
 .stage {
   flex: 1 1 auto;
   display: flex;
