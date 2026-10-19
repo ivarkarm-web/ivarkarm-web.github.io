@@ -1053,3 +1053,45 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
   #looperRail #looperUtilityControls .looper-count-in-btn .looper-timing-main { font-size:5px !important; }
   #looperRail #looperUtilityControls .looper-bpm-btn .looper-tempo-icon { width:10px !important; height:10px !important; }
 }
+
+
+/* Keep Save outside the left timing cluster so it can never sit beneath Record. */
+#looperRail > #looperSaveBtn {
+  position:absolute !important;
+  left:auto !important;
+  right:4px !important;
+  top:50% !important;
+  bottom:auto !important;
+  transform:translateY(-50%) !important;
+  z-index:5 !important;
+  display:grid !important;
+  place-items:center !important;
+  margin:0 !important;
+  width:34px !important;
+  height:34px !important;
+  min-width:34px !important;
+  min-height:34px !important;
+  max-width:34px !important;
+  max-height:34px !important;
+  flex:0 0 34px !important;
+  padding:0 !important;
+  border-radius:50% !important;
+  font-size:7px !important;
+  letter-spacing:0 !important;
+}
+#looperRail > #looperLayers {
+  padding-right:36px !important;
+}
+@media(max-width:390px) {
+  #looperRail > #looperSaveBtn {
+    right:2px !important;
+    width:32px !important;
+    height:32px !important;
+    min-width:32px !important;
+    min-height:32px !important;
+    max-width:32px !important;
+    max-height:32px !important;
+    flex-basis:32px !important;
+  }
+  #looperRail > #looperLayers { padding-right:34px !important; }
+}
