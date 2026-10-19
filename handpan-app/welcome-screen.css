@@ -82,7 +82,7 @@ html.pionier-welcome-active #pan { visibility: visible; }
 #headphonesHint {
   position: fixed;
   z-index: 2147483001;
-  top: clamp(112px, 22vh, 190px);
+  top: clamp(86px, 17.5vh, 150px);
   left: 50%;
   width: max-content;
   max-width: calc(100vw - 36px);
@@ -98,9 +98,9 @@ html.pionier-welcome-active #pan { visibility: visible; }
   box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-  font: 600 14px/1.5 var(--font, Inter, sans-serif);
-  letter-spacing: .12em;
-  text-shadow: 0 0 22px rgba(245,245,245,.16);
+  font: 600 22px/1.25 var(--font, Inter, sans-serif);
+  letter-spacing: .1em;
+  text-shadow: 0 2px 18px rgba(245,245,245,.2), 0 0 34px rgba(225,29,72,.12);
   text-align: center;
   opacity: 0;
   visibility: hidden;
@@ -129,7 +129,7 @@ html.pionier-welcome-active #pan { visibility: visible; }
   100% { opacity: 0; visibility: hidden; }
 }
 @media (max-width:560px) {
-  #headphonesHint { top: clamp(100px, 24vh, 180px); font-size: 13px; letter-spacing: .1em; }
+  #headphonesHint { top: clamp(84px, 19vh, 135px); font-size: clamp(18px, 5.2vw, 22px); letter-spacing: .08em; gap: .3em; }
 }
 @media (prefers-reduced-motion:reduce) {
   #headphonesHint.is-visible { animation-duration: 1ms !important; }
