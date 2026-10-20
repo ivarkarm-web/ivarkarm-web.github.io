@@ -10,7 +10,7 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.
  */
-const CACHE_VERSION = 'pionier-v99';
+const CACHE_VERSION = 'pionier-v100';
 
 const SHELL = [
   './',
@@ -99,7 +99,6 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // HTML: network-first
   if (isDocumentRequest(req, url)) {
     event.respondWith(
       fetch(req)
@@ -115,7 +114,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Versioned shell JS/CSS: network-first so deploys win over stale cache
   if (isVersionedAsset(url) && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {
     event.respondWith(
       fetch(req)
@@ -131,7 +129,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Everything else: cache-first
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
