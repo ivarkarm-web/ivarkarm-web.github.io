@@ -16,6 +16,18 @@ export function getAudioContext() {
   try { context = new AC({ latencyHint: 'interactive' }); }
   catch { context = new AC(); }
 
+  try {
+    context.addEventListener('statechange', () => {
+      // Auto-resume when the browser unlocks after an interruption (phone call,
+      // Control Center, route change). Failures are silent — next user gesture retries.
+      if (context && context.state === 'interrupted') {
+        /* iOS may report interrupted; wait for next unlock */
+      } else if (context && context.state === 'suspended' && typeof document !== 'undefined' && !document.hidden) {
+        context.resume().catch(() => undefined);
+      }
+    });
+  } catch (_) {}
+
   master = context.createGain();
   master.gain.value = 1.15;
   compressor = context.createDynamicsCompressor();
@@ -95,6 +107,15 @@ if (typeof document !== 'undefined') {
   });
 }
 
+export function audioHealth() {
+  return {
+    state: audioState(),
+    available: !!audioConstructor(),
+    hasContext: !!(context && context.state !== 'closed'),
+    sampleRate: context?.sampleRate ?? null
+  };
+}
+
 export const HandpanAudio = {
   getAudioContext,
   getAudioMaster,
@@ -102,7 +123,8 @@ export const HandpanAudio = {
   resumeAudio,
   suspendAudio,
   closeAudio,
-  audioState
+  audioState,
+  audioHealth
 };
 
 if (typeof window !== 'undefined') window.HandpanAudio = HandpanAudio;

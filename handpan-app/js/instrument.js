@@ -9,6 +9,7 @@ export class Instrument {
     this.name = def.name || this.id;
     this.description = def.description || '';
     this.category = def.category || 'found';
+    this.engineKind = def.engineKind || (this.category === 'handpan' ? 'sample' : 'procedural');
     this.polyphony = def.polyphony ?? 9;
     this.compatibleFx = def.compatibleFx || ['compressor', 'delay', 'reverb'];
     this.tuning = def.tuning || {};
@@ -45,10 +46,15 @@ export const InstrumentRegistry = {
     _registry.set(instrument.id, instrument);
     return instrument;
   },
-  get(id) { return _registry.get(id) || null; },
+  get(id) { return _registry.get(id) || null; }
   list() {
     return Array.from(_registry.values()).map((inst) => ({
-      id: inst.id, name: inst.name, description: inst.description, category: inst.category
+      id: inst.id,
+      name: inst.name,
+      description: inst.description,
+      category: inst.category,
+      // sample = may use owner/recorded buffers; procedural = synthesis / library render
+      engineKind: inst.engineKind || (inst.category === 'handpan' ? 'sample' : 'procedural')
     }));
   },
   get activeId() { return _activeId; },

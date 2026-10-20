@@ -4,11 +4,13 @@
  * Bump CACHE_VERSION on every deploy that changes shell assets.
  *
  * Strategy:
- *  - HTML / navigations: network-first (fallback to cache offline)
+ *  - HTML / navigations: network-first (fallback to cached index offline)
  *  - Versioned shell assets (?v=): network-first when online, cache fallback
  *  - Other same-origin GET: cache-first, then network
+ *  - On activate: drop all caches except current CACHE_VERSION
+ * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.
  */
-const CACHE_VERSION = 'pionier-v98';
+const CACHE_VERSION = 'pionier-v99';
 
 const SHELL = [
   './',
@@ -23,15 +25,18 @@ const SHELL = [
   './ui-stability.css?v=6',
   './fx-editor.css?v=4',
   './topbar-narrow.css?v=6',
+  './welcome-screen.css?v=6',
   './js/skin-palette.js?v=1',
-  './js/customization-catalog.js?v=7',
+  './js/customization-catalog.js?v=6',
   './js/overlay-controller.js?v=22',
   './js/layout-boot.js?v=65',
-  './js/settings-panel.js?v=29',
+  './js/settings-panel.js?v=28',
   './js/ambient-fx.js?v=12',
   './js/skin-mandala.js?v=5',
+  './js/app-state.js?v=1',
   './pionier-app.js?v=232',
   './registerSW.js',
+  './welcome-screen.js?v=6',
   './pionier-core.js?v=70',
   './js/audio-core.js?v=2',
   './js/instrument.js',
@@ -40,10 +45,10 @@ const SHELL = [
   './js/fx-editor.js?v=3',
   './js/pionier-surface.js?v=146',
   './js/note-sample-bank.js',
-  './js/soundscapes.js?v=8',
+  './js/soundscapes.js?v=10',
   './js/scale-selector.js?v=9',
   './js/looper.js?v=221',
-  './js/repository-loop-save.js?v=1',
+  './js/loop-core.js',
   './js/instruments/handpan.js?v=11',
   './js/instruments/handpan-scales.js?v=6',
   './js/pad-layout.js?v=2',
