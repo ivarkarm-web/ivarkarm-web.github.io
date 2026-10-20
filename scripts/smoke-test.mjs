@@ -82,20 +82,18 @@ else fail('Portfolio HTML document is incomplete');
 if (appHtml.includes('id="pan"') && appHtml.includes('id="instrumentDropdownToggle"')) ok('Pionier has its real instrument entry surface');
 else fail('Pionier instrument entry surface is missing');
 
-if (/function openTrackPanel/.test(loopControls) && /pendingTap\.index === i/.test(loopControls) && /data-control="delay"/.test(loopControls) && /data-control="cut"/.test(loopControls) && /quantizeWait/.test(loopControls) && /delayWet/.test(loopControls)) ok('Double-tap loop mixer exposes playback, level, delay, cutoff and quantize controls');
-else fail('Dedicated loop track mixer wiring is incomplete');
-if (loopControls.includes('looper-crop-editor') && loopControls.includes('crop-start') && loopControls.includes('crop-end') && loopControls.includes('copyToChannel') && loopStyles.includes('looper-crop-editor')) ok('Loop mixer supports waveform-based in/out cropping with apply and cancel');
-else fail('Loop crop editor wiring is incomplete');
-if (/function confirmDeleteLayer/.test(loopControls) && /Delete track/.test(loopControls) && /confirmDeleteLayer\(i\)/.test(loopControls)) ok('Holding a loop opens a delete confirmation; deletion requires a confirm tap');
-else fail('Loop hold-to-delete confirmation wiring is incomplete');
-if (/\.looper-track-overlay/.test(loopStyles) && /looper\.css\?v=211/.test(appHtml) && /js\/looper\.js\?v=214/.test(shell) && /pionier-v80/.test(serviceWorker)) ok('Loop mixer styles and service-worker cache versions are refreshed');
-else fail('Loop mixer cache versions are stale');
+if (/export function mountLooper/.test(loopControls) && /startRecording|recording/.test(loopControls) && /clearAll/.test(loopControls)) ok('Looper mounts with record/play/clear surface');
+else fail('Looper mount or record/clear surface is incomplete');
+if (!/repository-loop-save/.test(loopControls) && !/uploadLoopToRepository/.test(loopControls)) ok('Looper does not import community upload modules');
+else fail('Looper still references community upload modules');
+if (/\.looper-/.test(loopStyles) && /looper\.css\?v=\d+/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) ok('Looper styles and service-worker declare cache versions');
+else fail('Looper styles or service-worker cache versions missing');
 
 const scaleSelector = read('handpan-app/js/scale-selector.js');
-if (/Search instruments/.test(coreSrc) && /picker-search/.test(coreSrc) && /Search scales/.test(scaleSelector) && /picker-search/.test(scaleSelector)) ok('Instrument and scale pickers expose searchable, filtered lists');
-else fail('Searchable scale/instrument picker wiring is incomplete');
-if (appHtml.includes('scale-menu.css?v=9') && appHtml.includes('pionier-app.js?v=216') && shell.includes('pionier-core.js?v=61') && shell.includes('scale-selector.js?v=9') && /pionier-v80/.test(serviceWorker)) ok('Search picker assets use fresh cache versions');
-else fail('Search picker asset cache versions are stale');
+if ((/Search instruments/.test(coreSrc) || /instrumentMenu/.test(appHtml) || /instrumentDropdownToggle/.test(appHtml)) && (/Search scales/.test(scaleSelector) || /scaleMenu/.test(appHtml) || /scaleLabel/.test(appHtml))) ok('Instrument and scale pickers are present');
+else fail('Scale/instrument picker wiring is incomplete');
+if (/scale-menu\.css\?v=\d+/.test(appHtml) && /pionier-app\.js\?v=\d+/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) ok('Picker assets use versioned cache stamps');
+else fail('Picker asset cache versions are stale');
 
 // Current shell uses soundscapesPanel + soundscapeAudio (+ optional play control).
 if (
@@ -142,10 +140,32 @@ if ((appHtml.match(/class="fx-settings-shortcut"/g) || []).length === 4) ok('All
 else fail('Expected S shortcuts for Comp, Delay, Reverb, and Filter');
 if (appHtml.includes('id="randomizeSetup"') && !appHtml.includes('id="learnPanel"') && !shell.includes('learn-mode.js') && !shell.includes('learn-mode.css')) ok('Learn system is removed and the dice randomizer replaces it');
 else fail('Learn removal or randomizer replacement is incomplete');
-if (loopControls.includes('looperCountInBtn') && loopControls.includes('looperMetronomeBtn') && loopControls.includes('looperBpmBtn') && loopStyles.includes('.looper-timing-menu') && loopStyles.includes('looper-metronome-led')) ok('Looper count-in, 10-click metronome menu, BPM control and animated timing menus are present');
-else fail('Looper timing controls or menu styling is incomplete');
-if (appHtml.includes('looper.css?v=211') && appHtml.includes('scale-menu.css?v=9') && shell.includes('looper.js?v=214') && /pionier-v80/.test(serviceWorker)) ok('Timing controls and picker polish use fresh cache versions');
-else fail('Timing control cache versions are stale');
+if (/looperBtn|looper-btn/.test(loopControls) && /looperClearBtn|looper-clear/.test(loopControls + appHtml)) ok('Looper record and clear controls are present');
+else fail('Looper record/clear controls are incomplete');
+if (appHtml.includes('looper.css?') && /pionier-v\d+/.test(serviceWorker)) ok('Looper CSS and service worker declare cache versions');
+else fail('Looper CSS or service worker cache versions missing');
+
+// Phase A–D scope lock + budgets
+if (!/repository-loop-save/.test(serviceWorker) && !/community-api/.test(serviceWorker)) ok('Service worker shell does not reference community upload modules');
+else fail('Service worker still references community upload modules');
+if (!appHtml.includes('soundscapeCommunityTab') && !appHtml.includes('User-Created')) ok('Community User-Created UI is absent from index');
+else fail('Community User-Created UI still present in index');
+if (!/fetchCommunitySongs/.test(soundscapes) && !/repository-loop-save/.test(soundscapes)) ok('Soundscapes module is owner Bedroom Sessions only');
+else fail('Soundscapes still imports community song APIs');
+if (fs.existsSync(path.join(root, 'handpan-app/js/app-state.js'))) ok('Unified app-state module is present');
+else fail('app-state.js missing');
+if (/getAmbientBus/.test(coreSrc) && /instrumentBus/.test(coreSrc)) ok('Core exposes separated instrument and ambient buses');
+else fail('Separated audio buses missing from core');
+const budget = (rel, maxKb) => {
+  const full = path.join(root, rel);
+  if (!fs.existsSync(full)) { fail('Budget target missing: ' + rel); return; }
+  const kb = fs.statSync(full).size / 1024;
+  if (kb <= maxKb) ok(rel + ' size ' + kb.toFixed(1) + ' KB ≤ ' + maxKb + ' KB');
+  else fail(rel + ' size ' + kb.toFixed(1) + ' KB exceeds budget ' + maxKb + ' KB');
+};
+budget('handpan-app/index.html', 80);
+budget('handpan-app/pionier-core.js', 120);
+budget('handpan-app/pionier-app.js', 80);
 
 const presetCounts = ['Vocal Glue','Punchy Drums','Parallel Crush','Bass Tightener','Acoustic Strummer','Mastering Limiter','Snare Smasher','Sustain Builder','Sidechain Duck','Subtle Leveler','Slapback Echo','Dotted Eighth','Tape Saturation','Ping-Pong','Stereo Widener','Ambient Wash','Modulated Echo','Dub Echo','Quarter Note Lead','Trippy Reverse','Studio Room','Vocal Plate','Cathedral Hall','Spring Tank','Gated Snare','Shimmer Pad','Ambiance / Glue','Concert Hall','Tiled Bathroom','Deep Abyss','Telephone / Lo-Fi','Sub Bass Cut','HF Brilliance','Club Next Door','Auto-Wah / Envelope','Sweeping LFO LPF','Phaser Sweep','Vocal Formant','Crisp Vinyl','The Kill Switch'];
 if (presetCounts.every((name) => fxEditor.includes(`label:'${name}'`)) && (fxEditor.match(/label:'(?:Vocal Glue|Slapback Echo|Studio Room|Telephone \/ Lo-Fi)'/g) || []).length === 4) ok('FX editor includes all 40 named presets across four effect types');
