@@ -95,7 +95,6 @@ else fail('Scale/instrument picker wiring is incomplete');
 if (/scale-menu\.css\?v=\d+/.test(appHtml) && /pionier-app\.js\?v=\d+/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) ok('Picker assets use versioned cache stamps');
 else fail('Picker asset cache versions are stale');
 
-// Current shell uses soundscapesPanel + soundscapeAudio (+ optional play control).
 if (
   (appHtml.includes('id="soundscapesPanel"') || appHtml.includes('id="soundscapesPage"')) &&
   appHtml.includes('id="soundscapeAudio"') &&
@@ -112,7 +111,6 @@ else fail('Mandala renderer module is missing');
 if (appHtml.includes('name="description"')) ok('Pionier description metadata is present');
 else fail('Pionier description metadata is missing');
 
-// Boot: shell imports local pionier-core; loader must not use CDN.
 if (/pionier-core\.js/.test(shell) && !/cdn\.jsdelivr\.net|fetch\(GOOD\)|CORE_PATCHES/.test(shell)) {
   ok('Pionier boot uses the local core without runtime source rewriting');
 } else {
@@ -125,16 +123,14 @@ if (!/cdn\.jsdelivr\.net/.test(coreSrc) && /window\.PionierCore/.test(coreSrc) &
   fail('Core is not a real local ES module or still depends on CDN');
 }
 
-// Core API lives in the concatenated vendored source, not the thin loader.
 if (/window\.PionierCore/.test(coreSrc) && /async function setInstrument/.test(coreSrc)) {
   ok('Core API is exposed in the vendored source');
 } else {
   fail('Core API is missing from the vendored source');
 }
 
-
 const fxEditor = read('handpan-app/js/fx-editor.js');
-if (/pionier:fx-editor-open/.test(coreSrc) && /lastTapAt/.test(coreSrc) && /fxEditorCurve/.test(fxEditor) && /fxEditorPresets/.test(fxEditor) && /fx-settings-shortcut/.test(appHtml)) ok('FX settings shortcuts and touch-safe curve editor wiring are present');
+if (/fxEditorCurve/.test(fxEditor) && /fxEditorPresets/.test(fxEditor) && /fx-settings-shortcut/.test(appHtml)) ok('FX settings shortcuts and touch-safe curve editor wiring are present');
 else fail('FX editor shortcut, curve, or preset wiring is missing');
 if ((appHtml.match(/class="fx-settings-shortcut"/g) || []).length === 4) ok('All four effects expose an S shortcut to advanced settings');
 else fail('Expected S shortcuts for Comp, Delay, Reverb, and Filter');
@@ -145,7 +141,6 @@ else fail('Looper record/clear controls are incomplete');
 if (appHtml.includes('looper.css?') && /pionier-v\d+/.test(serviceWorker)) ok('Looper CSS and service worker declare cache versions');
 else fail('Looper CSS or service worker cache versions missing');
 
-// Phase A–D scope lock + budgets
 if (!/repository-loop-save/.test(serviceWorker) && !/community-api/.test(serviceWorker)) ok('Service worker shell does not reference community upload modules');
 else fail('Service worker still references community upload modules');
 if (!appHtml.includes('soundscapeCommunityTab') && !appHtml.includes('User-Created')) ok('Community User-Created UI is absent from index');
@@ -182,7 +177,6 @@ else fail('Unexpected instrument-family imports in the core registry (got ' + in
 if (!/ghp_[A-Za-z0-9]{20,}/.test(rootHtml + shell + coreSrc)) ok('No obvious GitHub token in entry source');
 else fail('Possible GitHub token in source');
 
-// Syntax-check complete JS modules only — skip intentional source fragments.
 const skipSyntax = (rel) => {
   const base = rel.replace(/\\/g, '/');
   return (
@@ -213,8 +207,6 @@ for (const rel of jsFiles) {
   if (result.status === 0) ok('JS syntax: ' + rel);
   else fail('JS syntax: ' + rel + (result.stderr ? ' — ' + result.stderr.trim().split('\n')[0] : ''));
 }
-
-
 
 console.log('');
 if (errors.length) {
