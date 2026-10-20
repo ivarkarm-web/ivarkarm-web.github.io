@@ -140,16 +140,16 @@ export const HANDPAN_SCALES = [
     rootPc: 4,
   },
 
-  // Dedicated, equal-tempered scales used by Learn melodies. Their intervals are
+  // Equal-tempered reference scales (kept for interval convenience). Their intervals are
   // ordered ascending scale steps so pad 0 is the tonic and pad 1 the next degree.
-  { id: 'lesson-c-major', label: 'C Major · Learn', short: 'C Major', tuning: '12-TET', intervals: [0, 2, 4, 5, 7, 9, 11, 12, 14], rootMidi: 48, rootPc: 0 },
-  { id: 'lesson-g-major', label: 'G Major · Learn', short: 'G Major', tuning: '12-TET', intervals: [0, 2, 4, 5, 7, 9, 11, 12, 14], rootMidi: 43, rootPc: 7 },
-  { id: 'lesson-a-minor', label: 'A Natural Minor · Learn', short: 'A Minor', tuning: '12-TET', intervals: [0, 2, 3, 5, 7, 8, 10, 12, 14], rootMidi: 45, rootPc: 9 },
-  { id: 'lesson-e-minor', label: 'E Natural Minor · Learn', short: 'E Minor', tuning: '12-TET', intervals: [0, 2, 3, 5, 7, 8, 10, 12, 14], rootMidi: 40, rootPc: 4 },
-  { id: 'lesson-d-minor', label: 'D Natural Minor · Learn', short: 'D Minor', tuning: '12-TET', intervals: [0, 2, 3, 5, 7, 8, 10, 12, 14], rootMidi: 50, rootPc: 2 },
-  { id: 'lesson-c-minor', label: 'C Natural Minor · Learn', short: 'C Minor', tuning: '12-TET', intervals: [0, 2, 3, 5, 7, 8, 10, 12, 14], rootMidi: 48, rootPc: 0 },
-  { id: 'lesson-d-dorian', label: 'D Dorian · Learn', short: 'D Dorian', tuning: '12-TET', intervals: [0, 2, 3, 5, 7, 9, 10, 12, 14], rootMidi: 50, rootPc: 2 },
-  { id: 'lesson-japanese-pentatonic', label: 'Japanese Pentatonic · Learn', short: 'Japanese Pent.', tuning: '12-TET', intervals: [0, 2, 5, 7, 9, 12, 14, 17, 19], rootMidi: 45, rootPc: 9 },
+  { id: 'lesson-c-major', label: 'C Major', short: 'C Major', tuning: '12-TET', intervals: [0, 2, 4, 5, 7, 9, 11, 12, 14], rootMidi: 48, rootPc: 0 },
+  { id: 'lesson-g-major', label: 'G Major', short: 'G Major', tuning: '12-TET', intervals: [0, 2, 4, 5, 7, 9, 11, 12, 14], rootMidi: 43, rootPc: 7 },
+  { id: 'lesson-a-minor', label: 'A Natural Minor', short: 'A Minor', tuning: '12-TET', intervals: [0, 2, 3, 5, 7, 8, 10, 12, 14], rootMidi: 45, rootPc: 9 },
+  { id: 'lesson-e-minor', label: 'E Natural Minor', short: 'E Minor', tuning: '12-TET', intervals: [0, 2, 3, 5, 7, 8, 10, 12, 14], rootMidi: 40, rootPc: 4 },
+  { id: 'lesson-d-minor', label: 'D Natural Minor', short: 'D Minor', tuning: '12-TET', intervals: [0, 2, 3, 5, 7, 8, 10, 12, 14], rootMidi: 50, rootPc: 2 },
+  { id: 'lesson-c-minor', label: 'C Natural Minor', short: 'C Minor', tuning: '12-TET', intervals: [0, 2, 3, 5, 7, 8, 10, 12, 14], rootMidi: 48, rootPc: 0 },
+  { id: 'lesson-d-dorian', label: 'D Dorian', short: 'D Dorian', tuning: '12-TET', intervals: [0, 2, 3, 5, 7, 9, 10, 12, 14], rootMidi: 50, rootPc: 2 },
+  { id: 'lesson-japanese-pentatonic', label: 'Japanese Pentatonic', short: 'Japanese Pent.', tuning: '12-TET', intervals: [0, 2, 5, 7, 9, 12, 14, 17, 19], rootMidi: 45, rootPc: 9 },
 ];
 
 export function scaleToCents(scale) {
