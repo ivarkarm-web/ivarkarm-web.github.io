@@ -38,3 +38,13 @@ test('phase wraps and event scheduler handles loop boundaries in playback order'
   assert.deepEqual(eventsBetween(events, 11.5, 0.2, 12).map((e) => e.n), [3, 1]);
   assert.deepEqual(eventsBetween(events, 1, 0.5, 12).map((e) => e.n), [2, 3, 1]);
 });
+
+test('clampBpm and quantizeTime stay in documented ranges', async () => {
+  const { clampBpm, quantizeTime, MIN_BPM, MAX_BPM, DEFAULT_BPM } = await import('../../handpan-app/js/loop-core.js');
+  assert.equal(clampBpm(10), MIN_BPM);
+  assert.equal(clampBpm(999), MAX_BPM);
+  assert.equal(clampBpm(DEFAULT_BPM), DEFAULT_BPM);
+  const q = quantizeTime(0.37, 80, 16);
+  assert.ok(q >= 0);
+  assert.ok(Number.isFinite(q));
+});

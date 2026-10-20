@@ -48,3 +48,10 @@ npm run test:app        # unit tests
 ## Quality
 
 Measured facts live in `QUALITY-BASELINE.md`. Do not mark items DONE without a real run.
+
+## Release
+
+- `docs/RELEASE-CHECKLIST.md` — deploy gate
+- `docs/DEVICE-CHECKLIST.md` — owner hardware matrix
+- `docs/PERFORMANCE-BUDGETS.md` — size and timing budgets
+- Service worker: bump `CACHE_VERSION` in `sw.js` when shell assets change; keep SHELL in sync with `index.html` query stamps.

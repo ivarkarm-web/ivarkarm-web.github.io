@@ -42,6 +42,13 @@ Menus portal to `document.body` and use bottom sheets on narrow/touch viewports.
 
 Tokens live in `pionier.css` (`--pionier-z-*`, `--gold`, etc.). Prefer tokens over new `!important` rules. `atelier.css` adds glass finish on shared surfaces.
 
+## State and buses
+
+- `js/app-state.js` — instrument / scale / root / noteCount / ambient / loop (persist + subscribe)
+- `instrumentBus` → FxChain → master (looper records pre-FX via `getInstrumentBus`)
+- `ambientBus` → master only (`getAmbientBus`); Bedroom Sessions stay off the instrument FX path
+- Instrument `engineKind`: `sample` (handpan) vs `procedural` (library family)
+
 ## Soft failure
 
 Boot states: `loading` → `ready` | `degraded` | `failed` via `#appStatus`. Optional modules fail soft without blocking the instrument.
