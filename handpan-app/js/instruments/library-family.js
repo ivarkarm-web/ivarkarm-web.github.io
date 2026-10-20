@@ -42,6 +42,7 @@ export class LibraryInstrument extends Instrument {
       name: voice.name,
       description: voice.desc,
       category: voice.family,
+      engineKind: 'procedural',
       polyphony: MAX_PADS,
       compatibleFx: ['compressor', 'delay', 'reverb', 'warmth', 'air', 'chorus', 'shimmer', 'lowpass']
     });
@@ -150,8 +151,8 @@ export class LibraryInstrument extends Instrument {
     this.heldPad[idx] = 0;
     this._smoothPressure[idx] = 0;
     if (this.glow[idx] > 0.15) this.glow[idx] = Math.min(this.glow[idx], 0.35);
-    const voice = this.activeVoices.get(idx);
-    if (voice && this.held && this.audioCtx) voice.stop(this.audioCtx.currentTime, 0.9);
+    // One-shot library notes ring out; bookkeeping is cleared by stop/onended or dampAll.
+    // Do not hard-stop on finger-up (matches handpan natural ring-out).
   }
 
   dampAll() {
