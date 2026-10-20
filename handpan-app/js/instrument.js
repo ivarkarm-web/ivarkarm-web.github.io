@@ -46,7 +46,7 @@ export const InstrumentRegistry = {
     _registry.set(instrument.id, instrument);
     return instrument;
   },
-  get(id) { return _registry.get(id) || null; }
+  get(id) { return _registry.get(id) || null; },
   list() {
     return Array.from(_registry.values()).map((inst) => ({
       id: inst.id,
