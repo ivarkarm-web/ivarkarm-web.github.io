@@ -41,17 +41,19 @@ All six PNGs were visually inspected. The capture set shows the same dark, restr
 - Soundscapes / Bedroom Sessions player entry points and playlist-related code.
 - Skin/customization, ambient, Learn, and other legacy UI hooks still have CSS/JS references even though screenshot CSS hides some of them.
 
-## Reported live-phone bugs to reproduce first
+## Reported live-phone bugs — automated coverage status (2026-10-21)
 
-These were reported by the owner and have not yet been independently reproduced in this audit:
+These were reported by the owner. Source-level unit tests now guard wiring; full visual/device reproduction remains owner-gated or Playwright (W2).
 
-1. After skin customization, the pan cannot be played and notes cannot be added.
-2. Loop button is clipped inside its bar.
-3. Instrument and scale dropdowns fail to appear.
-4. Root note and +/- note-count controls do not work.
-5. Loop menu glitches on Soundscapes.
+| # | Report | Automated coverage | Notes |
+|---|--------|--------------------|-------|
+| 1 | After skin customization, the pan cannot be played and notes cannot be added | Partial — `owner-controls.test.mjs` asserts skin modules remain; no hit-test after skin change yet | Playwright skin + pad hit-test planned in W2 |
+| 2 | Loop button is clipped inside its bar | Partial — unit test asserts loop button CSS `min-height`/`min-width` ≥ 44–52px and no `top: 25%` | Visual clip needs Playwright screenshot |
+| 3 | Instrument and scale dropdowns fail to appear | Partial — overlay-controller wiring + scaleLabel picker tests | Full open/close + viewport tests in W2 |
+| 4 | Root note and +/- note-count controls do not work | **Covered by unit tests** — HTML ids, wire() bindings, changeNoteCount clamp 8–13 via `pad-layout.js` | |
+| 5 | Loop menu glitches on Soundscapes | Not covered | Playwright soundscapes + looper interaction in W2 |
 
-Treat these as release blockers. First inspect event propagation, hidden/overlay elements, pointer capture and z-index, and ensure all skin states preserve pad hit-testing.
+Treat remaining gaps as release blockers until W2 Playwright suite closes them. First inspect event propagation, hidden/overlay elements, pointer capture and z-index, and ensure all skin states preserve pad hit-testing.
 
 ## Architecture observed
 
@@ -91,10 +93,12 @@ Treat these as release blockers. First inspect event propagation, hidden/overlay
 - [x] Repository access and current main source confirmed.
 - [x] Six screenshot files located by repository tree.
 - [x] Active entry, core, stylesheet and handpan module inspected.
+- [x] Note-count range unified (8–13) and unit-tested (W1).
+- [x] deploy.yml runs full smoke + unit + Playwright before Pages upload (W1).
 - [ ] Per-screenshot visual inventory and exact reference comparison.
-- [ ] Reproduce the five reported phone bugs.
-- [ ] Automated tests at 360×640, 390×844 and tablet/desktop viewport.
-- [ ] Real iOS Safari and Android Chrome checks.
+- [x] Phone bug #4 (root / note-count) covered by unit tests; others partial or planned for W2.
+- [ ] Automated tests at 360×640, 390×844 and tablet/desktop viewport (W2).
+- [ ] Real iOS Safari and Android Chrome checks (owner-gated).
 - [ ] Multitouch, rapid strikes, audio latency, looper drift, export, offline and accessibility checks.
 
 ## Release posture
