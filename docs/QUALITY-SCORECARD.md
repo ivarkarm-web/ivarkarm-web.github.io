@@ -9,9 +9,9 @@ This scorecard is deliberately conservative. A passing unit or browser suite is 
 
 | Dimension | Score | Target | Evidence and reason |
 |---|---:|---:|---|
-| Reliability confidence | **6/10** | 8/10 | Voice supersede bounds, AudioContext lifecycle listener + unit tests, 200-strike stress tests added locally. Full touch matrix and real-device offline still open. |
+| Reliability confidence | **6.5/10** | 8/10 | Voice supersede bounds, AudioContext lifecycle, 200-strike stress tests; W2 adds note-count clamp, root stepper, skin pointer-events, structural a11y checks in Playwright. Full touch matrix and real-device offline still open. |
 | Product coherence | **6/10** | 8/10 | Learn + community uploads removed. Bedroom Sessions only. `app-state.js`, dual buses (`instrumentBus` / `ambientBus`), `engineKind` catalogue. Full looper restore still landing. |
-| Production readiness | **6/10** | 8/10 | SW `pionier-v102` shell aligned; deploy.yml now runs smoke + unit + Playwright before upload; release/device/performance-budget docs; smoke size budgets. Offline proof and device matrix still owner-gated. Sample rights still block commercial 8/10. |
+| Production readiness | **6.5/10** | 8/10 | SW `pionier-v102`; deploy.yml runs smoke + unit + Playwright; W2 expands browser coverage for phone-bug #4 and skin/a11y contracts. Offline proof and device matrix still owner-gated. Sample rights still block commercial 8/10. |
 
 ## Phase A–D (2026-10-20)
 
@@ -29,5 +29,6 @@ This scorecard is deliberately conservative. A passing unit or browser suite is 
 
 ## Change log
 
+- **2026-10-21 (W2 browser coverage):** Playwright note-count defaults aligned to 8–13; clamp + mobile root stepper + skin/pointer-events + structural a11y name checks added across mobile/desktop projects.
 - **2026-10-21 (W1 safety net):** Note-count range unified to 8–13 (`pad-layout.js` is single source of truth). Unit test and README aligned. `deploy.yml` now runs smoke + unit + Playwright (same Node 20 / npm 11 path as `app-check.yml`) so direct pushes to main cannot ship with failing tests. Scorecard SW version corrected to `pionier-v102`.
 - **2026-10-20 (Phase A–D):** Scope lock (no Learn/community); reliability + coherence + production readiness each moved toward 6/10 with linked code/docs. Full looper body and complete pionier-core restore may still be in progress on `main`.
