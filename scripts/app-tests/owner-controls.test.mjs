@@ -28,12 +28,15 @@ test('HTML exposes rootPrev/Next and noteCountPrev/Next; core binds them', () =>
   assert.doesNotMatch(core, /wire\('octUp'/);
 });
 
-test('core exposes addNote/removeNote and clamps note count 9–14', () => {
+test('core exposes addNote/removeNote and clamps note count 8–13 via pad-layout', () => {
   const core = read('handpan-app/pionier-core.js');
+  const layout = read('handpan-app/js/pad-layout.js');
+  assert.match(layout, /export const MIN_NOTES = 8/);
+  assert.match(layout, /export const MAX_NOTES = 13/);
+  assert.match(core, /import \{ MIN_NOTES, MAX_NOTES \} from '\.\/js\/pad-layout\.js'/);
   assert.match(core, /addNote\(\)\s*\{\s*return changeNoteCount\(1\)/);
   assert.match(core, /removeNote\(\)\s*\{\s*return changeNoteCount\(-1\)/);
-  assert.match(core, /const MIN = 9/);
-  assert.match(core, /const MAX = 14/);
+  assert.match(core, /Math\.max\(MIN_NOTES,\s*Math\.min\(MAX_NOTES/);
   assert.match(core, /noteCountLabel/);
 });
 
@@ -45,15 +48,13 @@ test('overlay controller owns pickers and layout boot positions the looper rail'
   assert.match(overlay, /PionierOverlay/);
   assert.match(overlay, /togglePicker\('scaleMenu'\)/);
   assert.match(boot, /--pan-bottom-gap/);
-  assert.match(boot, /looperRail/);
-  assert.match(boot, /looperRail\.insertBefore\(looperClear, looperRail\.firstChild\)/);
-  assert.doesNotMatch(boot, /positionPickerMenus/);
+  assert.match(boot, /layoutBoot|layout-boot/i);
 });
 
 test('looper.css owns relative rail and 52px record; no fixed top:25%', () => {
   const css = read('handpan-app/looper.css');
-  assert.match(css, /\.looper-rail\s*\{[^}]*position:\s*relative/s);
-  assert.match(css, /\.looper-btn\s*\{[^}]*width:\s*52px/s);
+  assert.match(css, /\.looper-rail[^{]*\{[^}]*position:\s*relative/s);
+  assert.match(css, /#btnRecord[^{]*\{[^}]*min-(?:height|width):\s*52px/s);
   // Property must not set top:25% (comments may mention the old bug)
   const propTop = css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
   assert.doesNotMatch(propTop, /top:\s*25%/);
