@@ -6,7 +6,7 @@ Live: https://ivarkarm-web.github.io/handpan-app/
 
 ## What it is
 
-- Radial pan surface (9–14 notes)
+- Radial pan surface (8–13 notes)
 - Multiple scales and roots
 - Sampled notes where available, synthesis fallback
 - Instrument voices (handpan + library / ambient synths)

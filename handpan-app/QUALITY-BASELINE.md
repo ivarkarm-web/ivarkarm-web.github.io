@@ -15,7 +15,7 @@ Measured against `origin/main` after UI layout + picker fixes (2026-10-16).
 
 ## Stylesheets linked from index
 
-`pionier`, `topbar-narrow`, `looper`, `scale-menu`, `settings-panel`, `atelier`  
+`pionier`, `welcome-screen`, `topbar-narrow`, `looper`, `scale-menu`, `settings-panel`, `atelier`, `ui-stability`, `fx-editor`  
 Retired: `chrome-fix`, `ui-layout-extras`, `app.css`, `handpan.css`
 
 ## Service worker
