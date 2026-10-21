@@ -28,12 +28,16 @@ test('HTML exposes rootPrev/Next and noteCountPrev/Next; core binds them', () =>
   assert.doesNotMatch(core, /wire\('octUp'/);
 });
 
-test('core exposes addNote/removeNote and clamps note count 9–14', () => {
+test('core exposes addNote/removeNote and clamps note count 8–13', () => {
   const core = read('handpan-app/pionier-core.js');
+  const layout = read('handpan-app/js/pad-layout.js');
+  // pad-layout.js documents the range; core mirrors it with local MIN/MAX consts
+  assert.match(layout, /export const MIN_NOTES = 8/);
+  assert.match(layout, /export const MAX_NOTES = 13/);
   assert.match(core, /addNote\(\)\s*\{\s*return changeNoteCount\(1\)/);
   assert.match(core, /removeNote\(\)\s*\{\s*return changeNoteCount\(-1\)/);
-  assert.match(core, /const MIN = 9/);
-  assert.match(core, /const MAX = 14/);
+  assert.match(core, /const MIN = 8/);
+  assert.match(core, /const MAX = 13/);
   assert.match(core, /noteCountLabel/);
 });
 
