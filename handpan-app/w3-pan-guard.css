@@ -1,0 +1,6 @@
+/* W3 phone reliability — keep instrument surface hittable outside Soundscapes.
+   Loaded after pionier.css. Do not hide #pan unless body.soundscapes-active. */
+body:not(.soundscapes-active) #pan {
+  pointer-events: auto !important;
+  visibility: visible !important;
+}
