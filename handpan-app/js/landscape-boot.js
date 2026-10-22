@@ -1,5 +1,5 @@
 /**
- * Phone landscape (v9) — SAFE: class toggle only.
+ * Phone landscape (v10) — SAFE: class toggle only.
  * No reparenting, no MutationObserver, no inline style on controls.
  * All layout is CSS under body.pionier-landscape.
  */
