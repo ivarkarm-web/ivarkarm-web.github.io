@@ -1,6 +1,7 @@
 /**
- * Phone landscape layout (v6) — reliable vertical chrome.
- * Overrides fixed FX/settings positioning; dual top columns for tools + tracks.
+ * Phone landscape layout (v7)
+ * Keep #looperRail visible as a vertical column (never display:none —
+ * looper.js re-parents controls into it). Force all timing + record controls.
  */
 (function landscapeBoot() {
   const BTN = '44px';
@@ -31,37 +32,56 @@
     return { left, right };
   }
 
-  function freeFromFixed(el) {
+  function sizeCircle(el) {
     if (!el) return;
-    const props = {
-      position: 'relative',
-      top: 'auto',
-      left: 'auto',
-      right: 'auto',
-      bottom: 'auto',
-      transform: 'none',
-      margin: '0',
-      'margin-left': '0',
-      'margin-right': '0',
-      inset: 'auto',
-      'grid-column': 'auto',
-      'grid-row': 'auto',
-      display: 'flex',
-      visibility: 'visible',
-      opacity: '1',
-      'pointer-events': 'auto',
-      width: BTN,
-      height: BTN,
-      'min-width': BTN,
-      'min-height': BTN,
-      'max-width': BTN,
-      'max-height': BTN,
-      flex: '0 0 ' + BTN,
-      'z-index': '1',
-    };
-    for (const [k, v] of Object.entries(props)) {
-      el.style.setProperty(k, v, 'important');
-    }
+    const s = el.style;
+    s.setProperty('position', 'relative', 'important');
+    s.setProperty('top', 'auto', 'important');
+    s.setProperty('left', 'auto', 'important');
+    s.setProperty('right', 'auto', 'important');
+    s.setProperty('bottom', 'auto', 'important');
+    s.setProperty('inset', 'auto', 'important');
+    s.setProperty('transform', 'none', 'important');
+    s.setProperty('margin', '0', 'important');
+    s.setProperty('margin-left', '0', 'important');
+    s.setProperty('grid-column', 'auto', 'important');
+    s.setProperty('grid-row', 'auto', 'important');
+    s.setProperty('display', 'flex', 'important');
+    s.setProperty('visibility', 'visible', 'important');
+    s.setProperty('opacity', '1', 'important');
+    s.setProperty('pointer-events', 'auto', 'important');
+    s.setProperty('width', BTN, 'important');
+    s.setProperty('height', BTN, 'important');
+    s.setProperty('min-width', BTN, 'important');
+    s.setProperty('min-height', BTN, 'important');
+    s.setProperty('max-width', BTN, 'important');
+    s.setProperty('max-height', BTN, 'important');
+    s.setProperty('flex', '0 0 ' + BTN, 'important');
+    s.setProperty('overflow', 'visible', 'important');
+    s.setProperty('z-index', '1', 'important');
+  }
+
+  function clearBoxConstraints(el) {
+    if (!el) return;
+    const s = el.style;
+    s.setProperty('position', 'relative', 'important');
+    s.setProperty('top', 'auto', 'important');
+    s.setProperty('left', 'auto', 'important');
+    s.setProperty('right', 'auto', 'important');
+    s.setProperty('bottom', 'auto', 'important');
+    s.setProperty('margin', '0', 'important');
+    s.setProperty('margin-left', '0', 'important');
+    s.setProperty('width', 'auto', 'important');
+    s.setProperty('height', 'auto', 'important');
+    s.setProperty('min-width', '0', 'important');
+    s.setProperty('min-height', '0', 'important');
+    s.setProperty('max-width', 'none', 'important');
+    s.setProperty('max-height', 'none', 'important');
+    s.setProperty('flex', '0 0 auto', 'important');
+    s.setProperty('overflow', 'visible', 'important');
+    s.setProperty('display', 'flex', 'important');
+    s.setProperty('visibility', 'visible', 'important');
+    s.setProperty('opacity', '1', 'important');
   }
 
   function ensureRightStructure(right) {
@@ -71,7 +91,7 @@
       top.id = 'landscapeRightTop';
       top.className = 'landscape-right-top';
     }
-    right.appendChild(top);
+    if (top.parentElement !== right) right.insertBefore(top, right.firstChild);
 
     let tools = document.getElementById('landscapeToolStack');
     if (!tools) {
@@ -79,27 +99,18 @@
       tools.id = 'landscapeToolStack';
       tools.className = 'landscape-tool-stack';
     }
-    top.appendChild(tools);
+    if (tools.parentElement !== top) top.appendChild(tools);
 
-    let transport = document.getElementById('landscapeLooperTransport');
-    if (!transport) {
-      transport = document.createElement('div');
-      transport.id = 'landscapeLooperTransport';
-      transport.className = 'landscape-looper-transport';
-    }
-    right.appendChild(transport);
-
-    return { top, tools, transport };
+    return { top, tools };
   }
 
   function placeLandscapeChrome(left, right) {
-    const { top, tools, transport } = ensureRightStructure(right);
+    const { top, tools } = ensureRightStructure(right);
 
     const inst = document.getElementById('instrumentNav');
     const scaleRow =
       document.getElementById('stageScaleRow') ||
-      document.querySelector('.stage-scale-row') ||
-      document.querySelector('.control-scale')?.parentElement;
+      document.querySelector('.stage-scale-row');
     const rootRow =
       document.querySelector('.stage-root-row') ||
       document.querySelector('#stageScaleBar .control-row') ||
@@ -111,62 +122,81 @@
     for (const id of ['openSoundscapes', 'fxPanelOpen', 'settingsOpenBtn']) {
       const el = document.getElementById(id);
       if (!el) continue;
-      freeFromFixed(el);
+      sizeCircle(el);
       tools.appendChild(el);
     }
 
     const layers = document.getElementById('looperLayers');
     if (layers) {
-      freeFromFixed(layers);
-      layers.style.setProperty('width', 'auto', 'important');
-      layers.style.setProperty('height', 'auto', 'important');
-      layers.style.setProperty('max-width', BTN, 'important');
-      layers.style.setProperty('max-height', 'min(65dvh, 320px)', 'important');
-      layers.style.setProperty('min-height', '0', 'important');
-      layers.style.setProperty('display', 'flex', 'important');
+      clearBoxConstraints(layers);
       layers.style.setProperty('flex-direction', 'column', 'important');
       layers.style.setProperty('align-items', 'center', 'important');
       layers.style.setProperty('gap', '6px', 'important');
+      layers.style.setProperty('max-width', BTN, 'important');
+      layers.style.setProperty('max-height', 'min(50dvh, 240px)', 'important');
       layers.style.setProperty('overflow-y', 'auto', 'important');
       layers.style.setProperty('overflow-x', 'hidden', 'important');
-      layers.style.setProperty('flex', '0 0 auto', 'important');
       top.appendChild(layers);
     }
 
     const looper = document.getElementById('looperRail');
+    if (!looper) return;
+
+    clearBoxConstraints(looper);
+    looper.style.setProperty('display', 'flex', 'important');
+    looper.style.setProperty('flex-direction', 'column', 'important');
+    looper.style.setProperty('flex-flow', 'column nowrap', 'important');
+    looper.style.setProperty('align-items', 'center', 'important');
+    looper.style.setProperty('justify-content', 'flex-start', 'important');
+    looper.style.setProperty('gap', '8px', 'important');
+    looper.style.setProperty('grid', 'none', 'important');
+    looper.style.setProperty('grid-template-columns', 'none', 'important');
+    looper.style.setProperty('width', 'auto', 'important');
+    looper.style.setProperty('max-width', '100%', 'important');
+    looper.hidden = false;
+    looper.removeAttribute('hidden');
+    right.appendChild(looper);
+
     const cluster = document.getElementById('looperRecordCluster');
-    if (cluster) {
-      for (const id of ['looperCountInBtn', 'looperMetronomeBtn', 'looperBpmBtn', 'looperSaveBtn', 'looperSyncBtn']) {
-        const el = document.getElementById(id);
-        if (el) {
-          freeFromFixed(el);
-          transport.appendChild(el);
-        }
-      }
-    }
-    for (const id of ['looperClearBtn', 'looperCountInBtn', 'looperMetronomeBtn', 'looperBpmBtn', 'looperSaveBtn']) {
+    const order = [
+      'looperClearBtn',
+      'looperCountInBtn',
+      'looperMetronomeBtn',
+      'looperBpmBtn',
+      'looperSaveBtn',
+      'looperSyncBtn',
+      'looperRecordCluster',
+    ];
+
+    for (const id of order) {
       const el = document.getElementById(id);
       if (!el) continue;
-      freeFromFixed(el);
-      transport.appendChild(el);
-    }
-    if (cluster) {
-      freeFromFixed(cluster);
-      cluster.style.setProperty('width', 'auto', 'important');
-      cluster.style.setProperty('height', 'auto', 'important');
-      cluster.style.setProperty('max-width', 'none', 'important');
-      cluster.style.setProperty('max-height', 'none', 'important');
-      cluster.style.setProperty('display', 'flex', 'important');
-      cluster.style.setProperty('flex-direction', 'column', 'important');
-      cluster.style.setProperty('align-items', 'center', 'important');
-      cluster.style.setProperty('gap', '8px', 'important');
-      freeFromFixed(document.getElementById('looperBtn'));
-      transport.appendChild(cluster);
+      if (id === 'looperRecordCluster') {
+        clearBoxConstraints(el);
+        el.style.setProperty('flex-direction', 'column', 'important');
+        el.style.setProperty('align-items', 'center', 'important');
+        el.style.setProperty('gap', '8px', 'important');
+        el.style.setProperty('pointer-events', 'auto', 'important');
+        sizeCircle(document.getElementById('looperBtn'));
+      } else {
+        sizeCircle(el);
+        el.hidden = false;
+        el.removeAttribute('hidden');
+      }
+      looper.appendChild(el);
     }
 
-    if (looper) {
-      looper.style.setProperty('display', 'none', 'important');
-      if (looper.parentElement !== right) right.appendChild(looper);
+    if (cluster) {
+      Array.from(cluster.children).forEach((child) => {
+        if (child.id === 'looperBtn') {
+          sizeCircle(child);
+          return;
+        }
+        if (child.id && child.id.startsWith('looper')) {
+          sizeCircle(child);
+          looper.insertBefore(child, cluster);
+        }
+      });
     }
   }
 
@@ -184,6 +214,7 @@
         'looperMetronomeBtn',
         'looperBpmBtn',
         'looperSaveBtn',
+        'looperSyncBtn',
         'looperRecordCluster',
         'looperLayers',
       ]) {
@@ -222,19 +253,19 @@
   let lastLand = null;
   let observer = null;
 
-  function watch(right) {
+  function watch() {
     if (observer) {
       observer.disconnect();
       observer = null;
     }
-    if (!right || !document.body.classList.contains('pionier-landscape')) return;
+    if (!document.body.classList.contains('pionier-landscape')) return;
     observer = new MutationObserver(() => {
       if (!document.body.classList.contains('pionier-landscape')) return;
       clearTimeout(window.__landFixT);
       window.__landFixT = setTimeout(() => {
-        const { left } = ensureSideRails();
+        const { left, right } = ensureSideRails();
         placeLandscapeChrome(left, right);
-      }, 50);
+      }, 60);
     });
     observer.observe(document.body, { childList: true, subtree: true });
   }
@@ -255,7 +286,7 @@
       right.hidden = false;
       if (bar) bar.setAttribute('data-landscape-empty', '1');
       placeLandscapeChrome(left, right);
-      watch(right);
+      watch();
       document.documentElement.style.setProperty('--chrome-top', '4px');
       document.documentElement.style.setProperty('--chrome-bottom', '4px');
       document.documentElement.style.setProperty('--pan-bottom-gap', '0px');
@@ -278,7 +309,7 @@
     };
     requestAnimationFrame(kick);
     setTimeout(kick, 150);
-    setTimeout(kick, 450);
+    setTimeout(kick, 500);
   }
 
   function schedule() {
@@ -288,7 +319,7 @@
 
   function boot() {
     apply();
-    [100, 350, 800, 1500, 2500, 4000].forEach((ms) => setTimeout(apply, ms));
+    [100, 300, 700, 1200, 2000, 3500, 5000].forEach((ms) => setTimeout(apply, ms));
   }
 
   if (document.readyState === 'loading') {
