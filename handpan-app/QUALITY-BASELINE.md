@@ -34,9 +34,9 @@ Boot states: `loading` → `ready` | `degraded` | `failed` via `#appStatus`. Opt
 
 ## Still not covered in CI
 
-- Full service-worker offline navigation under Playwright (SW blocked in config)
-- Real-device iOS Safari
-- axe-core / multi-pointer stress
+- Real-device iOS Safari (manual)
+- Full axe-core rule suite (lightweight a11y smoke only)
+- Exhaustive multi-pointer stress beyond existing handpan.spec cases
 
 ## Boot / first paint (2026-10-22 phase 2)
 
@@ -57,3 +57,10 @@ Audio unlock on Enter (`pionier:user-enter` + silent buffer + resume).
 - No Google Fonts CDN; UI uses system font stack via `system-fonts.css`.
 - Smoke checks: offline-critical SW SHELL paths + APP_VERSION + no fonts.googleapis in index.
 - Playwright `phase4-offline.spec.mjs`: no external font links; core boots with audioAvailable.
+
+## Phase 5 SW + a11y CI (2026-10-22)
+
+- Playwright project `sw-desktop` allows service workers; `phase5-sw.spec.mjs` proves offline reload of the shell.
+- Default projects still block SW so route()-based failure injection stays reliable.
+- `phase5-a11y.spec.mjs`: lang, control names, focus-visible sheet, keyboard scale menu, live region.
+- npm scripts: `test:sw`, `test:a11y`.
