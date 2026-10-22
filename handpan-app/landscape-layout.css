@@ -1,12 +1,19 @@
-/* Landscape v4 — cohesive vertical side rails */
+/* Landscape v5 — top-aligned dual column on the right
+   [ tools ♫ FX ⚙ | loop tracks ]
+   + transport under tools
+   Extra top inset so ♫ clears the browser address bar.
+*/
+
 body.pionier-landscape,
 html.pionier-landscape {
   --land-gap: 8px;
   --land-btn: 44px;
+  --land-top-inset: max(52px, env(safe-area-inset-top, 0px) + 36px);
   --chrome-top: 4px;
   --chrome-bottom: 4px;
   --pan-bottom-gap: 0px;
-  --land-rail-w: max(min(34vw, 156px), min(20vw, 72px));
+  --land-rail-left: min(34vw, 156px);
+  --land-rail-right: min(28vw, 112px);
 }
 
 body.pionier-landscape #app { min-height: 100dvh; overflow: hidden; }
@@ -16,14 +23,18 @@ body.pionier-landscape #headphonesHint { display: none !important; }
 body.pionier-landscape #stageScaleBar[data-landscape-empty="1"] { display: none !important; }
 
 body.pionier-landscape .stage {
-  padding: 4px var(--land-rail-w, 76px) !important;
+  padding: 4px var(--land-rail-right) 4px var(--land-rail-left) !important;
   align-items: center !important;
   justify-content: center !important;
   --stage-bottom-reserve: 0px;
 }
 
 body.pionier-landscape #pan {
-  --pan-budget: min(100dvh - 8px, 100dvw - (2 * var(--land-rail-w, 76px)) - 8px, 560px) !important;
+  --pan-budget: min(
+    100dvh - 8px,
+    100dvw - var(--land-rail-left) - var(--land-rail-right) - 8px,
+    560px
+  ) !important;
   width: var(--pan-budget) !important;
   height: var(--pan-budget) !important;
   max-width: var(--pan-budget) !important;
@@ -33,16 +44,12 @@ body.pionier-landscape #pan {
 .stage-side-rail {
   display: none;
   position: fixed;
-  top: 0; bottom: 0;
+  top: 0;
+  bottom: 0;
   z-index: 4500;
   box-sizing: border-box;
-  width: var(--land-rail-w, 76px);
-  padding: max(6px, env(safe-area-inset-top, 0px)) 6px max(6px, env(safe-area-inset-bottom, 0px));
   flex-direction: column;
   flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center;
-  gap: var(--land-gap);
   pointer-events: none;
   overflow-x: hidden;
   overflow-y: auto;
@@ -55,17 +62,49 @@ body.pionier-landscape .stage-side-rail { display: flex !important; }
 
 body.pionier-landscape .stage-side-rail-left {
   left: 0;
-  width: min(34vw, 156px);
-  padding-left: max(6px, env(safe-area-inset-left, 0px));
+  width: var(--land-rail-left);
+  padding: var(--land-top-inset) 6px max(8px, env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px));
+  justify-content: flex-start;
   align-items: stretch;
+  gap: var(--land-gap);
   background: linear-gradient(90deg, rgba(7,7,8,0.96) 55%, rgba(7,7,8,0));
 }
+
 body.pionier-landscape .stage-side-rail-right {
   right: 0;
-  width: min(20vw, 72px);
-  padding-right: max(6px, env(safe-area-inset-right, 0px));
-  align-items: center;
+  width: var(--land-rail-right);
+  padding: var(--land-top-inset) max(6px, env(safe-area-inset-right, 0px)) max(8px, env(safe-area-inset-bottom, 0px)) 4px;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 10px;
   background: linear-gradient(270deg, rgba(7,7,8,0.96) 55%, rgba(7,7,8,0));
+}
+
+body.pionier-landscape .landscape-right-top {
+  display: flex !important;
+  flex-direction: row-reverse !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: 100%;
+  flex: 0 0 auto;
+}
+
+body.pionier-landscape .landscape-tool-stack {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: var(--land-gap) !important;
+  flex: 0 0 auto;
+}
+
+body.pionier-landscape .landscape-looper-transport {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: var(--land-gap) !important;
+  width: 100%;
+  flex: 0 0 auto;
 }
 
 body.pionier-landscape .stage-side-rail-left #voicePrev,
@@ -78,7 +117,6 @@ body.pionier-landscape .stage-side-rail-left .stage-instrument-nav,
 body.pionier-landscape .stage-side-rail-left #stageScaleRow,
 body.pionier-landscape .stage-side-rail-left .stage-scale-row,
 body.pionier-landscape .stage-side-rail-left .control-scale,
-body.pionier-landscape .stage-side-rail-left .stage-control-scale,
 body.pionier-landscape .stage-side-rail-left .stage-root-row,
 body.pionier-landscape .stage-side-rail-left .control-row {
   display: flex !important;
@@ -97,7 +135,6 @@ body.pionier-landscape .stage-side-rail-left .stage-scale-btn {
   width: 100% !important;
   max-width: none !important;
   min-height: 40px !important;
-  height: auto !important;
   justify-content: center;
   text-align: center;
   box-sizing: border-box;
@@ -106,11 +143,9 @@ body.pionier-landscape .stage-side-rail-left .stage-scale-btn {
 body.pionier-landscape .stage-side-rail-left .scale-stepper,
 body.pionier-landscape .stage-side-rail-left .stepper {
   display: flex !important;
-  flex-direction: row !important;
   width: 100% !important;
   justify-content: space-between;
   align-items: center;
-  gap: 4px;
 }
 body.pionier-landscape .stage-side-rail-left .control-half { width: 100% !important; }
 body.pionier-landscape .stage-side-rail-left .control-label {
@@ -122,11 +157,6 @@ body.pionier-landscape .stage-side-rail-left .control-label {
   margin: 0 0 2px;
   text-align: center;
 }
-body.pionier-landscape .stage-side-rail-left #randomizeSetup {
-  align-self: center;
-  width: var(--land-btn) !important;
-  height: var(--land-btn) !important;
-}
 
 body.pionier-landscape #scaleMenu:not([hidden]),
 body.pionier-landscape #instrumentMenu:not([hidden]),
@@ -135,27 +165,18 @@ body.pionier-landscape .instrument-menu:not([hidden]) {
   position: fixed !important;
   left: max(6px, env(safe-area-inset-left, 0px)) !important;
   right: auto !important;
-  top: max(6px, env(safe-area-inset-top, 0px)) !important;
-  bottom: max(6px, env(safe-area-inset-bottom, 0px)) !important;
-  width: min(300px, calc(100vw - 88px)) !important;
+  top: var(--land-top-inset) !important;
+  bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
+  width: min(300px, calc(100vw - 120px)) !important;
   max-width: min(300px, 70vw) !important;
   max-height: none !important;
-  height: auto !important;
   transform: none !important;
   margin: 0 !important;
   z-index: 5600 !important;
   overflow: auto !important;
-  -webkit-overflow-scrolling: touch;
   border-radius: 16px !important;
 }
 
-body.pionier-landscape .landscape-tool-stack {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  gap: var(--land-gap) !important;
-  width: 100%;
-}
 body.pionier-landscape .stage-side-rail-right #openSoundscapes,
 body.pionier-landscape .stage-side-rail-right #fxPanelOpen,
 body.pionier-landscape .stage-side-rail-right #settingsOpenBtn {
@@ -170,85 +191,55 @@ body.pionier-landscape .stage-side-rail-right #settingsOpenBtn {
   flex: 0 0 var(--land-btn) !important;
 }
 
-body.pionier-landscape #looperRail,
-body.pionier-landscape #looperRail.looper-rail,
-body.pionier-landscape .looper-rail,
-body.pionier-landscape .stage-side-rail-right #looperRail,
-body.pionier-landscape .stage-side-rail-right #looperRail.looper-rail {
+body.pionier-landscape #looperLayers,
+body.pionier-landscape .landscape-right-top #looperLayers,
+body.pionier-landscape .looper-layers {
   display: flex !important;
   flex-direction: column !important;
   flex-flow: column nowrap !important;
-  flex-wrap: nowrap !important;
   align-items: center !important;
-  justify-content: flex-start !important;
-  gap: var(--land-gap) !important;
+  gap: 6px !important;
   width: auto !important;
-  max-width: 100% !important;
-  height: auto !important;
-  min-height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  grid: none !important;
-  grid-template: none !important;
-  grid-template-columns: none !important;
-  grid-template-rows: none !important;
-  grid-auto-flow: row !important;
-}
-
-body.pionier-landscape #looperRail > *,
-body.pionier-landscape #looperRail.looper-rail > *,
-body.pionier-landscape .stage-side-rail-right #looperRail > * {
-  position: relative !important;
-  inset: auto !important;
-  top: auto !important; right: auto !important; bottom: auto !important; left: auto !important;
-  grid-column: auto !important;
-  grid-row: auto !important;
-  justify-self: center !important;
-  align-self: center !important;
+  max-width: var(--land-btn) !important;
+  max-height: min(70dvh, 360px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
   margin: 0 !important;
   margin-left: 0 !important;
-  margin-right: 0 !important;
-  transform: none !important;
-  float: none !important;
+  padding: 0 !important;
+  flex: 0 0 auto !important;
+  grid-column: unset !important;
+  grid-row: unset !important;
 }
 
-body.pionier-landscape #looperRail > #looperClearBtn,
-body.pionier-landscape #looperRail.looper-rail > #looperClearBtn { order: 1 !important; }
-body.pionier-landscape #looperRail > #looperCountInBtn,
-body.pionier-landscape #looperRail.looper-rail > #looperCountInBtn { order: 2 !important; }
-body.pionier-landscape #looperRail > #looperMetronomeBtn,
-body.pionier-landscape #looperRail.looper-rail > #looperMetronomeBtn { order: 3 !important; }
-body.pionier-landscape #looperRail > #looperBpmBtn,
-body.pionier-landscape #looperRail.looper-rail > #looperBpmBtn { order: 4 !important; }
-body.pionier-landscape #looperRail > #looperSaveBtn,
-body.pionier-landscape #looperRail.looper-rail > #looperSaveBtn { order: 5 !important; }
-body.pionier-landscape #looperRail > #looperRecordCluster,
-body.pionier-landscape #looperRail.looper-rail > #looperRecordCluster { order: 6 !important; }
-body.pionier-landscape #looperRail > #looperLayers,
-body.pionier-landscape #looperRail.looper-rail > #looperLayers { order: 7 !important; }
+body.pionier-landscape #looperLayers .looper-circle,
+body.pionier-landscape .looper-layers .looper-circle {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+}
 
+body.pionier-landscape #looperRail,
+body.pionier-landscape #looperRail.looper-rail {
+  display: contents !important;
+  grid: none !important;
+}
+
+body.pionier-landscape .landscape-looper-transport #looperClearBtn,
+body.pionier-landscape .landscape-looper-transport #looperCountInBtn,
+body.pionier-landscape .landscape-looper-transport #looperMetronomeBtn,
+body.pionier-landscape .landscape-looper-transport #looperBpmBtn,
+body.pionier-landscape .landscape-looper-transport #looperSaveBtn,
 body.pionier-landscape #looperClearBtn,
 body.pionier-landscape #looperCountInBtn,
 body.pionier-landscape #looperMetronomeBtn,
 body.pionier-landscape #looperBpmBtn,
-body.pionier-landscape #looperSaveBtn,
-body.pionier-landscape #looperRail #looperClearBtn,
-body.pionier-landscape #looperRail #looperCountInBtn,
-body.pionier-landscape #looperRail #looperMetronomeBtn,
-body.pionier-landscape #looperRail #looperBpmBtn,
-body.pionier-landscape #looperRail #looperSaveBtn,
-body.pionier-landscape #looperRail.looper-rail #looperClearBtn,
-body.pionier-landscape #looperRail.looper-rail #looperCountInBtn,
-body.pionier-landscape #looperRail.looper-rail #looperMetronomeBtn,
-body.pionier-landscape #looperRail.looper-rail #looperBpmBtn,
-body.pionier-landscape #looperRail.looper-rail #looperSaveBtn {
+body.pionier-landscape #looperSaveBtn {
   position: relative !important;
   inset: auto !important;
   margin: 0 !important;
   margin-left: 0 !important;
   grid-column: unset !important;
   grid-row: unset !important;
-  justify-self: center !important;
   transform: none !important;
   width: var(--land-btn) !important;
   height: var(--land-btn) !important;
@@ -260,73 +251,23 @@ body.pionier-landscape #looperRail.looper-rail #looperSaveBtn {
 }
 
 body.pionier-landscape #looperRecordCluster,
-body.pionier-landscape #looperRecordCluster.looper-record-cluster,
-body.pionier-landscape #looperRail > #looperRecordCluster,
-body.pionier-landscape #looperRail.looper-rail > #looperRecordCluster {
+body.pionier-landscape #looperRecordCluster.looper-record-cluster {
   display: flex !important;
   flex-direction: column !important;
-  flex-flow: column nowrap !important;
   align-items: center !important;
-  justify-content: center !important;
   gap: var(--land-gap) !important;
-  width: auto !important;
   margin: 0 !important;
-  padding: 0 !important;
   pointer-events: auto !important;
   grid-column: unset !important;
   grid-row: unset !important;
 }
 
-body.pionier-landscape #looperRecordCluster .looper-btn,
-body.pionier-landscape #looperRecordCluster .looper-timing-btn,
-body.pionier-landscape #looperRecordCluster .looper-save-btn,
-body.pionier-landscape #looperRecordCluster .looper-bpm-btn,
-body.pionier-landscape #looperRecordCluster .looper-metronome-btn,
-body.pionier-landscape #looperRecordCluster .looper-count-in-btn,
 body.pionier-landscape #looperBtn {
   width: var(--land-btn) !important;
   height: var(--land-btn) !important;
   min-width: var(--land-btn) !important;
   min-height: var(--land-btn) !important;
-  max-width: var(--land-btn) !important;
-  max-height: var(--land-btn) !important;
-  flex: 0 0 var(--land-btn) !important;
   margin: 0 !important;
-  position: relative !important;
-  transform: none !important;
-}
-
-body.pionier-landscape #looperLayers,
-body.pionier-landscape #looperRail #looperLayers,
-body.pionier-landscape #looperRail.looper-rail #looperLayers,
-body.pionier-landscape .looper-layers {
-  display: flex !important;
-  flex-direction: column !important;
-  flex-flow: column nowrap !important;
-  flex-wrap: nowrap !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 6px !important;
-  width: auto !important;
-  max-width: var(--land-btn) !important;
-  max-height: min(32vh, 180px) !important;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-  margin: 0 !important;
-  margin-left: 0 !important;
-  padding: 0 !important;
-  flex: 0 1 auto !important;
-  grid-column: unset !important;
-  grid-row: unset !important;
-  justify-self: center !important;
-  order: 7 !important;
-}
-
-body.pionier-landscape #looperLayers .looper-circle,
-body.pionier-landscape .looper-layers .looper-circle {
-  flex: 0 0 auto !important;
-  margin: 0 !important;
-  margin-left: 0 !important;
 }
 
 body.pionier-landscape .looper-timing-menu,
@@ -335,8 +276,6 @@ body.pionier-landscape .looper-bpm-editor {
   position: fixed !important;
   left: 50% !important;
   top: 50% !important;
-  right: auto !important;
-  bottom: auto !important;
   transform: translate(-50%, -50%) !important;
   z-index: 5700 !important;
   max-width: min(360px, 90vw) !important;
