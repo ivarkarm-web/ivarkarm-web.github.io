@@ -12,7 +12,9 @@
     "test": "node scripts/smoke-test.mjs",
     "smoke": "node scripts/smoke-test.mjs",
     "test:app": "node --test scripts/app-tests/*.test.mjs",
-    "check:app": "npm run test && npm run test:app && npx playwright test"
+    "check:app": "npm run check:handpan-cache && npm run test && npm run test:app && npx playwright test",
+    "sync:handpan": "node scripts/sync-handpan-cache.mjs",
+    "check:handpan-cache": "node scripts/sync-handpan-cache.mjs --check"
   },
   "dependencies": {
     "gsap": "^3.15.0",
