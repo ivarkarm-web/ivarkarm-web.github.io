@@ -1,6 +1,9 @@
 /**
- * Phone landscape layout (v4) — enforce cohesive vertical side menus.
- * Re-applies after looper mount (MutationObserver) so grid CSS cannot win.
+ * Phone landscape layout (v5)
+ * Right rail from the top:
+ *   [ tools column | loop-tracks column ]
+ *   then looper transport under tools
+ * Extra top padding so ♫ clears the browser address bar.
  */
 (function landscapeBoot() {
   const BTN = '44px';
@@ -58,58 +61,60 @@
     el.style.setProperty('flex', '0 0 ' + BTN, 'important');
   }
 
-  function verticalizeLooper(rail) {
-    if (!rail) return;
-    const cluster = document.getElementById('looperRecordCluster');
+  function ensureRightStructure(right) {
+    let top = document.getElementById('landscapeRightTop');
+    if (!top) {
+      top = document.createElement('div');
+      top.id = 'landscapeRightTop';
+      top.className = 'landscape-right-top';
+    }
+    if (top.parentElement !== right) right.appendChild(top);
 
+    let tools = document.getElementById('landscapeToolStack');
+    if (!tools) {
+      tools = document.createElement('div');
+      tools.id = 'landscapeToolStack';
+      tools.className = 'landscape-tool-stack';
+    }
+    if (tools.parentElement !== top) top.appendChild(tools);
+
+    let transport = document.getElementById('landscapeLooperTransport');
+    if (!transport) {
+      transport = document.createElement('div');
+      transport.id = 'landscapeLooperTransport';
+      transport.className = 'landscape-looper-transport';
+    }
+    if (transport.parentElement !== right) right.appendChild(transport);
+
+    return { top, tools, transport };
+  }
+
+  function verticalizeLooper(right) {
+    const looper = document.getElementById('looperRail');
+    if (!looper) return;
+
+    const { top, tools, transport } = ensureRightStructure(right);
+
+    looper.style.setProperty('display', 'contents', 'important');
+
+    const cluster = document.getElementById('looperRecordCluster');
     if (cluster) {
       for (const id of ['looperCountInBtn', 'looperMetronomeBtn', 'looperBpmBtn', 'looperSaveBtn', 'looperSyncBtn']) {
         const el = document.getElementById(id);
-        if (el && el.parentElement !== rail) {
-          rail.insertBefore(el, cluster);
-        }
+        if (el && el.parentElement === cluster) transport.appendChild(el);
       }
     }
 
-    const order = [
-      'looperClearBtn',
-      'looperCountInBtn',
-      'looperMetronomeBtn',
-      'looperBpmBtn',
-      'looperSaveBtn',
-      'looperRecordCluster',
-      'looperLayers',
-    ];
-    for (const id of order) {
+    for (const id of ['openSoundscapes', 'fxPanelOpen', 'settingsOpenBtn']) {
       const el = document.getElementById(id);
       if (!el) continue;
-      if (el.parentElement !== rail) rail.appendChild(el);
-      if (id === 'looperRecordCluster' || id === 'looperLayers') resetPos(el);
-      else sizeBtn(el);
-    }
-
-    rail.style.setProperty('display', 'flex', 'important');
-    rail.style.setProperty('flex-direction', 'column', 'important');
-    rail.style.setProperty('flex-flow', 'column nowrap', 'important');
-    rail.style.setProperty('align-items', 'center', 'important');
-    rail.style.setProperty('justify-content', 'flex-start', 'important');
-    rail.style.setProperty('gap', '8px', 'important');
-    rail.style.setProperty('grid', 'none', 'important');
-    rail.style.setProperty('grid-template-columns', 'none', 'important');
-
-    if (cluster) {
-      cluster.style.setProperty('display', 'flex', 'important');
-      cluster.style.setProperty('flex-direction', 'column', 'important');
-      cluster.style.setProperty('flex-flow', 'column nowrap', 'important');
-      cluster.style.setProperty('align-items', 'center', 'important');
-      cluster.style.setProperty('gap', '8px', 'important');
-      cluster.style.setProperty('pointer-events', 'auto', 'important');
-      cluster.style.setProperty('margin', '0', 'important');
-      sizeBtn(document.getElementById('looperBtn'));
+      sizeBtn(el);
+      tools.appendChild(el);
     }
 
     const layers = document.getElementById('looperLayers');
     if (layers) {
+      resetPos(layers);
       layers.style.setProperty('display', 'flex', 'important');
       layers.style.setProperty('flex-direction', 'column', 'important');
       layers.style.setProperty('flex-flow', 'column nowrap', 'important');
@@ -118,11 +123,42 @@
       layers.style.setProperty('margin', '0', 'important');
       layers.style.setProperty('margin-left', '0', 'important');
       layers.style.setProperty('max-width', BTN, 'important');
+      layers.style.setProperty('max-height', 'min(70dvh, 360px)', 'important');
+      layers.style.setProperty('overflow-y', 'auto', 'important');
+      layers.style.setProperty('overflow-x', 'hidden', 'important');
+      top.appendChild(layers);
       layers.querySelectorAll('.looper-circle').forEach((c) => {
         c.style.setProperty('margin', '0', 'important');
         c.style.setProperty('margin-left', '0', 'important');
       });
     }
+
+    const transportOrder = [
+      'looperClearBtn',
+      'looperCountInBtn',
+      'looperMetronomeBtn',
+      'looperBpmBtn',
+      'looperSaveBtn',
+      'looperRecordCluster',
+    ];
+    for (const id of transportOrder) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      if (id === 'looperRecordCluster') {
+        resetPos(el);
+        el.style.setProperty('display', 'flex', 'important');
+        el.style.setProperty('flex-direction', 'column', 'important');
+        el.style.setProperty('align-items', 'center', 'important');
+        el.style.setProperty('gap', '8px', 'important');
+        el.style.setProperty('pointer-events', 'auto', 'important');
+        sizeBtn(document.getElementById('looperBtn'));
+      } else {
+        sizeBtn(el);
+      }
+      transport.appendChild(el);
+    }
+
+    if (looper.parentElement !== right) right.appendChild(looper);
   }
 
   function restorePortraitChrome() {
@@ -137,56 +173,67 @@
       document.querySelector('.stage-root-row') ||
       document.querySelector('.control-row');
 
-    if (looper && looper.parentElement !== bar) bar.appendChild(looper);
+    if (looper) {
+      for (const id of [
+        'looperClearBtn',
+        'looperCountInBtn',
+        'looperMetronomeBtn',
+        'looperBpmBtn',
+        'looperSaveBtn',
+        'looperRecordCluster',
+        'looperLayers',
+      ]) {
+        const el = document.getElementById(id);
+        if (el) looper.appendChild(el);
+      }
+      looper.style.cssText = '';
+      const cluster = document.getElementById('looperRecordCluster');
+      if (cluster) cluster.style.cssText = '';
+      for (const id of ['looperClearBtn', 'looperCountInBtn', 'looperMetronomeBtn', 'looperBpmBtn', 'looperSaveBtn', 'looperBtn', 'looperLayers']) {
+        const el = document.getElementById(id);
+        if (el) el.style.cssText = '';
+      }
+      if (looper.parentElement !== bar) bar.appendChild(looper);
+    }
+
     if (inst && inst.parentElement !== bar) bar.appendChild(inst);
     if (scaleRow && scaleRow.parentElement !== bar) bar.appendChild(scaleRow);
     if (rootRow && rootRow.parentElement !== bar) bar.appendChild(rootRow);
 
-    if (looper) {
-      ['display', 'flex-direction', 'flex-flow', 'align-items', 'justify-content', 'gap', 'grid', 'grid-template-columns'].forEach((p) => {
-        looper.style.removeProperty(p);
-      });
-      const cluster = document.getElementById('looperRecordCluster');
-      if (cluster) {
-        ['display', 'flex-direction', 'flex-flow', 'align-items', 'gap', 'pointer-events', 'margin'].forEach((p) => {
-          cluster.style.removeProperty(p);
-        });
-      }
-      for (const id of ['looperClearBtn', 'looperCountInBtn', 'looperMetronomeBtn', 'looperBpmBtn', 'looperSaveBtn', 'looperBtn', 'looperLayers']) {
-        const el = document.getElementById(id);
-        if (!el) continue;
-        el.style.cssText = '';
-      }
-    }
-
-    const tools = document.getElementById('landscapeToolStack');
     for (const id of ['openSoundscapes', 'fxPanelOpen', 'settingsOpenBtn']) {
       const el = document.getElementById(id);
-      if (el && el.parentElement !== document.body) document.body.appendChild(el);
-      if (el) {
-        ['position', 'top', 'left', 'right', 'bottom', 'transform', 'margin', 'width', 'height'].forEach((p) => {
-          el.style.removeProperty(p);
-        });
-      }
+      if (!el) continue;
+      if (el.parentElement !== document.body) document.body.appendChild(el);
+      ['position', 'top', 'left', 'right', 'bottom', 'transform', 'margin', 'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height', 'flex'].forEach((p) => {
+        el.style.removeProperty(p);
+      });
     }
-    tools?.remove();
+
+    document.getElementById('landscapeRightTop')?.remove();
+    document.getElementById('landscapeToolStack')?.remove();
+    document.getElementById('landscapeLooperTransport')?.remove();
   }
 
   let lastLand = null;
   let looperObserver = null;
 
-  function watchLooper(rail) {
+  function watchLooper(right) {
     if (looperObserver) {
       looperObserver.disconnect();
       looperObserver = null;
     }
-    if (!rail || !document.body.classList.contains('pionier-landscape')) return;
+    const looper = document.getElementById('looperRail');
+    const layers = document.getElementById('looperLayers');
+    const targets = [looper, layers, right].filter(Boolean);
+    if (!targets.length || !document.body.classList.contains('pionier-landscape')) return;
     looperObserver = new MutationObserver(() => {
       if (!document.body.classList.contains('pionier-landscape')) return;
       clearTimeout(window.__landLooperFixT);
-      window.__landLooperFixT = setTimeout(() => verticalizeLooper(rail), 30);
+      window.__landLooperFixT = setTimeout(() => verticalizeLooper(right), 40);
     });
-    looperObserver.observe(rail, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+    for (const t of targets) {
+      looperObserver.observe(t, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+    }
   }
 
   function apply() {
@@ -211,32 +258,13 @@
         document.querySelector('.stage-root-row') ||
         document.querySelector('#stageScaleBar .control-row') ||
         document.querySelector('.control-row');
-      const looper = document.getElementById('looperRail');
 
       if (inst) left.appendChild(inst);
       if (scaleRow) left.appendChild(scaleRow);
       if (rootRow) left.appendChild(rootRow);
 
-      let tools = document.getElementById('landscapeToolStack');
-      if (!tools) {
-        tools = document.createElement('div');
-        tools.id = 'landscapeToolStack';
-        tools.className = 'landscape-tool-stack';
-      }
-      right.appendChild(tools);
-      for (const id of ['openSoundscapes', 'fxPanelOpen', 'settingsOpenBtn']) {
-        const el = document.getElementById(id);
-        if (!el) continue;
-        sizeBtn(el);
-        tools.appendChild(el);
-      }
-
-      if (looper) {
-        resetPos(looper);
-        right.appendChild(looper);
-        verticalizeLooper(looper);
-        watchLooper(looper);
-      }
+      verticalizeLooper(right);
+      watchLooper(right);
 
       document.documentElement.style.setProperty('--chrome-top', '4px');
       document.documentElement.style.setProperty('--chrome-bottom', '4px');
