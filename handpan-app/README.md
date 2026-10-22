@@ -14,6 +14,12 @@ Live: https://ivarkarm-web.github.io/handpan-app/
 - **Bedroom Sessions** soundscapes — the owner’s eight archive.org recordings only
 - Skins and mandalas
 
+## Quality / release checks
+
+- Automated: `npm run check:app` (smoke + Playwright, including SW offline + axe).
+- iOS Safari manual pass: [IOS-SAFARI-CHECKLIST.md](./IOS-SAFARI-CHECKLIST.md).
+- Cache version: `handpan-app/APP_VERSION` → `npm run sync:handpan`.
+
 ## What it is not
 
 - No Learn mode / lessons

@@ -13,7 +13,8 @@
     "smoke": "node scripts/smoke-test.mjs",
     "test:app": "node --test scripts/app-tests/*.test.mjs",
     "test:sw": "npx playwright test --project=sw-desktop",
-    "test:a11y": "npx playwright test phase5-a11y",
+    "test:a11y": "npx playwright test phase5-a11y phase6-axe",
+    "test:axe": "npx playwright test phase6-axe",
     "check:app": "npm run check:handpan-cache && npm run test && npm run test:app && npx playwright test",
     "sync:handpan": "node scripts/sync-handpan-cache.mjs",
     "check:handpan-cache": "node scripts/sync-handpan-cache.mjs --check"

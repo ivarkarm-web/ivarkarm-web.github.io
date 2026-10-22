@@ -34,8 +34,8 @@ Boot states: `loading` → `ready` | `degraded` | `failed` via `#appStatus`. Opt
 
 ## Still not covered in CI
 
-- Real-device iOS Safari (manual)
-- Full axe-core rule suite (lightweight a11y smoke only)
+- Real-device iOS Safari (manual — see `IOS-SAFARI-CHECKLIST.md`)
+- Full axe-core *including* color-contrast (contrast disabled in automated scan; dark UI)
 - Exhaustive multi-pointer stress beyond existing handpan.spec cases
 
 ## Boot / first paint (2026-10-22 phase 2)
@@ -64,3 +64,10 @@ Audio unlock on Enter (`pionier:user-enter` + silent buffer + resume).
 - Default projects still block SW so route()-based failure injection stays reliable.
 - `phase5-a11y.spec.mjs`: lang, control names, focus-visible sheet, keyboard scale menu, live region.
 - npm scripts: `test:sw`, `test:a11y`.
+
+## Phase 6 axe + iOS checklist (2026-10-22)
+
+- Playwright `phase6-axe.spec.mjs`: injects axe-core from CDN; WCAG 2 A/AA; fails on critical/serious (color-contrast off).
+- Surfaces: welcome, post-Enter instrument, open scale menu.
+- Manual: `handpan-app/IOS-SAFARI-CHECKLIST.md`.
+- npm: `test:axe`, `test:a11y` includes phase5 + phase6.
