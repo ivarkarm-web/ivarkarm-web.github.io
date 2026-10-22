@@ -1,4 +1,4 @@
-/* Landscape v6 — all chrome visible, top-aligned dual columns */
+/* Landscape v7 — looper rail stays visible as vertical stack */
 
 body.pionier-landscape,
 html.pionier-landscape {
@@ -79,32 +79,23 @@ body.pionier-landscape .landscape-right-top {
   display: flex !important;
   flex-direction: row-reverse !important;
   align-items: flex-start !important;
-  justify-content: flex-start !important;
   gap: 8px !important;
   width: 100%;
   flex: 0 0 auto;
 }
 
-body.pionier-landscape .landscape-tool-stack,
-body.pionier-landscape .landscape-looper-transport {
+body.pionier-landscape .landscape-tool-stack {
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   gap: var(--land-gap) !important;
-  flex: 0 0 auto;
-  width: auto;
-  min-height: 0;
 }
 
-/* Kill portrait fixed chrome for FX / settings / soundscapes */
 body.pionier-landscape #openSoundscapes,
 body.pionier-landscape #fxPanelOpen,
 body.pionier-landscape #settingsOpenBtn,
 body.pionier-landscape button.fx-panel-open,
-body.pionier-landscape .settings-open-btn,
-body.pionier-landscape .stage-side-rail-right #openSoundscapes,
-body.pionier-landscape .stage-side-rail-right #fxPanelOpen,
-body.pionier-landscape .stage-side-rail-right #settingsOpenBtn {
+body.pionier-landscape .settings-open-btn {
   position: relative !important;
   top: auto !important;
   left: auto !important;
@@ -125,7 +116,6 @@ body.pionier-landscape .stage-side-rail-right #settingsOpenBtn {
   max-height: var(--land-btn) !important;
   flex: 0 0 var(--land-btn) !important;
   z-index: 1 !important;
-  box-sizing: border-box !important;
 }
 
 body.pionier-landscape .stage-side-rail-left #voicePrev,
@@ -135,7 +125,6 @@ body.pionier-landscape .stage-side-rail-left #scaleNext { display: none !importa
 
 body.pionier-landscape .stage-side-rail-left #instrumentNav,
 body.pionier-landscape .stage-side-rail-left #stageScaleRow,
-body.pionier-landscape .stage-side-rail-left .stage-scale-row,
 body.pionier-landscape .stage-side-rail-left .control-scale,
 body.pionier-landscape .stage-side-rail-left .stage-root-row,
 body.pionier-landscape .stage-side-rail-left .control-row {
@@ -150,7 +139,6 @@ body.pionier-landscape .stage-side-rail-left .control-row {
 body.pionier-landscape .stage-side-rail-left #instrumentDropdownToggle,
 body.pionier-landscape .stage-side-rail-left #scaleLabel {
   width: 100% !important;
-  max-width: none !important;
   min-height: 40px !important;
   justify-content: center;
   text-align: center;
@@ -196,19 +184,51 @@ body.pionier-landscape .landscape-right-top #looperLayers {
   align-items: center !important;
   gap: 6px !important;
   max-width: var(--land-btn) !important;
-  max-height: min(65dvh, 320px) !important;
-  overflow-x: hidden !important;
+  max-height: min(50dvh, 240px) !important;
   overflow-y: auto !important;
   margin: 0 !important;
-  padding: 0 !important;
   visibility: visible !important;
-  opacity: 1 !important;
 }
 
-body.pionier-landscape #looperLayers .looper-circle {
-  flex: 0 0 auto !important;
+/* Looper rail — VISIBLE vertical stack (never hide) */
+body.pionier-landscape #looperRail,
+body.pionier-landscape #looperRail.looper-rail,
+body.pionier-landscape .stage-side-rail-right #looperRail {
+  display: flex !important;
+  flex-direction: column !important;
+  flex-flow: column nowrap !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: auto !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
   margin: 0 !important;
+  padding: 0 !important;
+  grid: none !important;
+  grid-template: none !important;
+  grid-template-columns: none !important;
+  grid-template-rows: none !important;
+  overflow: visible !important;
   visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  position: relative !important;
+}
+
+body.pionier-landscape #looperRail > * {
+  position: relative !important;
+  inset: auto !important;
+  margin: 0 !important;
+  margin-left: 0 !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+  transform: none !important;
+  float: none !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 body.pionier-landscape #looperClearBtn,
@@ -216,12 +236,14 @@ body.pionier-landscape #looperCountInBtn,
 body.pionier-landscape #looperMetronomeBtn,
 body.pionier-landscape #looperBpmBtn,
 body.pionier-landscape #looperSaveBtn,
+body.pionier-landscape #looperSyncBtn,
 body.pionier-landscape #looperBtn,
-body.pionier-landscape .landscape-looper-transport #looperClearBtn,
-body.pionier-landscape .landscape-looper-transport #looperCountInBtn,
-body.pionier-landscape .landscape-looper-transport #looperMetronomeBtn,
-body.pionier-landscape .landscape-looper-transport #looperBpmBtn,
-body.pionier-landscape .landscape-looper-transport #looperSaveBtn {
+body.pionier-landscape #looperRail #looperClearBtn,
+body.pionier-landscape #looperRail #looperCountInBtn,
+body.pionier-landscape #looperRail #looperMetronomeBtn,
+body.pionier-landscape #looperRail #looperBpmBtn,
+body.pionier-landscape #looperRail #looperSaveBtn,
+body.pionier-landscape #looperRail #looperBtn {
   position: relative !important;
   inset: auto !important;
   top: auto !important;
@@ -235,6 +257,7 @@ body.pionier-landscape .landscape-looper-transport #looperSaveBtn {
   display: flex !important;
   visibility: visible !important;
   opacity: 1 !important;
+  pointer-events: auto !important;
   width: var(--land-btn) !important;
   height: var(--land-btn) !important;
   min-width: var(--land-btn) !important;
@@ -242,23 +265,28 @@ body.pionier-landscape .landscape-looper-transport #looperSaveBtn {
   max-width: var(--land-btn) !important;
   max-height: var(--land-btn) !important;
   flex: 0 0 var(--land-btn) !important;
+  overflow: visible !important;
 }
 
-body.pionier-landscape #looperRecordCluster {
+body.pionier-landscape #looperRecordCluster,
+body.pionier-landscape #looperRail #looperRecordCluster {
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  gap: var(--land-gap) !important;
+  gap: 8px !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
   margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
   visibility: visible !important;
   pointer-events: auto !important;
   grid-column: unset !important;
   grid-row: unset !important;
-}
-
-body.pionier-landscape #looperRail,
-body.pionier-landscape #looperRail.looper-rail {
-  display: none !important;
 }
 
 body.pionier-landscape .looper-timing-menu,
