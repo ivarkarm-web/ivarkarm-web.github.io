@@ -11,10 +11,34 @@
   window.PionierWelcomeState.hideTonefields = true;
   let entered = false;
 
+  function unlockAudio() {
+    try {
+      const HA = window.HandpanAudio;
+      const ctx = HA?.getAudioContext?.() || null;
+      if (ctx) {
+        if (ctx.state !== 'running') {
+          try {
+            const buf = ctx.createBuffer(1, 1, ctx.sampleRate || 44100);
+            const src = ctx.createBufferSource();
+            src.buffer = buf;
+            src.connect(ctx.destination);
+            src.start(0);
+          } catch (_) {}
+        }
+        HA.resumeAudio?.();
+      }
+    } catch (_) {}
+    try {
+      window.dispatchEvent(new CustomEvent('pionier:user-enter'));
+    } catch (_) {}
+  }
+
+  enter.addEventListener('pointerdown', unlockAudio, { passive: true });
   enter.addEventListener('click', () => {
     if (entered) return;
     entered = true;
     enter.disabled = true;
+    unlockAudio();
 
     let showHeadphoneHint = false;
     try {
@@ -24,7 +48,6 @@
       showHeadphoneHint = true;
     }
 
-    // Let the welcome begin fading before the tonefields start materialising.
     root.classList.add('pionier-entering');
     welcome.classList.add('is-leaving');
     window.PionierWelcomeState.hideTonefields = false;
