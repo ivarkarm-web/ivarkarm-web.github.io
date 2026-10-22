@@ -37,3 +37,9 @@ Boot states: `loading` → `ready` | `degraded` | `failed` via `#appStatus`. Opt
 - Full offline proof
 - Real-device iOS Safari
 - axe-core / multi-pointer stress
+
+## Boot / first paint (2026-10-22 phase 2)
+
+Critical path: `pionier-core` + handpan scales + scale selector.
+Deferred (idle or first use): looper, FX editor, arps, note-plus, soundscapes.
+Audio unlock on Enter (`pionier:user-enter` + silent buffer + resume).
