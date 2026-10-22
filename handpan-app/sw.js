@@ -1,7 +1,7 @@
 /**
  * Pionier service worker
  */
-const CACHE_VERSION = 'pionier-v118';
+const CACHE_VERSION = 'pionier-v119';
 
 const SHELL = [
   './',
@@ -25,7 +25,6 @@ const SHELL = [
   './js/instruments/handpan-scales.js?v=6',
   './js/instruments/handpan.js?v=11',
   './js/instruments/library-family.js?v=3',
-  './js/landscape-boot.js?v=10',
   './js/layout-boot.js?v=66',
   './js/loop-core.js',
   './js/looper.js?v=222',
@@ -34,17 +33,18 @@ const SHELL = [
   './js/overlay-controller.js?v=23',
   './js/pad-layout.js?v=2',
   './js/pionier-surface.js?v=146',
+  './js/portrait-lock.js?v=1',
   './js/scale-selector.js?v=12',
   './js/settings-panel.js?v=28',
   './js/skin-mandala.js?v=5',
   './js/skin-palette.js?v=1',
   './js/soundscapes.js?v=11',
-  './landscape-layout.css?v=10',
   './looper.css?v=222',
   './og-pionier-synth.svg',
   './pionier-app.js?v=235',
   './pionier-core.js?v=70',
   './pionier.css?v=166',
+  './portrait-lock.css?v=1',
   './registerSW.js?v=2',
   './scale-menu.css?v=19',
   './settings-panel.css?v=19',
