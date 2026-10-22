@@ -15,7 +15,7 @@ Measured against `origin/main` after UI layout + picker fixes (2026-10-16).
 
 ## Stylesheets linked from index
 
-`pionier`, `welcome-screen`, `topbar-narrow`, `looper`, `scale-menu`, `settings-panel`, `atelier`, `ui-stability`, `fx-editor`, `focus-visible`, `system-fonts`  
+`pionier`, `welcome-screen`, `topbar-narrow`, `looper`, `scale-menu`, `settings-panel`, `atelier`, `ui-stability`, `fx-editor`, `focus-visible`, `system-fonts`, `shell-chrome`  
 Retired: `chrome-fix`, `ui-layout-extras`, `app.css`, `handpan.css`, Google Fonts CDN
 
 ## Service worker
@@ -71,3 +71,10 @@ Audio unlock on Enter (`pionier:user-enter` + silent buffer + resume).
 - Surfaces: welcome, post-Enter instrument, open scale menu.
 - Manual: `handpan-app/IOS-SAFARI-CHECKLIST.md`.
 - npm: `test:axe`, `test:a11y` includes phase5 + phase6.
+
+## Phase 7 shell chrome (2026-10-22)
+
+- Offline network pill (`#pionierNetPill`) via `online`/`offline` events.
+- SW update toast (`#pionierUpdateToast`) with Reload — does not force `SKIP_WAITING` mid-session when a controller already exists.
+- Styles: `shell-chrome.css`; `registerSW.js?v=2`.
+- Playwright `phase7-chrome.spec.mjs`.
