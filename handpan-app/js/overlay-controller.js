@@ -49,14 +49,15 @@
   }
 
   function closePickers() {
+    let restoreToggleId = null;
     PICKER_IDS.forEach((id) => {
       const m = document.getElementById(id);
       if (!m) return;
+      if (!m.hidden && TOGGLE_FOR[id]) restoreToggleId = TOGGLE_FOR[id];
       m.hidden = true;
       m.setAttribute('hidden', '');
       m.classList.remove('is-open', 'picker-sheet', 'picker-popover');
       clearInlineLayout(m);
-      // Force closed even if a prior open left display:block inline
       m.style.setProperty('display', 'none', 'important');
       const tid = TOGGLE_FOR[id];
       if (tid) document.getElementById(tid)?.setAttribute('aria-expanded', 'false');
@@ -66,6 +67,9 @@
     if (pickerOutsideHandler) {
       document.removeEventListener('pointerdown', pickerOutsideHandler, true);
       pickerOutsideHandler = null;
+    }
+    if (restoreToggleId) {
+      try { document.getElementById(restoreToggleId)?.focus?.(); } catch (_) {}
     }
   }
 
@@ -113,8 +117,6 @@
     if (except !== 'soundscapes') closeSoundscapes();
   }
 
-  // Match the looper timing bubble: fixed-width, centred on its trigger and opening
-  // upward, with the list itself scrolling inside a stable panel.
   function placePicker(menu, toggle) {
     if (!menu || !toggle) return;
     if (menu.parentElement !== document.body) document.body.appendChild(menu);
@@ -163,7 +165,6 @@
     const toggle = document.getElementById(TOGGLE_FOR[menuId]);
     if (!menu || !toggle) return;
     closeAll('pickers');
-    // Close other pickers only was wrong — close everything else first
     closeFx();
     closeSettings();
     closeSoundscapes();
@@ -179,13 +180,10 @@
     });
     placePicker(menu, toggle);
     toggle.setAttribute('aria-expanded', 'true');
-    // Ensure instrument list is fresh when opening
     if (menuId === 'instrumentMenu' && typeof window.__pionierRenderInstrumentMenu === 'function') {
       try { window.__pionierRenderInstrumentMenu(); } catch (_) {}
     }
     document.dispatchEvent(new CustomEvent('pionier:picker-open', { detail: { id: menuId } }));
-    // Use a compact close affordance in the same animated glass menu, rather than
-    // forcing people to tap the dimmed backdrop to dismiss a long picker.
     let closeButton = menu.querySelector(':scope > .picker-close');
     if (!closeButton) {
       closeButton = document.createElement('button');
@@ -197,8 +195,6 @@
       menu.prepend(closeButton);
     }
     ensurePickerScrollRegion(menu);
-    // No elastic overscroll: the time-signature menu stays fixed while its options scroll.
-    // These are compact anchored popovers, not modal sheets: never dim or cover the instrument.
     const bd = ensureBackdrop();
     bd.hidden = true;
     bd.setAttribute('hidden', '');
@@ -209,7 +205,6 @@
       closePickers();
     };
     document.addEventListener('pointerdown', pickerOutsideHandler, true);
-    // Focus active item if present, else first menuitem
     requestAnimationFrame(() => {
       const active = menu.querySelector('[role="menuitem"].is-active, [aria-current="true"]');
       const first = menu.querySelector('[role="menuitem"], button.scale-menu-item, button:not(.picker-close)');
@@ -237,7 +232,6 @@
     panel.style.removeProperty('display');
     document.getElementById('fxPanelOpen')?.setAttribute('aria-expanded', 'true');
     document.body.classList.add('is-fx-open');
-    // Ensure audio graph + knobs exist, then repaint canvases
     try { window.PionierCore?.ensureAudio?.(); } catch (_) {}
     try { window.PionierCore?.paintFxKnobs?.(); } catch (_) {}
   }
@@ -252,7 +246,6 @@
     }
   }
 
-  // Public API
   window.PionierOverlay = {
     closeAll,
     closePickers,
@@ -272,24 +265,18 @@
     document.getElementById('instrumentDropdownToggle')?.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      // Render items if core already loaded
-      if (typeof window.PionierCore?.draw === 'function') {
-        /* core may refresh labels */
-      }
       togglePicker('instrumentMenu');
     }, true);
     document.getElementById('scaleLabel')?.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       togglePicker('scaleMenu');
-    }, true); // capture so we win over other handlers
+    }, true);
 
-    // Close pickers when an item is chosen (event delegation)
     document.addEventListener('click', (e) => {
       const t = e.target;
       if (!(t instanceof Element)) return;
       if (t.closest('#instrumentMenu [role="menuitem"], #instrumentMenu button')) {
-        // Let the item handler run first
         setTimeout(() => {
           closePickers();
           document.getElementById('instrumentDropdownToggle')?.focus?.();
@@ -313,7 +300,25 @@
         if (openId) {
           e.preventDefault();
           closePickers();
-          document.getElementById(TOGGLE_FOR[openId])?.focus?.();
+          return;
+        }
+        const fxEditor = document.getElementById('fxEditor');
+        if (fxEditor && !fxEditor.hidden) {
+          e.preventDefault();
+          document.getElementById('fxEditorClose')?.click();
+          return;
+        }
+        const fx = document.getElementById('fxPanel');
+        if (fx && !fx.hidden) {
+          e.preventDefault();
+          closeFx();
+          return;
+        }
+        const ss = document.getElementById('soundscapesPanel') || document.getElementById('soundscapesPage');
+        if (ss && !ss.hidden && ss.classList.contains('is-active')) {
+          e.preventDefault();
+          closeSoundscapes();
+          try { document.getElementById('openSoundscapes')?.focus?.(); } catch (_) {}
           return;
         }
         closeAll();
@@ -351,7 +356,6 @@
       }
     });
 
-    // FX open/close — single owner
     const fxOpen = document.getElementById('fxPanelOpen');
     const fxClose = document.getElementById('fxPanelClose');
     if (fxOpen && !fxOpen.dataset.overlayWired) {
@@ -382,7 +386,6 @@
         bd.setAttribute('hidden', '');
       }
     }
-    // Never leave the main app translated away without soundscapes open
     const ss = document.getElementById('soundscapesPanel') || document.getElementById('soundscapesPage');
     const ssOpen = ss && !ss.hidden && (ss.classList.contains('is-active') || ss.classList.contains('is-open'));
     if (!ssOpen) {
@@ -396,7 +399,6 @@
   } else {
     wire();
   }
-  // Safety net for stuck backdrop / translated app after rapid switches
   setInterval(recoverChrome, 1500);
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) recoverChrome();
