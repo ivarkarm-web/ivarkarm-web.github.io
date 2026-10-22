@@ -1,0 +1,15 @@
+/* Phase 3 — visible focus for primary chrome (keyboard users) */
+#enterPionier:focus-visible,
+.looper-btn:focus-visible,
+.looper-clear-btn:focus-visible,
+.randomize-setup-btn:focus-visible,
+.soundscapes-open-btn:focus-visible,
+.scale-dropdown-toggle:focus-visible,
+.scale-name:focus-visible,
+.soundscape-play:focus-visible,
+.soundscape-transport-btn:focus-visible,
+.soundscape-queue-item:focus-visible,
+.soundscapes-return-btn:focus-visible {
+  outline: 2px solid var(--gold, #e8c56a);
+  outline-offset: 3px;
+}
