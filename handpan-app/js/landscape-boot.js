@@ -1,9 +1,12 @@
 /**
- * Phone landscape layout (v3) — cohesive vertical side menus.
+ * Phone landscape layout (v4) — enforce cohesive vertical side menus.
+ * Re-applies after looper mount (MutationObserver) so grid CSS cannot win.
  */
 (function landscapeBoot() {
+  const BTN = '44px';
+
   function isPhoneLandscape() {
-    return window.innerWidth > window.innerHeight && window.innerHeight <= 600;
+    return window.innerWidth > window.innerHeight && window.innerHeight <= 620;
   }
 
   function ensureSideRails() {
@@ -28,21 +31,47 @@
     return { left, right };
   }
 
-  function placeRightChrome(el) {
+  function resetPos(el) {
     if (!el) return;
-    el.style.setProperty('position', 'relative', 'important');
-    el.style.setProperty('top', 'auto', 'important');
-    el.style.setProperty('left', 'auto', 'important');
-    el.style.setProperty('right', 'auto', 'important');
-    el.style.setProperty('transform', 'none', 'important');
-    el.style.setProperty('margin', '0', 'important');
+    const s = el.style;
+    s.setProperty('position', 'relative', 'important');
+    s.setProperty('top', 'auto', 'important');
+    s.setProperty('left', 'auto', 'important');
+    s.setProperty('right', 'auto', 'important');
+    s.setProperty('bottom', 'auto', 'important');
+    s.setProperty('transform', 'none', 'important');
+    s.setProperty('margin', '0', 'important');
+    s.setProperty('margin-left', '0', 'important');
+    s.setProperty('grid-column', 'auto', 'important');
+    s.setProperty('grid-row', 'auto', 'important');
   }
 
-  /** Flatten looper into a pure vertical list on the rail. */
+  function sizeBtn(el) {
+    if (!el) return;
+    resetPos(el);
+    el.style.setProperty('width', BTN, 'important');
+    el.style.setProperty('height', BTN, 'important');
+    el.style.setProperty('min-width', BTN, 'important');
+    el.style.setProperty('min-height', BTN, 'important');
+    el.style.setProperty('max-width', BTN, 'important');
+    el.style.setProperty('max-height', BTN, 'important');
+    el.style.setProperty('flex', '0 0 ' + BTN, 'important');
+  }
+
   function verticalizeLooper(rail) {
     if (!rail) return;
     const cluster = document.getElementById('looperRecordCluster');
-    const ids = [
+
+    if (cluster) {
+      for (const id of ['looperCountInBtn', 'looperMetronomeBtn', 'looperBpmBtn', 'looperSaveBtn', 'looperSyncBtn']) {
+        const el = document.getElementById(id);
+        if (el && el.parentElement !== rail) {
+          rail.insertBefore(el, cluster);
+        }
+      }
+    }
+
+    const order = [
       'looperClearBtn',
       'looperCountInBtn',
       'looperMetronomeBtn',
@@ -51,38 +80,48 @@
       'looperRecordCluster',
       'looperLayers',
     ];
-    if (cluster) {
-      for (const id of ['looperCountInBtn', 'looperMetronomeBtn', 'looperBpmBtn', 'looperSaveBtn', 'looperSyncBtn']) {
-        const el = document.getElementById(id);
-        if (el && el.parentElement === cluster) {
-          rail.insertBefore(el, cluster);
-        }
-      }
-    }
-    for (const id of ids) {
+    for (const id of order) {
       const el = document.getElementById(id);
       if (!el) continue;
       if (el.parentElement !== rail) rail.appendChild(el);
-      placeRightChrome(el);
-      el.style.setProperty('grid-column', 'auto', 'important');
-      el.style.setProperty('grid-row', 'auto', 'important');
-      el.style.setProperty('margin-left', '0', 'important');
+      if (id === 'looperRecordCluster' || id === 'looperLayers') resetPos(el);
+      else sizeBtn(el);
     }
+
     rail.style.setProperty('display', 'flex', 'important');
     rail.style.setProperty('flex-direction', 'column', 'important');
+    rail.style.setProperty('flex-flow', 'column nowrap', 'important');
     rail.style.setProperty('align-items', 'center', 'important');
+    rail.style.setProperty('justify-content', 'flex-start', 'important');
+    rail.style.setProperty('gap', '8px', 'important');
+    rail.style.setProperty('grid', 'none', 'important');
+    rail.style.setProperty('grid-template-columns', 'none', 'important');
+
     if (cluster) {
       cluster.style.setProperty('display', 'flex', 'important');
       cluster.style.setProperty('flex-direction', 'column', 'important');
       cluster.style.setProperty('flex-flow', 'column nowrap', 'important');
       cluster.style.setProperty('align-items', 'center', 'important');
+      cluster.style.setProperty('gap', '8px', 'important');
       cluster.style.setProperty('pointer-events', 'auto', 'important');
+      cluster.style.setProperty('margin', '0', 'important');
+      sizeBtn(document.getElementById('looperBtn'));
     }
+
     const layers = document.getElementById('looperLayers');
     if (layers) {
       layers.style.setProperty('display', 'flex', 'important');
       layers.style.setProperty('flex-direction', 'column', 'important');
+      layers.style.setProperty('flex-flow', 'column nowrap', 'important');
       layers.style.setProperty('align-items', 'center', 'important');
+      layers.style.setProperty('gap', '6px', 'important');
+      layers.style.setProperty('margin', '0', 'important');
+      layers.style.setProperty('margin-left', '0', 'important');
+      layers.style.setProperty('max-width', BTN, 'important');
+      layers.querySelectorAll('.looper-circle').forEach((c) => {
+        c.style.setProperty('margin', '0', 'important');
+        c.style.setProperty('margin-left', '0', 'important');
+      });
     }
   }
 
@@ -103,33 +142,52 @@
     if (scaleRow && scaleRow.parentElement !== bar) bar.appendChild(scaleRow);
     if (rootRow && rootRow.parentElement !== bar) bar.appendChild(rootRow);
 
-    const cluster = document.getElementById('looperRecordCluster');
-    if (cluster && looper) {
-      for (const id of ['looperCountInBtn', 'looperMetronomeBtn', 'looperBpmBtn']) {
-        const el = document.getElementById(id);
-        if (el && el.parentElement === looper) {
-          el.style.removeProperty('margin');
-          el.style.removeProperty('grid-column');
-          el.style.removeProperty('grid-row');
-        }
-      }
-      ['display', 'flex-direction', 'flex-flow', 'align-items', 'pointer-events'].forEach((p) => {
-        cluster.style.removeProperty(p);
+    if (looper) {
+      ['display', 'flex-direction', 'flex-flow', 'align-items', 'justify-content', 'gap', 'grid', 'grid-template-columns'].forEach((p) => {
+        looper.style.removeProperty(p);
       });
-      looper.style.removeProperty('display');
-      looper.style.removeProperty('flex-direction');
-      looper.style.removeProperty('align-items');
+      const cluster = document.getElementById('looperRecordCluster');
+      if (cluster) {
+        ['display', 'flex-direction', 'flex-flow', 'align-items', 'gap', 'pointer-events', 'margin'].forEach((p) => {
+          cluster.style.removeProperty(p);
+        });
+      }
+      for (const id of ['looperClearBtn', 'looperCountInBtn', 'looperMetronomeBtn', 'looperBpmBtn', 'looperSaveBtn', 'looperBtn', 'looperLayers']) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        el.style.cssText = '';
+      }
     }
 
     const tools = document.getElementById('landscapeToolStack');
     for (const id of ['openSoundscapes', 'fxPanelOpen', 'settingsOpenBtn']) {
       const el = document.getElementById(id);
       if (el && el.parentElement !== document.body) document.body.appendChild(el);
+      if (el) {
+        ['position', 'top', 'left', 'right', 'bottom', 'transform', 'margin', 'width', 'height'].forEach((p) => {
+          el.style.removeProperty(p);
+        });
+      }
     }
     tools?.remove();
   }
 
   let lastLand = null;
+  let looperObserver = null;
+
+  function watchLooper(rail) {
+    if (looperObserver) {
+      looperObserver.disconnect();
+      looperObserver = null;
+    }
+    if (!rail || !document.body.classList.contains('pionier-landscape')) return;
+    looperObserver = new MutationObserver(() => {
+      if (!document.body.classList.contains('pionier-landscape')) return;
+      clearTimeout(window.__landLooperFixT);
+      window.__landLooperFixT = setTimeout(() => verticalizeLooper(rail), 30);
+    });
+    looperObserver.observe(rail, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+  }
 
   function apply() {
     const isLand = isPhoneLandscape();
@@ -169,20 +227,25 @@
       for (const id of ['openSoundscapes', 'fxPanelOpen', 'settingsOpenBtn']) {
         const el = document.getElementById(id);
         if (!el) continue;
-        placeRightChrome(el);
+        sizeBtn(el);
         tools.appendChild(el);
       }
 
       if (looper) {
-        placeRightChrome(looper);
+        resetPos(looper);
         right.appendChild(looper);
         verticalizeLooper(looper);
+        watchLooper(looper);
       }
 
-      document.documentElement.style.setProperty('--chrome-top', '6px');
-      document.documentElement.style.setProperty('--chrome-bottom', '6px');
+      document.documentElement.style.setProperty('--chrome-top', '4px');
+      document.documentElement.style.setProperty('--chrome-bottom', '4px');
       document.documentElement.style.setProperty('--pan-bottom-gap', '0px');
     } else if (changed) {
+      if (looperObserver) {
+        looperObserver.disconnect();
+        looperObserver = null;
+      }
       left.hidden = true;
       right.hidden = true;
       restorePortraitChrome();
@@ -194,14 +257,11 @@
     document.documentElement.style.setProperty('--viewport-h', window.innerHeight + 'px');
 
     const kick = () => {
-      try {
-        window.dispatchEvent(new Event('resize'));
-      } catch (_) {}
+      try { window.dispatchEvent(new Event('resize')); } catch (_) {}
     };
     requestAnimationFrame(kick);
-    setTimeout(kick, 100);
-    setTimeout(kick, 320);
-    setTimeout(kick, 700);
+    setTimeout(kick, 120);
+    setTimeout(kick, 400);
   }
 
   function schedule() {
@@ -209,26 +269,21 @@
     window.__landscapeBootT = setTimeout(apply, 40);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      apply();
-      setTimeout(apply, 150);
-      setTimeout(apply, 500);
-      setTimeout(apply, 1400);
-      setTimeout(apply, 2200);
-    });
-  } else {
+  function boot() {
     apply();
-    setTimeout(apply, 150);
-    setTimeout(apply, 500);
-    setTimeout(apply, 1400);
-    setTimeout(apply, 2200);
+    [120, 400, 900, 1600, 2800].forEach((ms) => setTimeout(apply, ms));
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
   }
 
   window.addEventListener('resize', schedule);
   window.addEventListener('orientationchange', () => {
-    setTimeout(apply, 60);
+    setTimeout(apply, 50);
     setTimeout(apply, 200);
-    setTimeout(apply, 450);
+    setTimeout(apply, 500);
   });
 })();
