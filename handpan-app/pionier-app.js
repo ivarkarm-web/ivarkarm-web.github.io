@@ -128,7 +128,7 @@ function loadNotePlus() {
 
 function loadSoundscapes() {
   return loadModule('soundscapes', async () => {
-    await import(new URL('./js/soundscapes.js?v=10', BASE).href);
+    await import(new URL('./js/soundscapes.js?v=11', BASE).href);
   });
 }
 
