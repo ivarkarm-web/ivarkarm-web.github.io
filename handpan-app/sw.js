@@ -11,7 +11,7 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.
  */
-const CACHE_VERSION = 'pionier-v105';
+const CACHE_VERSION = 'pionier-v106';
 
 const SHELL = [
   './',
@@ -19,6 +19,7 @@ const SHELL = [
   './manifest.webmanifest',
   './icon.svg',
   './atelier.css?v=10',
+  './focus-visible.css?v=1',
   './fx-editor.css?v=4',
   './js/ambient-fx.js?v=12',
   './js/app-state.js?v=1',
@@ -39,17 +40,17 @@ const SHELL = [
   './js/looper.js?v=222',
   './js/note-plus.js?v=3',
   './js/note-sample-bank.js',
-  './js/overlay-controller.js?v=22',
+  './js/overlay-controller.js?v=23',
   './js/pad-layout.js?v=2',
   './js/pionier-surface.js?v=146',
   './js/scale-selector.js?v=12',
   './js/settings-panel.js?v=28',
   './js/skin-mandala.js?v=5',
   './js/skin-palette.js?v=1',
-  './js/soundscapes.js?v=10',
+  './js/soundscapes.js?v=11',
   './looper.css?v=222',
   './og-pionier-synth.svg',
-  './pionier-app.js?v=234',
+  './pionier-app.js?v=235',
   './pionier-core.js?v=70',
   './pionier.css?v=166',
   './registerSW.js',

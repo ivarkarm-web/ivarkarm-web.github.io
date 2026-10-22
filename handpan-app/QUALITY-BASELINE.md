@@ -15,7 +15,7 @@ Measured against `origin/main` after UI layout + picker fixes (2026-10-16).
 
 ## Stylesheets linked from index
 
-`pionier`, `welcome-screen`, `topbar-narrow`, `looper`, `scale-menu`, `settings-panel`, `atelier`, `ui-stability`, `fx-editor`  
+`pionier`, `welcome-screen`, `topbar-narrow`, `looper`, `scale-menu`, `settings-panel`, `atelier`, `ui-stability`, `fx-editor`, `focus-visible`  
 Retired: `chrome-fix`, `ui-layout-extras`, `app.css`, `handpan.css`
 
 ## Service worker
@@ -43,3 +43,11 @@ Boot states: `loading` → `ready` | `degraded` | `failed` via `#appStatus`. Opt
 Critical path: `pionier-core` + handpan scales + scale selector.
 Deferred (idle or first use): looper, FX editor, arps, note-plus, soundscapes.
 Audio unlock on Enter (`pionier:user-enter` + silent buffer + resume).
+
+## Phase 3 resilience (2026-10-22)
+
+- Soundscapes queue built with DOM textContent (no innerHTML).
+- Network/offline status: clear “Needs network / check connection” on track load failure.
+- Escape closes pickers, FX editor, FX panel, soundscapes; focus returns to opener.
+- focus-visible on Enter, looper, scale, ♫, soundscape controls.
+- Smoke checks offline-critical SW SHELL paths; Playwright `phase3-smoke.spec.mjs`.
