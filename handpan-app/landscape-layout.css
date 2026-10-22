@@ -1,238 +1,300 @@
-/* Phone landscape: large pan; left instrument controls; right tools + vertical looper */
+/* =====================================================================
+   Phone landscape — cohesive vertical side menus (v3)
+   Left: instrument / scale / base / notes
+   Right: tools · clear · count-in · metro · BPM · record · layers
+   ===================================================================== */
+
 body.pionier-landscape,
 html.pionier-landscape {
-  --chrome-top: 8px;
-  --chrome-bottom: 8px;
+  --chrome-top: 6px;
+  --chrome-bottom: 6px;
   --pan-bottom-gap: 0px;
 }
 
-body.pionier-landscape #app {
-  min-height: 100dvh;
-}
-
+body.pionier-landscape #app { min-height: 100dvh; }
 body.pionier-landscape .topbar,
-body.pionier-landscape .topbar-minimal {
-  display: none !important;
-}
+body.pionier-landscape .topbar-minimal { display: none !important; }
+body.pionier-landscape #headphonesHint { display: none !important; }
 
 body.pionier-landscape .stage {
-  padding-top: 8px !important;
-  padding-bottom: 8px !important;
-  padding-left: min(30vw, 210px) !important;
-  padding-right: min(30vw, 210px) !important;
+  padding: 6px min(26vw, 120px) !important;
   align-items: center !important;
   justify-content: center !important;
   --stage-bottom-reserve: 0px;
 }
 
 body.pionier-landscape #pan {
-  --pan-budget: min(
-    100dvh - 16px,
-    100dvw - min(60vw, 420px),
-    560px
-  ) !important;
+  --pan-budget: min(100dvh - 12px, 100dvw - min(52vw, 260px), 560px) !important;
   width: var(--pan-budget) !important;
   height: var(--pan-budget) !important;
   max-width: var(--pan-budget) !important;
   max-height: var(--pan-budget) !important;
 }
 
-body.pionier-landscape #stageScaleBar[data-landscape-empty="1"] {
-  display: none !important;
-}
+body.pionier-landscape #stageScaleBar[data-landscape-empty="1"] { display: none !important; }
 
 .stage-side-rail {
   display: none;
   position: fixed;
-  top: 0;
-  bottom: 0;
+  top: 0; bottom: 0;
   z-index: 4500;
-  width: min(28vw, 200px);
   box-sizing: border-box;
-  padding: max(10px, env(safe-area-inset-top, 0px)) 8px max(10px, env(safe-area-inset-bottom, 0px));
+  padding: max(8px, env(safe-area-inset-top, 0px)) 6px max(8px, env(safe-area-inset-bottom, 0px));
   flex-direction: column;
   justify-content: center;
-  align-items: stretch;
-  gap: 10px;
+  align-items: center;
+  gap: 8px;
   pointer-events: none;
+  overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
-
-.stage-side-rail > * {
-  pointer-events: auto;
-  flex: 0 0 auto;
-}
-
-body.pionier-landscape .stage-side-rail {
-  display: flex;
-}
+.stage-side-rail > * { pointer-events: auto; flex: 0 0 auto; }
+body.pionier-landscape .stage-side-rail { display: flex !important; }
 
 .stage-side-rail-left {
   left: 0;
-  padding-left: max(8px, env(safe-area-inset-left, 0px));
-  background: linear-gradient(90deg, rgba(7, 7, 8, 0.92) 55%, rgba(7, 7, 8, 0));
+  width: min(32vw, 168px);
+  padding-left: max(6px, env(safe-area-inset-left, 0px));
+  align-items: stretch;
+  background: linear-gradient(90deg, rgba(7,7,8,0.94) 40%, rgba(7,7,8,0));
 }
-
 .stage-side-rail-right {
   right: 0;
-  width: min(22vw, 96px);
-  padding-right: max(8px, env(safe-area-inset-right, 0px));
-  align-items: center;
-  gap: 16px;
-  background: linear-gradient(270deg, rgba(7, 7, 8, 0.92) 55%, rgba(7, 7, 8, 0));
+  width: min(18vw, 72px);
+  padding-right: max(6px, env(safe-area-inset-right, 0px));
+  gap: 10px;
+  background: linear-gradient(270deg, rgba(7,7,8,0.94) 40%, rgba(7,7,8,0));
 }
 
-/* —— Left: dropdowns only (no ◂ ▸ steppers) —— */
+/* Left: no arrows */
 body.pionier-landscape .stage-side-rail-left #voicePrev,
 body.pionier-landscape .stage-side-rail-left #voiceNext,
 body.pionier-landscape .stage-side-rail-left #scalePrev,
-body.pionier-landscape .stage-side-rail-left #scaleNext {
-  display: none !important;
-}
+body.pionier-landscape .stage-side-rail-left #scaleNext { display: none !important; }
 
+body.pionier-landscape .stage-side-rail-left #instrumentNav,
 body.pionier-landscape .stage-side-rail-left .stage-instrument-nav,
-body.pionier-landscape .stage-side-rail-left #instrumentNav {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: stretch !important;
-  gap: 6px !important;
-  width: 100% !important;
-}
-
-body.pionier-landscape .stage-side-rail-left .instrument-name,
-body.pionier-landscape .stage-side-rail-left #instrumentDropdownToggle {
-  max-width: none !important;
-  width: 100% !important;
-  justify-content: center;
-}
-
-body.pionier-landscape .stage-side-rail-left .stage-scale-row,
 body.pionier-landscape .stage-side-rail-left #stageScaleRow,
+body.pionier-landscape .stage-side-rail-left .stage-scale-row,
 body.pionier-landscape .stage-side-rail-left .control-scale,
-body.pionier-landscape .stage-side-rail-left .stage-control-scale {
-  display: flex !important;
-  flex-direction: column !important;
-  width: 100% !important;
-  gap: 4px !important;
-}
-
-body.pionier-landscape .stage-side-rail-left .scale-stepper {
-  display: flex !important;
-  width: 100% !important;
-  justify-content: center;
-  gap: 0;
-}
-
-body.pionier-landscape .stage-side-rail-left #scaleLabel,
-body.pionier-landscape .stage-side-rail-left .stage-scale-btn {
-  max-width: none !important;
-  width: 100% !important;
-  flex: 1 1 auto;
-}
-
 body.pionier-landscape .stage-side-rail-left .stage-root-row,
 body.pionier-landscape .stage-side-rail-left .control-row {
   display: flex !important;
   flex-direction: column !important;
+  align-items: stretch !important;
   width: 100% !important;
-  gap: 8px !important;
+  gap: 6px !important;
+  margin: 0 !important;
 }
 
-body.pionier-landscape .stage-side-rail-left .control-half {
+body.pionier-landscape .stage-side-rail-left #instrumentDropdownToggle,
+body.pionier-landscape .stage-side-rail-left .instrument-name,
+body.pionier-landscape .stage-side-rail-left #scaleLabel,
+body.pionier-landscape .stage-side-rail-left .stage-scale-btn {
   width: 100% !important;
+  max-width: none !important;
+  min-height: 36px !important;
+  justify-content: center;
 }
 
+body.pionier-landscape .stage-side-rail-left .scale-stepper,
+body.pionier-landscape .stage-side-rail-left .stepper {
+  display: flex !important;
+  width: 100% !important;
+}
+body.pionier-landscape .stage-side-rail-left .control-half { width: 100% !important; }
 body.pionier-landscape .stage-side-rail-left .control-label {
   display: block !important;
   font-size: 9px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   opacity: 0.55;
-  margin-bottom: 2px;
+  margin: 0 0 2px;
 }
 
-/* —— Right: tool stack then vertical looper (no overlap) —— */
+/* Dropdowns visible as left sheet */
+body.pionier-landscape #scaleMenu:not([hidden]),
+body.pionier-landscape #instrumentMenu:not([hidden]),
+body.pionier-landscape .scale-menu.picker-sheet:not([hidden]),
+body.pionier-landscape .instrument-menu.picker-sheet:not([hidden]),
+body.pionier-landscape .scale-menu.picker-popover:not([hidden]),
+body.pionier-landscape .instrument-menu.picker-popover:not([hidden]) {
+  position: fixed !important;
+  left: max(8px, env(safe-area-inset-left, 0px)) !important;
+  right: auto !important;
+  top: max(8px, env(safe-area-inset-top, 0px)) !important;
+  bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
+  width: min(300px, calc(100vw - 100px)) !important;
+  max-width: min(300px, 72vw) !important;
+  max-height: none !important;
+  height: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+  z-index: 5600 !important;
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Tools */
 body.pionier-landscape .landscape-tool-stack {
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  justify-content: center !important;
-  gap: 10px !important;
+  gap: 8px !important;
   width: 100%;
-  flex: 0 0 auto;
 }
-
 body.pionier-landscape .stage-side-rail-right #openSoundscapes,
 body.pionier-landscape .stage-side-rail-right #fxPanelOpen,
 body.pionier-landscape .stage-side-rail-right #settingsOpenBtn {
   position: relative !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
+  top: auto !important; left: auto !important; right: auto !important;
   transform: none !important;
-  width: 44px !important;
-  height: 44px !important;
-  min-width: 44px !important;
-  min-height: 44px !important;
+  width: 44px !important; height: 44px !important;
+  min-width: 44px !important; min-height: 44px !important;
   margin: 0 !important;
-  flex: 0 0 auto !important;
 }
 
+/* Kill portrait looper grid — one vertical column */
+body.pionier-landscape #looperRail,
+body.pionier-landscape #looperRail.looper-rail,
 body.pionier-landscape .stage-side-rail-right #looperRail,
 body.pionier-landscape .stage-side-rail-right .looper-rail {
-  position: relative !important;
-  top: auto !important;
-  right: auto !important;
-  left: auto !important;
-  bottom: auto !important;
-  transform: none !important;
   display: flex !important;
   flex-direction: column !important;
   flex-wrap: nowrap !important;
   align-items: center !important;
   justify-content: flex-start !important;
+  gap: 8px !important;
   width: auto !important;
   max-width: 100% !important;
-  min-height: 0 !important;
   height: auto !important;
-  gap: 8px !important;
+  min-height: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
+  grid: none !important;
+  grid-template: none !important;
+  grid-template-columns: none !important;
+  grid-template-rows: none !important;
 }
 
-body.pionier-landscape .stage-side-rail-right #looperRecordCluster,
-body.pionier-landscape .stage-side-rail-right .looper-record-cluster {
+body.pionier-landscape #looperRail > *,
+body.pionier-landscape .stage-side-rail-right #looperRail > * {
+  position: relative !important;
+  inset: auto !important;
+  top: auto !important; right: auto !important; bottom: auto !important; left: auto !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+  justify-self: center !important;
+  align-self: center !important;
+  margin: 0 !important;
+  margin-left: 0 !important;
+  transform: none !important;
+}
+
+body.pionier-landscape #looperRail > #looperClearBtn { order: 1 !important; }
+body.pionier-landscape #looperRail > #looperCountInBtn { order: 2 !important; }
+body.pionier-landscape #looperRail > #looperMetronomeBtn { order: 3 !important; }
+body.pionier-landscape #looperRail > #looperBpmBtn { order: 4 !important; }
+body.pionier-landscape #looperRail > #looperSaveBtn { order: 5 !important; }
+body.pionier-landscape #looperRail > #looperRecordCluster { order: 6 !important; }
+body.pionier-landscape #looperRail > #looperLayers { order: 7 !important; }
+
+body.pionier-landscape #looperClearBtn,
+body.pionier-landscape #looperCountInBtn,
+body.pionier-landscape #looperMetronomeBtn,
+body.pionier-landscape #looperBpmBtn,
+body.pionier-landscape #looperSaveBtn,
+body.pionier-landscape #looperRail #looperClearBtn,
+body.pionier-landscape #looperRail #looperCountInBtn,
+body.pionier-landscape #looperRail #looperMetronomeBtn,
+body.pionier-landscape #looperRail #looperBpmBtn,
+body.pionier-landscape #looperRail #looperSaveBtn {
+  position: relative !important;
+  inset: auto !important;
+  margin: 0 !important;
+  margin-left: 0 !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+  justify-self: center !important;
+  transform: none !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  flex: 0 0 44px !important;
+}
+
+body.pionier-landscape #looperRecordCluster,
+body.pionier-landscape #looperRecordCluster.looper-record-cluster,
+body.pionier-landscape #looperRail > #looperRecordCluster {
   display: flex !important;
   flex-direction: column !important;
+  flex-flow: column nowrap !important;
   align-items: center !important;
+  justify-content: center !important;
   gap: 8px !important;
   width: auto !important;
+  margin: 0 !important;
+  pointer-events: auto !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
 }
 
-body.pionier-landscape .stage-side-rail-right #looperLayers,
-body.pionier-landscape .stage-side-rail-right .looper-layers {
+body.pionier-landscape #looperRecordCluster .looper-btn,
+body.pionier-landscape #looperRecordCluster .looper-timing-btn,
+body.pionier-landscape #looperRecordCluster .looper-save-btn,
+body.pionier-landscape #looperRecordCluster .looper-bpm-btn,
+body.pionier-landscape #looperRecordCluster .looper-metronome-btn,
+body.pionier-landscape #looperRecordCluster .looper-count-in-btn {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  max-width: 44px !important;
+  max-height: 44px !important;
+  flex: 0 0 44px !important;
+  margin: 0 !important;
+  position: relative !important;
+  transform: none !important;
+}
+
+body.pionier-landscape #looperLayers,
+body.pionier-landscape #looperRail #looperLayers,
+body.pionier-landscape .looper-layers {
   display: flex !important;
   flex-direction: column !important;
+  flex-wrap: nowrap !important;
   align-items: center !important;
   gap: 6px !important;
-  max-height: min(28vh, 160px);
-  overflow-x: hidden;
-  overflow-y: auto;
   width: auto !important;
+  max-width: 56px !important;
+  max-height: min(36vh, 200px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  margin: 0 !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+  justify-self: center !important;
 }
 
-body.pionier-landscape .stage-side-rail-right #looperClearBtn,
-body.pionier-landscape .stage-side-rail-right .looper-clear-btn {
-  order: 0;
+body.pionier-landscape #looperLayers .looper-circle,
+body.pionier-landscape .looper-layers .looper-circle {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
 }
 
-body.pionier-landscape #headphonesHint {
-  display: none !important;
-}
-
-@media (orientation: landscape) and (min-height: 561px) {
-  body.pionier-landscape #pan {
-    --pan-budget: min(100dvh - 32px, 100dvw - 360px, 560px) !important;
-  }
+body.pionier-landscape .looper-timing-menu,
+body.pionier-landscape .looper-sheet,
+body.pionier-landscape .looper-bpm-editor {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 5700 !important;
+  max-width: min(360px, 90vw) !important;
+  max-height: min(80dvh, 480px) !important;
+  overflow: auto !important;
 }
