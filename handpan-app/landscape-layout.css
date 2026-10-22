@@ -1,4 +1,4 @@
-/* Phone landscape: keep pan large; controls on left/right rails */
+/* Phone landscape: large pan; left instrument controls; right tools + vertical looper */
 body.pionier-landscape,
 html.pionier-landscape {
   --chrome-top: 8px;
@@ -26,7 +26,6 @@ body.pionier-landscape .stage {
 }
 
 body.pionier-landscape #pan {
-  /* Prefer height so the instrument stays as large as portrait-on-short-side */
   --pan-budget: min(
     100dvh - 16px,
     100dvw - min(60vw, 420px),
@@ -56,10 +55,13 @@ body.pionier-landscape #stageScaleBar[data-landscape-empty="1"] {
   align-items: stretch;
   gap: 10px;
   pointer-events: none;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .stage-side-rail > * {
   pointer-events: auto;
+  flex: 0 0 auto;
 }
 
 body.pionier-landscape .stage-side-rail {
@@ -74,12 +76,21 @@ body.pionier-landscape .stage-side-rail {
 
 .stage-side-rail-right {
   right: 0;
+  width: min(22vw, 96px);
   padding-right: max(8px, env(safe-area-inset-right, 0px));
   align-items: center;
+  gap: 16px;
   background: linear-gradient(270deg, rgba(7, 7, 8, 0.92) 55%, rgba(7, 7, 8, 0));
 }
 
-/* Left rail: instrument, scale, base/notes */
+/* —— Left: dropdowns only (no ◂ ▸ steppers) —— */
+body.pionier-landscape .stage-side-rail-left #voicePrev,
+body.pionier-landscape .stage-side-rail-left #voiceNext,
+body.pionier-landscape .stage-side-rail-left #scalePrev,
+body.pionier-landscape .stage-side-rail-left #scaleNext {
+  display: none !important;
+}
+
 body.pionier-landscape .stage-side-rail-left .stage-instrument-nav,
 body.pionier-landscape .stage-side-rail-left #instrumentNav {
   display: flex !important;
@@ -109,13 +120,14 @@ body.pionier-landscape .stage-side-rail-left .stage-control-scale {
 body.pionier-landscape .stage-side-rail-left .scale-stepper {
   display: flex !important;
   width: 100% !important;
-  justify-content: space-between;
-  gap: 4px;
+  justify-content: center;
+  gap: 0;
 }
 
 body.pionier-landscape .stage-side-rail-left #scaleLabel,
 body.pionier-landscape .stage-side-rail-left .stage-scale-btn {
   max-width: none !important;
+  width: 100% !important;
   flex: 1 1 auto;
 }
 
@@ -140,20 +152,15 @@ body.pionier-landscape .stage-side-rail-left .control-label {
   margin-bottom: 2px;
 }
 
-/* Right rail: looper + FX / settings / soundscapes */
-body.pionier-landscape .stage-side-rail-right #looperRail,
-body.pionier-landscape .stage-side-rail-right .looper-rail {
-  position: relative !important;
-  top: auto !important;
-  right: auto !important;
-  left: auto !important;
-  bottom: auto !important;
-  transform: none !important;
-  width: auto !important;
+/* —— Right: tool stack then vertical looper (no overlap) —— */
+body.pionier-landscape .landscape-tool-stack {
+  display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  gap: 8px !important;
-  margin: 0 !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  width: 100%;
+  flex: 0 0 auto;
 }
 
 body.pionier-landscape .stage-side-rail-right #openSoundscapes,
@@ -169,13 +176,61 @@ body.pionier-landscape .stage-side-rail-right #settingsOpenBtn {
   min-width: 44px !important;
   min-height: 44px !important;
   margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+
+body.pionier-landscape .stage-side-rail-right #looperRail,
+body.pionier-landscape .stage-side-rail-right .looper-rail {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: auto !important;
+  max-width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body.pionier-landscape .stage-side-rail-right #looperRecordCluster,
+body.pionier-landscape .stage-side-rail-right .looper-record-cluster {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+}
+
+body.pionier-landscape .stage-side-rail-right #looperLayers,
+body.pionier-landscape .stage-side-rail-right .looper-layers {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 6px !important;
+  max-height: min(28vh, 160px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: auto !important;
+}
+
+body.pionier-landscape .stage-side-rail-right #looperClearBtn,
+body.pionier-landscape .stage-side-rail-right .looper-clear-btn {
+  order: 0;
 }
 
 body.pionier-landscape #headphonesHint {
   display: none !important;
 }
 
-/* Tablets / wide landscape: still prefer large pan but rails wider */
 @media (orientation: landscape) and (min-height: 561px) {
   body.pionier-landscape #pan {
     --pan-budget: min(100dvh - 32px, 100dvw - 360px, 560px) !important;
