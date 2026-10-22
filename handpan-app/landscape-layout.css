@@ -1,0 +1,183 @@
+/* Phone landscape: keep pan large; controls on left/right rails */
+body.pionier-landscape,
+html.pionier-landscape {
+  --chrome-top: 8px;
+  --chrome-bottom: 8px;
+  --pan-bottom-gap: 0px;
+}
+
+body.pionier-landscape #app {
+  min-height: 100dvh;
+}
+
+body.pionier-landscape .topbar,
+body.pionier-landscape .topbar-minimal {
+  display: none !important;
+}
+
+body.pionier-landscape .stage {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  padding-left: min(30vw, 210px) !important;
+  padding-right: min(30vw, 210px) !important;
+  align-items: center !important;
+  justify-content: center !important;
+  --stage-bottom-reserve: 0px;
+}
+
+body.pionier-landscape #pan {
+  /* Prefer height so the instrument stays as large as portrait-on-short-side */
+  --pan-budget: min(
+    100dvh - 16px,
+    100dvw - min(60vw, 420px),
+    560px
+  ) !important;
+  width: var(--pan-budget) !important;
+  height: var(--pan-budget) !important;
+  max-width: var(--pan-budget) !important;
+  max-height: var(--pan-budget) !important;
+}
+
+body.pionier-landscape #stageScaleBar[data-landscape-empty="1"] {
+  display: none !important;
+}
+
+.stage-side-rail {
+  display: none;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: 4500;
+  width: min(28vw, 200px);
+  box-sizing: border-box;
+  padding: max(10px, env(safe-area-inset-top, 0px)) 8px max(10px, env(safe-area-inset-bottom, 0px));
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.stage-side-rail > * {
+  pointer-events: auto;
+}
+
+body.pionier-landscape .stage-side-rail {
+  display: flex;
+}
+
+.stage-side-rail-left {
+  left: 0;
+  padding-left: max(8px, env(safe-area-inset-left, 0px));
+  background: linear-gradient(90deg, rgba(7, 7, 8, 0.92) 55%, rgba(7, 7, 8, 0));
+}
+
+.stage-side-rail-right {
+  right: 0;
+  padding-right: max(8px, env(safe-area-inset-right, 0px));
+  align-items: center;
+  background: linear-gradient(270deg, rgba(7, 7, 8, 0.92) 55%, rgba(7, 7, 8, 0));
+}
+
+/* Left rail: instrument, scale, base/notes */
+body.pionier-landscape .stage-side-rail-left .stage-instrument-nav,
+body.pionier-landscape .stage-side-rail-left #instrumentNav {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 6px !important;
+  width: 100% !important;
+}
+
+body.pionier-landscape .stage-side-rail-left .instrument-name,
+body.pionier-landscape .stage-side-rail-left #instrumentDropdownToggle {
+  max-width: none !important;
+  width: 100% !important;
+  justify-content: center;
+}
+
+body.pionier-landscape .stage-side-rail-left .stage-scale-row,
+body.pionier-landscape .stage-side-rail-left #stageScaleRow,
+body.pionier-landscape .stage-side-rail-left .control-scale,
+body.pionier-landscape .stage-side-rail-left .stage-control-scale {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  gap: 4px !important;
+}
+
+body.pionier-landscape .stage-side-rail-left .scale-stepper {
+  display: flex !important;
+  width: 100% !important;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+body.pionier-landscape .stage-side-rail-left #scaleLabel,
+body.pionier-landscape .stage-side-rail-left .stage-scale-btn {
+  max-width: none !important;
+  flex: 1 1 auto;
+}
+
+body.pionier-landscape .stage-side-rail-left .stage-root-row,
+body.pionier-landscape .stage-side-rail-left .control-row {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  gap: 8px !important;
+}
+
+body.pionier-landscape .stage-side-rail-left .control-half {
+  width: 100% !important;
+}
+
+body.pionier-landscape .stage-side-rail-left .control-label {
+  display: block !important;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin-bottom: 2px;
+}
+
+/* Right rail: looper + FX / settings / soundscapes */
+body.pionier-landscape .stage-side-rail-right #looperRail,
+body.pionier-landscape .stage-side-rail-right .looper-rail {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  width: auto !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+
+body.pionier-landscape .stage-side-rail-right #openSoundscapes,
+body.pionier-landscape .stage-side-rail-right #fxPanelOpen,
+body.pionier-landscape .stage-side-rail-right #settingsOpenBtn {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  margin: 0 !important;
+}
+
+body.pionier-landscape #headphonesHint {
+  display: none !important;
+}
+
+/* Tablets / wide landscape: still prefer large pan but rails wider */
+@media (orientation: landscape) and (min-height: 561px) {
+  body.pionier-landscape #pan {
+    --pan-budget: min(100dvh - 32px, 100dvw - 360px, 560px) !important;
+  }
+}
