@@ -54,4 +54,4 @@ Measured facts live in `QUALITY-BASELINE.md`. Do not mark items DONE without a r
 - `docs/RELEASE-CHECKLIST.md` — deploy gate
 - `docs/DEVICE-CHECKLIST.md` — owner hardware matrix
 - `docs/PERFORMANCE-BUDGETS.md` — size and timing budgets
-- Service worker: bump `CACHE_VERSION` in `sw.js` when shell assets change; keep SHELL in sync with `index.html` query stamps.
+- Service worker: bump `handpan-app/APP_VERSION`, then run `npm run sync:handpan` so `sw.js` SHELL matches `index.html` / `pionier-app.js` stamps. Verify with `npm run check:handpan-cache`.
