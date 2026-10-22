@@ -15,8 +15,8 @@ Measured against `origin/main` after UI layout + picker fixes (2026-10-16).
 
 ## Stylesheets linked from index
 
-`pionier`, `welcome-screen`, `topbar-narrow`, `looper`, `scale-menu`, `settings-panel`, `atelier`, `ui-stability`, `fx-editor`, `focus-visible`  
-Retired: `chrome-fix`, `ui-layout-extras`, `app.css`, `handpan.css`
+`pionier`, `welcome-screen`, `topbar-narrow`, `looper`, `scale-menu`, `settings-panel`, `atelier`, `ui-stability`, `fx-editor`, `focus-visible`, `system-fonts`  
+Retired: `chrome-fix`, `ui-layout-extras`, `app.css`, `handpan.css`, Google Fonts CDN
 
 ## Service worker
 
@@ -34,7 +34,7 @@ Boot states: `loading` → `ready` | `degraded` | `failed` via `#appStatus`. Opt
 
 ## Still not covered in CI
 
-- Full offline proof
+- Full service-worker offline navigation under Playwright (SW blocked in config)
 - Real-device iOS Safari
 - axe-core / multi-pointer stress
 
@@ -51,3 +51,9 @@ Audio unlock on Enter (`pionier:user-enter` + silent buffer + resume).
 - Escape closes pickers, FX editor, FX panel, soundscapes; focus returns to opener.
 - focus-visible on Enter, looper, scale, ♫, soundscape controls.
 - Smoke checks offline-critical SW SHELL paths; Playwright `phase3-smoke.spec.mjs`.
+
+## Phase 4 fonts + offline proof (2026-10-22)
+
+- No Google Fonts CDN; UI uses system font stack via `system-fonts.css`.
+- Smoke checks: offline-critical SW SHELL paths + APP_VERSION + no fonts.googleapis in index.
+- Playwright `phase4-offline.spec.mjs`: no external font links; core boots with audioAvailable.
