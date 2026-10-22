@@ -1,12 +1,9 @@
 /**
- * Phone landscape layout (v2)
- * Left rail: instrument, scale, base note, note count (no arrow steppers)
- * Right rail: tool stack (soundscapes/FX/settings) + vertical looper
- * Pan stays height-driven; kicks resize so canvas DPR recovers on rotate-back.
+ * Phone landscape layout (v3) — cohesive vertical side menus.
  */
 (function landscapeBoot() {
   function isPhoneLandscape() {
-    return window.innerWidth > window.innerHeight && window.innerHeight <= 560;
+    return window.innerWidth > window.innerHeight && window.innerHeight <= 600;
   }
 
   function ensureSideRails() {
@@ -38,6 +35,55 @@
     el.style.setProperty('left', 'auto', 'important');
     el.style.setProperty('right', 'auto', 'important');
     el.style.setProperty('transform', 'none', 'important');
+    el.style.setProperty('margin', '0', 'important');
+  }
+
+  /** Flatten looper into a pure vertical list on the rail. */
+  function verticalizeLooper(rail) {
+    if (!rail) return;
+    const cluster = document.getElementById('looperRecordCluster');
+    const ids = [
+      'looperClearBtn',
+      'looperCountInBtn',
+      'looperMetronomeBtn',
+      'looperBpmBtn',
+      'looperSaveBtn',
+      'looperRecordCluster',
+      'looperLayers',
+    ];
+    if (cluster) {
+      for (const id of ['looperCountInBtn', 'looperMetronomeBtn', 'looperBpmBtn', 'looperSaveBtn', 'looperSyncBtn']) {
+        const el = document.getElementById(id);
+        if (el && el.parentElement === cluster) {
+          rail.insertBefore(el, cluster);
+        }
+      }
+    }
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      if (el.parentElement !== rail) rail.appendChild(el);
+      placeRightChrome(el);
+      el.style.setProperty('grid-column', 'auto', 'important');
+      el.style.setProperty('grid-row', 'auto', 'important');
+      el.style.setProperty('margin-left', '0', 'important');
+    }
+    rail.style.setProperty('display', 'flex', 'important');
+    rail.style.setProperty('flex-direction', 'column', 'important');
+    rail.style.setProperty('align-items', 'center', 'important');
+    if (cluster) {
+      cluster.style.setProperty('display', 'flex', 'important');
+      cluster.style.setProperty('flex-direction', 'column', 'important');
+      cluster.style.setProperty('flex-flow', 'column nowrap', 'important');
+      cluster.style.setProperty('align-items', 'center', 'important');
+      cluster.style.setProperty('pointer-events', 'auto', 'important');
+    }
+    const layers = document.getElementById('looperLayers');
+    if (layers) {
+      layers.style.setProperty('display', 'flex', 'important');
+      layers.style.setProperty('flex-direction', 'column', 'important');
+      layers.style.setProperty('align-items', 'center', 'important');
+    }
   }
 
   function restorePortraitChrome() {
@@ -56,6 +102,24 @@
     if (inst && inst.parentElement !== bar) bar.appendChild(inst);
     if (scaleRow && scaleRow.parentElement !== bar) bar.appendChild(scaleRow);
     if (rootRow && rootRow.parentElement !== bar) bar.appendChild(rootRow);
+
+    const cluster = document.getElementById('looperRecordCluster');
+    if (cluster && looper) {
+      for (const id of ['looperCountInBtn', 'looperMetronomeBtn', 'looperBpmBtn']) {
+        const el = document.getElementById(id);
+        if (el && el.parentElement === looper) {
+          el.style.removeProperty('margin');
+          el.style.removeProperty('grid-column');
+          el.style.removeProperty('grid-row');
+        }
+      }
+      ['display', 'flex-direction', 'flex-flow', 'align-items', 'pointer-events'].forEach((p) => {
+        cluster.style.removeProperty(p);
+      });
+      looper.style.removeProperty('display');
+      looper.style.removeProperty('flex-direction');
+      looper.style.removeProperty('align-items');
+    }
 
     const tools = document.getElementById('landscapeToolStack');
     for (const id of ['openSoundscapes', 'fxPanelOpen', 'settingsOpenBtn']) {
@@ -94,36 +158,29 @@
       if (inst) left.appendChild(inst);
       if (scaleRow) left.appendChild(scaleRow);
       if (rootRow) left.appendChild(rootRow);
+
       let tools = document.getElementById('landscapeToolStack');
       if (!tools) {
         tools = document.createElement('div');
         tools.id = 'landscapeToolStack';
         tools.className = 'landscape-tool-stack';
       }
-      if (tools.parentElement !== right) right.appendChild(tools);
+      right.appendChild(tools);
       for (const id of ['openSoundscapes', 'fxPanelOpen', 'settingsOpenBtn']) {
         const el = document.getElementById(id);
         if (!el) continue;
         placeRightChrome(el);
         tools.appendChild(el);
       }
+
       if (looper) {
-        ['position', 'top', 'right', 'bottom', 'left', 'transform', 'width'].forEach((prop) => {
-          looper.style.setProperty(
-            prop,
-            prop === 'position' ? 'relative' : prop === 'width' ? 'auto' : 'auto',
-            'important'
-          );
-        });
-        looper.style.setProperty('display', 'flex', 'important');
-        looper.style.setProperty('flex-direction', 'column', 'important');
-        looper.style.setProperty('align-items', 'center', 'important');
-        right.appendChild(tools);
+        placeRightChrome(looper);
         right.appendChild(looper);
+        verticalizeLooper(looper);
       }
 
-      document.documentElement.style.setProperty('--chrome-top', '8px');
-      document.documentElement.style.setProperty('--chrome-bottom', '8px');
+      document.documentElement.style.setProperty('--chrome-top', '6px');
+      document.documentElement.style.setProperty('--chrome-bottom', '6px');
       document.documentElement.style.setProperty('--pan-bottom-gap', '0px');
     } else if (changed) {
       left.hidden = true;
@@ -158,12 +215,14 @@
       setTimeout(apply, 150);
       setTimeout(apply, 500);
       setTimeout(apply, 1400);
+      setTimeout(apply, 2200);
     });
   } else {
     apply();
     setTimeout(apply, 150);
     setTimeout(apply, 500);
     setTimeout(apply, 1400);
+    setTimeout(apply, 2200);
   }
 
   window.addEventListener('resize', schedule);
