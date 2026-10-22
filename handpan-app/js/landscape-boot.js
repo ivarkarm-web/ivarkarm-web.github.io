@@ -1,7 +1,7 @@
 /**
- * Phone landscape layout (v1)
- * Left rail: instrument, scale, base note, note count
- * Right rail: looper, soundscapes, FX, settings
+ * Phone landscape layout (v2)
+ * Left rail: instrument, scale, base note, note count (no arrow steppers)
+ * Right rail: tool stack (soundscapes/FX/settings) + vertical looper
  * Pan stays height-driven; kicks resize so canvas DPR recovers on rotate-back.
  */
 (function landscapeBoot() {
@@ -57,10 +57,12 @@
     if (scaleRow && scaleRow.parentElement !== bar) bar.appendChild(scaleRow);
     if (rootRow && rootRow.parentElement !== bar) bar.appendChild(rootRow);
 
+    const tools = document.getElementById('landscapeToolStack');
     for (const id of ['openSoundscapes', 'fxPanelOpen', 'settingsOpenBtn']) {
       const el = document.getElementById(id);
       if (el && el.parentElement !== document.body) document.body.appendChild(el);
     }
+    tools?.remove();
   }
 
   let lastLand = null;
@@ -92,17 +94,32 @@
       if (inst) left.appendChild(inst);
       if (scaleRow) left.appendChild(scaleRow);
       if (rootRow) left.appendChild(rootRow);
-      if (looper) {
-        ['position', 'top', 'right', 'bottom', 'left', 'transform'].forEach((prop) => {
-          looper.style.setProperty(prop, prop === 'position' ? 'relative' : 'auto', 'important');
-        });
-        right.appendChild(looper);
+      let tools = document.getElementById('landscapeToolStack');
+      if (!tools) {
+        tools = document.createElement('div');
+        tools.id = 'landscapeToolStack';
+        tools.className = 'landscape-tool-stack';
       }
+      if (tools.parentElement !== right) right.appendChild(tools);
       for (const id of ['openSoundscapes', 'fxPanelOpen', 'settingsOpenBtn']) {
         const el = document.getElementById(id);
         if (!el) continue;
         placeRightChrome(el);
-        right.appendChild(el);
+        tools.appendChild(el);
+      }
+      if (looper) {
+        ['position', 'top', 'right', 'bottom', 'left', 'transform', 'width'].forEach((prop) => {
+          looper.style.setProperty(
+            prop,
+            prop === 'position' ? 'relative' : prop === 'width' ? 'auto' : 'auto',
+            'important'
+          );
+        });
+        looper.style.setProperty('display', 'flex', 'important');
+        looper.style.setProperty('flex-direction', 'column', 'important');
+        looper.style.setProperty('align-items', 'center', 'important');
+        right.appendChild(tools);
+        right.appendChild(looper);
       }
 
       document.documentElement.style.setProperty('--chrome-top', '8px');
