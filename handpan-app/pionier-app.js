@@ -1,5 +1,7 @@
 /**
  * Pionier app shell: load the vendored local core and optional UI modules.
+ * Critical path: core + scales + scale selector.
+ * Deferred: looper, FX editor, arps, note-plus, soundscapes (idle or first use).
  */
 const BASE = new URL('.', import.meta.url).href;
 const statusEl = document.getElementById('appStatus');
@@ -50,6 +52,111 @@ function killCanvasGhosts(canvas) {
   canvas.addEventListener('contextmenu', block, true);
 }
 
+/** Unlock Web Audio inside a user-gesture stack (iOS Safari). */
+function unlockAudioFromGesture() {
+  try {
+    const HA = window.HandpanAudio;
+    const ctx = HA?.getAudioContext?.() || null;
+    if (ctx && ctx.state !== 'running') {
+      try {
+        const buf = ctx.createBuffer(1, 1, ctx.sampleRate || 44100);
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(ctx.destination);
+        src.start(0);
+      } catch (_) {}
+    }
+    HA?.resumeAudio?.();
+    window.PionierCore?.getAudioContext?.();
+  } catch (_) {}
+}
+
+window.addEventListener('pionier:user-enter', () => {
+  unlockAudioFromGesture();
+});
+
+const deferred = {
+  looper: null,
+  fxEditor: null,
+  arps: null,
+  notePlus: null,
+  soundscapes: null,
+};
+
+function loadModule(key, loader) {
+  if (deferred[key]) return deferred[key];
+  deferred[key] = Promise.resolve()
+    .then(loader)
+    .catch((err) => {
+      console.warn('[pionier] deferred module failed:', key, err);
+      deferred[key] = null;
+      throw err;
+    });
+  return deferred[key];
+}
+
+function loadLooper() {
+  return loadModule('looper', async () => {
+    const { mountLooper } = await import(new URL('./js/looper.js?v=222', BASE).href);
+    mountLooper();
+  });
+}
+
+function loadFxEditor() {
+  return loadModule('fxEditor', async () => {
+    await import(new URL('./js/fx-editor.js?v=9', BASE).href);
+  });
+}
+
+function loadArps() {
+  return loadModule('arps', async () => {
+    const { createArpInstruments } = await import(new URL('./js/instruments/arp-family.js?v=3', BASE).href);
+    const { InstrumentRegistry } = await import(new URL('./js/instrument.js', BASE).href);
+    for (const inst of createArpInstruments()) {
+      try { InstrumentRegistry.register(inst); } catch (e) { console.warn('[arp] register', inst?.id, e); }
+    }
+    try { window.PionierCore?.syncWorldPitch?.(); } catch (_) {}
+  });
+}
+
+function loadNotePlus() {
+  return loadModule('notePlus', async () => {
+    const { mountNotePlus } = await import(new URL('./js/note-plus.js?v=3', BASE).href);
+    mountNotePlus();
+  });
+}
+
+function loadSoundscapes() {
+  return loadModule('soundscapes', async () => {
+    await import(new URL('./js/soundscapes.js?v=10', BASE).href);
+  });
+}
+
+function scheduleDeferredFeatures() {
+  const idle = typeof requestIdleCallback === 'function'
+    ? (fn) => requestIdleCallback(fn, { timeout: 2500 })
+    : (fn) => setTimeout(fn, 500);
+
+  idle(() => {
+    loadArps().catch(() => {});
+    loadNotePlus().catch(() => {});
+    loadLooper().catch(() => {});
+  });
+
+  const rail = document.getElementById('looperRail');
+  rail?.addEventListener('pointerdown', () => { loadLooper().catch(() => {}); }, { once: true, capture: true });
+  document.getElementById('looperBtn')?.addEventListener('pointerdown', () => { loadLooper().catch(() => {}); }, { once: true, capture: true });
+
+  document.addEventListener('click', (event) => {
+    if (event.target?.closest?.('[data-fx-editor-open]')) loadFxEditor().catch(() => {});
+  }, true);
+  window.addEventListener('pionier:fx-editor-open', () => { loadFxEditor().catch(() => {}); });
+
+  document.getElementById('openSoundscapes')?.addEventListener('click', () => {
+    loadSoundscapes().catch(() => {});
+  }, { capture: true });
+}
+
 async function boot() {
   setBootStatus('loading', 'Starting Pionier…');
   const degraded = [];
@@ -62,37 +169,9 @@ async function boot() {
     return false;
   }
 
-  try {
-    await import(new URL('./js/fx-editor.js?v=9', BASE).href);
-  } catch (err) {
-    console.warn('[fx-editor] detailed effect editor failed to load', err);
-    degraded.push('effect editor');
-  }
-
-  // Keep the app usable when browser capabilities are restricted, but explain
-  // why audio or saved preferences may be unavailable instead of hiding status.
   const coreHealth = window.PionierCore?.health?.();
   if (coreHealth && !coreHealth.audioAvailable) degraded.push('audio output');
   if (coreHealth && !coreHealth.storageAvailable) degraded.push('saved settings');
-
-  try {
-    const { createArpInstruments } = await import(new URL('./js/instruments/arp-family.js?v=3', BASE).href);
-    const { InstrumentRegistry } = await import(new URL('./js/instrument.js', BASE).href);
-    for (const inst of createArpInstruments()) {
-      try { InstrumentRegistry.register(inst); } catch (e) { console.warn('[arp] register', inst?.id, e); }
-    }
-    try { window.PionierCore?.syncWorldPitch?.(); } catch (_) {}
-  } catch (err) {
-    console.warn('[arp] failed to load arpeggiators', err);
-    degraded.push('arpeggiators');
-  }
-
-  try {
-    await import(new URL('./js/soundscapes.js?v=10', BASE).href);
-  } catch (err) {
-    console.error('[soundscapes] module failed to initialize', err);
-    degraded.push('soundscapes');
-  }
 
   try {
     let HANDPAN_SCALES;
@@ -106,22 +185,6 @@ async function boot() {
     const canvas = document.getElementById('pan');
     if (canvas) killCanvasGhosts(canvas);
   } catch (_) {}
-
-  try {
-    const { mountNotePlus } = await import(new URL('./js/note-plus.js?v=3', BASE).href);
-    mountNotePlus();
-  } catch (err) {
-    console.warn('[note-plus] mount failed', err);
-    degraded.push('note-plus');
-  }
-
-  try {
-    const { mountLooper } = await import(new URL('./js/looper.js?v=222', BASE).href);
-    mountLooper();
-  } catch (err) {
-    console.warn('[looper] mount failed', err);
-    degraded.push('looper');
-  }
 
   try {
     const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=12', BASE).href);
@@ -142,13 +205,13 @@ async function boot() {
     degraded.push('scale-selector');
   }
 
-
-  // Dice: jump to a random registered instrument and a random scale.
   document.getElementById('randomizeSetup')?.addEventListener('click', async () => {
     const dice = document.getElementById('randomizeSetup');
     if (dice?.dataset.rolling === '1') return;
     if (dice) { dice.dataset.rolling = '1'; dice.classList.add('is-rolling'); }
     try {
+      unlockAudioFromGesture();
+      await loadArps().catch(() => {});
       const { InstrumentRegistry } = await import(new URL('./js/instrument.js', BASE).href);
       const instruments = InstrumentRegistry.list().filter((item) => item?.id);
       const scales = window.HANDPAN_SCALES || [];
@@ -166,7 +229,6 @@ async function boot() {
         const scale = scales[next];
         if (label && scale) label.textContent = (scale.short || scale.label || 'Scale') + ' ▾';
       }
-      // Randomize the layout too: always choose from the complete 8–13 note range.
       const randomNoteCount = 8 + Math.floor(Math.random() * 6);
       window.PionierCore?.setNoteCount?.(randomNoteCount);
     } catch (err) { console.warn('[randomize] setup selection failed', err); }
@@ -174,6 +236,8 @@ async function boot() {
       if (dice) { delete dice.dataset.rolling; dice.classList.remove('is-rolling'); }
     }
   });
+
+  scheduleDeferredFeatures();
 
   if (degraded.length) {
     const labels = degraded.map(name => ({ soundscapes: 'Soundscapes', 'note-plus': 'note controls', looper: 'Loop Studio', 'scale-selector': 'scale selector', arpeggiators: 'arpeggiators' }[name] || name));
