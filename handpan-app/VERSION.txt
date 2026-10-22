@@ -1,2 +1,3 @@
-pionier-v116
+pionier-v117
 2026-10-22
+safe CSS-only landscape v9
