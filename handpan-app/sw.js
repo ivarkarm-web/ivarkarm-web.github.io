@@ -1,7 +1,7 @@
 /**
  * Pionier service worker
  */
-const CACHE_VERSION = 'pionier-v115';
+const CACHE_VERSION = 'pionier-v116';
 
 const SHELL = [
   './',
@@ -25,8 +25,8 @@ const SHELL = [
   './js/instruments/handpan-scales.js?v=6',
   './js/instruments/handpan.js?v=11',
   './js/instruments/library-family.js?v=3',
-  './js/landscape-boot.js?v=7',
-  './js/layout-boot.js?v=65',
+  './js/landscape-boot.js?v=8',
+  './js/layout-boot.js?v=66',
   './js/loop-core.js',
   './js/looper.js?v=222',
   './js/note-plus.js?v=3',
