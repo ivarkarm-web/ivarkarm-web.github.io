@@ -89,6 +89,23 @@ else fail('Looper still references community upload modules');
 if (/\.looper-/.test(loopStyles) && /looper\.css\?v=\d+/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) ok('Looper styles and service-worker declare cache versions');
 else fail('Looper styles or service-worker cache versions missing');
 
+// Offline shell: critical instrument path must be listed in SHELL for airplane-mode play.
+const shellCritical = [
+  './pionier-core.js',
+  './js/audio-core.js',
+  './js/gesture.js',
+  './js/instrument.js',
+  './js/instruments/handpan.js',
+];
+for (const asset of shellCritical) {
+  if (serviceWorker.includes(asset)) ok('SW SHELL lists offline-critical ' + asset);
+  else fail('SW SHELL missing offline-critical ' + asset);
+}
+if (fs.existsSync(path.join(root, 'handpan-app/APP_VERSION'))) ok('APP_VERSION source of truth is present');
+else fail('handpan-app/APP_VERSION missing');
+if (!appHtml.includes('fonts.googleapis.com')) ok('No Google Fonts CDN dependency in index');
+else fail('index still loads fonts.googleapis.com');
+
 const scaleSelector = read('handpan-app/js/scale-selector.js');
 if ((/Search instruments/.test(coreSrc) || /instrumentMenu/.test(appHtml) || /instrumentDropdownToggle/.test(appHtml)) && (/Search scales/.test(scaleSelector) || /scaleMenu/.test(appHtml) || /scaleLabel/.test(appHtml))) ok('Instrument and scale pickers are present');
 else fail('Scale/instrument picker wiring is incomplete');
