@@ -1,19 +1,15 @@
-/* Landscape v5 — top-aligned dual column on the right
-   [ tools ♫ FX ⚙ | loop tracks ]
-   + transport under tools
-   Extra top inset so ♫ clears the browser address bar.
-*/
+/* Landscape v6 — all chrome visible, top-aligned dual columns */
 
 body.pionier-landscape,
 html.pionier-landscape {
   --land-gap: 8px;
   --land-btn: 44px;
-  --land-top-inset: max(52px, env(safe-area-inset-top, 0px) + 36px);
+  --land-top-inset: max(48px, env(safe-area-inset-top, 0px) + 32px);
   --chrome-top: 4px;
   --chrome-bottom: 4px;
   --pan-bottom-gap: 0px;
-  --land-rail-left: min(34vw, 156px);
-  --land-rail-right: min(28vw, 112px);
+  --land-rail-left: min(32vw, 148px);
+  --land-rail-right: min(30vw, 118px);
 }
 
 body.pionier-landscape #app { min-height: 100dvh; overflow: hidden; }
@@ -46,7 +42,7 @@ body.pionier-landscape #pan {
   position: fixed;
   top: 0;
   bottom: 0;
-  z-index: 4500;
+  z-index: 4600;
   box-sizing: border-box;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -54,30 +50,29 @@ body.pionier-landscape #pan {
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  scrollbar-width: thin;
 }
-.stage-side-rail::-webkit-scrollbar { display: none; }
 .stage-side-rail > * { pointer-events: auto; flex: 0 0 auto; }
 body.pionier-landscape .stage-side-rail { display: flex !important; }
 
 body.pionier-landscape .stage-side-rail-left {
   left: 0;
   width: var(--land-rail-left);
-  padding: var(--land-top-inset) 6px max(8px, env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px));
+  padding: var(--land-top-inset) 6px max(10px, env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px));
   justify-content: flex-start;
   align-items: stretch;
   gap: var(--land-gap);
-  background: linear-gradient(90deg, rgba(7,7,8,0.96) 55%, rgba(7,7,8,0));
+  background: linear-gradient(90deg, rgba(7,7,8,0.97) 60%, rgba(7,7,8,0));
 }
 
 body.pionier-landscape .stage-side-rail-right {
   right: 0;
   width: var(--land-rail-right);
-  padding: var(--land-top-inset) max(6px, env(safe-area-inset-right, 0px)) max(8px, env(safe-area-inset-bottom, 0px)) 4px;
+  padding: var(--land-top-inset) max(6px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) 4px;
   justify-content: flex-start;
   align-items: stretch;
   gap: 10px;
-  background: linear-gradient(270deg, rgba(7,7,8,0.96) 55%, rgba(7,7,8,0));
+  background: linear-gradient(270deg, rgba(7,7,8,0.97) 60%, rgba(7,7,8,0));
 }
 
 body.pionier-landscape .landscape-right-top {
@@ -90,21 +85,47 @@ body.pionier-landscape .landscape-right-top {
   flex: 0 0 auto;
 }
 
-body.pionier-landscape .landscape-tool-stack {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  gap: var(--land-gap) !important;
-  flex: 0 0 auto;
-}
-
+body.pionier-landscape .landscape-tool-stack,
 body.pionier-landscape .landscape-looper-transport {
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   gap: var(--land-gap) !important;
-  width: 100%;
   flex: 0 0 auto;
+  width: auto;
+  min-height: 0;
+}
+
+/* Kill portrait fixed chrome for FX / settings / soundscapes */
+body.pionier-landscape #openSoundscapes,
+body.pionier-landscape #fxPanelOpen,
+body.pionier-landscape #settingsOpenBtn,
+body.pionier-landscape button.fx-panel-open,
+body.pionier-landscape .settings-open-btn,
+body.pionier-landscape .stage-side-rail-right #openSoundscapes,
+body.pionier-landscape .stage-side-rail-right #fxPanelOpen,
+body.pionier-landscape .stage-side-rail-right #settingsOpenBtn {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  inset: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  width: var(--land-btn) !important;
+  height: var(--land-btn) !important;
+  min-width: var(--land-btn) !important;
+  min-height: var(--land-btn) !important;
+  max-width: var(--land-btn) !important;
+  max-height: var(--land-btn) !important;
+  flex: 0 0 var(--land-btn) !important;
+  z-index: 1 !important;
+  box-sizing: border-box !important;
 }
 
 body.pionier-landscape .stage-side-rail-left #voicePrev,
@@ -113,7 +134,6 @@ body.pionier-landscape .stage-side-rail-left #scalePrev,
 body.pionier-landscape .stage-side-rail-left #scaleNext { display: none !important; }
 
 body.pionier-landscape .stage-side-rail-left #instrumentNav,
-body.pionier-landscape .stage-side-rail-left .stage-instrument-nav,
 body.pionier-landscape .stage-side-rail-left #stageScaleRow,
 body.pionier-landscape .stage-side-rail-left .stage-scale-row,
 body.pionier-landscape .stage-side-rail-left .control-scale,
@@ -125,19 +145,15 @@ body.pionier-landscape .stage-side-rail-left .control-row {
   width: 100% !important;
   gap: var(--land-gap) !important;
   margin: 0 !important;
-  padding: 0 !important;
 }
 
 body.pionier-landscape .stage-side-rail-left #instrumentDropdownToggle,
-body.pionier-landscape .stage-side-rail-left .instrument-name,
-body.pionier-landscape .stage-side-rail-left #scaleLabel,
-body.pionier-landscape .stage-side-rail-left .stage-scale-btn {
+body.pionier-landscape .stage-side-rail-left #scaleLabel {
   width: 100% !important;
   max-width: none !important;
   min-height: 40px !important;
   justify-content: center;
   text-align: center;
-  box-sizing: border-box;
 }
 
 body.pionier-landscape .stage-side-rail-left .scale-stepper,
@@ -145,7 +161,6 @@ body.pionier-landscape .stage-side-rail-left .stepper {
   display: flex !important;
   width: 100% !important;
   justify-content: space-between;
-  align-items: center;
 }
 body.pionier-landscape .stage-side-rail-left .control-half { width: 100% !important; }
 body.pionier-landscape .stage-side-rail-left .control-label {
@@ -167,80 +182,59 @@ body.pionier-landscape .instrument-menu:not([hidden]) {
   right: auto !important;
   top: var(--land-top-inset) !important;
   bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
-  width: min(300px, calc(100vw - 120px)) !important;
-  max-width: min(300px, 70vw) !important;
-  max-height: none !important;
+  width: min(300px, calc(100vw - 130px)) !important;
   transform: none !important;
-  margin: 0 !important;
   z-index: 5600 !important;
   overflow: auto !important;
   border-radius: 16px !important;
 }
 
-body.pionier-landscape .stage-side-rail-right #openSoundscapes,
-body.pionier-landscape .stage-side-rail-right #fxPanelOpen,
-body.pionier-landscape .stage-side-rail-right #settingsOpenBtn {
-  position: relative !important;
-  top: auto !important; left: auto !important; right: auto !important; bottom: auto !important;
-  transform: none !important;
-  width: var(--land-btn) !important;
-  height: var(--land-btn) !important;
-  min-width: var(--land-btn) !important;
-  min-height: var(--land-btn) !important;
-  margin: 0 !important;
-  flex: 0 0 var(--land-btn) !important;
-}
-
 body.pionier-landscape #looperLayers,
-body.pionier-landscape .landscape-right-top #looperLayers,
-body.pionier-landscape .looper-layers {
+body.pionier-landscape .landscape-right-top #looperLayers {
   display: flex !important;
   flex-direction: column !important;
-  flex-flow: column nowrap !important;
   align-items: center !important;
   gap: 6px !important;
-  width: auto !important;
   max-width: var(--land-btn) !important;
-  max-height: min(70dvh, 360px) !important;
+  max-height: min(65dvh, 320px) !important;
   overflow-x: hidden !important;
   overflow-y: auto !important;
   margin: 0 !important;
-  margin-left: 0 !important;
   padding: 0 !important;
-  flex: 0 0 auto !important;
-  grid-column: unset !important;
-  grid-row: unset !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
-body.pionier-landscape #looperLayers .looper-circle,
-body.pionier-landscape .looper-layers .looper-circle {
+body.pionier-landscape #looperLayers .looper-circle {
   flex: 0 0 auto !important;
   margin: 0 !important;
+  visibility: visible !important;
 }
 
-body.pionier-landscape #looperRail,
-body.pionier-landscape #looperRail.looper-rail {
-  display: contents !important;
-  grid: none !important;
-}
-
-body.pionier-landscape .landscape-looper-transport #looperClearBtn,
-body.pionier-landscape .landscape-looper-transport #looperCountInBtn,
-body.pionier-landscape .landscape-looper-transport #looperMetronomeBtn,
-body.pionier-landscape .landscape-looper-transport #looperBpmBtn,
-body.pionier-landscape .landscape-looper-transport #looperSaveBtn,
 body.pionier-landscape #looperClearBtn,
 body.pionier-landscape #looperCountInBtn,
 body.pionier-landscape #looperMetronomeBtn,
 body.pionier-landscape #looperBpmBtn,
-body.pionier-landscape #looperSaveBtn {
+body.pionier-landscape #looperSaveBtn,
+body.pionier-landscape #looperBtn,
+body.pionier-landscape .landscape-looper-transport #looperClearBtn,
+body.pionier-landscape .landscape-looper-transport #looperCountInBtn,
+body.pionier-landscape .landscape-looper-transport #looperMetronomeBtn,
+body.pionier-landscape .landscape-looper-transport #looperBpmBtn,
+body.pionier-landscape .landscape-looper-transport #looperSaveBtn {
   position: relative !important;
   inset: auto !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
   margin: 0 !important;
   margin-left: 0 !important;
   grid-column: unset !important;
   grid-row: unset !important;
   transform: none !important;
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
   width: var(--land-btn) !important;
   height: var(--land-btn) !important;
   min-width: var(--land-btn) !important;
@@ -250,24 +244,21 @@ body.pionier-landscape #looperSaveBtn {
   flex: 0 0 var(--land-btn) !important;
 }
 
-body.pionier-landscape #looperRecordCluster,
-body.pionier-landscape #looperRecordCluster.looper-record-cluster {
+body.pionier-landscape #looperRecordCluster {
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   gap: var(--land-gap) !important;
   margin: 0 !important;
+  visibility: visible !important;
   pointer-events: auto !important;
   grid-column: unset !important;
   grid-row: unset !important;
 }
 
-body.pionier-landscape #looperBtn {
-  width: var(--land-btn) !important;
-  height: var(--land-btn) !important;
-  min-width: var(--land-btn) !important;
-  min-height: var(--land-btn) !important;
-  margin: 0 !important;
+body.pionier-landscape #looperRail,
+body.pionier-landscape #looperRail.looper-rail {
+  display: none !important;
 }
 
 body.pionier-landscape .looper-timing-menu,
