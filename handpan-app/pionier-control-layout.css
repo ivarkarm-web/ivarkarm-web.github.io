@@ -423,3 +423,36 @@ html.theme-light #pionierBottomDock #pionierInstrumentGroup #randomizeSetup{back
     width:15px !important; height:15px !important; min-width:15px !important; min-height:15px !important;
   }
 }
+
+
+/* v18: keep the Count-in digits contained inside their circular button. */
+#pionierBottomDock #looperCountInBtn {
+  overflow:hidden !important;
+  padding:2px !important;
+  gap:1px !important;
+}
+#pionierBottomDock #looperCountInBtn .looper-countin-icon {
+  flex:0 0 auto !important;
+  width:13px !important;
+  height:11px !important;
+  max-width:100% !important;
+}
+#pionierBottomDock #looperCountInBtn .looper-timing-main {
+  display:block !important;
+  flex:0 0 auto !important;
+  max-width:100% !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:clip !important;
+  font-size:6px !important;
+  line-height:1 !important;
+  letter-spacing:-.08em !important;
+  transform:scaleX(.9) !important;
+  transform-origin:center center !important;
+}
+@media(max-width:350px) {
+  #pionierBottomDock #looperCountInBtn .looper-timing-main {
+    font-size:5.5px !important;
+    letter-spacing:-.1em !important;
+  }
+}
