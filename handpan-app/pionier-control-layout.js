@@ -79,7 +79,7 @@
         menu.style.zIndex = '7200';
       });
     });
-    observer.observe(document.body, { subtree:true, attributes:true, attributeFilter:['class','hidden','style'] });
+    observer.observe(document.body, { subtree:true, attributes:true, attributeFilter:['class','hidden'] });
   }
   function boot() {
     ensureLayout();
