@@ -41,6 +41,9 @@
     var topbar = app && app.querySelector('.topbar');
     var rail = document.getElementById('looperRail');
     if (!app || !topbar || !rail) return;
+    /* Wait for the looper module to build its controls first; it expects its
+       record cluster and layers to still be inside #looperRail while mounting. */
+    if (rail.dataset.mounted !== '1') return;
 
     var selectors = make('div', 'pionierSelectorRow', 'pionier-selector-stack');
     var scaleRow = make('div', 'pionierScaleRow', 'pionier-selector-row pionier-scale-row');

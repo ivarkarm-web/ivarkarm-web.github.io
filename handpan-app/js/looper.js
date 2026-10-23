@@ -142,7 +142,7 @@ export function mountLooper({ root } = {}) {
     utilityGroup.id = 'looperUtilityControls';
     utilityGroup.className = 'looper-utility-controls';
   }
-  if (utilityGroup.parentElement !== rail) rail.insertBefore(utilityGroup, cluster);
+  if (utilityGroup.parentElement !== rail) rail.insertBefore(utilityGroup, cluster.parentElement === rail ? cluster : null);
   [countInBtn, metronomeBtn, bpmBtn].forEach((control) => utilityGroup.appendChild(control));
   if (btn.parentElement !== cluster) cluster.appendChild(btn);
   syncBtn.setAttribute('aria-label', 'Sync mode: Free');
