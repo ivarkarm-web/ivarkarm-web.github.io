@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Pionier Synth — Play, Explore, Create</title>
+  <meta name="description" content="Pionier Synth is a touch-responsive musical instrument for exploring resonant handpan sounds, world instruments, expressive effects, looping and soundscapes. Start with 8 notes and shape your own sound." />
+  <meta name="theme-color" content="#070708" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Pionier Audio" />
+  <meta property="og:title" content="Pionier Audio — Handpan" />
+  <meta property="og:description" content="A minimal, touch-responsive virtual handpan. Explore resonant sounds, scales, loops and soundscapes." />
+  <meta property="og:image" content="https://ivarkarm-web.github.io/handpan-app/og-pionier-audio.svg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Pionier Audio — minimal tech-editorial handpan instrument." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Pionier Audio — Handpan" />
+  <meta name="twitter:description" content="A minimal, touch-responsive virtual handpan. Explore resonant sounds, scales, loops and soundscapes." />
+  <meta name="twitter:image" content="https://ivarkarm-web.github.io/handpan-app/og-pionier-audio.svg" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <script>document.documentElement.classList.add("pionier-welcome-active");window.PionierWelcomeState={hideTonefields:true};</script>
+  <link rel="stylesheet" href="./pionier.css?v=166" />
+  <link rel="stylesheet" href="./w3-pan-guard.css?v=1" />
+  <link rel="stylesheet" href="./welcome-screen.css?v=6" />
+  <link rel="stylesheet" href="./topbar-narrow.css?v=6" />
+  <link rel="stylesheet" href="./looper.css?v=222" />
+  <link rel="stylesheet" href="./scale-menu.css?v=19" />
+  <link rel="stylesheet" href="./settings-panel.css?v=19" />
+  <style>
+    .backdrop-player { display: none !important; }
+    .play-pill, #modePlay, #btnHelp, #btnExit, .top-actions,
+    #createLaunch, .create-launch, #createPage, .create-page { display: none !important; }
+
+    .stage {
+      --stage-bottom-reserve: calc(var(--chrome-bottom, 160px) + var(--pan-bottom-gap, 10px));
+      padding: max(8px, var(--chrome-top, 48px)) 8px var(--stage-bottom-reserve) 8px !important;
+      flex-direction: column;
+      position: relative !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      overflow: hidden !important;
+      min-height: 0 !important;
+      flex: 1 1 auto !important;
+      box-sizing: border-box !important;
+    }
+    #pan {
+      display: block !important;
+      aspect-ratio: 1 !important;
+      margin-bottom: 0 !important;
+    }
+    .stage::before {
+      left: 50% !important;
+      top: auto !important;
+      bottom: calc(var(--stage-bottom-reserve) + var(--pan-budget, 40vw) / 2) !important;
+      transform: translate(-50%, 50%) !important;
+      width: min(80vw, calc(100dvh - 260px), 640px) !important;
+      height: min(80vw, calc(100dvh - 260px), 640px) !important;
+    }
+  </style>
+  <link rel="stylesheet" href="./atelier.css?v=10">
+  <link rel="stylesheet" href="./ui-stability.css?v=6" />
+  <link rel="stylesheet" href="./fx-editor.css?v=5" />
+  <link rel="stylesheet" href="./theme-light-overlays.css?v=1" />
+  <link rel="stylesheet" href="./focus-visible.css?v=1" />
+  <link rel="stylesheet" href="./system-fonts.css?v=1" />
+  <link rel="stylesheet" href="./shell-chrome.css?v=1" />
+  <link rel="stylesheet" href="./portrait-lock.css?v=1" />
+</head>
+<body>
+  <div id="portraitLock" class="portrait-lock" hidden aria-live="polite">
+    <p class="portrait-lock-msg">Rotate your phone to portrait</p>
+  </div>
+  <div id="appStatus" class="app-status" data-state="loading" role="status" aria-live="polite">
+    <span id="appStatusMessage">Starting Pionier…</span>
+    <button type="button" id="appStatusRetry" class="app-status-retry" hidden>Retry</button>
+  </div>
+  <!-- BODY_CONTINUES_IN_NEXT_IF_TRUNCATED -->
+</body>
+</html>
