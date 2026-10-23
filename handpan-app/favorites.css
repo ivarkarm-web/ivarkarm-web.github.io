@@ -89,25 +89,47 @@ html.theme-light .favorites-sheet-header { border-bottom-color: rgba(46,40,28,0.
 html.theme-light .favorites-row-main { background: rgba(40,30,20,0.04); }
 .favorites-row-main:active { transform: scale(0.98); }
 
+/* Hearts inside scale / instrument menu rows — name left, heart right */
+#scaleMenu .scale-menu-item.fav-row,
+#instrumentMenu .instrument-menu-item.fav-row,
+.scale-menu-item.fav-row,
+.instrument-menu-item.fav-row,
 .fav-row {
   display: flex !important;
+  flex-direction: row !important;
   align-items: center !important;
   justify-content: space-between !important;
-  gap: 8px !important;
+  gap: 10px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+}
+#scaleMenu .scale-menu-item.fav-row > span:first-child,
+#instrumentMenu .instrument-menu-item.fav-row > span:first-child {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  text-align: left !important;
 }
 .fav-heart-btn {
-  flex: 0 0 auto;
-  width: 34px; height: 34px;
-  border: 0; border-radius: 50%;
-  background: transparent;
-  color: rgba(230,224,210,0.35);
-  font-size: 16px; line-height: 1;
-  cursor: pointer;
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+  width: 36px !important;
+  height: 36px !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  color: rgba(230,224,210,0.35) !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
   touch-action: manipulation;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
-.fav-heart-btn.is-fav { color: #e87890; }
-html.theme-light .fav-heart-btn { color: rgba(46,40,28,0.28); }
-html.theme-light .fav-heart-btn.is-fav { color: #c45a72; }
+.fav-heart-btn.is-fav { color: #e87890 !important; }
+html.theme-light .fav-heart-btn { color: rgba(46,40,28,0.28) !important; }
+html.theme-light .fav-heart-btn.is-fav { color: #c45a72 !important; }
 .fav-heart-btn:active { transform: scale(0.92); }
 
 html.pionier-welcome-active .favorites-open-btn { display: none !important; }
