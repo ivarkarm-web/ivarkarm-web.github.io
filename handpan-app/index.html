@@ -20,6 +20,7 @@
       var res = await fetch(url, { cache: 'no-store' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       var html = await res.text();
+
       html = html.replace('href="./fx-editor.css?v=4"', 'href="./fx-editor.css?v=5"');
       if (html.indexOf('theme-light-overlays.css') === -1) {
         html = html.replace(
@@ -27,81 +28,118 @@
           '<link rel="stylesheet" href="./fx-editor.css?v=5" />\n  <link rel="stylesheet" href="./theme-light-overlays.css?v=1" />'
         );
       }
+
+      // Inject durable FX wiring into the written document (survives document.write).
+      var fxFix = [
+        '<script>',
+        '(function () {',
+        '  if (window.__pionierFxFix) return;',
+        '  window.__pionierFxFix = true;',
+        '',
+        '  function ensureBtn() {',
+        '    var btn = document.getElementById("fxPanelOpen");',
+        '    if (btn) return btn;',
+        '    btn = document.createElement("button");',
+        '    btn.type = "button";',
+        '    btn.id = "fxPanelOpen";',
+        '    btn.className = "fx-panel-open";',
+        '    btn.setAttribute("aria-label", "Effects");',
+        '    btn.setAttribute("aria-expanded", "false");',
+        '    btn.setAttribute("aria-controls", "fxPanel");',
+        '    btn.textContent = "FX";',
+        '    document.body.appendChild(btn);',
+        '    return btn;',
+        '  }',
+        '',
+        '  function showPanel(panel, btn) {',
+        '    panel.hidden = false;',
+        '    panel.removeAttribute("hidden");',
+        '    panel.style.setProperty("display", "block", "important");',
+        '    panel.style.setProperty("visibility", "visible", "important");',
+        '    panel.style.setProperty("opacity", "1", "important");',
+        '    panel.style.setProperty("pointer-events", "auto", "important");',
+        '    panel.style.setProperty("z-index", "5000", "important");',
+        '    document.body.classList.add("is-fx-open");',
+        '    if (btn) btn.setAttribute("aria-expanded", "true");',
+        '    try { window.PionierCore && window.PionierCore.ensureAudio && window.PionierCore.ensureAudio(); } catch (e) {}',
+        '    try { window.PionierCore && window.PionierCore.paintFxKnobs && window.PionierCore.paintFxKnobs(); } catch (e) {}',
+        '  }',
+        '',
+        '  function hidePanel(panel, btn) {',
+        '    panel.hidden = true;',
+        '    panel.setAttribute("hidden", "");',
+        '    panel.style.removeProperty("display");',
+        '    document.body.classList.remove("is-fx-open");',
+        '    if (btn) btn.setAttribute("aria-expanded", "false");',
+        '  }',
+        '',
+        '  function toggle() {',
+        '    var panel = document.getElementById("fxPanel");',
+        '    var btn = document.getElementById("fxPanelOpen");',
+        '    if (!panel) { console.warn("[pionier] #fxPanel missing"); return; }',
+        '    var open = !panel.hidden && !panel.hasAttribute("hidden") && getComputedStyle(panel).display !== "none";',
+        '    if (open) hidePanel(panel, btn); else showPanel(panel, btn);',
+        '  }',
+        '',
+        '  document.addEventListener("click", function (e) {',
+        '    var t = e.target;',
+        '    if (!t || !t.closest) return;',
+        '    var btn = t.closest("#fxPanelOpen, button.fx-panel-open");',
+        '    if (!btn) return;',
+        '    e.preventDefault();',
+        '    e.stopPropagation();',
+        '    e.stopImmediatePropagation();',
+        '    toggle();',
+        '  }, true);',
+        '',
+        '  document.addEventListener("click", function (e) {',
+        '    var t = e.target;',
+        '    if (!t || !t.closest) return;',
+        '    var close = t.closest("#fxPanelClose");',
+        '    if (!close) return;',
+        '    var panel = document.getElementById("fxPanel");',
+        '    var btn = document.getElementById("fxPanelOpen");',
+        '    if (panel) hidePanel(panel, btn);',
+        '  }, true);',
+        '',
+        '  function bootFx() {',
+        '    ensureBtn();',
+        '    var panel = document.getElementById("fxPanel");',
+        '    if (panel && !panel.querySelector("#fxPanelClose")) {',
+        '      var hdr = panel.querySelector(".fx-panel-header") || panel;',
+        '      var c = document.createElement("button");',
+        '      c.type = "button";',
+        '      c.id = "fxPanelClose";',
+        '      c.className = "icon-btn";',
+        '      c.setAttribute("aria-label", "Close effects");',
+        '      c.textContent = "×";',
+        '      hdr.appendChild(c);',
+        '    }',
+        '  }',
+        '',
+        '  if (document.readyState === "loading") {',
+        '    document.addEventListener("DOMContentLoaded", bootFx);',
+        '  } else {',
+        '    bootFx();',
+        '  }',
+        '  setTimeout(bootFx, 300);',
+        '  setTimeout(bootFx, 1000);',
+        '  setTimeout(bootFx, 2500);',
+        '})();',
+        '<\/script>'
+      ].join('\n');
+
+      if (html.indexOf('__pionierFxFix') === -1) {
+        if (html.indexOf('</body>') !== -1) {
+          html = html.replace('</body>', fxFix + '\n</body>');
+        } else {
+          html += fxFix;
+        }
+      }
+
       document.open();
       document.write(html);
       document.close();
-
-      // FX open button is created async by layout-boot AFTER overlay-controller
-      // wires listeners. Re-attach so FX actually opens.
-      function ensureFxWired() {
-        var btn = document.getElementById('fxPanelOpen');
-        if (!btn) {
-          btn = document.createElement('button');
-          btn.type = 'button';
-          btn.id = 'fxPanelOpen';
-          btn.className = 'fx-panel-open';
-          btn.setAttribute('aria-label', 'Effects');
-          btn.setAttribute('aria-expanded', 'false');
-          btn.setAttribute('aria-controls', 'fxPanel');
-          btn.textContent = 'FX';
-          document.body.appendChild(btn);
-          btn.style.display = 'flex';
-          btn.style.alignItems = 'center';
-          btn.style.justifyContent = 'center';
-          btn.style.position = 'fixed';
-          btn.style.zIndex = '4400';
-          btn.style.left = '50%';
-          btn.style.top = 'max(10px, env(safe-area-inset-top, 0px))';
-          btn.style.transform = 'translateX(-50%)';
-        }
-        if (btn.dataset.fxWired === '1') return true;
-        btn.dataset.fxWired = '1';
-        btn.addEventListener('click', function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          if (window.PionierOverlay && typeof window.PionierOverlay.toggleFx === 'function') {
-            window.PionierOverlay.toggleFx();
-          } else {
-            var panel = document.getElementById('fxPanel');
-            if (!panel) return;
-            var open = panel.hidden || panel.hasAttribute('hidden');
-            if (open) {
-              panel.hidden = false;
-              panel.removeAttribute('hidden');
-              panel.style.removeProperty('display');
-              document.body.classList.add('is-fx-open');
-              btn.setAttribute('aria-expanded', 'true');
-              try { window.PionierCore && window.PionierCore.paintFxKnobs && window.PionierCore.paintFxKnobs(); } catch (_) {}
-            } else {
-              panel.hidden = true;
-              panel.setAttribute('hidden', '');
-              document.body.classList.remove('is-fx-open');
-              btn.setAttribute('aria-expanded', 'false');
-            }
-          }
-        });
-        // Advanced curve editor shortcuts (s buttons on knobs)
-        if (!document.documentElement.dataset.fxEditorDelegated) {
-          document.documentElement.dataset.fxEditorDelegated = '1';
-          document.addEventListener('click', function (ev) {
-            var t = ev.target && ev.target.closest && ev.target.closest('[data-fx-editor-open]');
-            if (!t) return;
-            var kind = t.getAttribute('data-fx-editor-open');
-            if (!kind) return;
-            try {
-              window.dispatchEvent(new CustomEvent('pionier:fx-editor-open', { detail: { effect: kind } }));
-            } catch (_) {}
-            // settings-panel lazy-loads fx-editor on this event / closest match
-          }, true);
-        }
-        return true;
-      }
-      var tries = 0;
-      (function tick() {
-        tries += 1;
-        ensureFxWired();
-        if (tries < 20) setTimeout(tick, 200);
-      })();
     } catch (e) {
       boot.textContent = 'Failed to load Pionier: ' + e;
       console.error(e);
