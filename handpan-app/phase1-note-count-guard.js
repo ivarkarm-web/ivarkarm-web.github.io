@@ -1,7 +1,7 @@
-/** Phase 1 guard: note count is scale-driven only; block mutators + randomize pad count. */
+/** Phase 1 guard: note count is scale-driven only; block mutators + randomize pad growth. */
 (function () {
-  if (window.__pionierPhase1NoteGuard) return;
-  window.__pionierPhase1NoteGuard = true;
+  if (window.__pionierPhase1NoteGuardV2) return;
+  window.__pionierPhase1NoteGuardV2 = true;
 
   function hardenCore() {
     var c = window.PionierCore;
@@ -45,8 +45,8 @@
     if (!btn || btn.dataset.phase1Random === '1') return;
     btn.dataset.phase1Random = '1';
 
-    // Capture-phase handler: run our randomize and stop the old one that setNoteCount(8-13).
     btn.addEventListener('click', function (e) {
+      // Stop the legacy handler that called setNoteCount(8..13)
       e.preventDefault();
       e.stopImmediatePropagation();
       if (btn.dataset.rolling === '1') return;
@@ -55,19 +55,22 @@
 
       (async function () {
         try {
-          try { window.PionierCore && window.PionierCore.ensureAudio && window.PionierCore.ensureAudio(); } catch (_) {}
+          try {
+            if (window.PionierCore && window.PionierCore.ensureAudio) window.PionierCore.ensureAudio();
+          } catch (_) {}
           var c = window.PionierCore;
           var handpan = c && c.handpan;
           var scales = window.HANDPAN_SCALES || [];
           if (handpan && scales.length > 1) {
             var currentCount = scaleNoteCount(scales[handpan.scaleIndex]) || handpan.noteCount || 0;
-            // Prefer scales with the same pad count so randomize does not grow/shrink pads.
             var same = [];
             for (var i = 0; i < scales.length; i++) {
               if (i === handpan.scaleIndex) continue;
               if (scaleNoteCount(scales[i]) === currentCount) same.push(i);
             }
-            var pool = same.length ? same : scales.map(function (_, i) { return i; }).filter(function (i) { return i !== handpan.scaleIndex; });
+            var pool = same.length
+              ? same
+              : scales.map(function (_, idx) { return idx; }).filter(function (idx) { return idx !== handpan.scaleIndex; });
             if (!pool.length) pool = [handpan.scaleIndex];
             var next = pool[Math.floor(Math.random() * pool.length)];
             handpan.setScaleIndex(next);
@@ -77,7 +80,7 @@
             var scale = scales[next];
             if (label && scale) label.textContent = (scale.short || scale.label || 'Scale') + ' \u25BE';
           }
-          // Intentionally do NOT call setNoteCount / addNote.
+          // Never call setNoteCount / addNote.
         } catch (err) {
           console.warn('[phase1-randomize]', err);
         } finally {
@@ -96,7 +99,5 @@
 
   tick();
   setInterval(tick, 800);
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', tick);
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tick);
 })();
