@@ -41,7 +41,7 @@ test('core exposes addNote/removeNote and clamps note count 8–13', () => {
   assert.match(core, /noteCountLabel/);
 });
 
-test('overlay controller owns pickers and layout boot positions the looper rail', () => {
+test('overlay controller owns pickers and control layout positions the looper toolbar', () => {
   const overlay = read('handpan-app/js/overlay-controller.js');
   const boot = read('handpan-app/js/layout-boot.js');
   assert.match(overlay, /closePickers/);
@@ -50,8 +50,10 @@ test('overlay controller owns pickers and layout boot positions the looper rail'
   assert.match(overlay, /togglePicker\('scaleMenu'\)/);
   assert.match(boot, /--pan-bottom-gap/);
   assert.match(boot, /looperRail/);
-  assert.match(boot, /looperRail\.insertBefore\(looperClear, looperRail\.firstChild\)/);
   assert.doesNotMatch(boot, /positionPickerMenus/);
+  const controlLayout = read('handpan-app/pionier-control-layout.js');
+  assert.match(controlLayout, /appendIfNeeded\(toolbar, loopControls\)/);
+  assert.match(controlLayout, /appendIfNeeded\(toolbar, actionGroup\)/);
 });
 
 test('looper.css owns relative rail and 52px record; no fixed top:25%', () => {
