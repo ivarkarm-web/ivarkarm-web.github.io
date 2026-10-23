@@ -151,8 +151,10 @@
       'stageBaseOnly', 'stageNotesSlot', 'notePlusWrap',
       'looperNotesMenuBtn', 'looperNotesMenu'
     ].forEach(function (id) { nuke(document.getElementById(id)); });
+    /* Hide only obsolete base-note/note-count widgets. Never hide a parent row:
+       the scale picker can share a row with these legacy controls. */
     document.querySelectorAll(
-      '#stageScaleBar .stage-base-only, #stageScaleBar .stage-notes-slot, #stageScaleBar .stage-root-row, #stageScaleBar .control-half, #stageScaleBar .control-row'
+      '#stageScaleBar .stage-base-only, #stageScaleBar .stage-notes-slot, #stageScaleBar .stage-root-row, #stageScaleBar .control-half'
     ).forEach(nuke);
     /* Randomizer belongs beside the instrument selector; never steal it into the looper rail. */
   }
