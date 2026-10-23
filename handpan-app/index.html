@@ -21,31 +21,39 @@
       if (!res.ok) throw new Error('HTTP ' + res.status);
       var html = await res.text();
 
-      html = html.replace('href="./fx-editor.css?v=4"', 'href="./fx-editor.css?v=5"');
+      html = html.replace('href=\"./fx-editor.css?v=4\"', 'href=\"./fx-editor.css?v=5\"');
       if (html.indexOf('theme-light-overlays.css') === -1) {
         html = html.replace(
-          '<link rel="stylesheet" href="./fx-editor.css?v=5" />',
-          '<link rel="stylesheet" href="./fx-editor.css?v=5" />\n  <link rel="stylesheet" href="./theme-light-overlays.css?v=1" />'
+          '<link rel=\"stylesheet\" href=\"./fx-editor.css?v=5\" />',
+          '<link rel=\"stylesheet\" href=\"./fx-editor.css?v=5\" />\n  <link rel=\"stylesheet\" href=\"./theme-light-overlays.css?v=1\" />'
         );
       }
       if (html.indexOf('looper-layout-fix.css') === -1) {
-        var looperLink = '<link rel="stylesheet" href="./looper-layout-fix.css?v=5" />';
-        if (/looper\.css\?v=/.test(html)) {
-          html = html.replace(/<link rel="stylesheet" href="\.\/looper\.css\?v=[^"]+" \/>/, function (m) { return m + '\n  ' + looperLink; });
+        var looperLink = '<link rel=\"stylesheet\" href=\"./looper-layout-fix.css?v=5\" />';
+        if (/looper\\.css\\?v=/.test(html)) {
+          html = html.replace(/<link rel=\"stylesheet\" href=\"\\.\\/looper\\.css\\?v=[^\"]+\" \\/>/, function (m) { return m + '\n  ' + looperLink; });
         } else {
           html = html.replace('</head>', '  ' + looperLink + '\n</head>');
         }
       } else {
-        html = html.replace(/looper-layout-fix\.css\?v=\d+/, 'looper-layout-fix.css?v=5');
+        html = html.replace(/looper-layout-fix\\.css\\?v=\\d+/, 'looper-layout-fix.css?v=5');
       }
 
       if (html.indexOf('looper-side-menus.js') === -1) {
         html = html.replace(
           '</body>',
-          '  <script src="./looper-side-menus.js?v=2"><\/script>\n</body>'
+          '  <script src=\"./looper-side-menus.js?v=2\"><\\/script>\n</body>'
         );
       } else {
-        html = html.replace(/looper-side-menus\.js\?v=\d+/, 'looper-side-menus.js?v=2');
+        html = html.replace(/looper-side-menus\\.js\\?v=\\d+/, 'looper-side-menus.js?v=2');
+      }
+      if (html.indexOf('looper-restart-on-record.js') === -1) {
+        html = html.replace(
+          '</body>',
+          '  <script src=\"./looper-restart-on-record.js?v=1\"><\\/script>\n</body>'
+        );
+      } else {
+        html = html.replace(/looper-restart-on-record\\.js\\?v=\\d+/, 'looper-restart-on-record.js?v=1');
       }
 
       var fxFix = [
@@ -54,57 +62,57 @@
         '  if (window.__pionierFxFix) return;',
         '  window.__pionierFxFix = true;',
         '  function ensureBtn() {',
-        '    var btn = document.getElementById("fxPanelOpen");',
+        '    var btn = document.getElementById(\"fxPanelOpen\");',
         '    if (btn) return btn;',
-        '    btn = document.createElement("button");',
-        '    btn.type = "button"; btn.id = "fxPanelOpen"; btn.className = "fx-panel-open";',
-        '    btn.setAttribute("aria-label", "Effects"); btn.setAttribute("aria-expanded", "false");',
-        '    btn.setAttribute("aria-controls", "fxPanel"); btn.textContent = "FX";',
+        '    btn = document.createElement(\"button\");',
+        '    btn.type = \"button\"; btn.id = \"fxPanelOpen\"; btn.className = \"fx-panel-open\";',
+        '    btn.setAttribute(\"aria-label\", \"Effects\"); btn.setAttribute(\"aria-expanded\", \"false\");',
+        '    btn.setAttribute(\"aria-controls\", \"fxPanel\"); btn.textContent = \"FX\";',
         '    document.body.appendChild(btn); return btn;',
         '  }',
         '  function showPanel(panel, btn) {',
-        '    panel.hidden = false; panel.removeAttribute("hidden");',
-        '    panel.style.setProperty("display", "block", "important");',
-        '    panel.style.setProperty("visibility", "visible", "important");',
-        '    panel.style.setProperty("opacity", "1", "important");',
-        '    panel.style.setProperty("pointer-events", "auto", "important");',
-        '    panel.style.setProperty("z-index", "5000", "important");',
-        '    document.body.classList.add("is-fx-open");',
-        '    if (btn) btn.setAttribute("aria-expanded", "true");',
+        '    panel.hidden = false; panel.removeAttribute(\"hidden\");',
+        '    panel.style.setProperty(\"display\", \"block\", \"important\");',
+        '    panel.style.setProperty(\"visibility\", \"visible\", \"important\");',
+        '    panel.style.setProperty(\"opacity\", \"1\", \"important\");',
+        '    panel.style.setProperty(\"pointer-events\", \"auto\", \"important\");',
+        '    panel.style.setProperty(\"z-index\", \"5000\", \"important\");',
+        '    document.body.classList.add(\"is-fx-open\");',
+        '    if (btn) btn.setAttribute(\"aria-expanded\", \"true\");',
         '    try { window.PionierCore && window.PionierCore.paintFxKnobs && window.PionierCore.paintFxKnobs(); } catch (e) {}',
         '  }',
         '  function hidePanel(panel, btn) {',
-        '    panel.hidden = true; panel.setAttribute("hidden", "");',
-        '    panel.style.removeProperty("display");',
-        '    document.body.classList.remove("is-fx-open");',
-        '    if (btn) btn.setAttribute("aria-expanded", "false");',
+        '    panel.hidden = true; panel.setAttribute(\"hidden\", \"\");',
+        '    panel.style.removeProperty(\"display\");',
+        '    document.body.classList.remove(\"is-fx-open\");',
+        '    if (btn) btn.setAttribute(\"aria-expanded\", \"false\");',
         '  }',
         '  function toggle() {',
-        '    var panel = document.getElementById("fxPanel");',
-        '    var btn = document.getElementById("fxPanelOpen");',
+        '    var panel = document.getElementById(\"fxPanel\");',
+        '    var btn = document.getElementById(\"fxPanelOpen\");',
         '    if (!panel) return;',
-        '    var open = !panel.hidden && !panel.hasAttribute("hidden") && getComputedStyle(panel).display !== "none";',
+        '    var open = !panel.hidden && !panel.hasAttribute(\"hidden\") && getComputedStyle(panel).display !== \"none\";',
         '    if (open) hidePanel(panel, btn); else showPanel(panel, btn);',
         '  }',
-        '  document.addEventListener("click", function (e) {',
+        '  document.addEventListener(\"click\", function (e) {',
         '    var t = e.target; if (!t || !t.closest) return;',
-        '    var btn = t.closest("#fxPanelOpen, button.fx-panel-open");',
+        '    var btn = t.closest(\"#fxPanelOpen, button.fx-panel-open\");',
         '    if (!btn) return;',
         '    e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); toggle();',
         '  }, true);',
-        '  document.addEventListener("click", function (e) {',
+        '  document.addEventListener(\"click\", function (e) {',
         '    var t = e.target; if (!t || !t.closest) return;',
-        '    if (!t.closest("#fxPanelClose")) return;',
-        '    var panel = document.getElementById("fxPanel");',
-        '    var btn = document.getElementById("fxPanelOpen");',
+        '    if (!t.closest(\"#fxPanelClose\")) return;',
+        '    var panel = document.getElementById(\"fxPanel\");',
+        '    var btn = document.getElementById(\"fxPanelOpen\");',
         '    if (panel) hidePanel(panel, btn);',
         '  }, true);',
         '  function bootFx() { ensureBtn(); }',
-        '  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bootFx); else bootFx();',
+        '  if (document.readyState === \"loading\") document.addEventListener(\"DOMContentLoaded\", bootFx); else bootFx();',
         '  setTimeout(bootFx, 300); setTimeout(bootFx, 1000); setTimeout(bootFx, 2500);',
         '})();',
-        '<\/script>'
-      ].join('\n');
+        '<\\/script>'
+      ].join('\\n');
 
       var looperFix = [
         '<script>',
@@ -112,71 +120,71 @@
         '  if (window.__pionierLooperLayoutFixV4) return;',
         '  window.__pionierLooperLayoutFixV4 = true;',
         '  function raisePan() {',
-        '    var pan = document.getElementById("pan");',
+        '    var pan = document.getElementById(\"pan\");',
         '    if (!pan) return;',
-        '    pan.style.setProperty("transform", "translateY(-10%)", "important");',
+        '    pan.style.setProperty(\"transform\", \"translateY(-10%)\", \"important\");',
         '  }',
         '  function applyTracks() {',
-        '    var rail = document.getElementById("looperRail");',
-        '    var layers = document.getElementById("looperLayers");',
+        '    var rail = document.getElementById(\"looperRail\");',
+        '    var layers = document.getElementById(\"looperLayers\");',
         '    if (!rail || !layers) return;',
-        '    var count = layers.querySelectorAll(".looper-circle").length;',
-        '    rail.classList.toggle("has-loop-tracks", count > 0);',
-        '    rail.classList.toggle("has-loop-tracks-4", count >= 4);',
-        '    rail.style.setProperty("position", "relative", "important");',
-        '    rail.style.setProperty("overflow", "visible", "important");',
-        '    if (count > 0) rail.style.setProperty("margin-top", "40px", "important");',
-        '    else rail.style.removeProperty("margin-top");',
+        '    var count = layers.querySelectorAll(\".looper-circle\").length;',
+        '    rail.classList.toggle(\"has-loop-tracks\", count > 0);',
+        '    rail.classList.toggle(\"has-loop-tracks-4\", count >= 4);',
+        '    rail.style.setProperty(\"position\", \"relative\", \"important\");',
+        '    rail.style.setProperty(\"overflow\", \"visible\", \"important\");',
+        '    if (count > 0) rail.style.setProperty(\"margin-top\", \"40px\", \"important\");',
+        '    else rail.style.removeProperty(\"margin-top\");',
         '    var ls = layers.style;',
-        '    ls.setProperty("position", "absolute", "important");',
-        '    ls.setProperty("left", "0", "important");',
-        '    ls.setProperty("right", "0", "important");',
-        '    ls.setProperty("bottom", "calc(100% + 6px)", "important");',
-        '    ls.setProperty("top", "auto", "important");',
-        '    ls.setProperty("width", "100%", "important");',
-        '    ls.setProperty("max-width", "100%", "important");',
-        '    ls.setProperty("display", "flex", "important");',
-        '    ls.setProperty("flex-flow", "row nowrap", "important");',
-        '    ls.setProperty("justify-content", "center", "important");',
-        '    ls.setProperty("align-items", "center", "important");',
-        '    ls.setProperty("gap", "8px", "important");',
-        '    ls.setProperty("z-index", "6", "important");',
-        '    ls.setProperty("pointer-events", "auto", "important");',
-        '    ls.setProperty("transform", "none", "important");',
-        '    ls.setProperty("grid-column", "auto", "important");',
-        '    ls.setProperty("grid-row", "auto", "important");',
-        '    var size = count >= 4 ? "28px" : "32px";',
-        '    layers.querySelectorAll(".looper-circle").forEach(function (c) {',
-        '      ["position","left","right","top","bottom","transform"].forEach(function (p) {',
-        '        c.style.setProperty(p, p === "position" ? "relative" : (p === "transform" ? "none" : "auto"), "important");',
+        '    ls.setProperty(\"position\", \"absolute\", \"important\");',
+        '    ls.setProperty(\"left\", \"0\", \"important\");',
+        '    ls.setProperty(\"right\", \"0\", \"important\");',
+        '    ls.setProperty(\"bottom\", \"calc(100% + 6px)\", \"important\");',
+        '    ls.setProperty(\"top\", \"auto\", \"important\");',
+        '    ls.setProperty(\"width\", \"100%\", \"important\");',
+        '    ls.setProperty(\"max-width\", \"100%\", \"important\");',
+        '    ls.setProperty(\"display\", \"flex\", \"important\");',
+        '    ls.setProperty(\"flex-flow\", \"row nowrap\", \"important\");',
+        '    ls.setProperty(\"justify-content\", \"center\", \"important\");',
+        '    ls.setProperty(\"align-items\", \"center\", \"important\");',
+        '    ls.setProperty(\"gap\", \"8px\", \"important\");',
+        '    ls.setProperty(\"z-index\", \"6\", \"important\");',
+        '    ls.setProperty(\"pointer-events\", \"auto\", \"important\");',
+        '    ls.setProperty(\"transform\", \"none\", \"important\");',
+        '    ls.setProperty(\"grid-column\", \"auto\", \"important\");',
+        '    ls.setProperty(\"grid-row\", \"auto\", \"important\");',
+        '    var size = count >= 4 ? \"28px\" : \"32px\";',
+        '    layers.querySelectorAll(\".looper-circle\").forEach(function (c) {',
+        '      [\"position\",\"left\",\"right\",\"top\",\"bottom\",\"transform\"].forEach(function (p) {',
+        '        c.style.setProperty(p, p === \"position\" ? \"relative\" : (p === \"transform\" ? \"none\" : \"auto\"), \"important\");',
         '      });',
-        '      ["width","height","min-width","min-height","max-width","max-height"].forEach(function (p) {',
-        '        c.style.setProperty(p, size, "important");',
+        '      [\"width\",\"height\",\"min-width\",\"min-height\",\"max-width\",\"max-height\"].forEach(function (p) {',
+        '        c.style.setProperty(p, size, \"important\");',
         '      });',
-        '      c.style.setProperty("flex", "0 0 auto", "important");',
+        '      c.style.setProperty(\"flex\", \"0 0 auto\", \"important\");',
         '    });',
         '  }',
         '  function apply() { applyTracks(); raisePan(); }',
         '  function start() {',
         '    apply();',
-        '    var layers = document.getElementById("looperLayers");',
+        '    var layers = document.getElementById(\"looperLayers\");',
         '    if (layers && !layers.__pionierObserved) {',
         '      layers.__pionierObserved = true;',
         '      try { new MutationObserver(function () { apply(); }).observe(layers, { childList: true, subtree: true }); } catch (e) {}',
         '    }',
         '  }',
-        '  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();',
+        '  if (document.readyState === \"loading\") document.addEventListener(\"DOMContentLoaded\", start); else start();',
         '  setTimeout(apply, 200); setTimeout(apply, 600); setTimeout(apply, 1500);',
         '  setInterval(apply, 900);',
         '})();',
-        '<\/script>'
-      ].join('\n');
+        '<\\/script>'
+      ].join('\\n');
 
       if (html.indexOf('__pionierFxFix') === -1) {
-        html = html.indexOf('</body>') !== -1 ? html.replace('</body>', fxFix + '\n</body>') : html + fxFix;
+        html = html.indexOf('</body>') !== -1 ? html.replace('</body>', fxFix + '\\n</body>') : html + fxFix;
       }
       if (html.indexOf('__pionierLooperLayoutFixV4') === -1) {
-        html = html.indexOf('</body>') !== -1 ? html.replace('</body>', looperFix + '\n</body>') : html + looperFix;
+        html = html.indexOf('</body>') !== -1 ? html.replace('</body>', looperFix + '\\n</body>') : html + looperFix;
       }
 
       document.open();
