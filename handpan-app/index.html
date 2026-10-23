@@ -38,8 +38,10 @@
       if (html.indexOf('theme-light-overlays.css') === -1) {
         html = html.replace(
           '<link rel="stylesheet" href="./fx-editor.css?v=5" />',
-          '<link rel="stylesheet" href="./fx-editor.css?v=5" />\n  <link rel="stylesheet" href="./theme-light-overlays.css?v=1" />'
+          '<link rel="stylesheet" href="./fx-editor.css?v=5" />\n  <link rel="stylesheet" href="./theme-light-overlays.css?v=2" />'
         );
+      } else {
+        html = html.replace(/theme-light-overlays\.css\?v=\d+/, 'theme-light-overlays.css?v=2');
       }
       if (html.indexOf('looper-layout-fix.css') === -1) {
         var looperLink = '<link rel="stylesheet" href="./looper-layout-fix.css?v=5" />';
