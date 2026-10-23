@@ -51,16 +51,13 @@ export function createSurface(canvas) {
   function layoutHandpanFields(handpanNotes,isFieldPlayable){
     const list=handpanNotes||[];const wasArmed=armed;armed=false;
     const previous=wasArmed&&fields.length?animatedView(performance.now()).map(f=>({...f})):null;
-    const stock=list.slice(0,MIN_NOTES||9);
-    const midis=stock.map(n=>n.midi).filter(m=>m!=null);
-    const midiMin=midis.length?Math.min(...midis):48,midiMax=midis.length?Math.max(...midis):72;
-    const midiSpan=Math.max(1,midiMax-midiMin),ringCount=Math.max(1,list.length-1);
+    const ringCount=Math.max(1,list.length-1);
     let angles,padScale;
     try{angles=ringAngles(ringCount);padScale=ringPadScale(ringCount)}
     catch(_){angles=Array.from({length:ringCount},(_,i)=>(i/ringCount)*360);padScale=1}
-    const reference=list.find(n=>Number(n.index)===2)||list.find(n=>n.kind!=='ding')||list[0];
-    const referenceLow=reference&&reference.midi!=null?Math.max(0,Math.min(1,(midiMax-reference.midi)/midiSpan)):0.5;
-    const size=(1.12+referenceLow*0.36)*1.16;
+    // Fixed geometry: pad size/shape must not change with scale pitch range.
+    // Only ringCount (from scale intervals) may affect spacing via padScale.
+    const size=1.30;
     const padRx=R*0.205*size*padScale,padRy=R*0.145*size*padScale;
     const dingR=R*0.195*size;
     fields=list.map((n,pos)=>{
