@@ -13,7 +13,6 @@
     ambient: 'none',
     transparency: 1,
     touchFeedback: false,
-    rippleStyle: 'ambient',
     led: { r: 110, g: 200, b: 255, strength: 0.35 },
   };
 
@@ -70,12 +69,11 @@
       tonefield: 'classic',
       lightMode: resolveLightMode(state),
       touchFeedback: state.touchFeedback === true,
-      rippleStyle: state.rippleStyle || 'ambient',
       led: { ...led },
     };
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', light ? '#e8e6e1' : '#070708');
-    window.dispatchEvent(new CustomEvent('pionier:settings', { detail: { ...state, led: { ...led } } }));
+    window.dispatchEvent(new CustomEvent('pionier:settings', { detail: { ...state, led: { ...led } }));
   }
 
   function isLightTheme() {
@@ -241,24 +239,6 @@
       '</div>';
     body.appendChild(app);
 
-    const rippleStyleSec = document.createElement('section');
-    rippleStyleSec.className = 'settings-section';
-    rippleStyleSec.innerHTML = '<div class="settings-section-label">Touch ripple style</div>';
-    body.appendChild(rippleStyleSec);
-    buildDropdown(rippleStyleSec, {
-      id: 'settingRippleStyle',
-      label: 'Ripple',
-      items: [
-        { id: 'ambient', label: 'Ambient Rings' },
-        { id: 'halo', label: 'Soft Halo' },
-        { id: 'double-wave', label: 'Double Wave' },
-        { id: 'liquid', label: 'Liquid' },
-        { id: 'pulse', label: 'Pulse Bloom' },
-      ],
-      activeId: state.rippleStyle || 'ambient',
-      onPick: (id) => { state.rippleStyle = id; save(state); apply(state); },
-    });
-
     const trSec = document.createElement('section');
     trSec.className = 'settings-section';
     trSec.innerHTML =
@@ -296,11 +276,22 @@
     }
     const tr = document.getElementById('settingTransparency');
     const trVal = document.getElementById('settingTransparencyVal');
+    function syncRangeFill(el) {
+      if (!el) return;
+      const min = Number(el.min) || 0;
+      const max = Number(el.max) || 100;
+      const val = Number(el.value);
+      const pct = max === min ? 0 : ((val - min) / (max - min)) * 100;
+      el.style.setProperty('--range-fill', pct + '%');
+    }
     if (tr) {
+      syncRangeFill(tr);
       tr.addEventListener('input', () => {
         state.transparency = Number(tr.value) / 100;
         if (trVal) trVal.textContent = tr.value + '%';
+        syncRangeFill(tr);
         save(state); apply(state);
+        try { window.PionierCore?.draw?.(); } catch (_) {}
       });
     }
   }
