@@ -1,4 +1,6 @@
 /* Pionier requested control layout: fixed-size selectors and reachable looper shortcuts. */
+.topbar { flex-direction:column !important; align-items:center !important; gap:0 !important; padding-top:max(6px,env(safe-area-inset-top,0px)) !important; padding-bottom:4px !important; }
+.topbar > .center-nav { display:none !important; }
 #pionierControlNav {
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:7px; width:100%; max-width:100%; min-width:0; padding:0 8px 8px;
@@ -135,9 +137,9 @@
   #pionierScaleNav .scale-stepper .step { flex-basis:26px; width:26px; height:32px; min-height:32px; }
   #pionierScaleNav #scaleLabel { max-width:clamp(70px,23vw,120px); font-size:11px; padding:0 5px; }
   #pionierScaleNav #looperRootMenuBtn { flex-basis:44px !important; width:44px !important; min-width:44px !important; max-width:44px !important; height:44px !important; min-height:44px !important; max-height:44px !important; }
-  #looperRail { padding-right:0 !important; padding-bottom:44px !important; }
-  #pionierLooperShortcuts { right:50% !important; top:auto !important; bottom:2px !important; transform:translateX(50%) !important; max-width:none; gap:10px; }
-  #pionierLooperShortcuts > button { flex-basis:34px !important; width:34px !important; min-width:34px !important; max-width:34px !important; height:34px !important; min-height:34px !important; max-height:34px !important; }
+  #looperRail { padding-right:112px !important; padding-bottom:0 !important; }
+  #pionierLooperShortcuts { right:max(5px,env(safe-area-inset-right,0px)) !important; top:50% !important; bottom:auto !important; transform:translateY(-50%) !important; max-width:108px; gap:3px; }
+  #pionierLooperShortcuts > button { flex-basis:32px !important; width:32px !important; min-width:32px !important; max-width:32px !important; height:32px !important; min-height:32px !important; max-height:32px !important; }
 }
 @media (prefers-reduced-motion:reduce) {
   #pionierControlNav *, #pionierLooperShortcuts * { animation:none !important; transition:none !important; }
