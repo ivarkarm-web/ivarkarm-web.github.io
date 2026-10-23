@@ -1,717 +1,212 @@
-/* Recovery layout: keep the app's original instrument selector wrapper, show scale directly under it, and align shortcuts with the looper. */
-.topbar {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 4px !important;
-  padding-bottom: 4px !important;
-  overflow: visible !important;
+/* PIONIER responsive UI recovery — layout-only overrides.
+   Audio, samples, instrument rendering, and control handlers are untouched. */
+#app.pionier-layout-recovered { width:100%; min-width:0; overflow:visible; }
+#app > .topbar {
+  display:flex !important; flex-direction:column !important; align-items:stretch !important;
+  justify-content:flex-start !important; width:100% !important; height:auto !important;
+  min-height:0 !important; max-height:none !important; position:relative !important;
+  overflow:visible !important; box-sizing:border-box !important;
+  padding: max(6px, env(safe-area-inset-top, 0px)) 10px 4px !important; gap:6px !important;
 }
-.topbar > .center-nav {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  width: auto !important;
-  max-width: 100% !important;
-  justify-content: center !important;
-  overflow: visible !important;
+#app > .topbar > .center-nav { display:none !important; }
+#pionierSelectorRow {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  width:100%; max-width:760px; margin:0 auto; min-width:0; box-sizing:border-box;
 }
-#instrumentNav {
-  display: inline-flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  align-items: center !important;
-  flex-flow: row nowrap !important;
-  gap: 4px !important;
-  max-width: calc(100vw - 16px) !important;
+.pionier-selector-group {
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  flex:1 1 0; min-width:0; box-sizing:border-box;
 }
-#instrumentNav > #randomizeSetup {
-  display: inline-flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  position: static !important;
-  flex: 0 0 40px !important;
-  width: 40px !important; min-width: 40px !important; max-width: 40px !important;
-  height: 40px !important; min-height: 40px !important; max-height: 40px !important;
-  padding: 7px !important;
-  border-radius: 50% !important;
-  color: #e5c56d !important;
-  background: rgba(212,176,74,.09) !important;
-  border: 1px solid rgba(212,176,74,.28) !important;
-  box-sizing: border-box !important;
+.pionier-instrument-group { max-width:50%; }
+.pionier-scale-group { max-width:50%; }
+#pionierInstrumentGroup #voicePrev,
+#pionierInstrumentGroup #voiceNext {
+  display:inline-flex !important; flex:0 0 28px !important; width:28px !important;
+  min-width:28px !important; height:36px !important; min-height:36px !important;
+  align-items:center; justify-content:center; padding:0 !important;
 }
-#instrumentNav > #randomizeSetup .randomize-die { width: 24px; height: 24px; }
+#pionierInstrumentGroup #instrumentDropdownToggle {
+  flex:1 1 auto !important; width:100% !important; min-width:0 !important;
+  max-width:none !important; height:40px !important; min-height:40px !important;
+  overflow:hidden !important; text-overflow:ellipsis !important; white-space:nowrap !important;
+  padding:0 10px !important; box-sizing:border-box !important;
+  border-radius:999px !important; border:1px solid rgba(226,211,174,.18) !important;
+  background:rgba(255,255,255,.055) !important; box-shadow:none !important;
+  color:var(--text, #eeeae1) !important; font:600 12px/1.1 inherit !important;
+}
+#pionierInstrumentGroup #randomizeSetup {
+  display:inline-flex !important; position:static !important; flex:0 0 36px !important;
+  width:36px !important; min-width:36px !important; max-width:36px !important;
+  height:36px !important; min-height:36px !important; max-height:36px !important;
+  align-items:center; justify-content:center; padding:6px !important; margin:0 !important;
+  border-radius:50% !important; background:rgba(212,176,74,.08) !important;
+  border:1px solid rgba(212,176,74,.25) !important; box-shadow:none !important;
+}
+#pionierInstrumentGroup .randomize-die { width:21px; height:21px; }
+#pionierScaleGroup > .control-scale {
+  display:flex !important; flex:1 1 auto !important; width:auto !important;
+  min-width:0 !important; max-width:none !important; margin:0 !important; padding:0 !important;
+  align-items:center !important; justify-content:center !important; position:relative !important;
+}
+#pionierScaleGroup .control-label,
+#pionierScaleGroup .control-half > .control-label { display:none !important; }
+#pionierScaleGroup .scale-stepper {
+  display:flex !important; flex:1 1 auto !important; min-width:0 !important; width:100% !important;
+  height:40px !important; min-height:40px !important; padding:3px 4px !important; gap:2px !important;
+  align-items:center !important; box-sizing:border-box !important;
+  border:1px solid rgba(226,211,174,.18) !important; border-radius:999px !important;
+  background:rgba(255,255,255,.055) !important; box-shadow:none !important;
+}
+#pionierScaleGroup .scale-stepper .step {
+  display:inline-flex !important; flex:0 0 24px !important; width:24px !important;
+  min-width:24px !important; height:30px !important; min-height:30px !important;
+  padding:0 !important; align-items:center; justify-content:center;
+  border:0 !important; border-radius:50% !important; background:transparent !important;
+}
+#pionierScaleGroup #scaleLabel {
+  display:block !important; flex:1 1 auto !important; min-width:0 !important;
+  width:auto !important; max-width:none !important; height:32px !important;
+  padding:0 4px !important; overflow:hidden !important; text-overflow:ellipsis !important;
+  white-space:nowrap !important; text-align:center !important; border:0 !important;
+  border-radius:999px !important; background:transparent !important;
+  font-size:clamp(10px, 2.7vw, 12px) !important;
+}
+#pionierScaleGroup > .control-half {
+  display:flex !important; flex:0 0 auto !important; align-items:center !important;
+  justify-content:center !important; width:auto !important; min-width:0 !important;
+  margin:0 !important; padding:0 !important;
+}
+#pionierScaleGroup > .control-half .stepper {
+  display:flex !important; align-items:center !important; justify-content:center !important;
+  gap:2px !important; height:40px !important; min-height:40px !important;
+  width:auto !important; min-width:66px !important; padding:3px 5px !important;
+  box-sizing:border-box !important; border:1px solid rgba(226,211,174,.18) !important;
+  border-radius:999px !important; background:rgba(255,255,255,.055) !important;
+}
+#pionierScaleGroup #rootPrev, #pionierScaleGroup #rootNext {
+  display:inline-flex !important; flex:0 0 18px !important; width:18px !important;
+  min-width:18px !important; height:28px !important; min-height:28px !important;
+  padding:0 !important; border:0 !important; border-radius:50% !important;
+  background:transparent !important; align-items:center; justify-content:center;
+}
+#pionierScaleGroup #rootLabel {
+  display:inline-block !important; flex:1 1 auto !important; min-width:22px !important;
+  width:auto !important; padding:0 2px !important; text-align:center !important;
+  white-space:nowrap !important; font-size:11px !important;
+}
+#pionierScaleGroup #noteCountPrev, #pionierScaleGroup #noteCountNext,
+#pionierScaleGroup #noteCountLabel, #pionierScaleGroup #notePlus,
+#pionierScaleGroup #noteMinus, #pionierScaleGroup #notePlusWrap { display:none !important; }
 
-/* The scale control is moved out of the collapsible mobile drawer into a visible second top row. */
-.topbar > .control-scale {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  position: relative !important;
-  inset: auto !important;
-  transform: none !important;
-  width: auto !important;
-  max-width: calc(100vw - 24px) !important;
-  min-width: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  flex: 0 0 auto !important;
-  align-items: center !important;
-  justify-content: center !important;
+/* One toolbar row: loop controls left, actions right. The original rail is emptied by JS. */
+#looperRail { display:none !important; }
+#pionierLooperToolbar {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  width:100%; max-width:760px; min-width:0; margin:2px auto 0; padding:0 10px;
+  box-sizing:border-box; position:relative; z-index:20;
 }
-.topbar > .control-scale .control-label { display: none !important; }
-.topbar > .control-scale .scale-stepper {
-  display: flex !important;
-  align-items: center !important;
-  gap: 3px !important;
-  width: auto !important;
-  min-width: 0 !important;
-  height: 40px !important;
-  padding: 2px 5px !important;
-  border: 1px solid rgba(255,255,255,.1) !important;
-  border-radius: 999px !important;
-  background: rgba(18,18,20,.58) !important;
-  box-sizing: border-box !important;
+#pionierLooperControls, #pionierLooperActions {
+  display:flex; align-items:center; gap:6px; min-width:0; flex:0 1 auto;
 }
-.topbar > .control-scale .scale-stepper .step {
-  flex: 0 0 28px !important;
-  width: 28px !important;
-  height: 32px !important;
-  min-height: 32px !important;
-  padding: 0 !important;
-  border: 0 !important;
-  border-radius: 50% !important;
-  background: transparent !important;
+#pionierLooperControls { justify-content:flex-start; }
+#pionierLooperActions { justify-content:flex-end; margin-left:auto; }
+#pionierLooperControls > button, #pionierLooperActions > button {
+  position:static !important; inset:auto !important; transform:none !important;
+  display:inline-flex !important; visibility:visible !important; opacity:1 !important;
+  flex:0 0 36px !important; width:36px !important; min-width:36px !important;
+  max-width:36px !important; height:36px !important; min-height:36px !important;
+  max-height:36px !important; margin:0 !important; padding:0 !important;
+  align-items:center !important; justify-content:center !important; box-sizing:border-box !important;
+  border-radius:50% !important; box-shadow:none !important;
 }
-.topbar > .control-scale #scaleLabel {
-  display: block !important;
-  flex: 1 1 auto !important;
-  min-width: 70px !important;
-  width: auto !important;
-  max-width: min(44vw, 170px) !important;
-  height: 34px !important;
-  padding: 0 8px !important;
-  border: 1px solid transparent !important;
-  border-radius: 999px !important;
-  background: transparent !important;
-  text-align: center !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
+#pionierLooperControls #looperClearBtn {
+  border:1px solid rgba(235,229,215,.16) !important; background:rgba(255,255,255,.045) !important;
 }
-.topbar > .control-scale #scaleLabel[aria-expanded="true"] {
-  background: rgba(212,176,74,.08) !important;
-  border-color: rgba(212,176,74,.2) !important;
+#pionierLooperControls #looperRecordCluster {
+  display:flex !important; position:static !important; flex:0 0 auto !important;
+  width:auto !important; height:auto !important; margin:0 !important; padding:0 !important;
 }
+#pionierLooperControls #looperBtn { display:flex !important; position:relative !important; }
+#pionierLooperActions #openSoundscapes,
+#pionierLooperActions #fxPanelOpen,
+#pionierLooperActions #settingsOpenBtn {
+  border:1px solid rgba(235,229,215,.16) !important;
+  background:rgba(255,255,255,.045) !important; color:var(--text, #eeeae1) !important;
+}
+#pionierLooperActions #openSoundscapes { font-size:19px !important; }
+#pionierLooperActions #fxPanelOpen { font-size:11px !important; letter-spacing:.02em !important; }
+#pionierLooperActions #settingsOpenBtn { font-size:17px !important; }
 
-/* Utility controls occupy the right end of the looper's own horizontal row. */
-#looperRail.looper-rail {
-  position: relative !important;
-  overflow: visible !important;
-  padding-right: 126px !important;
-  box-sizing: border-box !important;
+/* Tracks have their own stable row and scroll horizontally instead of shifting the stage. */
+#pionierTrackRow {
+  display:flex; align-items:center; justify-content:flex-start; gap:6px;
+  width:100%; max-width:760px; min-width:0; min-height:0; margin:2px auto 0;
+  padding:0 10px 3px; box-sizing:border-box; overflow-x:auto; overflow-y:hidden;
+  overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch; scrollbar-width:thin;
 }
-#pionierLooperShortcuts {
-  position: absolute !important;
-  right: max(8px, env(safe-area-inset-right, 0px)) !important;
-  top: 50% !important;
-  bottom: auto !important;
-  transform: translateY(-50%) !important;
-  z-index: 40 !important;
-  display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 5px !important;
-  width: auto !important;
-  max-width: 120px !important;
-  padding: 0 !important;
-  margin: 0 !important;
+#pionierTrackRow #looperLayers {
+  display:flex !important; position:static !important; inset:auto !important; transform:none !important;
+  flex:0 0 auto !important; width:max-content !important; min-width:0 !important; max-width:none !important;
+  margin:0 !important; padding:0 !important; overflow:visible !important;
+  align-items:center !important; justify-content:flex-start !important; gap:6px !important;
 }
-#pionierLooperShortcuts > button {
-  position: static !important;
-  inset: auto !important;
-  transform: none !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex: 0 0 36px !important;
-  width: 36px !important; min-width: 36px !important; max-width: 36px !important;
-  height: 36px !important; min-height: 36px !important; max-height: 36px !important;
-  margin: 0 !important; padding: 0 !important;
-  border-radius: 50% !important;
-  box-sizing: border-box !important;
-  color: rgba(238,232,218,.9) !important;
-  background: rgba(255,255,255,.045) !important;
-  border: 1px solid rgba(235,229,215,.16) !important;
-  box-shadow: none !important;
-}
-#pionierLooperShortcuts #openSoundscapes { font-size: 20px !important; }
-#pionierLooperShortcuts #fxPanelOpen { font-size: 11px !important; letter-spacing: .02em !important; }
-#pionierLooperShortcuts #settingsOpenBtn { font-size: 18px !important; }
-@media (max-width: 520px) {
-  #instrumentNav { gap: 2px !important; }
-  #instrumentNav > #instrumentDropdownToggle {
-    max-width: min(32vw, 128px) !important;
-    overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important;
-  }
-  #instrumentNav > #randomizeSetup {
-    flex-basis: 36px !important; width: 36px !important; min-width: 36px !important; max-width: 36px !important;
-    height: 36px !important; min-height: 36px !important; max-height: 36px !important; padding: 6px !important;
-  }
-  .topbar > .control-scale .scale-stepper { height: 38px !important; }
-  .topbar > .control-scale .scale-stepper .step {
-    flex-basis: 26px !important; width: 26px !important; height: 30px !important; min-height: 30px !important;
-  }
-  .topbar > .control-scale #scaleLabel { max-width: min(42vw, 140px) !important; font-size: 11px !important; }
-  #looperRail.looper-rail { padding-right: 104px !important; }
-  #pionierLooperShortcuts { right: max(5px, env(safe-area-inset-right, 0px)) !important; gap: 3px !important; max-width: 100px !important; }
-  #pionierLooperShortcuts > button {
-    flex-basis: 30px !important; width: 30px !important; min-width: 30px !important; max-width: 30px !important;
-    height: 30px !important; min-height: 30px !important; max-height: 30px !important;
-  }
-}
-#scaleMenu.picker-popover:not([hidden]),
-#instrumentMenu.picker-popover:not([hidden]) {
-  z-index: 7200 !important;
-  box-sizing: border-box !important;
-  width: min(320px, calc(100vw - 24px)) !important;
-  max-width: calc(100vw - 24px) !important;
-  max-height: min(52dvh, 400px) !important;
-  overflow: hidden !important;
-  border-radius: 15px !important;
-  background: rgba(16,16,19,.94) !important;
-  border: 1px solid rgba(226,195,117,.24) !important;
-  box-shadow: 0 20px 60px rgba(0,0,0,.46), inset 0 1px 0 rgba(255,255,255,.035) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(125%) !important;
-  backdrop-filter: blur(24px) saturate(125%) !important;
+#pionierTrackRow #looperLayers > * { flex:0 0 auto; }
+
+/* Menus stay readable and above the instrument without changing their behavior. */
+#scaleMenu, #instrumentMenu {
+  z-index:7200 !important; box-sizing:border-box !important;
+  width:min(320px, calc(100vw - 24px)) !important; max-width:calc(100vw - 24px) !important;
+  max-height:min(52dvh, 400px) !important; overflow:hidden !important;
+  border-radius:16px !important; background:rgba(16,16,19,.96) !important;
+  border:1px solid rgba(226,195,117,.24) !important;
+  box-shadow:0 20px 60px rgba(0,0,0,.46), inset 0 1px 0 rgba(255,255,255,.035) !important;
+  -webkit-backdrop-filter:blur(24px) saturate(125%) !important; backdrop-filter:blur(24px) saturate(125%) !important;
 }
 #scaleMenu .picker-results, #instrumentMenu .picker-results {
-  min-height: 0 !important;
-  overflow-y: auto !important;
-  overscroll-behavior: contain !important;
-  -webkit-overflow-scrolling: touch !important;
+  min-height:0 !important; overflow-y:auto !important; overscroll-behavior:contain !important;
+  -webkit-overflow-scrolling:touch !important;
 }
-#noteCountPrev, #noteCountNext, #noteCountLabel, #notePlus, #noteMinus, #notePlusWrap {
-  display: none !important; visibility: hidden !important; pointer-events: none !important;
-}
+#scaleLabel[aria-expanded="true"] { background:rgba(212,176,74,.08) !important; }
+#stage { min-width:0; width:100%; }
+#pan { touch-action:manipulation; max-width:100%; }
 
-
-/* v5 hardening: counter older looper-layout rules that hid/moved controls. */
-#instrumentNav,
-.topbar > .center-nav,
-.topbar > .control-scale {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-#instrumentNav #randomizeSetup,
-#instrumentNav > #randomizeSetup {
-  display: inline-flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  position: static !important;
-}
-#looperRootMenuBtn {
-  display: inline-flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  position: static !important;
-  flex: 0 0 auto !important;
-  width: auto !important;
-  min-width: 50px !important;
-  max-width: 76px !important;
-  height: 34px !important;
-  min-height: 34px !important;
-  margin-left: 3px !important;
-  padding: 0 8px !important;
-  border-radius: 999px !important;
-  border: 1px solid rgba(212,176,74,.3) !important;
-  background: rgba(212,176,74,.09) !important;
-  color: #f3dfaa !important;
-  font: 600 11px/1 Inter,system-ui,sans-serif !important;
-}
-#looperRootMenuBtn .looper-dd-caret { display: none !important; }
-#topbar > .control-scale .scale-stepper { max-width: calc(100vw - 20px) !important; }
-#pionierLooperShortcuts {
-  top: 50% !important;
-  bottom: auto !important;
-  right: max(6px, env(safe-area-inset-right, 0px)) !important;
-  z-index: 999 !important;
-  pointer-events: auto !important;
-}
-#pionierLooperShortcuts > button {
-  position: static !important;
-  inset: auto !important;
-  transform: none !important;
-  display: inline-flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-}
-@media (max-width: 520px) {
-  #looperRail.looper-rail { padding-right: 108px !important; gap: 6px !important; }
-  #pionierLooperShortcuts { gap: 3px !important; max-width: 102px !important; }
-  #pionierLooperShortcuts > button {
-    flex-basis: 30px !important; width: 30px !important; min-width: 30px !important; max-width: 30px !important;
-    height: 30px !important; min-height: 30px !important; max-height: 30px !important;
+/* Narrow-phone compression keeps the four selector controls and toolbar on-screen. */
+@media (max-width:430px) {
+  #app > .topbar { padding-left:6px !important; padding-right:6px !important; gap:5px !important; }
+  #pionierSelectorRow { gap:5px; }
+  .pionier-selector-group { gap:3px; }
+  #pionierInstrumentGroup #voicePrev, #pionierInstrumentGroup #voiceNext {
+    flex-basis:20px !important; width:20px !important; min-width:20px !important;
   }
-}
-
-
-/* v6: hard layout reset. Utility buttons must never be absolutely overlaid on the looper/BPM controls. */
-#app > .topbar {
-  display:flex !important; flex-direction:column !important; align-items:center !important;
-  justify-content:flex-start !important; gap:5px !important; width:100% !important;
-  height:auto !important; min-height:0 !important; max-height:none !important;
-  overflow:visible !important; position:relative !important; z-index:100 !important;
-  padding: max(6px, env(safe-area-inset-top)) 8px 4px !important; box-sizing:border-box !important;
-}
-#app > .topbar > .center-nav,
-#app > .topbar #instrumentNav {
-  display:flex !important; visibility:visible !important; opacity:1 !important;
-  position:relative !important; inset:auto !important; transform:none !important;
-  width:auto !important; max-width:calc(100vw - 16px) !important; flex:0 0 auto !important;
-  overflow:visible !important;
-}
-#app > .topbar #instrumentDropdownToggle { max-width:min(38vw,150px) !important; }
-#app > .topbar #randomizeSetup {
-  display:inline-flex !important; visibility:visible !important; opacity:1 !important;
-  position:static !important; flex:0 0 34px !important; width:34px !important; min-width:34px !important;
-  height:34px !important; min-height:34px !important; padding:5px !important;
-}
-#app > .topbar > .control-scale {
-  display:flex !important; visibility:visible !important; opacity:1 !important;
-  position:relative !important; inset:auto !important; transform:none !important;
-  width:auto !important; max-width:calc(100vw - 16px) !important; flex:0 0 auto !important;
-  margin:0 !important; padding:0 !important; overflow:visible !important;
-}
-#app > .topbar > .control-scale .scale-stepper {
-  display:flex !important; visibility:visible !important; opacity:1 !important;
-  flex-flow:row nowrap !important; align-items:center !important; gap:3px !important;
-  width:auto !important; max-width:calc(100vw - 16px) !important; min-width:0 !important;
-  height:38px !important; padding:2px 5px !important; box-sizing:border-box !important;
-}
-#app > .topbar > .control-scale #scaleLabel {
-  display:block !important; visibility:visible !important; opacity:1 !important;
-  flex:1 1 auto !important; min-width:60px !important; width:auto !important;
-  max-width:min(40vw,150px) !important; height:32px !important;
-}
-#app > .topbar #looperRootMenuBtn {
-  display:inline-flex !important; visibility:visible !important; opacity:1 !important;
-  position:static !important; flex:0 0 40px !important; width:40px !important; min-width:40px !important;
-  max-width:40px !important; height:32px !important; min-height:32px !important;
-  padding:0 5px !important; margin:0 !important; border-radius:999px !important;
-  box-sizing:border-box !important;
-}
-#looperRail.looper-rail {
-  position:relative !important; display:flex !important; flex-flow:row nowrap !important;
-  align-items:center !important; justify-content:center !important;
-  width:100% !important; max-width:100% !important; min-width:0 !important;
-  box-sizing:border-box !important; padding:0 8px !important; margin:0 !important;
-  overflow:visible !important; gap:8px !important;
-}
-#pionierLooperShortcuts {
-  position:relative !important; inset:auto !important; transform:none !important;
-  display:flex !important; flex-flow:row nowrap !important; align-items:center !important;
-  justify-content:center !important; gap:12px !important;
-  width:100% !important; max-width:100% !important; min-height:40px !important;
-  box-sizing:border-box !important; margin:2px 0 0 !important; padding:2px 8px !important;
-  z-index:100 !important; overflow:visible !important;
-}
-#pionierLooperShortcuts > button {
-  display:inline-flex !important; position:static !important; inset:auto !important;
-  transform:none !important; visibility:visible !important; opacity:1 !important;
-  pointer-events:auto !important; flex:0 0 36px !important; width:36px !important;
-  min-width:36px !important; max-width:36px !important; height:36px !important;
-  min-height:36px !important; max-height:36px !important; margin:0 !important;
-}
-@media (max-width:520px) {
-  #app > .topbar { gap:4px !important; padding-inline:6px !important; }
-  #app > .topbar #instrumentDropdownToggle { max-width:min(35vw,128px) !important; }
-  #app > .topbar #randomizeSetup { flex-basis:32px !important; width:32px !important; min-width:32px !important; height:32px !important; min-height:32px !important; }
-  #app > .topbar > .control-scale .scale-stepper { height:36px !important; }
-  #app > .topbar > .control-scale .scale-stepper .step { flex-basis:25px !important; width:25px !important; height:30px !important; }
-  #app > .topbar > .control-scale #scaleLabel { max-width:min(36vw,124px) !important; min-width:54px !important; font-size:11px !important; }
-  #looperRail.looper-rail { gap:5px !important; }
-  #pionierLooperShortcuts { gap:18px !important; min-height:42px !important; }
-}
-
-
-/* v7 corrective overrides: actual shell markup has scale inside #mobileControlPanel;
-   pin the scale block visibly after moving it to the topbar and keep all utility actions
-   on the same physical row as the looper transport. */
-#app > .topbar > .control-scale {
-  display:flex !important; visibility:visible !important; opacity:1 !important;
-  flex:0 1 auto !important; min-width:0 !important; max-width:calc(100vw - 12px) !important;
-}
-#app > .topbar > .control-scale .scale-stepper { display:flex !important; visibility:visible !important; opacity:1 !important; }
-#app > .topbar > .control-scale #scaleMenu { position:fixed !important; }
-#looperRail.looper-rail {
-  display:flex !important; flex-flow:row nowrap !important; align-items:center !important;
-  justify-content:flex-start !important; gap:5px !important; padding:0 5px !important;
-  overflow:visible !important; min-width:0 !important;
-}
-#looperRail > #pionierLooperShortcuts,
-#looperRail #pionierLooperShortcuts {
-  position:static !important; inset:auto !important; transform:none !important;
-  display:flex !important; flex:0 0 auto !important; flex-flow:row nowrap !important;
-  align-items:center !important; justify-content:flex-end !important; gap:3px !important;
-  width:auto !important; min-width:0 !important; max-width:none !important;
-  min-height:0 !important; margin:0 0 0 auto !important; padding:0 !important;
-}
-#pionierLooperShortcuts > #openSoundscapes,
-#pionierLooperShortcuts > #fxPanelOpen,
-#pionierLooperShortcuts > #settingsOpenBtn {
-  position:static !important; inset:auto !important; transform:none !important;
-  display:inline-flex !important; visibility:visible !important; opacity:1 !important;
-  flex:0 0 30px !important; width:30px !important; min-width:30px !important; max-width:30px !important;
-  height:30px !important; min-height:30px !important; max-height:30px !important;
-  margin:0 !important; padding:0 !important; z-index:10 !important; pointer-events:auto !important;
-  border-radius:9px !important; box-sizing:border-box !important;
-}
-#looperRail > #looperRecordCluster { flex:0 0 auto !important; }
-#looperRail > #looperLayers { flex:0 1 auto !important; min-width:0 !important; max-width:none !important; flex-wrap:nowrap !important; }
-@media (max-width:520px) {
-  #looperRail.looper-rail { gap:3px !important; padding-inline:3px !important; }
-  #pionierLooperShortcuts > #openSoundscapes,
-  #pionierLooperShortcuts > #fxPanelOpen,
-  #pionierLooperShortcuts > #settingsOpenBtn {
-    flex-basis:27px !important; width:27px !important; min-width:27px !important; max-width:27px !important;
-    height:29px !important; min-height:29px !important; max-height:29px !important;
+  #pionierInstrumentGroup #instrumentDropdownToggle {
+    height:38px !important; min-height:38px !important; padding:0 5px !important; font-size:11px !important;
   }
-}
-
-
-/* v10 recovery: the rail must be a real bottom dock. The legacy CSS above still
-   pins the utility buttons to the top and assumes #stageScaleBar exists; this
-   shell has neither a stageScaleBar nor a bottom-docked looper by default. */
-#app > #looperRail.looper-rail {
-  position: fixed !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  top: auto !important;
-  transform: none !important;
-  z-index: 4300 !important;
-  width: 100% !important;
-  min-height: calc(58px + env(safe-area-inset-bottom, 0px)) !important;
-  padding: 5px max(8px, env(safe-area-inset-right, 0px)) max(5px, env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)) !important;
-  box-sizing: border-box !important;
-  justify-content: flex-start !important;
-  background: linear-gradient(to top, rgba(8,8,10,.97), rgba(8,8,10,.86)) !important;
-  border-top: 1px solid rgba(212,176,74,.14) !important;
-  -webkit-backdrop-filter: blur(18px) !important;
-  backdrop-filter: blur(18px) !important;
-}
-#app > #looperRail #looperClearBtn { flex: 0 0 34px !important; }
-#app > #looperRail #looperRecordCluster { flex: 0 0 auto !important; }
-#app > #looperRail #looperLayers { flex: 0 1 auto !important; min-width: 0 !important; overflow: hidden !important; }
-#app > #looperRail #pionierLooperShortcuts {
-  position: static !important;
-  margin-left: auto !important;
-  transform: none !important;
-  flex: 0 0 auto !important;
-  max-width: none !important;
-}
-#app > .topbar { position: relative !important; top: auto !important; }
-#app > .topbar > .center-nav,
-#app > .topbar > .control-scale { position: relative !important; top: auto !important; left: auto !important; right: auto !important; transform: none !important; }
-#app > .topbar #openSoundscapes,
-#app > .topbar #fxPanelOpen,
-#app > .topbar #settingsOpenBtn,
-#app > #looperRail #openSoundscapes,
-#app > #looperRail #fxPanelOpen,
-#app > #looperRail #settingsOpenBtn,
-#pionierLooperShortcuts #openSoundscapes,
-#pionierLooperShortcuts #fxPanelOpen,
-#pionierLooperShortcuts #settingsOpenBtn {
-  position: static !important;
-  inset: auto !important;
-  left: auto !important;
-  right: auto !important;
-  top: auto !important;
-  bottom: auto !important;
-  transform: none !important;
-}
-#app > .stage {
-  min-height: 0 !important;
-  flex: 1 1 auto !important;
-}
-#app > .stage > #pan {
-  --pan-budget: min(calc(100vw - 16px), calc(var(--viewport-h, 100dvh) - var(--chrome-top, 56px) - var(--chrome-bottom, 70px) - 34px), 560px) !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  width: max(1px, var(--pan-budget)) !important;
-  height: max(1px, var(--pan-budget)) !important;
-  max-width: calc(100vw - 16px) !important;
-  max-height: calc(100dvh - 90px) !important;
-  flex: 0 0 auto !important;
-}
-@media (max-width: 520px) {
-  #app > #looperRail.looper-rail {
-    min-height: calc(54px + env(safe-area-inset-bottom, 0px)) !important;
-    gap: 5px !important;
+  #pionierInstrumentGroup #randomizeSetup {
+    flex-basis:30px !important; width:30px !important; min-width:30px !important;
+    height:30px !important; min-height:30px !important; padding:5px !important;
   }
-  #app > #looperRail #looperClearBtn { flex-basis: 30px !important; width: 30px !important; height: 30px !important; }
-  #app > #looperRail #looperBtn { width: 44px !important; height: 44px !important; min-width: 44px !important; min-height: 44px !important; }
-}
-
-
-/* Phase 1 structural recovery: dedicated track row */
-#app > #pionierTrackRow {
-  position: fixed !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: calc(58px + env(safe-area-inset-bottom, 0px)) !important;
-  z-index: 4200 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  min-height: 38px !important;
-  padding: 4px max(8px, env(safe-area-inset-right, 0px)) 4px max(8px, env(safe-area-inset-left, 0px)) !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
-  background: linear-gradient(to top, rgba(8,8,10,.94), rgba(8,8,10,.78)) !important;
-  border-top: 1px solid rgba(212,176,74,.10) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-  backdrop-filter: blur(16px) !important;
-}
-#pionierTrackRow > #looperLayers,
-#pionierTrackRow #looperLayers.looper-layers {
-  position: static !important;
-  inset: auto !important;
-  transform: none !important;
-  display: flex !important;
-  flex: 0 1 auto !important;
-  flex-flow: row nowrap !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 7px !important;
-  width: max-content !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
-  height: auto !important;
-  margin: 0 auto !important;
-  padding: 0 2px !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  overscroll-behavior-x: contain !important;
-  -webkit-overflow-scrolling: touch !important;
-  scrollbar-width: none !important;
-  pointer-events: auto !important;
-}
-#pionierTrackRow #looperLayers::-webkit-scrollbar { display: none !important; }
-@media (max-width: 520px) {
-  #app > #pionierTrackRow {
-    bottom: calc(54px + env(safe-area-inset-bottom, 0px)) !important;
-    min-height: 34px !important;
-    padding-block: 2px !important;
+  #pionierScaleGroup .scale-stepper { height:38px !important; min-height:38px !important; padding:2px !important; }
+  #pionierScaleGroup .scale-stepper .step { flex-basis:18px !important; width:18px !important; min-width:18px !important; }
+  #pionierScaleGroup > .control-half .stepper { min-width:59px !important; height:38px !important; min-height:38px !important; padding:2px !important; }
+  #pionierScaleGroup #rootPrev, #pionierScaleGroup #rootNext { flex-basis:15px !important; width:15px !important; min-width:15px !important; }
+  #pionierScaleGroup #rootLabel { min-width:18px !important; font-size:10px !important; }
+  #pionierLooperToolbar { padding:0 6px; gap:4px; }
+  #pionierLooperControls, #pionierLooperActions { gap:3px; }
+  #pionierLooperControls > button, #pionierLooperActions > button {
+    flex-basis:30px !important; width:30px !important; min-width:30px !important; max-width:30px !important;
+    height:30px !important; min-height:30px !important; max-height:30px !important;
   }
-  #pionierTrackRow > #looperLayers,
-  #pionierTrackRow #looperLayers.looper-layers { gap: 5px !important; }
+  #pionierLooperControls #looperBtn { transform:scale(.9); transform-origin:center; }
+  #pionierTrackRow { padding-left:6px; padding-right:6px; }
 }
-
-
-/* Phase 2: bottom control dock — selectors, track row, then looper toolbar. */
-#app > .topbar.topbar-minimal {
-  position: fixed !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  top: auto !important;
-  z-index: 4305 !important;
-  display: flex !important;
-  flex-flow: row wrap !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 6px 10px !important;
-  width: 100% !important;
-  height: var(--pionier-selector-height, 48px) !important;
-  min-height: var(--pionier-selector-height, 48px) !important;
-  max-height: none !important;
-  margin: 0 !important;
-  padding: 4px max(8px, env(safe-area-inset-right, 0px)) max(4px, env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)) !important;
-  box-sizing: border-box !important;
-  overflow: visible !important;
-  background: linear-gradient(to top, rgba(8,8,10,.98), rgba(8,8,10,.91)) !important;
-  border-top: 1px solid rgba(212,176,74,.16) !important;
-  border-bottom: 0 !important;
-  -webkit-backdrop-filter: blur(18px) saturate(115%) !important;
-  backdrop-filter: blur(18px) saturate(115%) !important;
+@media (max-width:350px) {
+  #pionierSelectorRow { gap:3px; }
+  #pionierInstrumentGroup #voicePrev, #pionierInstrumentGroup #voiceNext { display:none !important; }
+  #pionierScaleGroup .scale-stepper .step { flex-basis:15px !important; width:15px !important; min-width:15px !important; }
+  #pionierScaleGroup > .control-half .stepper { min-width:54px !important; }
+  #pionierLooperControls, #pionierLooperActions { gap:2px; }
 }
-#app > .topbar > .center-nav,
-#app > .topbar #instrumentNav,
-#app > .topbar > .control-scale,
-#app > .topbar > .control-scale .scale-stepper {
-  display: flex !important;
-  flex-flow: row nowrap !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-width: 0 !important;
-  overflow: visible !important;
-}
-#app > .topbar > .center-nav { flex: 0 1 auto !important; }
-#app > .topbar #instrumentNav { gap: 4px !important; max-width: 100% !important; }
-#app > .topbar > .control-scale { flex: 0 1 auto !important; max-width: 100% !important; }
-#app > .topbar > .control-scale .control-label { display: none !important; }
-#app > .topbar #instrumentDropdownToggle,
-#app > .topbar > .control-scale #scaleLabel {
-  appearance: none !important;
-  box-sizing: border-box !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex: 0 1 126px !important;
-  width: 126px !important;
-  min-width: 0 !important;
-  max-width: 126px !important;
-  height: 38px !important;
-  min-height: 38px !important;
-  max-height: 38px !important;
-  padding: 0 10px !important;
-  border: 1px solid rgba(235,229,215,.16) !important;
-  border-radius: 999px !important;
-  background: rgba(255,255,255,.055) !important;
-  color: rgba(242,238,228,.96) !important;
-  box-shadow: none !important;
-  font: 500 12px/1.2 system-ui, sans-serif !important;
-  letter-spacing: .01em !important;
-  text-align: center !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-#app > .topbar #voicePrev,
-#app > .topbar #voiceNext,
-#app > .topbar > .control-scale .scale-stepper .step {
-  flex: 0 0 28px !important;
-  width: 28px !important;
-  min-width: 28px !important;
-  max-width: 28px !important;
-  height: 34px !important;
-  min-height: 34px !important;
-  max-height: 34px !important;
-  padding: 0 !important;
-  border-radius: 50% !important;
-  box-shadow: none !important;
-}
-#app > .topbar #randomizeSetup,
-#app > .topbar #looperRootMenuBtn {
-  display: inline-flex !important;
-  flex: 0 0 36px !important;
-  width: 36px !important;
-  min-width: 36px !important;
-  max-width: 36px !important;
-  height: 36px !important;
-  min-height: 36px !important;
-  max-height: 36px !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border-radius: 50% !important;
-  box-sizing: border-box !important;
-}
-#app > #pionierTrackRow {
-  bottom: calc(var(--pionier-selector-height, 48px) + env(safe-area-inset-bottom, 0px)) !important;
-  min-height: var(--pionier-track-height, 38px) !important;
-}
-#app > #looperRail.looper-rail {
-  bottom: calc(var(--pionier-selector-height, 48px) + var(--pionier-track-height, 38px) + env(safe-area-inset-bottom, 0px)) !important;
-  z-index: 4302 !important;
-  background: linear-gradient(to top, rgba(8,8,10,.97), rgba(8,8,10,.90)) !important;
-}
-#app > .stage {
-  --chrome-bottom: calc(var(--pionier-selector-height, 48px) + var(--pionier-track-height, 38px) + 64px + env(safe-area-inset-bottom, 0px)) !important;
-  padding-bottom: var(--chrome-bottom) !important;
-}
-#app > .stage > #pan {
-  --pan-budget: min(calc(100vw - 16px), calc(100dvh - var(--pionier-selector-height, 48px) - var(--pionier-track-height, 38px) - 64px - var(--chrome-top, 8px) - env(safe-area-inset-bottom, 0px)), 560px) !important;
-  width: max(1px, var(--pan-budget)) !important;
-  height: max(1px, var(--pan-budget)) !important;
-  max-height: var(--pan-budget) !important;
-}
-@media (max-width: 520px) {
-  #app > .topbar.topbar-minimal {
-    --pionier-selector-height: 84px;
-    --pionier-track-height: 34px;
-    flex-flow: column nowrap !important;
-    gap: 3px !important;
-    padding: 3px max(6px, env(safe-area-inset-right, 0px)) max(4px, env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px)) !important;
-  }
-  #app > .topbar > .center-nav,
-  #app > .topbar > .control-scale { flex: 0 0 auto !important; min-height: 36px !important; }
-  #app > .topbar #instrumentDropdownToggle,
-  #app > .topbar > .control-scale #scaleLabel {
-    flex-basis: clamp(92px, 31vw, 126px) !important;
-    width: clamp(92px, 31vw, 126px) !important;
-    max-width: clamp(92px, 31vw, 126px) !important;
-    height: 34px !important;
-    min-height: 34px !important;
-    max-height: 34px !important;
-    font-size: 11px !important;
-    padding-inline: 7px !important;
-  }
-  #app > .topbar #voicePrev,
-  #app > .topbar #voiceNext,
-  #app > .topbar > .control-scale .scale-stepper .step {
-    flex-basis: 25px !important;
-    width: 25px !important;
-    min-width: 25px !important;
-    max-width: 25px !important;
-    height: 30px !important;
-    min-height: 30px !important;
-    max-height: 30px !important;
-  }
-  #app > .topbar #randomizeSetup,
-  #app > .topbar #looperRootMenuBtn {
-    flex-basis: 32px !important;
-    width: 32px !important;
-    min-width: 32px !important;
-    max-width: 32px !important;
-    height: 32px !important;
-    min-height: 32px !important;
-    max-height: 32px !important;
-  }
-}
-html.theme-light #app > .topbar.topbar-minimal,
-html.theme-light #app > #pionierTrackRow,
-html.theme-light #app > #looperRail.looper-rail {
-  background: linear-gradient(to top, rgba(250,248,244,.98), rgba(243,239,231,.96)) !important;
-  border-color: rgba(52,44,28,.13) !important;
-}
-html.theme-light #app > .topbar #instrumentDropdownToggle,
-html.theme-light #app > .topbar > .control-scale #scaleLabel {
-  color: #302d27 !important;
-  background: rgba(255,255,255,.72) !important;
-  border-color: rgba(52,44,28,.16) !important;
-}
-
-
-/* Phase 3 regression fix: safe-area inset is already included in the bottom selector bar. */
-#app > #pionierTrackRow {
-  bottom: var(--pionier-selector-height, 48px) !important;
-}
-#app > #looperRail.looper-rail {
-  bottom: calc(var(--pionier-selector-height, 48px) + var(--pionier-track-height, 38px)) !important;
-  min-height: 58px !important;
-  padding-bottom: 5px !important;
-}
-#app > .stage {
-  --chrome-bottom: calc(var(--pionier-selector-height, 48px) + var(--pionier-track-height, 38px) + 64px) !important;
-}
-#app > .stage > #pan {
-  --pan-budget: min(calc(100vw - 16px), calc(100dvh - var(--pionier-selector-height, 48px) - var(--pionier-track-height, 38px) - 64px - var(--chrome-top, 8px)), 560px) !important;
-}
-@media (max-width: 520px) {
-  #app > #looperRail.looper-rail {
-    min-height: 54px !important;
-    padding-bottom: 5px !important;
-  }
+@media (min-width:768px) {
+  #pionierSelectorRow { gap:14px; }
+  .pionier-selector-group { gap:7px; }
 }
