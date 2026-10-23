@@ -304,3 +304,56 @@ html.theme-light #pionierBottomDock #pionierInstrumentGroup #randomizeSetup{back
     max-height:28px !important;
   }
 }
+
+
+/* v16: override legacy compressed toolbar gaps with comfortable touch spacing. */
+#pionierBottomDock #pionierLooperToolbar {
+  gap:12px !important;
+  padding-left:10px !important;
+  padding-right:10px !important;
+}
+#pionierBottomDock #pionierLooperControls {
+  gap:10px !important;
+  flex:1 1 0 !important;
+  min-width:0 !important;
+}
+#pionierBottomDock #pionierLooperControls #looperUtilityControls {
+  gap:8px !important;
+}
+#pionierBottomDock #pionierLooperActions {
+  gap:10px !important;
+  flex:1 1 0 !important;
+  min-width:0 !important;
+}
+#pionierBottomDock #pionierLooperActions > button {
+  flex:0 0 36px !important;
+  width:36px !important; min-width:36px !important; max-width:36px !important;
+  height:36px !important; min-height:36px !important; max-height:36px !important;
+}
+#pionierBottomDock #pionierLooperControls .looper-timing-btn {
+  flex:0 0 34px !important;
+  width:34px !important; min-width:34px !important; max-width:34px !important;
+  height:34px !important; min-height:34px !important; max-height:34px !important;
+}
+@media(max-width:430px) {
+  #pionierBottomDock #pionierLooperToolbar { gap:8px !important; padding-left:8px !important; padding-right:8px !important; }
+  #pionierBottomDock #pionierLooperControls { gap:7px !important; }
+  #pionierBottomDock #pionierLooperControls #looperUtilityControls { gap:6px !important; }
+  #pionierBottomDock #pionierLooperActions { gap:7px !important; }
+  #pionierBottomDock #pionierLooperActions > button {
+    flex-basis:32px !important; width:32px !important; min-width:32px !important; max-width:32px !important;
+    height:32px !important; min-height:32px !important; max-height:32px !important;
+  }
+  #pionierBottomDock #pionierLooperControls .looper-timing-btn {
+    flex-basis:31px !important; width:31px !important; min-width:31px !important; max-width:31px !important;
+    height:31px !important; min-height:31px !important; max-height:31px !important;
+  }
+}
+@media(max-width:350px) {
+  #pionierBottomDock #pionierLooperToolbar { gap:5px !important; padding-left:5px !important; padding-right:5px !important; }
+  #pionierBottomDock #pionierLooperControls { gap:5px !important; }
+  #pionierBottomDock #pionierLooperControls #looperUtilityControls { gap:4px !important; }
+  #pionierBottomDock #pionierLooperActions { gap:5px !important; }
+  #pionierBottomDock #pionierLooperActions > button { flex-basis:28px !important; width:28px !important; min-width:28px !important; max-width:28px !important; height:28px !important; min-height:28px !important; max-height:28px !important; }
+  #pionierBottomDock #pionierLooperControls .looper-timing-btn { flex-basis:27px !important; width:27px !important; min-width:27px !important; max-width:27px !important; height:27px !important; min-height:27px !important; max-height:27px !important; }
+}
