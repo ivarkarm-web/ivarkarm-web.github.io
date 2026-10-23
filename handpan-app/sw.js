@@ -2,7 +2,7 @@
  * Pionier service worker
  * CACHE_VERSION and SHELL query stamps MUST match index.html / pionier-app.js.
  */
-const CACHE_VERSION = 'pionier-v143';
+const CACHE_VERSION = 'pionier-v144';
 
 const SHELL = [
   './',
@@ -48,10 +48,10 @@ const SHELL = [
   './looper.css?v=222',
   './og-pionier-synth.svg',
   './phase1-note-count-guard.js?v=3',
-  './pionier-app.js?v=241',
+  './pionier-app.js?v=242',
   './pionier-control-layout.css?v=23',
   './pionier-control-layout.js?v=20',
-  './pionier-core.js?v=75',
+  './pionier-core.js?v=76',
   './pionier.css?v=166',
   './portrait-lock.css?v=1',
   './registerSW.js',
@@ -69,6 +69,7 @@ const SHELL = [
   './welcome-screen.css?v=6',
   './welcome-screen.js?v=9',
   './favorites.css?v=1',
+  './menu-light-fix.css?v=1',
 ];
 
 self.addEventListener('install', (event) => {

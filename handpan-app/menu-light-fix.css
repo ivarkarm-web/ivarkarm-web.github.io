@@ -1,0 +1,42 @@
+/* Force light menus in light mode */
+html.theme-light #scaleMenu,
+html.theme-light #instrumentMenu,
+html.theme-light #looperRootMenu,
+html.theme-light .looper-dd-menu,
+html.theme-light .scale-menu,
+html.theme-light .instrument-menu {
+  background: #fcfcfc !important;
+  background-image: none !important;
+  color: #1f1c18 !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  box-shadow: 0 12px 36px rgba(40,30,20,0.14) !important;
+}
+html.theme-light #scaleMenu .scale-menu-group,
+html.theme-light #instrumentMenu .instrument-menu-group,
+html.theme-light #looperRootMenu .looper-dd-title,
+html.theme-light .looper-dd-menu .looper-dd-title {
+  color: rgba(40,30,20,0.5) !important;
+}
+html.theme-light #scaleMenu button,
+html.theme-light #instrumentMenu button,
+html.theme-light #looperRootMenu .looper-dd-item,
+html.theme-light .looper-dd-menu .looper-dd-item,
+html.theme-light #scaleMenu .scale-menu-item,
+html.theme-light #instrumentMenu .instrument-menu-item {
+  color: #1f1c18 !important;
+  background: transparent !important;
+}
+html.theme-light #scaleMenu button:hover,
+html.theme-light #instrumentMenu button:hover,
+html.theme-light #looperRootMenu .looper-dd-item:hover,
+html.theme-light .looper-dd-menu .looper-dd-item:hover,
+html.theme-light #scaleMenu button.is-active,
+html.theme-light #instrumentMenu button.is-active,
+html.theme-light #looperRootMenu .looper-dd-item.is-active,
+html.theme-light .looper-dd-menu .looper-dd-item.is-active {
+  background: rgba(40,30,20,0.06) !important;
+  color: #1f1c18 !important;
+}
+html.theme-light #scaleMenu .scale-item-tuning {
+  color: rgba(40,30,20,0.45) !important;
+}
