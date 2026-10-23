@@ -4,7 +4,7 @@ import { HANDPAN_SCALES } from './instruments/handpan.js?v=10';
 export function mountScaleSelector({ getHandpan, onScaleChange }) {
   const menu = document.getElementById('scaleMenu'); const toggle = document.getElementById('scaleLabel');
   if (!menu || !toggle) return { render() {}, updateLabel() {} };
-  function updateLabel() { const handpan = getHandpan(); if (!handpan) return; const s = HANDPAN_SCALES[handpan.scaleIndex]; const short = s?.short || s?.label || handpan.scaleLabel || 'Scale'; const full = s?.label || handpan.scaleLabel || short; toggle.textContent = short + ' ▾'; toggle.title = full; }
+  function updateLabel() { const handpan = getHandpan(); if (!handpan) return; const s = HANDPAN_SCALES[handpan.scaleIndex]; let short = s?.short || s?.label || handpan.scaleLabel || 'Scale'; const full = s?.label || handpan.scaleLabel || short; const root = handpan.rootLabel || ''; if (root && short.startsWith(root + ' ')) short = short.slice(root.length).trim(); toggle.textContent = short + ' ▾'; toggle.title = full; const rootLabel = document.getElementById('rootLabel'); if (rootLabel && root) rootLabel.textContent = root; }
   function render() {
     const handpan = getHandpan(); if (!handpan) return; menu.replaceChildren();
     const results = document.createElement('div'); results.className = 'picker-results scale-menu-results'; menu.appendChild(results);
