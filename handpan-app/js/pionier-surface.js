@@ -277,7 +277,7 @@ export function createSurface(canvas) {
     const dpr=Math.min(2,window.devicePixelRatio||1);
     canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);
     ctx2.setTransform(dpr,0,0,dpr,0,0);
-    const m=Math.min(W,H);R=m*0.37;CX=W*0.5;CY=H*0.48;
+    const m=Math.min(W,H);R=m*0.38;CX=W*0.5;CY=H*0.5;
   }
   function armTransition(){armed=true}
   function hitVector(x,y){
