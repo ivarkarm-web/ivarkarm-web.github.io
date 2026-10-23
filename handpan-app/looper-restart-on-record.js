@@ -1,12 +1,16 @@
 /**
- * When the user starts recording a new loop layer, restart every existing
- * layer from the beginning so overdubs stay aligned to the top of the cycle.
+ * Count-in + record alignment:
+ * - When count-in starts, mute all existing loops (silent while counting).
+ * - When recording actually starts, unmute and restart every loop from the beginning.
+ * - If count-in is cancelled, restore levels without forcing a restart.
  */
 (function looperRestartOnRecord() {
-  if (window.__pionierLooperRestartOnRecord) return;
-  window.__pionierLooperRestartOnRecord = true;
+  if (window.__pionierLooperRestartOnRecordV2) return;
+  window.__pionierLooperRestartOnRecordV2 = true;
 
   var wasRecording = false;
+  var wasCounting = false;
+  var mutedForCountIn = false;
 
   function audioCtx() {
     try {
@@ -17,23 +21,86 @@
     return null;
   }
 
-  function restartAllLayersFromStart() {
+  function layers() {
     var api = window.PionierLooper;
-    if (!api || !Array.isArray(api.layers) || !api.layers.length) return;
+    return api && Array.isArray(api.layers) ? api.layers : [];
+  }
+
+  function isCountingIn() {
+    var btn = document.getElementById('looperCountInBtn');
+    return !!(btn && btn.classList.contains('is-counting'));
+  }
+
+  function anySolo(list) {
+    for (var i = 0; i < list.length; i++) {
+      if (list[i] && list[i].solo) return true;
+    }
+    return false;
+  }
+
+  function effectiveLevel(layer, list) {
+    if (!layer) return 0;
+    if (layer.muted) return 0;
+    if (anySolo(list) && !layer.solo) return 0;
+    var level = layer.level;
+    return Number.isFinite(level) ? level : 1;
+  }
+
+  function muteAllLayers() {
+    var list = layers();
+    if (!list.length) return;
+    var ctx = audioCtx();
+    var now = ctx ? ctx.currentTime : 0;
+    list.forEach(function (layer) {
+      if (!layer || !layer.gain) return;
+      if (layer.__preMuteLevel == null) {
+        try {
+          layer.__preMuteLevel = layer.gain.gain.value;
+        } catch (e) {
+          layer.__preMuteLevel = effectiveLevel(layer, list);
+        }
+      }
+      try {
+        if (ctx) layer.gain.gain.setTargetAtTime(0, now, 0.015);
+        else layer.gain.gain.value = 0;
+      } catch (e2) {
+        try { layer.gain.gain.value = 0; } catch (e3) {}
+      }
+    });
+    mutedForCountIn = true;
+  }
+
+  function restoreAllLayersGain() {
+    var list = layers();
+    if (!list.length) return;
+    var ctx = audioCtx();
+    var now = ctx ? ctx.currentTime : 0;
+    list.forEach(function (layer) {
+      if (!layer || !layer.gain) return;
+      var level = effectiveLevel(layer, list);
+      delete layer.__preMuteLevel;
+      try {
+        if (ctx) layer.gain.gain.setTargetAtTime(level, now, 0.02);
+        else layer.gain.gain.value = level;
+      } catch (e) {
+        try { layer.gain.gain.value = level; } catch (e2) {}
+      }
+    });
+    mutedForCountIn = false;
+  }
+
+  function restartAllLayersFromStart() {
+    var list = layers();
+    if (!list.length) return;
     var ctx = audioCtx();
     if (!ctx) return;
 
-    api.layers.forEach(function (layer) {
+    list.forEach(function (layer) {
       if (!layer || !layer.buffer) return;
 
-      // Always reset logical playhead
       layer.offset = 0;
 
-      if (layer.paused) {
-        // Stay paused, but resume will start at 0
-        return;
-      }
-
+      if (layer.paused) return;
       if (!layer.gain) return;
 
       try {
@@ -47,7 +114,6 @@
       try {
         var source = ctx.createBufferSource();
         source.buffer = layer.buffer;
-        // Match default looper behavior: loop unless explicitly non-looping serial
         source.loop = true;
         source.connect(layer.gain);
         var now = ctx.currentTime;
@@ -61,25 +127,49 @@
       }
     });
 
-    try {
-      // Refresh circle progress UI if the looper exposes a re-render path later
-      if (typeof api.renderCircles === 'function') api.renderCircles();
-    } catch (e6) {}
+    // Ensure audible again after count-in mute
+    restoreAllLayersGain();
+  }
+
+  function onRecordStarted() {
+    restartAllLayersFromStart();
+  }
+
+  function onCountInStarted() {
+    muteAllLayers();
+  }
+
+  function onCountInEndedWithoutRecord() {
+    if (mutedForCountIn) restoreAllLayersGain();
   }
 
   function poll() {
     var api = window.PionierLooper;
     if (!api || typeof api.getState !== 'function') return;
+
     var state = api.getState();
     var recording = !!(state && state.recording);
-    if (recording && !wasRecording) {
-      // Rising edge: record just started
-      restartAllLayersFromStart();
+    var counting = isCountingIn();
+
+    // Count-in rising edge → mute existing loops
+    if (counting && !wasCounting) {
+      onCountInStarted();
     }
+
+    // Count-in falling edge without recording → restore (cancelled)
+    if (!counting && wasCounting && !recording) {
+      onCountInEndedWithoutRecord();
+    }
+
+    // Recording rising edge → restart from start + unmute
+    if (recording && !wasRecording) {
+      onRecordStarted();
+    }
+
+    wasCounting = counting;
     wasRecording = recording;
   }
 
-  // Also catch the press early so restart happens before audio is captured
   document.addEventListener(
     'pointerup',
     function (e) {
@@ -87,20 +177,23 @@
       if (!t || !t.closest) return;
       var btn = t.closest('#looperBtn, .looper-btn.looper-record');
       if (!btn) return;
-      // Defer slightly so looper can flip recording=true, then force restart
+
+      // Immediate: if count-in is about to run, mute ASAP
       setTimeout(function () {
+        if (isCountingIn()) muteAllLayers();
         var api = window.PionierLooper;
         var state = api && api.getState && api.getState();
-        if (state && state.recording) restartAllLayersFromStart();
+        if (state && state.recording) onRecordStarted();
       }, 0);
       setTimeout(function () {
+        if (isCountingIn()) muteAllLayers();
         var api = window.PionierLooper;
         var state = api && api.getState && api.getState();
-        if (state && state.recording) restartAllLayersFromStart();
-      }, 30);
+        if (state && state.recording) onRecordStarted();
+      }, 40);
     },
     true
   );
 
-  setInterval(poll, 80);
+  setInterval(poll, 50);
 })();
