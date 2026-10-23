@@ -1,7 +1,8 @@
-/* Looper layout fix v4
+/* Looper layout fix v5
  * - Track circles above the loop button
- * - Base note + notes as compact dropdowns (no arrows)
- * - Randomizer on the right
+ * - Base note + notes as compact dropdowns on looper right only
+ * - Remove duplicates next to instrument/scale
+ * - Stretch instrument + scale selectors full width
  * - Handpan raised ~10%
  */
 
@@ -72,7 +73,7 @@
   max-height: 28px !important;
 }
 
-/* ---- Side controls: dropdowns + randomizer ---- */
+/* ---- Side controls: dropdowns + randomizer (ONLY place for base/notes) ---- */
 #looperSideControls.looper-side-controls {
   display: flex !important;
   flex-flow: row nowrap !important;
@@ -93,7 +94,6 @@
   align-self: center !important;
 }
 
-/* Compact pill triggers */
 #looperSideControls .looper-dd-trigger {
   appearance: none !important;
   display: inline-flex !important;
@@ -151,7 +151,6 @@
   height: 16px !important;
 }
 
-/* Floating dropdown menus */
 .looper-dd-menu {
   box-sizing: border-box !important;
   padding: 8px !important;
@@ -208,13 +207,125 @@
   font-weight: 600 !important;
 }
 
-/* Hide legacy arrow steppers when present */
-#rootPrev, #rootNext, #noteCountPrev, #noteCountNext {
+/* ========== Remove ALL duplicate base/notes UI beside instrument & scale ========== */
+#stageBaseOnly,
+#stageNotesSlot,
+.stage-base-only,
+.stage-notes-slot,
+#stageScaleBar .stage-root-row,
+#stageScaleBar .control-row,
+#stageScaleBar .control-half,
+#rootPrev, #rootNext, #noteCountPrev, #noteCountNext,
+#rootLabel, #noteCountLabel,
+#notePlusWrap,
+.note-plus-wrap {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  left: -9999px !important;
+}
+
+/* Keep labels only if somehow still needed for JS sync — never show */
+#rootLabel,
+#noteCountLabel {
   display: none !important;
 }
 
-#stageScaleBar .stage-root-row:empty,
-#stageScaleBar #stageNotesSlot:empty {
+/* ========== Full-width instrument + scale selectors ========== */
+#stageScaleBar {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  box-sizing: border-box !important;
+}
+
+#stageScaleBar #stageScaleRow,
+#stageScaleBar .stage-scale-row,
+#stageScaleBar #stageInstrumentRow,
+#stageScaleBar .stage-instrument-row {
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  align-items: center !important;
+  justify-content: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  gap: 6px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+#stageScaleBar .control-scale,
+#stageScaleBar .stage-control-scale,
+#stageScaleBar #instrumentNav,
+#stageScaleBar .stage-instrument-nav,
+#stageScaleBar .instrument-nav {
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  align-items: center !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  flex: 1 1 100% !important;
+  gap: 4px !important;
+  margin: 0 !important;
+}
+
+/* Scale label stretches */
+#stageScaleBar #scaleLabel,
+#stageScaleBar .stage-scale-btn,
+#stageScaleBar .scale-dropdown-toggle {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  justify-content: center !important;
+}
+
+/* Instrument name stretches */
+#stageScaleBar #instrumentDropdownToggle,
+#stageScaleBar .instrument-name {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  justify-content: center !important;
+}
+
+/* Step arrows stay compact */
+#stageScaleBar #scalePrev,
+#stageScaleBar #scaleNext,
+#stageScaleBar #voicePrev,
+#stageScaleBar #voiceNext {
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  height: 34px !important;
+}
+
+/* Soundscapes can sit at end of instrument row if present */
+#stageScaleBar #openSoundscapes {
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  height: 34px !important;
+}
+
+/* Randomizer lives only on looper side — hide if still under instrument nav */
+#instrumentNav #randomizeSetup,
+#stageInstrumentRow #randomizeSetup:not(#looperSideControls #randomizeSetup),
+#stageScaleBar #randomizeSetup:not(#looperSideControls *) {
+  /* handled in JS by moving; CSS fallback if still in nav */
+}
+#instrumentNav > #randomizeSetup {
   display: none !important;
 }
 
