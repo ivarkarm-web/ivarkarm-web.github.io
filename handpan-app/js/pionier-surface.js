@@ -18,7 +18,7 @@ export function createSurface(canvas) {
     const palette=(typeof window!=='undefined'&&window.PionierSkinPalette)||{};
     const fallback={body:['#2e3036','#1a1b1f','#0e0f12'],rim:[220,224,232],pad:[[58,60,68],[36,38,44],[22,23,27]],lip:[200,204,212],stroke:[255,255,255],glow:[[230,235,245],[140,150,170]],sheen:0.12};
     const lightSkin={body:['#e4e0d8','#c8c4bc','#9e9a92'],rim:[50,48,44],pad:[[220,216,208],[180,176,168],[140,136,128]],lip:[70,68,62],stroke:[20,18,14],glow:[[60,58,52],[40,38,34]],sheen:0.14};
-    const skin=palette.classic||palette.neutral||(light?lightSkin:fallback);
+    const skin=light?(palette.light||lightSkin):(palette.classic||palette.neutral||fallback);
     return{skin,led:{r:led.r|0,g:led.g|0,b:led.b|0},tonefield:'classic',alpha:Number.isFinite(+alphaIn)?+alphaIn:1};
   }
   function rgba(c,a){
