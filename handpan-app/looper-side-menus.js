@@ -53,20 +53,25 @@
   }
 
   function positionMenu(menu, trigger) {
+    /* Drop bar anchored to the trigger: opens upward from the bottom dock
+       (or downward if there is more room below), centred on the button. */
     var rect = trigger.getBoundingClientRect();
-    var width = Math.max(132, Math.min(180, window.innerWidth - 24));
-    var left = rect.right - width;
-    if (left < 8) left = 8;
-    if (left + width > window.innerWidth - 8) left = window.innerWidth - 8 - width;
-    var maxH = Math.min(280, window.innerHeight * 0.45);
-    var top = rect.top - 6 - maxH;
-    if (top < 8) top = Math.min(rect.bottom + 6, window.innerHeight - maxH - 8);
-    menu.style.cssText = [
-      'position:fixed', 'z-index:99999', 'left:' + left + 'px',
-      'top:' + Math.max(8, top) + 'px', 'width:' + width + 'px',
-      'max-height:' + maxH + 'px', 'display:block', 'visibility:visible',
-      'opacity:1', 'pointer-events:auto'
-    ].join(';');
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var width = Math.max(140, Math.min(168, vw - 24));
+    var left = rect.left + rect.width / 2 - width / 2;
+    left = Math.max(8, Math.min(left, vw - 8 - width));
+    var spaceAbove = rect.top - 14;
+    var spaceBelow = vh - rect.bottom - 14;
+    var up = spaceAbove >= spaceBelow;
+    var maxH = Math.max(120, Math.min(340, up ? spaceAbove : spaceBelow));
+    var parts = [
+      'position:fixed', 'z-index:2147483000', 'left:' + left + 'px', 'right:auto',
+      'width:' + width + 'px', 'max-height:' + maxH + 'px', 'display:block',
+      'visibility:visible', 'opacity:1', 'pointer-events:auto', 'margin:0'
+    ];
+    if (up) parts.push('bottom:' + Math.round(vh - rect.top + 6) + 'px', 'top:auto');
+    else parts.push('top:' + Math.round(rect.bottom + 6) + 'px', 'bottom:auto');
+    menu.style.cssText = parts.join(';');
   }
 
   function openList(trigger, menu, build) {
@@ -80,6 +85,8 @@
     trigger.setAttribute('aria-expanded', 'true');
     openMenu = menu;
     openTrigger = trigger;
+    var activeItem = menu.querySelector('.is-active');
+    if (activeItem && activeItem.scrollIntoView) activeItem.scrollIntoView({ block: 'center' });
   }
 
   function fillRootMenu(menu) {
