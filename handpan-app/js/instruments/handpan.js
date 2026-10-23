@@ -35,7 +35,7 @@ export function extendScaleCents(baseCents, count) {
   return out;
 }
 
-const PITCH_BEND_RANGE = 2;
+const FIXED_NOTE_COUNT = 8;\nconst PITCH_BEND_RANGE = 2;
 const GLIDE_TIME = 0.12;
 const BEND_SMOOTH = 0.055;
 const PRESSURE_SMOOTH = 0.06;
