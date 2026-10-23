@@ -456,3 +456,71 @@ html.theme-light #pionierBottomDock #pionierInstrumentGroup #randomizeSetup{back
     letter-spacing:-.1em !important;
   }
 }
+
+
+/* v19: separate the base-note control visually and keep its value visible. */
+#pionierBottomDock #pionierScaleGroup {
+  gap:8px !important;
+}
+#pionierBottomDock #pionierScaleGroup > .control-half {
+  flex:0 0 88px !important;
+  width:88px !important;
+  min-width:88px !important;
+}
+#pionierBottomDock #pionierScaleGroup > .control-half .stepper {
+  display:flex !important;
+  width:88px !important;
+  min-width:88px !important;
+  height:40px !important;
+  min-height:40px !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:2px !important;
+  padding:3px 5px !important;
+  border:1px solid rgba(212,176,74,.34) !important;
+  border-radius:999px !important;
+  background:linear-gradient(180deg,rgba(212,176,74,.12),rgba(255,255,255,.045)) !important;
+  box-sizing:border-box !important;
+}
+#pionierBottomDock #pionierScaleGroup #rootLabel {
+  display:inline-flex !important;
+  flex:1 1 auto !important;
+  min-width:30px !important;
+  justify-content:center !important;
+  align-items:center !important;
+  color:#f0d89b !important;
+  font-size:13px !important;
+  font-weight:700 !important;
+  line-height:1 !important;
+  visibility:visible !important;
+  opacity:1 !important;
+}
+#pionierBottomDock #pionierScaleGroup #rootPrev,
+#pionierBottomDock #pionierScaleGroup #rootNext {
+  flex:0 0 18px !important;
+  width:18px !important;
+  min-width:18px !important;
+  height:30px !important;
+  min-height:30px !important;
+}
+@media(max-width:430px) {
+  #pionierBottomDock #pionierScaleGroup { gap:6px !important; }
+  #pionierBottomDock #pionierScaleGroup > .control-half {
+    flex-basis:80px !important; width:80px !important; min-width:80px !important;
+  }
+  #pionierBottomDock #pionierScaleGroup > .control-half .stepper {
+    width:80px !important; min-width:80px !important;
+  }
+}
+@media(max-width:350px) {
+  #pionierBottomDock #pionierScaleGroup > .control-half {
+    flex-basis:72px !important; width:72px !important; min-width:72px !important;
+  }
+  #pionierBottomDock #pionierScaleGroup > .control-half .stepper {
+    width:72px !important; min-width:72px !important; padding-inline:3px !important;
+  }
+  #pionierBottomDock #pionierScaleGroup #rootPrev,
+  #pionierBottomDock #pionierScaleGroup #rootNext {
+    flex-basis:16px !important; width:16px !important; min-width:16px !important;
+  }
+}
