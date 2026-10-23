@@ -154,9 +154,7 @@
     document.querySelectorAll(
       '#stageScaleBar .stage-base-only, #stageScaleBar .stage-notes-slot, #stageScaleBar .stage-root-row, #stageScaleBar .control-half, #stageScaleBar .control-row'
     ).forEach(nuke);
-    var rand = document.getElementById('randomizeSetup');
-    var side = document.getElementById('looperSideControls');
-    if (rand && side && rand.parentElement !== side) side.appendChild(rand);
+    /* Randomizer belongs beside the instrument selector; never steal it into the looper rail. */
   }
 
   function ensureUI() {
@@ -179,14 +177,11 @@
     if (notesMenu) notesMenu.remove();
 
     var rootBtn = document.getElementById('looperRootMenuBtn');
-    if (!rootBtn) {
-      rootBtn = makeMenuBtn('looperRootMenuBtn', 'looperRootMenuValue', 'Base note');
-      side.appendChild(rootBtn);
-    } else if (rootBtn.parentElement !== side) {
-      side.appendChild(rootBtn);
-    }
-    var rand = document.getElementById('randomizeSetup');
-    if (rand) side.appendChild(rand);
+    if (!rootBtn) rootBtn = makeMenuBtn('looperRootMenuBtn', 'looperRootMenuValue', 'Base note');
+    /* Base-note picker belongs directly beside the scale picker. */
+    var scaleStepper = document.querySelector('.control-scale .scale-stepper');
+    if (scaleStepper && rootBtn.parentElement !== scaleStepper) scaleStepper.appendChild(rootBtn);
+    else if (!scaleStepper && rootBtn.parentElement !== side) side.appendChild(rootBtn);
 
     var rootMenu = document.getElementById('looperRootMenu');
     if (!rootMenu) rootMenu = makeMenu('looperRootMenu');
