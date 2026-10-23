@@ -113,7 +113,7 @@ function scheduleDeferredFeatures() {
 async function boot() {
   setBootStatus('loading', 'Starting Pionier…');
   try {
-    await import(new URL('./pionier-core.js?v=74', BASE).href);
+    await import(new URL('./pionier-core.js?v=76', BASE).href);
   } catch (e) {
     console.error('[boot] core', e);
     setBootStatus('failed', 'Core failed to load. Check your connection and retry.', true);
@@ -128,7 +128,7 @@ async function boot() {
   }
 
   try {
-    const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=13', BASE).href);
+    const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=14', BASE).href);
     mountScaleSelector({
       getHandpan: () => window.PionierCore?.handpan || null,
       onScaleChange: () => {
