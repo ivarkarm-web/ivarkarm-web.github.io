@@ -30,7 +30,12 @@
       html = html.replace(/skin-mandala\.js\?v=\d+/g, 'skin-mandala.js?v=6');
       html = html.replace('href="./fx-editor.css?v=4"', 'href="./fx-editor.css?v=5"');
 
-      /* Recovery: do not inject the experimental control-layout CSS; its JS reparenting is disabled. */
+      /* Restore matching layout styles; layout JS now waits until the welcome screen exits. */
+      if (html.indexOf('pionier-control-layout.css') === -1) {
+        html = html.replace('</head>', '  <link rel="stylesheet" href="./pionier-control-layout.css?v=7" />\\n</head>');
+      } else {
+        html = html.replace(/pionier-control-layout\\.css\\?v=\\d+/, 'pionier-control-layout.css?v=7');
+      }
 
       if (html.indexOf('handpan-themes.css') === -1) {
         html = html.replace('</head>', '  <link rel="stylesheet" href="./handpan-themes.css?v=2" />\n</head>');
@@ -45,7 +50,7 @@
       } else {
         html = html.replace(/theme-light-overlays\.css\?v=\d+/, 'theme-light-overlays.css?v=2');
       }
-      /* Recovery: do not inject the experimental looper-layout overrides. */
+      /* Keep the looper-specific overrides disabled; the main layout stylesheet owns placement. */
 
       function injectScript(src) {
         if (html.indexOf(src.split('?')[0]) === -1) {
