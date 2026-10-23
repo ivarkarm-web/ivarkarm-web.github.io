@@ -1,7 +1,7 @@
 /**
  * Pionier service worker
  */
-const CACHE_VERSION = 'pionier-v119';
+const CACHE_VERSION = 'pionier-v120';
 
 const SHELL = [
   './',
@@ -15,7 +15,7 @@ const SHELL = [
   './js/app-state.js?v=1',
   './js/audio-core.js?v=2',
   './js/catch-mode.js?v=4',
-  './js/customization-catalog.js?v=6',
+  './js/customization-catalog.js?v=7',
   './js/debug.js',
   './js/fx-editor.js?v=9',
   './js/fx.js',
@@ -25,7 +25,7 @@ const SHELL = [
   './js/instruments/handpan-scales.js?v=6',
   './js/instruments/handpan.js?v=11',
   './js/instruments/library-family.js?v=3',
-  './js/layout-boot.js?v=66',
+  './js/layout-boot.js?v=67',
   './js/loop-core.js',
   './js/looper.js?v=222',
   './js/note-plus.js?v=3',
@@ -35,13 +35,16 @@ const SHELL = [
   './js/pionier-surface.js?v=146',
   './js/portrait-lock.js?v=1',
   './js/scale-selector.js?v=12',
-  './js/settings-panel.js?v=28',
-  './js/skin-mandala.js?v=5',
-  './js/skin-palette.js?v=1',
+  './js/settings-panel.js?v=30',
+  './js/skin-mandala.js?v=6',
+  './js/skin-palette.js?v=2',
   './js/soundscapes.js?v=11',
+  './looper-side-menus.js?v=6',
   './looper.css?v=222',
   './og-pionier-synth.svg',
   './pionier-app.js?v=235',
+  './pionier-control-layout.css?v=11',
+  './pionier-control-layout.js?v=9',
   './pionier-core.js?v=70',
   './pionier.css?v=166',
   './portrait-lock.css?v=1',
