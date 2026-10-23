@@ -280,7 +280,6 @@ canvas?.addEventListener('pointermove', (e) => {
     let glided = false;
     const sharedPrev = prevIdx != null && hasOtherPointerAt(prevIdx, e.pointerId);
     const sharedTarget = hasOtherPointerAt(hit.index, e.pointerId);
-    if (false) { /* glide disabled */ }
     if (!glided) {
       if (prevIdx != null && !sharedPrev) inst.noteOff(prevIdx);
       if (!sharedTarget) {
@@ -295,9 +294,6 @@ canvas?.addEventListener('pointermove', (e) => {
     draw();
   } else if (hit && typeof inst.express === 'function' && moved) {
     const originY = (typeof rec === 'object' && rec?.originY != null) ? rec.originY : y;
-    const dy = originY - y;
-    const bendNorm = Math.max(-1, Math.min(1, dy / PITCH_BEND_PIXELS));
-    const range = inst.pitchBendRange ?? 2;
     moved.pitchBendNorm = 0;
     moved.pitchBend = 0;
     inst.express(moved, hit);
@@ -417,7 +413,6 @@ function wireKnobs() {
   if (!app.fxChain) return;
   if (app._knobsWired) { paintAllKnobs(); return; }
   app._knobsWired = true;
-  // simplified: paint only; detailed knob wiring kept from prior version via paintAllKnobs
   paintAllKnobs();
 }
 
@@ -536,6 +531,20 @@ window.addEventListener('blur', () => {
   }
 });
 
+async function loadArpsSafe() {
+  try {
+    const mod = await import(new URL('./js/instruments/arp-family.js?v=3', import.meta.url).href);
+    const create = mod.createArpInstruments;
+    if (typeof create !== 'function') return;
+    const arps = create() || [];
+    for (const a of arps) {
+      try { InstrumentRegistry.register(a); } catch (_) {}
+    }
+  } catch (e) {
+    console.warn('[core] arp load', e);
+  }
+}
+
 window.PionierCore = {
   handpan, surface,
   activeInstrument: () => activeInstrument(),
@@ -571,6 +580,42 @@ window.PionierCore = {
   setScaleIndex(i) {
     handpan.setScaleIndex(i);
     refreshPitch();
+  },
+  async randomizeSetup() {
+    await loadArpsSafe();
+    const list = InstrumentRegistry.list().filter((item) => item && item.id);
+    const currentId = InstrumentRegistry.active?.id || activeInstrument()?.id || 'handpan';
+    if (list.length) {
+      const pool = list.filter((item) => item.id !== currentId);
+      const choices = pool.length ? pool : list;
+      const pick = choices[Math.floor(Math.random() * choices.length)];
+      if (pick?.id) {
+        try { await setInstrument(pick.id); } catch (err) {
+          console.warn('[randomize] setInstrument failed', pick.id, err);
+        }
+      }
+    }
+    const voiceEl = document.getElementById('instrumentDropdownToggle');
+    const inst = activeInstrument();
+    if (voiceEl && inst) voiceEl.textContent = (inst.name || inst.id) + ' \u25be';
+
+    const scales = (typeof HANDPAN_SCALES !== 'undefined' && HANDPAN_SCALES) || window.HANDPAN_SCALES || [];
+    if (scales.length > 1) {
+      let next = Math.floor(Math.random() * scales.length);
+      const curIdx = typeof handpan.scaleIndex === 'number' ? handpan.scaleIndex : -1;
+      if (next === curIdx) next = (next + 1) % scales.length;
+      handpan.setScaleIndex(next);
+      refreshPitch();
+      const label = document.getElementById('scaleLabel');
+      const scale = scales[next];
+      if (label && scale) label.textContent = (scale.short || scale.label || 'Scale') + ' \u25be';
+    }
+    draw();
+    return {
+      instrument: activeInstrument()?.id,
+      scaleIndex: handpan.scaleIndex,
+      instrumentCount: list.length,
+    };
   },
   refreshPitch() { refreshPitch(); },
   noteCount: () => {
