@@ -130,9 +130,9 @@ export class HandpanInstrument extends Instrument {
     const scale = HANDPAN_SCALES[this.scaleIndex] || HANDPAN_SCALES[0];
     const base = rootToMidi(this.rootIndex, this.octaveOffset);
     // Note count is fixed by the active scale definition (not user-adjustable).
-    const scaleCents = scaleToCents(scale);
-    this.noteCount = Math.max(1, Math.min(MAX_NOTES, scaleCents.length || MIN_NOTES));
-    const centsList = scaleCents.slice(0, this.noteCount);
+    const scaleCents = extendScaleCents(scaleToCents(scale), FIXED_NOTE_COUNT);
+    this.noteCount = FIXED_NOTE_COUNT;
+    const centsList = scaleCents.slice(0, FIXED_NOTE_COUNT);
     const isMicro = !!(scale.cents && scale.cents.length) || (scale.tuning && scale.tuning !== '12-TET');
     const angles = ringAngles(Math.max(1, centsList.length - 1));
 
