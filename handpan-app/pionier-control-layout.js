@@ -2,8 +2,8 @@
    This only reparents existing DOM controls; audio and control event handlers remain attached. */
 (function () {
   'use strict';
-  if (window.__pionierLayoutRecoveryV14) return;
-  window.__pionierLayoutRecoveryV14 = true;
+  if (window.__pionierLayoutRecoveryV15) return;
+  window.__pionierLayoutRecoveryV15 = true;
 
   var scheduled = false;
   var observer = null;
@@ -82,7 +82,7 @@
 
     var clear = document.getElementById('looperClearBtn');
     var recordCluster = document.getElementById('looperRecordCluster');
-    appendIfNeeded(loopControls, clear);
+    appendIfNeeded(tracks, clear);
     var utilityGroup = document.getElementById('looperUtilityControls');
     if (utilityGroup) {
       // The legacy looper stylesheet positions timing controls only while they
