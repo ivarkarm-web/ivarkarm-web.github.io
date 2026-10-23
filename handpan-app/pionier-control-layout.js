@@ -2,8 +2,8 @@
    This only reparents existing DOM controls; audio and control event handlers remain attached. */
 (function () {
   'use strict';
-  if (window.__pionierLayoutRecoveryV11) return;
-  window.__pionierLayoutRecoveryV11 = true;
+  if (window.__pionierLayoutRecoveryV12) return;
+  window.__pionierLayoutRecoveryV12 = true;
 
   var scheduled = false;
   var observer = null;
@@ -42,6 +42,7 @@
     if (!app || !topbar || !rail) return;
 
     var selectors = make('div', 'pionierSelectorRow', 'pionier-selector-row');
+    var dock = make('div', 'pionierBottomDock', 'pionier-bottom-dock');
     var instrumentGroup = make('div', 'pionierInstrumentGroup', 'pionier-selector-group pionier-instrument-group');
     var scaleGroup = make('div', 'pionierScaleGroup', 'pionier-selector-group pionier-scale-group');
     var toolbar = make('div', 'pionierLooperToolbar', 'pionier-looper-toolbar');
@@ -49,23 +50,12 @@
     var actionGroup = make('div', 'pionierLooperActions', 'pionier-looper-actions');
     var tracks = make('div', 'pionierTrackRow', 'pionier-track-row');
 
-    appendIfNeeded(topbar, selectors);
+    appendIfNeeded(app, dock);
+    appendIfNeeded(dock, selectors);
     appendIfNeeded(selectors, instrumentGroup);
     appendIfNeeded(selectors, scaleGroup);
-    var stage = document.getElementById('stage');
-    if (stage) {
-      if (toolbar.parentElement !== app ||
-          !(toolbar.compareDocumentPosition(stage) & Node.DOCUMENT_POSITION_FOLLOWING)) {
-        app.insertBefore(toolbar, stage);
-      }
-      if (tracks.parentElement !== app ||
-          !(tracks.compareDocumentPosition(stage) & Node.DOCUMENT_POSITION_FOLLOWING)) {
-        app.insertBefore(tracks, stage);
-      }
-    } else {
-      appendIfNeeded(app, toolbar);
-      appendIfNeeded(app, tracks);
-    }
+    appendIfNeeded(dock, toolbar);
+    appendIfNeeded(dock, tracks);
     appendIfNeeded(toolbar, loopControls);
     appendIfNeeded(toolbar, actionGroup);
 
