@@ -17,12 +17,20 @@
 
   function centerPan() {
     var root = document.documentElement;
+    var chrome = document.getElementById('pionierChrome');
     var topbar = document.querySelector('#app > .topbar');
     var rail = document.getElementById('looperRail');
-    var topH = topbar ? topbar.getBoundingClientRect().bottom : 0;
-    var botH = rail ? Math.max(0, window.innerHeight - rail.getBoundingClientRect().top) : 0;
-    root.style.setProperty('--chrome-top', Math.round(topH) + 'px');
-    root.style.setProperty('--chrome-bottom', Math.round(botH) + 'px');
+    var topH = 8;
+    var botH = 160;
+    if (chrome) {
+      botH = Math.max(120, Math.ceil(window.innerHeight - chrome.getBoundingClientRect().top));
+    } else if (rail) {
+      botH = Math.max(0, Math.ceil(window.innerHeight - rail.getBoundingClientRect().top));
+    } else if (topbar) {
+      topH = Math.round(topbar.getBoundingClientRect().bottom);
+    }
+    root.style.setProperty('--chrome-top', topH + 'px');
+    root.style.setProperty('--chrome-bottom', botH + 'px');
     root.style.setProperty('--pan-bottom-gap', '12px');
     root.style.setProperty('--viewport-h', window.innerHeight + 'px');
 
@@ -56,7 +64,12 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
   else boot();
   window.addEventListener('resize', centerPan, { passive: true });
-  window.addEventListener('orientationchange', function () { requestAnimationFrame(centerPan); }, { passive: true });
-  setTimeout(boot, 200);
-  setTimeout(boot, 800);
+  window.addEventListener('orientationchange', function () {
+    setTimeout(centerPan, 100);
+    setTimeout(centerPan, 400);
+  });
+  document.addEventListener('pionier:welcome-closed', function () {
+    setTimeout(centerPan, 50);
+    setTimeout(centerPan, 300);
+  });
 })();
