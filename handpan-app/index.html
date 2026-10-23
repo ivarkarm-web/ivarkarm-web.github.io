@@ -32,9 +32,9 @@
 
       /* Restore matching layout styles; layout JS now waits until the welcome screen exits. */
       if (html.indexOf('pionier-control-layout.css') === -1) {
-        html = html.replace('</head>', '  <link rel="stylesheet" href="./pionier-control-layout.css?v=7" />\\n</head>');
+        html = html.replace('</head>', '  <link rel="stylesheet" href="./pionier-control-layout.css?v=8" />\\n</head>');
       } else {
-        html = html.replace(/pionier-control-layout\\.css\\?v=\\d+/, 'pionier-control-layout.css?v=7');
+        html = html.replace(/pionier-control-layout\\.css\\?v=\\d+/, 'pionier-control-layout.css?v=8');
       }
 
       if (html.indexOf('handpan-themes.css') === -1) {
@@ -60,7 +60,7 @@
           html = html.replace(new RegExp(base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\?v=\\d+'), src);
         }
       }
-      injectScript('./looper-side-menus.js?v=5');
+      injectScript('./looper-side-menus.js?v=6');
       injectScript('./looper-restart-on-record.js?v=2');
       injectScript('./phase1-note-count-guard.js?v=2');
       injectScript('./js/phase3-handpan-theme.js?v=1');
