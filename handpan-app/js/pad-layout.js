@@ -1,16 +1,15 @@
 /**
- * pad-layout.js — how many notes the handpan can have and where they sit.
+ * pad-layout.js — tonefield ring geometry for the handpan.
  *
- * One Ding in the centre plus a ring of tonefields. Start with 7
- * surrounding tonefields (8 notes total) and grow to MAX_NOTES.
+ * Note count is fixed per scale (see HANDPAN_SCALES intervals).
+ * MAX_NOTES sizes internal buffers; it is not a user control.
  */
-export const MIN_NOTES = 8;
-export const MAX_NOTES = 13;
+export const MIN_NOTES = 6;
+export const MAX_NOTES = 16;
 
 /**
  * Order in which ring slots are filled from low pitch to high pitch:
  * bottom first, then alternating right / left, finishing at the top.
- * For 7 slots this order balances the ring around the central Ding.
  */
 export function ringSlotOrder(ringCount) {
   const order = [0];
@@ -22,7 +21,7 @@ export function ringSlotOrder(ringCount) {
 }
 
 /**
- * Angle (degrees, 0 = top, clockwise-from-bottom slots) for every ring pad.
+ * Angle (degrees, 0 = top) for every ring pad.
  * Entry i belongs to note index i + 1 (index 0 is the central Ding).
  */
 export function ringAngles(ringCount) {
