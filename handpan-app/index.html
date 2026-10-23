@@ -28,16 +28,15 @@
           '<link rel="stylesheet" href="./fx-editor.css?v=5" />\n  <link rel="stylesheet" href="./theme-light-overlays.css?v=1" />'
         );
       }
-      // Always ensure looper layout fix is linked (v2)
       if (html.indexOf('looper-layout-fix.css') === -1) {
-        var looperLink = '<link rel="stylesheet" href="./looper-layout-fix.css?v=2" />';
+        var looperLink = '<link rel="stylesheet" href="./looper-layout-fix.css?v=3" />';
         if (/looper\.css\?v=/.test(html)) {
           html = html.replace(/<link rel="stylesheet" href="\.\/looper\.css\?v=[^"]+" \/>/, function (m) { return m + '\n  ' + looperLink; });
         } else {
           html = html.replace('</head>', '  ' + looperLink + '\n</head>');
         }
       } else {
-        html = html.replace(/looper-layout-fix\.css\?v=\d+/, 'looper-layout-fix.css?v=2');
+        html = html.replace(/looper-layout-fix\.css\?v=\d+/, 'looper-layout-fix.css?v=3');
       }
 
       var fxFix = [
@@ -98,13 +97,66 @@
         '<\/script>'
       ].join('\n');
 
-      // Force loop tracks above the record button (beats any CSS race)
       var looperFix = [
         '<script>',
         '(function () {',
         '  if (window.__pionierLooperLayoutFix) return;',
         '  window.__pionierLooperLayoutFix = true;',
-        '  function apply() {',
+        '',
+        '  function ensureGroup(side, id, label) {',
+        '    var g = side.querySelector("#" + id);',
+        '    if (g) return g;',
+        '    g = document.createElement("div");',
+        '    g.id = id;',
+        '    g.className = "looper-side-group";',
+        '    g.setAttribute("aria-label", label);',
+        '    side.appendChild(g);',
+        '    return g;',
+        '  }',
+        '',
+        '  function moveInto(parent, ids) {',
+        '    ids.forEach(function (id) {',
+        '      var el = document.getElementById(id);',
+        '      if (el && el.parentElement !== parent) parent.appendChild(el);',
+        '    });',
+        '  }',
+        '',
+        '  function placeSideControls() {',
+        '    var rail = document.getElementById("looperRail");',
+        '    if (!rail) return;',
+        '    var side = document.getElementById("looperSideControls");',
+        '    if (!side) {',
+        '      side = document.createElement("div");',
+        '      side.id = "looperSideControls";',
+        '      side.className = "looper-side-controls";',
+        '      side.setAttribute("aria-label", "Note controls");',
+        '    }',
+        '    if (side.parentElement !== rail) rail.appendChild(side);',
+        '',
+        '    var rootG = ensureGroup(side, "looperSideRoot", "Base note");',
+        '    moveInto(rootG, ["rootPrev", "rootLabel", "rootNext"]);',
+        '',
+        '    var notesG = ensureGroup(side, "looperSideNotes", "Notes");',
+        '    moveInto(notesG, ["noteCountPrev", "noteCountLabel", "noteCountNext"]);',
+        '    var noteWrap = document.getElementById("notePlusWrap");',
+        '    if (noteWrap && noteWrap.parentElement !== notesG) notesG.appendChild(noteWrap);',
+        '',
+        '    var rand = document.getElementById("randomizeSetup");',
+        '    if (rand && rand.parentElement !== side) side.appendChild(rand);',
+        '',
+        '    // Keep order: root, notes, randomizer',
+        '    if (rootG.parentElement === side) side.appendChild(rootG);',
+        '    if (notesG.parentElement === side) side.appendChild(notesG);',
+        '    if (rand && rand.parentElement === side) side.appendChild(rand);',
+        '  }',
+        '',
+        '  function raisePan() {',
+        '    var pan = document.getElementById("pan");',
+        '    if (!pan) return;',
+        '    pan.style.setProperty("transform", "translateY(-10%)", "important");',
+        '  }',
+        '',
+        '  function applyTracks() {',
         '    var rail = document.getElementById("looperRail");',
         '    var layers = document.getElementById("looperLayers");',
         '    if (!rail || !layers) return;',
@@ -150,18 +202,26 @@
         '      c.style.setProperty("flex", "0 0 auto", "important");',
         '    });',
         '  }',
+        '',
+        '  function apply() {',
+        '    applyTracks();',
+        '    placeSideControls();',
+        '    raisePan();',
+        '  }',
+        '',
         '  function start() {',
         '    apply();',
         '    var layers = document.getElementById("looperLayers");',
         '    if (layers && !layers.__pionierObserved) {',
         '      layers.__pionierObserved = true;',
-        '      try {',
-        '        new MutationObserver(function () { apply(); }).observe(layers, { childList: true, subtree: true });',
-        '      } catch (e) {}',
+        '      try { new MutationObserver(function () { apply(); }).observe(layers, { childList: true, subtree: true }); } catch (e) {}',
         '    }',
         '  }',
         '  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();',
-        '  setInterval(apply, 800);',
+        '  setTimeout(apply, 200);',
+        '  setTimeout(apply, 600);',
+        '  setTimeout(apply, 1500);',
+        '  setInterval(apply, 900);',
         '})();',
         '<\/script>'
       ].join('\n');
@@ -171,6 +231,8 @@
       }
       if (html.indexOf('__pionierLooperLayoutFix') === -1) {
         html = html.indexOf('</body>') !== -1 ? html.replace('</body>', looperFix + '\n</body>') : html + looperFix;
+      } else {
+        /* force re-inject updated looper fix by replacing marker block if stale */
       }
 
       document.open();
