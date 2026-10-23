@@ -2,7 +2,6 @@
 (function () {
   if (window.__pionierRequestedControlLayoutV1) return;
   window.__pionierRequestedControlLayoutV1 = true;
-  var timer = 0;
   function ensureLayout() {
     var app = document.getElementById('app');
     var topbar = app && app.querySelector('.topbar');
@@ -50,8 +49,6 @@
       if (fx && fx.parentElement !== shortcutsEl) shortcutsEl.appendChild(fx);
       if (settings && settings.parentElement !== shortcutsEl) shortcutsEl.appendChild(settings);
     }
-    // The FX and customization launchers are sometimes created after DOMContentLoaded.
-    if (!timer) timer = window.setTimeout(function () { timer = 0; ensureLayout(); }, 350);
   }
   function observeMenus() {
     var observer = new MutationObserver(function () {
