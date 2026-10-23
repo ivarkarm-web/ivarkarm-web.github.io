@@ -59,13 +59,19 @@ async function loadFxEditor() {
 async function loadArps() {
   try {
     const { createArpInstruments } = await import(new URL('./js/instruments/arp-family.js?v=3', BASE).href);
-    const { InstrumentRegistry } = await import(new URL('./js/instrument.js', BASE).href);
-    if (typeof createArpInstruments === 'function') {
-      const arps = createArpInstruments();
-      (arps || []).forEach((a) => {
-        try { InstrumentRegistry.register?.(a); } catch (_) {}
+    if (typeof createArpInstruments !== 'function') return;
+    const arps = createArpInstruments() || [];
+    // Prefer the same registry instance the core uses so randomize / setInstrument see them.
+    if (typeof window.PionierCore?.registerInstrument === 'function') {
+      arps.forEach((a) => {
+        try { window.PionierCore.registerInstrument(a); } catch (_) {}
       });
+      return;
     }
+    const { InstrumentRegistry } = await import(new URL('./js/instrument.js', BASE).href);
+    arps.forEach((a) => {
+      try { InstrumentRegistry.register?.(a); } catch (_) {}
+    });
   } catch (e) {
     console.warn('[boot] arps', e);
   }
@@ -108,7 +114,7 @@ function scheduleDeferredFeatures() {
 async function boot() {
   setBootStatus('loading', 'Starting Pionier…');
   try {
-    await import(new URL('./pionier-core.js?v=72', BASE).href);
+    await import(new URL('./pionier-core.js?v=73', BASE).href);
   } catch (e) {
     console.error('[boot] core', e);
     setBootStatus('failed', 'Core failed to load. Check your connection and retry.', true);
@@ -143,20 +149,43 @@ async function boot() {
     if (dice) { dice.dataset.rolling = '1'; dice.classList.add('is-rolling'); }
     try {
       unlockAudioFromGesture();
+      // Ensure deferred arp family is registered so randomize can pick those voices too.
       await loadArps().catch(() => {});
-      const { InstrumentRegistry } = await import(new URL('./js/instrument.js', BASE).href);
-      const instruments = InstrumentRegistry.list().filter((item) => item?.id);
+      const core = window.PionierCore;
+      // Prefer the core-owned registry (same instance that setInstrument uses).
+      // Avoid a second dynamic import of instrument.js which can resolve to an empty module instance.
+      let instruments = [];
+      if (typeof core?.listInstruments === 'function') {
+        instruments = (core.listInstruments() || []).filter((item) => item?.id);
+      }
+      if (!instruments.length) {
+        try {
+          const { InstrumentRegistry } = await import(new URL('./js/instrument.js', BASE).href);
+          instruments = InstrumentRegistry.list().filter((item) => item?.id);
+        } catch (_) {}
+      }
       const scales = window.HANDPAN_SCALES || [];
-      const currentId = window.PionierCore?.activeInstrument?.()?.id;
+      const currentId = core?.activeInstrument?.()?.id;
       const choices = instruments.filter((item) => item.id !== currentId);
-      const instrument = (choices.length ? choices : instruments)[Math.floor(Math.random() * Math.max(1, (choices.length || instruments.length)))];
-      if (instrument?.id) await window.PionierCore?.setInstrument?.(instrument.id);
-      const handpan = window.PionierCore?.handpan;
+      const pool = choices.length ? choices : instruments;
+      if (pool.length) {
+        const instrument = pool[Math.floor(Math.random() * pool.length)];
+        if (instrument?.id && typeof core?.setInstrument === 'function') {
+          await core.setInstrument(instrument.id);
+        }
+      }
+      const handpan = core?.handpan;
       if (handpan && scales.length > 1) {
-        const next = Math.floor(Math.random() * scales.length);
-        handpan.setScaleIndex(next);
-        window.PionierCore?.refreshPitch?.();
-        window.PionierCore?.draw?.();
+        let next = Math.floor(Math.random() * scales.length);
+        // Prefer a different scale when possible
+        const curIdx = typeof handpan.scaleIndex === 'number' ? handpan.scaleIndex : -1;
+        if (scales.length > 1 && next === curIdx) next = (next + 1) % scales.length;
+        if (typeof core.setScaleIndex === 'function') core.setScaleIndex(next);
+        else {
+          handpan.setScaleIndex(next);
+          core?.refreshPitch?.();
+        }
+        core?.draw?.();
         const label = document.getElementById('scaleLabel');
         const scale = scales[next];
         if (label && scale) label.textContent = (scale.short || scale.label || 'Scale') + ' ▾';
