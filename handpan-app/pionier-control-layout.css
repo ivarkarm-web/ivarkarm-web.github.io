@@ -338,3 +338,48 @@
   #looperRail.looper-rail { gap:5px !important; }
   #pionierLooperShortcuts { gap:18px !important; min-height:42px !important; }
 }
+
+
+/* v7 corrective overrides: actual shell markup has scale inside #mobileControlPanel;
+   pin the scale block visibly after moving it to the topbar and keep all utility actions
+   on the same physical row as the looper transport. */
+#app > .topbar > .control-scale {
+  display:flex !important; visibility:visible !important; opacity:1 !important;
+  flex:0 1 auto !important; min-width:0 !important; max-width:calc(100vw - 12px) !important;
+}
+#app > .topbar > .control-scale .scale-stepper { display:flex !important; visibility:visible !important; opacity:1 !important; }
+#app > .topbar > .control-scale #scaleMenu { position:fixed !important; }
+#looperRail.looper-rail {
+  display:flex !important; flex-flow:row nowrap !important; align-items:center !important;
+  justify-content:flex-start !important; gap:5px !important; padding:0 5px !important;
+  overflow:visible !important; min-width:0 !important;
+}
+#looperRail > #pionierLooperShortcuts,
+#looperRail #pionierLooperShortcuts {
+  position:static !important; inset:auto !important; transform:none !important;
+  display:flex !important; flex:0 0 auto !important; flex-flow:row nowrap !important;
+  align-items:center !important; justify-content:flex-end !important; gap:3px !important;
+  width:auto !important; min-width:0 !important; max-width:none !important;
+  min-height:0 !important; margin:0 0 0 auto !important; padding:0 !important;
+}
+#pionierLooperShortcuts > #openSoundscapes,
+#pionierLooperShortcuts > #fxPanelOpen,
+#pionierLooperShortcuts > #settingsOpenBtn {
+  position:static !important; inset:auto !important; transform:none !important;
+  display:inline-flex !important; visibility:visible !important; opacity:1 !important;
+  flex:0 0 30px !important; width:30px !important; min-width:30px !important; max-width:30px !important;
+  height:30px !important; min-height:30px !important; max-height:30px !important;
+  margin:0 !important; padding:0 !important; z-index:10 !important; pointer-events:auto !important;
+  border-radius:9px !important; box-sizing:border-box !important;
+}
+#looperRail > #looperRecordCluster { flex:0 0 auto !important; }
+#looperRail > #looperLayers { flex:0 1 auto !important; min-width:0 !important; max-width:none !important; flex-wrap:nowrap !important; }
+@media (max-width:520px) {
+  #looperRail.looper-rail { gap:3px !important; padding-inline:3px !important; }
+  #pionierLooperShortcuts > #openSoundscapes,
+  #pionierLooperShortcuts > #fxPanelOpen,
+  #pionierLooperShortcuts > #settingsOpenBtn {
+    flex-basis:27px !important; width:27px !important; min-width:27px !important; max-width:27px !important;
+    height:29px !important; min-height:29px !important; max-height:29px !important;
+  }
+}
