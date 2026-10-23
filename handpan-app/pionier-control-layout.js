@@ -52,10 +52,16 @@
     appendIfNeeded(topbar, selectors);
     appendIfNeeded(selectors, instrumentGroup);
     appendIfNeeded(selectors, scaleGroup);
-    appendIfNeeded(app, toolbar);
+    var stage = document.getElementById('stage');
+    if (stage) {
+      if (toolbar.parentElement !== app || toolbar.nextElementSibling !== stage) app.insertBefore(toolbar, stage);
+      if (tracks.parentElement !== app || tracks.nextElementSibling !== stage) app.insertBefore(tracks, stage);
+    } else {
+      appendIfNeeded(app, toolbar);
+      appendIfNeeded(app, tracks);
+    }
     appendIfNeeded(toolbar, loopControls);
     appendIfNeeded(toolbar, actionGroup);
-    appendIfNeeded(app, tracks);
 
     var nav = document.getElementById('instrumentNav');
     var voicePrev = document.getElementById('voicePrev');
