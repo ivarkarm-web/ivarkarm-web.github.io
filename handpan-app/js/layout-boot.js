@@ -14,6 +14,14 @@
   'use strict';
   if (window.__pionierStableLayoutBootV1) return;
   window.__pionierStableLayoutBootV1 = true;
+  var layoutObserver = null;
+  var dockResizeObserver = null;
+  var resizeScheduled = false;
+  function scheduleCenterPan() {
+    if (resizeScheduled) return;
+    resizeScheduled = true;
+    requestAnimationFrame(function () { resizeScheduled = false; centerPan(); });
+  }
 
   function centerPan() {
     var root = document.documentElement;
@@ -63,6 +71,15 @@
   function boot() {
     centerPan();
     ensureLooperChrome();
+    if (!layoutObserver && document.body) {
+      layoutObserver = new MutationObserver(scheduleCenterPan);
+      layoutObserver.observe(document.body, { childList: true, subtree: true });
+    }
+    var dock = document.getElementById('pionierBottomDock');
+    if (dock && !dockResizeObserver && 'ResizeObserver' in window) {
+      dockResizeObserver = new ResizeObserver(scheduleCenterPan);
+      dockResizeObserver.observe(dock);
+    }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
   else boot();
