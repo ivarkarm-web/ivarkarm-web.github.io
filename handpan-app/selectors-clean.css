@@ -1,0 +1,125 @@
+/* PIONIER — clean, neutral selectors.
+   Scale / instrument / base-note controls and their menus: quiet glass surfaces,
+   hairline borders, no gold. Loaded last so it wins over legacy accent rules.
+   Delete this file (and its <link> + sw.js entry) to restore the old look. */
+:root {
+  --sel-surface: rgba(255,255,255,.060);
+  --sel-surface-hover: rgba(255,255,255,.095);
+  --sel-border: rgba(255,255,255,.09);
+  --sel-text: #ecebe8;
+  --sel-muted: rgba(255,255,255,.58);
+  --sel-faint: rgba(255,255,255,.40);
+  --sel-active: rgba(255,255,255,.10);
+  --sel-focus: rgba(255,255,255,.38);
+  --sel-menu-bg: rgba(22,22,25,.94);
+  --sel-menu-border: rgba(255,255,255,.08);
+  --sel-radius: 12px;
+}
+html.theme-light {
+  --sel-surface: rgba(0,0,0,.045);
+  --sel-surface-hover: rgba(0,0,0,.075);
+  --sel-border: rgba(0,0,0,.10);
+  --sel-text: #1c1c1e;
+  --sel-muted: rgba(0,0,0,.58);
+  --sel-faint: rgba(0,0,0,.42);
+  --sel-active: rgba(0,0,0,.08);
+  --sel-focus: rgba(0,0,0,.40);
+  --sel-menu-bg: rgba(252,252,252,.97);
+  --sel-menu-border: rgba(0,0,0,.09);
+}
+
+/* ---------- Controls in the bottom dock ---------- */
+html body #pionierBottomDock #pionierScaleGroup .scale-stepper,
+html body #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle,
+html body #pionierBottomDock #pionierRootGroup #looperRootMenuBtn,
+html body #pionierBottomDock #pionierInstrumentGroup #randomizeSetup {
+  background:var(--sel-surface) !important; background-image:none !important;
+  border:1px solid var(--sel-border) !important; border-radius:var(--sel-radius) !important;
+  box-shadow:none !important; color:var(--sel-text) !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  transition:background .18s ease, border-color .18s ease !important;
+}
+html body #pionierBottomDock #pionierScaleGroup .scale-stepper:hover,
+html body #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle:hover,
+html body #pionierBottomDock #pionierRootGroup #looperRootMenuBtn:hover,
+html body #pionierBottomDock #pionierInstrumentGroup #randomizeSetup:hover {
+  background:var(--sel-surface-hover) !important; border-color:var(--sel-border) !important;
+}
+html body #pionierBottomDock #instrumentDropdownToggle[aria-expanded="true"],
+html body #pionierBottomDock #looperRootMenuBtn[aria-expanded="true"],
+html body #pionierBottomDock #scaleLabel[aria-expanded="true"] {
+  background:var(--sel-active) !important; border-color:var(--sel-border) !important;
+}
+html body #pionierBottomDock #pionierScaleGroup #scaleLabel {
+  background:transparent !important; border:0 !important; box-shadow:none !important;
+  color:var(--sel-text) !important; font-weight:560 !important;
+}
+html body #pionierBottomDock #pionierScaleGroup .scale-stepper .step,
+html body #pionierBottomDock #pionierInstrumentGroup #voicePrev,
+html body #pionierBottomDock #pionierInstrumentGroup #voiceNext {
+  background:transparent !important; background-image:none !important; border:0 !important;
+  box-shadow:none !important; color:var(--sel-muted) !important;
+}
+html body #pionierBottomDock #pionierScaleGroup .scale-stepper .step:hover,
+html body #pionierBottomDock #pionierInstrumentGroup #voicePrev:hover,
+html body #pionierBottomDock #pionierInstrumentGroup #voiceNext:hover {
+  background:var(--sel-surface-hover) !important; color:var(--sel-text) !important;
+}
+html body #pionierBottomDock #pionierRootGroup #looperRootMenuBtn { font-weight:600 !important; }
+html body #pionierBottomDock #pionierRootGroup #looperRootMenuBtn .looper-dd-caret { opacity:.55 !important; }
+html body #pionierBottomDock #randomizeSetup .randomize-die rect { stroke:var(--sel-border) !important; }
+html body #pionierBottomDock #randomizeSetup .randomize-die g { fill:var(--sel-menu-bg) !important; }
+
+/* ---------- Menus: scale, instrument, base note ---------- */
+html body #scaleMenu, html body #instrumentMenu, html body #looperRootMenu {
+  background:var(--sel-menu-bg) !important; background-image:none !important;
+  border:1px solid var(--sel-menu-border) !important; border-radius:16px !important;
+  box-shadow:0 18px 48px rgba(0,0,0,.42) !important;
+  -webkit-backdrop-filter:blur(22px) saturate(120%) !important; backdrop-filter:blur(22px) saturate(120%) !important;
+  color:var(--sel-text) !important;
+}
+html.theme-light body #scaleMenu, html.theme-light body #instrumentMenu, html.theme-light body #looperRootMenu {
+  box-shadow:0 14px 36px rgba(0,0,0,.16) !important;
+}
+html body #scaleMenu .scale-menu-group, html body #instrumentMenu .instrument-menu-group,
+html body #looperRootMenu .looper-dd-title {
+  color:var(--sel-faint) !important; font-weight:600 !important; letter-spacing:.10em !important;
+}
+html body #scaleMenu button, html body #instrumentMenu button, html body #looperRootMenu .looper-dd-item {
+  background:transparent !important; background-image:none !important;
+  border:1px solid transparent !important; border-radius:10px !important; box-shadow:none !important;
+  color:var(--sel-muted) !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+html body #scaleMenu button:hover, html body #instrumentMenu button:hover,
+html body #looperRootMenu .looper-dd-item:hover {
+  background:var(--sel-surface) !important; color:var(--sel-text) !important; border-color:transparent !important;
+}
+html body #scaleMenu button:focus-visible, html body #instrumentMenu button:focus-visible,
+html body #looperRootMenu .looper-dd-item:focus-visible {
+  background:var(--sel-surface) !important; color:var(--sel-text) !important;
+  outline:2px solid var(--sel-focus) !important; outline-offset:-2px !important;
+}
+html body #scaleMenu button.is-active, html body #instrumentMenu button.is-active,
+html body #scaleMenu button[aria-selected="true"], html body #instrumentMenu button[aria-selected="true"],
+html body #looperRootMenu .looper-dd-item.is-active {
+  background:var(--sel-active) !important; color:var(--sel-text) !important; font-weight:600 !important;
+  border-color:transparent !important; box-shadow:none !important;
+}
+html body #scaleMenu button.is-active::after, html body #instrumentMenu button.is-active::after { color:var(--sel-muted) !important; }
+html body #scaleMenu .scale-item-tuning { color:var(--sel-faint) !important; opacity:1 !important; }
+
+/* Search field + close button inside the menus */
+html body #scaleMenu .picker-search, html body #instrumentMenu .picker-search {
+  background:var(--sel-surface) !important; border:1px solid var(--sel-border) !important;
+  border-radius:10px !important; color:var(--sel-text) !important; box-shadow:none !important;
+}
+html body #scaleMenu .picker-search:focus, html body #instrumentMenu .picker-search:focus {
+  border-color:var(--sel-focus) !important; box-shadow:none !important; outline:none !important;
+}
+html body #scaleMenu .picker-search::placeholder, html body #instrumentMenu .picker-search::placeholder { color:var(--sel-faint) !important; }
+html body #scaleMenu .picker-close, html body #instrumentMenu .picker-close {
+  background:var(--sel-surface) !important; border:1px solid var(--sel-border) !important; color:var(--sel-muted) !important;
+}
+
+/* Quiet, thin scrollbar for the base-note list (the others scroll without a track). */
+html body #looperRootMenu { scrollbar-width:thin; scrollbar-color:var(--sel-border) transparent; }
