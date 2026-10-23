@@ -2,8 +2,8 @@
    This only reparents existing DOM controls; audio and control event handlers remain attached. */
 (function () {
   'use strict';
-  if (window.__pionierLayoutRecoveryV13) return;
-  window.__pionierLayoutRecoveryV13 = true;
+  if (window.__pionierLayoutRecoveryV14) return;
+  window.__pionierLayoutRecoveryV14 = true;
 
   var scheduled = false;
   var observer = null;
