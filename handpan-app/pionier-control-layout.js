@@ -76,9 +76,13 @@
     var scaleBlock = app.querySelector('.control-scale');
     var rootLabel = document.getElementById('rootLabel');
     var rootBlock = rootLabel && rootLabel.closest('.control-block');
+    var rootGroup = make('div', 'pionierRootGroup', 'pionier-root-control');
     if (rootBlock && rootBlock.querySelector('#noteCountLabel')) rootBlock = null;
     appendIfNeeded(scaleGroup, scaleBlock);
-    appendIfNeeded(scaleGroup, rootBlock);
+    if (rootBlock) {
+      appendIfNeeded(rootGroup, rootBlock);
+      appendIfNeeded(scaleGroup, rootGroup);
+    }
 
     var clear = document.getElementById('looperClearBtn');
     var recordCluster = document.getElementById('looperRecordCluster');
