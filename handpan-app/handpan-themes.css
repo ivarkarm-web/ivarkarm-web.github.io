@@ -30,7 +30,8 @@ html:not(.theme-light) {
   --hp-press-scale: 0.97;
   --hp-press-ms: 420ms;
   --hp-sheen: 0.12;
-  --hp-pan-offset-y: 12%;
+  /* Center in stage; slight lift keeps clearance above bottom looper */
+  --hp-pan-offset-y: -6%;
 }
 
 html.theme-light,
@@ -67,9 +68,12 @@ html:not(.theme-light) body {
   background: var(--hp-bg);
 }
 
+/* Centered in .stage flex; mild upward offset for looper clearance */
 #pan {
-  transform: translateY(var(--hp-pan-offset-y, 12%)) !important;
+  transform: translateY(var(--hp-pan-offset-y, -6%)) !important;
   transform-origin: center center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .hp-note-label {
