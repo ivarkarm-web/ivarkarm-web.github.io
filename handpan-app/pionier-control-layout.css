@@ -692,3 +692,26 @@ html.theme-light #app > .topbar > .control-scale #scaleLabel {
   background: rgba(255,255,255,.72) !important;
   border-color: rgba(52,44,28,.16) !important;
 }
+
+
+/* Phase 3 regression fix: safe-area inset is already included in the bottom selector bar. */
+#app > #pionierTrackRow {
+  bottom: var(--pionier-selector-height, 48px) !important;
+}
+#app > #looperRail.looper-rail {
+  bottom: calc(var(--pionier-selector-height, 48px) + var(--pionier-track-height, 38px)) !important;
+  min-height: 58px !important;
+  padding-bottom: 5px !important;
+}
+#app > .stage {
+  --chrome-bottom: calc(var(--pionier-selector-height, 48px) + var(--pionier-track-height, 38px) + 64px) !important;
+}
+#app > .stage > #pan {
+  --pan-budget: min(calc(100vw - 16px), calc(100dvh - var(--pionier-selector-height, 48px) - var(--pionier-track-height, 38px) - 64px - var(--chrome-top, 8px)), 560px) !important;
+}
+@media (max-width: 520px) {
+  #app > #looperRail.looper-rail {
+    min-height: 54px !important;
+    padding-bottom: 5px !important;
+  }
+}

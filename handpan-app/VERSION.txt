@@ -1,3 +1,4 @@
-pionier-v120
+pionier-v121
 2026-10-23
-Phase 1 structural UI recovery
+shell: 60 entries (synced from index.html + pionier-app.js)
+run: npm run sync:handpan after changing ?v= stamps or APP_VERSION
