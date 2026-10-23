@@ -122,6 +122,9 @@ export function mountLooper({ root } = {}) {
     let control = document.getElementById(id);
     if (!control) { control = document.createElement('button'); control.type = 'button'; control.id = id; }
     control.className = 'looper-timing-btn ' + className;
+    control.hidden = false;
+    control.removeAttribute('hidden');
+    control.style.removeProperty('display');
     control.setAttribute('aria-label', aria);
     control.title = aria;
     control.innerHTML = html;
