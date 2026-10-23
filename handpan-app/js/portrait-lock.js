@@ -5,43 +5,34 @@
 (function portraitLock() {
   function tryLock() {
     try {
-      if (screen.orientation && typeof screen.orientation.lock === 'function') {
-        screen.orientation.lock('portrait').catch(function () {});
+      const o = screen.orientation || screen.mozOrientation || screen.msOrientation;
+      if (o && typeof o.lock === 'function') {
+        o.lock('portrait').catch(function () {});
+        return;
+      }
+      if (typeof screen.lockOrientation === 'function') {
+        screen.lockOrientation('portrait');
+      } else if (typeof screen.mozLockOrientation === 'function') {
+        screen.mozLockOrientation('portrait');
       }
     } catch (_) {}
   }
 
-  function updateGate() {
-    var gate = document.getElementById('portraitLock');
-    if (!gate) return;
-    var portrait = window.matchMedia('(orientation: portrait)').matches;
-    var narrow = window.matchMedia('(max-width: 900px)').matches;
-    // Only gate phones / small tablets in landscape
-    var shouldBlock = !portrait && narrow;
-    if (shouldBlock) {
-      gate.hidden = false;
-      gate.removeAttribute('hidden');
-    } else {
-      gate.hidden = true;
-      gate.setAttribute('hidden', '');
-    }
-  }
-
-  function onChange() {
+  function onGesture() {
     tryLock();
-    updateGate();
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', onChange);
+    document.addEventListener('DOMContentLoaded', tryLock);
   } else {
-    onChange();
+    tryLock();
   }
-  window.addEventListener('orientationchange', onChange);
-  window.addEventListener('resize', onChange);
-  try {
-    window.matchMedia('(orientation: portrait)').addEventListener('change', onChange);
-  } catch (_) {}
+
+  document.addEventListener('click', onGesture, { once: true, passive: true });
+  document.addEventListener('touchstart', onGesture, { once: true, passive: true });
+  window.addEventListener('orientationchange', function () {
+    setTimeout(tryLock, 100);
+  });
 })();
 
 /* Load ui-hotfix for looper icons + light-mode selector visibility */
