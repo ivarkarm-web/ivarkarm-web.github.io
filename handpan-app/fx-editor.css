@@ -99,3 +99,63 @@
   font: 500 11px/1 Inter, sans-serif !important;
   text-transform: lowercase !important;
 }
+
+/* ========== Light mode — FX editor readable on light surfaces ========== */
+html.theme-light .fx-editor-backdrop {
+  background: rgba(34, 29, 19, 0.28);
+}
+html.theme-light .fx-editor {
+  color: #1a1a1c;
+  background: rgba(252, 251, 248, 0.97);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 24px 90px rgba(34, 29, 19, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+html.theme-light .fx-editor-current-title {
+  color: #1a1a1c;
+}
+html.theme-light .fx-editor-bypass,
+html.theme-light .fx-editor-reset {
+  color: rgba(28, 28, 32, 0.85);
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+html.theme-light .fx-editor-bypass[aria-pressed="true"] {
+  border-color: rgba(157, 120, 32, 0.45);
+  color: #8d6b1c;
+}
+html.theme-light .fx-editor-curve {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+html.theme-light #fxEditorStatus {
+  color: rgba(28, 28, 32, 0.45);
+}
+html.theme-light .fx-editor .icon-btn {
+  color: rgba(28, 28, 32, 0.85);
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+html.theme-light .fx-editor-knob {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+html.theme-light .fx-editor-knob-name {
+  color: rgba(28, 28, 32, 0.55);
+}
+html.theme-light .fx-editor-knob-value {
+  color: rgba(28, 28, 32, 0.92);
+}
+html.theme-light .fx-settings-shortcut {
+  color: rgba(28, 28, 32, 0.75) !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+html.theme-light .fx-settings-shortcut:hover,
+html.theme-light .fx-settings-shortcut:focus-visible {
+  color: #1a1a1c !important;
+  background: rgba(0, 0, 0, 0.07) !important;
+  border-color: rgba(0, 0, 0, 0.16) !important;
+}
+html.theme-light .fx-knob-label-row .knob-label {
+  color: rgba(28, 28, 32, 0.75);
+}
