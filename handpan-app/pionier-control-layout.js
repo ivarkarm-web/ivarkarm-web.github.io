@@ -1,14 +1,17 @@
 /* Pionier control layout: apply after welcome transition, then keep late-created shortcut buttons aligned. */
 (function () {
-  if (window.__pionierShortcutLayoutV7) return;
-  window.__pionierShortcutLayoutV7 = true;
+  if (window.__pionierShortcutLayoutV8) return;
+  window.__pionierShortcutLayoutV8 = true;
   var observer = null;
   var scheduled = false;
 
   function welcomeActive() {
     var welcome = document.getElementById('pionierWelcome');
-    return document.documentElement.classList.contains('pionier-welcome-active') ||
-      !!(welcome && !welcome.hidden && getComputedStyle(welcome).display !== 'none');
+    /* The html class can remain stale after the welcome screen closes. Only the
+       actual visible welcome overlay should defer layout; otherwise controls
+       never get reparented and the mobile drawer hides the scale selector. */
+    return !!(welcome && !welcome.hidden && getComputedStyle(welcome).display !== 'none' &&
+      getComputedStyle(welcome).visibility !== 'hidden' && welcome.getAttribute('aria-hidden') !== 'true');
   }
 
   function ensureLayout() {
