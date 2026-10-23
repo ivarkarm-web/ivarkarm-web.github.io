@@ -84,7 +84,21 @@
     var recordCluster = document.getElementById('looperRecordCluster');
     appendIfNeeded(loopControls, clear);
     var utilityGroup = document.getElementById('looperUtilityControls');
-    appendIfNeeded(loopControls, utilityGroup);
+    if (utilityGroup) {
+      // The legacy looper stylesheet positions timing controls only while they
+      // are children of #looperRail. Once the rail is hidden and controls are
+      // docked, that wrapper's old sizing/position rules no longer match.
+      // Flatten the existing buttons into the visible left toolbar group so
+      // each receives the dock's explicit touch-target and visibility rules.
+      Array.prototype.slice.call(utilityGroup.children).forEach(function (control) {
+        appendIfNeeded(loopControls, control);
+      });
+      if (utilityGroup.parentElement) utilityGroup.remove();
+    }
+    ['looperCountInBtn', 'looperMetronomeBtn', 'looperBpmBtn', 'looperSaveBtn'].forEach(function (id) {
+      var control = document.getElementById(id);
+      if (control) appendIfNeeded(loopControls, control);
+    });
     appendIfNeeded(toolbar, recordCluster);
 
     var soundscapes = document.getElementById('openSoundscapes');
