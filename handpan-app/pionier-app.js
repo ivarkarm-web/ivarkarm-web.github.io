@@ -125,11 +125,10 @@ async function boot() {
   try {
     const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=12', BASE).href);
     mountScaleSelector({
-      getScales: () => window.HANDPAN_SCALES || HANDPAN_SCALES || [],
-      getIndex: () => window.PionierCore?.handpan?.scaleIndex ?? 0,
-      setIndex: (i) => {
+      getHandpan: () => window.PionierCore?.handpan || null,
+      onScaleChange: () => {
         try {
-          window.PionierCore?.setScaleIndex?.(i);
+          window.PionierCore?.refreshPitch?.();
           window.PionierCore?.draw?.();
         } catch (_) {}
       },
