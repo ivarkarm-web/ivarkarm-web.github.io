@@ -31,7 +31,7 @@
       html = html.replace('href="./fx-editor.css?v=4"', 'href="./fx-editor.css?v=5"');
 
       if (html.indexOf('pionier-control-layout.css') === -1) {
-        html = html.replace('</head>', '  <link rel="stylesheet" href="./pionier-control-layout.css?v=4" />\n</head>');
+        html = html.replace('</head>', '  <link rel="stylesheet" href="./pionier-control-layout.css?v=5" />\n</head>');
       }
 
       if (html.indexOf('handpan-themes.css') === -1) {
@@ -64,11 +64,11 @@
           html = html.replace(new RegExp(base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\?v=\\d+'), src);
         }
       }
-      injectScript('./looper-side-menus.js?v=3');
+      injectScript('./looper-side-menus.js?v=4');
       injectScript('./looper-restart-on-record.js?v=2');
       injectScript('./phase1-note-count-guard.js?v=2');
       injectScript('./js/phase3-handpan-theme.js?v=1');
-      injectScript('./pionier-control-layout.js?v=4');
+      injectScript('./pionier-control-layout.js?v=5');
 
       var fxFix = [
         '<script>',
