@@ -1,4 +1,8 @@
-/* Looper layout fix v2 — tracks always sit ABOVE the loop button. */
+/* Looper layout fix v3
+ * - Track circles above the loop button
+ * - Base note / notes / randomizer on the right of the looper
+ * - Handpan raised ~10%
+ */
 
 #looperRail.looper-rail {
   position: relative !important;
@@ -67,10 +71,114 @@
   max-height: 28px !important;
 }
 
+/* ---- Side controls (base note, notes, randomizer) on the RIGHT of the looper ---- */
+#looperSideControls.looper-side-controls {
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+  margin-left: auto !important;
+  padding-left: 8px !important;
+  min-width: 0 !important;
+  z-index: 4 !important;
+  pointer-events: auto !important;
+}
+
+/* Prefer grid placement in the right column when rail is grid */
+#looperRail.looper-rail > #looperSideControls {
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+  justify-self: end !important;
+  align-self: center !important;
+}
+
+#looperSideControls .looper-side-group {
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  align-items: center !important;
+  gap: 2px !important;
+  padding: 2px 4px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(230, 224, 210, 0.12) !important;
+  background: rgba(12, 12, 14, 0.55) !important;
+}
+
+#looperSideControls .looper-side-group .step,
+#looperSideControls .looper-side-group button.step {
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  min-height: 26px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+}
+
+#looperSideControls .looper-side-group .step-value,
+#looperSideControls .looper-side-group #rootLabel,
+#looperSideControls .looper-side-group #noteCountLabel {
+  min-width: 28px !important;
+  text-align: center !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: rgba(236, 230, 217, 0.92) !important;
+  padding: 0 2px !important;
+}
+
+#looperSideControls #randomizeSetup.randomize-setup-btn,
+#looperSideControls .randomize-setup-btn {
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  flex: 0 0 30px !important;
+}
+
+#looperSideControls .randomize-die {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+#looperSideControls .control-label {
+  display: none !important;
+}
+
+/* Hide vacated duplicates in lower rows if any remain empty wrappers */
+#stageScaleBar .stage-root-row:empty,
+#stageScaleBar #stageNotesSlot:empty {
+  display: none !important;
+}
+
+/* ---- Raise handpan ~10% ---- */
+#pan {
+  transform: translateY(-10%) !important;
+}
+
 @media (max-width: 390px) {
   #looperRail.looper-rail:has(#looperLayers .looper-circle),
   #looperRail.looper-rail.has-loop-tracks {
     margin-top: 36px !important;
+  }
+  #looperSideControls.looper-side-controls {
+    gap: 4px !important;
+    padding-left: 4px !important;
+  }
+  #looperSideControls .looper-side-group .step,
+  #looperSideControls .looper-side-group button.step {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+  }
+  #looperSideControls .looper-side-group .step-value {
+    min-width: 24px !important;
+    font-size: 10px !important;
   }
   #looperRail > #looperLayers .looper-circle,
   #looperLayers .looper-circle {
@@ -81,4 +189,12 @@
     max-width: 28px !important;
     max-height: 28px !important;
   }
+}
+
+html.theme-light #looperSideControls .looper-side-group {
+  border-color: rgba(46, 40, 28, 0.1) !important;
+  background: rgba(252, 251, 248, 0.72) !important;
+}
+html.theme-light #looperSideControls .looper-side-group .step-value {
+  color: rgba(28, 28, 32, 0.9) !important;
 }
