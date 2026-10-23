@@ -357,3 +357,69 @@ html.theme-light #pionierBottomDock #pionierInstrumentGroup #randomizeSetup{back
   #pionierBottomDock #pionierLooperActions > button { flex-basis:28px !important; width:28px !important; min-width:28px !important; max-width:28px !important; height:28px !important; min-height:28px !important; max-height:28px !important; }
   #pionierBottomDock #pionierLooperControls .looper-timing-btn { flex-basis:27px !important; width:27px !important; min-width:27px !important; max-width:27px !important; height:27px !important; min-height:27px !important; max-height:27px !important; }
 }
+
+
+/* v17: more breathing room and more legible toolbar icons. */
+#pionierBottomDock #pionierLooperToolbar {
+  gap:12px !important;
+  padding-left:12px !important;
+  padding-right:12px !important;
+}
+#pionierBottomDock #pionierLooperControls { gap:11px !important; }
+#pionierBottomDock #pionierLooperControls #looperUtilityControls { gap:9px !important; }
+#pionierBottomDock #pionierLooperActions { gap:11px !important; }
+#pionierBottomDock #pionierLooperActions > button {
+  flex-basis:40px !important; width:40px !important; min-width:40px !important; max-width:40px !important;
+  height:40px !important; min-height:40px !important; max-height:40px !important;
+  font-size:19px !important;
+}
+#pionierBottomDock #pionierLooperControls .looper-timing-btn {
+  flex-basis:37px !important; width:37px !important; min-width:37px !important; max-width:37px !important;
+  height:37px !important; min-height:37px !important; max-height:37px !important;
+  font-size:18px !important;
+}
+#pionierBottomDock #pionierLooperActions > button svg,
+#pionierBottomDock #pionierLooperControls .looper-timing-btn svg,
+#pionierBottomDock #pionierLooperControls #looperUtilityControls svg {
+  width:19px !important; height:19px !important; min-width:19px !important; min-height:19px !important;
+}
+#pionierBottomDock #pionierLooperControls #looperBpmBtn .looper-bpm-value { font-size:10px !important; }
+#pionierBottomDock #pionierLooperControls #looperBpmBtn .looper-bpm-unit { font-size:7px !important; }
+@media(max-width:430px) {
+  #pionierBottomDock #pionierLooperToolbar { gap:9px !important; padding-left:8px !important; padding-right:8px !important; }
+  #pionierBottomDock #pionierLooperControls { gap:9px !important; }
+  #pionierBottomDock #pionierLooperControls #looperUtilityControls { gap:7px !important; }
+  #pionierBottomDock #pionierLooperActions { gap:9px !important; }
+  #pionierBottomDock #pionierLooperActions > button {
+    flex-basis:36px !important; width:36px !important; min-width:36px !important; max-width:36px !important;
+    height:36px !important; min-height:36px !important; max-height:36px !important; font-size:18px !important;
+  }
+  #pionierBottomDock #pionierLooperControls .looper-timing-btn {
+    flex-basis:34px !important; width:34px !important; min-width:34px !important; max-width:34px !important;
+    height:34px !important; min-height:34px !important; max-height:34px !important; font-size:17px !important;
+  }
+  #pionierBottomDock #pionierLooperActions > button svg,
+  #pionierBottomDock #pionierLooperControls .looper-timing-btn svg,
+  #pionierBottomDock #pionierLooperControls #looperUtilityControls svg {
+    width:17px !important; height:17px !important; min-width:17px !important; min-height:17px !important;
+  }
+}
+@media(max-width:350px) {
+  #pionierBottomDock #pionierLooperToolbar { gap:6px !important; padding-left:5px !important; padding-right:5px !important; }
+  #pionierBottomDock #pionierLooperControls { gap:6px !important; }
+  #pionierBottomDock #pionierLooperControls #looperUtilityControls { gap:5px !important; }
+  #pionierBottomDock #pionierLooperActions { gap:6px !important; }
+  #pionierBottomDock #pionierLooperActions > button {
+    flex-basis:30px !important; width:30px !important; min-width:30px !important; max-width:30px !important;
+    height:30px !important; min-height:30px !important; max-height:30px !important; font-size:16px !important;
+  }
+  #pionierBottomDock #pionierLooperControls .looper-timing-btn {
+    flex-basis:29px !important; width:29px !important; min-width:29px !important; max-width:29px !important;
+    height:29px !important; min-height:29px !important; max-height:29px !important; font-size:15px !important;
+  }
+  #pionierBottomDock #pionierLooperActions > button svg,
+  #pionierBottomDock #pionierLooperControls .looper-timing-btn svg,
+  #pionierBottomDock #pionierLooperControls #looperUtilityControls svg {
+    width:15px !important; height:15px !important; min-width:15px !important; min-height:15px !important;
+  }
+}
