@@ -11,8 +11,8 @@
   overflow:visible !important;
 }
 #pionierBottomDock #pionierSelectorRow { order:3; }
-#pionierBottomDock #pionierLooperToolbar { order:1; margin:0 auto !important; padding:0 2px !important; }
-#pionierBottomDock #pionierTrackRow { order:2; margin:0 auto !important; }
+#pionierBottomDock #pionierTrackRow { order:1; margin:0 auto !important; }
+#pionierBottomDock #pionierLooperToolbar { order:2; margin:0 auto !important; padding:0 2px !important; }
 #app > .topbar { flex:0 0 auto !important; }
 #stage {
   flex:1 1 auto !important; min-height:0 !important; min-width:0 !important;
