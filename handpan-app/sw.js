@@ -36,7 +36,7 @@ const SHELL = [
   './js/instruments/handpan-scales.js?v=6',
   './js/instruments/handpan.js?v=11',
   './js/instruments/library-family.js?v=3',
-  './js/layout-boot.js?v=68',
+  './js/layout-boot.js?v=69',
   './js/loop-core.js',
   './js/looper.js?v=222',
   './js/note-plus.js?v=3',
