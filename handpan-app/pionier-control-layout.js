@@ -1,92 +1,124 @@
-/* Pionier control layout: apply after welcome transition, then keep late-created shortcut buttons aligned. */
+/* PIONIER UI recovery: normalize existing controls into stable semantic rows.
+   This only reparents existing DOM controls; audio and control event handlers remain attached. */
 (function () {
-  if (window.__pionierShortcutLayoutV9) return;
-  window.__pionierShortcutLayoutV8 = true;
-  var observer = null;
-  var scheduled = false;
+  'use strict';
+  if (window.__pionierLayoutRecoveryV11) return;
+  window.__pionierLayoutRecoveryV11 = true;
 
-  function welcomeActive() {
-    var welcome = document.getElementById('pionierWelcome');
-    /* The html class can remain stale after the welcome screen closes. Only the
-       actual visible welcome overlay should defer layout; otherwise controls
-       never get reparented and the mobile drawer hides the scale selector. */
-    return !!(welcome && !welcome.hidden && getComputedStyle(welcome).display !== 'none' &&
-      getComputedStyle(welcome).visibility !== 'hidden' && welcome.getAttribute('aria-hidden') !== 'true');
+  var scheduled = false;
+  var observer = null;
+
+  function make(tag, id, className) {
+    var el = document.getElementById(id);
+    if (!el) {
+      el = document.createElement(tag);
+      if (id) el.id = id;
+      if (className) el.className = className;
+    } else if (className && !el.classList.contains(className)) {
+      el.classList.add(className);
+    }
+    return el;
   }
 
-  function ensureLayout() {
+  function appendIfNeeded(parent, child) {
+    if (parent && child && child.parentElement !== parent) parent.appendChild(child);
+  }
+
+  function welcomeIsVisible() {
+    var welcome = document.getElementById('pionierWelcome');
+    return !!(welcome && !welcome.hidden &&
+      getComputedStyle(welcome).display !== 'none' &&
+      getComputedStyle(welcome).visibility !== 'hidden' &&
+      welcome.getAttribute('aria-hidden') !== 'true');
+  }
+
+  function arrange() {
     scheduled = false;
-    if (welcomeActive()) return;
+    if (welcomeIsVisible()) return;
+
     var app = document.getElementById('app');
     var topbar = app && app.querySelector('.topbar');
     var rail = document.getElementById('looperRail');
     if (!app || !topbar || !rail) return;
 
-    var nav = document.getElementById('instrumentNav');
-    var center = topbar.querySelector('.center-nav');
-    if (nav && center && nav.parentElement !== center) center.appendChild(nav);
-    if (center && center.parentElement !== topbar) topbar.insertBefore(center, topbar.firstChild);
+    var selectors = make('div', 'pionierSelectorRow', 'pionier-selector-row');
+    var instrumentGroup = make('div', 'pionierInstrumentGroup', 'pionier-selector-group pionier-instrument-group');
+    var scaleGroup = make('div', 'pionierScaleGroup', 'pionier-selector-group pionier-scale-group');
+    var toolbar = make('div', 'pionierLooperToolbar', 'pionier-looper-toolbar');
+    var loopControls = make('div', 'pionierLooperControls', 'pionier-looper-controls');
+    var actionGroup = make('div', 'pionierLooperActions', 'pionier-looper-actions');
+    var tracks = make('div', 'pionierTrackRow', 'pionier-track-row');
 
-    /* Keep the instrument selector and randomizer adjacent while retaining
-       both existing voice-navigation controls. */
-    if (nav) {
-      var instrumentToggle = document.getElementById('instrumentDropdownToggle');
-      var voicePrev = document.getElementById('voicePrev');
-      var voiceNext = document.getElementById('voiceNext');
-      var randomize = document.getElementById('randomizeSetup');
-      if (instrumentToggle && voicePrev && voicePrev.parentElement === nav) nav.insertBefore(voicePrev, instrumentToggle);
-      if (instrumentToggle && voiceNext && voiceNext.parentElement === nav) nav.insertBefore(voiceNext, instrumentToggle);
-      if (instrumentToggle && randomize && randomize.parentElement === nav) nav.insertBefore(randomize, instrumentToggle.nextSibling);
-    }
+    appendIfNeeded(topbar, selectors);
+    appendIfNeeded(selectors, instrumentGroup);
+    appendIfNeeded(selectors, scaleGroup);
+    appendIfNeeded(app, toolbar);
+    appendIfNeeded(toolbar, loopControls);
+    appendIfNeeded(toolbar, actionGroup);
+    appendIfNeeded(app, tracks);
+
+    var nav = document.getElementById('instrumentNav');
+    var voicePrev = document.getElementById('voicePrev');
+    var voiceNext = document.getElementById('voiceNext');
+    var instrumentToggle = document.getElementById('instrumentDropdownToggle');
+    var randomize = document.getElementById('randomizeSetup');
+    [voicePrev, instrumentToggle, voiceNext, randomize].forEach(function (el) {
+      appendIfNeeded(instrumentGroup, el);
+    });
+    if (nav && nav !== instrumentGroup && nav.children.length === 0) nav.remove();
 
     var scaleBlock = app.querySelector('.control-scale');
-    if (scaleBlock && scaleBlock.parentElement !== topbar) topbar.appendChild(scaleBlock);
+    var rootLabel = document.getElementById('rootLabel');
+    var rootBlock = rootLabel && rootLabel.closest('.control-block');
+    if (rootBlock && rootBlock.querySelector('#noteCountLabel')) rootBlock = null;
+    appendIfNeeded(scaleGroup, scaleBlock);
+    appendIfNeeded(scaleGroup, rootBlock);
 
-    /* Give loop tracks their own stable row. Move the live element so its
-       existing listeners and recording state are preserved. */
-    var trackRow = document.getElementById('pionierTrackRow');
-    if (!trackRow) {
-      trackRow = document.createElement('div');
-      trackRow.id = 'pionierTrackRow';
-      trackRow.setAttribute('role', 'group');
-      trackRow.setAttribute('aria-label', 'Loop tracks');
-    }
-    if (trackRow.parentElement !== app || trackRow.nextElementSibling !== rail) app.insertBefore(trackRow, rail);
+    var clear = document.getElementById('looperClearBtn');
+    var recordCluster = document.getElementById('looperRecordCluster');
+    appendIfNeeded(loopControls, clear);
+    appendIfNeeded(loopControls, recordCluster);
+
+    var soundscapes = document.getElementById('openSoundscapes');
+    var fx = document.getElementById('fxPanelOpen');
+    var customize = document.getElementById('settingsOpenBtn');
+    [soundscapes, fx, customize].forEach(function (el) { appendIfNeeded(actionGroup, el); });
+
     var layers = document.getElementById('looperLayers');
-    if (layers && layers.parentElement !== trackRow) trackRow.appendChild(layers);
+    appendIfNeeded(tracks, layers);
 
-    var shortcuts = document.getElementById('pionierLooperShortcuts');
-    if (!shortcuts) {
-      shortcuts = document.createElement('div');
-      shortcuts.id = 'pionierLooperShortcuts';
-      shortcuts.setAttribute('aria-label', 'Sound and app controls');
-    }
-    if (shortcuts.parentElement !== rail) {
-      rail.appendChild(shortcuts);
-    }
-    ['openSoundscapes', 'fxPanelOpen', 'settingsOpenBtn'].forEach(function (id) {
-      var button = document.getElementById(id);
-      if (button && button.parentElement !== shortcuts) shortcuts.appendChild(button);
-    });
+    // Keep menus at app level so transformed/overflowing selector rows cannot clip them.
+    var scaleMenu = document.getElementById('scaleMenu');
+    var instrumentMenu = document.getElementById('instrumentMenu');
+    if (scaleMenu && scaleMenu.parentElement !== app) app.appendChild(scaleMenu);
+    if (instrumentMenu && instrumentMenu.parentElement !== app) app.appendChild(instrumentMenu);
+
+    app.classList.add('pionier-layout-recovered');
   }
 
-  function scheduleLayout() {
+  function schedule() {
     if (scheduled) return;
     scheduled = true;
-    requestAnimationFrame(ensureLayout);
+    requestAnimationFrame(arrange);
   }
 
   function boot() {
-    scheduleLayout();
+    schedule();
     if (observer) return;
-    observer = new MutationObserver(scheduleLayout);
+    observer = new MutationObserver(schedule);
     observer.observe(document.body, { childList: true, subtree: true });
-    document.addEventListener('pionier:welcome-closed', scheduleLayout);
-    document.getElementById('enterPionier')?.addEventListener('click', function () {
-      setTimeout(scheduleLayout, 0);
-      setTimeout(scheduleLayout, 250);
-    }, { once: true });
+    document.addEventListener('pionier:welcome-closed', schedule);
+    var enter = document.getElementById('enterPionier');
+    if (enter) enter.addEventListener('click', function () {
+      setTimeout(schedule, 0);
+      setTimeout(schedule, 180);
+      setTimeout(schedule, 500);
+    });
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
-  else boot();
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot, { once: true });
+  } else {
+    boot();
+  }
 })();
