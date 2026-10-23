@@ -1,1 +1,42 @@
-@/home/workdir/artifacts/index_final_full.html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Pionier — loading…</title>
+  <meta name="theme-color" content="#070708" />
+  <style>
+    html, body { margin: 0; background: #070708; color: #eceae6; font: 14px/1.4 system-ui, sans-serif; }
+    #boot { position: fixed; inset: 0; display: grid; place-items: center; opacity: 0.75; }
+  </style>
+</head>
+<body>
+  <div id="boot">Starting Pionier…</div>
+  <script>
+  (async function () {
+    var boot = document.getElementById('boot');
+    try {
+      var url = 'https://raw.githubusercontent.com/ivarkarm-web/ivarkarm-web.github.io/9a058a8ccbf51905c486dbdc235a08b827dd52a2/handpan-app/index.html';
+      var res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      var html = await res.text();
+      // light-mode overlays + cache-bust fx-editor
+      html = html.replace('href="./fx-editor.css?v=4"', 'href="./fx-editor.css?v=5"');
+      if (html.indexOf('theme-light-overlays.css') === -1) {
+        html = html.replace(
+          '<link rel="stylesheet" href="./fx-editor.css?v=5" />',
+          '<link rel="stylesheet" href="./fx-editor.css?v=5" />\n  <link rel="stylesheet" href="./theme-light-overlays.css?v=1" />'
+        );
+      }
+      // rewrite relative asset URLs to stay on this origin
+      document.open();
+      document.write(html);
+      document.close();
+    } catch (e) {
+      boot.textContent = 'Failed to load Pionier: ' + e;
+      console.error(e);
+    }
+  })();
+  </script>
+</body>
+</html>
