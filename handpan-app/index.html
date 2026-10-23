@@ -79,9 +79,117 @@
     <span id="appStatusMessage">Starting Pionier…</span>
     <button type="button" id="appStatusRetry" class="app-status-retry" hidden>Retry</button>
   </div>
+  <section id="pionierWelcome" aria-label="Welcome to Pionier">
+    <div class="welcome-masthead">
+      <span class="welcome-brand"><span class="welcome-brand-main">PIONIER</span><span class="welcome-brand-audio">AUDIO</span><span class="welcome-brand-handpan">HANDPAN</span></span>
+      <span class="welcome-edition">POCKET INSTRUMENT&nbsp; / &nbsp;NO. 01</span>
+    </div>
+    <div class="pionier-welcome-content">
+      <span class="welcome-kicker"><span class="welcome-kicker-dot"></span> SOUND, SHAPED BY YOU</span>
+      <h1 class="welcome-headline">A little space<br><em>to make sound.</em></h1>
+      <p class="welcome-deck">A touch-responsive instrument for exploring tones, textures and loops.</p>
+      <button type="button" id="enterPionier"><span>Enter Pionier</span><span class="welcome-enter-arrow" aria-hidden="true">↗</span></button>
+    </div>
+    <div class="welcome-foot">
+      <span>LISTEN&nbsp; · &nbsp;EXPLORE&nbsp; · &nbsp;CREATE</span>
+      <span class="welcome-foot-rule"></span>
+      <span>MADE FOR THE MOMENT</span>
+    </div>
+  </section>
+  <div id="headphonesHint" role="status" aria-live="polite"><span class="headphones-word headphones-word-one">Headphones</span><span class="headphones-word headphones-word-two">recommended</span></div>
+  <div id="app" class="app">
+    <header class="topbar topbar-minimal">
+      <div class="center-nav">
+        <div class="instrument-nav" id="instrumentNav">
+          <button type="button" class="icon-btn" id="voicePrev" aria-label="Previous voice">‹</button>
+          <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Handpan ▾</button>
+          <button type="button" class="icon-btn" id="voiceNext" aria-label="Next voice">›</button>
+          <button type="button" class="icon-btn soundscapes-open-btn" id="openSoundscapes" aria-label="Open Soundscapes" title="Soundscapes">♫</button>
+          <button type="button" class="randomize-setup-btn" id="randomizeSetup" aria-label="Randomize instrument and scale" title="Surprise me"><svg class="randomize-die" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2.5" y="2.5" width="19" height="19" rx="4.2" fill="currentColor" stroke="rgba(255,235,175,.8)" stroke-width=".8"/><g fill="#20190b"><circle cx="7.2" cy="7.2" r="1.45"/><circle cx="16.8" cy="7.2" r="1.45"/><circle cx="12" cy="12" r="1.45"/></g></svg></button>
+        </div>
+      </div>
+      <div class="control-scale">
+        <label class="control-label" for="scaleLabel">Scale</label>
+        <div class="scale-stepper">
+          <button type="button" class="step" id="scalePrev" aria-label="Previous scale">‹</button>
+          <button type="button" id="scaleLabel" class="scale-label" aria-haspopup="true" aria-expanded="false" aria-controls="scaleMenu">A Minor ▾</button>
+          <button type="button" class="step" id="scaleNext" aria-label="Next scale">›</button>
+        </div>
+      </div>
+    </header>
 
-  <!-- Remainder of body is identical to the known-good static shell; see repo history SHA 9a058a8 -->
-  <!-- Full body restored in follow-up if needed; this commit prioritizes killing the loader. -->
+    <div class="control-drawer" id="controlDrawer">
+      <div class="control-drawer-inner">
+        <aside class="controls" id="controls">
+          <div class="control-row control-instrument">
+            <label class="control-label">Instrument</label>
+            <div class="instrument-picker-wrap">
+              <button type="button" class="instrument-name" id="instrumentDropdownToggleDrawer" aria-haspopup="true" aria-expanded="false">Handpan ▾</button>
+            </div>
+          </div>
+          <div class="control-row control-base">
+            <label class="control-label">Base</label>
+            <div class="stepper">
+              <button type="button" class="step" id="basePrev" aria-label="Lower base note">‹</button>
+              <span class="step-value" id="baseLabel">D</span>
+              <button type="button" class="step" id="baseNext" aria-label="Higher base note">›</button>
+            </div>
+          </div>
+          <div class="control-row control-notes">
+            <label class="control-label">Notes</label>
+            <div class="stepper">
+              <button type="button" class="step" id="noteCountPrev" aria-label="Fewer notes">‹</button>
+              <span class="step-value" id="noteCountLabel">8</span>
+              <button type="button" class="step" id="noteCountNext" aria-label="More notes">›</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <div id="looperRail" class="looper-rail" aria-label="Looper">
+      <button type="button" id="looperClearBtn" class="looper-clear-btn" aria-label="Clear loops" title="Clear">×</button>
+      <div id="looperRecordCluster" class="looper-record-cluster">
+        <button type="button" id="looperBtn" class="looper-btn looper-record" aria-label="Record loop" title="Record loop"><span class="looper-btn-ring" aria-hidden="true"></span><span class="looper-btn-core" aria-hidden="true"></span></button>
+      </div>
+      <div id="looperLayers" class="looper-layers" aria-label="Loop layers"></div>
+    </div>
+
+    <main class="stage" id="stage">
+      <canvas id="pan" width="680" height="680" role="img" aria-label="Handpan instrument"></canvas>
+    </main>
+  </div>
+
+  <section id="soundscapesPanel" class="soundscapes-panel" hidden aria-label="Backing Tracks">
+    <header class="soundscapes-header">
+      <button type="button" id="closeSoundscapes" class="soundscapes-return-btn" aria-label="Close Backing Tracks" title="Close">×</button>
+    </header>
+    <main class="soundscapes-body" id="soundscapesBody">
+      <div class="soundscape-tabs" role="group" aria-label="Backing tracks collection"><button type="button" id="soundscapeBedroomTab" class="soundscape-tab is-active" aria-pressed="true">Bedroom Sessions</button></div>
+      <div class="soundscape-now">
+        <p id="soundscapeTitle" class="soundscape-title">E Amara · Improvisation 1</p>
+        <p id="soundscapeNote" class="soundscape-note">Owner recordings</p>
+      </div>
+      <div class="soundscape-transport">
+        <button type="button" class="soundscape-transport-btn" id="soundscapePrev" aria-label="Previous track">‹</button>
+        <button type="button" class="soundscape-play" id="soundscapePlay" aria-label="Play">▶</button>
+        <button type="button" class="soundscape-transport-btn" id="soundscapeNext" aria-label="Next track">›</button>
+        <button type="button" class="soundscape-transport-btn" id="soundscapeRepeat" aria-label="Repeat" aria-pressed="false">↻</button>
+      </div>
+    </main>
+  </section>
+
+  <div id="fxPanel" class="fx-panel" hidden>
+    <header class="fx-panel-header">
+      <h2>Effects</h2>
+      <button type="button" id="fxPanelClose" aria-label="Close effects">×</button>
+    </header>
+    <div id="fxPanelBody" class="fx-panel-body"></div>
+  </div>
+  <button type="button" id="fxPanelOpen" class="fx-panel-open" aria-label="Effects">FX</button>
+  <button type="button" id="settingsOpenBtn" class="settings-open-btn" aria-label="Settings">⚙</button>
+
+  <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
 
   <script src="./js/skin-palette.js?v=1"></script>
   <script src="./js/customization-catalog.js?v=6"></script>
