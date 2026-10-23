@@ -108,42 +108,45 @@
           <button type="button" class="randomize-setup-btn" id="randomizeSetup" aria-label="Randomize instrument and scale" title="Surprise me"><svg class="randomize-die" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2.5" y="2.5" width="19" height="19" rx="4.2" fill="currentColor" stroke="rgba(255,235,175,.8)" stroke-width=".8"/><g fill="#20190b"><circle cx="7.2" cy="7.2" r="1.45"/><circle cx="16.8" cy="7.2" r="1.45"/><circle cx="12" cy="12" r="1.45"/></g></svg></button>
         </div>
       </div>
-      <div class="control-scale">
-        <label class="control-label" for="scaleLabel">Scale</label>
-        <div class="scale-stepper">
+    </header>
+    <div class="instrument-menu" id="instrumentMenu" role="menu" aria-label="Choose instrument" hidden></div>
+
+    <div class="mobile-control-drawer" id="mobileControlDrawer">
+      <button type="button" class="mobile-controls-toggle" id="mobileControlsToggle" hidden aria-expanded="false" aria-controls="mobileControlPanel">
+        <span class="mobile-controls-grip" aria-hidden="true"></span>
+        <span class="mobile-controls-label">Controls</span>
+      </button>
+      <div class="mobile-control-panel" id="mobileControlPanel">
+    <aside class="sidebar left">
+      <div class="control-block control-scale">
+        <label class="control-label">Scale</label>
+        <div class="stepper scale-stepper">
           <button type="button" class="step" id="scalePrev" aria-label="Previous scale">‹</button>
-          <button type="button" id="scaleLabel" class="scale-label" aria-haspopup="true" aria-expanded="false" aria-controls="scaleMenu">A Minor ▾</button>
+          <button type="button" class="step-value scale-name scale-dropdown-toggle" id="scaleLabel" aria-haspopup="true" aria-expanded="false" aria-controls="scaleMenu" title="Choose scale">D3 Kurd ▾</button>
           <button type="button" class="step" id="scaleNext" aria-label="Next scale">›</button>
         </div>
+        <div class="scale-menu" id="scaleMenu" role="menu" aria-label="Choose scale" hidden></div>
       </div>
-    </header>
 
-    <div class="control-drawer" id="controlDrawer">
-      <div class="control-drawer-inner">
-        <aside class="controls" id="controls">
-          <div class="control-row control-instrument">
-            <label class="control-label">Instrument</label>
-            <div class="instrument-picker-wrap">
-              <button type="button" class="instrument-name" id="instrumentDropdownToggleDrawer" aria-haspopup="true" aria-expanded="false">Handpan ▾</button>
-            </div>
+      <div class="control-row">
+        <div class="control-block control-half">
+          <label class="control-label">Base Note</label>
+          <div class="stepper">
+            <button type="button" class="step" id="rootPrev" aria-label="Previous base note">‹</button>
+            <span class="step-value" id="rootLabel">D3</span>
+            <button type="button" class="step" id="rootNext" aria-label="Next base note">›</button>
           </div>
-          <div class="control-row control-base">
-            <label class="control-label">Base</label>
-            <div class="stepper">
-              <button type="button" class="step" id="basePrev" aria-label="Lower base note">‹</button>
-              <span class="step-value" id="baseLabel">D</span>
-              <button type="button" class="step" id="baseNext" aria-label="Higher base note">›</button>
-            </div>
+        </div>
+        <div class="control-block control-half">
+          <label class="control-label">Notes</label>
+          <div class="stepper">
+            <button type="button" class="step" id="noteCountPrev" aria-label="Fewer notes">‹</button>
+            <span class="step-value" id="noteCountLabel">8</span>
+            <button type="button" class="step" id="noteCountNext" aria-label="More notes">›</button>
           </div>
-          <div class="control-row control-notes">
-            <label class="control-label">Notes</label>
-            <div class="stepper">
-              <button type="button" class="step" id="noteCountPrev" aria-label="Fewer notes">‹</button>
-              <span class="step-value" id="noteCountLabel">8</span>
-              <button type="button" class="step" id="noteCountNext" aria-label="More notes">›</button>
-            </div>
-          </div>
-        </aside>
+        </div>
+      </div>
+    </aside>
       </div>
     </div>
 
@@ -188,6 +191,19 @@
   </div>
   <button type="button" id="fxPanelOpen" class="fx-panel-open" aria-label="Effects">FX</button>
   <button type="button" id="settingsOpenBtn" class="settings-open-btn" aria-label="Settings">⚙</button>
+
+  <div id="fxEditorBackdrop" class="fx-editor-backdrop" hidden></div>
+  <section id="fxEditor" class="fx-editor" role="dialog" aria-modal="true" aria-labelledby="fxEditorTitle" hidden>
+    <header class="fx-editor-header fx-editor-header-compact">
+      <span id="fxEditorTitle" class="fx-editor-current-title">Comp</span>
+      <span id="fxEditorSubtitle" hidden></span>
+      <button type="button" id="fxEditorClose" class="icon-btn" aria-label="Close effect editor">×</button>
+    </header>
+    <div class="fx-editor-toolbar"><div id="fxEditorPresets" class="fx-editor-presets" aria-label="Effect presets"></div><button type="button" id="fxEditorBypass" class="fx-editor-bypass" aria-pressed="false">Bypass</button></div>
+    <div class="fx-editor-curve-wrap"><canvas id="fxEditorCurve" class="fx-editor-curve" aria-label="Interactive effect response curve" role="img"></canvas></div>
+    <div id="fxEditorKnobs" class="fx-editor-knobs" aria-label="Effect parameters"></div>
+    <footer class="fx-editor-footer"><span id="fxEditorStatus" role="status">Changes apply live</span><button type="button" id="fxEditorReset" class="fx-editor-reset">Reset effect</button></footer>
+  </section>
 
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
 
