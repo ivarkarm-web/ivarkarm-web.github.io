@@ -280,3 +280,27 @@ html.theme-light #pionierBottomDock #pionierScaleGroup #rootLabel{color:#8a6825!
 html.theme-light #pionierBottomDock #pionierInstrumentGroup #randomizeSetup{background:linear-gradient(145deg,rgba(214,178,91,.22),rgba(255,255,255,.8))!important;color:#87631c!important}
 @media(max-width:430px){#pionierBottomDock #pionierScaleGroup .scale-stepper,#pionierBottomDock #pionierScaleGroup>.control-half .stepper,#pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle{height:39px!important;min-height:39px!important}#pionierBottomDock #pionierInstrumentGroup #randomizeSetup{height:39px!important;min-height:39px!important;width:39px!important;min-width:39px!important;flex-basis:39px!important}#pionierBottomDock #pionierLooperControls .looper-timing-btn{flex-basis:30px!important;width:30px!important;min-width:30px!important;height:30px!important;min-height:30px!important}}
 @media(max-width:350px){#pionierBottomDock #pionierScaleRow,#pionierBottomDock #pionierInstrumentRow{gap:5px!important;padding-inline:4px!important}#pionierBottomDock #pionierScaleGroup>.control-half .stepper{min-width:68px!important}}
+
+
+/* v15: give looper controls breathing room and keep Clear with the track row. */
+#pionierLooperControls { gap:7px !important; }
+#pionierLooperControls #looperUtilityControls { gap:5px !important; }
+#pionierTrackRow #looperClearBtn {
+  display:inline-flex !important; position:static !important; flex:0 0 30px !important;
+  width:30px !important; min-width:30px !important; max-width:30px !important;
+  height:30px !important; min-height:30px !important; max-height:30px !important;
+  margin:0 2px 0 0 !important; padding:0 !important; align-items:center !important;
+  justify-content:center !important; border-radius:50% !important;
+  border:1px solid rgba(235,229,215,.16) !important;
+  background:rgba(255,255,255,.045) !important; box-shadow:none !important;
+  color:var(--text,#eeeae1) !important; font-size:17px !important; line-height:1 !important;
+}
+@media(max-width:430px) {
+  #pionierLooperControls { gap:5px !important; }
+  #pionierLooperControls #looperUtilityControls { gap:4px !important; }
+  #pionierTrackRow #looperClearBtn {
+    flex-basis:28px !important; width:28px !important; min-width:28px !important;
+    max-width:28px !important; height:28px !important; min-height:28px !important;
+    max-height:28px !important;
+  }
+}
