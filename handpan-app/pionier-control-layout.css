@@ -1,10 +1,21 @@
-/* Recovery layout: preserve original instrument/scale selector DOM and only place shortcuts beside the looper. */
-
-/* Keep the original instrument selector row visible. */
+/* Recovery layout: keep the app's original instrument selector wrapper, show scale directly under it, and align shortcuts with the looper. */
+.topbar {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  padding-bottom: 4px !important;
+  overflow: visible !important;
+}
 .topbar > .center-nav {
   display: flex !important;
   visibility: visible !important;
   opacity: 1 !important;
+  width: auto !important;
+  max-width: 100% !important;
+  justify-content: center !important;
+  overflow: visible !important;
 }
 #instrumentNav {
   display: inline-flex !important;
@@ -21,12 +32,8 @@
   opacity: 1 !important;
   position: static !important;
   flex: 0 0 40px !important;
-  width: 40px !important;
-  min-width: 40px !important;
-  max-width: 40px !important;
-  height: 40px !important;
-  min-height: 40px !important;
-  max-height: 40px !important;
+  width: 40px !important; min-width: 40px !important; max-width: 40px !important;
+  height: 40px !important; min-height: 40px !important; max-height: 40px !important;
   padding: 7px !important;
   border-radius: 50% !important;
   color: #e5c56d !important;
@@ -36,7 +43,69 @@
 }
 #instrumentNav > #randomizeSetup .randomize-die { width: 24px; height: 24px; }
 
-/* Keep utility controls in the actual looper rail, aligned to the record/clear row. */
+/* The scale control is moved out of the collapsible mobile drawer into a visible second top row. */
+.topbar > .control-scale {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+  width: auto !important;
+  max-width: calc(100vw - 24px) !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.topbar > .control-scale .control-label { display: none !important; }
+.topbar > .control-scale .scale-stepper {
+  display: flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: 40px !important;
+  padding: 2px 5px !important;
+  border: 1px solid rgba(255,255,255,.1) !important;
+  border-radius: 999px !important;
+  background: rgba(18,18,20,.58) !important;
+  box-sizing: border-box !important;
+}
+.topbar > .control-scale .scale-stepper .step {
+  flex: 0 0 28px !important;
+  width: 28px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+}
+.topbar > .control-scale #scaleLabel {
+  display: block !important;
+  flex: 1 1 auto !important;
+  min-width: 70px !important;
+  width: auto !important;
+  max-width: min(44vw, 170px) !important;
+  height: 34px !important;
+  padding: 0 8px !important;
+  border: 1px solid transparent !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+.topbar > .control-scale #scaleLabel[aria-expanded="true"] {
+  background: rgba(212,176,74,.08) !important;
+  border-color: rgba(212,176,74,.2) !important;
+}
+
+/* Utility controls occupy the right end of the looper's own horizontal row. */
 #looperRail.looper-rail {
   position: relative !important;
   overflow: visible !important;
@@ -69,14 +138,9 @@
   align-items: center !important;
   justify-content: center !important;
   flex: 0 0 36px !important;
-  width: 36px !important;
-  min-width: 36px !important;
-  max-width: 36px !important;
-  height: 36px !important;
-  min-height: 36px !important;
-  max-height: 36px !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  width: 36px !important; min-width: 36px !important; max-width: 36px !important;
+  height: 36px !important; min-height: 36px !important; max-height: 36px !important;
+  margin: 0 !important; padding: 0 !important;
   border-radius: 50% !important;
   box-sizing: border-box !important;
   color: rgba(238,232,218,.9) !important;
@@ -84,42 +148,31 @@
   border: 1px solid rgba(235,229,215,.16) !important;
   box-shadow: none !important;
 }
-#pionierLooperShortcuts > button:hover,
-#pionierLooperShortcuts > button:focus-visible {
-  color: #f3d98c !important;
-  background: rgba(212,176,74,.1) !important;
-  border-color: rgba(212,176,74,.35) !important;
-  outline: none !important;
-}
 #pionierLooperShortcuts #openSoundscapes { font-size: 20px !important; }
 #pionierLooperShortcuts #fxPanelOpen { font-size: 11px !important; letter-spacing: .02em !important; }
 #pionierLooperShortcuts #settingsOpenBtn { font-size: 18px !important; }
 @media (max-width: 520px) {
-  #looperRail.looper-rail { padding-right: 106px !important; }
-  #pionierLooperShortcuts {
-    right: max(5px, env(safe-area-inset-right, 0px)) !important;
-    gap: 3px !important;
-    max-width: 102px !important;
-  }
-  #pionierLooperShortcuts > button {
-    flex-basis: 30px !important;
-    width: 30px !important;
-    min-width: 30px !important;
-    max-width: 30px !important;
-    height: 30px !important;
-    min-height: 30px !important;
-    max-height: 30px !important;
-  }
   #instrumentNav { gap: 2px !important; }
   #instrumentNav > #instrumentDropdownToggle {
-    max-width: min(34vw, 132px) !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
+    max-width: min(32vw, 128px) !important;
+    overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important;
+  }
+  #instrumentNav > #randomizeSetup {
+    flex-basis: 36px !important; width: 36px !important; min-width: 36px !important; max-width: 36px !important;
+    height: 36px !important; min-height: 36px !important; max-height: 36px !important; padding: 6px !important;
+  }
+  .topbar > .control-scale .scale-stepper { height: 38px !important; }
+  .topbar > .control-scale .scale-stepper .step {
+    flex-basis: 26px !important; width: 26px !important; height: 30px !important; min-height: 30px !important;
+  }
+  .topbar > .control-scale #scaleLabel { max-width: min(42vw, 140px) !important; font-size: 11px !important; }
+  #looperRail.looper-rail { padding-right: 104px !important; }
+  #pionierLooperShortcuts { right: max(5px, env(safe-area-inset-right, 0px)) !important; gap: 3px !important; max-width: 100px !important; }
+  #pionierLooperShortcuts > button {
+    flex-basis: 30px !important; width: 30px !important; min-width: 30px !important; max-width: 30px !important;
+    height: 30px !important; min-height: 30px !important; max-height: 30px !important;
   }
 }
-
-/* Dropdown overlays retain a stable viewport position and can scroll on phones. */
 #scaleMenu.picker-popover:not([hidden]),
 #instrumentMenu.picker-popover:not([hidden]) {
   z-index: 7200 !important;
@@ -135,15 +188,12 @@
   -webkit-backdrop-filter: blur(24px) saturate(125%) !important;
   backdrop-filter: blur(24px) saturate(125%) !important;
 }
-#scaleMenu .picker-results,
-#instrumentMenu .picker-results {
+#scaleMenu .picker-results, #instrumentMenu .picker-results {
   min-height: 0 !important;
   overflow-y: auto !important;
   overscroll-behavior: contain !important;
   -webkit-overflow-scrolling: touch !important;
 }
 #noteCountPrev, #noteCountNext, #noteCountLabel, #notePlus, #noteMinus, #notePlusWrap {
-  display: none !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
+  display: none !important; visibility: hidden !important; pointer-events: none !important;
 }
