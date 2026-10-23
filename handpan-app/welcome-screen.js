@@ -29,8 +29,31 @@
       }
     } catch (_) {}
     try {
+      window.PionierCore?.ensureAudio?.();
+    } catch (_) {}
+    try {
       window.dispatchEvent(new CustomEvent('pionier:user-enter'));
     } catch (_) {}
+  }
+
+  /** Reveal tonefields + force a surface layout/draw after the welcome gate. */
+  function revealInstrument() {
+    window.PionierWelcomeState.hideTonefields = false;
+    try { window.dispatchEvent(new CustomEvent('pionier:welcome-closed')); } catch (_) {}
+    const paint = () => {
+      try { window.PionierCore?.resize?.(); } catch (_) {}
+      try { window.PionierCore?.draw?.(); } catch (_) {}
+      try { if (typeof window.__pionierCenterPan === 'function') window.__pionierCenterPan(); } catch (_) {}
+    };
+    // Paint immediately and again after layout settles (dock measure / CSS transitions).
+    paint();
+    requestAnimationFrame(() => {
+      paint();
+      requestAnimationFrame(paint);
+    });
+    setTimeout(paint, 120);
+    setTimeout(paint, 400);
+    setTimeout(paint, 900);
   }
 
   enter.addEventListener('pointerdown', unlockAudio, { passive: true });
@@ -51,8 +74,8 @@
     try { if (window.__pionierArrangeLayout) window.__pionierArrangeLayout(); } catch (_) {}
     root.classList.add('pionier-entering');
     welcome.classList.add('is-leaving');
-    window.PionierWelcomeState.hideTonefields = false;
     root.classList.remove('pionier-welcome-active');
+    revealInstrument();
 
     requestAnimationFrame(() => requestAnimationFrame(() => {
       root.classList.remove('pionier-entering');
