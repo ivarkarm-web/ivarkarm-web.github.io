@@ -14,8 +14,8 @@
       el = document.createElement(tag);
       if (id) el.id = id;
       if (className) el.className = className;
-    } else if (className && !el.classList.contains(className)) {
-      el.classList.add(className);
+    } else if (className) {
+      className.split(/\s+/).forEach(function (c) { if (c && !el.classList.contains(c)) el.classList.add(c); });
     }
     return el;
   }
