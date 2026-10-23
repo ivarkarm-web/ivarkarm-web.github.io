@@ -30,9 +30,7 @@
       html = html.replace(/skin-mandala\.js\?v=\d+/g, 'skin-mandala.js?v=6');
       html = html.replace('href="./fx-editor.css?v=4"', 'href="./fx-editor.css?v=5"');
 
-      if (html.indexOf('pionier-control-layout.css') === -1) {
-        html = html.replace('</head>', '  <link rel="stylesheet" href="./pionier-control-layout.css?v=6" />\n</head>');
-      }
+      /* Recovery: do not inject the experimental control-layout CSS; its JS reparenting is disabled. */
 
       if (html.indexOf('handpan-themes.css') === -1) {
         html = html.replace('</head>', '  <link rel="stylesheet" href="./handpan-themes.css?v=2" />\n</head>');
@@ -47,14 +45,7 @@
       } else {
         html = html.replace(/theme-light-overlays\.css\?v=\d+/, 'theme-light-overlays.css?v=2');
       }
-      if (html.indexOf('looper-layout-fix.css') === -1) {
-        var looperLink = '<link rel="stylesheet" href="./looper-layout-fix.css?v=5" />';
-        if (/looper\.css\?v=/.test(html)) {
-          html = html.replace(/<link rel="stylesheet" href="\.\/looper\.css\?v=[^"]+" \/>/, function (m) { return m + '\n  ' + looperLink; });
-        } else {
-          html = html.replace('</head>', '  ' + looperLink + '\n</head>');
-        }
-      }
+      /* Recovery: do not inject the experimental looper-layout overrides. */
 
       function injectScript(src) {
         if (html.indexOf(src.split('?')[0]) === -1) {
