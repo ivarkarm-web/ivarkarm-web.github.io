@@ -1,6 +1,6 @@
 /* Pionier control layout: apply after welcome transition, then keep late-created shortcut buttons aligned. */
 (function () {
-  if (window.__pionierShortcutLayoutV8) return;
+  if (window.__pionierShortcutLayoutV9) return;
   window.__pionierShortcutLayoutV8 = true;
   var observer = null;
   var scheduled = false;
@@ -27,8 +27,33 @@
     if (nav && center && nav.parentElement !== center) center.appendChild(nav);
     if (center && center.parentElement !== topbar) topbar.insertBefore(center, topbar.firstChild);
 
+    /* Keep the instrument selector and randomizer adjacent while retaining
+       both existing voice-navigation controls. */
+    if (nav) {
+      var instrumentToggle = document.getElementById('instrumentDropdownToggle');
+      var voicePrev = document.getElementById('voicePrev');
+      var voiceNext = document.getElementById('voiceNext');
+      var randomize = document.getElementById('randomizeSetup');
+      if (instrumentToggle && voicePrev && voicePrev.parentElement === nav) nav.insertBefore(voicePrev, instrumentToggle);
+      if (instrumentToggle && voiceNext && voiceNext.parentElement === nav) nav.insertBefore(voiceNext, instrumentToggle);
+      if (instrumentToggle && randomize && randomize.parentElement === nav) nav.insertBefore(randomize, instrumentToggle.nextSibling);
+    }
+
     var scaleBlock = app.querySelector('.control-scale');
     if (scaleBlock && scaleBlock.parentElement !== topbar) topbar.appendChild(scaleBlock);
+
+    /* Give loop tracks their own stable row. Move the live element so its
+       existing listeners and recording state are preserved. */
+    var trackRow = document.getElementById('pionierTrackRow');
+    if (!trackRow) {
+      trackRow = document.createElement('div');
+      trackRow.id = 'pionierTrackRow';
+      trackRow.setAttribute('role', 'group');
+      trackRow.setAttribute('aria-label', 'Loop tracks');
+    }
+    if (trackRow.parentElement !== app || trackRow.nextElementSibling !== rail) app.insertBefore(trackRow, rail);
+    var layers = document.getElementById('looperLayers');
+    if (layers && layers.parentElement !== trackRow) trackRow.appendChild(layers);
 
     var shortcuts = document.getElementById('pionierLooperShortcuts');
     if (!shortcuts) {
