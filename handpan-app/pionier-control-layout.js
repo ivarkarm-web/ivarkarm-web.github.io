@@ -83,9 +83,9 @@
     var clear = document.getElementById('looperClearBtn');
     var recordCluster = document.getElementById('looperRecordCluster');
     appendIfNeeded(loopControls, clear);
-    appendIfNeeded(loopControls, recordCluster);
     var utilityGroup = document.getElementById('looperUtilityControls');
     appendIfNeeded(loopControls, utilityGroup);
+    appendIfNeeded(toolbar, recordCluster);
 
     var soundscapes = document.getElementById('openSoundscapes');
     var fx = document.getElementById('fxPanelOpen');
