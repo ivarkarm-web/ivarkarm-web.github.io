@@ -1,4 +1,26 @@
-/* PIONIER responsive UI recovery — layout-only overrides.
+/* Recovery v12: the controls belong in a fixed bottom dock, never the top bar. */
+#pionierBottomDock {
+  position:fixed !important; left:0 !important; right:0 !important; bottom:0 !important;
+  z-index:1000 !important; display:flex !important; flex-direction:column !important;
+  align-items:stretch !important; justify-content:flex-end !important;
+  gap:5px !important; width:100% !important; max-width:100% !important;
+  min-width:0 !important; box-sizing:border-box !important;
+  padding:6px 8px max(8px, env(safe-area-inset-bottom, 0px)) !important;
+  background:linear-gradient(to top, rgba(7,7,8,.98) 64%, rgba(7,7,8,.82) 100%) !important;
+  border-top:1px solid rgba(230,224,210,.08) !important;
+  overflow:visible !important;
+}
+#pionierBottomDock #pionierSelectorRow { order:3; }
+#pionierBottomDock #pionierLooperToolbar { order:1; margin:0 auto !important; padding:0 2px !important; }
+#pionierBottomDock #pionierTrackRow { order:2; margin:0 auto !important; }
+#app > .topbar { flex:0 0 auto !important; }
+#stage {
+  flex:1 1 auto !important; min-height:0 !important; min-width:0 !important;
+  padding-top:8px !important;
+  padding-bottom:calc(var(--chrome-bottom, 150px) + 8px) !important;
+  overflow:hidden !important; box-sizing:border-box !important;
+}
+/* PIONIER responsive UI recovery v12 — layout-only overrides.
    Audio, samples, instrument rendering, and control handlers are untouched. */
 #app.pionier-layout-recovered { width:100%; min-width:0; overflow:visible; }
 #app > .topbar {
