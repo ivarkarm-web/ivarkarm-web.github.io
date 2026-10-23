@@ -1,0 +1,92 @@
+/* Light-mode overlays for surfaces that were hardcoded dark (FX editor + Soundscapes).
+ * Loaded after pionier.css / fx-editor.css so these rules win without forking the large sheets.
+ */
+
+/* Soundscapes panel */
+html.theme-light #soundscapesPanel:not([hidden]) {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(201, 162, 39, 0.07), transparent 54%),
+    rgba(252, 251, 248, 0.98) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #1a1a1c !important;
+  box-shadow: 0 28px 90px rgba(34, 29, 19, 0.16) !important;
+}
+html.theme-light #soundscapesPanel .soundscapes-header {
+  border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+}
+html.theme-light #soundscapesPanel .soundscapes-header h2 {
+  color: rgba(28, 28, 32, 0.92) !important;
+}
+html.theme-light #soundscapesPanel .soundscapes-return-btn {
+  color: rgba(28, 28, 32, 0.7) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+html.theme-light #soundscapesPanel .soundscapes-return-btn:hover {
+  color: #8d6b1c !important;
+  border-color: rgba(157, 120, 32, 0.4) !important;
+  background: rgba(212, 176, 74, 0.12) !important;
+}
+html.theme-light #soundscapesPanel .soundscape-tab {
+  color: rgba(28, 28, 32, 0.42) !important;
+}
+html.theme-light #soundscapesPanel .soundscape-tab.is-active {
+  color: #8d6b1c !important;
+}
+html.theme-light #soundscapesPanel .soundscape-tab.is-active:after {
+  background: #b8952e !important;
+}
+html.theme-light #soundscapesPanel .soundscape-title {
+  color: rgba(28, 28, 32, 0.92) !important;
+}
+html.theme-light #soundscapesPanel .soundscape-transport-btn,
+html.theme-light #soundscapesPanel .soundscape-play {
+  color: rgba(28, 28, 32, 0.8) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+html.theme-light #soundscapesPanel .soundscape-transport-btn:hover,
+html.theme-light #soundscapesPanel .soundscape-play:hover {
+  border-color: rgba(157, 120, 32, 0.45) !important;
+  color: #8d6b1c !important;
+}
+html.theme-light #soundscapesPanel .soundscape-queue {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+html.theme-light #soundscapesPanel .soundscape-queue-item {
+  color: rgba(28, 28, 32, 0.88) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+html.theme-light #soundscapesPanel .sq-dur {
+  color: rgba(28, 28, 32, 0.4) !important;
+}
+html.theme-light #soundscapesPanel .soundscape-community-empty {
+  color: rgba(28, 28, 32, 0.45) !important;
+}
+html.theme-light #soundscapesPanel .soundscape-seek-row input,
+html.theme-light #soundscapesPanel .soundscape-vol-row input {
+  accent-color: #b8952e !important;
+}
+
+/* FX side-panel knob labels (Comp / Delay / etc.) */
+html.theme-light .fx-panel,
+html.theme-light .sidebar.right.knobs-panel {
+  color: #1a1a1c !important;
+}
+html.theme-light .knob-value,
+html.theme-light .knob-val,
+html.theme-light .effect-knob-wrap .knob-label,
+html.theme-light .fx-knob-label-row .knob-label,
+html.theme-light .knob-name-row {
+  color: rgba(28, 28, 32, 0.88) !important;
+  text-shadow: none !important;
+}
+html.theme-light .knob-name-row,
+html.theme-light .effect-knob-wrap .knob-label {
+  color: rgba(28, 28, 32, 0.55) !important;
+}
+html.theme-light .fx-settings-shortcut {
+  color: rgba(28, 28, 32, 0.75) !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
