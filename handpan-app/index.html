@@ -53,11 +53,15 @@
       function injectScript(src) {
         if (html.indexOf(src.split('?')[0]) === -1) {
           html = html.replace('</body>', '  <script src="' + src + '"><\/script>\n</body>');
+        } else {
+          // bump version if already present
+          var base = src.split('?')[0];
+          html = html.replace(new RegExp(base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\?v=\\d+'), src);
         }
       }
       injectScript('./looper-side-menus.js?v=3');
       injectScript('./looper-restart-on-record.js?v=2');
-      injectScript('./phase1-note-count-guard.js?v=1');
+      injectScript('./phase1-note-count-guard.js?v=2');
       injectScript('./js/phase3-handpan-theme.js?v=1');
 
       var fxFix = [
