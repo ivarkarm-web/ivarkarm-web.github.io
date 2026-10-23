@@ -40,3 +40,59 @@ html.theme-light .looper-dd-menu .looper-dd-item.is-active {
 html.theme-light #scaleMenu .scale-item-tuning {
   color: rgba(40,30,20,0.45) !important;
 }
+
+/* Metronome / count-in / BPM timing menus + looper sheets */
+html.theme-light .looper-timing-menu,
+html.theme-light .looper-sheet {
+  background: #fcfcfc !important;
+  background-image: none !important;
+  color: #1f1c18 !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  box-shadow: 0 16px 40px rgba(40,30,20,0.16) !important;
+}
+html.theme-light .looper-timing-menu-title,
+html.theme-light .looper-sheet-title,
+html.theme-light .looper-timing-menu-header .looper-timing-menu-title,
+html.theme-light .looper-sheet-header .looper-sheet-title {
+  color: #8a6a28 !important;
+}
+html.theme-light .looper-menu-close {
+  border-color: rgba(0,0,0,0.1) !important;
+  background: rgba(40,30,20,0.05) !important;
+  color: rgba(40,30,20,0.7) !important;
+}
+html.theme-light .looper-menu-close:hover {
+  border-color: rgba(160,120,40,0.4) !important;
+  background: rgba(200,160,60,0.12) !important;
+  color: #6a5220 !important;
+}
+html.theme-light .looper-timing-option {
+  border-color: rgba(0,0,0,0.08) !important;
+  background: rgba(40,30,20,0.04) !important;
+  color: rgba(30,26,20,0.85) !important;
+}
+html.theme-light .looper-timing-option:hover,
+html.theme-light .looper-timing-option.is-active {
+  color: #6a5220 !important;
+  border-color: rgba(160,120,40,0.45) !important;
+  background: rgba(200,160,60,0.14) !important;
+}
+html.theme-light .looper-timing-field {
+  color: rgba(40,30,20,0.55) !important;
+}
+html.theme-light .looper-timing-select {
+  border-color: rgba(160,120,40,0.3) !important;
+  background: #fff !important;
+  color: #1f1c18 !important;
+}
+html.theme-light .looper-bpm-editor-value {
+  color: #8a6a28 !important;
+}
+html.theme-light .looper-timing-menu button,
+html.theme-light .looper-sheet button {
+  color: inherit;
+}
+html.theme-light .looper-timing-menu-row button,
+html.theme-light .looper-timing-menu .looper-timing-option {
+  color: rgba(30,26,20,0.85) !important;
+}
