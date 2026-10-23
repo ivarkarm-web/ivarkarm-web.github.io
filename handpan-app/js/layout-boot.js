@@ -1,34 +1,62 @@
 /**
- * Temporary loader: restore layout-boot from last known-good commit,
- * then apply landscape guards once the core script is present.
+ * Stable Pionier layout boot.
+ *
+ * Important: do NOT load the legacy layout-boot from an old CDN commit.
+ * That script hides .topbar, moves the mobile drawer into a fixed top dock,
+ * and pins Soundscapes / FX / Customize to the top center. Those actions
+ * directly conflict with pionier-control-layout.js and the requested layout.
+ *
+ * This file only maintains pan sizing and the record-button chrome. The
+ * control-layout script owns selector placement; the original shell owns DOM
+ * structure and the looper remains in #looperRail.
  */
-(function restoreLayoutBoot() {
-  var DONE = false;
-  function applyGuards() {
-    if (DONE) return;
-    if (typeof window.__pionierCenterPan !== 'function') return;
-    DONE = true;
-    // Landscape-aware wrappers around existing helpers
-    var _centerTop = window.__pionierCenterTopChrome;
-    window.__pionierRelayoutPortrait = function () {
-      try {
-        if (document.body.classList.contains('pionier-landscape')) return;
-        if (typeof window.__pionierEnsureBottomBar === 'function') window.__pionierEnsureBottomBar();
-        if (typeof window.__pionierCenterPan === 'function') window.__pionierCenterPan();
-      } catch (e) {
-        console.warn('[layout-boot] relayoutPortrait', e);
-      }
-    };
+(function stableLayoutBoot() {
+  'use strict';
+  if (window.__pionierStableLayoutBootV1) return;
+  window.__pionierStableLayoutBootV1 = true;
+
+  function centerPan() {
+    var root = document.documentElement;
+    var topbar = document.querySelector('#app > .topbar');
+    var rail = document.getElementById('looperRail');
+    var topH = topbar ? topbar.getBoundingClientRect().bottom : 0;
+    var botH = rail ? Math.max(0, window.innerHeight - rail.getBoundingClientRect().top) : 0;
+    root.style.setProperty('--chrome-top', Math.round(topH) + 'px');
+    root.style.setProperty('--chrome-bottom', Math.round(botH) + 'px');
+    root.style.setProperty('--pan-bottom-gap', '12px');
+    root.style.setProperty('--viewport-h', window.innerHeight + 'px');
+
+    var pan = document.getElementById('pan');
+    if (pan) {
+      ['position','left','right','top','bottom','transform','margin','z-index'].forEach(function (prop) {
+        pan.style.removeProperty(prop);
+      });
+    }
+    window.__pionierCenterPan = centerPan;
   }
-  var s = document.createElement('script');
-  s.src = 'https://cdn.jsdelivr.net/gh/ivarkarm-web/ivarkarm-web.github.io@ed103754b0ecc5ac7e2dd97b2a8020a3dd8d87e1/handpan-app/js/layout-boot.js';
-  s.onload = function () {
-    applyGuards();
-    setTimeout(applyGuards, 100);
-    setTimeout(applyGuards, 500);
-  };
-  s.onerror = function () {
-    console.error('[layout-boot] failed to load restored core');
-  };
-  document.head.appendChild(s);
+
+  function ensureLooperChrome() {
+    var btn = document.getElementById('looperBtn');
+    if (!btn) return;
+    if (!btn.querySelector('.looper-btn-core')) {
+      btn.className = 'looper-btn looper-record';
+      btn.innerHTML = '<span class="looper-btn-ring" aria-hidden="true"></span><span class="looper-btn-core" aria-hidden="true"></span>';
+    }
+    btn.style.setProperty('width', '52px', 'important');
+    btn.style.setProperty('height', '52px', 'important');
+    btn.style.setProperty('min-width', '52px', 'important');
+    btn.style.setProperty('min-height', '52px', 'important');
+    btn.style.setProperty('pointer-events', 'auto', 'important');
+  }
+
+  function boot() {
+    centerPan();
+    ensureLooperChrome();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
+  else boot();
+  window.addEventListener('resize', centerPan, { passive: true });
+  window.addEventListener('orientationchange', function () { requestAnimationFrame(centerPan); }, { passive: true });
+  setTimeout(boot, 200);
+  setTimeout(boot, 800);
 })();
