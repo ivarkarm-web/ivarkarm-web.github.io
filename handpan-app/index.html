@@ -23,7 +23,7 @@
 
       html = html.replace(/handpan\.js\?v=\d+/g, 'handpan.js?v=12');
       html = html.replace(/pad-layout\.js\?v=\d+/g, 'pad-layout.js?v=3');
-      html = html.replace(/pionier-surface\.js\?v=\d+/g, 'pionier-surface.js?v=151');
+      html = html.replace(/pionier-surface\.js\?v=\d+/g, 'pionier-surface.js?v=152');
       html = html.replace(/skin-palette\.js\?v=\d+/g, 'skin-palette.js?v=2');
       html = html.replace(/customization-catalog\.js\?v=\d+/g, 'customization-catalog.js?v=7');
       html = html.replace(/settings-panel\.js\?v=\d+/g, 'settings-panel.js?v=30');
@@ -31,7 +31,9 @@
       html = html.replace('href="./fx-editor.css?v=4"', 'href="./fx-editor.css?v=5"');
 
       if (html.indexOf('handpan-themes.css') === -1) {
-        html = html.replace('</head>', '  <link rel="stylesheet" href="./handpan-themes.css?v=1" />\n</head>');
+        html = html.replace('</head>', '  <link rel="stylesheet" href="./handpan-themes.css?v=2" />\n</head>');
+      } else {
+        html = html.replace(/handpan-themes\.css\?v=\d+/, 'handpan-themes.css?v=2');
       }
       if (html.indexOf('theme-light-overlays.css') === -1) {
         html = html.replace(
