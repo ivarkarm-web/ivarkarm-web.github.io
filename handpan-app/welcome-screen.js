@@ -48,6 +48,7 @@
       showHeadphoneHint = true;
     }
 
+    try { if (window.__pionierArrangeLayout) window.__pionierArrangeLayout(); } catch (_) {}
     root.classList.add('pionier-entering');
     welcome.classList.add('is-leaving');
     window.PionierWelcomeState.hideTonefields = false;

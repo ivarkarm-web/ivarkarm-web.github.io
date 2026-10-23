@@ -34,7 +34,8 @@
 
   function arrange() {
     scheduled = false;
-    if (welcomeIsVisible()) return;
+    /* Build the final layout while the welcome gate is still up (#app is
+       hidden behind it), so nothing moves when the app is revealed. */
 
     var app = document.getElementById('app');
     var topbar = app && app.querySelector('.topbar');
@@ -74,15 +75,12 @@
     if (nav && nav !== instrumentGroup && nav.children.length === 0) nav.remove();
 
     var scaleBlock = app.querySelector('.control-scale');
-    var rootLabel = document.getElementById('rootLabel');
-    var rootBlock = rootLabel && rootLabel.closest('.control-block');
     var rootGroup = make('div', 'pionierRootGroup', 'pionier-root-control');
-    if (rootBlock && rootBlock.querySelector('#noteCountLabel')) rootBlock = null;
+    var rootBtn = document.getElementById('looperRootMenuBtn');
     appendIfNeeded(scaleGroup, scaleBlock);
-    if (rootBlock) {
-      appendIfNeeded(rootGroup, rootBlock);
-      appendIfNeeded(scaleGroup, rootGroup);
-    }
+    appendIfNeeded(scaleGroup, rootGroup);
+    /* Base note is its own button beside the scale pill, not inside it. */
+    if (rootBtn) appendIfNeeded(rootGroup, rootBtn);
 
     var clear = document.getElementById('looperClearBtn');
     var recordCluster = document.getElementById('looperRecordCluster');
@@ -120,7 +118,9 @@
     if (instrumentMenu && instrumentMenu.parentElement !== app) app.appendChild(instrumentMenu);
 
     app.classList.add('pionier-layout-recovered');
+    if (typeof window.__pionierCenterPan === 'function') window.__pionierCenterPan();
   }
+  window.__pionierArrangeLayout = function () { arrange(); };
 
   function schedule() {
     if (scheduled) return;

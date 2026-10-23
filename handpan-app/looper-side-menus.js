@@ -180,22 +180,13 @@
 
     var rootBtn = document.getElementById('looperRootMenuBtn');
     if (!rootBtn) rootBtn = makeMenuBtn('looperRootMenuBtn', 'looperRootMenuValue', 'Base note');
-    /* Base-note picker belongs directly beside the scale picker. */
-    var scaleStepper = document.querySelector('.control-scale .scale-stepper');
-    if (scaleStepper && rootBtn.parentElement !== scaleStepper) scaleStepper.appendChild(rootBtn);
-    else if (!scaleStepper && rootBtn.parentElement !== side) side.appendChild(rootBtn);
-
-    /* Keep root note immediately after the scale name, before the scale stepper's
-       next arrow, so it is visually adjacent to the selector. */
-    var scaleLabel = document.getElementById('scaleLabel');
-    if (scaleStepper && scaleLabel && rootBtn.parentElement === scaleStepper) {
-      scaleStepper.insertBefore(rootBtn, scaleLabel.nextSibling);
-    }
-
-    /* Keep the root selector immediately beside the scale name. */
-    var scaleLabel = document.getElementById('scaleLabel');
-    if (scaleStepper && scaleLabel && rootBtn.parentElement === scaleStepper) {
-      scaleStepper.insertBefore(rootBtn, scaleLabel.nextSibling);
+    /* Base note lives in its own dedicated slot (#pionierRootGroup), a separate
+       button beside the scale pill, never inside the scale stepper. */
+    var rootSlot = document.getElementById('pionierRootGroup');
+    if (rootSlot) {
+      if (rootBtn.parentElement !== rootSlot) rootSlot.appendChild(rootBtn);
+    } else if (rootBtn.parentElement !== side) {
+      side.appendChild(rootBtn);
     }
 
     var rootMenu = document.getElementById('looperRootMenu');

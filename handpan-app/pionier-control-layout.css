@@ -633,3 +633,34 @@ html.theme-light #pionierBottomDock #pionierRootGroup #rootNext { color:#805d18 
   #pionierBottomDock #pionierRootGroup #rootPrev,
   #pionierBottomDock #pionierRootGroup #rootNext { flex-basis:13px !important; width:13px !important; min-width:13px !important; }
 }
+
+/* Base note: its own dedicated gold button beside the scale pill (not inside it). */
+#pionierBottomDock #pionierRootGroup #looperRootMenuBtn {
+  appearance:none !important; -webkit-appearance:none !important;
+  display:inline-flex !important; align-items:center !important; justify-content:center !important;
+  gap:4px !important; width:100% !important; height:40px !important; min-height:40px !important;
+  margin:0 !important; padding:0 8px !important; box-sizing:border-box !important;
+  border:1px solid rgba(220,180,83,.58) !important; border-radius:999px !important;
+  background:linear-gradient(145deg,rgba(220,180,83,.19),rgba(255,255,255,.055)) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 3px 12px rgba(0,0,0,.16) !important;
+  color:#f3d995 !important; font:750 12px/1 Inter, system-ui, sans-serif !important;
+  letter-spacing:.02em !important; cursor:pointer !important; touch-action:manipulation !important;
+  -webkit-tap-highlight-color:transparent !important; position:static !important;
+  visibility:visible !important; pointer-events:auto !important;
+}
+#pionierBottomDock #pionierRootGroup #looperRootMenuBtn .looper-dd-value { min-width:1.6em !important; text-align:center !important; }
+#pionierBottomDock #pionierRootGroup #looperRootMenuBtn .looper-dd-caret { font-size:9px !important; opacity:.75 !important; }
+#pionierBottomDock #pionierRootGroup #looperRootMenuBtn[aria-expanded="true"] { border-color:rgba(243,217,149,.9) !important; }
+html.theme-light #pionierBottomDock #pionierRootGroup #looperRootMenuBtn {
+  background:linear-gradient(145deg,rgba(255,247,220,.98),rgba(246,235,205,.92)) !important;
+  border-color:rgba(145,106,32,.42) !important; color:#805d18 !important;
+  box-shadow:inset 0 1px 0 #fff,0 3px 10px rgba(70,52,17,.10) !important;
+}
+/* Slot is sized for the new button (older stepper widths were 72–88px). */
+#pionierBottomDock #pionierRootGroup { flex:0 0 72px !important; width:72px !important; min-width:72px !important; max-width:72px !important; }
+@media(max-width:430px) {
+  #pionierBottomDock #pionierRootGroup { flex-basis:66px !important; width:66px !important; min-width:66px !important; max-width:66px !important; }
+}
+@media(max-width:350px) {
+  #pionierBottomDock #pionierRootGroup { flex-basis:60px !important; width:60px !important; min-width:60px !important; max-width:60px !important; }
+}

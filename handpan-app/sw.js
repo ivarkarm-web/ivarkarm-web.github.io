@@ -11,7 +11,7 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.
  */
-const CACHE_VERSION = 'pionier-v134';
+const CACHE_VERSION = 'pionier-v135';
 
 const SHELL = [
   './',
@@ -52,13 +52,13 @@ const SHELL = [
   './js/skin-palette.js?v=2',
   './js/soundscapes.js?v=11',
   './looper-restart-on-record.js?v=2',
-  './looper-side-menus.js?v=7',
+  './looper-side-menus.js?v=8',
   './looper.css?v=222',
   './og-pionier-synth.svg',
   './phase1-note-count-guard.js?v=2',
   './pionier-app.js?v=236',
-  './pionier-control-layout.css?v=20',
-  './pionier-control-layout.js?v=16',
+  './pionier-control-layout.css?v=21',
+  './pionier-control-layout.js?v=17',
   './pionier-core.js?v=71',
   './pionier.css?v=166',
   './portrait-lock.css?v=1',
@@ -73,7 +73,7 @@ const SHELL = [
   './ui-stability.css?v=6',
   './w3-pan-guard.css?v=1',
   './welcome-screen.css?v=6',
-  './welcome-screen.js?v=7',
+  './welcome-screen.js?v=8',
 ];
 
 self.addEventListener('install', (event) => {
