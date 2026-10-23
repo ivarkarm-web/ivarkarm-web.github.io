@@ -20,11 +20,14 @@
     var chrome = document.getElementById('pionierChrome');
     var topbar = document.querySelector('#app > .topbar');
     var rail = document.getElementById('looperRail');
+    var dock = document.getElementById('pionierBottomDock');
     var topH = 8;
     var botH = 160;
-    if (chrome) {
+    if (dock && dock.getBoundingClientRect().height > 0) {
+      botH = Math.max(120, Math.ceil(dock.getBoundingClientRect().height + 12));
+    } else if (chrome) {
       botH = Math.max(120, Math.ceil(window.innerHeight - chrome.getBoundingClientRect().top));
-    } else if (rail) {
+    } else if (rail && rail.getBoundingClientRect().height > 0) {
       botH = Math.max(0, Math.ceil(window.innerHeight - rail.getBoundingClientRect().top));
     } else if (topbar) {
       topH = Math.round(topbar.getBoundingClientRect().bottom);
