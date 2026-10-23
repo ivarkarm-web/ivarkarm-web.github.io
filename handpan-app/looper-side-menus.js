@@ -1,10 +1,10 @@
 /**
  * Compact dropdowns for base note + note count on the looper rail.
- * Replaces the old ‹ › steppers that did not fit.
+ * Replaces the old ‹ › steppers; removes duplicates next to instrument/scale.
  */
 (function looperSideMenus() {
-  if (window.__pionierSideMenus) return;
-  window.__pionierSideMenus = true;
+  if (window.__pionierSideMenusV2) return;
+  window.__pionierSideMenusV2 = true;
 
   var NOTE_NAMES = ['C', 'C\u266F', 'D', 'D\u266F', 'E', 'F', 'F\u266F', 'G', 'G\u266F', 'A', 'A\u266F', 'B'];
   var NOTE_COUNTS = [8, 9, 10, 11, 12, 13];
@@ -23,7 +23,7 @@
     var hp = handpan();
     if (hp && Number.isFinite(hp.rootIndex)) return ((hp.rootIndex % 12) + 12) % 12;
     var label = (document.getElementById('rootLabel') || {}).textContent || 'D';
-    var i = NOTE_NAMES.indexOf(label.trim());
+    var i = NOTE_NAMES.indexOf(String(label).trim());
     return i >= 0 ? i : 2;
   }
 
@@ -46,9 +46,6 @@
     if (hp && typeof hp.setRootIndex === 'function') {
       hp.setRootIndex(index);
       if (c && typeof c.refreshPitch === 'function') c.refreshPitch();
-      else if (typeof hp.rebuildNotes === 'function') {
-        try { hp.rebuildNotes(); } catch (e) {}
-      }
     }
     syncLabels();
   }
@@ -60,10 +57,10 @@
   }
 
   function syncLabels() {
-    var rootBtn = document.getElementById('looperRootMenuBtn');
-    var notesBtn = document.getElementById('looperNotesMenuBtn');
     var rootVal = document.getElementById('looperRootMenuValue');
     var notesVal = document.getElementById('looperNotesMenuValue');
+    var rootBtn = document.getElementById('looperRootMenuBtn');
+    var notesBtn = document.getElementById('looperNotesMenuBtn');
     var ri = currentRootIndex();
     var nc = currentNoteCount();
     if (rootVal) rootVal.textContent = NOTE_NAMES[ri];
@@ -205,26 +202,32 @@
     return menu;
   }
 
-  function hideLegacySteppers() {
-    ['rootPrev', 'rootNext', 'noteCountPrev', 'noteCountNext'].forEach(function (id) {
-      var el = document.getElementById(id);
-      if (el) {
-        el.hidden = true;
-        el.setAttribute('hidden', '');
-        el.style.display = 'none';
-      }
+  function nuke(el) {
+    if (!el) return;
+    el.hidden = true;
+    el.setAttribute('hidden', '');
+    el.style.setProperty('display', 'none', 'important');
+    el.style.setProperty('visibility', 'hidden', 'important');
+    el.style.setProperty('pointer-events', 'none', 'important');
+  }
+
+  function hideLegacyDuplicates() {
+    [
+      'rootPrev', 'rootNext', 'noteCountPrev', 'noteCountNext',
+      'rootLabel', 'noteCountLabel',
+      'stageBaseOnly', 'stageNotesSlot', 'notePlusWrap'
+    ].forEach(function (id) {
+      nuke(document.getElementById(id));
     });
-    ['rootLabel', 'noteCountLabel'].forEach(function (id) {
-      var el = document.getElementById(id);
-      if (el && !el.closest('#looperSideControls')) {
-        el.hidden = true;
-        el.style.display = 'none';
-      }
-    });
-    var noteWrap = document.getElementById('notePlusWrap');
-    if (noteWrap) {
-      noteWrap.hidden = true;
-      noteWrap.setAttribute('hidden', '');
+    document.querySelectorAll(
+      '#stageScaleBar .stage-base-only, #stageScaleBar .stage-notes-slot, #stageScaleBar .stage-root-row, #stageScaleBar .control-half, #stageScaleBar .control-row'
+    ).forEach(nuke);
+
+    // Randomizer only on looper side
+    var rand = document.getElementById('randomizeSetup');
+    var side = document.getElementById('looperSideControls');
+    if (rand && side && rand.parentElement !== side) {
+      side.appendChild(rand);
     }
   }
 
@@ -243,7 +246,6 @@
       rail.appendChild(side);
     }
 
-    // Clear old stepper groups once, keep randomizer
     side.querySelectorAll('.looper-side-group').forEach(function (g) { g.remove(); });
 
     var rootBtn = document.getElementById('looperRootMenuBtn');
@@ -263,10 +265,7 @@
     }
 
     var rand = document.getElementById('randomizeSetup');
-    if (rand) {
-      if (rand.parentElement !== side) side.appendChild(rand);
-      else side.appendChild(rand); // keep last
-    }
+    if (rand) side.appendChild(rand);
 
     var rootMenu = document.getElementById('looperRootMenu');
     if (!rootMenu) rootMenu = makeMenu('looperRootMenu');
@@ -290,7 +289,7 @@
       });
     }
 
-    hideLegacySteppers();
+    hideLegacyDuplicates();
     syncLabels();
   }
 
@@ -316,8 +315,5 @@
   setTimeout(boot, 300);
   setTimeout(boot, 900);
   setTimeout(boot, 2000);
-  setInterval(function () {
-    // layout-boot may reparent controls; keep ours in place and labels fresh
-    ensureUI();
-  }, 1200);
+  setInterval(ensureUI, 1200);
 })();
