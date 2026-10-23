@@ -3,7 +3,7 @@
  * Note-count control removed (Phase 1) — count follows active scale.
  */
 (function looperSideMenus() {
-  if (window.__pionierSideMenusV3) return;
+  if (window.__pionierSideMenusV4) return;
   window.__pionierSideMenusV3 = true;
 
   var NOTE_NAMES = ['C', 'C\u266F', 'D', 'D\u266F', 'E', 'F', 'F\u266F', 'G', 'G\u266F', 'A', 'A\u266F', 'B'];
@@ -184,6 +184,19 @@
     var scaleStepper = document.querySelector('.control-scale .scale-stepper');
     if (scaleStepper && rootBtn.parentElement !== scaleStepper) scaleStepper.appendChild(rootBtn);
     else if (!scaleStepper && rootBtn.parentElement !== side) side.appendChild(rootBtn);
+
+    /* Keep root note immediately after the scale name, before the scale stepper's
+       next arrow, so it is visually adjacent to the selector. */
+    var scaleLabel = document.getElementById('scaleLabel');
+    if (scaleStepper && scaleLabel && rootBtn.parentElement === scaleStepper) {
+      scaleStepper.insertBefore(rootBtn, scaleLabel.nextSibling);
+    }
+
+    /* Keep the root selector immediately beside the scale name. */
+    var scaleLabel = document.getElementById('scaleLabel');
+    if (scaleStepper && scaleLabel && rootBtn.parentElement === scaleStepper) {
+      scaleStepper.insertBefore(rootBtn, scaleLabel.nextSibling);
+    }
 
     var rootMenu = document.getElementById('looperRootMenu');
     if (!rootMenu) rootMenu = makeMenu('looperRootMenu');
