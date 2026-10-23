@@ -1,0 +1,99 @@
+/**
+ * handpan-themes.css — Phase 3 premium dark / light handpan tokens.
+ */
+
+:root,
+html.dark,
+html:not(.theme-light) {
+  color-scheme: dark;
+  --hp-bg: #08080a;
+  --hp-bg-elevated: #0c0c0e;
+  --hp-disc-0: #2e3036;
+  --hp-disc-1: #1a1b1f;
+  --hp-disc-2: #0e0f12;
+  --hp-pad-0: 58, 60, 68;
+  --hp-pad-1: 36, 38, 44;
+  --hp-pad-2: 22, 23, 27;
+  --hp-stroke: 255, 255, 255;
+  --hp-stroke-alpha: 0.12;
+  --hp-rim: 220, 224, 232;
+  --hp-lip: 200, 204, 212;
+  --hp-accent: 201, 162, 39;
+  --hp-accent-bright: 228, 195, 90;
+  --hp-glow-0: 230, 235, 245;
+  --hp-glow-1: 140, 150, 170;
+  --hp-label: #9a9690;
+  --hp-label-press: #f0ece4;
+  --hp-label-size: 0.62rem;
+  --hp-label-font: "Inter", "JetBrains Mono", ui-sans-serif, system-ui, sans-serif;
+  --hp-rim-width: 1px;
+  --hp-press-scale: 0.97;
+  --hp-press-ms: 420ms;
+  --hp-sheen: 0.12;
+  --hp-pan-offset-y: 12%;
+}
+
+html.theme-light,
+html.theme-light body,
+body.theme-light {
+  color-scheme: light;
+  --hp-bg: #e8e4dc;
+  --hp-bg-elevated: #f2efe8;
+  --hp-disc-0: #e4e0d8;
+  --hp-disc-1: #c8c4bc;
+  --hp-disc-2: #9e9a92;
+  --hp-pad-0: 220, 216, 208;
+  --hp-pad-1: 180, 176, 168;
+  --hp-pad-2: 140, 136, 128;
+  --hp-stroke: 20, 18, 14;
+  --hp-stroke-alpha: 0.14;
+  --hp-rim: 50, 48, 44;
+  --hp-lip: 70, 68, 62;
+  --hp-accent: 150, 118, 28;
+  --hp-accent-bright: 180, 140, 40;
+  --hp-glow-0: 60, 58, 52;
+  --hp-glow-1: 40, 38, 34;
+  --hp-label: #4a4640;
+  --hp-label-press: #1a1814;
+  --hp-sheen: 0.14;
+}
+
+html.theme-light,
+html.theme-light body {
+  background: var(--hp-bg) !important;
+}
+
+html:not(.theme-light) body {
+  background: var(--hp-bg);
+}
+
+#pan {
+  transform: translateY(var(--hp-pan-offset-y, 12%)) !important;
+  transform-origin: center center;
+}
+
+.hp-note-label {
+  font-family: var(--hp-label-font);
+  font-weight: 400;
+  font-size: var(--hp-label-size);
+  color: var(--hp-label);
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  user-select: none;
+  text-align: center;
+  line-height: 1.15;
+}
+.hp-note-label sup {
+  font-size: 0.65em;
+  vertical-align: super;
+  line-height: 0;
+}
+.hp-note-label .hp-octave {
+  display: block;
+  font-size: 0.72em;
+  opacity: 0.55;
+  margin-top: 0.1em;
+}
+.hp-note-label.is-press {
+  color: var(--hp-label-press);
+}
