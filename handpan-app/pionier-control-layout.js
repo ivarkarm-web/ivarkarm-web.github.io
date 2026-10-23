@@ -54,8 +54,14 @@
     appendIfNeeded(selectors, scaleGroup);
     var stage = document.getElementById('stage');
     if (stage) {
-      if (toolbar.parentElement !== app || toolbar.nextElementSibling !== stage) app.insertBefore(toolbar, stage);
-      if (tracks.parentElement !== app || tracks.nextElementSibling !== stage) app.insertBefore(tracks, stage);
+      if (toolbar.parentElement !== app ||
+          !(toolbar.compareDocumentPosition(stage) & Node.DOCUMENT_POSITION_FOLLOWING)) {
+        app.insertBefore(toolbar, stage);
+      }
+      if (tracks.parentElement !== app ||
+          !(tracks.compareDocumentPosition(stage) & Node.DOCUMENT_POSITION_FOLLOWING)) {
+        app.insertBefore(tracks, stage);
+      }
     } else {
       appendIfNeeded(app, toolbar);
       appendIfNeeded(app, tracks);
