@@ -1,0 +1,73 @@
+/* Looper layout fix: track circles must not sit under the record button.
+ * Root cause: #looperLayers lives in a narrow right grid column; with 4
+ * circles + flex-end, overflow runs leftward under the centered loop control.
+ */
+
+/* When 3+ track circles exist, promote layers to their own full-width row. */
+#looperRail.looper-rail:has(#looperLayers .looper-circle:nth-child(3)) {
+  grid-template-rows: auto 42px !important;
+  row-gap: 6px !important;
+  min-height: 0 !important;
+  align-items: center !important;
+}
+
+#looperRail.looper-rail:has(#looperLayers .looper-circle:nth-child(3)) > #looperLayers {
+  grid-column: 1 / -1 !important;
+  grid-row: 1 !important;
+  justify-self: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 6px !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  pointer-events: auto !important;
+  z-index: 3 !important;
+}
+
+#looperRail.looper-rail:has(#looperLayers .looper-circle:nth-child(3)) > #looperClearBtn,
+#looperRail.looper-rail:has(#looperLayers .looper-circle:nth-child(3)) > #looperUtilityControls,
+#looperRail.looper-rail:has(#looperLayers .looper-circle:nth-child(3)) > #looperRecordCluster {
+  grid-row: 2 !important;
+}
+
+/* Keep circles readable and prevent leftward bleed under the loop button. */
+#looperRail > #looperLayers {
+  isolation: isolate !important;
+  contain: layout !important;
+}
+
+#looperRail > #looperLayers .looper-circle {
+  position: relative !important;
+  z-index: 1 !important;
+  flex: 0 0 auto !important;
+}
+
+/* 4 tracks: slightly tighter so a phone width still fits one clean row. */
+#looperRail.looper-rail:has(#looperLayers .looper-circle:nth-child(4)) > #looperLayers .looper-circle {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  max-width: 28px !important;
+  max-height: 28px !important;
+}
+
+@media (max-width: 390px) {
+  #looperRail.looper-rail:has(#looperLayers .looper-circle:nth-child(3)) {
+    grid-template-rows: auto 38px !important;
+    row-gap: 4px !important;
+  }
+  #looperRail.looper-rail:has(#looperLayers .looper-circle:nth-child(4)) > #looperLayers .looper-circle {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    min-height: 26px !important;
+    max-width: 26px !important;
+    max-height: 26px !important;
+  }
+}
