@@ -197,3 +197,65 @@
 #noteCountPrev, #noteCountNext, #noteCountLabel, #notePlus, #noteMinus, #notePlusWrap {
   display: none !important; visibility: hidden !important; pointer-events: none !important;
 }
+
+
+/* v5 hardening: counter older looper-layout rules that hid/moved controls. */
+#instrumentNav,
+.topbar > .center-nav,
+.topbar > .control-scale {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+#instrumentNav #randomizeSetup,
+#instrumentNav > #randomizeSetup {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: static !important;
+}
+#looperRootMenuBtn {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: static !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 50px !important;
+  max-width: 76px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  margin-left: 3px !important;
+  padding: 0 8px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(212,176,74,.3) !important;
+  background: rgba(212,176,74,.09) !important;
+  color: #f3dfaa !important;
+  font: 600 11px/1 Inter,system-ui,sans-serif !important;
+}
+#looperRootMenuBtn .looper-dd-caret { display: none !important; }
+#topbar > .control-scale .scale-stepper { max-width: calc(100vw - 20px) !important; }
+#pionierLooperShortcuts {
+  top: 50% !important;
+  bottom: auto !important;
+  right: max(6px, env(safe-area-inset-right, 0px)) !important;
+  z-index: 999 !important;
+  pointer-events: auto !important;
+}
+#pionierLooperShortcuts > button {
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+@media (max-width: 520px) {
+  #looperRail.looper-rail { padding-right: 108px !important; gap: 6px !important; }
+  #pionierLooperShortcuts { gap: 3px !important; max-width: 102px !important; }
+  #pionierLooperShortcuts > button {
+    flex-basis: 30px !important; width: 30px !important; min-width: 30px !important; max-width: 30px !important;
+    height: 30px !important; min-height: 30px !important; max-height: 30px !important;
+  }
+}
