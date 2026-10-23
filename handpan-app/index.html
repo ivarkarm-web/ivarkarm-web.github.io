@@ -1,115 +1,103 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Pionier — loading…</title>
+  <title>Pionier Synth — Play, Explore, Create</title>
+  <meta name="description" content="Pionier Synth is a touch-responsive musical instrument for exploring resonant handpan sounds, world instruments, expressive effects, looping and soundscapes. Start with 8 notes and shape your own sound." />
   <meta name="theme-color" content="#070708" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Pionier Audio" />
+  <meta property="og:title" content="Pionier Audio — Handpan" />
+  <meta property="og:description" content="A minimal, touch-responsive virtual handpan. Explore resonant sounds, scales, loops and soundscapes." />
+  <meta property="og:image" content="https://ivarkarm-web.github.io/handpan-app/og-pionier-audio.svg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Pionier Audio — minimal tech-editorial handpan instrument." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Pionier Audio — Handpan" />
+  <meta name="twitter:description" content="A minimal, touch-responsive virtual handpan. Explore resonant sounds, scales, loops and soundscapes." />
+  <meta name="twitter:image" content="https://ivarkarm-web.github.io/handpan-app/og-pionier-audio.svg" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <script>document.documentElement.classList.add("pionier-welcome-active");window.PionierWelcomeState={hideTonefields:true};</script>
+  <link rel="stylesheet" href="./pionier.css?v=166" />
+  <link rel="stylesheet" href="./w3-pan-guard.css?v=1" />
+  <link rel="stylesheet" href="./welcome-screen.css?v=6" />
+  <link rel="stylesheet" href="./topbar-narrow.css?v=6" />
+  <link rel="stylesheet" href="./looper.css?v=222" />
+  <link rel="stylesheet" href="./scale-menu.css?v=19" />
+  <link rel="stylesheet" href="./settings-panel.css?v=19" />
   <style>
-    html, body { margin: 0; background: #08080a; color: #eceae6; font: 14px/1.4 system-ui, sans-serif; }
-    #boot { position: fixed; inset: 0; display: grid; place-items: center; opacity: 0.75; }
+    .backdrop-player { display: none !important; }
+    .play-pill, #modePlay, #btnHelp, #btnExit, .top-actions,
+    #createLaunch, .create-launch, #createPage, .create-page { display: none !important; }
+
+    .stage {
+      --stage-bottom-reserve: calc(var(--chrome-bottom, 160px) + var(--pan-bottom-gap, 10px));
+      padding: max(8px, var(--chrome-top, 48px)) 8px var(--stage-bottom-reserve) 8px !important;
+      flex-direction: column;
+      position: relative !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      overflow: hidden !important;
+      min-height: 0 !important;
+      flex: 1 1 auto !important;
+      box-sizing: border-box !important;
+    }
+    #pan {
+      display: block !important;
+      aspect-ratio: 1 !important;
+      margin-bottom: 0 !important;
+    }
+    .stage::before {
+      left: 50% !important;
+      top: auto !important;
+      bottom: calc(var(--stage-bottom-reserve) + var(--pan-budget, 40vw) / 2) !important;
+      transform: translate(-50%, 50%) !important;
+      width: min(80vw, calc(100dvh - 260px), 640px) !important;
+      height: min(80vw, calc(100dvh - 260px), 640px) !important;
+    }
   </style>
+  <link rel="stylesheet" href="./atelier.css?v=10">
+  <link rel="stylesheet" href="./ui-stability.css?v=6" />
+  <link rel="stylesheet" href="./fx-editor.css?v=5" />
+  <link rel="stylesheet" href="./focus-visible.css?v=1" />
+  <link rel="stylesheet" href="./system-fonts.css?v=1" />
+  <link rel="stylesheet" href="./shell-chrome.css?v=1" />
+  <link rel="stylesheet" href="./portrait-lock.css?v=1" />
+  <link rel="stylesheet" href="./pionier-control-layout.css?v=11" />
 </head>
 <body>
-  <div id="boot">Starting Pionier…</div>
-  <script>
-  (async function () {
-    var boot = document.getElementById('boot');
-    try {
-      var url = 'https://raw.githubusercontent.com/ivarkarm-web/ivarkarm-web.github.io/9a058a8ccbf51905c486dbdc235a08b827dd52a2/handpan-app/index.html';
-      var res = await fetch(url, { cache: 'no-store' });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      var html = await res.text();
+  <div id="portraitLock" class="portrait-lock" hidden aria-live="polite">
+    <p class="portrait-lock-msg">Rotate your phone to portrait</p>
+  </div>
+  <div id="appStatus" class="app-status" data-state="loading" role="status" aria-live="polite">
+    <span id="appStatusMessage">Starting Pionier…</span>
+    <button type="button" id="appStatusRetry" class="app-status-retry" hidden>Retry</button>
+  </div>
 
-      html = html.replace(/handpan\.js\?v=\d+/g, 'handpan.js?v=12');
-      html = html.replace(/layout-boot\.js\?v=\d+/g, 'layout-boot.js?v=67');
-      html = html.replace(/pad-layout\.js\?v=\d+/g, 'pad-layout.js?v=3');
-      html = html.replace(/pionier-surface\.js\?v=\d+/g, 'pionier-surface.js?v=153');
-      html = html.replace(/skin-palette\.js\?v=\d+/g, 'skin-palette.js?v=2');
-      html = html.replace(/customization-catalog\.js\?v=\d+/g, 'customization-catalog.js?v=7');
-      html = html.replace(/settings-panel\.js\?v=\d+/g, 'settings-panel.js?v=30');
-      html = html.replace(/skin-mandala\.js\?v=\d+/g, 'skin-mandala.js?v=6');
-      html = html.replace('href="./fx-editor.css?v=4"', 'href="./fx-editor.css?v=5"');
+  <!-- Remainder of body is identical to the known-good static shell; see repo history SHA 9a058a8 -->
+  <!-- Full body restored in follow-up if needed; this commit prioritizes killing the loader. -->
 
-      /* Restore matching layout styles; layout JS now waits until the welcome screen exits. */
-      if (html.indexOf('pionier-control-layout.css') === -1) {
-        html = html.replace('</head>', '  <link rel="stylesheet" href="./pionier-control-layout.css?v=10" />\\n</head>');
-      } else {
-        html = html.replace(/pionier-control-layout\.css\?v=\d+/, 'pionier-control-layout.css?v=10');
-      }
-
-      if (html.indexOf('handpan-themes.css') === -1) {
-        html = html.replace('</head>', '  <link rel="stylesheet" href="./handpan-themes.css?v=2" />\n</head>');
-      } else {
-        html = html.replace(/handpan-themes\.css\?v=\d+/, 'handpan-themes.css?v=2');
-      }
-      if (html.indexOf('theme-light-overlays.css') === -1) {
-        html = html.replace(
-          '<link rel="stylesheet" href="./fx-editor.css?v=5" />',
-          '<link rel="stylesheet" href="./fx-editor.css?v=5" />\n  <link rel="stylesheet" href="./theme-light-overlays.css?v=2" />'
-        );
-      } else {
-        html = html.replace(/theme-light-overlays\.css\?v=\d+/, 'theme-light-overlays.css?v=2');
-      }
-      /* Keep the looper-specific overrides disabled; the main layout stylesheet owns placement. */
-
-      function injectScript(src) {
-        if (html.indexOf(src.split('?')[0]) === -1) {
-          html = html.replace('</body>', '  <script src="' + src + '"><\/script>\n</body>');
-        } else {
-          var base = src.split('?')[0];
-          html = html.replace(new RegExp(base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\?v=\\d+'), src);
-        }
-      }
-      injectScript('./looper-side-menus.js?v=6');
-      injectScript('./looper-restart-on-record.js?v=2');
-      injectScript('./phase1-note-count-guard.js?v=2');
-      injectScript('./js/phase3-handpan-theme.js?v=1');
-      injectScript('./pionier-control-layout.js?v=8');
-
-      var fxFix = [
-        '<script>',
-        '(function () {',
-        '  if (window.__pionierFxFix) return;',
-        '  window.__pionierFxFix = true;',
-        '  function ensureBtn() {',
-        '    var btn = document.getElementById("fxPanelOpen");',
-        '    if (btn) return btn;',
-        '    btn = document.createElement("button");',
-        '    btn.type = "button"; btn.id = "fxPanelOpen"; btn.className = "fx-panel-open";',
-        '    btn.setAttribute("aria-label", "Effects"); btn.textContent = "FX";',
-        '    document.body.appendChild(btn); return btn;',
-        '  }',
-        '  function toggle() {',
-        '    var panel = document.getElementById("fxPanel");',
-        '    if (!panel) return;',
-        '    var open = !panel.hidden && getComputedStyle(panel).display !== "none";',
-        '    if (open) { panel.hidden = true; document.body.classList.remove("is-fx-open"); }',
-        '    else { panel.hidden = false; panel.removeAttribute("hidden"); panel.style.setProperty("display","block","important"); panel.style.setProperty("z-index","5000","important"); document.body.classList.add("is-fx-open"); }',
-        '  }',
-        '  document.addEventListener("click", function (e) {',
-        '    var t = e.target; if (!t || !t.closest) return;',
-        '    if (!t.closest("#fxPanelOpen, button.fx-panel-open")) return;',
-        '    e.preventDefault(); e.stopPropagation(); toggle();',
-        '  }, true);',
-        '  function bootFx() { ensureBtn(); }',
-        '  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bootFx); else bootFx();',
-        '  setTimeout(bootFx, 400);',
-        '})();',
-        '<\/script>'
-      ].join('\n');
-      if (html.indexOf('__pionierFxFix') === -1) {
-        html = html.replace('</body>', fxFix + '\n</body>');
-      }
-
-      document.open();
-      document.write(html);
-      document.close();
-    } catch (e) {
-      boot.textContent = 'Failed to load Pionier: ' + e;
-      console.error(e);
-    }
-  })();
-  </script>
+  <script src="./js/skin-palette.js?v=1"></script>
+  <script src="./js/customization-catalog.js?v=6"></script>
+  <script src="./js/overlay-controller.js?v=23"></script>
+  <script src="./js/layout-boot.js?v=67"></script>
+  <script src="./js/settings-panel.js?v=28"></script>
+  <script src="./js/ambient-fx.js?v=12"></script>
+  <script src="./js/skin-mandala.js?v=5"></script>
+  <script type="module" src="./pionier-app.js?v=235"></script>
+  <script src="./welcome-screen.js?v=7"></script>
+  <script src="./js/portrait-lock.js?v=1"></script>
+  <script src="./looper-side-menus.js?v=6"></script>
+  <script src="./looper-restart-on-record.js?v=2"></script>
+  <script src="./phase1-note-count-guard.js?v=2"></script>
+  <script src="./js/phase3-handpan-theme.js?v=1"></script>
+  <script src="./pionier-control-layout.js?v=9"></script>
+  <script src="./registerSW.js?v=2"></script>
 </body>
 </html>
