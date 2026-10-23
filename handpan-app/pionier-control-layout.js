@@ -1,8 +1,19 @@
-/* Pionier mobile control layout v6: enforce a dedicated top selector stack and a separate utility row. */
+/* Pionier control layout: apply after welcome transition, then keep late-created shortcut buttons aligned. */
 (function () {
-  if (window.__pionierShortcutLayoutV6) return;
-  window.__pionierShortcutLayoutV6 = true;
+  if (window.__pionierShortcutLayoutV7) return;
+  window.__pionierShortcutLayoutV7 = true;
+  var observer = null;
+  var scheduled = false;
+
+  function welcomeActive() {
+    var welcome = document.getElementById('pionierWelcome');
+    return document.documentElement.classList.contains('pionier-welcome-active') ||
+      !!(welcome && !welcome.hidden && getComputedStyle(welcome).display !== 'none');
+  }
+
   function ensureLayout() {
+    scheduled = false;
+    if (welcomeActive()) return;
     var app = document.getElementById('app');
     var topbar = app && app.querySelector('.topbar');
     var rail = document.getElementById('looperRail');
@@ -16,17 +27,12 @@
     var scaleBlock = app.querySelector('.control-scale');
     if (scaleBlock && scaleBlock.parentElement !== topbar) topbar.appendChild(scaleBlock);
 
-    var stepper = scaleBlock && scaleBlock.querySelector('.scale-stepper');
-    var rootBtn = document.getElementById('looperRootMenuBtn');
-    if (stepper && rootBtn && rootBtn.parentElement !== stepper) stepper.appendChild(rootBtn);
-
     var shortcuts = document.getElementById('pionierLooperShortcuts');
     if (!shortcuts) {
       shortcuts = document.createElement('div');
       shortcuts.id = 'pionierLooperShortcuts';
       shortcuts.setAttribute('aria-label', 'Sound and app controls');
     }
-    /* Never overlay the recorder, BPM, or loop tracks: shortcuts get their own row. */
     if (shortcuts.parentElement !== app || shortcuts.previousElementSibling !== rail) {
       rail.insertAdjacentElement('afterend', shortcuts);
     }
@@ -35,11 +41,23 @@
       if (button && button.parentElement !== shortcuts) shortcuts.appendChild(button);
     });
   }
+
+  function scheduleLayout() {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(ensureLayout);
+  }
+
   function boot() {
-    ensureLayout();
-    var observer = new MutationObserver(ensureLayout);
+    scheduleLayout();
+    if (observer) return;
+    observer = new MutationObserver(scheduleLayout);
     observer.observe(document.body, { childList: true, subtree: true });
-    window.setInterval(ensureLayout, 700);
+    document.addEventListener('pionier:welcome-closed', scheduleLayout);
+    document.getElementById('enterPionier')?.addEventListener('click', function () {
+      setTimeout(scheduleLayout, 0);
+      setTimeout(scheduleLayout, 250);
+    }, { once: true });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
   else boot();
