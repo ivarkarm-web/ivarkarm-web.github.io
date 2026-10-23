@@ -72,9 +72,13 @@
     var voiceNext = document.getElementById('voiceNext');
     var instrumentToggle = document.getElementById('instrumentDropdownToggle');
     var randomize = document.getElementById('randomizeSetup');
-    [voicePrev, instrumentToggle, voiceNext, randomize].forEach(function (el) {
-      appendIfNeeded(instrumentGroup, el);
+    /* Arrows live inside the same pill as the instrument name (like the scale selector). */
+    var instrumentStepper = make('div', 'pionierInstrumentStepper', 'pionier-instrument-stepper');
+    [voicePrev, instrumentToggle, voiceNext].forEach(function (el) {
+      appendIfNeeded(instrumentStepper, el);
     });
+    appendIfNeeded(instrumentGroup, instrumentStepper);
+    appendIfNeeded(instrumentGroup, randomize);
     if (nav && nav !== instrumentGroup && nav.children.length === 0) nav.remove();
 
     var scaleBlock = app.querySelector('.control-scale');

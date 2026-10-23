@@ -30,7 +30,7 @@ html.theme-light {
 
 /* ---------- Controls in the bottom dock ---------- */
 html body #pionierBottomDock #pionierScaleGroup .scale-stepper,
-html body #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle,
+html body #pionierBottomDock #pionierInstrumentGroup .pionier-instrument-stepper,
 html body #pionierBottomDock #pionierRootGroup #looperRootMenuBtn,
 html body #pionierBottomDock #pionierInstrumentGroup #randomizeSetup {
   background:var(--sel-surface) !important; background-image:none !important;
@@ -40,12 +40,11 @@ html body #pionierBottomDock #pionierInstrumentGroup #randomizeSetup {
   transition:background .18s ease, border-color .18s ease !important;
 }
 html body #pionierBottomDock #pionierScaleGroup .scale-stepper:hover,
-html body #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle:hover,
+html body #pionierBottomDock #pionierInstrumentGroup .pionier-instrument-stepper:hover,
 html body #pionierBottomDock #pionierRootGroup #looperRootMenuBtn:hover,
 html body #pionierBottomDock #pionierInstrumentGroup #randomizeSetup:hover {
   background:var(--sel-surface-hover) !important; border-color:var(--sel-border) !important;
 }
-html body #pionierBottomDock #instrumentDropdownToggle[aria-expanded="true"],
 html body #pionierBottomDock #looperRootMenuBtn[aria-expanded="true"],
 html body #pionierBottomDock #scaleLabel[aria-expanded="true"] {
   background:var(--sel-active) !important; border-color:var(--sel-border) !important;
@@ -123,3 +122,35 @@ html body #scaleMenu .picker-close, html body #instrumentMenu .picker-close {
 
 /* Quiet, thin scrollbar for the base-note list (the others scroll without a track). */
 html body #looperRootMenu { scrollbar-width:thin; scrollbar-color:var(--sel-border) transparent; }
+
+/* ---------- Instrument selector: ‹ name › in one pill ---------- */
+html body #pionierBottomDock #pionierInstrumentGroup .pionier-instrument-stepper {
+  display:flex !important; flex:1 1 auto !important; align-items:center !important;
+  width:100% !important; min-width:0 !important; box-sizing:border-box !important;
+  height:42px !important; min-height:42px !important; padding:4px !important; gap:4px !important;
+}
+html body #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle {
+  flex:1 1 auto !important; width:auto !important; min-width:0 !important;
+  height:34px !important; min-height:34px !important; padding:0 8px !important;
+  background:transparent !important; background-image:none !important; border:0 !important;
+  border-radius:10px !important; box-shadow:none !important; color:var(--sel-text) !important;
+  font-weight:560 !important;
+}
+html body #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle[aria-expanded="true"] {
+  background:var(--sel-active) !important;
+}
+html body #pionierBottomDock #pionierInstrumentGroup #voicePrev,
+html body #pionierBottomDock #pionierInstrumentGroup #voiceNext {
+  display:inline-flex !important; flex:0 0 28px !important; width:28px !important; min-width:28px !important;
+  height:32px !important; min-height:32px !important; border-radius:9px !important; font-size:18px !important;
+}
+@media (max-width:430px) {
+  html body #pionierBottomDock #pionierInstrumentGroup .pionier-instrument-stepper { height:39px !important; min-height:39px !important; padding:3px !important; gap:2px !important; }
+  html body #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle { height:32px !important; min-height:32px !important; padding:0 4px !important; font-size:12px !important; }
+  html body #pionierBottomDock #pionierInstrumentGroup #voicePrev,
+  html body #pionierBottomDock #pionierInstrumentGroup #voiceNext { flex-basis:22px !important; width:22px !important; min-width:22px !important; height:30px !important; min-height:30px !important; }
+}
+@media (max-width:350px) {
+  html body #pionierBottomDock #pionierInstrumentGroup #voicePrev,
+  html body #pionierBottomDock #pionierInstrumentGroup #voiceNext { display:inline-flex !important; flex-basis:18px !important; width:18px !important; min-width:18px !important; }
+}
