@@ -1,9 +1,9 @@
 /* ui-hotfix.css — recover looper icons + light-mode selector / chrome visibility */
 
-/* --- Kill the leftover dark topbar strip in light mode --- */
-html.theme-light #app > .topbar,
-html.theme-light .topbar.topbar-minimal,
-html.theme-light header.topbar {
+/* --- Kill the leftover topbar strip (controls live in the bottom dock) --- */
+#app > .topbar,
+.topbar.topbar-minimal,
+header.topbar {
   background: transparent !important;
   background-image: none !important;
   border: 0 !important;
