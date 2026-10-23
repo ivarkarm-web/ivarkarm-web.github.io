@@ -228,3 +228,104 @@ html.theme-light button#randomizeSetup {
   color: #2a2824 !important;
   border-color: rgba(0, 0, 0, 0.14) !important;
 }
+
+/* ===== Bottom dock (#pionierBottomDock) — was still dark in light mode ===== */
+html.theme-light #pionierBottomDock {
+  background: linear-gradient(
+    to top,
+    rgba(244, 241, 235, 0.98) 64%,
+    rgba(244, 241, 235, 0.90) 100%
+  ) !important;
+  border-top: 1px solid rgba(40, 36, 28, 0.1) !important;
+  color: #1c1b1a !important;
+}
+
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle,
+html.theme-light #pionierBottomDock #pionierScaleGroup .scale-stepper,
+html.theme-light #pionierBottomDock #pionierScaleGroup > .control-half .stepper,
+html.theme-light #pionierBottomDock #pionierRootGroup .stepper {
+  background: linear-gradient(180deg, #ffffff, #f7f2e8) !important;
+  border-color: rgba(130, 105, 55, 0.22) !important;
+  color: #40382b !important;
+  box-shadow: inset 0 1px 0 #fff, 0 2px 8px rgba(55, 43, 23, 0.06) !important;
+}
+
+html.theme-light #pionierBottomDock #pionierScaleGroup #scaleLabel,
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle {
+  color: #40382b !important;
+}
+
+html.theme-light #pionierBottomDock #pionierScaleGroup #rootLabel,
+html.theme-light #pionierBottomDock #pionierRootGroup #rootLabel {
+  color: #8a6825 !important;
+}
+
+html.theme-light #pionierBottomDock #pionierScaleGroup .scale-stepper .step,
+html.theme-light #pionierBottomDock #pionierScaleGroup #rootPrev,
+html.theme-light #pionierBottomDock #pionierScaleGroup #rootNext,
+html.theme-light #pionierBottomDock #pionierRootGroup #rootPrev,
+html.theme-light #pionierBottomDock #pionierRootGroup #rootNext,
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #voicePrev,
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #voiceNext {
+  color: #5c5346 !important;
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #randomizeSetup {
+  background: linear-gradient(145deg, rgba(214, 178, 91, 0.22), rgba(255, 255, 255, 0.9)) !important;
+  color: #87631c !important;
+  border-color: rgba(145, 106, 32, 0.35) !important;
+}
+
+html.theme-light #pionierBottomDock #pionierLooperControls > button,
+html.theme-light #pionierBottomDock #pionierLooperActions > button,
+html.theme-light #pionierBottomDock #looperClearBtn,
+html.theme-light #pionierBottomDock .looper-clear-btn,
+html.theme-light #pionierBottomDock .looper-timing-btn,
+html.theme-light #pionierBottomDock #openSoundscapes,
+html.theme-light #pionierBottomDock #fxPanelOpen,
+html.theme-light #pionierBottomDock #settingsOpenBtn,
+html.theme-light #pionierBottomDock #looperRootMenuBtn {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #40382b !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.theme-light #pionierBottomDock .looper-timing-btn.is-active {
+  border-color: rgba(145, 106, 32, 0.55) !important;
+  color: #805d18 !important;
+  background: rgba(212, 176, 74, 0.16) !important;
+}
+
+html.theme-light #pionierBottomDock #openSoundscapes {
+  color: rgba(150, 110, 20, 0.95) !important;
+}
+
+html.theme-light #pionierBottomDock .looper-circle {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #40382b !important;
+  border-color: rgba(145, 106, 32, 0.4) !important;
+}
+html.theme-light #pionierBottomDock .looper-circle.is-playing {
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: #805d18 !important;
+  border-color: #c9a227 !important;
+}
+
+html.theme-light #scaleMenu,
+html.theme-light #instrumentMenu {
+  background: linear-gradient(180deg, #faf9f6, #eceae4) !important;
+  color: #1a1a1c !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 16px 48px rgba(55, 43, 23, 0.16) !important;
+}
+
+/* Override atelier dark glass on dock buttons */
+html.theme-light body #pionierBottomDock button {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.7)) !important;
+  color: #40382b !important;
+  box-shadow: inset 0 1px 0 #fff, 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+}
