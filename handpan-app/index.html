@@ -50,10 +50,10 @@
       if (html.indexOf('looper-restart-on-record.js') === -1) {
         html = html.replace(
           '</body>',
-          '  <script src="./looper-restart-on-record.js?v=1"><\/script>\n</body>'
+          '  <script src="./looper-restart-on-record.js?v=2"><\/script>\n</body>'
         );
       } else {
-        html = html.replace(/looper-restart-on-record\.js\?v=\d+/, 'looper-restart-on-record.js?v=1');
+        html = html.replace(/looper-restart-on-record\.js\?v=\d+/, 'looper-restart-on-record.js?v=2');
       }
 
       var fxFix = [
@@ -85,7 +85,6 @@
         '    panel.hidden = true; panel.setAttribute("hidden", "");',
         '    panel.style.removeProperty("display");',
         '    document.body.classList.remove("is-fx-open");',
-        '    if (btn) btn.setAttribute("aria-expanded", "false");',
         '  }',
         '  function toggle() {',
         '    var panel = document.getElementById("fxPanel");',
