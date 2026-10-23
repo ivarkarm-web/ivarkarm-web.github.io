@@ -1,18 +1,64 @@
-/* ui-hotfix.css — recover looper icons + light-mode selector visibility */
+/* ui-hotfix.css — recover looper icons + light-mode selector / chrome visibility */
 
-/* --- Looper timing / utility icons (lost when control-layout was truncated) --- */
+/* --- Kill the leftover dark topbar strip in light mode --- */
+html.theme-light #app > .topbar,
+html.theme-light .topbar.topbar-minimal,
+html.theme-light header.topbar {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  min-height: 0 !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Hide the legacy looper rail entirely once the bottom dock owns the controls */
+#looperRail.looper-rail,
+#app > #looperRail {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Clear button must stay in the dock track row, never float mid-stage */
+#pionierBottomDock #looperClearBtn,
+#pionierTrackRow #looperClearBtn {
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  left: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+/* --- Looper timing / utility icons --- */
 #pionierLooperControls .looper-timing-btn {
   display: inline-flex !important;
   position: relative !important;
-  flex: 0 0 32px !important;
-  width: 32px !important;
-  min-width: 32px !important;
-  height: 32px !important;
-  min-height: 32px !important;
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
   align-items: center !important;
   justify-content: center !important;
   flex-direction: column !important;
-  gap: 1px !important;
+  gap: 0 !important;
   padding: 2px !important;
   border-radius: 50% !important;
   border: 1px solid rgba(235, 229, 215, 0.16) !important;
@@ -20,6 +66,7 @@
   color: var(--text, #eeeae1) !important;
   font-size: 8px !important;
   line-height: 1 !important;
+  overflow: visible !important;
 }
 #pionierLooperControls .looper-timing-btn .looper-icon,
 #pionierLooperControls .looper-timing-btn svg,
@@ -37,6 +84,36 @@
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
+  flex: 0 0 auto !important;
+}
+#pionierLooperControls .looper-timing-btn .looper-icon path,
+#pionierLooperControls .looper-timing-btn svg path,
+#pionierLooperControls .looper-timing-btn svg circle,
+#pionierLooperControls .looper-timing-btn svg line {
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.5 !important;
+}
+/* Metronome / bpm filled tip dots */
+#pionierLooperControls .looper-metronome-btn svg circle,
+#pionierLooperControls .looper-bpm-btn svg circle {
+  fill: currentColor !important;
+  stroke: none !important;
+}
+#pionierLooperControls .looper-timing-btn .looper-timing-meta,
+#pionierLooperControls .looper-timing-btn .looper-bpm-value,
+#pionierLooperControls .looper-count-in-btn .looper-timing-meta {
+  display: block !important;
+  font-size: 7px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  line-height: 1 !important;
+  color: inherit !important;
+  opacity: 0.9 !important;
+  max-width: 32px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
 }
 #pionierLooperControls .looper-timing-btn.is-active {
   border-color: rgba(212, 176, 74, 0.65) !important;
@@ -50,7 +127,6 @@
   height: 34px !important;
   min-height: 34px !important;
   max-height: 34px !important;
-  font-size: 16px !important;
 }
 
 /* Clear button X marks */
@@ -62,7 +138,7 @@
   opacity: 0.9 !important;
 }
 
-/* --- Light mode: force visible scale + instrument selectors --- */
+/* --- Light mode: force visible scale + instrument + root selectors --- */
 html.theme-light #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle,
 html.theme-light #pionierBottomDock #instrumentDropdownToggle,
 html.theme-light body #pionierBottomDock #instrumentDropdownToggle,
@@ -73,7 +149,11 @@ html.theme-light #pionierBottomDock #pionierScaleGroup .scale-stepper,
 html.theme-light #pionierBottomDock #pionierScaleGroup > .control-half .stepper,
 html.theme-light #pionierBottomDock #pionierRootGroup .stepper,
 html.theme-light #pionierBottomDock #pionierRootGroup #rootLabel,
-html.theme-light #pionierBottomDock #rootLabel {
+html.theme-light #pionierBottomDock #rootLabel,
+html.theme-light #pionierBottomDock #pionierRootGroup #looperRootMenuBtn,
+html.theme-light #pionierBottomDock #looperRootMenuBtn,
+html.theme-light #pionierBottomDock #looperRootMenuBtn .looper-dd-value,
+html.theme-light #pionierBottomDock #looperRootMenuBtn .looper-dd-caret {
   color: #2a2418 !important;
   -webkit-text-fill-color: #2a2418 !important;
   opacity: 1 !important;
@@ -84,7 +164,9 @@ html.theme-light #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownT
 html.theme-light #pionierBottomDock #instrumentDropdownToggle,
 html.theme-light #pionierBottomDock #pionierScaleGroup .scale-stepper,
 html.theme-light #pionierBottomDock #pionierScaleGroup > .control-half .stepper,
-html.theme-light #pionierBottomDock #pionierRootGroup .stepper {
+html.theme-light #pionierBottomDock #pionierRootGroup .stepper,
+html.theme-light #pionierBottomDock #pionierRootGroup #looperRootMenuBtn,
+html.theme-light #pionierBottomDock #looperRootMenuBtn {
   background: #ffffff !important;
   background-image: none !important;
   border: 1px solid rgba(40, 36, 28, 0.18) !important;
@@ -116,6 +198,31 @@ html.theme-light #pionierBottomDock #pionierInstrumentGroup #randomizeSetup {
   border: 1px solid rgba(145, 106, 32, 0.35) !important;
 }
 
+/* Root note button: ensure the note letter is centered and readable */
+html.theme-light #pionierBottomDock #looperRootMenuBtn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  font-weight: 650 !important;
+}
+html.theme-light #pionierBottomDock #looperRootMenuBtn .looper-dd-value {
+  display: inline-block !important;
+  min-width: 1.1em !important;
+  text-align: center !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  color: #2a2418 !important;
+  -webkit-text-fill-color: #2a2418 !important;
+}
+html.theme-light #pionierBottomDock #looperRootMenuBtn .looper-dd-caret {
+  font-size: 10px !important;
+  opacity: 0.55 !important;
+  color: #2a2418 !important;
+  -webkit-text-fill-color: #2a2418 !important;
+}
+
 /* Light mode looper icons stay readable */
 html.theme-light #pionierLooperControls .looper-timing-btn,
 html.theme-light #pionierBottomDock .looper-timing-btn {
@@ -133,4 +240,21 @@ html.theme-light #pionierBottomDock .looper-timing-btn svg {
   stroke: currentColor !important;
   fill: none !important;
   color: inherit !important;
+}
+html.theme-light #pionierLooperControls .looper-timing-btn svg path,
+html.theme-light #pionierLooperControls .looper-timing-btn svg line {
+  stroke: currentColor !important;
+  fill: none !important;
+}
+html.theme-light #pionierLooperControls .looper-metronome-btn svg circle,
+html.theme-light #pionierLooperControls .looper-bpm-btn svg circle {
+  fill: currentColor !important;
+  stroke: none !important;
+}
+
+/* Neutralize any body::before chrome strip that can show as a dark hairline */
+html.theme-light body::before {
+  background: transparent !important;
+  opacity: 0 !important;
+  content: none !important;
 }
