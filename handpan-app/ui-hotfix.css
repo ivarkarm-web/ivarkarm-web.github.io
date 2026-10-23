@@ -258,3 +258,8 @@ html.theme-light body::before {
   opacity: 0 !important;
   content: none !important;
 }
+
+/* Handpan transparency slider → canvas opacity */
+#pan {
+  opacity: var(--handpan-alpha, 1) !important;
+}
