@@ -20,7 +20,6 @@
       var res = await fetch(url, { cache: 'no-store' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       var html = await res.text();
-      // light-mode overlays + cache-bust fx-editor
       html = html.replace('href="./fx-editor.css?v=4"', 'href="./fx-editor.css?v=5"');
       if (html.indexOf('theme-light-overlays.css') === -1) {
         html = html.replace(
@@ -28,10 +27,81 @@
           '<link rel="stylesheet" href="./fx-editor.css?v=5" />\n  <link rel="stylesheet" href="./theme-light-overlays.css?v=1" />'
         );
       }
-      // rewrite relative asset URLs to stay on this origin
       document.open();
       document.write(html);
       document.close();
+
+      // FX open button is created async by layout-boot AFTER overlay-controller
+      // wires listeners. Re-attach so FX actually opens.
+      function ensureFxWired() {
+        var btn = document.getElementById('fxPanelOpen');
+        if (!btn) {
+          btn = document.createElement('button');
+          btn.type = 'button';
+          btn.id = 'fxPanelOpen';
+          btn.className = 'fx-panel-open';
+          btn.setAttribute('aria-label', 'Effects');
+          btn.setAttribute('aria-expanded', 'false');
+          btn.setAttribute('aria-controls', 'fxPanel');
+          btn.textContent = 'FX';
+          document.body.appendChild(btn);
+          btn.style.display = 'flex';
+          btn.style.alignItems = 'center';
+          btn.style.justifyContent = 'center';
+          btn.style.position = 'fixed';
+          btn.style.zIndex = '4400';
+          btn.style.left = '50%';
+          btn.style.top = 'max(10px, env(safe-area-inset-top, 0px))';
+          btn.style.transform = 'translateX(-50%)';
+        }
+        if (btn.dataset.fxWired === '1') return true;
+        btn.dataset.fxWired = '1';
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (window.PionierOverlay && typeof window.PionierOverlay.toggleFx === 'function') {
+            window.PionierOverlay.toggleFx();
+          } else {
+            var panel = document.getElementById('fxPanel');
+            if (!panel) return;
+            var open = panel.hidden || panel.hasAttribute('hidden');
+            if (open) {
+              panel.hidden = false;
+              panel.removeAttribute('hidden');
+              panel.style.removeProperty('display');
+              document.body.classList.add('is-fx-open');
+              btn.setAttribute('aria-expanded', 'true');
+              try { window.PionierCore && window.PionierCore.paintFxKnobs && window.PionierCore.paintFxKnobs(); } catch (_) {}
+            } else {
+              panel.hidden = true;
+              panel.setAttribute('hidden', '');
+              document.body.classList.remove('is-fx-open');
+              btn.setAttribute('aria-expanded', 'false');
+            }
+          }
+        });
+        // Advanced curve editor shortcuts (s buttons on knobs)
+        if (!document.documentElement.dataset.fxEditorDelegated) {
+          document.documentElement.dataset.fxEditorDelegated = '1';
+          document.addEventListener('click', function (ev) {
+            var t = ev.target && ev.target.closest && ev.target.closest('[data-fx-editor-open]');
+            if (!t) return;
+            var kind = t.getAttribute('data-fx-editor-open');
+            if (!kind) return;
+            try {
+              window.dispatchEvent(new CustomEvent('pionier:fx-editor-open', { detail: { effect: kind } }));
+            } catch (_) {}
+            // settings-panel lazy-loads fx-editor on this event / closest match
+          }, true);
+        }
+        return true;
+      }
+      var tries = 0;
+      (function tick() {
+        tries += 1;
+        ensureFxWired();
+        if (tries < 20) setTimeout(tick, 200);
+      })();
     } catch (e) {
       boot.textContent = 'Failed to load Pionier: ' + e;
       console.error(e);
