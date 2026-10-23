@@ -33,8 +33,8 @@
       shortcuts.id = 'pionierLooperShortcuts';
       shortcuts.setAttribute('aria-label', 'Sound and app controls');
     }
-    if (shortcuts.parentElement !== app || shortcuts.previousElementSibling !== rail) {
-      rail.insertAdjacentElement('afterend', shortcuts);
+    if (shortcuts.parentElement !== rail) {
+      rail.appendChild(shortcuts);
     }
     ['openSoundscapes', 'fxPanelOpen', 'settingsOpenBtn'].forEach(function (id) {
       var button = document.getElementById(id);
