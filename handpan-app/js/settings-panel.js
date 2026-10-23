@@ -73,7 +73,7 @@
     };
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', light ? '#e8e6e1' : '#070708');
-    window.dispatchEvent(new CustomEvent('pionier:settings', { detail: { ...state, led: { ...led } }));
+    window.dispatchEvent(new CustomEvent('pionier:settings', { detail: { ...state, led: { ...led } } }));
   }
 
   function isLightTheme() {
