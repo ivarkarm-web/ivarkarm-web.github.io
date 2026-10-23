@@ -174,7 +174,7 @@ function updateLabels() {
   const scaleEl = document.getElementById('scaleLabel');
   const rootEl = document.getElementById('rootLabel');
   const noteCountEl = document.getElementById('noteCountLabel');
-  if (scaleEl && handpan.scaleLabel) scaleEl.textContent = handpan.scaleLabel + ' \u25be';
+  if (scaleEl && handpan.scaleLabel) { const root = handpan.rootLabel || ''; let scaleName = handpan.scaleLabel; if (root && scaleName.startsWith(root + ' ')) scaleName = scaleName.slice(root.length).trim(); scaleEl.textContent = scaleName + ' \u25be'; }
   if (rootEl && handpan.rootLabel) rootEl.textContent = handpan.rootLabel;
   if (noteCountEl) {
     const n = Number.isFinite(handpan.noteCount) ? handpan.noteCount : 8;
@@ -636,6 +636,9 @@ wire('scaleNext', () => {
 // HTML ids: rootPrev / rootNext (root wraps over 12)
 wire('rootPrev', () => { handpan.setRootIndex((handpan.rootIndex - 1 + 12) % 12); refreshPitch(); });
 wire('rootNext', () => { handpan.setRootIndex((handpan.rootIndex + 1) % 12); refreshPitch(); });
+wire('rootLabel', () => { handpan.setRootIndex((handpan.rootIndex + 1) % 12); refreshPitch(); });
+const rootLabelControl = document.getElementById('rootLabel');
+if (rootLabelControl) { rootLabelControl.setAttribute('role', 'button'); rootLabelControl.setAttribute('tabindex', '0'); rootLabelControl.setAttribute('aria-label', 'Change base note'); rootLabelControl.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); handpan.setRootIndex((handpan.rootIndex + 1) % 12); refreshPitch(); } }); }
 // HTML ids: noteCountPrev / noteCountNext (clamp 8–13 via changeNoteCount)
 wire('noteCountPrev', () => { changeNoteCount(-1); });
 wire('noteCountNext', () => { changeNoteCount(1); });
