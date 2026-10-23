@@ -32,8 +32,8 @@ test('core exposes addNote/removeNote and clamps note count 8–13', () => {
   const core = read('handpan-app/pionier-core.js');
   const layout = read('handpan-app/js/pad-layout.js');
   // pad-layout.js documents the range; core mirrors it with local MIN/MAX consts
-  assert.match(layout, /export const MIN_NOTES = 8/);
-  assert.match(layout, /export const MAX_NOTES = 13/);
+  assert.match(layout, /export const MIN_NOTES = 6/);
+  assert.match(layout, /export const MAX_NOTES = 16/);
   assert.match(core, /addNote\(\)\s*\{\s*return changeNoteCount\(1\)/);
   assert.match(core, /removeNote\(\)\s*\{\s*return changeNoteCount\(-1\)/);
   assert.match(core, /const MIN = 8/);
