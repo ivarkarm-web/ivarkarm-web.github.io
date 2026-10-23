@@ -1,11 +1,17 @@
-/* Keep the original selector layout intact; relocate only utility shortcuts. */
+/* Keep instrument navigation in its original wrapper, place scale row visibly below it, and relocate utility shortcuts only. */
 (function () {
-  if (window.__pionierShortcutLayoutV2) return;
-  window.__pionierShortcutLayoutV2 = true;
+  if (window.__pionierShortcutLayoutV3) return;
+  window.__pionierShortcutLayoutV3 = true;
 
-  function ensureShortcuts() {
+  function ensureLayout() {
+    var app = document.getElementById('app');
+    var topbar = app && app.querySelector('.topbar');
     var rail = document.getElementById('looperRail');
-    if (!rail) return;
+    if (!app || !topbar || !rail) return;
+
+    /* Do not reparent #instrumentNav: existing app layout code owns that node. */
+    var scaleBlock = app.querySelector('.control-scale');
+    if (scaleBlock && scaleBlock.parentElement !== topbar) topbar.appendChild(scaleBlock);
 
     var shortcuts = document.getElementById('pionierLooperShortcuts');
     if (!shortcuts) {
@@ -15,16 +21,15 @@
       rail.appendChild(shortcuts);
     }
 
-    var ids = ['openSoundscapes', 'fxPanelOpen', 'settingsOpenBtn'];
-    ids.forEach(function (id) {
+    ['openSoundscapes', 'fxPanelOpen', 'settingsOpenBtn'].forEach(function (id) {
       var button = document.getElementById(id);
       if (button && button.parentElement !== shortcuts) shortcuts.appendChild(button);
     });
   }
 
   function boot() {
-    ensureShortcuts();
-    var observer = new MutationObserver(ensureShortcuts);
+    ensureLayout();
+    var observer = new MutationObserver(ensureLayout);
     observer.observe(document.body, { childList: true, subtree: true });
   }
 
