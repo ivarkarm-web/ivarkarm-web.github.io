@@ -344,10 +344,6 @@ test('dice randomizer changes the setup without a learning panel', async ({ page
     root: window.PionierCore?.handpan?.rootIndex
   }));
   await page.locator('#randomizeSetup').click();
-  await expect.poll(() => page.evaluate(() => {
-    const core = window.PionierCore;
-    return core?.activeInstrument?.()?.id !== "never" || core?.handpan?.scaleIndex !== -999;
-  })).toBe(true);
   await expect.poll(() => page.evaluate((previous) => {
     const core = window.PionierCore;
     return core?.activeInstrument?.()?.id !== previous.instrument
