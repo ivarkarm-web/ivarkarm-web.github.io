@@ -121,7 +121,7 @@
 #pionierScaleGroup #noteCountLabel, #pionierScaleGroup #notePlus,
 #pionierScaleGroup #noteMinus, #pionierScaleGroup #notePlusWrap { display:none !important; }
 
-#looperRail { display:none !important; }
+/* The active looper rail must remain visible; old toolbar layout is retired. */
 #pionierLooperToolbar {
   display:flex; align-items:center; justify-content:space-between; gap:8px;
   width:100%; max-width:760px; min-width:0; margin:2px auto 0; padding:0 10px;
