@@ -113,7 +113,7 @@ function scheduleDeferredFeatures() {
 async function boot() {
   setBootStatus('loading', 'Starting Pionier…');
   try {
-    await import(new URL('./pionier-core.js?v=79', BASE).href);
+    await import(new URL('./pionier-core.js?v=80', BASE).href);
   } catch (e) {
     console.error('[boot] core', e);
     setBootStatus('failed', 'Core failed to load. Check your connection and retry.', true);
