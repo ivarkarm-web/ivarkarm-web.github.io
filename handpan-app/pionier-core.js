@@ -757,5 +757,10 @@ async function boot() {
   if (isDebugEnabled?.()) mountDebugPanel?.({ setInstrument });
 }
 
-await boot();
+try {
+  await boot();
+} catch (error) {
+  console.error('[core boot rejected]', error?.stack || error);
+  throw error;
+}
 export default window.PionierCore;
