@@ -26,7 +26,7 @@ read('styles.css');
 read('script.js');
 const appHtml = read('handpan-app/index.html');
 const shell = read('handpan-app/pionier-app.js');
-const coreSrc = read('handpan-app/pionier-core.js');
+const coreSrc = read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js');
 const loopControls = read('handpan-app/js/looper.js');
 const loopStyles = read('handpan-app/looper.css');
 const serviceWorker = read('handpan-app/sw.js');
@@ -168,6 +168,26 @@ if (fs.existsSync(path.join(root, 'handpan-app/js/app-state.js'))) ok('Unified a
 else fail('app-state.js missing');
 if (/getAmbientBus/.test(coreSrc) && /instrumentBus/.test(coreSrc)) ok('Core exposes separated instrument and ambient buses');
 else fail('Separated audio buses missing from core');
+
+// --- Shipped-code integrity guard: no stubs, no placeholders, no remote executable code ---
+{
+  const appDirAbs = path.join(root, 'handpan-app');
+  const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => {
+    const f = path.join(d, e.name);
+    if (e.isDirectory()) return e.name === 'node_modules' || e.name === 'sounds' ? [] : walk(f);
+    return /\.(m?js)$/.test(e.name) ? [f] : [];
+  });
+  const bad = [];
+  for (const f of walk(appDirAbs)) {
+    const rel = path.relative(root, f);
+    const src = fs.readFileSync(f, 'utf8');
+    if (src.length < 100) bad.push(rel + ' is only ' + src.length + ' bytes (stub?)');
+    if (/will replace|placeholder:\s*true|size probe|TODO: implement/i.test(src)) bad.push(rel + ' contains placeholder text');
+    if (/(?:from|import\s*\(?)\s*['"]https?:\/\//.test(src)) bad.push(rel + ' imports remote code');
+  }
+  if (bad.length) bad.forEach((b) => fail('Integrity: ' + b));
+  else ok('Integrity: no stub, placeholder or remote-import files in handpan-app');
+}
 const budget = (rel, maxKb) => {
   const full = path.join(root, rel);
   if (!fs.existsSync(full)) { fail('Budget target missing: ' + rel); return; }
@@ -177,6 +197,7 @@ const budget = (rel, maxKb) => {
 };
 budget('handpan-app/index.html', 80);
 budget('handpan-app/pionier-core.js', 120);
+budget('handpan-app/pionier-core-base.js', 120);
 budget('handpan-app/pionier-app.js', 80);
 
 const presetCounts = ['Vocal Glue','Punchy Drums','Parallel Crush','Bass Tightener','Acoustic Strummer','Mastering Limiter','Snare Smasher','Sustain Builder','Sidechain Duck','Subtle Leveler','Slapback Echo','Dotted Eighth','Tape Saturation','Ping-Pong','Stereo Widener','Ambient Wash','Modulated Echo','Dub Echo','Quarter Note Lead','Trippy Reverse','Studio Room','Vocal Plate','Cathedral Hall','Spring Tank','Gated Snare','Shimmer Pad','Ambiance / Glue','Concert Hall','Tiled Bathroom','Deep Abyss','Telephone / Lo-Fi','Sub Bass Cut','HF Brilliance','Club Next Door','Auto-Wah / Envelope','Sweeping LFO LPF','Phaser Sweep','Vocal Formant','Crisp Vinyl','The Kill Switch'];

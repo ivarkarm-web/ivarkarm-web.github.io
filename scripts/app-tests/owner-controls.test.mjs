@@ -11,16 +11,24 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
 
-test('HTML exposes rootPrev/Next and noteCountPrev/Next; core binds them', () => {
+test('legacy root/note-count steppers are retired: markup exists, guards hide them, core cannot grow note count', () => {
   const html = read('handpan-app/index.html');
-  const core = read('handpan-app/pionier-core.js');
+  const guard = read('handpan-app/phase1-note-count-guard.js');
+  const menus = read('handpan-app/looper-side-menus.js');
+  const core = (read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js'));
   for (const id of ['rootPrev', 'rootNext', 'noteCountPrev', 'noteCountNext', 'rootLabel', 'noteCountLabel']) {
     assert.match(html, new RegExp(`id="${id}"`), `missing #${id} in HTML`);
   }
-  assert.match(core, /wire\('rootPrev',\s*\(\)\s*=>\s*\{\s*handpan\.setRootIndex/);
-  assert.match(core, /wire\('rootNext',\s*\(\)\s*=>\s*\{\s*handpan\.setRootIndex/);
-  assert.match(core, /wire\('noteCountPrev',\s*\(\)\s*=>\s*\{\s*changeNoteCount\(-1\)/);
-  assert.match(core, /wire\('noteCountNext',\s*\(\)\s*=>\s*\{\s*changeNoteCount\(1\)/);
+  // Note count is scale-driven only: the guard neutralises every mutator and hides the UI.
+  for (const m of ['addNote', 'removeNote', 'setNoteCount']) {
+    assert.match(guard, new RegExp(`c\\.${m} = function \\(\\) \\{ return false; \\}`), `guard must neutralise core.${m}`);
+  }
+  for (const id of ['noteCountPrev', 'noteCountNext', 'noteCountLabel']) {
+    assert.match(guard, new RegExp(`'${id}'`), `guard must hide #${id}`);
+  }
+  for (const id of ['rootPrev', 'rootNext']) {
+    assert.match(menus, new RegExp(`'${id}'`), `looper-side-menus must hide legacy #${id}`);
+  }
   // Dead ids must not be wired
   assert.doesNotMatch(core, /wire\('rootDown'/);
   assert.doesNotMatch(core, /wire\('rootUp'/);
@@ -29,7 +37,7 @@ test('HTML exposes rootPrev/Next and noteCountPrev/Next; core binds them', () =>
 });
 
 test('core exposes addNote/removeNote and clamps note count 8–13', () => {
-  const core = read('handpan-app/pionier-core.js');
+  const core = (read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js'));
   const layout = read('handpan-app/js/pad-layout.js');
   // pad-layout.js documents the range; core mirrors it with local MIN/MAX consts
   assert.match(layout, /export const MIN_NOTES = 6/);
@@ -74,18 +82,17 @@ test('no exclusivity-fix or chrome-fix patch files remain', () => {
 });
 
 
-test('scale, root and note-count controls match the restored shared pitch state', () => {
+test('scale picker and labels are wired through the scale selector and core label updates', () => {
   const html = read('handpan-app/index.html');
-  const core = read('handpan-app/pionier-core.js');
-  for (const id of ['scalePrev', 'scaleNext', 'scaleLabel', 'rootPrev', 'rootNext', 'rootLabel', 'noteCountPrev', 'noteCountNext', 'noteCountLabel']) {
+  const core = (read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js'));
+  const selector = read('handpan-app/js/scale-selector.js');
+  for (const id of ['scaleLabel', 'rootLabel', 'noteCountLabel']) {
     assert.match(html, new RegExp(`id="${id}"`), `missing #${id}`);
   }
-  assert.match(core, /wire\('scalePrev'/);
-  assert.match(core, /wire\('scaleNext'/);
-  assert.match(core, /wire\('rootPrev'/);
-  assert.match(core, /wire\('rootNext'/);
-  assert.match(core, /wire\('noteCountPrev'/);
-  assert.match(core, /wire\('noteCountNext'/);
+  assert.match(selector, /export function mountScaleSelector/);
+  assert.match(core, /function updateLabels/);
+  assert.match(core, /getElementById\('scaleLabel'\)/);
+  assert.match(core, /getElementById\('rootLabel'\)/);
   assert.match(core, /function changeNoteCount/);
 });
 

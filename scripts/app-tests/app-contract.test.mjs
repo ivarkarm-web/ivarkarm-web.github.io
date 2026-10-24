@@ -8,7 +8,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const app = path.join(root, 'handpan-app');
 function read(rel) { return fs.readFileSync(path.join(root, rel), 'utf8'); }
 function readCoreSource() {
-  return read('handpan-app/pionier-core.js');
+  return (read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js'));
 }
 
 test('Pionier entry surface matches the deployed instrument UI', () => {
