@@ -513,6 +513,10 @@ function renderInstrumentMenu() {
     h.textContent = labels[gid] || gid;
     section.appendChild(h);
     for (const item of items) {
+      const row = document.createElement('div');
+      row.className = 'instrument-menu-row';
+      row.setAttribute('role', 'group');
+      row.setAttribute('aria-label', item.name || item.id);
       const btn = document.createElement('button');
       btn.type = 'button';
       const active = InstrumentRegistry.active?.id === item.id;
@@ -532,8 +536,9 @@ function renderInstrumentMenu() {
           document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false');
         }
       });
+      row.appendChild(btn);
       try { window.PionierFavorites?.decorateInstrumentItem?.(btn, item); } catch (_) {}
-      section.appendChild(btn);
+      section.appendChild(row);
     }
     results.appendChild(section);
   }
