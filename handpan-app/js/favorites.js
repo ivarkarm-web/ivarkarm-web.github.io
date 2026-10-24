@@ -71,33 +71,53 @@
 
   function decorateScaleItem(button, scale, index) {
     if (!button || !scale) return;
-    const existing = button.querySelector('.fav-heart-btn');
+    const row = button.parentElement;
+    const menuRow = !!(row && row.classList.contains('scale-menu-row'));
+    const existing = (menuRow ? row : button).querySelector('.fav-heart-btn');
     if (existing) existing.remove();
     const id = scale.id || ('scale-' + index);
     const active = isScaleFav(id);
     const heart = makeHeartBtn(active, active ? 'Remove from favorites' : 'Add to favorites', () => {
       const now = toggleScale({ id, label: scale.label || scale.short || id, index });
       heart.classList.toggle('is-fav', now);
-      heart.setAttribute('aria-pressed', now ? 'true' : 'false');
+      if (heart.getAttribute('role') === 'menuitemcheckbox') heart.setAttribute('aria-checked', String(now));
+      else heart.setAttribute('aria-pressed', String(now));
       heart.textContent = now ? HEART : HEART_OUTLINE;
     });
-    button.classList.add('fav-row');
-    button.appendChild(heart);
+    if (menuRow) {
+      heart.setAttribute('role', 'menuitemcheckbox');
+      heart.setAttribute('aria-checked', String(active));
+      heart.removeAttribute('aria-pressed');
+      row.appendChild(heart);
+    } else {
+      button.classList.add('fav-row');
+      button.appendChild(heart);
+    }
   }
 
   function decorateInstrumentItem(button, item) {
     if (!button || !item || !item.id) return;
-    const existing = button.querySelector('.fav-heart-btn');
+    const row = button.parentElement;
+    const menuRow = !!(row && row.classList.contains('instrument-menu-row'));
+    const existing = (menuRow ? row : button).querySelector('.fav-heart-btn');
     if (existing) existing.remove();
     const active = isInstrumentFav(item.id);
     const heart = makeHeartBtn(active, active ? 'Remove from favorites' : 'Add to favorites', () => {
       const now = toggleInstrument({ id: item.id, name: item.name || item.id });
       heart.classList.toggle('is-fav', now);
-      heart.setAttribute('aria-pressed', now ? 'true' : 'false');
+      if (heart.getAttribute('role') === 'menuitemcheckbox') heart.setAttribute('aria-checked', String(now));
+      else heart.setAttribute('aria-pressed', String(now));
       heart.textContent = now ? HEART : HEART_OUTLINE;
     });
-    button.classList.add('fav-row');
-    button.appendChild(heart);
+    if (menuRow) {
+      heart.setAttribute('role', 'menuitemcheckbox');
+      heart.setAttribute('aria-checked', String(active));
+      heart.removeAttribute('aria-pressed');
+      row.appendChild(heart);
+    } else {
+      button.classList.add('fav-row');
+      button.appendChild(heart);
+    }
   }
 
   function ensureDom() {

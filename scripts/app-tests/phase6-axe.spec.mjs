@@ -43,7 +43,7 @@ function assertNoSerious(results, label) {
   );
   if (bad.length) {
     const detail = bad
-      .map((v) => `${v.impact} ${v.id}: ${v.help} (${v.nodes} nodes)`)
+      .map((v) => `${v.impact} ${v.id}: ${v.help} (${v.nodes} nodes; targets: ${v.targets.map((t) => t.join(' ')).join(', ')})`)
       .join('\n');
     throw new Error(`axe serious/critical violations (${label}):\n${detail}`);
   }

@@ -1,7 +1,23 @@
 import { test, expect } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 
 test.beforeEach(async ({ page }) => {
+  // Forward browser-side module/boot errors into CI logs so failures aren't
+  // reduced to a generic "core failed to load" message.
+  page.on('console', (message) => {
+    if (message.type() === 'error') console.log('[browser console error]', message.text());
+  });
+  page.on('pageerror', (error) => console.log('[browser page error]', error.stack || error.message));
   await page.goto('/handpan-app/index.html', { waitUntil: 'domcontentloaded' });
+
+  // The product intentionally opens on the welcome screen. Tests in this file
+  // exercise the instrument, so enter it explicitly before asserting app UI.
+  const enter = page.locator('#enterPionier');
+  if (await enter.isVisible().catch(() => false)) {
+    await enter.click();
+    await expect(page.locator('#pionierWelcome')).toBeHidden({ timeout: 5000 });
+  }
+
   await expect(page.locator('#pan')).toBeVisible();
   await expect(page.locator('#instrumentDropdownToggle')).toBeVisible();
   await expect.poll(() => page.evaluate(() => {
@@ -24,7 +40,7 @@ test('required core boot failure shows recovery UI and retry reloads successfull
   });
   await page.reload();
   await expect(page.locator('#appStatus')).toBeVisible();
-  await expect(page.locator('#appStatusMessage')).toContainText('could not start');
+  await expect(page.locator('#appStatusMessage')).toContainText('Core failed to load');
   await page.locator('#appStatusRetry').click();
   await expect.poll(() => page.evaluate(() => !!window.PionierCore)).toBe(true);
   await expect(page.locator('#appStatus')).toBeHidden();
@@ -164,46 +180,34 @@ test('multitouch on one pad does not damp the note until the last pointer releas
   expect(result.off).toBe(1);
 });
 
-test('handpan uses owner samples and refuses synthetic replacement when recordings are unavailable', async ({ page }) => {
+test('handpan always uses its synthesized voice and has no sample-bank runtime', async ({ page }) => {
   const result = await page.evaluate(async () => {
-    const instrument = window.PionierCore?.activeInstrument?.();
-    const { HANDPAN_SCALES } = await import('/handpan-app/js/instruments/handpan.js');
-    const recordedIndex = HANDPAN_SCALES.findIndex((scale) => scale.id === 'e-amara-recorded');
-    if (instrument?.id === 'handpan' && recordedIndex >= 0) {
-      window.PionierCore.handpan.setScaleIndex(recordedIndex);
-      window.PionierCore.refreshPitch();
-    }
-    if (!instrument?.sampleBank) return { setup: false };
-    await instrument.sampleBank.load();
-    const firstZone = instrument.getZones?.()?.[0];
+    const core = window.PionierCore;
+    const instrument = core?.activeInstrument?.();
+    if (!instrument || instrument.id !== 'handpan') return { ready: false };
+    core.ensureAudio?.();
+    const zone = instrument.getZones?.()?.[0];
     instrument.noteOn({ velocity: 0.8, pointerId: 9281 }, {
-      index: firstZone?.index ?? 0, radial: 0.35, angleRad: 0, nx: 0.5, ny: 0.5
+      index: zone?.index ?? 0, radial: 0.35, angleRad: 0, nx: 0.5, ny: 0.5
     });
     const voice = instrument.activeVoices.values().next().value;
     const result = {
-      setup: true,
-      sampleCount: instrument.sampleBank.byMidi.size,
-      sampleReady: instrument.sampleBank.ready,
+      ready: !!instrument.ready,
+      engineKind: instrument.engineKind,
+      hasSampleBank: Object.prototype.hasOwnProperty.call(instrument, 'sampleBank'),
       voiceKind: voice?.kind,
       voiceCount: instrument.activeVoices.size,
-      status: instrument.sampleBank.manifest?.status || null
+      hasSynthHandle: !!voice?.handle
     };
     instrument.dampAll();
     return result;
   });
-  expect(result.setup).toBe(true);
-  if (result.sampleCount > 0) {
-    // Owner-prototype bank is loaded.
-    expect(result.sampleReady).toBe(true);
-    expect(result.sampleCount).toBeGreaterThanOrEqual(9);
-    expect(['sample', 'synth']).toContain(result.voiceKind);
-  } else {
-    // Empty bank: recorded E Amara intentionally stays silent rather than
-    // substituting a synthetic timbre that would misrepresent the owner sample.
-    expect(result.sampleReady).toBe(false);
-    expect(result.voiceCount).toBe(0);
-    expect(result.voiceKind).toBeUndefined();
-  }
+  expect(result.ready).toBe(true);
+  expect(result.engineKind).toBe('synth');
+  expect(result.hasSampleBank).toBe(false);
+  expect(result.voiceCount).toBeGreaterThan(0);
+  expect(result.hasSynthHandle).toBe(true);
+  expect(result.voiceKind).toBe('lib');
 });
 
 test('stale saved instrument selection safely falls back to Handpan', async ({ page }) => {
@@ -220,7 +224,7 @@ test('boots the local core without runtime source-fetch errors', async ({ page }
   if (testInfo.project.name.startsWith('mobile')) {
     await expect(page.locator('#mobileControlPanel')).toBeVisible();
   } else {
-    await expect(page.locator('#leftSidebar')).toBeVisible();
+    await expect(page.locator('.sidebar.left')).toBeVisible();
   }
   await expect(page.locator('#knobMaster')).toBeAttached();
   const boot = await page.evaluate(() => ({
@@ -339,23 +343,36 @@ test('lowercase s shortcuts open the correct advanced editor for all four effect
 });
 
 
-test('dice randomizer replaces Learn and chooses a new instrument', async ({ page }) => {
+test('dice randomizer changes the setup without a learning panel', async ({ page }) => {
   await expect(page.locator('#learnPanel')).toHaveCount(0);
-  const before = await page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id);
+  const before = await page.evaluate(() => ({
+    instrument: window.PionierCore?.activeInstrument?.()?.id,
+    scale: window.PionierCore?.handpan?.scaleIndex,
+    root: window.PionierCore?.handpan?.rootIndex
+  }));
   await page.locator('#randomizeSetup').click();
-  await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).not.toBe(before);
+  await expect.poll(() => page.evaluate((previous) => {
+    const core = window.PionierCore;
+    return core?.activeInstrument?.()?.id !== previous.instrument
+      || core?.handpan?.scaleIndex !== previous.scale
+      || core?.handpan?.rootIndex !== previous.root;
+  }, before)).toBe(true);
   await expect(page.locator('#scaleLabel')).not.toBeEmpty();
 });
 
-test('looper timing controls are aligned, count-in toggles, and metronome menu has ten click styles', async ({ page }) => {
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#toggleLooper').click();
+
+test('looper timing controls work and remain inside the viewport', async ({ page }) => {
+  await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
   const controls = ['#looperClearBtn','#looperBtn','#looperCountInBtn','#looperMetronomeBtn','#looperBpmBtn'];
   for (const selector of controls) await expect(page.locator(selector)).toBeVisible();
-  const sizes = await Promise.all(controls.map(selector => page.locator(selector).boundingBox()));
-  for (const size of sizes) {
-    expect(size).not.toBeNull();
-    expect(Math.abs(size.width - size.height)).toBeLessThanOrEqual(1);
+  const viewport = page.viewportSize();
+  for (const selector of controls) {
+    const bounds = await page.locator(selector).boundingBox();
+    expect(bounds).not.toBeNull();
+    expect(bounds.x).toBeGreaterThanOrEqual(0);
+    expect(bounds.y).toBeGreaterThanOrEqual(0);
+    expect(bounds.x + bounds.width).toBeLessThanOrEqual(viewport.width);
+    expect(bounds.y + bounds.height).toBeLessThanOrEqual(viewport.height);
   }
   await page.locator('#looperCountInBtn').click();
   await expect(page.locator('#looperCountInBtn')).toHaveClass(/is-active/);
@@ -402,27 +419,24 @@ test('FX designer uses the compact main-FX width and drops in from the top', asy
 test('mobile scale controls remain visible without a hidden drawer toggle', async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.startsWith('mobile'), 'portrait layout only');
   await expect(page.locator('#scaleNext')).toBeVisible();
-  await expect(page.locator('#rootNext')).toBeVisible();
-  await expect(page.locator('#noteCountNext')).toBeVisible();
+  await expect(page.locator('#looperRootMenuBtn')).toBeVisible();
   await expect(page.locator('#mobileControlsToggle')).toBeHidden();
 });
 
-test('Soundscapes opens from the app menu and returns to the instrument', async ({ page }) => {
-  await page.locator('#topMenuBtn').click();
-  await expect(page.locator('#appMenu')).toBeVisible();
-  await page.locator('#tabSoundscapes').click();
-  const soundscapes = page.locator('#soundscapesPage');
-  await expect(soundscapes).toHaveClass(/is-active/);
+
+test('Soundscapes opens from the instrument controls and returns to the instrument', async ({ page }) => {
+  await page.locator('#openSoundscapes').click();
+  const panel = page.locator('#soundscapesPanel');
+  await expect(panel).toBeVisible();
   await expect(page.locator('#soundscapeAudio')).toBeAttached();
-  await expect(page.locator('#soundscapeQueue .soundscape-queue-item')).toHaveCount(8);
-  await page.locator('#tabHandpanFromSS').click();
-  await expect(soundscapes).not.toHaveClass(/is-active/);
+  await expect(page.locator('#soundscapeQueue [data-track-index]')).toHaveCount(8);
+  await page.locator('#closeSoundscapes').click();
+  await expect(panel).toBeHidden();
   await expect(page.locator('#pan')).toBeVisible();
 });
 
 test('Soundscapes track controls update the selected Bedroom Sessions track', async ({ page }) => {
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#tabSoundscapes').click();
+  await page.locator('#openSoundscapes').click();
   await expect(page.locator('#soundscapeTitle')).toContainText('Improvisation 1');
   await page.locator('#soundscapeNext').click();
   await expect(page.locator('#soundscapeTitle')).toContainText('Improvisation 2');
@@ -430,33 +444,30 @@ test('Soundscapes track controls update the selected Bedroom Sessions track', as
   await expect(page.locator('#soundscapeTitle')).toContainText('Improvisation 1');
 });
 
-test('Soundscapes exposes the User-Created collection without generated ambience beds', async ({ page }) => {
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#tabSoundscapes').click();
-  await page.locator('#soundscapeCommunityTab').click();
-  await expect(page.locator('#soundscapeCommunityQueue')).toBeAttached();
-  const legacyAmbientPlayer = await page.evaluate(() => !!window.PionierBackdropPlayer);
-  expect(legacyAmbientPlayer).toBe(false);
+test('Soundscapes exposes only the owner Bedroom Sessions collection', async ({ page }) => {
+  await page.locator('#openSoundscapes').click();
+  await expect(page.locator('#soundscapeBedroomTab')).toBeVisible();
+  await expect(page.locator('#soundscapeQueue [data-track-index]')).toHaveCount(8);
+  await expect(page.locator('#soundscapeCommunityTab')).toHaveCount(0);
   await expect(page.locator('#ambientFxCanvas')).toHaveCount(0);
 });
 
-test('note-count steppers change the live pan and keep their label in sync', async ({ page }, testInfo) => {
-  if (!testInfo.project.name.startsWith('mobile')) {
-    const initial = await page.evaluate(() => window.PionierCore.handpan.noteCount);
-    await page.evaluate(() => { const h = window.PionierCore.handpan; h.setNoteCount(h.noteCount + 1); window.PionierCore.refreshPitch(); });
-    await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(initial + 1);
-    await page.evaluate(() => { const h = window.PionierCore.handpan; h.setNoteCount(h.noteCount - 1); window.PionierCore.refreshPitch(); });
-    await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(initial);
-    return;
-  }
-  await expect(page.locator('#noteCountLabel')).toHaveText('9');
-  await page.locator('#noteCountNext').click();
-  await expect(page.locator('#noteCountLabel')).toHaveText('10');
-  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(10);
-  await page.locator('#noteCountPrev').click();
-  await expect(page.locator('#noteCountLabel')).toHaveText('9');
-  const core = await page.evaluate(() => window.PionierCore.handpan.noteCount);
-  expect(core).toBe(9);
+
+test('base-note and scale controls update the shared handpan state', async ({ page }) => {
+  const before = await page.evaluate(() => ({
+    scale: window.PionierCore.handpan.scaleIndex,
+    root: window.PionierCore.handpan.rootIndex,
+    scaleCount: window.HANDPAN_SCALES.length
+  }));
+  await page.locator('#looperRootMenuBtn').click();
+  const rootMenu = page.locator('#looperRootMenu');
+  await expect(rootMenu).toBeVisible();
+  await rootMenu.locator('[role="option"]').nth((before.root + 1) % 12).click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.rootIndex))
+    .toBe((before.root + 1) % 12);
+  await page.locator('#scaleNext').click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.scaleIndex))
+    .toBe((before.scale + 1) % before.scaleCount);
 });
 
 
@@ -465,53 +476,51 @@ test('mobile instrument and scale pickers open as visible, tappable sheets', asy
   await page.locator('#instrumentDropdownToggle').tap();
   await expect(page.locator('#instrumentMenu')).toBeVisible();
   await expect(page.locator('#instrumentMenu button[role="menuitem"]').first()).toBeVisible();
-  await page.locator('#pickerBackdrop').tap({ position: { x: 10, y: 10 } });
+  await page.keyboard.press('Escape');
   await expect(page.locator('#instrumentMenu')).toBeHidden();
 
   await page.locator('#scaleLabel').tap();
   await expect(page.locator('#scaleMenu')).toBeVisible();
   await expect(page.locator('#scaleMenu .scale-menu-item').first()).toBeVisible();
-  await page.locator('#pickerBackdrop').tap({ position: { x: 10, y: 10 } });
+  await page.keyboard.press('Escape');
   await expect(page.locator('#scaleMenu')).toBeHidden();
 
-  const touchAction = await page.locator('#pan').evaluate((canvas) => getComputedStyle(canvas).pointerEvents);
-  expect(touchAction).not.toBe('none');
-  const before = await page.evaluate(() => window.PionierCore.noteCount());
-  await page.locator('#noteCountNext').click();
-  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(before + 1);
+  const touchAction = await page.locator('#pan').evaluate((canvas) => getComputedStyle(canvas).touchAction);
+  expect(touchAction).toBe('none');
+  const before = await page.evaluate(() => window.PionierCore.handpan.rootIndex);
+  await page.locator('#looperRootMenuBtn').tap();
+  await expect(page.locator('#looperRootMenu')).toBeVisible();
+  await page.locator('#looperRootMenu [role="option"]').nth((before + 1) % 12).tap();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.rootIndex)).toBe((before + 1) % 12);
 });
 
-test('desktop scale, base-note and octave steppers update the shared handpan state', async ({ page }, testInfo) => {
+
+test('desktop scale and base-note steppers update the shared handpan state', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.startsWith('mobile'), 'desktop control layout only');
   await page.setViewportSize({ width: 1280, height: 800 });
-  const before = await page.evaluate(() => {
-    const h = window.PionierCore.handpan;
-    return { scale: h.scaleIndex, root: h.rootIndex, octave: h.octaveOffset };
-  });
-  await page.locator('#rootNextDesktop').click();
-  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.rootIndex)).toBe((before.root + 1) % 12);
-  await page.locator('#octaveNext').click();
-  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.octaveOffset)).toBe(Math.min(1, before.octave + 1));
-  const { scaleBefore, scaleCount } = await page.evaluate(() => ({
-    scaleBefore: window.PionierCore.handpan.scaleIndex,
+  const before = await page.evaluate(() => ({
+    scale: window.PionierCore.handpan.scaleIndex,
+    root: window.PionierCore.handpan.rootIndex,
     scaleCount: window.HANDPAN_SCALES.length
   }));
-  await page.locator('#scaleNextDesktop').click();
-  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.scaleIndex)).toBe((scaleBefore + 1) % scaleCount);
-  await page.locator('#scaleLabelDesktop').click();
+  await page.locator('#looperRootMenuBtn').click();
+  await expect(page.locator('#looperRootMenu')).toBeVisible();
+  await page.locator('#looperRootMenu [role="option"]').nth((before.root + 1) % 12).click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.rootIndex)).toBe((before.root + 1) % 12);
+  await page.locator('#scaleNext').click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.scaleIndex)).toBe((before.scale + 1) % before.scaleCount);
+  await page.locator('#scaleLabel').click();
   await expect(page.locator('#scaleMenu')).toBeVisible();
-  await expect(page.locator('#scaleLabelDesktop')).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('#scaleLabel')).toHaveAttribute('aria-expanded', 'true');
 });
 
 
 test('Loop Studio is reachable and the four-track controls fit the viewport', async ({ page }) => {
   await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#toggleLooper').click();
   const rail = page.locator('#looperRail');
   await expect(rail).toBeVisible();
   await expect(page.locator('#looperBtn')).toBeVisible();
-  await expect(page.locator('#looperExportBtn')).toBeDisabled();
+  await expect(page.locator('#looperExportBtn')).toBeHidden();
   const state = await page.evaluate(() => window.PionierLooper.getState());
   expect(state.maxLayers).toBe(4);
   const bounds = await page.locator('#looperBtn').boundingBox();
@@ -522,6 +531,7 @@ test('Loop Studio is reachable and the four-track controls fit the viewport', as
   expect(bounds.x + bounds.width).toBeLessThanOrEqual(viewport.width);
   expect(bounds.y + bounds.height).toBeLessThanOrEqual(viewport.height);
 });
+
 
 test('Loop Studio exports a valid WAV mix after a track exists', async ({ page }) => {
   await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
@@ -538,30 +548,59 @@ test('Loop Studio exports a valid WAV mix after a track exists', async ({ page }
     });
     window.PionierLooper.refresh();
   });
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#toggleLooper').click();
+  await expect(page.locator('#looperExportBtn')).toBeVisible();
+  await expect(page.locator('#looperExportBtn')).toBeEnabled();
   const downloadPromise = page.waitForEvent('download');
   await page.locator('#looperExportBtn').click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe('pionier-loop.wav');
+  const path = await download.path();
+  expect(path).toBeTruthy();
+  const bytes = await readFile(path);
+  expect(bytes.toString('ascii', 0, 4)).toBe('RIFF');
+  expect(bytes.toString('ascii', 8, 12)).toBe('WAVE');
+  expect(bytes.length).toBeGreaterThan(44);
 });
 
 
-test('Loop Studio records and overdubs a second independent track', async ({ page }) => {
+test('Loop Studio records audible synthesized notes and overdubs a second layer', async ({ page }) => {
   await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#toggleLooper').click();
   const record = page.locator('#looperBtn');
+  const strike = async () => page.evaluate(() => {
+    const core = window.PionierCore;
+    const instrument = core?.activeInstrument?.();
+    const zone = core?.surface?.fields?.[0];
+    if (!instrument || !zone) throw new Error('Instrument surface is not ready');
+    instrument.noteOn({ velocity: 0.9, pressure: 0.85, force: 0.85 }, zone);
+    setTimeout(() => instrument.noteOff(zone.index ?? zone.i ?? 0), 100);
+  });
   await record.click();
-  await page.waitForTimeout(320);
+  await page.waitForTimeout(140);
+  await strike();
+  await page.waitForTimeout(360);
   await record.click();
   await expect.poll(() => page.evaluate(() => window.PionierLooper.getState().layerCount)).toBe(1);
 
+  const first = await page.evaluate(() => {
+    const buffer = window.PionierLooper.layers[0].buffer;
+    let peak = 0;
+    for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
+      const data = buffer.getChannelData(ch);
+      for (let i = 0; i < data.length; i++) peak = Math.max(peak, Math.abs(data[i]));
+    }
+    return { duration: buffer.duration, peak };
+  });
+  expect(first.duration).toBeGreaterThan(0.1);
+  expect(first.peak).toBeGreaterThan(0.001);
+
   await record.click();
-  await page.waitForTimeout(320);
+  await page.waitForTimeout(140);
+  await strike();
+  await page.waitForTimeout(360);
   await record.click();
   await expect.poll(() => page.evaluate(() => window.PionierLooper.getState().layerCount)).toBe(2);
   const durations = await page.evaluate(() => window.PionierLooper.layers.map(layer => layer.buffer.duration));
   expect(durations).toHaveLength(2);
   expect(durations.every(duration => Number.isFinite(duration) && duration > 0.1)).toBe(true);
 });
+

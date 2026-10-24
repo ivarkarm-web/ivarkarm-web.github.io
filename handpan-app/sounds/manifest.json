@@ -1,9 +1,0 @@
-{
-  "version": 2,
-  "status": "owner-prototype",
-  "format": "wav",
-  "sampleRate": 44100,
-  "channels": 1,
-  "notes": "Owner-recorded D Kurd prototype one-shots in sounds/notes/. Missing or failed decode falls back to procedural synthesis.",
-  "samples": "see notes/manifest.json"
-}

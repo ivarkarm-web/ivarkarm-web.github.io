@@ -89,7 +89,30 @@ html.theme-light .favorites-sheet-header { border-bottom-color: rgba(46,40,28,0.
 html.theme-light .favorites-row-main { background: rgba(40,30,20,0.04); }
 .favorites-row-main:active { transform: scale(0.98); }
 
-/* Hearts inside scale / instrument menu rows — name left, heart right */
+/* Scale/instrument menu rows keep the picker item and favorite toggle as siblings,
+   avoiding nested interactive controls while preserving the compact row layout. */
+.scale-menu-row,
+.instrument-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+}
+.scale-menu-row .scale-menu-item,
+.instrument-menu-row .instrument-menu-item {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+}
+.scale-menu-row .fav-heart-btn,
+.instrument-menu-row .fav-heart-btn {
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  height: 34px !important;
+}
+
+/* Legacy single-button rows are retained only for callers that do not provide wrappers. */
 #scaleMenu .scale-menu-item.fav-row,
 #instrumentMenu .instrument-menu-item.fav-row,
 .scale-menu-item.fav-row,

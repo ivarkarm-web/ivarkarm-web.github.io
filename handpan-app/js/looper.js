@@ -144,6 +144,17 @@ export function mountLooper({ root } = {}) {
   }
   if (utilityGroup.parentElement !== rail) rail.insertBefore(utilityGroup, cluster.parentElement === rail ? cluster : null);
   [countInBtn, metronomeBtn, bpmBtn].forEach((control) => utilityGroup.appendChild(control));
+  let exportBtn = document.getElementById('looperExportBtn');
+  if (!exportBtn) {
+    exportBtn = document.createElement('button');
+    exportBtn.type = 'button';
+    exportBtn.id = 'looperExportBtn';
+  }
+  exportBtn.className = 'looper-export-btn';
+  exportBtn.setAttribute('aria-label', 'Export loop as WAV');
+  exportBtn.title = 'Export loop as WAV';
+  exportBtn.textContent = 'WAV';
+  if (exportBtn.parentElement !== rail) rail.appendChild(exportBtn);
   if (btn.parentElement !== cluster) cluster.appendChild(btn);
   syncBtn.setAttribute('aria-label', 'Sync mode: Free');
   syncBtn.title = SYNC_MODES[0].title;
@@ -296,6 +307,8 @@ export function mountLooper({ root } = {}) {
     btn.setAttribute('aria-label', btn.title);
     clearBtn.classList.toggle('has-layers', hasLayers || recording);
     clearBtn.hidden = false;
+    exportBtn.hidden = !hasLayers;
+    exportBtn.disabled = !hasLayers || recording || pendingLoopStop;
 
     const mode = SYNC_MODES[syncModeIndex];
     syncBtn.dataset.mode = mode.id;
@@ -855,6 +868,77 @@ export function mountLooper({ root } = {}) {
     dialog.querySelector('.looper-save-cancel').focus({ preventScroll: true });
   }
 
+  function exportWav() {
+    const hasSolo = layers.some((layer) => layer.solo);
+    const selected = layers.filter((layer) => layer.buffer && !layer.muted && (!hasSolo || layer.solo));
+    if (!selected.length) return false;
+
+    const sampleRate = Math.max(8000, ...selected.map((layer) => Number(layer.buffer.sampleRate) || 44100));
+    const duration = Math.max(...selected.map((layer) => Number(layer.buffer.duration) || 0));
+    const frameCount = Math.max(1, Math.ceil(duration * sampleRate));
+    const left = new Float32Array(frameCount);
+    const right = new Float32Array(frameCount);
+
+    for (const layer of selected) {
+      const source = layer.buffer;
+      const sourceLeft = source.getChannelData(0);
+      const sourceRight = source.numberOfChannels > 1 ? source.getChannelData(1) : sourceLeft;
+      const sourceRate = Number(source.sampleRate) || sampleRate;
+      const level = Math.max(0, Math.min(1, Number(layer.level ?? DEFAULT_LEVEL)));
+      const pan = Math.max(-1, Math.min(1, Number(layer.pan) || 0));
+      const leftGain = pan > 0 ? 1 - pan : 1;
+      const rightGain = pan < 0 ? 1 + pan : 1;
+      const frames = Math.min(frameCount, Math.ceil(source.length * sampleRate / sourceRate));
+      for (let frame = 0; frame < frames; frame++) {
+        const pos = frame * sourceRate / sampleRate;
+        const i0 = Math.min(source.length - 1, Math.floor(pos));
+        const i1 = Math.min(source.length - 1, i0 + 1);
+        const mix = pos - i0;
+        const a = sourceLeft[i0] * (1 - mix) + sourceLeft[i1] * mix;
+        const b = sourceRight[i0] * (1 - mix) + sourceRight[i1] * mix;
+        left[frame] += a * level * leftGain;
+        right[frame] += b * level * rightGain;
+      }
+    }
+
+    const dataBytes = frameCount * 4;
+    const wav = new ArrayBuffer(44 + dataBytes);
+    const view = new DataView(wav);
+    const ascii = (offset, value) => { for (let i = 0; i < value.length; i++) view.setUint8(offset + i, value.charCodeAt(i)); };
+    ascii(0, 'RIFF');
+    view.setUint32(4, 36 + dataBytes, true);
+    ascii(8, 'WAVE');
+    ascii(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 2, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 4, true);
+    view.setUint16(32, 4, true);
+    view.setUint16(34, 16, true);
+    ascii(36, 'data');
+    view.setUint32(40, dataBytes, true);
+    let offset = 44;
+    for (let frame = 0; frame < frameCount; frame++) {
+      const l = Math.max(-1, Math.min(1, left[frame]));
+      const r = Math.max(-1, Math.min(1, right[frame]));
+      view.setInt16(offset, l < 0 ? l * 0x8000 : l * 0x7fff, true);
+      view.setInt16(offset + 2, r < 0 ? r * 0x8000 : r * 0x7fff, true);
+      offset += 4;
+    }
+
+    const url = URL.createObjectURL(new Blob([wav], { type: 'audio/wav' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'pionier-loop.wav';
+    link.hidden = true;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+    return true;
+  }
+
   function renderCircles() {
     layersEl.innerHTML = '';
     layers.forEach((layer, i) => {
@@ -1289,6 +1373,7 @@ export function mountLooper({ root } = {}) {
     try { if (navigator.vibrate) navigator.vibrate(10); } catch (_) {}
   }
 
+  exportBtn.addEventListener('click', exportWav);
   btn.addEventListener('pointerdown', onPressStart);
   btn.addEventListener('pointerup', onPressEnd);
   btn.addEventListener('pointercancel', () => {
@@ -1308,7 +1393,12 @@ export function mountLooper({ root } = {}) {
 
   setBtnState();
   renderCircles();
-  const api = { clearAll, layers, openTrackPanel, closeTrackPanel, setBpm, setMetronome, getTimingState: () => ({ bpm, metronomeOn, countInEnabled, countInBars, beatsPerBar, clickType }), getState: () => ({ maxLayers: MAX_LAYERS, layerCount: layers.length, recording, pendingLoopStop }) };
+  const api = {
+    clearAll, layers, openTrackPanel, closeTrackPanel, setBpm, setMetronome, exportWav,
+    refresh: () => { renderCircles(); setBtnState(); },
+    getTimingState: () => ({ bpm, metronomeOn, countInEnabled, countInBars, beatsPerBar, clickType }),
+    getState: () => ({ maxLayers: MAX_LAYERS, layerCount: layers.length, recording, pendingLoopStop })
+  };
   // Keep a stable debug/test handle so browser checks and support diagnostics can
   // inspect the mounted loop engine without reaching into module internals.
   window.PionierLooper = api;

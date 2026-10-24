@@ -5,6 +5,14 @@
 
 ## Current shipped audio
 
+- **Instrument voices:** synthesized at runtime by JavaScript/Web Audio code in this repository. No handpan note recordings or third-party sample packs are shipped.
+- **Bedroom Sessions:** the owner's recordings streamed from Internet Archive via the app's soundscapes player. Availability depends on the external host.
+- **No lessons or user uploads.** No external audio license is claimed for the synthesized voices.
+
+## Historical inventory — not shipped
+
+The records below document prior experiments only. Their file paths and licensing notes are historical; they do not describe assets currently included in the app.
+
 ### Owner-recorded handpan prototype (2026-10-13)
 
 Owner attestation. The nine handpan one-shots (D3–A4) were recorded by Ivar Karm and mixed in GarageBand using only its built-in effects (EQ, compression, reverb). No Apple Loops, Apple sampled instruments, third-party samples, loops or impulse responses are included. Ivar Karm holds all rights and permits embedding and distribution in this app.
@@ -37,7 +45,7 @@ Source references (historical):
 - Upstream project: https://github.com/haganenote/virtual-handpan
 - Official virtual instrument: https://www.haganenote.com/vst/handpan-virtual-instrument.html
 
-## Procedural audio
+## Historical procedural-audio notes (verify against current implementation)
 
 | Engine / sound | Source / author | License | Commercial use | Notes |
 |---|---|---|---|---|

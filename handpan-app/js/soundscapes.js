@@ -113,6 +113,13 @@ if (page && audio) {
     if (statusEl) statusEl.textContent = text;
   }
 
+  // Media load failures must be visible even when autoplay was not requested.
+  audio.addEventListener('error', () => {
+    setStatus(networkStatusMessage());
+    playBtn?.setAttribute('aria-label', 'Play');
+    if (playBtn) playBtn.textContent = '▶';
+  });
+
   function networkStatusMessage() {
     if (typeof navigator !== 'undefined' && navigator.onLine === false) {
       return 'Needs network — Bedroom Sessions load from archive.org';
@@ -152,12 +159,13 @@ if (page && audio) {
     syncMeta();
     setStatus('Loading…');
     audio.pause();
+    delete audio.dataset.triedWav;
     audio.src = track.mp3 || track.audioUrl;
     audio.preload = 'metadata';
     audio.load();
     if (autoplay) {
       audio.play().then(() => setStatus('Playing')).catch(() => {
-        setStatus(typeof navigator !== 'undefined' && navigator.onLine === false ? networkStatusMessage() : 'Press play');
+        setStatus(audio.error ? networkStatusMessage() : 'Press play');
         playBtn?.setAttribute('aria-label', 'Play');
         if (playBtn) playBtn.textContent = '▶';
       });

@@ -41,7 +41,7 @@ let deferredStarted = false;
 
 async function loadLooper() {
   try {
-    const { mountLooper } = await import(new URL('./js/looper.js?v=224', BASE).href);
+    const { mountLooper } = await import(new URL('./js/looper.js?v=225', BASE).href);
     if (typeof mountLooper === 'function') mountLooper();
   } catch (e) {
     console.warn('[boot] looper', e);
@@ -87,7 +87,7 @@ async function loadNotePlus() {
 
 async function loadSoundscapes() {
   try {
-    await import(new URL('./js/soundscapes.js?v=11', BASE).href);
+    await import(new URL('./js/soundscapes.js?v=12', BASE).href);
   } catch (e) {
     console.warn('[boot] soundscapes', e);
   }
@@ -113,7 +113,7 @@ function scheduleDeferredFeatures() {
 async function boot() {
   setBootStatus('loading', 'Starting Pionier…');
   try {
-    await import(new URL('./pionier-core.js?v=78', BASE).href);
+    await import(new URL('./pionier-core.js?v=81', BASE).href);
   } catch (e) {
     console.error('[boot] core', e);
     setBootStatus('failed', 'Core failed to load. Check your connection and retry.', true);
@@ -121,14 +121,14 @@ async function boot() {
   }
 
   try {
-    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=11', BASE).href));
+    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=13', BASE).href));
     window.HANDPAN_SCALES = HANDPAN_SCALES;
   } catch (e) {
     console.warn('[boot] handpan scales', e);
   }
 
   try {
-    const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=14', BASE).href);
+    const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=16', BASE).href);
     mountScaleSelector({
       getHandpan: () => window.PionierCore?.handpan || null,
       onScaleChange: () => {
