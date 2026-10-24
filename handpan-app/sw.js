@@ -11,7 +11,7 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.
  */
-const CACHE_VERSION = 'pionier-v151';
+const CACHE_VERSION = 'pionier-v152';
 
 const SHELL = [
   './',
@@ -19,7 +19,7 @@ const SHELL = [
   './manifest.webmanifest',
   './icon.svg',
   './atelier.css?v=10',
-  './favorites.css?v=2',
+  './favorites.css?v=3',
   './focus-visible.css?v=1',
   './fx-editor.css?v=5',
   './handpan-themes.css?v=2',
@@ -29,7 +29,7 @@ const SHELL = [
   './js/catch-mode.js?v=4',
   './js/customization-catalog.js?v=7',
   './js/debug.js',
-  './js/favorites.js?v=1',
+  './js/favorites.js?v=2',
   './js/fx-editor.js?v=9',
   './js/fx.js',
   './js/gesture.js',
@@ -46,7 +46,7 @@ const SHELL = [
   './js/pad-layout.js?v=2',
   './js/pionier-surface.js?v=146',
   './js/portrait-lock.js?v=2',
-  './js/scale-selector.js?v=14',
+  './js/scale-selector.js?v=15',
   './js/settings-panel.js?v=32',
   './js/skin-mandala.js?v=6',
   './js/skin-palette.js?v=3',
@@ -57,10 +57,10 @@ const SHELL = [
   './menu-light-fix.css?v=2',
   './og-pionier-synth.svg',
   './phase1-note-count-guard.js?v=4',
-  './pionier-app.js?v=244',
+  './pionier-app.js?v=245',
   './pionier-control-layout.css?v=23',
   './pionier-control-layout.js?v=20',
-  './pionier-core.js?v=80',
+  './pionier-core.js?v=81',
   './pionier.css?v=166',
   './portrait-lock.css?v=1',
   './registerSW.js',
