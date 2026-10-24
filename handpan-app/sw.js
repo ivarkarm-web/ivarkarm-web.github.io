@@ -39,7 +39,6 @@ const SHELL = [
   './js/loop-core.js',
   './js/looper.js?v=224',
   './js/note-plus.js?v=3',
-  './js/note-sample-bank.js',
   './js/overlay-controller.js?v=23',
   './js/pad-layout.js?v=2',
   './js/pionier-surface.js?v=146',
