@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/handpan-app/index.html', { waitUntil: 'domcontentloaded' });
@@ -412,7 +413,7 @@ test('FX designer uses the compact main-FX width and drops in from the top', asy
 test('mobile scale controls remain visible without a hidden drawer toggle', async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.startsWith('mobile'), 'portrait layout only');
   await expect(page.locator('#scaleNext')).toBeVisible();
-  await expect(page.locator('#rootNext')).toBeVisible();
+  await expect(page.locator('#looperRootMenuBtn')).toBeVisible();
   await expect(page.locator('#mobileControlsToggle')).toBeHidden();
 });
 
@@ -452,7 +453,10 @@ test('base-note and scale controls update the shared handpan state', async ({ pa
     root: window.PionierCore.handpan.rootIndex,
     scaleCount: window.HANDPAN_SCALES.length
   }));
-  await page.locator('#rootNext').click();
+  await page.locator('#looperRootMenuBtn').click();
+  const rootMenu = page.locator('#looperRootMenu');
+  await expect(rootMenu).toBeVisible();
+  await rootMenu.locator('[role="option"]').nth((before.root + 1) % 12).click();
   await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.rootIndex))
     .toBe((before.root + 1) % 12);
   await page.locator('#scaleNext').click();
@@ -478,7 +482,9 @@ test('mobile instrument and scale pickers open as visible, tappable sheets', asy
   const touchAction = await page.locator('#pan').evaluate((canvas) => getComputedStyle(canvas).touchAction);
   expect(touchAction).toBe('none');
   const before = await page.evaluate(() => window.PionierCore.handpan.rootIndex);
-  await page.locator('#rootNext').tap();
+  await page.locator('#looperRootMenuBtn').tap();
+  await expect(page.locator('#looperRootMenu')).toBeVisible();
+  await page.locator('#looperRootMenu [role="option"]').nth((before + 1) % 12).tap();
   await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.rootIndex)).toBe((before + 1) % 12);
 });
 
@@ -491,7 +497,9 @@ test('desktop scale and base-note steppers update the shared handpan state', asy
     root: window.PionierCore.handpan.rootIndex,
     scaleCount: window.HANDPAN_SCALES.length
   }));
-  await page.locator('#rootNext').click();
+  await page.locator('#looperRootMenuBtn').click();
+  await expect(page.locator('#looperRootMenu')).toBeVisible();
+  await page.locator('#looperRootMenu [role="option"]').nth((before.root + 1) % 12).click();
   await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.rootIndex)).toBe((before.root + 1) % 12);
   await page.locator('#scaleNext').click();
   await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.scaleIndex)).toBe((before.scale + 1) % before.scaleCount);
@@ -540,6 +548,12 @@ test('Loop Studio exports a valid WAV mix after a track exists', async ({ page }
   await page.locator('#looperExportBtn').click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe('pionier-loop.wav');
+  const path = await download.path();
+  expect(path).toBeTruthy();
+  const bytes = await readFile(path);
+  expect(bytes.toString('ascii', 0, 4)).toBe('RIFF');
+  expect(bytes.toString('ascii', 8, 12)).toBe('WAVE');
+  expect(bytes.length).toBeGreaterThan(44);
 });
 
 
