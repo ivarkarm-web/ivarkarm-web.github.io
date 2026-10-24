@@ -45,7 +45,7 @@ const notesDir = path.join(root, 'handpan-app/sounds/notes');
 const handpanVoice = read('handpan-app/js/instruments/handpan.js');
 if (!fs.existsSync(notesDir)) ok('No bundled handpan note recordings remain');
 else fail('Synth-only product must not ship handpan note recordings');
-if (!/NoteSampleBank|sampleBank|sounds\\/notes|recordedScale/.test(handpanVoice)) {
+if (!/NoteSampleBank|sampleBank|recordedScale/.test(handpanVoice) && !handpanVoice.includes('sounds/notes')) {
   ok('Handpan instrument uses synthesis without a sample-bank loading path');
 } else {
   fail('Handpan instrument still references recorded note playback');
