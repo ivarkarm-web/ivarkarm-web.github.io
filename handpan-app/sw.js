@@ -11,7 +11,7 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.
  */
-const CACHE_VERSION = 'pionier-v150';
+const CACHE_VERSION = 'pionier-v151';
 
 const SHELL = [
   './',
@@ -74,7 +74,7 @@ const SHELL = [
   './topbar-narrow.css?v=6',
   './ui-hotfix.css?v=4',
   './ui-stability.css?v=6',
-  './w3-pan-guard.css?v=1',
+  './w3-pan-guard.css?v=2',
   './welcome-screen.css?v=6',
   './welcome-screen.js?v=9',
 ];
