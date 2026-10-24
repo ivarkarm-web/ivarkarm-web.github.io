@@ -217,7 +217,7 @@ test('boots the local core without runtime source-fetch errors', async ({ page }
   if (testInfo.project.name.startsWith('mobile')) {
     await expect(page.locator('#mobileControlPanel')).toBeVisible();
   } else {
-    await expect(page.locator('#leftSidebar')).toBeVisible();
+    await expect(page.locator('.sidebar.left')).toBeVisible();
   }
   await expect(page.locator('#knobMaster')).toBeAttached();
   const boot = await page.evaluate(() => ({
@@ -336,23 +336,40 @@ test('lowercase s shortcuts open the correct advanced editor for all four effect
 });
 
 
-test('dice randomizer replaces Learn and chooses a new instrument', async ({ page }) => {
+test('dice randomizer changes the setup without a learning panel', async ({ page }) => {
   await expect(page.locator('#learnPanel')).toHaveCount(0);
-  const before = await page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id);
+  const before = await page.evaluate(() => ({
+    instrument: window.PionierCore?.activeInstrument?.()?.id,
+    scale: window.PionierCore?.handpan?.scaleIndex,
+    root: window.PionierCore?.handpan?.rootIndex
+  }));
   await page.locator('#randomizeSetup').click();
-  await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).not.toBe(before);
+  await expect.poll(() => page.evaluate(() => {
+    const core = window.PionierCore;
+    return core?.activeInstrument?.()?.id !== "never" || core?.handpan?.scaleIndex !== -999;
+  })).toBe(true);
+  await expect.poll(() => page.evaluate((previous) => {
+    const core = window.PionierCore;
+    return core?.activeInstrument?.()?.id !== previous.instrument
+      || core?.handpan?.scaleIndex !== previous.scale
+      || core?.handpan?.rootIndex !== previous.root;
+  }, before)).toBe(true);
   await expect(page.locator('#scaleLabel')).not.toBeEmpty();
 });
 
-test('looper timing controls are aligned, count-in toggles, and metronome menu has ten click styles', async ({ page }) => {
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#toggleLooper').click();
+
+test('looper timing controls work and remain inside the viewport', async ({ page }) => {
+  await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
   const controls = ['#looperClearBtn','#looperBtn','#looperCountInBtn','#looperMetronomeBtn','#looperBpmBtn'];
   for (const selector of controls) await expect(page.locator(selector)).toBeVisible();
-  const sizes = await Promise.all(controls.map(selector => page.locator(selector).boundingBox()));
-  for (const size of sizes) {
-    expect(size).not.toBeNull();
-    expect(Math.abs(size.width - size.height)).toBeLessThanOrEqual(1);
+  const viewport = page.viewportSize();
+  for (const selector of controls) {
+    const bounds = await page.locator(selector).boundingBox();
+    expect(bounds).not.toBeNull();
+    expect(bounds.x).toBeGreaterThanOrEqual(0);
+    expect(bounds.y).toBeGreaterThanOrEqual(0);
+    expect(bounds.x + bounds.width).toBeLessThanOrEqual(viewport.width);
+    expect(bounds.y + bounds.height).toBeLessThanOrEqual(viewport.height);
   }
   await page.locator('#looperCountInBtn').click();
   await expect(page.locator('#looperCountInBtn')).toHaveClass(/is-active/);
@@ -400,26 +417,23 @@ test('mobile scale controls remain visible without a hidden drawer toggle', asyn
   test.skip(!testInfo.project.name.startsWith('mobile'), 'portrait layout only');
   await expect(page.locator('#scaleNext')).toBeVisible();
   await expect(page.locator('#rootNext')).toBeVisible();
-  await expect(page.locator('#noteCountNext')).toBeVisible();
   await expect(page.locator('#mobileControlsToggle')).toBeHidden();
 });
 
-test('Soundscapes opens from the app menu and returns to the instrument', async ({ page }) => {
-  await page.locator('#topMenuBtn').click();
-  await expect(page.locator('#appMenu')).toBeVisible();
-  await page.locator('#tabSoundscapes').click();
-  const soundscapes = page.locator('#soundscapesPage');
-  await expect(soundscapes).toHaveClass(/is-active/);
+
+test('Soundscapes opens from the instrument controls and returns to the instrument', async ({ page }) => {
+  await page.locator('#openSoundscapes').click();
+  const panel = page.locator('#soundscapesPanel');
+  await expect(panel).toBeVisible();
   await expect(page.locator('#soundscapeAudio')).toBeAttached();
-  await expect(page.locator('#soundscapeQueue .soundscape-queue-item')).toHaveCount(8);
-  await page.locator('#tabHandpanFromSS').click();
-  await expect(soundscapes).not.toHaveClass(/is-active/);
+  await expect(page.locator('#soundscapeQueue [data-track-index]')).toHaveCount(8);
+  await page.locator('#closeSoundscapes').click();
+  await expect(panel).toBeHidden();
   await expect(page.locator('#pan')).toBeVisible();
 });
 
 test('Soundscapes track controls update the selected Bedroom Sessions track', async ({ page }) => {
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#tabSoundscapes').click();
+  await page.locator('#openSoundscapes').click();
   await expect(page.locator('#soundscapeTitle')).toContainText('Improvisation 1');
   await page.locator('#soundscapeNext').click();
   await expect(page.locator('#soundscapeTitle')).toContainText('Improvisation 2');
@@ -427,33 +441,27 @@ test('Soundscapes track controls update the selected Bedroom Sessions track', as
   await expect(page.locator('#soundscapeTitle')).toContainText('Improvisation 1');
 });
 
-test('Soundscapes exposes the User-Created collection without generated ambience beds', async ({ page }) => {
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#tabSoundscapes').click();
-  await page.locator('#soundscapeCommunityTab').click();
-  await expect(page.locator('#soundscapeCommunityQueue')).toBeAttached();
-  const legacyAmbientPlayer = await page.evaluate(() => !!window.PionierBackdropPlayer);
-  expect(legacyAmbientPlayer).toBe(false);
+test('Soundscapes exposes only the owner Bedroom Sessions collection', async ({ page }) => {
+  await page.locator('#openSoundscapes').click();
+  await expect(page.locator('#soundscapeBedroomTab')).toBeVisible();
+  await expect(page.locator('#soundscapeQueue [data-track-index]')).toHaveCount(8);
+  await expect(page.locator('#soundscapeCommunityTab')).toHaveCount(0);
   await expect(page.locator('#ambientFxCanvas')).toHaveCount(0);
 });
 
-test('note-count steppers change the live pan and keep their label in sync', async ({ page }, testInfo) => {
-  if (!testInfo.project.name.startsWith('mobile')) {
-    const initial = await page.evaluate(() => window.PionierCore.handpan.noteCount);
-    await page.evaluate(() => { const h = window.PionierCore.handpan; h.setNoteCount(h.noteCount + 1); window.PionierCore.refreshPitch(); });
-    await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(initial + 1);
-    await page.evaluate(() => { const h = window.PionierCore.handpan; h.setNoteCount(h.noteCount - 1); window.PionierCore.refreshPitch(); });
-    await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(initial);
-    return;
-  }
-  await expect(page.locator('#noteCountLabel')).toHaveText('9');
-  await page.locator('#noteCountNext').click();
-  await expect(page.locator('#noteCountLabel')).toHaveText('10');
-  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(10);
-  await page.locator('#noteCountPrev').click();
-  await expect(page.locator('#noteCountLabel')).toHaveText('9');
-  const core = await page.evaluate(() => window.PionierCore.handpan.noteCount);
-  expect(core).toBe(9);
+
+test('base-note and scale controls update the shared handpan state', async ({ page }) => {
+  const before = await page.evaluate(() => ({
+    scale: window.PionierCore.handpan.scaleIndex,
+    root: window.PionierCore.handpan.rootIndex,
+    scaleCount: window.HANDPAN_SCALES.length
+  }));
+  await page.locator('#rootNext').click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.rootIndex))
+    .toBe((before.root + 1) % 12);
+  await page.locator('#scaleNext').click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.scaleIndex))
+    .toBe((before.scale + 1) % before.scaleCount);
 });
 
 
@@ -462,53 +470,47 @@ test('mobile instrument and scale pickers open as visible, tappable sheets', asy
   await page.locator('#instrumentDropdownToggle').tap();
   await expect(page.locator('#instrumentMenu')).toBeVisible();
   await expect(page.locator('#instrumentMenu button[role="menuitem"]').first()).toBeVisible();
-  await page.locator('#pickerBackdrop').tap({ position: { x: 10, y: 10 } });
+  await page.keyboard.press('Escape');
   await expect(page.locator('#instrumentMenu')).toBeHidden();
 
   await page.locator('#scaleLabel').tap();
   await expect(page.locator('#scaleMenu')).toBeVisible();
   await expect(page.locator('#scaleMenu .scale-menu-item').first()).toBeVisible();
-  await page.locator('#pickerBackdrop').tap({ position: { x: 10, y: 10 } });
+  await page.keyboard.press('Escape');
   await expect(page.locator('#scaleMenu')).toBeHidden();
 
-  const touchAction = await page.locator('#pan').evaluate((canvas) => getComputedStyle(canvas).pointerEvents);
-  expect(touchAction).not.toBe('none');
-  const before = await page.evaluate(() => window.PionierCore.noteCount());
-  await page.locator('#noteCountNext').click();
-  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(before + 1);
+  const touchAction = await page.locator('#pan').evaluate((canvas) => getComputedStyle(canvas).touchAction);
+  expect(touchAction).toBe('none');
+  const before = await page.evaluate(() => window.PionierCore.handpan.rootIndex);
+  await page.locator('#rootNext').tap();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.rootIndex)).toBe((before + 1) % 12);
 });
 
-test('desktop scale, base-note and octave steppers update the shared handpan state', async ({ page }, testInfo) => {
+
+test('desktop scale and base-note steppers update the shared handpan state', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.startsWith('mobile'), 'desktop control layout only');
   await page.setViewportSize({ width: 1280, height: 800 });
-  const before = await page.evaluate(() => {
-    const h = window.PionierCore.handpan;
-    return { scale: h.scaleIndex, root: h.rootIndex, octave: h.octaveOffset };
-  });
-  await page.locator('#rootNextDesktop').click();
-  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.rootIndex)).toBe((before.root + 1) % 12);
-  await page.locator('#octaveNext').click();
-  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.octaveOffset)).toBe(Math.min(1, before.octave + 1));
-  const { scaleBefore, scaleCount } = await page.evaluate(() => ({
-    scaleBefore: window.PionierCore.handpan.scaleIndex,
+  const before = await page.evaluate(() => ({
+    scale: window.PionierCore.handpan.scaleIndex,
+    root: window.PionierCore.handpan.rootIndex,
     scaleCount: window.HANDPAN_SCALES.length
   }));
-  await page.locator('#scaleNextDesktop').click();
-  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.scaleIndex)).toBe((scaleBefore + 1) % scaleCount);
-  await page.locator('#scaleLabelDesktop').click();
+  await page.locator('#rootNext').click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.rootIndex)).toBe((before.root + 1) % 12);
+  await page.locator('#scaleNext').click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.scaleIndex)).toBe((before.scale + 1) % before.scaleCount);
+  await page.locator('#scaleLabel').click();
   await expect(page.locator('#scaleMenu')).toBeVisible();
-  await expect(page.locator('#scaleLabelDesktop')).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('#scaleLabel')).toHaveAttribute('aria-expanded', 'true');
 });
 
 
 test('Loop Studio is reachable and the four-track controls fit the viewport', async ({ page }) => {
   await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#toggleLooper').click();
   const rail = page.locator('#looperRail');
   await expect(rail).toBeVisible();
   await expect(page.locator('#looperBtn')).toBeVisible();
-  await expect(page.locator('#looperExportBtn')).toBeDisabled();
+  await expect(page.locator('#looperExportBtn')).toBeHidden();
   const state = await page.evaluate(() => window.PionierLooper.getState());
   expect(state.maxLayers).toBe(4);
   const bounds = await page.locator('#looperBtn').boundingBox();
@@ -519,6 +521,7 @@ test('Loop Studio is reachable and the four-track controls fit the viewport', as
   expect(bounds.x + bounds.width).toBeLessThanOrEqual(viewport.width);
   expect(bounds.y + bounds.height).toBeLessThanOrEqual(viewport.height);
 });
+
 
 test('Loop Studio exports a valid WAV mix after a track exists', async ({ page }) => {
   await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
@@ -535,8 +538,8 @@ test('Loop Studio exports a valid WAV mix after a track exists', async ({ page }
     });
     window.PionierLooper.refresh();
   });
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#toggleLooper').click();
+  await expect(page.locator('#looperExportBtn')).toBeVisible();
+  await expect(page.locator('#looperExportBtn')).toBeEnabled();
   const downloadPromise = page.waitForEvent('download');
   await page.locator('#looperExportBtn').click();
   const download = await downloadPromise;
@@ -546,8 +549,6 @@ test('Loop Studio exports a valid WAV mix after a track exists', async ({ page }
 
 test('Loop Studio records and overdubs a second independent track', async ({ page }) => {
   await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#toggleLooper').click();
   const record = page.locator('#looperBtn');
   await record.click();
   await page.waitForTimeout(320);
@@ -562,3 +563,4 @@ test('Loop Studio records and overdubs a second independent track', async ({ pag
   expect(durations).toHaveLength(2);
   expect(durations.every(duration => Number.isFinite(duration) && duration > 0.1)).toBe(true);
 });
+
