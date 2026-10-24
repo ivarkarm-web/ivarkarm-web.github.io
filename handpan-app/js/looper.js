@@ -1,4 +1,5 @@
 /**
- * looper.js — re-exports local v3.1 engine (timing, bar grid, crossfade).
+ * Load looper from the same jsDelivr commit as pionier-core (832690dc).
+ * Shared AudioContext with core. Radial UI: looper-circle-progress.js.
  */
-export { mountLooper } from './looper-lib.js?v=1';
+export * from 'https://cdn.jsdelivr.net/gh/ivarkarm-web/ivarkarm-web.github.io@832690dc/handpan-app/js/looper.js';
