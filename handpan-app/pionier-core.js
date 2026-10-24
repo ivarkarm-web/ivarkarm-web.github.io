@@ -395,10 +395,7 @@ function paintAllKnobs() {
     const canvasEl = el.querySelector('.knob-canvas');
     let v = m.def;
     try {
-      if (m.tone === 'bass') v = app.fxChain.bass ?? m.def;
-      else if (m.tone === 'low') v = app.fxChain.low ?? m.def;
-      else if (m.tone === 'mid') v = app.fxChain.mid ?? m.def;
-      else if (m.tone === 'master') v = app.fxChain.master ?? m.def;
+      if (m.tone) v = fxKnobValues[m.tone] ?? m.def;
       else {
         const mod = app.fxChain.modules?.find((x) => x.id === m.fxId);
         if (mod && Number.isFinite(mod.value)) v = mod.value;
@@ -425,10 +422,10 @@ function setFxTone(key, value) {
   const v = Math.max(0, Math.min(1, Number(value)));
   if (!Number.isFinite(v) || !app.fxChain) return;
   const chain = app.fxChain;
-  if (key === 'bass') chain.setBass?.((v - 0.5) * 18);
-  else if (key === 'low') chain.setLow?.((v - 0.5) * 16);
-  else if (key === 'mid') chain.setMid?.((v - 0.5) * 14);
-  else if (key === 'master') chain.setMaster?.(0.5 + v * 0.7);
+  if (key === 'bass') chain.setBass?.(v);
+  else if (key === 'low') chain.setLow?.(v);
+  else if (key === 'mid') chain.setMid?.(v);
+  else if (key === 'master') chain.setMaster?.(v);
   else chain.setValue?.(key, v);
   fxKnobValues[key] = v;
 }
