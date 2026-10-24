@@ -27,6 +27,11 @@ read('script.js');
 const appHtml = read('handpan-app/index.html');
 const shell = read('handpan-app/pionier-app.js');
 const coreSrc = read('handpan-app/pionier-core.js');
+// Current production uses a small core loader plus a local implementation file.
+// Keep the registry import check pointed at whichever file actually owns it.
+const coreRegistrySrc = /from ['"]\.\/js\/instruments\//.test(coreSrc)
+  ? coreSrc
+  : read('handpan-app/pionier-core-impl.js');
 const loopControls = read('handpan-app/js/looper.js');
 const loopStyles = read('handpan-app/looper.css');
 const serviceWorker = read('handpan-app/sw.js');
@@ -187,7 +192,7 @@ else fail('FX editor dropdown or compact layout is missing');
 if (/setTargetAtTime/.test(read('handpan-app/js/fx.js')) && /settings\.threshold/.test(read('handpan-app/js/fx.js')) && /settings\.feedback/.test(read('handpan-app/js/fx.js')) && /settings\.resonance/.test(read('handpan-app/js/fx.js'))) ok('FX editor parameters are wired to the live audio modules');
 else fail('FX editor parameters are not wired to the live audio modules');
 
-const instrumentFamilyImports = coreSrc.match(/from ['"]\.\/js\/instruments\/[^'"]+['"]/g) || [];
+const instrumentFamilyImports = coreRegistrySrc.match(/from ['"]\.\/js\/instruments\/[^'"]+['"]/g) || [];
 if (instrumentFamilyImports.length === 2) ok('Instrument registry imports only the handpan and tonal families');
 else fail('Unexpected instrument-family imports in the core registry (got ' + instrumentFamilyImports.length + ')');
 
