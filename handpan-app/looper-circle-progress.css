@@ -1,0 +1,37 @@
+/* Radial waveform on looper circles */
+.looper-circle-wave {
+  position: absolute;
+  inset: 3px;
+  width: calc(100% - 6px);
+  height: calc(100% - 6px);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+.looper-circle-core {
+  position: relative;
+  z-index: 2;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  pointer-events: none;
+  color: inherit;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.45);
+}
+.looper-circle.is-dimmed {
+  opacity: 0.38;
+  filter: saturate(0.55);
+}
+.looper-circle.is-beat {
+  box-shadow:
+    0 0 0 2px rgba(246, 218, 132, 0.35),
+    0 0 14px rgba(212, 176, 74, 0.35);
+  transform: scale(1.05);
+}
+.looper-circle.is-playing:not(.is-dimmed) .looper-circle-progress {
+  opacity: 0.85;
+}
+.looper-circle.is-muted .looper-circle-wave {
+  opacity: 0.45;
+}
