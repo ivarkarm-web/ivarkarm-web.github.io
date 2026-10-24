@@ -34,7 +34,6 @@ const EXTRA_SHELL = [
   './js/instrument.js',
   './js/gesture.js',
   './js/fx.js',
-  './js/note-sample-bank.js',
   './js/loop-core.js',
   './js/app-state.js?v=1',
   './js/audio-core.js?v=2',
