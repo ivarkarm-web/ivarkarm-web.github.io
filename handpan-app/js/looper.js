@@ -61,6 +61,7 @@ export function mountLooper({ root } = {}) {
     layersEl = document.createElement('div');
     layersEl.id = 'looperLayers';
     layersEl.className = 'looper-layers';
+    layersEl.setAttribute('role', 'group');
     layersEl.setAttribute('aria-label', 'Loop layers');
     rail.appendChild(layersEl);
   }
