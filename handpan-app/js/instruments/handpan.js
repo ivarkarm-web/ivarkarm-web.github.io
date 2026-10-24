@@ -1,6 +1,6 @@
 /**
  * instruments/handpan.js — Handpan as first-class Instrument
- * Phase 1: note count is fixed by each scale's intervals (not user +/-).
+ * Synthesized handpan voice with scale-aware 8–13 note layouts.
  */
 import { Instrument } from '../instrument.js';
 import { getSoundLibrary } from './library-family.js?v=1';
@@ -34,7 +34,7 @@ export function extendScaleCents(baseCents, count) {
   return out;
 }
 
-const FIXED_NOTE_COUNT = 8;
+const DEFAULT_NOTE_COUNT = 8;
 const PITCH_BEND_RANGE = 2;
 const GLIDE_TIME = 0.12;
 const BEND_SMOOTH = 0.055;
@@ -108,9 +108,10 @@ export class HandpanInstrument extends Instrument {
     const scale = HANDPAN_SCALES[this.scaleIndex] || HANDPAN_SCALES[0];
     const base = rootToMidi(this.rootIndex, this.octaveOffset);
     // Note count is fixed by the active scale definition (not user-adjustable).
-    const scaleCents = extendScaleCents(scaleToCents(scale), FIXED_NOTE_COUNT);
-    this.noteCount = FIXED_NOTE_COUNT;
-    const centsList = scaleCents.slice(0, FIXED_NOTE_COUNT);
+    const count = Math.max(MIN_NOTES, Math.min(MAX_NOTES, Math.round(Number(this.noteCount) || DEFAULT_NOTE_COUNT)));
+    const scaleCents = extendScaleCents(scaleToCents(scale), count);
+    this.noteCount = count;
+    const centsList = scaleCents.slice(0, count);
     const isMicro = !!(scale.cents && scale.cents.length) || (scale.tuning && scale.tuning !== '12-TET');
     const angles = ringAngles(Math.max(1, centsList.length - 1));
 
@@ -137,8 +138,15 @@ export class HandpanInstrument extends Instrument {
   getNotes() { return this.notes.slice(); }
   getZones() { return this._zones || []; }
 
-  addNote() { return false; }
-  setNoteCount(_n) { this.rebuildNotes(); }
+  addNote() {
+    if (this.noteCount >= MAX_NOTES) return false;
+    this.setNoteCount(this.noteCount + 1);
+    return true;
+  }
+  setNoteCount(n) {
+    this.noteCount = Math.max(MIN_NOTES, Math.min(MAX_NOTES, Math.round(Number(n) || DEFAULT_NOTE_COUNT)));
+    this.rebuildNotes();
+  }
 
   setScaleIndex(i) {
     this.scaleIndex = ((i % HANDPAN_SCALES.length) + HANDPAN_SCALES.length) % HANDPAN_SCALES.length;
