@@ -1,4 +1,4 @@
-pionier-v158
+pionier-v159
 2026-10-24
-handpan synth v14; core v82; scale selector v17; looper v226; app shell v250
+handpan synth v15; core v83; scale selector v18; looper v226; app shell v251
 run: npm run sync:handpan after changing ?v= stamps or APP_VERSION
