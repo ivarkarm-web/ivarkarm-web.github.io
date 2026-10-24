@@ -2,6 +2,12 @@ import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
 test.beforeEach(async ({ page }) => {
+  // Forward browser-side module/boot errors into CI logs so failures aren't
+  // reduced to a generic "core failed to load" message.
+  page.on('console', (message) => {
+    if (message.type() === 'error') console.log('[browser console error]', message.text());
+  });
+  page.on('pageerror', (error) => console.log('[browser page error]', error.stack || error.message));
   await page.goto('/handpan-app/index.html', { waitUntil: 'domcontentloaded' });
 
   // The product intentionally opens on the welcome screen. Tests in this file
@@ -34,7 +40,7 @@ test('required core boot failure shows recovery UI and retry reloads successfull
   });
   await page.reload();
   await expect(page.locator('#appStatus')).toBeVisible();
-  await expect(page.locator('#appStatusMessage')).toContainText('could not start');
+  await expect(page.locator('#appStatusMessage')).toContainText('Core failed to load');
   await page.locator('#appStatusRetry').click();
   await expect.poll(() => page.evaluate(() => !!window.PionierCore)).toBe(true);
   await expect(page.locator('#appStatus')).toBeHidden();
