@@ -2,6 +2,15 @@ import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/handpan-app/index.html', { waitUntil: 'domcontentloaded' });
+
+  // The product intentionally opens on the welcome screen. Tests in this file
+  // exercise the instrument, so enter it explicitly before asserting app UI.
+  const enter = page.locator('#enterPionier');
+  if (await enter.isVisible().catch(() => false)) {
+    await enter.click();
+    await expect(page.locator('#pionierWelcome')).toBeHidden({ timeout: 5000 });
+  }
+
   await expect(page.locator('#pan')).toBeVisible();
   await expect(page.locator('#instrumentDropdownToggle')).toBeVisible();
   await expect.poll(() => page.evaluate(() => {
