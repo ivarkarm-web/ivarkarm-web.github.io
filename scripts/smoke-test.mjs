@@ -41,39 +41,14 @@ for (const f of ['dsp', 'voices', 'library', 'space']) read(`handpan-app/js/soun
 read('handpan-app/js/pionier-surface.js');
 const soundscapes = read('handpan-app/js/soundscapes.js');
 read('handpan-app/js/mandala-canvas.js');
-const noteSampleManifest = JSON.parse(read('handpan-app/sounds/notes/manifest.json'));
-const licenseDoc = read('docs/AUDIO-LICENSES.md');
-const bundledNoteAudioDir = path.join(root, 'handpan-app/sounds/notes');
-const bundledNoteAudio = fs.existsSync(bundledNoteAudioDir)
-  ? fs.readdirSync(bundledNoteAudioDir).filter((name) => /\.(mp3|wav|ogg|m4a|aac|flac)$/i.test(name))
-  : [];
-const samples = Array.isArray(noteSampleManifest.samples) ? noteSampleManifest.samples : [];
-const ownerCleared =
-  noteSampleManifest.status === 'owner-prototype' &&
-  /owner/i.test(String(noteSampleManifest.license_note || '')) &&
-  /Owner-recorded handpan prototype|D3_v1\.wav/i.test(licenseDoc);
-
-if (samples.length === 0 && bundledNoteAudio.length === 0) {
-  ok('No third-party note audio is bundled; synth fallback remains available');
-} else if (ownerCleared) {
-  const missing = samples
-    .map((s) => s.file)
-    .filter((file) => file && !fs.existsSync(path.join(bundledNoteAudioDir, file)));
-  const listed = new Set(samples.map((s) => s.file).filter(Boolean));
-  const extras = bundledNoteAudio.filter((name) => !listed.has(name));
-  if (extras.length) {
-    fail('Note audio files present without a matching owner-prototype manifest entry: ' + extras.join(', '));
-  } else if (bundledNoteAudio.length && missing.length) {
-    fail('Owner prototype manifest references missing note files: ' + missing.join(', '));
-  } else {
-    ok(
-      bundledNoteAudio.length
-        ? 'Owner-recorded prototype note audio is documented and files match the manifest'
-        : 'Owner-prototype note manifest is documented (binaries pending); synth fallback remains'
-    );
-  }
+const notesDir = path.join(root, 'handpan-app/sounds/notes');
+const handpanVoice = read('handpan-app/js/instruments/handpan.js');
+if (!fs.existsSync(notesDir)) ok('No bundled handpan note recordings remain');
+else fail('Synth-only product must not ship handpan note recordings');
+if (!/NoteSampleBank|sampleBank|sounds\\/notes|recordedScale/.test(handpanVoice)) {
+  ok('Handpan instrument uses synthesis without a sample-bank loading path');
 } else {
-  fail('Uncleared note audio is still bundled or referenced by the sample manifest');
+  fail('Handpan instrument still references recorded note playback');
 }
 
 if (rootHtml.includes('<title>') && rootHtml.includes('</html>')) ok('Portfolio document is present');
