@@ -3,4 +3,5 @@
 body:not(.soundscapes-active) #pan {
   pointer-events: auto !important;
   visibility: visible !important;
+  touch-action: none !important;
 }
