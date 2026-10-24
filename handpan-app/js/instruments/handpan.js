@@ -376,16 +376,7 @@ export class HandpanInstrument extends Instrument {
     this.held[zoneId] = 0;
     this.pitchBendCents[zoneId] = 0;
     this._smoothPressure[zoneId] = 0;
-    const voice = this.activeVoices.get(zoneId);
-    if (voice && !voice.released && voice.out && this.audioCtx) {
-      // Let a struck note ring, then gently damp it after the finger lifts.
-      const at = this.audioCtx.currentTime;
-      try {
-        voice.out.gain.cancelScheduledValues(at);
-        voice.out.gain.setValueAtTime(Math.max(0.0001, voice.out.gain.value), at);
-        voice.out.gain.setTargetAtTime(0.0001, at + 1.6, 0.65);
-      } catch (_) {}
-    }
+    // The strike envelope already supplies a natural decay; do not cancel it on finger lift.
     if (this.glow[zoneId] > 0.15) this.glow[zoneId] = Math.min(this.glow[zoneId], 0.35);
     if (this.zoneFlash[zoneId] > 0.1) this.zoneFlash[zoneId] *= 0.5;
   }
