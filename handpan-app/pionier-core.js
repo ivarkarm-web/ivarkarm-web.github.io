@@ -603,8 +603,8 @@ wire('rootNext', () => {
   handpan.setRootIndex(handpan.rootIndex + 1);
   refreshPitch();
 });
-wire('noteCountPrev', () => changeNoteCount(-1));
-wire('noteCountNext', () => changeNoteCount(1));
+wire('noteCountPrev', () => { changeNoteCount(-1); });
+wire('noteCountNext', () => { changeNoteCount(1); });
 
 window.addEventListener('blur', () => {
   for (const k of [...app.keysHeld]) {
