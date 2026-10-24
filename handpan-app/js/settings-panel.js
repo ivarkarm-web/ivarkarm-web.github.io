@@ -1,5 +1,6 @@
 /**
  * settings-panel.js — Phase 2: Dark/Light toggle + remaining prefs (skins removed).
+ * Phase 9: High contrast toggle for WCAG AA path.
  */
 (function settingsPanel() {
   const STORAGE_KEY = 'pionier.settings.v2';
@@ -13,6 +14,7 @@
     ambient: 'none',
     transparency: 1,
     touchFeedback: false,
+    highContrast: false,
     led: { r: 110, g: 200, b: 255, strength: 0.35 },
   };
 
@@ -39,6 +41,7 @@
         lightMode,
         led: { ...DEFAULTS.led, ...(parsed.led || {}) },
         transparency: parsed.transparency != null ? Number(parsed.transparency) : 1,
+        highContrast: rest.highContrast === true,
       };
     } catch {
       return { ...DEFAULTS, led: { ...DEFAULTS.led }, lightMode: null };
@@ -54,13 +57,15 @@
     document.documentElement.classList.toggle('theme-light', light);
     document.documentElement.classList.toggle('dark', !light);
     document.body.classList.toggle('theme-light', light);
+    document.documentElement.classList.toggle('high-contrast', state.highContrast === true);
+    document.body.classList.toggle('high-contrast', state.highContrast === true);
     document.documentElement.dataset.ambient = state.ambient || 'none';
     const led = state.led || DEFAULTS.led;
     document.documentElement.style.setProperty('--led-color', 'rgb(' + led.r + ',' + led.g + ',' + led.b + ')');
     document.documentElement.style.setProperty('--led-strength', String(led.strength));
     document.documentElement.style.setProperty('--handpan-alpha', String(state.transparency));
     window.PionierSettings = {
-      get: () => ({ ...state, lightMode: resolveLightMode(state), led: { ...led } }),
+      get: () => ({ ...state, lightMode: resolveLightMode(state), led: { ...led }, highContrast: state.highContrast === true }),
       ambient: state.ambient,
       transparency: state.transparency,
       mandala: false,
@@ -69,6 +74,7 @@
       tonefield: 'classic',
       lightMode: resolveLightMode(state),
       touchFeedback: state.touchFeedback === true,
+      highContrast: state.highContrast === true,
       led: { ...led },
     };
     const meta = document.querySelector('meta[name="theme-color"]');
@@ -236,6 +242,10 @@
       '<div class="settings-row settings-row-touch-feedback">' +
       '  <div class="settings-row-copy"><span class="settings-row-label">Touch ripples</span><span class="settings-row-hint">Expanding rings + haptic feedback</span></div>' +
       '  <label class="settings-toggle"><input type="checkbox" id="settingTouchFeedback" /><span class="settings-toggle-track"></span></label>' +
+      '</div>' +
+      '<div class="settings-row settings-row-high-contrast">' +
+      '  <div class="settings-row-copy"><span class="settings-row-label">High contrast</span><span class="settings-row-hint">Stronger text and control edges (WCAG)</span></div>' +
+      '  <label class="settings-toggle"><input type="checkbox" id="settingHighContrast" /><span class="settings-toggle-track"></span></label>' +
       '</div>';
     body.appendChild(app);
 
@@ -271,6 +281,14 @@
       touchFeedback.checked = state.touchFeedback === true;
       touchFeedback.addEventListener('change', () => {
         state.touchFeedback = touchFeedback.checked;
+        save(state); apply(state);
+      });
+    }
+    const highContrast = document.getElementById('settingHighContrast');
+    if (highContrast) {
+      highContrast.checked = state.highContrast === true;
+      highContrast.addEventListener('change', () => {
+        state.highContrast = highContrast.checked;
         save(state); apply(state);
       });
     }
