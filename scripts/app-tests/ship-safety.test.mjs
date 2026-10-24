@@ -37,6 +37,10 @@ test('synth-only handpan entry points do not load the removed sample bank', () =
   const app = fs.readFileSync(path.join(APP_ROOT, 'pionier-app.js'), 'utf8');
   const core = fs.readFileSync(path.join(APP_ROOT, 'pionier-core.js'), 'utf8');
 
+  assert.equal(fs.existsSync(path.join(APP_ROOT, 'js/sample-bank.js')), false, 'legacy sample-bank loader must not ship');
+  assert.equal(fs.existsSync(path.join(APP_ROOT, 'js/sample-metadata.js')), false, 'legacy sample metadata must not ship');
+  assert.equal(fs.existsSync(path.join(APP_ROOT, 'sounds/notes')), false, 'handpan note recordings must not ship');
+
   for (const [label, source] of [['index.html', index], ['pionier-app.js', app], ['pionier-core.js', core]]) {
     assert.doesNotMatch(source, /sample-bank|SampleBank|SAMPLE_MANIFEST_PATH|sounds\/notes/i, `${label} must stay synthesis-only`);
   }

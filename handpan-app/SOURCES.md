@@ -1,30 +1,28 @@
 # Pionier — sources & licensing
 
-## Owner recordings (Bedroom Sessions)
+## Instrument audio
 
-Eight tracks mirrored from portfolio `js/music-data.js`, streamed from Internet Archive:
+All instrument voices, including the handpan-style voice, are synthesized at runtime by the app's JavaScript/Web Audio code. No handpan samples, third-party sample packs, or sample manifests are shipped.
 
-- Item: https://archive.org/details/bedroom-sessions-03.10.2026-22.29
-- Prefer VBR MP3 derivatives; WAV fallback in the player
-- CORS: `Access-Control-Allow-Origin: *`; Range requests supported
-- Rights: owner-recorded by Ivar Karm for this project
+## Bedroom Sessions
 
-## Note samples
+The soundscapes player streams the owner's Bedroom Sessions recordings from Internet Archive:
 
-- E Amara (and other scales when present) under `sounds/notes/` — owner recordings or licensed assets only
-- Manifest: `sounds/notes/manifest.json`
-- Playback prefers WebM/Opus → M4A/AAC → WAV
+- Collection/item page: https://archive.org/details/bedroom-sessions-03.10.2026-22.29
+- The player may request audio derivatives from the external host.
+- These are the only recorded audio assets intended for the product.
+- Playback availability depends on Internet Archive and network access; the app must fail softly when unavailable.
 
-## Generated / removed
+## Removed / prohibited
 
-- **No** third-party sample packs ship without an entry here
-- **No** generated ambient beds (rain/storm/forest/wind/water) — removed by product decision
-- **No** user-upload paths
+- No lessons or uploads.
+- No downloaded third-party sounds without a separately reviewed source and explicit licensing evidence.
+- No generated ambient-bed recordings. Synthesized instrument audio is generated in-browser, not shipped as audio files.
 
-## Fonts
+## Fonts and non-audio resources
 
-- Inter via Google Fonts (display swap)
+- Inter is loaded via Google Fonts (display swap).
 
 ## Policy
 
-Record source, creator, license, commercial-use permission, and attribution for every external sound before shipping it.
+Re-audit this file before adding any recorded audio. Record its source, creator, rights basis, commercial-use permission, redistribution permission, and attribution requirements; do not infer license terms from availability on a hosting site.

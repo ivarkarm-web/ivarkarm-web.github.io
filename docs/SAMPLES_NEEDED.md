@@ -1,6 +1,8 @@
-# Pionier — samples needed
+# Pionier — historical sample planning notes (obsolete)
 
-Last updated: 2026-10-18.
+> **Superseded by the synth-only product decision (2026-10-24).** No samples are needed or permitted in the shipped instrument. The only recordings in the product are the owner's Bedroom Sessions tracks streamed in the soundscapes player. Do not follow the sample-gathering instructions below; they are retained only as historical project notes.
+
+Last updated: 2026-10-18 — historical, no longer an active task.
 
 ## Rules
 
