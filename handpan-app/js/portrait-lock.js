@@ -44,22 +44,11 @@
   document.head.appendChild(l);
 })();
 
-/* Android: force scrollable scale / instrument pickers + ensure overlay v24 */
+/* Android Chrome: dedicated scrollport CSS for scale / instrument pickers */
 (function loadAndroidPickerScroll() {
-  if (!document.querySelector('link[href*="android-picker-scroll.css"]')) {
-    var l = document.createElement('link');
-    l.rel = 'stylesheet';
-    l.href = './android-picker-scroll.css?v=1';
-    document.head.appendChild(l);
-  }
-  // Upgrade overlay-controller to the Android-scroll build if still on v23.
-  var scripts = document.querySelectorAll('script[src*="overlay-controller.js"]');
-  scripts.forEach(function (s) {
-    var src = s.getAttribute('src') || '';
-    if (src.indexOf('v=24') !== -1) return;
-    var next = document.createElement('script');
-    next.src = './js/overlay-controller.js?v=24';
-    next.async = false;
-    s.parentNode.insertBefore(next, s.nextSibling);
-  });
+  if (document.querySelector('link[href*="android-picker-scroll.css"]')) return;
+  var l = document.createElement('link');
+  l.rel = 'stylesheet';
+  l.href = './android-picker-scroll.css?v=1';
+  document.head.appendChild(l);
 })();
