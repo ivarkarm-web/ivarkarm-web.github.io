@@ -121,7 +121,7 @@ async function boot() {
   }
 
   try {
-    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=12', BASE).href));
+    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=13', BASE).href));
     window.HANDPAN_SCALES = HANDPAN_SCALES;
   } catch (e) {
     console.warn('[boot] handpan scales', e);
