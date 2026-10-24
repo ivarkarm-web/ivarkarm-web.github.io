@@ -11,7 +11,7 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.
  */
-const CACHE_VERSION = 'pionier-v152';
+const CACHE_VERSION = 'pionier-v153';
 
 const SHELL = [
   './',
@@ -20,7 +20,7 @@ const SHELL = [
   './icon.svg',
   './atelier.css?v=10',
   './favorites.css?v=2',
-  './focus-visible.css?v=1',
+  './focus-visible.css?v=2',
   './fx-editor.css?v=5',
   './handpan-themes.css?v=2',
   './js/ambient-fx.js?v=12',
@@ -40,7 +40,7 @@ const SHELL = [
   './js/looper.js?v=230',
   './js/note-plus.js?v=3',
   './js/note-sample-bank.js',
-  './js/overlay-controller.js?v=24',
+  './js/overlay-controller.js?v=23',
   './js/pad-layout.js?v=2',
   './js/pionier-surface.js?v=146',
   './js/portrait-lock.js?v=2',
@@ -66,8 +66,7 @@ const SHELL = [
   './portrait-lock.css?v=1',
   './registerSW.js',
   './registerSW.js?v=2',
-  './scale-menu.css?v=20',
-  './android-picker-scroll.css?v=1',
+  './scale-menu.css?v=19',
   './selectors-clean.css?v=6',
   './settings-panel.css?v=19',
   './shell-chrome.css?v=1',
@@ -114,8 +113,7 @@ function isDocumentRequest(req, url) {
 }
 
 function isVersionedAsset(url) {
-  if (url.search.includes('v=')) return true;
-  return false;
+  return url.search.includes('v=');
 }
 
 self.addEventListener('fetch', (event) => {
