@@ -1,0 +1,118 @@
+/**
+ * High-contrast mode — opt-in via Settings → High contrast.
+ * Boosts text/control edge contrast on the dark glass UI so WCAG 2 AA
+ * color-contrast can pass without abandoning the artistic dark theme.
+ * Applied when html/body have class `high-contrast`.
+ */
+
+html.high-contrast,
+html.high-contrast body {
+  --hc-fg: #f5f0e6;
+  --hc-fg-muted: #d8d0c0;
+  --hc-bg: #0a0a0c;
+  --hc-surface: #141418;
+  --hc-border: rgba(245, 240, 230, 0.42);
+  --hc-gold: #f0c85a;
+  --hc-focus: #ffe08a;
+}
+
+/* Primary chrome text */
+html.high-contrast .instrument-name,
+html.high-contrast .scale-name,
+html.high-contrast .step-value,
+html.high-contrast .control-label,
+html.high-contrast .mobile-controls-label,
+html.high-contrast .settings-row-label,
+html.high-contrast .settings-sheet-title,
+html.high-contrast .settings-dd-value,
+html.high-contrast .settings-dd-item,
+html.high-contrast .knob-label,
+html.high-contrast .knob-val,
+html.high-contrast .soundscape-title,
+html.high-contrast .soundscape-note,
+html.high-contrast .soundscape-status,
+html.high-contrast .welcome-headline,
+html.high-contrast .welcome-deck,
+html.high-contrast .welcome-brand,
+html.high-contrast .app-status,
+html.high-contrast #appStatusMessage {
+  color: var(--hc-fg) !important;
+}
+
+html.high-contrast .settings-section-label,
+html.high-contrast .settings-dd-label,
+html.high-contrast .settings-row-hint,
+html.high-contrast .welcome-kicker,
+html.high-contrast .welcome-foot,
+html.high-contrast .welcome-edition {
+  color: var(--hc-fg-muted) !important;
+}
+
+/* Buttons / controls — stronger borders and fills */
+html.high-contrast .icon-btn,
+html.high-contrast .step,
+html.high-contrast .looper-btn,
+html.high-contrast .looper-clear-btn,
+html.high-contrast .randomize-setup-btn,
+html.high-contrast .soundscapes-open-btn,
+html.high-contrast .settings-open-btn,
+html.high-contrast .fx-panel-open,
+html.high-contrast #fxPanelOpen,
+html.high-contrast .settings-dd-toggle,
+html.high-contrast .settings-sheet-close,
+html.high-contrast .soundscape-play,
+html.high-contrast .soundscape-transport-btn,
+html.high-contrast .scale-dropdown-toggle {
+  border-color: var(--hc-border) !important;
+  color: var(--hc-fg) !important;
+  background-color: var(--hc-surface) !important;
+}
+
+html.high-contrast .instrument-name,
+html.high-contrast .scale-name,
+html.high-contrast .step-value {
+  border-color: var(--hc-border) !important;
+  background-color: var(--hc-surface) !important;
+}
+
+/* Gold accents stay readable */
+html.high-contrast .looper-btn.is-recording,
+html.high-contrast .looper-btn.looper-record.is-active,
+html.high-contrast .settings-dd-item.is-active {
+  color: var(--hc-gold) !important;
+  border-color: var(--hc-gold) !important;
+}
+
+/* Focus rings stronger in HC */
+html.high-contrast :focus-visible {
+  outline: 3px solid var(--hc-focus) !important;
+  outline-offset: 3px !important;
+}
+
+/* Surfaces */
+html.high-contrast .settings-sheet,
+html.high-contrast .settings-dd-menu,
+html.high-contrast .fx-panel,
+html.high-contrast .fx-editor,
+html.high-contrast .soundscapes-panel,
+html.high-contrast .mobile-control-drawer {
+  background: var(--hc-bg) !important;
+  border-color: var(--hc-border) !important;
+  color: var(--hc-fg) !important;
+}
+
+/* Light theme + high contrast */
+html.theme-light.high-contrast {
+  --hc-fg: #12110f;
+  --hc-fg-muted: #3a3834;
+  --hc-bg: #f7f4ee;
+  --hc-surface: #ffffff;
+  --hc-border: rgba(30, 28, 24, 0.55);
+  --hc-gold: #8a6a12;
+  --hc-focus: #6b4e0e;
+}
+
+html.theme-light.high-contrast body {
+  background: var(--hc-bg) !important;
+  color: var(--hc-fg) !important;
+}
