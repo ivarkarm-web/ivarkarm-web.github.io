@@ -1,15 +1,122 @@
-/* Phase 3 — visible focus for primary chrome (keyboard users) */
+/* Visible focus rings for keyboard / assistive users (WCAG 2.4.7).
+ * Gold outline matches Pionier chrome; offset keeps it clear on dark UI.
+ * Phase 3 base + expanded coverage for A11y ≥ 8.0.
+ */
+
+:root {
+  --pionier-focus-ring: 2px solid var(--gold, #e8c56a);
+  --pionier-focus-offset: 3px;
+}
+
+/* Shared utility for any control that needs an explicit ring */
+.pionier-focus-ring:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— Welcome / status —— */
 #enterPionier:focus-visible,
-.looper-btn:focus-visible,
-.looper-clear-btn:focus-visible,
-.randomize-setup-btn:focus-visible,
+#appStatusRetry:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— Top bar / instrument nav —— */
+.icon-btn:focus-visible,
+.instrument-name:focus-visible,
+#instrumentDropdownToggle:focus-visible,
 .soundscapes-open-btn:focus-visible,
+.randomize-setup-btn:focus-visible,
+.settings-open-btn:focus-visible,
+.fx-panel-open:focus-visible,
+#fxPanelOpen:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— Scale / base note / note-count steppers —— */
+.step:focus-visible,
 .scale-dropdown-toggle:focus-visible,
 .scale-name:focus-visible,
+.step-value:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— Looper —— */
+.looper-btn:focus-visible,
+.looper-clear-btn:focus-visible,
+.looper-layer-btn:focus-visible,
+.looper-layers button:focus-visible,
+#looperBtn:focus-visible,
+#looperClearBtn:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— Mobile drawer —— */
+.mobile-controls-toggle:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— Soundscapes panel —— */
 .soundscape-play:focus-visible,
 .soundscape-transport-btn:focus-visible,
 .soundscape-queue-item:focus-visible,
-.soundscapes-return-btn:focus-visible {
-  outline: 2px solid var(--gold, #e8c56a);
-  outline-offset: 3px;
+.soundscapes-return-btn:focus-visible,
+.soundscape-tab:focus-visible,
+#soundscapeSeek:focus-visible,
+#soundscapeVolume:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— FX panel + editor —— */
+.fx-panel .icon-btn:focus-visible,
+.fx-settings-shortcut:focus-visible,
+.fx-editor-bypass:focus-visible,
+.fx-editor-reset:focus-visible,
+#fxPanelClose:focus-visible,
+#fxEditorClose:focus-visible,
+#fxEditorBypass:focus-visible,
+#fxEditorReset:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— Settings sheet —— */
+.settings-sheet-close:focus-visible,
+.settings-dd-toggle:focus-visible,
+.settings-dd-item:focus-visible,
+.settings-toggle input:focus-visible,
+.settings-row input[type="range"]:focus-visible,
+#settingsSheetClose:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— Menus / listboxes (scale, instrument, ambient) —— */
+[role="menu"] button:focus-visible,
+[role="listbox"] [role="option"]:focus-visible,
+[role="menuitem"]:focus-visible,
+.scale-menu button:focus-visible,
+.instrument-menu button:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: 2px;
+}
+
+/* —— Shell chrome (offline pill / update toast) —— */
+#pionierUpdateToast button:focus-visible,
+.pionier-update-toast button:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* Prefer :focus-visible only — no permanent rings on mouse/touch */
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+[tabindex]:focus:not(:focus-visible) {
+  outline: none;
 }
