@@ -29,7 +29,7 @@ test('phase4: critical offline shell assets are referenced by the app', async ({
 test('phase4: Bedroom Sessions shows a clear status when archive.org audio fails', async ({ page }) => {
   const failedWavRequests = [];
   await page.route('https://archive.org/**', (route) => {
-    if (/\\.wav(?:$|\\?)/i.test(route.request().url())) failedWavRequests.push(route.request().url());
+    if (route.request().url().toLowerCase().includes('.wav')) failedWavRequests.push(route.request().url());
     return route.abort();
   });
   await page.goto('/handpan-app/', { waitUntil: 'domcontentloaded' });
