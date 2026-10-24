@@ -164,46 +164,34 @@ test('multitouch on one pad does not damp the note until the last pointer releas
   expect(result.off).toBe(1);
 });
 
-test('handpan uses owner samples and refuses synthetic replacement when recordings are unavailable', async ({ page }) => {
+test('handpan always uses its synthesized voice and has no sample-bank runtime', async ({ page }) => {
   const result = await page.evaluate(async () => {
-    const instrument = window.PionierCore?.activeInstrument?.();
-    const { HANDPAN_SCALES } = await import('/handpan-app/js/instruments/handpan.js');
-    const recordedIndex = HANDPAN_SCALES.findIndex((scale) => scale.id === 'e-amara-recorded');
-    if (instrument?.id === 'handpan' && recordedIndex >= 0) {
-      window.PionierCore.handpan.setScaleIndex(recordedIndex);
-      window.PionierCore.refreshPitch();
-    }
-    if (!instrument?.sampleBank) return { setup: false };
-    await instrument.sampleBank.load();
-    const firstZone = instrument.getZones?.()?.[0];
+    const core = window.PionierCore;
+    const instrument = core?.activeInstrument?.();
+    if (!instrument || instrument.id !== 'handpan') return { ready: false };
+    core.ensureAudio?.();
+    const zone = instrument.getZones?.()?.[0];
     instrument.noteOn({ velocity: 0.8, pointerId: 9281 }, {
-      index: firstZone?.index ?? 0, radial: 0.35, angleRad: 0, nx: 0.5, ny: 0.5
+      index: zone?.index ?? 0, radial: 0.35, angleRad: 0, nx: 0.5, ny: 0.5
     });
     const voice = instrument.activeVoices.values().next().value;
     const result = {
-      setup: true,
-      sampleCount: instrument.sampleBank.byMidi.size,
-      sampleReady: instrument.sampleBank.ready,
+      ready: !!instrument.ready,
+      engineKind: instrument.engineKind,
+      hasSampleBank: Object.prototype.hasOwnProperty.call(instrument, 'sampleBank'),
       voiceKind: voice?.kind,
       voiceCount: instrument.activeVoices.size,
-      status: instrument.sampleBank.manifest?.status || null
+      hasSynthHandle: !!voice?.handle
     };
     instrument.dampAll();
     return result;
   });
-  expect(result.setup).toBe(true);
-  if (result.sampleCount > 0) {
-    // Owner-prototype bank is loaded.
-    expect(result.sampleReady).toBe(true);
-    expect(result.sampleCount).toBeGreaterThanOrEqual(9);
-    expect(['sample', 'synth']).toContain(result.voiceKind);
-  } else {
-    // Empty bank: recorded E Amara intentionally stays silent rather than
-    // substituting a synthetic timbre that would misrepresent the owner sample.
-    expect(result.sampleReady).toBe(false);
-    expect(result.voiceCount).toBe(0);
-    expect(result.voiceKind).toBeUndefined();
-  }
+  expect(result.ready).toBe(true);
+  expect(result.engineKind).toBe('synth');
+  expect(result.hasSampleBank).toBe(false);
+  expect(result.voiceCount).toBeGreaterThan(0);
+  expect(result.hasSynthHandle).toBe(true);
+  expect(result.voiceKind).toBe('lib');
 });
 
 test('stale saved instrument selection safely falls back to Handpan', async ({ page }) => {
