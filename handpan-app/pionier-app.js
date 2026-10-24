@@ -122,37 +122,66 @@ async function boot() {
 
   try {
     ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=11', BASE).href));
+    window.HANDPAN_SCALES = HANDPAN_SCALES;
   } catch (e) {
-    console.warn('[boot] scales', e);
+    console.warn('[boot] handpan scales', e);
   }
 
   try {
-    await import(new URL('./js/scale-selector.js?v=12', BASE).href);
-  } catch (e) {
-    console.warn('[boot] scale-selector', e);
+    const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=14', BASE).href);
+    mountScaleSelector({
+      getHandpan: () => window.PionierCore?.handpan || null,
+      onScaleChange: () => {
+        try {
+          window.PionierCore?.refreshPitch?.();
+          window.PionierCore?.draw?.();
+        } catch (_) {}
+      },
+    });
+  } catch (err) {
+    console.warn('[scale-selector] mount failed', err);
   }
 
-  // Randomize + other UI hooks that depend on core being ready.
-  try {
-    const randomizeBtn = document.getElementById('randomizeSetup');
-    randomizeBtn?.addEventListener('click', async () => {
-      try {
-        const result = await window.PionierCore?.randomizeSetup?.();
+  document.getElementById('randomizeSetup')?.addEventListener('click', async () => {
+    const dice = document.getElementById('randomizeSetup');
+    if (dice?.dataset.rolling === '1') return;
+    if (dice) { dice.dataset.rolling = '1'; dice.classList.add('is-rolling'); }
+    try {
+      unlockAudioFromGesture();
+      const core = window.PionierCore;
+      if (typeof core?.randomizeSetup === 'function') {
+        const result = await core.randomizeSetup();
         if (result && result.instrumentCount === 0) {
           console.warn('[randomize] no instruments in registry');
         }
-      } catch (err) {
-        console.warn('[randomize]', err);
+      } else {
+        const steps = 1 + Math.floor(Math.random() * 6);
+        for (let i = 0; i < steps; i++) document.getElementById('voiceNext')?.click();
+        const scales = window.HANDPAN_SCALES || [];
+        const handpan = core?.handpan;
+        if (handpan && scales.length > 1) {
+          const next = Math.floor(Math.random() * scales.length);
+          if (typeof core.setScaleIndex === 'function') core.setScaleIndex(next);
+          else { handpan.setScaleIndex(next); core?.refreshPitch?.(); }
+          const label = document.getElementById('scaleLabel');
+          const scale = scales[next];
+          if (label && scale) label.textContent = (scale.short || scale.label || 'Scale') + ' \u25be';
+          core?.draw?.();
+        }
       }
-    });
-  } catch (_) {}
+    } catch (err) { console.warn('[randomize] setup selection failed', err); }
+    finally {
+      if (dice) { delete dice.dataset.rolling; dice.classList.remove('is-rolling'); }
+    }
+  });
 
-  document.addEventListener('pointerdown', unlockAudioFromGesture, { once: true, capture: true });
-  document.addEventListener('touchstart', unlockAudioFromGesture, { once: true, capture: true });
-
-  setBootStatus('ready');
   scheduleDeferredFeatures();
+  setBootStatus('ready');
   return true;
 }
 
-boot();
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { boot().catch(console.error); });
+} else {
+  boot().catch(console.error);
+}
