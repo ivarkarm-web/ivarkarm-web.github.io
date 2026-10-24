@@ -87,7 +87,7 @@ async function loadNotePlus() {
 
 async function loadSoundscapes() {
   try {
-    await import(new URL('./js/soundscapes.js?v=11', BASE).href);
+    await import(new URL('./js/soundscapes.js?v=12', BASE).href);
   } catch (e) {
     console.warn('[boot] soundscapes', e);
   }
