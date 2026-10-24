@@ -24,3 +24,22 @@ test('phase4: critical offline shell assets are referenced by the app', async ({
   expect(health).toBeTruthy();
   expect(health.audioAvailable).toBe(true);
 });
+
+
+test('phase4: Bedroom Sessions shows a clear status when archive.org audio fails', async ({ page }) => {
+  await page.route('https://archive.org/**', (route) => route.abort());
+  await page.goto('/handpan-app/', { waitUntil: 'domcontentloaded' });
+  const enter = page.locator('#enterPionier');
+  if (await enter.isVisible().catch(() => false)) await enter.click();
+  await expect.poll(() => page.evaluate(() => !!window.PionierCore)).toBe(true);
+
+  await page.locator('#openSoundscapes').click();
+  await expect(page.locator('#soundscapesPanel')).toBeVisible();
+  const firstTrack = page.locator('#soundscapeQueue [data-track-index="0"]');
+  await expect(firstTrack).toBeVisible();
+  await firstTrack.click();
+  await expect(page.locator('#soundscapeStatus')).toContainText(
+    /Could not load track|Needs network/,
+    { timeout: 10000 }
+  );
+});
