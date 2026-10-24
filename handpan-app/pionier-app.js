@@ -41,7 +41,7 @@ let deferredStarted = false;
 
 async function loadLooper() {
   try {
-    const { mountLooper } = await import(new URL('./js/looper.js?v=228', BASE).href);
+    const { mountLooper } = await import(new URL('./js/looper.js?v=229', BASE).href);
     if (typeof mountLooper === 'function') mountLooper();
   } catch (e) {
     console.warn('[boot] looper', e);
