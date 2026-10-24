@@ -580,6 +580,32 @@ function changeNoteCount(delta) {
   return true;
 }
 
+function wire(id, handler) {
+  const element = document.getElementById(id);
+  if (!element || element.dataset.coreActionWired === '1') return;
+  element.dataset.coreActionWired = '1';
+  element.addEventListener('click', handler);
+}
+
+wire('scalePrev', () => {
+  handpan.setScaleIndex(handpan.scaleIndex - 1);
+  refreshPitch();
+});
+wire('scaleNext', () => {
+  handpan.setScaleIndex(handpan.scaleIndex + 1);
+  refreshPitch();
+});
+wire('rootPrev', () => {
+  handpan.setRootIndex(handpan.rootIndex - 1);
+  refreshPitch();
+});
+wire('rootNext', () => {
+  handpan.setRootIndex(handpan.rootIndex + 1);
+  refreshPitch();
+});
+wire('noteCountPrev', () => changeNoteCount(-1));
+wire('noteCountNext', () => changeNoteCount(1));
+
 window.addEventListener('blur', () => {
   for (const k of [...app.keysHeld]) {
     const pad = KEY_TO_PAD[k];
