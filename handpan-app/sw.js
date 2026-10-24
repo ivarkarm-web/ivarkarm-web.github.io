@@ -11,7 +11,7 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.
  */
-const CACHE_VERSION = 'pionier-v145';
+const CACHE_VERSION = 'pionier-v146';
 
 const SHELL = [
   './',
@@ -37,7 +37,7 @@ const SHELL = [
   './js/instruments/handpan.js?v=11',
   './js/layout-boot.js?v=69',
   './js/loop-core.js',
-  './js/looper.js?v=224',
+  './js/looper.js?v=225',
   './js/note-plus.js?v=3',
   './js/note-sample-bank.js',
   './js/overlay-controller.js?v=23',
@@ -55,10 +55,10 @@ const SHELL = [
   './menu-light-fix.css?v=2',
   './og-pionier-synth.svg',
   './phase1-note-count-guard.js?v=4',
-  './pionier-app.js?v=243',
+  './pionier-app.js?v=244',
   './pionier-control-layout.css?v=23',
   './pionier-control-layout.js?v=20',
-  './pionier-core.js?v=78',
+  './pionier-core.js?v=79',
   './pionier.css?v=166',
   './portrait-lock.css?v=1',
   './registerSW.js',
