@@ -197,7 +197,7 @@ test('handpan always uses its synthesized voice and has no sample-bank runtime',
       hasSampleBank: Object.prototype.hasOwnProperty.call(instrument, 'sampleBank'),
       voiceKind: voice?.kind,
       voiceCount: instrument.activeVoices.size,
-      hasSynthHandle: !!voice?.handle
+      hasSynthHandle: !!voice?.oscs?.length && !!voice?.out?.gain
     };
     instrument.dampAll();
     return result;
@@ -207,7 +207,7 @@ test('handpan always uses its synthesized voice and has no sample-bank runtime',
   expect(result.hasSampleBank).toBe(false);
   expect(result.voiceCount).toBeGreaterThan(0);
   expect(result.hasSynthHandle).toBe(true);
-  expect(result.voiceKind).toBe('lib');
+  expect(result.voiceKind).toBe('synth');
 });
 
 test('stale saved instrument selection safely falls back to Handpan', async ({ page }) => {
