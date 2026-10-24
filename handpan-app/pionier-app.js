@@ -113,7 +113,7 @@ function scheduleDeferredFeatures() {
 async function boot() {
   setBootStatus('loading', 'Starting Pionier…');
   try {
-    await import(new URL('./pionier-core.js?v=78', BASE).href);
+    await import(new URL('./pionier-core.js?v=79', BASE).href);
   } catch (e) {
     console.error('[boot] core', e);
     setBootStatus('failed', 'Core failed to load. Check your connection and retry.', true);
@@ -121,7 +121,7 @@ async function boot() {
   }
 
   try {
-    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=11', BASE).href));
+    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=12', BASE).href));
     window.HANDPAN_SCALES = HANDPAN_SCALES;
   } catch (e) {
     console.warn('[boot] handpan scales', e);
