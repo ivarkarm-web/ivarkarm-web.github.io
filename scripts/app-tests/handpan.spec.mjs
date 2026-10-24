@@ -557,16 +557,40 @@ test('Loop Studio exports a valid WAV mix after a track exists', async ({ page }
 });
 
 
-test('Loop Studio records and overdubs a second independent track', async ({ page }) => {
+test('Loop Studio records audible synthesized notes and overdubs a second layer', async ({ page }) => {
   await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
   const record = page.locator('#looperBtn');
+  const strike = async () => page.evaluate(() => {
+    const core = window.PionierCore;
+    const instrument = core?.activeInstrument?.();
+    const zone = core?.surface?.fields?.[0];
+    if (!instrument || !zone) throw new Error('Instrument surface is not ready');
+    instrument.noteOn({ velocity: 0.9, pressure: 0.85, force: 0.85 }, zone);
+    setTimeout(() => instrument.noteOff(zone.index ?? zone.i ?? 0), 100);
+  });
   await record.click();
-  await page.waitForTimeout(320);
+  await page.waitForTimeout(140);
+  await strike();
+  await page.waitForTimeout(360);
   await record.click();
   await expect.poll(() => page.evaluate(() => window.PionierLooper.getState().layerCount)).toBe(1);
 
+  const first = await page.evaluate(() => {
+    const buffer = window.PionierLooper.layers[0].buffer;
+    let peak = 0;
+    for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
+      const data = buffer.getChannelData(ch);
+      for (let i = 0; i < data.length; i++) peak = Math.max(peak, Math.abs(data[i]));
+    }
+    return { duration: buffer.duration, peak };
+  });
+  expect(first.duration).toBeGreaterThan(0.1);
+  expect(first.peak).toBeGreaterThan(0.001);
+
   await record.click();
-  await page.waitForTimeout(320);
+  await page.waitForTimeout(140);
+  await strike();
+  await page.waitForTimeout(360);
   await record.click();
   await expect.poll(() => page.evaluate(() => window.PionierLooper.getState().layerCount)).toBe(2);
   const durations = await page.evaluate(() => window.PionierLooper.layers.map(layer => layer.buffer.duration));
