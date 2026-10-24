@@ -78,3 +78,19 @@ Audio unlock on Enter (`pionier:user-enter` + silent buffer + resume).
 - SW update toast (`#pionierUpdateToast`) with Reload — does not force `SKIP_WAITING` mid-session when a controller already exists.
 - Styles: `shell-chrome.css`; `registerSW.js?v=2`.
 - Playwright `phase7-chrome.spec.mjs`.
+
+## Phase 8 focus expansion (2026-10-24)
+
+- Expanded `focus-visible.css` beyond Phase 3 primary chrome to cover:
+  - Top bar icon buttons, instrument name, settings / FX openers
+  - All steppers (scale, root, note count)
+  - Looper layer controls
+  - Mobile controls toggle
+  - Soundscapes tabs, seek, volume
+  - FX panel / editor controls
+  - Settings sheet toggles, dropdowns, ranges
+  - Menu / listbox options (scale, instrument, ambient)
+  - Update toast actions
+- Suppress plain `:focus` outlines so mouse/touch users are not polluted; keyboard keeps gold rings.
+- `focus-visible.css` stamped `?v=2`; `APP_VERSION` → 153 → `pionier-v153`.
+- Expected score impact: A11y → 8.0+, Overall → ~7.8 (before color-contrast re-enable).
