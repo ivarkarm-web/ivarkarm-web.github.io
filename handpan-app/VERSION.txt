@@ -1,4 +1,4 @@
 pionier-v148
 2026-10-24
-looper v227 with WAV export; looper CSS v223; control layout CSS v24; app shell v244
+shell: 62 entries (synced from index.html + pionier-app.js); looper v227 with WAV export
 run: npm run sync:handpan after changing ?v= stamps or APP_VERSION
