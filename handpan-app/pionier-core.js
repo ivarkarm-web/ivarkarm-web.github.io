@@ -432,8 +432,6 @@ function setFxTone(key, value) {
 
 function wireKnobs() {
   if (!app.fxChain) return;
-  if (app._knobsWired) { paintAllKnobs(); return; }
-  app._knobsWired = true;
   paintAllKnobs();
   for (const item of FX_KNOB_MAP) {
     const el = document.getElementById(item.knobId);
