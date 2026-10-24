@@ -1,4 +1,4 @@
-pionier-v154
+pionier-v155
 2026-10-24
-shell: synced from current index.html and module imports
+shell: 63 entries; control layout CSS v24
 run: npm run sync:handpan after changing ?v= stamps or APP_VERSION
