@@ -159,6 +159,7 @@ if (page && audio) {
     syncMeta();
     setStatus('Loading…');
     audio.pause();
+    delete audio.dataset.triedWav;
     audio.src = track.mp3 || track.audioUrl;
     audio.preload = 'metadata';
     audio.load();
