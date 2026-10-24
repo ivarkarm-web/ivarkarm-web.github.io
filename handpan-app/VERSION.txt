@@ -1,4 +1,4 @@
-pionier-v156
+pionier-v158
 2026-10-24
-shell: synced; looper.js v226; app entry v248; control layout CSS v24
+handpan synth v14; core v82; scale selector v17; looper v226; app shell v250
 run: npm run sync:handpan after changing ?v= stamps or APP_VERSION
