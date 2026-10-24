@@ -128,7 +128,7 @@ async function boot() {
   }
 
   try {
-    const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=15', BASE).href);
+    const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=16', BASE).href);
     mountScaleSelector({
       getHandpan: () => window.PionierCore?.handpan || null,
       onScaleChange: () => {
