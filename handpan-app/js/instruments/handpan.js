@@ -274,7 +274,7 @@ export class HandpanInstrument extends Instrument {
     }
     output.connect(this.bus);
     const voice = {
-      idx, oscs, out: output, expressGain: expression, expressFilter: filter,
+      idx, kind: 'synth', oscs, out: output, expressGain: expression, expressFilter: filter,
       released: false, baseFreq: note.freq,
       stop: (time = ctx.currentTime, release = 0.12) => {
         if (voice.released) return;
