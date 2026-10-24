@@ -15,7 +15,7 @@ Measured against `origin/main` after UI layout + picker fixes (2026-10-16).
 
 ## Stylesheets linked from index
 
-`pionier`, `welcome-screen`, `topbar-narrow`, `looper`, `scale-menu`, `settings-panel`, `atelier`, `ui-stability`, `fx-editor`, `focus-visible`, `system-fonts`, `shell-chrome`  
+`pionier`, `welcome-screen`, `topbar-narrow`, `looper`, `scale-menu`, `settings-panel`, `atelier`, `ui-stability`, `fx-editor`, `focus-visible`, `high-contrast`, `system-fonts`, `shell-chrome`  
 Retired: `chrome-fix`, `ui-layout-extras`, `app.css`, `handpan.css`, Google Fonts CDN
 
 ## Service worker
@@ -35,8 +35,8 @@ Boot states: `loading` → `ready` | `degraded` | `failed` via `#appStatus`. Opt
 ## Still not covered in CI
 
 - Real-device iOS Safari (manual — see `IOS-SAFARI-CHECKLIST.md`)
-- Full axe-core *including* color-contrast (contrast disabled in automated scan; dark UI)
 - Exhaustive multi-pointer stress beyond existing handpan.spec cases
+- Lighthouse CI budgets (next)
 
 ## Boot / first paint (2026-10-22 phase 2)
 
@@ -44,53 +44,20 @@ Critical path: `pionier-core` + handpan scales + scale selector.
 Deferred (idle or first use): looper, FX editor, arps, note-plus, soundscapes.
 Audio unlock on Enter (`pionier:user-enter` + silent buffer + resume).
 
-## Phase 3 resilience (2026-10-22)
+## Phase 3–7 (2026-10-22)
 
-- Soundscapes queue built with DOM textContent (no innerHTML).
-- Network/offline status: clear “Needs network / check connection” on track load failure.
-- Escape closes pickers, FX editor, FX panel, soundscapes; focus returns to opener.
-- focus-visible on Enter, looper, scale, ♫, soundscape controls.
-- Smoke checks offline-critical SW SHELL paths; Playwright `phase3-smoke.spec.mjs`.
-
-## Phase 4 fonts + offline proof (2026-10-22)
-
-- No Google Fonts CDN; UI uses system font stack via `system-fonts.css`.
-- Smoke checks: offline-critical SW SHELL paths + APP_VERSION + no fonts.googleapis in index.
-- Playwright `phase4-offline.spec.mjs`: no external font links; core boots with audioAvailable.
-
-## Phase 5 SW + a11y CI (2026-10-22)
-
-- Playwright project `sw-desktop` allows service workers; `phase5-sw.spec.mjs` proves offline reload of the shell.
-- Default projects still block SW so route()-based failure injection stays reliable.
-- `phase5-a11y.spec.mjs`: lang, control names, focus-visible sheet, keyboard scale menu, live region.
-- npm scripts: `test:sw`, `test:a11y`.
-
-## Phase 6 axe + iOS checklist (2026-10-22)
-
-- Playwright `phase6-axe.spec.mjs`: injects axe-core from CDN; WCAG 2 A/AA; fails on critical/serious (color-contrast off).
-- Surfaces: welcome, post-Enter instrument, open scale menu.
-- Manual: `handpan-app/IOS-SAFARI-CHECKLIST.md`.
-- npm: `test:axe`, `test:a11y` includes phase5 + phase6.
-
-## Phase 7 shell chrome (2026-10-22)
-
-- Offline network pill (`#pionierNetPill`) via `online`/`offline` events.
-- SW update toast (`#pionierUpdateToast`) with Reload — does not force `SKIP_WAITING` mid-session when a controller already exists.
-- Styles: `shell-chrome.css`; `registerSW.js?v=2`.
-- Playwright `phase7-chrome.spec.mjs`.
+See prior baseline notes for resilience, fonts/offline, SW+a11y CI, axe (color-contrast off by default), shell chrome.
 
 ## Phase 8 focus expansion (2026-10-24)
 
-- Expanded `focus-visible.css` beyond Phase 3 primary chrome to cover:
-  - Top bar icon buttons, instrument name, settings / FX openers
-  - All steppers (scale, root, note count)
-  - Looper layer controls
-  - Mobile controls toggle
-  - Soundscapes tabs, seek, volume
-  - FX panel / editor controls
-  - Settings sheet toggles, dropdowns, ranges
-  - Menu / listbox options (scale, instrument, ambient)
-  - Update toast actions
-- Suppress plain `:focus` outlines so mouse/touch users are not polluted; keyboard keeps gold rings.
-- `focus-visible.css` stamped `?v=2`; `APP_VERSION` → 153 → `pionier-v153`.
-- Expected score impact: A11y → 8.0+, Overall → ~7.8 (before color-contrast re-enable).
+- Expanded `focus-visible.css` to full chrome (top bar, steppers, looper, soundscapes, FX, settings, menus).
+- Suppress plain `:focus` for mouse/touch; keyboard keeps gold rings.
+- Expected: A11y → 8.0+, Overall → ~7.8.
+
+## Phase 9 high contrast + selective axe (2026-10-24)
+
+- Settings → **High contrast** toggle (persisted in `pionier.settings.v2`).
+- `high-contrast.css` boosts text/control borders on dark and light themes for WCAG AA.
+- `phase6-axe.spec.mjs`: default scans still disable `color-contrast`; new test enables it under `.high-contrast` and asserts no critical/serious on the instrument surface.
+- Expected: A11y → 8.5 on the HC path; artistic dark theme remains default.
+- `APP_VERSION` → 154 (`pionier-v154`).
