@@ -1,9 +1,9 @@
 /**
- * pionier-core — local vendored core + FX knob drag.
- * Loads same-origin pionier-core-impl so instrument graph and looper
- * share one audio-core module / AudioContext (fixes empty loop recordings).
+ * pionier-core — loads the last known-good core from CDN, then installs FX knob drag.
+ * Audio graph shares context with local modules via audio-core global singleton.
+ * Source: commit 832690dc (+ local setFxTone / wireKnobs patch applied after boot).
  */
-import * as Base from './pionier-core-impl.js?v=1';
+import * as Base from 'https://cdn.jsdelivr.net/gh/ivarkarm-web/ivarkarm-web.github.io@832690dc/handpan-app/pionier-core.js';
 
 const core = (Base && Base.default) ? Base.default : Base;
 window.PionierCore = core;
