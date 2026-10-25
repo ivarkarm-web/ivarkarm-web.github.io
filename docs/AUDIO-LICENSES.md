@@ -42,7 +42,6 @@ Source references (historical):
 | Engine / sound | Source / author | License | Commercial use | Notes |
 |---|---|---|---|---|
 | Handpan fallback synthesis | Original code in this repository; Ivar Karm project | No external audio asset | No third-party recording is bundled | Synthetic approximation; not equivalent to a real recorded handpan |
-| Backdrop ambient beds | Original Web Audio synthesis in `handpan-app/js/backdrop-player.js` | No external audio asset | No third-party recording is bundled | Procedural beds; generated noise loops use eased boundaries |
 
 ## Release blockers and options
 
@@ -182,12 +181,6 @@ Cut from one owner-recorded multi-handpan session by `scripts/chop/chop_handpan.
 | `handpan-app/sounds/notes/gminor/G5_v1.wav` | G5 | 79 | `ce301a3ade44d0d3d58b5f196be88534ae84eac8a4f855fb3f0e944d46258a7b` | Ivar Karm (owner recording) |
 | `handpan-app/sounds/notes/gminor/A5_v1.wav` | A5 | 81 | `da736e5fc91502c7c21aa4b0be3c0cf33d195f0458981bcbbb7d0dd5d6d427ca` | Ivar Karm (owner recording) |
 | `handpan-app/sounds/notes/gminor/D6_v1.wav` | D6 | 86 | `54f54c90f3e5a7808bef42a078ec0de0236cdc3ce3217904203fca9af3456f93` | Ivar Karm (owner recording) |
-| `handpan-app/sounds/notes/unknownscale/Bb3_v1.wav` | Bb3 | 58 | `7fd94ab5cef6d058ff034527c6ed8b6c986a5cecd2ea37e368a5f5b91e8199d5` | Ivar Karm (owner recording) |
-| `handpan-app/sounds/notes/unknownscale/C4_v1.wav` | C4 | 60 | `ac2d5f1df25414c297fea6eef7e02e3129f72baa815fd533f988a1c2da5d516d` | Ivar Karm (owner recording) |
-| `handpan-app/sounds/notes/unknownscale/Eb4_v1.wav` | Eb4 | 63 | `fb31328dbc2541abf08d91924429318bba3387fa3e4fef695757ed915e4dc738` | Ivar Karm (owner recording) |
-| `handpan-app/sounds/notes/unknownscale/F4_v1.wav` | F4 | 65 | `9d27492510230f1f4d8b32d3f740af02d063ef638341b7f4564ddc078887fc4b` | Ivar Karm (owner recording) |
-| `handpan-app/sounds/notes/unknownscale/Bb4_v1.wav` | Bb4 | 70 | `16e8fc575ebaf07e9ea1ed1a6cbac309c2e60ae8022d0c258f75f2b95e16de0c` | Ivar Karm (owner recording) |
-| `handpan-app/sounds/notes/unknownscale/C5_v1.wav` | C5 | 72 | `40675ffcdce91b362308cd55d98719ce7d76ddd4c45c99ad27a82dddf604bbd7` | Ivar Karm (owner recording) |
 | `handpan-app/sounds/notes/dkurdextended/D3_v1.wav` | D3 | 50 | `8e2d9bab5f51f594530cff1f45b0564a4e8786fd4133fac30c6a0c677b2f9c9c` | Ivar Karm (owner recording) |
 | `handpan-app/sounds/notes/dkurdextended/A3_v1.wav` | A3 | 57 | `1353d3909cffb86b4dbe881b534881d95ca66d7acbd9c45c78b1ad4e1d757449` | Ivar Karm (owner recording) |
 | `handpan-app/sounds/notes/dkurdextended/Bb3_v1.wav` | Bb3 | 58 | `150f71b8290acc0033205fb8e1da0268c4c5de51f3d80c86312152a4151ea484` | Ivar Karm (owner recording) |
