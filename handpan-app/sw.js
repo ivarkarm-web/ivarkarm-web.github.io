@@ -11,13 +11,14 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.
  */
-const CACHE_VERSION = 'pionier-v162';
+const CACHE_VERSION = 'pionier-v163';
 
 const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icon.svg',
+  './ambient-sequencer.css?v=1',
   './atelier.css?v=10',
   './favorites.css?v=2',
   './focus-visible.css?v=2',
@@ -25,6 +26,7 @@ const SHELL = [
   './handpan-themes.css?v=2',
   './high-contrast.css?v=1',
   './js/ambient-fx.js?v=12',
+  './js/ambient-sequencer.js?v=1',
   './js/app-state.js?v=1',
   './js/audio-core.js?v=2',
   './js/coach-marks.js?v=1',
@@ -39,7 +41,7 @@ const SHELL = [
   './js/instruments/handpan.js?v=11',
   './js/layout-boot.js?v=69',
   './js/loop-core.js',
-  './js/looper.js?v=234',
+  './js/looper.js?v=235',
   './js/note-plus.js?v=3',
   './js/note-sample-bank.js',
   './js/overlay-controller.js?v=23',
@@ -57,7 +59,7 @@ const SHELL = [
   './looper.css?v=224',
   './menu-light-fix.css?v=2',
   './og-pionier-synth.svg',
-  './pionier-app.js?v=248',
+  './pionier-app.js?v=249',
   './pionier-control-layout.css?v=23',
   './pionier-control-layout.js?v=21',
   './pionier-core-base.js?v=1',
