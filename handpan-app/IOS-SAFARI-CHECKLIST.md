@@ -4,7 +4,7 @@
 
 Run on a real iPhone (or iPad) after each release that touches audio, SW, or the welcome gate. GitHub Pages + Playwright cannot replace this pass.
 
-**Build under test:** note `handpan-app/APP_VERSION` / `CACHE_VERSION` in DevTools → Application → Service Workers.
+**Build under test:** `APP_VERSION` 167 / `CACHE_VERSION` `pionier-v167` (verify the live service worker before testing).
 
 ## Setup
 
@@ -45,3 +45,8 @@ Run on a real iPhone (or iPad) after each release that touches audio, SW, or the
 | Tester | |
 | Date | |
 | Pass / fail notes | |
+
+## Android Chrome quick pass (separate device)
+
+Do not sign this section from desktop emulation. On a real Android phone, use current Chrome and repeat: first-tap audio unlock, multi-finger pad strikes, scale/instrument picker open-close, record/stop/playback, portrait safe-area layout, reload after service-worker update, and TalkBack labels.
+
