@@ -91,7 +91,7 @@
 
     var clear = document.getElementById('looperClearBtn');
     var recordCluster = document.getElementById('looperRecordCluster');
-    appendIfNeeded(tracks, clear);
+    appendIfNeeded(loopControls, clear);
     var utilityGroup = document.getElementById('looperUtilityControls');
     if (utilityGroup) {
       // The legacy looper stylesheet positions timing controls only while they
