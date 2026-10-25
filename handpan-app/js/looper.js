@@ -164,7 +164,8 @@ export function mountLooper({ root } = {}) {
   let sheetEl = null;
   let sheetPointerHandler = null;
   let sheetKeyHandler = null;
-  let syncModeIndex = 0;
+  // LOOP is the default: the first recorded phrase becomes the master clock.
+  let syncModeIndex = 1;
   let pendingLoopStop = false;
   let progressRaf = 0;
   let countInEnabled = false;
@@ -461,18 +462,23 @@ export function mountLooper({ root } = {}) {
       trackPanelKeyHandler = null;
     }
     if (trackPanelProgressTimer) { clearInterval(trackPanelProgressTimer); trackPanelProgressTimer = null; }
-    if (trackPanelEl) { trackPanelEl.remove(); trackPanelEl = null; }
+    if (trackPanelEl) {
+      window.removeEventListener('resize', trackPanelEl._placePanel);
+      window.removeEventListener('scroll', trackPanelEl._placePanel, true);
+      trackPanelEl.remove();
+      trackPanelEl = null;
+    }
   }
 
-  function openTrackPanel(index) {
+  function openTrackPanel(index, anchor = null) {
     const layer = layers[index];
     if (!layer) return;
     closeSheet();
     closeTrackPanel();
     const overlay = document.createElement('div');
-    overlay.className = 'looper-track-overlay';
+    overlay.className = 'looper-track-overlay is-floating';
     overlay.innerHTML = `
-      <section class="looper-track-panel" role="dialog" aria-modal="true" aria-label="Track ${index + 1} controls">
+      <section class="looper-track-panel" role="dialog" aria-modal="false" aria-label="Track ${index + 1} controls">
         <header class="looper-track-header">
           <div><div class="looper-track-eyebrow">PIONIER · LOOP MIXER</div><h2>Track ${index + 1}</h2><p>${(layer.buffer.duration || 0).toFixed(1)} sec loop</p></div>
           <button type="button" class="looper-track-close" aria-label="Close track controls">×</button>
@@ -506,6 +512,28 @@ export function mountLooper({ root } = {}) {
     trackPanelEl = overlay;
     const panel = overlay.querySelector('.looper-track-panel');
     const close = () => closeTrackPanel();
+    const placePanel = () => {
+      const target = anchor?.isConnected ? anchor : document.querySelectorAll('.looper-circle')[index];
+      if (!target || !panel) return;
+      const rect = target.getBoundingClientRect();
+      const margin = 10;
+      const width = Math.min(320, window.innerWidth - margin * 2);
+      panel.style.width = width + 'px';
+      panel.style.maxHeight = Math.max(180, window.innerHeight - margin * 2) + 'px';
+      const panelHeight = Math.min(panel.scrollHeight || 420, window.innerHeight - margin * 2);
+      let left = rect.right + 10;
+      if (left + width > window.innerWidth - margin) left = rect.left - width - 10;
+      if (left < margin) left = Math.max(margin, Math.min(window.innerWidth - width - margin, rect.left + rect.width / 2 - width / 2));
+      let top = rect.top + rect.height / 2 - panelHeight / 2;
+      top = Math.max(margin, Math.min(window.innerHeight - panelHeight - margin, top));
+      panel.style.left = left + 'px';
+      panel.style.top = top + 'px';
+    };
+    placePanel();
+    requestAnimationFrame(placePanel);
+    overlay._placePanel = placePanel;
+    window.addEventListener('resize', placePanel);
+    window.addEventListener('scroll', placePanel, true);
     overlay.addEventListener('pointerdown', event => { if (event.target === overlay) close(); });
     const trackCloseButton = overlay.querySelector('.looper-track-close');
     trackCloseButton.style.pointerEvents = 'auto';
@@ -870,26 +898,14 @@ export function mountLooper({ root } = {}) {
         pressTimer = setTimeout(() => {
           longFired = true;
           if (pendingTap) { clearTimeout(pendingTap.timer); pendingTap = null; }
-          confirmDeleteLayer(i);
+          openTrackPanel(i, c);
         }, LONG_MS);
       });
       const end = (e) => {
         if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
         if (longFired || e.type !== 'pointerup') return;
-        if (pendingTap && pendingTap.index === i) {
-          clearTimeout(pendingTap.timer);
-          pendingTap = null;
-          openTrackPanel(i);
-          return;
-        }
-        if (pendingTap) {
-          clearTimeout(pendingTap.timer);
-          toggleLayer(pendingTap.index);
-        }
-        const timer = setTimeout(() => {
-          if (pendingTap?.timer === timer) { pendingTap = null; toggleLayer(i); }
-        }, 260);
-        pendingTap = { index: i, timer };
+        if (pendingTap) { clearTimeout(pendingTap.timer); pendingTap = null; }
+        toggleLayer(i);
       };
       c.addEventListener('pointerup', end);
       c.addEventListener('pointercancel', end);
