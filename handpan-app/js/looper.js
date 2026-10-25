@@ -200,11 +200,29 @@ export function mountLooper({ root } = {}) {
     return getAudioMaster();
   }
 
+  function showRecorderUnavailable(reason = 'AudioWorklet recording is not supported here.') {
+    btn.disabled = true;
+    btn.title = 'Loop recording unavailable';
+    btn.setAttribute('aria-label', 'Loop recording unavailable');
+    btn.setAttribute('aria-disabled', 'true');
+    let status = rail.querySelector('#looperRecorderStatus');
+    if (!status) {
+      status = document.createElement('p');
+      status.id = 'looperRecorderStatus';
+      status.className = 'looper-recorder-status';
+      status.setAttribute('role', 'status');
+      status.setAttribute('aria-live', 'polite');
+      (cluster || rail).insertAdjacentElement('afterend', status);
+    }
+    status.textContent = reason + ' The handpan remains playable, but loop recording is disabled.';
+  }
+
   async function ensureTap() {
     const ctx = getAudioContext();
     const bus = getRecordBus();
     if (!ctx || !bus || !ctx.audioWorklet || typeof AudioWorkletNode === 'undefined') {
       console.error('[looper] AudioWorklet recording is unavailable in this browser/context.');
+      showRecorderUnavailable('Loop recording needs a browser with AudioWorklet support.');
       return null;
     }
     if (processor && tapSource && tapSource !== bus) {
@@ -247,6 +265,7 @@ export function mountLooper({ root } = {}) {
       })().catch((err) => {
         tapPromise = null;
         console.error('[looper] AudioWorklet recorder failed to initialize', err);
+        showRecorderUnavailable('Loop recording could not initialize. Try reloading the app in an updated browser.');
         return false;
       });
     }
