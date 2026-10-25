@@ -1154,7 +1154,7 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 
 /* Mobile looper: full-width seven-layer row; controls live in the visible dock. */
 @media (max-width: 390px) {
-  #pionierTrackRow {
+  #pionierBottomDock #pionierTrackRow {
     box-sizing: border-box !important;
     display: flex !important;
     align-items: center !important;
@@ -1168,7 +1168,7 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
     overflow: visible !important;
   }
 
-  #pionierTrackRow #looperLayers {
+  #pionierBottomDock #pionierTrackRow #looperLayers {
     display: flex !important;
     position: static !important;
     inset: auto !important;
@@ -1188,9 +1188,9 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
     scrollbar-width: none !important;
   }
 
-  #pionierTrackRow #looperLayers::-webkit-scrollbar { display: none !important; }
+  #pionierBottomDock #pionierTrackRow #looperLayers::-webkit-scrollbar { display: none !important; }
 
-  #pionierTrackRow #looperLayers .looper-circle {
+  #pionierBottomDock #pionierTrackRow #looperLayers .looper-circle {
     box-sizing: border-box !important;
     width: 44px !important;
     height: 44px !important;
@@ -1201,7 +1201,7 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
     flex: 0 0 44px !important;
   }
 
-  #pionierLooperControls #looperClearBtn {
+  #pionierBottomDock #pionierLooperControls #looperClearBtn {
     box-sizing: border-box !important;
     width: 44px !important;
     height: 44px !important;
@@ -1212,7 +1212,7 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
     flex: 0 0 44px !important;
   }
 
-  #pionierLooperToolbar #looperRecordCluster {
+  #pionierBottomDock #pionierLooperToolbar #looperRecordCluster {
     box-sizing: border-box !important;
     width: 44px !important;
     height: 44px !important;
@@ -1223,7 +1223,7 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
     flex: 0 0 44px !important;
   }
 
-  #pionierLooperToolbar #looperRecordCluster #looperBtn {
+  #pionierBottomDock #pionierLooperToolbar #looperRecordCluster #looperBtn {
     box-sizing: border-box !important;
     width: 44px !important;
     height: 44px !important;
