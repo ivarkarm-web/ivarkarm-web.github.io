@@ -69,7 +69,7 @@ test('consolidated layout CSS owns the relative looper toolbar and fixed-size co
   assert.match(css, /#pionierLooperToolbar\\s*\\{[^}]*position:\\s*relative/s);
   assert.match(css, /#pionierLooperControls[^}]*\\{[^}]*display:\\s*flex/s);
   // Property must not set top:25% (comments may mention the old bug)
-  const propTop = css.replace(/\\/\\*[\\s\\S]*?\\*\\//g, '').replace(/\\/\\/.*$/gm, '');
+  const propTop = css.split('/*').map((part) => part.split('*/').slice(-1)[0]).join('');
   assert.doesNotMatch(propTop, /top:\\s*25%/);
 });
 
