@@ -2,7 +2,7 @@
  * Pionier Sequence — hands-on 16-step multivoice sequencer.
  * Four distinct synthesized voices share the app AudioContext/master, but never alter loop audio.
  */
-import { createBus, getAudioContext, resumeAudio } from './js/audio-core.js?v=2';
+import { createBus, getAudioContext, resumeAudio } from './audio-core.js?v=2';
 
 const STORAGE_KEY = 'pionier.sequence.grid.v2';
 const STEPS = 16;
