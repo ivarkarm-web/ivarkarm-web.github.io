@@ -6,6 +6,22 @@ Repository: `ivarkarm-web/ivarkarm-web.github.io`, default branch `main`.
 Live route: `/handpan-app/`. Static HTML/CSS/ES modules; no build step is required.
 This is a source-level audit. No physical iOS/Android device or browser automation was run as part of this audit, so the user-reported mobile failures below remain reproduction targets rather than independently reproduced findings.
 
+## Measured baseline — app version 167 (2026-10-25)
+
+Source file sizes read from the current `main` branch; these are repository byte counts, not browser transfer sizes or a minified build measurement.
+
+| Stylesheet | Bytes | Decimal kB |
+|---|---:|---:|
+| `handpan-app/pionier-base.css` | 172,845 | 172.8 |
+| `handpan-app/pionier-controls.css` | 77,523 | 77.5 |
+| `handpan-app/pionier-layout.css` | 54,108 | 54.1 |
+| `handpan-app/pionier-ambient.css` | 23,126 | 23.1 |
+| **Total (four linked stylesheets)** | **327,602** | **327.6** |
+
+Target: below 250,000 bytes total for shipped CSS. This baseline is **not yet passing**. No dead-rule removal or minified output is claimed by this measurement. The repository's `package.json` includes Vite, but `handpan-app/index.html` currently links these stylesheets directly; a Vite migration must preserve the GitHub Pages `/handpan-app/` path and service-worker cache behavior.
+
+The shipping app version recorded in `handpan-app/APP_VERSION` is `167`. iOS Safari and Android Chrome remain unverified until a real-device pass is recorded.
+
 ## Reference screenshots — inspected individually
 
 All six PNGs were visually inspected. The capture set shows the same dark, restrained interface with orange active controls, blue add action, thin borders, generous negative space, and no decorative mandala background.
