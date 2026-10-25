@@ -1151,31 +1151,35 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 .looper-track-overlay.is-floating .looper-track-delete { padding: 7px 10px; }
 
 
-/* Mobile looper: give all seven layers their own full-width row and usable targets. */
+
+/* Mobile looper: full-width seven-layer row; controls live in the visible dock. */
 @media (max-width: 390px) {
-  #looperRail.looper-rail {
+  #pionierTrackRow {
     box-sizing: border-box !important;
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
-    grid-template-rows: 44px 44px !important;
-    gap: 2px !important;
-    min-height: 90px !important;
-    padding: 0 2px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    margin: 2px auto 0 !important;
+    padding: 0 4px !important;
     overflow: visible !important;
   }
 
-  #looperRail > #looperLayers {
-    grid-column: 1 / -1 !important;
-    grid-row: 1 !important;
-    justify-self: stretch !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    height: 44px !important;
-    padding: 0 !important;
-    margin: 0 !important;
+  #pionierTrackRow #looperLayers {
     display: flex !important;
-    flex-flow: row nowrap !important;
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 44px !important;
+    margin: 0 !important;
+    padding: 0 !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 3px !important;
@@ -1184,9 +1188,9 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
     scrollbar-width: none !important;
   }
 
-  #looperRail > #looperLayers::-webkit-scrollbar { display: none !important; }
+  #pionierTrackRow #looperLayers::-webkit-scrollbar { display: none !important; }
 
-  #looperRail #looperLayers .looper-circle {
+  #pionierTrackRow #looperLayers .looper-circle {
     box-sizing: border-box !important;
     width: 44px !important;
     height: 44px !important;
@@ -1197,11 +1201,8 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
     flex: 0 0 44px !important;
   }
 
-  #looperRail > #looperClearBtn {
-    grid-column: 1 !important;
-    grid-row: 2 !important;
-    align-self: center !important;
-    justify-self: start !important;
+  #pionierLooperControls #looperClearBtn {
+    box-sizing: border-box !important;
     width: 44px !important;
     height: 44px !important;
     min-width: 44px !important;
@@ -1211,20 +1212,8 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
     flex: 0 0 44px !important;
   }
 
-  #looperRail > #looperUtilityControls {
-    grid-column: 1 !important;
-    grid-row: 2 !important;
-    align-self: center !important;
-    justify-self: start !important;
-    margin-left: 46px !important;
-    gap: 2px !important;
-  }
-
-  #looperRail > #looperRecordCluster {
-    grid-column: 2 !important;
-    grid-row: 2 !important;
-    align-self: center !important;
-    justify-self: center !important;
+  #pionierLooperToolbar #looperRecordCluster {
+    box-sizing: border-box !important;
     width: 44px !important;
     height: 44px !important;
     min-width: 44px !important;
@@ -1234,20 +1223,8 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
     flex: 0 0 44px !important;
   }
 
-  #looperRail #looperRecordCluster > #looperBtn {
-    width: 44px !important;
-    height: 44px !important;
-    min-width: 44px !important;
-    min-height: 44px !important;
-    max-width: 44px !important;
-    max-height: 44px !important;
-    flex: 0 0 44px !important;
-  }
-
-  #looperRail > #looperSaveBtn {
-    top: 66px !important;
-    right: 2px !important;
-    transform: translateY(-50%) !important;
+  #pionierLooperToolbar #looperRecordCluster #looperBtn {
+    box-sizing: border-box !important;
     width: 44px !important;
     height: 44px !important;
     min-width: 44px !important;
