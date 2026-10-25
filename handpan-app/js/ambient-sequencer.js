@@ -16,6 +16,7 @@ export function createAmbientSequenceEngine({ getNotes, getTransport } = {}) {
   let density = 0.28;
   let evolution = 0.16;
   let space = 0.72;
+  let level = 1;
   let freeBpm = 60;
   let freeStartTime = 0;
   let syncToLoop = true;
@@ -50,7 +51,7 @@ export function createAmbientSequenceEngine({ getNotes, getTransport } = {}) {
   }
 
   function snapshot() {
-    return { playing, frozen, density, evolution, space, freeBpm, syncToLoop, stepIndex, generation,
+    return { playing, frozen, density, evolution, space, level, freeBpm, syncToLoop, stepIndex, generation,
       pattern: pattern.map((cell) => cell ? { ...cell } : null) };
   }
 
@@ -58,8 +59,8 @@ export function createAmbientSequenceEngine({ getNotes, getTransport } = {}) {
     ctx = getAudioContext();
     if (!ctx) return false;
     if (!bus || bus.context !== ctx) {
-      bus = createBus('pionier-ambient-sequence', 0.42);
-      if (bus) bus.gain.value = 0.42;
+      bus = createBus('pionier-ambient-sequence', 0.82);
+      if (bus) bus.gain.value = 0.82;
     }
     return !!bus;
   }
@@ -81,7 +82,7 @@ export function createAmbientSequenceEngine({ getNotes, getTransport } = {}) {
     overtone.type = 'sine';
     overtone.frequency.setValueAtTime(Math.min(note.freq * 2.01, 16000), start);
     overtoneGain.gain.value = 0.11;
-    const peak = clamp(velocity * 0.095, 0.018, 0.085);
+    const peak = clamp(velocity * 0.24 * level, 0.025, 0.24);
     amp.gain.setValueAtTime(0.0001, start);
     amp.gain.exponentialRampToValueAtTime(peak, start + 0.055);
     amp.gain.setTargetAtTime(peak * (0.36 + space * 0.18), start + 0.055, 0.24 + space * 0.4);
@@ -185,6 +186,7 @@ export function createAmbientSequenceEngine({ getNotes, getTransport } = {}) {
   }
   function setEvolution(value) { evolution = clamp(Number(value) || 0, 0, 0.65); return evolution; }
   function setSpace(value) { space = clamp(Number(value) || 0, 0, 1); return space; }
+  function setLevel(value) { level = clamp(Number(value) || 0, 0.3, 1.5); if (bus && ctx) bus.gain.setTargetAtTime(0.82 * level, ctx.currentTime, 0.035); return level; }
   function setBpm(value) { freeBpm = clamp(Math.round(Number(value) || 60), 35, 110); return freeBpm; }
   function toggleSync(value) { syncToLoop = Boolean(value); freeStartTime = ctx?.currentTime || 0; lastScheduledStep = ''; return syncToLoop; }
   function toggleFreeze(value) { frozen = typeof value === 'boolean' ? value : !frozen; return frozen; }
@@ -204,6 +206,7 @@ export function createAmbientSequenceEngine({ getNotes, getTransport } = {}) {
       density = clamp(Number(saved.density) || density, 0.08, 0.8);
       evolution = clamp(Number(saved.evolution) || evolution, 0, 0.65);
       space = clamp(Number(saved.space) || space, 0, 1);
+      level = clamp(Number(saved.level) || level, 0.3, 1.5);
       freeBpm = clamp(Number(saved.freeBpm) || freeBpm, 35, 110);
       syncToLoop = saved.syncToLoop !== false;
       if (Array.isArray(saved.pattern) && saved.pattern.length === STEPS) pattern = saved.pattern;
@@ -211,9 +214,9 @@ export function createAmbientSequenceEngine({ getNotes, getTransport } = {}) {
   } catch (_) {}
 
   function save() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, density, evolution, space, freeBpm, syncToLoop, pattern })); } catch (_) {}
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, density, evolution, space, level, freeBpm, syncToLoop, pattern })); } catch (_) {}
   }
-  return { start, stop, makePattern, snapshot, setDensity, setEvolution, setSpace, setBpm, toggleSync, toggleFreeze, toggleStep, setStepCallback, save, destroy };
+  return { start, stop, makePattern, snapshot, setDensity, setEvolution, setSpace, setLevel, setBpm, toggleSync, toggleFreeze, toggleStep, setStepCallback, save, destroy };
 }
 
 export function mountAmbientSequencer() {
@@ -236,7 +239,7 @@ export function mountAmbientSequencer() {
   panel.setAttribute('aria-labelledby', 'pionierSequenceTitle');
   panel.innerHTML = `
     <header class="sequence-header">
-      <div><p class="sequence-kicker">PIONIER / GENERATIVE AMBIENT</p><h2 id="pionierSequenceTitle">Sequence</h2></div>
+      <div><p class="sequence-kicker">PIONIER / SEQUENCE PLAYGROUND</p><h2 id="pionierSequenceTitle">Sequence</h2></div>
       <button type="button" class="sequence-close" aria-label="Return to handpan">×</button>
     </header>
     <p class="sequence-description">A living pattern to play inside.</p>
@@ -258,6 +261,7 @@ export function mountAmbientSequencer() {
       <label class="sequence-control"><span>Density</span><output data-value="density">28%</output><input type="range" min="8" max="80" value="28" data-control="density" aria-label="Note density"></label>
       <label class="sequence-control"><span>Evolution</span><output data-value="evolution">16%</output><input type="range" min="0" max="65" value="16" data-control="evolution" aria-label="Pattern evolution"></label>
       <label class="sequence-control"><span>Space</span><output data-value="space">72%</output><input type="range" min="0" max="100" value="72" data-control="space" aria-label="Note space and sustain"></label>
+      <label class="sequence-control"><span>Level</span><output data-value="level">100%</output><input type="range" min="30" max="150" value="100" data-control="level" aria-label="Sequencer volume"></label>
     </div>
     <p class="sequence-footnote" role="status">Scale-aware · slow and spacious · keeps playing when closed</p>
   `;
@@ -294,6 +298,8 @@ export function mountAmbientSequencer() {
   panel.querySelector('[data-value="evolution"]').textContent = Math.round(initial.evolution * 100) + '%';
   panel.querySelector('[data-control="space"]').value = String(Math.round(initial.space * 100));
   panel.querySelector('[data-value="space"]').textContent = Math.round(initial.space * 100) + '%';
+  panel.querySelector('[data-control="level"]').value = String(Math.round(initial.level * 100));
+  panel.querySelector('[data-value="level"]').textContent = Math.round(initial.level * 100) + '%';
   syncButton.setAttribute('aria-checked', String(initial.syncToLoop));
   syncButton.classList.toggle('is-off', !initial.syncToLoop);
   let currentStep = -1;
@@ -375,6 +381,7 @@ export function mountAmbientSequencer() {
       if (key === 'density') engine.setDensity(value / 100);
       if (key === 'evolution') engine.setEvolution(value / 100);
       if (key === 'space') engine.setSpace(value / 100);
+      if (key === 'level') engine.setLevel(value / 100);
       const output = panel.querySelector('[data-value="' + key + '"]');
       if (output) output.textContent = Math.round(value) + '%';
       engine.save();
