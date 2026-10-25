@@ -108,7 +108,7 @@ Do not claim the requested 8/10 reliability or production-readiness score until 
 
 ## Release readiness — v167
 
-- **Measured:** four source CSS files total 327,782 bytes (raw, before gzip/minification).
+- **Measured:** four source CSS files total 327,836 bytes (raw, before gzip/minification).
 - **Not measured:** final minified CSS bytes and JS bundle bytes until CI completes; mobile-device behavior remains untested.
 - **CI issue found:** the last deployment run failed at the looper-toolbar unit assertion because the regular expression was over-escaped; this was a test defect, not evidence that the positioning rule was missing.
 - **Release gate:** do not mark production-ready or assign a numeric readiness score until the corrected CI run passes, CSS/JS performance budgets are measured, and the real-device checklist is signed by a human tester.
