@@ -557,9 +557,9 @@ export function mountLooper({ root } = {}) {
     cropEndInputEl.value = String(loopDuration);
     trackPanel.querySelector('.looper-track-duration').textContent = formatLoopTime(layer.buffer.duration || 0);
     trackPanel.querySelector('[data-output="crop-end"]').textContent = formatLoopTime(layer.buffer.duration || 0);
-    const quantize = trackPanel.querySelector('[data-control="quantize"]');
-    quantize.id = 'track-quantize-' + index;
-    trackPanel.querySelector('label[for="track-quantize"]').htmlFor = quantize.id;
+    const quantizeSelectEl = trackPanel.querySelector('[data-control="quantize"]');
+    quantizeSelectEl.id = 'track-quantize-' + index;
+    trackPanel.querySelector('label[for="track-quantize"]').htmlFor = quantizeSelectEl.id;
     document.body.appendChild(overlay);
     trackPanelEl = overlay;
     const panel = overlay.querySelector('.looper-track-panel');
