@@ -1,6 +1,6 @@
 /**
  * Phase 10: narrow-screen looper targets stay reachable with seven layers.
- * Regression guard for the compact one-row layout that squeezed layer buttons.
+ * Regression guard for the visible dock (the legacy looper rail is hidden after boot).
  */
 import { test, expect } from '@playwright/test';
 
@@ -12,21 +12,26 @@ async function enterIfNeeded(page) {
   }
 }
 
-test('phase10: mobile looper exposes 44px controls and a full seven-layer row', async ({ page }, testInfo) => {
+test('phase10: mobile dock exposes 44px Clear/Record targets and seven layer targets', async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.startsWith('mobile'), 'mobile viewport regression');
 
   await page.goto('/handpan-app/');
   await enterIfNeeded(page);
   await expect.poll(() => page.evaluate(() => !!window.PionierCore), { timeout: 15000 }).toBe(true);
+  await expect.poll(() => page.evaluate(() => {
+    return document.getElementById('looperClearBtn')?.parentElement?.id === 'pionierLooperControls'
+      && document.getElementById('looperLayers')?.parentElement?.id === 'pionierTrackRow';
+  }), { timeout: 10000 }).toBe(true);
 
   const metrics = await page.evaluate(() => {
-    const rail = document.getElementById('looperRail');
+    const trackRow = document.getElementById('pionierTrackRow');
+    const toolbar = document.getElementById('pionierLooperToolbar');
     const record = document.getElementById('looperBtn');
     const clear = document.getElementById('looperClearBtn');
     const layers = document.getElementById('looperLayers');
-    if (!rail || !record || !clear || !layers) return { error: 'missing looper element' };
+    if (!trackRow || !toolbar || !record || !clear || !layers) return { error: 'missing visible dock element' };
 
-    // Use seven probe buttons to test the actual shipped layer layout even before recording.
+    // Probe the real CSS with seven layer buttons before the first recording.
     const probes = Array.from({ length: 7 }, (_, index) => {
       const button = document.createElement('button');
       button.type = 'button';
@@ -41,7 +46,8 @@ test('phase10: mobile looper exposes 44px controls and a full seven-layer row', 
       return { width: box.width, height: box.height, left: box.left, right: box.right, top: box.top, bottom: box.bottom };
     };
     const result = {
-      rail: rect(rail),
+      trackRow: rect(trackRow),
+      toolbar: rect(toolbar),
       record: rect(record),
       clear: rect(clear),
       layers: rect(layers),
@@ -59,7 +65,7 @@ test('phase10: mobile looper exposes 44px controls and a full seven-layer row', 
   expect(metrics.record.height).toBeGreaterThanOrEqual(44);
   expect(metrics.clear.width).toBeGreaterThanOrEqual(44);
   expect(metrics.clear.height).toBeGreaterThanOrEqual(44);
-  expect(metrics.rail.height).toBeGreaterThanOrEqual(88);
+  expect(metrics.trackRow.height).toBeGreaterThanOrEqual(44);
   expect(metrics.layerButtons).toHaveLength(7);
   for (const [index, button] of metrics.layerButtons.entries()) {
     expect(button.width, 'layer ' + (index + 1) + ' width').toBeGreaterThanOrEqual(44);
