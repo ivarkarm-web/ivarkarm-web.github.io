@@ -69,9 +69,8 @@ test('consolidated layout CSS owns the relative looper toolbar and fixed-size co
   // Several responsive overrides target these selectors; inspect each rule block,
   // not only the first occurrence, which may intentionally set a different property.
   const toolbarRules = [...css.matchAll(/#pionierLooperToolbar\s*\{([^}]*)\}/g)].map((m) => m[1]);
-  const controlsRules = [...css.matchAll(/#pionierLooperControls\s*\{([^}]*)\}/g)].map((m) => m[1]);
   assert.ok(toolbarRules.some((rule) => /position:\s*relative/.test(rule)), 'toolbar must have a relative-position rule');
-  assert.ok(controlsRules.some((rule) => /display:\s*flex/.test(rule)), 'looper controls must use flex layout');
+  assert.match(css, /#pionierLooperControls\s*,\s*#pionierLooperActions\s*\{[^}]*display:\s*flex/s, 'looper controls must use flex layout');
   // Property must not set top:25% (comments may mention the old bug)
   const propTop = css.split('/*').map((part) => part.split('*/').slice(-1)[0]).join('');
   assert.doesNotMatch(propTop, /top:\s*25%/);
