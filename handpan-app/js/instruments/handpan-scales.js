@@ -111,15 +111,6 @@ export const HANDPAN_SCALES = [
     rootPc: 4,
   },
   {
-    id: 'unknownscale',
-    label: 'Unknown',
-    short: 'Unknown',
-    tuning: '12-TET',
-    intervals: [0, 2, 5, 7, 12, 14],
-    rootMidi: 58,
-    rootPc: 10,
-  },
-  {
     id: 'dkurdextended',
     label: 'D Kurd Extended',
     short: 'D Kurd Ext',
