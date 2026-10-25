@@ -1,1 +1,280 @@
-PLACEHOLDER
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Pionier Synth — Play, Explore, Create</title>
+  <meta name="description" content="Pionier Synth is a touch-responsive musical instrument for exploring resonant handpan sounds, world instruments, expressive effects, looping and soundscapes. Start with 8 notes and shape your own sound." />
+  <meta name="theme-color" content="#070708" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Pionier Audio" />
+  <meta property="og:title" content="Pionier Audio — Handpan" />
+  <meta property="og:description" content="A minimal, touch-responsive virtual handpan. Explore resonant sounds, scales, loops and soundscapes." />
+  <meta property="og:image" content="https://ivarkarm-web.github.io/handpan-app/og-pionier-audio.svg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Pionier Audio — minimal tech-editorial handpan instrument." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Pionier Audio — Handpan" />
+  <meta name="twitter:description" content="A minimal, touch-responsive virtual handpan. Explore resonant sounds, scales, loops and soundscapes." />
+  <meta name="twitter:image" content="https://ivarkarm-web.github.io/handpan-app/og-pionier-audio.svg" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <script>document.documentElement.classList.add("pionier-welcome-active");window.PionierWelcomeState={hideTonefields:true};</script>
+  <link rel="stylesheet" href="./pionier.css?v=166" />
+  <link rel="stylesheet" href="./w3-pan-guard.css?v=1" />
+  <link rel="stylesheet" href="./welcome-screen.css?v=6" />
+  <link rel="stylesheet" href="./topbar-narrow.css?v=6" />
+  <link rel="stylesheet" href="./looper.css?v=222" />
+  <link rel="stylesheet" href="./looper-circle-progress.css?v=1" />
+  <link rel="stylesheet" href="./scale-menu.css?v=19" />
+  <link rel="stylesheet" href="./settings-panel.css?v=19" />
+  <style>
+    .backdrop-player { display: none !important; }
+    .play-pill, #modePlay, #btnHelp, #btnExit, .top-actions,
+    #createLaunch, .create-launch, #createPage, .create-page { display: none !important; }
+
+    .stage {
+      --stage-bottom-reserve: calc(var(--chrome-bottom, 160px) + var(--pan-bottom-gap, 10px));
+      padding: max(8px, var(--chrome-top, 48px)) 8px var(--stage-bottom-reserve) 8px !important;
+      flex-direction: column;
+      position: relative !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      overflow: hidden !important;
+      min-height: 0 !important;
+      flex: 1 1 auto !important;
+      box-sizing: border-box !important;
+    }
+    #pan {
+      display: block !important;
+      aspect-ratio: 1 !important;
+      margin-bottom: 0 !important;
+    }
+    .stage::before {
+      left: 50% !important;
+      top: auto !important;
+      bottom: calc(var(--stage-bottom-reserve) + var(--pan-budget, 40vw) / 2) !important;
+      transform: translate(-50%, 50%) !important;
+      width: min(80vw, calc(100dvh - 260px), 640px) !important;
+      height: min(80vw, calc(100dvh - 260px), 640px) !important;
+    }
+  </style>
+  <link rel="stylesheet" href="./atelier.css?v=10">
+  <link rel="stylesheet" href="./ui-stability.css?v=6" />
+  <link rel="stylesheet" href="./fx-editor.css?v=5" />
+  <link rel="stylesheet" href="./focus-visible.css?v=2" />
+  <link rel="stylesheet" href="./high-contrast.css?v=1" />
+  <link rel="stylesheet" href="./system-fonts.css?v=1" />
+  <link rel="stylesheet" href="./shell-chrome.css?v=1" />
+  <link rel="stylesheet" href="./portrait-lock.css?v=1" />
+  <link rel="stylesheet" href="./pionier-control-layout.css?v=23" />
+  <link rel="stylesheet" href="./handpan-themes.css?v=2" />
+  <link rel="stylesheet" href="./theme-light-overlays.css?v=3" />
+  <link rel="stylesheet" href="./selectors-clean.css?v=6" />
+  <link rel="stylesheet" href="./ui-hotfix.css?v=4" />
+  <link rel="stylesheet" href="./favorites.css?v=2" />
+  <link rel="stylesheet" href="./menu-light-fix.css?v=2" />
+</head>
+<body>
+  <div id="portraitLock" class="portrait-lock" hidden aria-live="polite">
+    <p class="portrait-lock-msg">Rotate your phone to portrait</p>
+  </div>
+  <div id="appStatus" class="app-status" data-state="loading" role="status" aria-live="polite">
+    <span id="appStatusMessage">Starting Pionier…</span>
+    <button type="button" id="appStatusRetry" class="app-status-retry" hidden>Retry</button>
+  </div>
+  <section id="pionierWelcome" aria-label="Welcome to Pionier">
+    <div class="welcome-masthead">
+      <span class="welcome-brand"><span class="welcome-brand-main">PIONIER</span><span class="welcome-brand-audio">AUDIO</span><span class="welcome-brand-handpan">HANDPAN</span></span>
+      <span class="welcome-edition">POCKET INSTRUMENT&nbsp; / &nbsp;NO. 01</span>
+    </div>
+    <div class="pionier-welcome-content">
+      <span class="welcome-kicker"><span class="welcome-kicker-dot"></span> SOUND, SHAPED BY YOU</span>
+      <h1 class="welcome-headline">A little space<br><em>to make sound.</em></h1>
+      <p class="welcome-deck">A touch-responsive instrument for exploring tones, textures and loops.</p>
+      <button type="button" id="enterPionier"><span>Enter Pionier</span><span class="welcome-enter-arrow" aria-hidden="true">↗</span></button>
+    </div>
+    <div class="welcome-foot">
+      <span>LISTEN&nbsp; · &nbsp;EXPLORE&nbsp; · &nbsp;CREATE</span>
+      <span class="welcome-foot-rule"></span>
+      <span>MADE FOR THE MOMENT</span>
+    </div>
+  </section>
+  <div id="headphonesHint" role="status" aria-live="polite"><span class="headphones-word headphones-word-one">Headphones</span><span class="headphones-word headphones-word-two">recommended</span></div>
+  <div id="app" class="app">
+    <header class="topbar topbar-minimal">
+      <div class="center-nav">
+        <div class="instrument-nav" id="instrumentNav">
+          <button type="button" class="icon-btn" id="voicePrev" aria-label="Previous voice">‹</button>
+          <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Handpan ▾</button>
+          <button type="button" class="icon-btn" id="voiceNext" aria-label="Next voice">›</button>
+          <button type="button" class="icon-btn soundscapes-open-btn" id="openSoundscapes" aria-label="Open Soundscapes" title="Soundscapes">♫</button>
+          <button type="button" class="randomize-setup-btn" id="randomizeSetup" aria-label="Randomize instrument and scale" title="Surprise me"><svg class="randomize-die" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2.5" y="2.5" width="19" height="19" rx="4.2" fill="currentColor" stroke="rgba(255,235,175,.8)" stroke-width=".8"/><g fill="#20190b"><circle cx="7.2" cy="7.2" r="1.45"/><circle cx="16.8" cy="7.2" r="1.45"/><circle cx="12" cy="12" r="1.45"/></g></svg></button>
+        </div>
+      </div>
+    </header>
+    <div class="instrument-menu" id="instrumentMenu" role="menu" aria-label="Choose instrument" hidden></div>
+
+    <div class="mobile-control-drawer" id="mobileControlDrawer">
+      <button type="button" class="mobile-controls-toggle" id="mobileControlsToggle" hidden aria-expanded="false" aria-controls="mobileControlPanel">
+        <span class="mobile-controls-grip" aria-hidden="true"></span>
+        <span class="mobile-controls-label">Controls</span>
+      </button>
+      <div class="mobile-control-panel" id="mobileControlPanel">
+    <aside class="sidebar left">
+      <div class="control-block control-scale">
+        <label class="control-label">Scale</label>
+        <div class="stepper scale-stepper">
+          <button type="button" class="step" id="scalePrev" aria-label="Previous scale">‹</button>
+          <button type="button" class="step-value scale-name scale-dropdown-toggle" id="scaleLabel" aria-haspopup="true" aria-expanded="false" aria-controls="scaleMenu" title="Choose scale">D3 Kurd ▾</button>
+          <button type="button" class="step" id="scaleNext" aria-label="Next scale">›</button>
+        </div>
+        <div class="scale-menu" id="scaleMenu" role="menu" aria-label="Choose scale" hidden></div>
+      </div>
+
+      <div class="control-row">
+        <div class="control-block control-half">
+          <label class="control-label">Base Note</label>
+          <div class="stepper">
+            <button type="button" class="step" id="rootPrev" aria-label="Previous base note">‹</button>
+            <span class="step-value" id="rootLabel">D3</span>
+            <button type="button" class="step" id="rootNext" aria-label="Next base note">›</button>
+          </div>
+        </div>
+        <div class="control-block control-half">
+          <label class="control-label">Notes</label>
+          <div class="stepper">
+            <button type="button" class="step" id="noteCountPrev" aria-label="Fewer notes">‹</button>
+            <span class="step-value" id="noteCountLabel">8</span>
+            <button type="button" class="step" id="noteCountNext" aria-label="More notes">›</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+      </div>
+    </div>
+
+    <div id="looperRail" class="looper-rail" aria-label="Looper">
+      <button type="button" id="looperClearBtn" class="looper-clear-btn" aria-label="Clear loops" title="Clear">×</button>
+      <div id="looperRecordCluster" class="looper-record-cluster">
+        <button type="button" id="looperBtn" class="looper-btn looper-record" aria-label="Record loop" title="Record loop"><span class="looper-btn-ring" aria-hidden="true"></span><span class="looper-btn-core" aria-hidden="true"></span></button>
+      </div>
+      <div id="looperLayers" class="looper-layers" aria-label="Loop layers"></div>
+    </div>
+
+    <main class="stage" id="stage">
+      <canvas id="pan" width="680" height="680" role="img" aria-label="Handpan instrument"></canvas>
+    </main>
+  </div>
+
+  <section id="soundscapesPanel" class="soundscapes-panel" hidden aria-label="Backing Tracks">
+    <header class="soundscapes-header">
+      <button type="button" id="closeSoundscapes" class="soundscapes-return-btn" aria-label="Close Backing Tracks" title="Close">×</button>
+    </header>
+    <main class="soundscapes-body" id="soundscapesBody">
+      <div class="soundscape-tabs" role="group" aria-label="Backing tracks collection"><button type="button" id="soundscapeBedroomTab" class="soundscape-tab is-active" aria-pressed="true">Bedroom Sessions</button></div>
+      <div class="soundscape-now">
+        <p id="soundscapeTitle" class="soundscape-title">E Amara · Improvisation 1</p>
+        <p id="soundscapeNote" class="soundscape-note">Owner recordings</p>
+      </div>
+      <div class="soundscape-transport">
+        <button type="button" class="soundscape-transport-btn" id="soundscapePrev" aria-label="Previous track">‹</button>
+        <button type="button" class="soundscape-play" id="soundscapePlay" aria-label="Play">▶</button>
+        <button type="button" class="soundscape-transport-btn" id="soundscapeNext" aria-label="Next track">›</button>
+        <button type="button" class="soundscape-transport-btn" id="soundscapeRepeat" aria-label="Repeat" aria-pressed="false">↻</button>
+      </div>
+      <div class="soundscape-seek-row">
+        <span id="soundscapeTime">0:00</span>
+        <input id="soundscapeSeek" type="range" min="0" max="1000" value="0" aria-label="Seek">
+        <span id="soundscapeTimeTotal">0:00</span>
+      </div>
+      <label class="soundscape-vol-row"><span>Volume</span>
+        <input id="soundscapeVolume" type="range" min="0" max="1" step="0.01" value="0.85" aria-label="Track volume">
+      </label>
+      <p class="soundscape-status" id="soundscapeStatus" role="status">Bedroom Sessions · 8 tracks</p>
+      <div id="soundscapeQueue" class="soundscape-queue" role="list" aria-label="Bedroom Sessions tracks"></div>
+    </main>
+  </section>
+
+  <div id="fxPanel" class="fx-panel" hidden>
+    <header class="fx-panel-header">
+      <h2>Effects</h2>
+      <button type="button" id="fxPanelClose" class="icon-btn" aria-label="Close effects">×</button>
+    </header>
+    <div class="fx-panel-body knobs-panel">
+      <div class="effect-knob-wrap" id="knobCompress"><canvas class="knob-canvas" width="68" height="68"></canvas><div class="fx-knob-label-row"><span class="knob-label">Comp</span><button type="button" class="fx-settings-shortcut" data-fx-editor-open="compressor" aria-label="Open Compressor curve and presets" title="Open advanced settings">s</button></div><span class="knob-val" id="valCompress">40%</span></div>
+      <div class="effect-knob-wrap" id="knobDelay"><canvas class="knob-canvas" width="68" height="68"></canvas><div class="fx-knob-label-row"><span class="knob-label">Delay</span><button type="button" class="fx-settings-shortcut" data-fx-editor-open="delay" aria-label="Open Delay curve and presets" title="Open advanced settings">s</button></div><span class="knob-val" id="valDelay">15%</span></div>
+      <div class="effect-knob-wrap" id="knobFilter"><canvas class="knob-canvas" width="68" height="68"></canvas><div class="fx-knob-label-row"><span class="knob-label">Filter</span><button type="button" class="fx-settings-shortcut" data-fx-editor-open="filter" aria-label="Open Filter curve and presets" title="Open advanced settings">s</button></div><span class="knob-val" id="valFilter">12%</span></div>
+      <div class="effect-knob-wrap" id="knobReverb"><canvas class="knob-canvas" width="68" height="68"></canvas><div class="fx-knob-label-row"><span class="knob-label">Reverb</span><button type="button" class="fx-settings-shortcut" data-fx-editor-open="reverb" aria-label="Open Reverb curve and presets" title="Open advanced settings">s</button></div><span class="knob-val" id="valReverb">25%</span></div>
+      <div class="effect-knob-wrap" id="knobBass"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Bass</span><span class="knob-val" id="valBass">50%</span></div>
+      <div class="effect-knob-wrap" id="knobLow"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Low</span><span class="knob-val" id="valLow">50%</span></div>
+      <div class="effect-knob-wrap" id="knobMid"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Mid</span><span class="knob-val" id="valMid">50%</span></div>
+      <div class="effect-knob-wrap" id="knobMaster"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Master</span><span class="knob-val" id="valMaster">82%</span></div>
+    </div>
+  </div>
+
+  <div id="fxEditorBackdrop" class="fx-editor-backdrop" hidden></div>
+  <section id="fxEditor" class="fx-editor" role="dialog" aria-modal="true" aria-labelledby="fxEditorTitle" hidden>
+    <header class="fx-editor-header fx-editor-header-compact">
+      <span id="fxEditorTitle" class="fx-editor-current-title">Comp</span>
+      <span id="fxEditorSubtitle" hidden></span>
+      <button type="button" id="fxEditorClose" class="icon-btn" aria-label="Close effect editor">×</button>
+    </header>
+    <div class="fx-editor-toolbar"><div id="fxEditorPresets" class="fx-editor-presets" aria-label="Effect presets"></div><button type="button" id="fxEditorBypass" class="fx-editor-bypass" aria-pressed="false">Bypass</button></div>
+    <div class="fx-editor-curve-wrap"><canvas id="fxEditorCurve" class="fx-editor-curve" aria-label="Interactive effect response curve" role="img"></canvas><div class="fx-editor-axis-labels" hidden><span id="fxEditorAxisX"></span><span id="fxEditorAxisY"></span></div></div>
+    <div id="fxEditorKnobs" class="fx-editor-knobs" aria-label="Effect parameters"></div>
+    <footer class="fx-editor-footer"><span id="fxEditorStatus" role="status">Changes apply live</span><button type="button" id="fxEditorReset" class="fx-editor-reset">Reset effect</button></footer>
+  </section>
+
+  <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
+
+  <script src="./js/skin-palette.js?v=3"></script>
+  <script src="./js/customization-catalog.js?v=7"></script>
+  <script src="./js/overlay-controller.js?v=23"></script>
+  <script src="./js/layout-boot.js?v=69"></script>
+  <script src="./pionier-control-layout.js?v=20"></script>
+  <script src="./looper-side-menus.js?v=9"></script>
+  <script src="./js/settings-panel.js?v=33"></script>
+  <script src="./js/coach-marks.js?v=1"></script>
+  <script src="./js/favorites.js?v=1"></script>
+  <script src="./js/ambient-fx.js?v=12"></script>
+  <script src="./js/skin-mandala.js?v=6"></script>
+  <script type="module" src="./pionier-app.js?v=247"></script>
+  <script src="./welcome-screen.js?v=9"></script>
+  <script src="./js/portrait-lock.js?v=2"></script>
+  <script src="./registerSW.js?v=2"></script>
+  <script>
+  (function () {
+    if (window.__pionierFxFix) return;
+    window.__pionierFxFix = true;
+    function ensureBtn() {
+      var btn = document.getElementById("fxPanelOpen");
+      if (btn) return btn;
+      btn = document.createElement("button");
+      btn.type = "button"; btn.id = "fxPanelOpen"; btn.className = "fx-panel-open";
+      btn.setAttribute("aria-label", "Effects"); btn.textContent = "FX";
+      document.body.appendChild(btn); return btn;
+    }
+    function toggle() {
+      var panel = document.getElementById("fxPanel");
+      if (!panel) return;
+      var open = !panel.hidden && getComputedStyle(panel).display !== "none";
+      if (open) { panel.hidden = true; document.body.classList.remove("is-fx-open"); }
+      else { panel.hidden = false; panel.removeAttribute("hidden"); panel.style.setProperty("display","block","important"); panel.style.setProperty("z-index","5000","important"); document.body.classList.add("is-fx-open"); }
+    }
+    document.addEventListener("click", function (e) {
+      var t = e.target; if (!t || !t.closest) return;
+      if (!t.closest("#fxPanelOpen")) return;
+      e.preventDefault(); toggle();
+    }, true);
+    function bootFx() { ensureBtn(); }
+    if (document.readyState !== "loading") bootFx();
+    else document.addEventListener("DOMContentLoaded", bootFx);
+  })();
+  </script>
+</body>
+</html>
