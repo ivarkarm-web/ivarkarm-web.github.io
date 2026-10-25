@@ -143,7 +143,7 @@
   function buildBody() {
     const body = document.getElementById('favoritesSheetBody');
     if (!body) return;
-    body.innerHTML = '';
+    body.replaceChildren();
 
     const instSec = document.createElement('section');
     instSec.className = 'favorites-section';
