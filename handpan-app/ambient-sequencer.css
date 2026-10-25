@@ -18,7 +18,7 @@ html.pionier-welcome-active .pionier-sequence-edge { display:none !important; }
     radial-gradient(ellipse at 100% 85%, rgba(47,87,76,.18), transparent 45%),
     #0a0d0c;
   opacity:0; transform:translateX(5%); transition:opacity .22s ease, transform .32s cubic-bezier(.2,.8,.2,1);
-  box-sizing:border-box; -webkit-overflow-scrolling:touch;
+  box-sizing:border-box; -webkit-overflow-scrolling:touch; touch-action:pan-y;
 }
 .pionier-sequence.is-open { opacity:1; transform:translateX(0); }
 .sequence-header { display:flex; align-items:center; justify-content:space-between; gap:16px; max-width:560px; margin:0 auto; }
