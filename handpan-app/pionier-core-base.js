@@ -428,7 +428,7 @@ KEYS.forEach((k, i) => { KEY_TO_PAD[k] = i; });
 function renderInstrumentMenu() {
   const menu = document.getElementById('instrumentMenu');
   if (!menu) return;
-  menu.innerHTML = '';
+  menu.replaceChildren();
   const results = document.createElement('div');
   results.className = 'instrument-menu-results';
   menu.appendChild(results);
