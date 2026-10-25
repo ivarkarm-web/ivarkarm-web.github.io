@@ -52,3 +52,9 @@ Tokens live in `pionier.css` (`--pionier-z-*`, `--gold`, etc.). Prefer tokens ov
 ## Soft failure
 
 Boot states: `loading` → `ready` | `degraded` | `failed` via `#appStatus`. Optional modules fail soft without blocking the instrument.
+
+## Known limits
+
+- **Looper capture** still uses `ScriptProcessorNode` in parts of `js/looper.js`. AudioWorklet migration is tracked; not required for casual play, but caps long-session reliability scores.
+- **Learn / catch-mode** files may remain under `js/` for history; they are **not** product surface (see README). Do not re-wire without a deliberate product decision.
+- **Prefs split:** instrument/scale/root live in `js/app-state.js`; theme / high-contrast / coach dismissal live in settings + localStorage keys (`pionier.settings.v2`, `pionier.coach.v1`). Prefer migrating new prefs into app-state subscribers.
