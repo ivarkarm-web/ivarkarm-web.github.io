@@ -285,7 +285,12 @@ export function mountAmbientSequencer() {
     rowEl.dataset.voice = voice.id;
     const label = document.createElement('div');
     label.className = 'sequence-voice-label';
-    label.innerHTML = '<span class="sequence-voice-dot"></span><span>' + voice.name + '</span>';
+    const dot = document.createElement('span');
+    dot.className = 'sequence-voice-dot';
+    dot.setAttribute('aria-hidden', 'true');
+    const voiceName = document.createElement('span');
+    voiceName.textContent = voice.name;
+    label.append(dot, voiceName);
     rowEl.appendChild(label);
     const cells = document.createElement('div');
     cells.className = 'sequence-row-cells';
