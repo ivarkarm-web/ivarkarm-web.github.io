@@ -119,3 +119,11 @@ test('Learn system is retired and dice randomizer replaces the entry point', () 
     assert.equal(fs.existsSync(path.join(root, rel)), true, rel + ' should remain available');
   }
 });
+
+test('looper explains and disables recording when AudioWorklet is unavailable', () => {
+  const looper = read('handpan-app/js/looper.js');
+  assert.match(looper, /function showRecorderUnavailable/);
+  assert.match(looper, /btn\.disabled = true/);
+  assert.match(looper, /role', 'status'/);
+  assert.match(looper, /AudioWorklet recording is not supported here/);
+});
