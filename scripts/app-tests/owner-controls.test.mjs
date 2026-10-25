@@ -67,10 +67,10 @@ test('overlay controller owns pickers and control layout positions the looper to
 test('consolidated layout CSS owns the relative looper toolbar and fixed-size controls', () => {
   const css = read('handpan-app/pionier-layout.css');
   assert.match(css, /#pionierLooperToolbar\s*\{[^}]*position:\s*relative/s);
-  assert.match(css, /#pionierLooperControls[^}]*\\{[^}]*display:\\s*flex/s);
+  assert.match(css, /#pionierLooperControls[^}]*\{[^}]*display:\s*flex/s);
   // Property must not set top:25% (comments may mention the old bug)
   const propTop = css.split('/*').map((part) => part.split('*/').slice(-1)[0]).join('');
-  assert.doesNotMatch(propTop, /top:\\s*25%/);
+  assert.doesNotMatch(propTop, /top:\s*25%/);
 });
 
 test('no exclusivity-fix or chrome-fix patch files remain', () => {
