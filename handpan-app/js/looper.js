@@ -164,7 +164,8 @@ export function mountLooper({ root } = {}) {
   let sheetEl = null;
   let sheetPointerHandler = null;
   let sheetKeyHandler = null;
-  let syncModeIndex = 0;
+  // LOOP is the default: the first recorded phrase becomes the master clock.
+  let syncModeIndex = 1;
   let pendingLoopStop = false;
   let progressRaf = 0;
   let countInEnabled = false;
