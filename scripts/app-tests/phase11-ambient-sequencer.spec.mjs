@@ -20,6 +20,9 @@ test('phase11: ambient sequence opens, plays independently and preserves playbac
   await edge.click();
   await expect(panel).toBeVisible();
   await expect(panel.locator('.sequence-step')).toHaveCount(16);
+  await expect(panel.getByRole('slider', { name: 'Sequencer volume' })).toHaveValue('100');
+  const tileStyle = await panel.locator('.sequence-step').first().evaluate((el) => getComputedStyle(el).borderRadius);
+  expect(parseFloat(tileStyle)).toBeGreaterThan(0);
   await expect(panel.getByRole('switch', { name: 'Sync to looper' })).toBeVisible();
 
   // The primary interaction is an inward swipe from the right edge.
