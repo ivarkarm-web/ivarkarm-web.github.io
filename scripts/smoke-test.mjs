@@ -33,7 +33,7 @@ read('handpan-app/pionier-controls.css');
 read('handpan-app/pionier-layout.css');
 read('handpan-app/pionier-ambient.css');
 const serviceWorker = read('handpan-app/sw.js');
-read('handpan-app/pionier.css');
+read('handpan-app/pionier-base.css');
 read('handpan-app/js/audio-core.js');
 read('handpan-app/js/instrument.js');
 read('handpan-app/js/gesture.js');
@@ -158,7 +158,7 @@ if (appHtml.includes('id="randomizeSetup"') && !appHtml.includes('id="learnPanel
 else fail('Learn removal or randomizer replacement is incomplete');
 if (/looperBtn|looper-btn/.test(loopControls) && /looperClearBtn|looper-clear/.test(loopControls + appHtml)) ok('Looper record and clear controls are present');
 else fail('Looper record/clear controls are incomplete');
-if (appHtml.includes('looper.css?') && /pionier-v\d+/.test(serviceWorker)) ok('Looper CSS and service worker declare cache versions');
+if (appHtml.includes('pionier-base.css?') && /pionier-v\d+/.test(serviceWorker)) ok('Looper CSS and service worker declare cache versions');
 else fail('Looper CSS or service worker cache versions missing');
 
 if (!/repository-loop-save/.test(serviceWorker) && !/community-api/.test(serviceWorker)) ok('Service worker shell does not reference community upload modules');
