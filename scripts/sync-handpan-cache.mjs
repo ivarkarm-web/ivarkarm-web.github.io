@@ -35,6 +35,7 @@ const EXTRA_SHELL = [
   './js/gesture.js',
   './js/fx.js',
   './js/note-sample-bank.js',
+  './js/looper-recorder-worklet.js?v=1',
   './js/loop-core.js',
   './js/app-state.js?v=1',
   './js/audio-core.js?v=2',
