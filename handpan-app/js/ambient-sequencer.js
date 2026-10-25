@@ -279,10 +279,20 @@ export function mountAmbientSequencer() {
     getNotes: () => window.PionierCore?.handpan?.getNotes?.() || [],
     getTransport: () => window.PionierLooper?.getTransportState?.() || null
   });
+  if (!engine.snapshot().pattern.length) engine.makePattern();
   const playButton = panel.querySelector('.sequence-play');
   const freezeButton = panel.querySelector('.sequence-freeze');
   const syncButton = panel.querySelector('.sequence-switch');
   const status = panel.querySelector('.sequence-footnote');
+  const initial = engine.snapshot();
+  panel.querySelector('[data-control="density"]').value = String(Math.round(initial.density * 100));
+  panel.querySelector('[data-value="density"]').textContent = Math.round(initial.density * 100) + '%';
+  panel.querySelector('[data-control="evolution"]').value = String(Math.round(initial.evolution * 100));
+  panel.querySelector('[data-value="evolution"]').textContent = Math.round(initial.evolution * 100) + '%';
+  panel.querySelector('[data-control="space"]').value = String(Math.round(initial.space * 100));
+  panel.querySelector('[data-value="space"]').textContent = Math.round(initial.space * 100) + '%';
+  syncButton.setAttribute('aria-checked', String(initial.syncToLoop));
+  syncButton.classList.toggle('is-off', !initial.syncToLoop);
   let currentStep = -1;
 
   function renderPattern() {
