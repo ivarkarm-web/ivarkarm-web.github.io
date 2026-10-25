@@ -156,7 +156,6 @@
       document.body.appendChild(menu);
     }
     const toggle = row.querySelector('.settings-dd-toggle');
-    const valueEl = row.querySelector('.settings-dd-value');
     function renderMenu() {
       menu.replaceChildren();
       let lastGroup = null;
