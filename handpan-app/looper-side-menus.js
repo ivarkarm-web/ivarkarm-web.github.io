@@ -90,7 +90,7 @@
   }
 
   function fillRootMenu(menu) {
-    menu.innerHTML = '';
+    menu.replaceChildren();
     var title = document.createElement('div');
     title.className = 'looper-dd-title';
     title.textContent = 'Base note';
