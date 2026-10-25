@@ -1,4 +1,5 @@
 /* Pionier Sequence: swipe-in ambient companion instrument */
+html.pionier-welcome-active .pionier-sequence-edge { display:none !important; }
 .pionier-sequence-edge {
   position: fixed; z-index: 8800; right: 0; top: 48%; transform: translateY(-50%);
   width: 17px; height: 72px; padding: 0; border: 1px solid rgba(220,198,137,.32);
