@@ -41,7 +41,7 @@ let deferredStarted = false;
 
 async function loadLooper() {
   try {
-    const { mountLooper } = await import(new URL('./js/looper.js?v=234', BASE).href);
+    const { mountLooper } = await import(new URL('./js/looper.js?v=236', BASE).href);
     if (typeof mountLooper === 'function') mountLooper();
   } catch (e) {
     console.warn('[boot] looper', e);
@@ -93,6 +93,15 @@ async function loadSoundscapes() {
   }
 }
 
+async function loadAmbientSequencer() {
+  try {
+    const { mountAmbientSequencer } = await import(new URL('./js/ambient-sequencer.js?v=1', BASE).href);
+    if (typeof mountAmbientSequencer === 'function') mountAmbientSequencer();
+  } catch (e) {
+    console.warn('[boot] ambient sequencer', e);
+  }
+}
+
 function scheduleDeferredFeatures() {
   if (deferredStarted) return;
   deferredStarted = true;
@@ -102,6 +111,7 @@ function scheduleDeferredFeatures() {
     loadArps();
     loadNotePlus();
     loadSoundscapes();
+    loadAmbientSequencer();
   };
   if ('requestIdleCallback' in window) {
     requestIdleCallback(run, { timeout: 2500 });

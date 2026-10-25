@@ -1,0 +1,41 @@
+name: Pionier Ambient Prototype Checks
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'handpan-app/**'
+      - 'scripts/app-tests/phase10-looper-targets.spec.mjs'
+      - 'scripts/app-tests/phase11-ambient-sequencer.spec.mjs'
+      - '.github/workflows/pionier-sequence-prototype.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pionier-prototype-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  prototype-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Update npm
+        run: npm install --global npm@11
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Check Pionier cache manifest
+        run: npm run check:handpan-cache
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Smoke test
+        run: node scripts/smoke-test.mjs
+      - name: App unit tests
+        run: npm run test:app
+      - name: Mobile looper and ambient sequence regressions
+        run: npx playwright test scripts/app-tests/phase10-looper-targets.spec.mjs scripts/app-tests/phase11-ambient-sequencer.spec.mjs --project=mobile-360x640 --project=mobile-390x844
