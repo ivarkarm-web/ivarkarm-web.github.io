@@ -104,7 +104,7 @@
       });
       if (utilityGroup.parentElement) utilityGroup.remove();
     }
-    ['looperCountInBtn', 'looperMetronomeBtn', 'looperBpmBtn', 'looperSaveBtn'].forEach(function (id) {
+    ['looperCountInBtn', 'looperMetronomeBtn', 'looperBpmBtn'].forEach(function (id) {
       var control = document.getElementById(id);
       if (control) appendIfNeeded(loopControls, control);
     });
@@ -114,6 +114,7 @@
     var fx = document.getElementById('fxPanelOpen');
     var customize = document.getElementById('settingsOpenBtn');
     [soundscapes, fx, customize].forEach(function (el) { appendIfNeeded(actionGroup, el); });
+    appendIfNeeded(actionGroup, document.getElementById('looperSaveBtn'));
 
     var layers = document.getElementById('looperLayers');
     appendIfNeeded(tracks, layers);
