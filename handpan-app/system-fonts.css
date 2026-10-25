@@ -1,8 +1,0 @@
-/* Phase 4 — no webfont CDN; prefer native UI fonts for offline + first paint */
-:root {
-  --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --pionier-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-body, .app, button, input, select, textarea {
-  font-family: var(--font);
-}
