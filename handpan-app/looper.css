@@ -1152,7 +1152,8 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 
 
 
-/* Mobile looper: full-width seven-layer row; controls live in the visible dock. */
+
+/* Mobile looper: full-width seven-layer row with accessible transport targets. */
 @media (max-width: 390px) {
   #pionierBottomDock #pionierTrackRow {
     box-sizing: border-box !important;
@@ -1199,6 +1200,30 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
     max-width: 44px !important;
     max-height: 44px !important;
     flex: 0 0 44px !important;
+  }
+
+  #pionierBottomDock #pionierLooperToolbar {
+    box-sizing: border-box !important;
+    gap: 3px !important;
+    padding-inline: 4px !important;
+  }
+
+  #pionierBottomDock #pionierLooperControls,
+  #pionierBottomDock #pionierLooperActions {
+    gap: 3px !important;
+    min-width: 0 !important;
+  }
+
+  #pionierBottomDock #pionierLooperControls > button:not(#looperClearBtn),
+  #pionierBottomDock #pionierLooperActions > button {
+    box-sizing: border-box !important;
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+    max-width: 30px !important;
+    max-height: 30px !important;
+    flex: 0 0 30px !important;
   }
 
   #pionierBottomDock #pionierLooperControls #looperClearBtn {
