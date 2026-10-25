@@ -6,6 +6,21 @@ class PionierLooperRecorder extends AudioWorkletProcessor {
     this.left = new Float32Array(this.chunkSize);
     this.right = new Float32Array(this.chunkSize);
     this.offset = 0;
+    this.port.onmessage = (event) => {
+      if (event.data?.type === 'flush') {
+        this.flushPartial();
+        this.port.postMessage({ type: 'flushed' });
+      }
+    };
+  }
+  flushPartial() {
+    if (!this.offset) return;
+    const left = this.left.slice(0, this.offset);
+    const right = this.right.slice(0, this.offset);
+    this.port.postMessage({ left, right }, [left.buffer, right.buffer]);
+    this.left = new Float32Array(this.chunkSize);
+    this.right = new Float32Array(this.chunkSize);
+    this.offset = 0;
   }
   process(inputs, outputs) {
     const input = inputs[0];
