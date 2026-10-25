@@ -1344,7 +1344,7 @@ export function mountLooper({ root } = {}) {
 
   setBtnState();
   renderCircles();
-  const api = { clearAll, layers, openTrackPanel, closeTrackPanel, setBpm, setMetronome, getTimingState: () => ({ bpm, metronomeOn, countInEnabled, countInBars, beatsPerBar, clickType }), getState: () => ({ maxLayers: MAX_LAYERS, layerCount: layers.length, recording, pendingLoopStop }) };
+  const api = { clearAll, layers, openTrackPanel, closeTrackPanel, setBpm, setMetronome, getTimingState: () => ({ bpm, metronomeOn, countInEnabled, countInBars, beatsPerBar, clickType }), getTransportState: () => { const masterLayer = layers[0]; const ctx = getAudioContext(); const duration = cycleDuration(); const phase = cyclePhase(ctx?.currentTime); const paused = !masterLayer || !masterLayer.buffer || !!masterLayer.paused; const cycle = (!paused && ctx && duration > 0) ? Math.max(0, Math.floor((ctx.currentTime - (masterLayer.startedAt || ctx.currentTime)) / duration)) : 0; return { hasMaster: !!(masterLayer?.buffer && duration > 0), duration, phase, paused, cycle, bpm, currentTime: ctx?.currentTime || 0 }; }, getState: () => ({ maxLayers: MAX_LAYERS, layerCount: layers.length, recording, pendingLoopStop }) };
   // Keep a stable debug/test handle so browser checks and support diagnostics can
   // inspect the mounted loop engine without reaching into module internals.
   window.PionierLooper = api;
