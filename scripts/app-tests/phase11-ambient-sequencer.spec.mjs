@@ -22,6 +22,16 @@ test('phase11: ambient sequence opens, plays independently and preserves playbac
   await expect(panel.locator('.sequence-step')).toHaveCount(16);
   await expect(panel.getByRole('switch', { name: 'Sync to looper' })).toBeVisible();
 
+  // The primary interaction is an inward swipe from the right edge.
+  await panel.getByRole('button', { name: 'Return to handpan' }).click();
+  await expect(panel).toBeHidden();
+  const viewport = page.viewportSize();
+  await page.mouse.move(viewport.width - 3, viewport.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(viewport.width - 110, viewport.height / 2 + 4, { steps: 6 });
+  await page.mouse.up();
+  await expect(panel).toBeVisible();
+
   await panel.getByRole('button', { name: /Play backing/ }).click();
   await expect.poll(() => page.evaluate(() => window.PionierSequence.getState().playing)).toBe(true);
   await panel.getByRole('button', { name: 'Return to handpan' }).click();
