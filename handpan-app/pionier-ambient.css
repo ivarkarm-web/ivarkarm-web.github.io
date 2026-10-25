@@ -465,3 +465,10 @@ html.pionier-welcome-active .pionier-sequence-edge { display:none !important; }
   .pionier-sequence .sequence-control { display:grid; grid-template-columns:1fr; gap:6px; }
 }
 
+
+/* The sequencer remains an internal prototype until real-device timing,
+   level-balance and accessibility checks pass. Keep the main instrument uncluttered. */
+#pionierSequenceEdge,
+#pionierSequence {
+  display: none !important;
+}

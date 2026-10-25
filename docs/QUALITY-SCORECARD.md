@@ -1,32 +1,34 @@
 # Pionier Quality Scorecard
 
 **Last updated:** 2026-10-25  
-**Scope:** `handpan-app/` and its test/CI surface.  
-**APP_VERSION / CACHE:** `157` / `pionier-v157`
+**Build under audit:** `APP_VERSION 167` / `pionier-v167`  
+**Scope:** `handpan-app/`, its test/CI surface, and the proposed release-readiness branch.
 
-This scorecard is conservative. CI evidence is not a substitute for real-device iOS sign-off or sample licensing.
+This scorecard reports measurements and verification state only. A subjective readiness score is intentionally withheld until CI, device testing, and sample-rights checks are complete.
 
-## Current scores (target overall **8/10**)
+## Measured facts
 
-| Dimension | Score | Target | Evidence |
-|---|---:|---:|---|
-| Reliability confidence | **7/10** | 8/10 | Voice stress + phase9 multi-touch; AudioContext lifecycle tests; dock/root regression smoke. ScriptProcessor looper remains a known limit. |
-| Product coherence | **8/10** | 8/10 | Scope lock (no Learn / no uploads); Bedroom Sessions only; dual buses; README matches shell. |
-| Production readiness | **7.5/10** | 8/10 | `check:app` includes cache + smoke + unit + **file performance budgets** + Playwright; iOS checklist is a **hard release gate**. Owner must still sign IOS-SAFARI-CHECKLIST for full 8. |
-| Accessibility | **8/10** | 8.5/10 | focus-visible expansion; high-contrast path; axe HC enables color-contrast. |
-| Testing | **8/10** | 8.5/10 | phase3–9 specs including dock smoke + multi-touch; SW offline project. |
-| Performance | **7.5/10** | 8.5/10 | Enforced file budgets in CI; optional Lighthouse CLI locally. |
-| UX polish | **7.5/10** | 8.5/10 | Coach marks module (first-run); settings prefs persist; more prefs can migrate into app-state. |
-| **Overall (weighted)** | **~8.0/10** | **8/10** | Achieved when CI green + iOS checklist signed for the release. |
+| Metric | Measurement | Method / scope |
+|---|---:|---|
+| Consolidated CSS source | 328,995 bytes | Sum of the four source CSS files from GitHub file metadata; raw, not minified |
+| `!important` declarations | 3,036 occurrences | Source text count across the four consolidated CSS files |
+| CSS delivery budget | 250,000 bytes | Proposed hard ceiling for the minified Vite CSS bundle; pending successful CI measurement |
+| JavaScript bundle bytes | Not measured | Vite app build must pass before reporting a number |
+| iOS Safari checks | Pending | Real iPhone/iPad checklist not signed |
+| Android Chrome checks | Pending | Real Android device checklist not signed |
+| VoiceOver / TalkBack | Pending | Assistive technology not exercised on devices |
+| Sample commercial rights | Pending | Not established by automated tests |
 
-## Owner inputs still needed for a locked 8
+## Release gates
 
-1. Sign `handpan-app/IOS-SAFARI-CHECKLIST.md` on device for this APP_VERSION.
-2. Offline reload proof after SW install on phone.
-3. Sample rights for commercial claims beyond procedural fallback.
+- [ ] CI green on the exact release commit, including Vite build and CSS budget.
+- [ ] Looper toolbar visually verified on a real phone; update the test only after confirming the layout.
+- [ ] AudioWorklet-unavailable behavior tested in a browser without AudioWorklet.
+- [ ] iOS Safari checklist signed for the exact shipping `APP_VERSION`.
+- [ ] Android Chrome quick pass completed.
+- [ ] VoiceOver / TalkBack main flows reviewed.
+- [ ] Sample rights verified for any commercial claims.
 
-## Change log
+## Scoring policy
 
-- **2026-10-25 (Phases 10–14):** v157 metadata sync; phase8 dock/root smoke; phase9 multi-touch; performance budget script in `check:app`; iOS hard gate in release checklist; coach marks; scorecard targets 8 overall.
-- **2026-10-24:** Phase 8–9 focus + high-contrast.
-- **2026-10-21:** deploy.yml runs full browser suite; note-count 8–13.
+No numeric reliability, UX, accessibility, performance, or production-readiness scores are published here until the corresponding measurements and release gates above have evidence. CI passing alone does not establish real-device readiness.

@@ -15,12 +15,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  checks:
+    name: App checks and production build
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,8 +28,6 @@ jobs:
         with:
           node-version: 20
 
-      # Node 20 ships with npm 10 on this runner; use npm 11 to avoid the
-      # Arborist dependency-tree crash seen in npm install (null edgesOut).
       - name: Update npm
         run: npm install --global npm@11
 
@@ -53,6 +49,20 @@ jobs:
       - name: Browser tests
         run: npx playwright test
 
+      - name: Build minified Pionier app with Vite
+        run: npm run build:app
+
+      - name: Enforce minified CSS budget
+        run: npm run check:app-css-size
+
+      - name: Upload built Pionier app
+        uses: actions/upload-artifact@v4
+        with:
+          name: pionier-built-app
+          path: dist/handpan-app/
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Upload browser diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -63,10 +73,30 @@ jobs:
             playwright-report/
           if-no-files-found: ignore
 
+  deploy:
+    name: Deploy verified build
+    needs: checks
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download verified Pionier build
+        uses: actions/download-artifact@v4
+        with:
+          name: pionier-built-app
+          path: dist/handpan-app
+
+      - name: Overlay built app into Pages route
+        run: cp -a dist/handpan-app/. handpan-app/
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'

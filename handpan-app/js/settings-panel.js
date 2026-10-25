@@ -126,11 +126,25 @@
   function buildDropdown(sectionEl, { id, label, items, activeId, onPick }) {
     const row = document.createElement('div');
     row.className = 'settings-dd';
-    row.innerHTML =
-      '<div class="settings-dd-label">' + label + '</div>' +
-      '<button type="button" class="settings-dd-toggle" id="' + id + 'Toggle" aria-haspopup="listbox" aria-expanded="false">' +
-      '<span class="settings-dd-value" id="' + id + 'Value">' + labelFor(items, activeId) + '</span>' +
-      '<span class="settings-dd-chevron" aria-hidden="true">\u25BE</span></button>';
+    const labelEl = document.createElement('div');
+    labelEl.className = 'settings-dd-label';
+    labelEl.textContent = label;
+    const toggleEl = document.createElement('button');
+    toggleEl.type = 'button';
+    toggleEl.className = 'settings-dd-toggle';
+    toggleEl.id = id + 'Toggle';
+    toggleEl.setAttribute('aria-haspopup', 'listbox');
+    toggleEl.setAttribute('aria-expanded', 'false');
+    const valueEl = document.createElement('span');
+    valueEl.className = 'settings-dd-value';
+    valueEl.id = id + 'Value';
+    valueEl.textContent = labelFor(items, activeId);
+    const chevron = document.createElement('span');
+    chevron.className = 'settings-dd-chevron';
+    chevron.setAttribute('aria-hidden', 'true');
+    chevron.textContent = '▾';
+    toggleEl.append(valueEl, chevron);
+    row.append(labelEl, toggleEl);
     sectionEl.appendChild(row);
     let menu = document.getElementById(id + 'Menu');
     if (!menu) {
@@ -142,9 +156,8 @@
       document.body.appendChild(menu);
     }
     const toggle = row.querySelector('.settings-dd-toggle');
-    const valueEl = row.querySelector('.settings-dd-value');
     function renderMenu() {
-      menu.innerHTML = '';
+      menu.replaceChildren();
       let lastGroup = null;
       items.forEach((item) => {
         if (item.group && item.group !== lastGroup) {
@@ -228,7 +241,7 @@
   function buildBody(state) {
     const body = document.getElementById('settingsSheetBody');
     if (!body) return;
-    body.innerHTML = '';
+    body.replaceChildren();
     const cat = catalog();
 
     const app = document.createElement('section');
@@ -254,9 +267,12 @@
     trSec.innerHTML =
       '<div class="settings-section-label">Handpan transparency</div>' +
       '<div class="settings-row settings-slider-row">' +
-      '  <input type="range" id="settingTransparency" min="35" max="100" value="' + Math.round(state.transparency * 100) + '" />' +
-      '  <span class="settings-rgb-val" id="settingTransparencyVal">' + Math.round(state.transparency * 100) + '%</span>' +
+      '  <input type="range" id="settingTransparency" min="35" max="100" value="100" />' +
+      '  <span class="settings-rgb-val" id="settingTransparencyVal"></span>' +
       '</div>';
+    const transparencyPercent = Math.round(state.transparency * 100);
+    trSec.querySelector('#settingTransparency').value = String(transparencyPercent);
+    trSec.querySelector('#settingTransparencyVal').textContent = transparencyPercent + '%';
     body.appendChild(trSec);
 
     const ambSec = document.createElement('section');

@@ -200,11 +200,29 @@ export function mountLooper({ root } = {}) {
     return getAudioMaster();
   }
 
+  function showRecorderUnavailable(reason = 'AudioWorklet recording is not supported here.') {
+    btn.disabled = true;
+    btn.title = 'Loop recording unavailable';
+    btn.setAttribute('aria-label', 'Loop recording unavailable');
+    btn.setAttribute('aria-disabled', 'true');
+    let status = rail.querySelector('#looperRecorderStatus');
+    if (!status) {
+      status = document.createElement('p');
+      status.id = 'looperRecorderStatus';
+      status.className = 'looper-recorder-status';
+      status.setAttribute('role', 'status');
+      status.setAttribute('aria-live', 'polite');
+      (cluster || rail).insertAdjacentElement('afterend', status);
+    }
+    status.textContent = reason + ' The handpan remains playable, but loop recording is disabled.';
+  }
+
   async function ensureTap() {
     const ctx = getAudioContext();
     const bus = getRecordBus();
     if (!ctx || !bus || !ctx.audioWorklet || typeof AudioWorkletNode === 'undefined') {
       console.error('[looper] AudioWorklet recording is unavailable in this browser/context.');
+      showRecorderUnavailable('Loop recording needs a browser with AudioWorklet support.');
       return null;
     }
     if (processor && tapSource && tapSource !== bus) {
@@ -247,6 +265,7 @@ export function mountLooper({ root } = {}) {
       })().catch((err) => {
         tapPromise = null;
         console.error('[looper] AudioWorklet recorder failed to initialize', err);
+        showRecorderUnavailable('Loop recording could not initialize. Try reloading the app in an updated browser.');
         return false;
       });
     }
@@ -496,24 +515,24 @@ export function mountLooper({ root } = {}) {
     const overlay = document.createElement('div');
     overlay.className = 'looper-track-overlay is-floating';
     overlay.innerHTML = `
-      <section class="looper-track-panel" role="dialog" aria-modal="false" aria-label="Track ${index + 1} controls">
+      <section class="looper-track-panel" role="dialog" aria-modal="false" aria-label="Track controls">
         <header class="looper-track-header">
-          <div><div class="looper-track-eyebrow">PIONIER · LOOP MIXER</div><h2>Track ${index + 1}</h2><p>${(layer.buffer.duration || 0).toFixed(1)} sec loop</p></div>
+          <div><div class="looper-track-eyebrow">PIONIER · LOOP MIXER</div><h2 class="looper-track-title"></h2><p class="looper-track-length"></p></div>
           <button type="button" class="looper-track-close" aria-label="Close track controls">×</button>
         </header>
         <div class="looper-track-transport"><button type="button" class="looper-track-play"></button><span class="looper-track-status"></span></div>
         <div class="looper-waveform-wrap">
           <canvas class="looper-waveform" aria-label="Recorded audio waveform" role="img"></canvas>
-          <div class="looper-waveform-scrub"><input data-control="position" aria-label="Track playback position" type="range" min="0" max="${Math.max(0.01, layer.buffer.duration || 0.01)}" step="0.01"></div>
-          <div class="looper-track-position"><output class="looper-track-elapsed">0:00</output><span>/</span><span class="looper-track-duration">${formatLoopTime(layer.buffer.duration || 0)}</span></div>
+          <div class="looper-waveform-scrub"><input data-control="position" aria-label="Track playback position" type="range" min="0" max="1" step="0.01"></div>
+          <div class="looper-track-position"><output class="looper-track-elapsed">0:00</output><span>/</span><span class="looper-track-duration"></span></div>
           <button type="button" class="looper-crop-toggle" aria-expanded="false">Crop</button>
           <div class="looper-crop-editor" hidden>
             <p class="looper-crop-hint">Drag either edge to trim the beginning or end</p>
             <div class="looper-crop-range">
-              <input data-control="crop-start" aria-label="Crop beginning" type="range" min="0" max="${Math.max(0.01, layer.buffer.duration || 0.01)}" step="0.01" value="0">
-              <input data-control="crop-end" aria-label="Crop end" type="range" min="0" max="${Math.max(0.01, layer.buffer.duration || 0.01)}" step="0.01" value="${Math.max(0.01, layer.buffer.duration || 0.01)}">
+              <input data-control="crop-start" aria-label="Crop beginning" type="range" min="0" max="1" step="0.01" value="0">
+              <input data-control="crop-end" aria-label="Crop end" type="range" min="0" max="1" step="0.01" value="1">
             </div>
-            <div class="looper-crop-times"><span>In <output data-output="crop-start">0:00</output></span><span>Out <output data-output="crop-end">${formatLoopTime(layer.buffer.duration || 0)}</output></span></div>
+            <div class="looper-crop-times"><span>In <output data-output="crop-start">0:00</output></span><span>Out <output data-output="crop-end"></output></span></div>
             <div class="looper-crop-actions"><button type="button" data-action="crop-cancel">Cancel</button><button type="button" data-action="crop-apply">Apply crop</button></div>
           </div>
         </div>
@@ -523,9 +542,24 @@ export function mountLooper({ root } = {}) {
           <div class="looper-knob-control"><span class="looper-knob-label">Delay send</span><button type="button" class="looper-knob" data-control="delay" role="slider" aria-label="Delay send" aria-valuemin="0" aria-valuemax="0.75"><span class="looper-knob-face"><i></i></span></button><output class="looper-knob-value" data-output="delay"></output></div>
           <div class="looper-knob-control"><span class="looper-knob-label">Low-pass cut</span><button type="button" class="looper-knob" data-control="cut" role="slider" aria-label="Low-pass cutoff" aria-valuemin="300" aria-valuemax="20000"><span class="looper-knob-face"><i></i></span></button><output class="looper-knob-value" data-output="cut"></output></div>
         </div>
-        <div class="looper-track-control looper-track-quantize"><label for="track-quantize-${index}"><span>Quantize on resume</span></label><select id="track-quantize-${index}" data-control="quantize"><option value="off">Off</option><option value="beat">Beat</option><option value="eighth">1/8 note</option><option value="sixteenth">1/16 note</option></select></div>
+        <div class="looper-track-control looper-track-quantize"><label for="track-quantize"><span>Quantize on resume</span></label><select id="track-quantize" data-control="quantize"><option value="off">Off</option><option value="beat">Beat</option><option value="eighth">1/8 note</option><option value="sixteenth">1/16 note</option></select></div>
         <footer class="looper-track-footer"><button type="button" class="looper-track-mute"></button><button type="button" class="looper-track-delete">Delete track</button></footer>
       </section>`;
+    const loopDuration = Math.max(0.01, layer.buffer.duration || 0.01);
+    const trackPanel = overlay.querySelector('.looper-track-panel');
+    trackPanel.setAttribute('aria-label', 'Track ' + (index + 1) + ' controls');
+    trackPanel.querySelector('.looper-track-title').textContent = 'Track ' + (index + 1);
+    trackPanel.querySelector('.looper-track-length').textContent = (layer.buffer.duration || 0).toFixed(1) + ' sec loop';
+    trackPanel.querySelector('[data-control="position"]').max = String(loopDuration);
+    trackPanel.querySelector('[data-control="crop-start"]').max = String(loopDuration);
+    const cropEndInputEl = trackPanel.querySelector('[data-control="crop-end"]');
+    cropEndInputEl.max = String(loopDuration);
+    cropEndInputEl.value = String(loopDuration);
+    trackPanel.querySelector('.looper-track-duration').textContent = formatLoopTime(layer.buffer.duration || 0);
+    trackPanel.querySelector('[data-output="crop-end"]').textContent = formatLoopTime(layer.buffer.duration || 0);
+    const quantizeSelectEl = trackPanel.querySelector('[data-control="quantize"]');
+    quantizeSelectEl.id = 'track-quantize-' + index;
+    trackPanel.querySelector('label[for="track-quantize"]').htmlFor = quantizeSelectEl.id;
     document.body.appendChild(overlay);
     trackPanelEl = overlay;
     const panel = overlay.querySelector('.looper-track-panel');
@@ -795,7 +829,8 @@ export function mountLooper({ root } = {}) {
 
     const sheet = document.createElement('div');
     sheet.className = 'looper-sheet';
-    sheet.innerHTML = '<header class="looper-sheet-header"><div class="looper-sheet-title">Layer ' + (index + 1) + '</div><button type="button" class="looper-menu-close" aria-label="Close layer controls">×</button></header>';
+    sheet.innerHTML = '<header class="looper-sheet-header"><div class="looper-sheet-title"></div><button type="button" class="looper-menu-close" aria-label="Close layer controls">×</button></header>';
+    sheet.querySelector('.looper-sheet-title').textContent = 'Layer ' + (index + 1);
     const sheetCloseButton = sheet.querySelector('.looper-menu-close');
     sheetCloseButton.style.pointerEvents = 'auto';
     sheetCloseButton.addEventListener('pointerdown', event => { event.preventDefault(); event.stopPropagation(); closeSheet(); }, { capture: true });
@@ -881,13 +916,14 @@ export function mountLooper({ root } = {}) {
     dialog.innerHTML = `
       <form method="dialog" class="looper-save-form">
         <p class="looper-save-eyebrow">PIONIER · LOOP</p>
-        <h2>Delete track ${index + 1}?</h2>
+        <h2 class="looper-delete-title"></h2>
         <p class="looper-save-copy">This removes the recorded track. This cannot be undone.</p>
         <div class="looper-save-actions">
           <button type="button" class="looper-save-cancel">Keep track</button>
           <button type="button" class="looper-save-confirm">Delete track</button>
         </div>
       </form>`;
+    dialog.querySelector('.looper-delete-title').textContent = 'Delete track ' + (index + 1) + '?';
     document.body.appendChild(dialog);
     dialog.querySelector('.looper-save-cancel').addEventListener('click', () => dialog.close());
     dialog.querySelector('.looper-save-confirm').addEventListener('click', () => {
@@ -902,13 +938,16 @@ export function mountLooper({ root } = {}) {
   }
 
   function renderCircles() {
-    layersEl.innerHTML = '';
+    layersEl.replaceChildren();
     layers.forEach((layer, i) => {
       const c = document.createElement('button');
       c.type = 'button';
       c.className = 'looper-circle' + (layer.paused ? ' is-paused' : ' is-playing') + (layer.muted ? ' is-muted' : '') + (layer.solo ? ' is-solo' : '');
       c.setAttribute('aria-label', 'Layer ' + (i + 1));
-      c.innerHTML = '<span class="looper-circle-core">' + (i + 1) + '</span>';
+      const core = document.createElement('span');
+      core.className = 'looper-circle-core';
+      core.textContent = String(i + 1);
+      c.appendChild(core);
       c.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         e.stopPropagation();

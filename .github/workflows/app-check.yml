@@ -3,12 +3,14 @@ name: Handpan App Checks
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
 
 permissions:
   contents: read
 
 concurrency:
-  group: app-check-${{ github.event.pull_request.number }}
+  group: app-check-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
 jobs:
@@ -46,6 +48,12 @@ jobs:
 
       - name: Browser tests
         run: npx playwright test
+
+      - name: Build minified Pionier app with Vite
+        run: npm run build:app
+
+      - name: Enforce minified CSS budget
+        run: npm run check:app-css-size
 
       - name: Upload browser diagnostics on failure
         if: failure()

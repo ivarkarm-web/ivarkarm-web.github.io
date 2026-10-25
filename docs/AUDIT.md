@@ -1,9 +1,9 @@
-# Pionier app audit — 2026-10-18
+# Pionier app audit — 2026-10-25 (source + CI follow-up)
 
 ## Scope and baseline
 
 Repository: `ivarkarm-web/ivarkarm-web.github.io`, default branch `main`.
-Live route: `/handpan-app/`. Static HTML/CSS/ES modules; no build step is required.
+Live route: `/handpan-app/`. Current source release is `APP_VERSION` 167 (`pionier-v167`). The live route currently serves the source HTML/CSS/ES modules. The readiness branch adds an app-specific Vite build and a 250,000-byte minified CSS gate; these remain unverified until CI passes and the branch is merged.
 This is a source-level audit. No physical iOS/Android device or browser automation was run as part of this audit, so the user-reported mobile failures below remain reproduction targets rather than independently reproduced findings.
 
 ## Reference screenshots — inspected individually
@@ -39,7 +39,7 @@ All six PNGs were visually inspected. The capture set shows the same dark, restr
 - Effects/filter controls and XY/effect surface (depending on active markup).
 - Looper/transport controls and loop/layer UI.
 - Soundscapes / Bedroom Sessions player entry points and playlist-related code.
-- Skin/customization, ambient, Learn, and other legacy UI hooks still have CSS/JS references even though screenshot CSS hides some of them.
+- Skin/customization and ambient modules remain. Learn styles were removed in the v167 cleanup; the ambient sequencer modules still exist and require an explicit product decision about whether they are supported or hidden.
 
 ## Reported live-phone bugs — automated coverage status (2026-10-21)
 
@@ -57,12 +57,12 @@ Treat remaining gaps as release blockers until W2 Playwright suite closes them. 
 
 ## Architecture observed
 
-- `index.html`: static app shell, many layered CSS stylesheets and status/retry UI.
+- `index.html`: static app shell with four consolidated CSS files and status/retry UI.
 - `pionier-core.js`: locally vendored core; wires audio context, registry, gesture tracker, handpan, instrument library, FX, Catch Mode, debug tools, and surface.
 - `js/audio-core.js`: shared Web Audio context/master.
 - `js/instruments/handpan.js` + `handpan-scales.js`: note layout, scale/root/transpose behavior, samples and synthesis fallback.
 - `js/gesture.js`, `js/pionier-surface.js`, `js/pad-layout.js`: pointer/gesture and radial interaction layers.
-- `js/looper.js`: current multi-layer looper; its header documents up to eight layers and FREE/LOOP/BEAT/SERIAL modes. It does not match the requested new four-track design.
+- `js/looper.js`: current multi-layer looper with AudioWorklet recording, FREE/LOOP/BEAT/SERIAL modes, and an accessible unsupported-browser fallback. It still needs real-device audio and toolbar verification.
 - `screenshot-ui.css`, `legacy-hide.css`, `topbar-narrow.css`, `looper.css`, `scale-menu.css`, `atelier.css`, `ui-stability.css`: layered UI overrides. Their cascade is a likely source of regressions and needs consolidation only after behavior is stable.
 - `README.md`: says Bedroom Sessions is the owner's eight archive.org recordings only, no Learn mode, no third-party embeds and no generated ambience; it also notes the panel remains experimentally present.
 - Five/six reference screenshot assets live in the app folder.
@@ -94,13 +94,21 @@ Treat remaining gaps as release blockers until W2 Playwright suite closes them. 
 - [x] Six screenshot files located by repository tree.
 - [x] Active entry, core, stylesheet and handpan module inspected.
 - [x] Note-count range unified (8–13) and unit-tested (W1).
-- [x] deploy.yml runs full smoke + unit + Playwright before Pages upload (W1).
+- [x] deploy workflow runs smoke + unit + Playwright before Pages upload; a v167 deployment attempt was blocked by a brittle, incorrectly escaped CSS assertion (the source positioning rule is present). The over-escaped assertions were corrected on the readiness branch; the branch also adds a Vite build and minified CSS budget gate. Fresh CI is still pending.
 - [ ] Per-screenshot visual inventory and exact reference comparison.
 - [x] Phone bug #4 (root / note-count) covered by unit tests; others partial or planned for W2.
 - [ ] Automated tests at 360×640, 390×844 and tablet/desktop viewport (W2).
-- [ ] Real iOS Safari and Android Chrome checks (owner-gated).
-- [ ] Multitouch, rapid strikes, audio latency, looper drift, export, offline and accessibility checks.
+- [ ] Real iOS Safari and Android Chrome checks for v167 (owner-gated; not performed by this audit).
+- [ ] Multitouch, rapid strikes, audio latency, looper drift, export, offline and VoiceOver/TalkBack checks.
 
 ## Release posture
 
 Do not claim the requested 8/10 reliability or production-readiness score until the blocker regressions and acceptance matrix pass. No live-device test is claimed here.
+
+
+## Release readiness — v167
+
+- **Measured:** four source CSS files total 328,995 bytes (raw, before gzip/minification).
+- **Not measured:** final minified CSS bytes and JS bundle bytes until CI completes; mobile-device behavior remains untested.
+- **CI issue found:** the last deployment run failed at the looper-toolbar unit assertion because the regular expression was over-escaped; this was a test defect, not evidence that the positioning rule was missing.
+- **Release gate:** do not mark production-ready or assign a numeric readiness score until the corrected CI run passes, CSS/JS performance budgets are measured, and the real-device checklist is signed by a human tester.
