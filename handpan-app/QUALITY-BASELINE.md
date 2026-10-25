@@ -19,7 +19,7 @@ Measured against `origin/main` (quality climb phases 10–14, 2026-10-25).
 
 ## Sequence grid
 
-The Sequence panel is a hands-on 4-voice × 16-step grid. Each row has a distinct synthesized timbre; tap cells to toggle notes. Patterns persist locally and are not auto-randomized during playback.
+The 4-voice × 16-step ambient sequence prototype is currently hidden from the user interface until real-device timing, level balance, and accessibility checks pass. Its browser test asserts that the prototype stays hidden.
 
 ## Service worker
 
@@ -59,7 +59,7 @@ Boot states: `loading` → `ready` | `degraded` | `failed` via `#appStatus`. Opt
 
 ## Ambient sequence prototype (source present; real-device release validation pending)
 
-- Separate swipe-in ambient backing surface; the handpan remains the main screen.
+- Separate swipe-in ambient backing surface is implemented but hidden pending real-device validation; the handpan remains the main screen.
 - One shared AudioContext/master bus; sequence uses its own synthesis bus with adjustable output level.
 - Scale-aware notes from the active handpan scale, with Density, Evolution, Space, Level, Freeze and Regenerate controls.
 - Looper exposes master duration, phase, cycle and pause state for sequence synchronization.
