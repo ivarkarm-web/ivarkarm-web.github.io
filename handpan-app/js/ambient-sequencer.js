@@ -17,6 +17,7 @@ export function createAmbientSequenceEngine({ getNotes, getTransport } = {}) {
   let evolution = 0.16;
   let space = 0.72;
   let freeBpm = 60;
+  let freeStartTime = 0;
   let syncToLoop = true;
   let stepIndex = -1;
   let timer = 0;
@@ -128,8 +129,9 @@ export function createAmbientSequenceEngine({ getNotes, getTransport } = {}) {
       stepDuration = transport.duration / STEPS;
     } else {
       stepDuration = 60 / freeBpm / 4;
-      phase = now % (stepDuration * STEPS);
-      cycle = Math.floor(now / (stepDuration * STEPS));
+      const elapsed = Math.max(0, now - freeStartTime);
+      phase = elapsed % (stepDuration * STEPS);
+      cycle = Math.floor(elapsed / (stepDuration * STEPS));
     }
     const step = Math.min(STEPS - 1, Math.floor(phase / stepDuration));
     const identity = (transport && !transport.paused ? 'loop' : 'free') + ':' + cycle + ':' + step;
@@ -164,6 +166,7 @@ export function createAmbientSequenceEngine({ getNotes, getTransport } = {}) {
     resumeAudio();
     if (!pattern.length) makePattern();
     playing = true;
+    freeStartTime = ctx.currentTime;
     lastScheduledStep = '';
     if (timer) clearTimeout(timer);
     timer = window.setTimeout(tick, 20);
@@ -183,7 +186,7 @@ export function createAmbientSequenceEngine({ getNotes, getTransport } = {}) {
   function setEvolution(value) { evolution = clamp(Number(value) || 0, 0, 0.65); return evolution; }
   function setSpace(value) { space = clamp(Number(value) || 0, 0, 1); return space; }
   function setBpm(value) { freeBpm = clamp(Math.round(Number(value) || 60), 35, 110); return freeBpm; }
-  function toggleSync(value) { syncToLoop = Boolean(value); lastScheduledStep = ''; return syncToLoop; }
+  function toggleSync(value) { syncToLoop = Boolean(value); freeStartTime = ctx?.currentTime || 0; lastScheduledStep = ''; return syncToLoop; }
   function toggleFreeze(value) { frozen = typeof value === 'boolean' ? value : !frozen; return frozen; }
   function toggleStep(index) {
     if (index < 0 || index >= STEPS) return;
