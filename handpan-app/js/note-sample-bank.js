@@ -51,8 +51,9 @@ export class NoteSampleBank {
     const candidates = [];
     const raw = String(file);
     if (/\.wav$/i.test(raw)) {
-      candidates.push(raw.replace(/\.wav$/i, '.webm'));
+      // Prefer AAC/M4A for broad iOS decoding support, then WebM, then source WAV.
       candidates.push(raw.replace(/\.wav$/i, '.m4a'));
+      candidates.push(raw.replace(/\.wav$/i, '.webm'));
     }
     candidates.push(raw);
     let ab = null;

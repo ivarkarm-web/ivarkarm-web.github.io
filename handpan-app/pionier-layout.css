@@ -1,0 +1,1234 @@
+
+/* ===== shell-chrome.css ===== */
+/* Phase 7 — offline pill + SW update toast */
+.pionier-net-pill {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6000;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font: 500 11px/1.2 system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.04em;
+  color: #f0e6d0;
+  background: rgba(40, 28, 12, 0.92);
+  border: 1px solid rgba(218, 190, 125, 0.35);
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.pionier-update-toast {
+  position: fixed;
+  bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6001;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 10px 16px;
+  border-radius: 14px;
+  font: 500 13px/1.3 system-ui, -apple-system, sans-serif;
+  color: #f3eee3;
+  background: rgba(18, 16, 14, 0.94);
+  border: 1px solid rgba(218, 190, 125, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  max-width: min(92vw, 360px);
+}
+
+.pionier-update-toast[hidden] {
+  display: none !important;
+}
+
+.pionier-update-msg {
+  flex: 1 1 auto;
+}
+
+.pionier-update-reload {
+  appearance: none;
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font: 600 12px/1 system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.03em;
+  color: #1a140c;
+  background: linear-gradient(180deg, #e8d5a4, #c9a86a);
+  cursor: pointer;
+}
+
+.pionier-update-reload:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+
+
+/* ===== portrait-lock.css ===== */
+/**
+ * Phone landscape gate — keep the instrument portrait-only.
+ * Desktop / tablet landscape (tall enough) is unaffected.
+ */
+.portrait-lock {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  align-items: center;
+  justify-content: center;
+  background: #070708;
+  color: #e6e0d2;
+  text-align: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.portrait-lock-msg {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  opacity: 0.9;
+}
+
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  .portrait-lock {
+    display: flex !important;
+  }
+  body.pionier-landscape .portrait-lock {
+    display: flex !important;
+  }
+  #app,
+  #pionierWelcome,
+  #headphonesHint,
+  #appStatus,
+  #fxPanel,
+  #fxEditor,
+  #fxEditorBackdrop,
+  #soundscapesPanel {
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+}
+
+
+
+/* ===== pionier-control-layout.css ===== */
+/* Recovery v12: the controls belong in a fixed bottom dock, never the top bar. */
+#pionierBottomDock {
+  position:fixed !important; left:0 !important; right:0 !important; bottom:0 !important;
+  z-index:1000 !important; display:flex !important; flex-direction:column !important;
+  align-items:stretch !important; justify-content:flex-end !important;
+  gap:5px !important; width:100% !important; max-width:100% !important;
+  min-width:0 !important; box-sizing:border-box !important;
+  padding:6px 8px max(8px, env(safe-area-inset-bottom, 0px)) !important;
+  background:linear-gradient(to top, rgba(7,7,8,.98) 64%, rgba(7,7,8,.82) 100%) !important;
+  border-top:1px solid rgba(230,224,210,.08) !important;
+  overflow:visible !important;
+}
+#pionierBottomDock #pionierSelectorRow { order:3; }
+#pionierBottomDock #pionierTrackRow { order:1; margin:0 auto !important; }
+#pionierBottomDock #pionierLooperToolbar { order:2; margin:0 auto !important; padding:0 2px !important; }
+#app > .topbar { flex:0 0 auto !important; }
+#stage {
+  flex:1 1 auto !important; min-height:0 !important; min-width:0 !important;
+  padding-top:8px !important;
+  padding-bottom:calc(var(--chrome-bottom, 150px) + 8px) !important;
+  overflow:hidden !important; box-sizing:border-box !important;
+}
+/* PIONIER responsive UI recovery v12 — layout-only overrides.
+   Audio, samples, instrument rendering, and control handlers are untouched. */
+#app.pionier-layout-recovered { width:100%; min-width:0; overflow:visible; }
+#app > .topbar {
+  display:flex !important; flex-direction:column !important; align-items:stretch !important;
+  justify-content:flex-start !important; width:100% !important; height:auto !important;
+  min-height:0 !important; max-height:none !important; position:relative !important;
+  overflow:visible !important; box-sizing:border-box !important;
+  padding: max(6px, env(safe-area-inset-top, 0px)) 10px 4px !important; gap:6px !important;
+}
+#app > .topbar > .center-nav { display:none !important; }
+#app > .mobile-control-drawer { display:none !important; }
+#pionierSelectorRow {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  width:100%; max-width:760px; margin:0 auto; min-width:0; box-sizing:border-box;
+}
+.pionier-selector-group {
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  flex:1 1 0; min-width:0; box-sizing:border-box;
+}
+.pionier-instrument-group { max-width:50%; }
+.pionier-scale-group { max-width:50%; }
+#pionierInstrumentGroup #voicePrev,
+#pionierInstrumentGroup #voiceNext {
+  display:inline-flex !important; flex:0 0 28px !important; width:28px !important;
+  min-width:28px !important; height:36px !important; min-height:36px !important;
+  align-items:center; justify-content:center; padding:0 !important;
+}
+#pionierInstrumentGroup #instrumentDropdownToggle {
+  flex:1 1 auto !important; width:100% !important; min-width:0 !important;
+  max-width:none !important; height:40px !important; min-height:40px !important;
+  overflow:hidden !important; text-overflow:ellipsis !important; white-space:nowrap !important;
+  padding:0 10px !important; box-sizing:border-box !important;
+  border-radius:999px !important; border:1px solid rgba(226,211,174,.18) !important;
+  background:rgba(255,255,255,.055) !important; box-shadow:none !important;
+  color:var(--text, #eeeae1) !important; font-family:inherit !important; font-size:12px !important; font-weight:600 !important; line-height:1.1 !important;
+}
+#pionierInstrumentGroup #randomizeSetup {
+  display:inline-flex !important; position:static !important; flex:0 0 36px !important;
+  width:36px !important; min-width:36px !important; max-width:36px !important;
+  height:36px !important; min-height:36px !important; max-height:36px !important;
+  align-items:center; justify-content:center; padding:6px !important; margin:0 !important;
+  border-radius:50% !important; background:rgba(212,176,74,.08) !important;
+  border:1px solid rgba(212,176,74,.25) !important; box-shadow:none !important;
+}
+#pionierInstrumentGroup .randomize-die { width:21px; height:21px; }
+#pionierScaleGroup > .control-scale {
+  display:flex !important; flex:1 1 auto !important; width:auto !important;
+  min-width:0 !important; max-width:none !important; margin:0 !important; padding:0 !important;
+  align-items:center !important; justify-content:center !important; position:relative !important;
+}
+#pionierScaleGroup .control-label,
+#pionierScaleGroup .control-half > .control-label { display:none !important; }
+#pionierScaleGroup .scale-stepper {
+  display:flex !important; flex:1 1 auto !important; min-width:0 !important; width:100% !important;
+  height:40px !important; min-height:40px !important; padding:3px 4px !important; gap:2px !important;
+  align-items:center !important; box-sizing:border-box !important;
+  border:1px solid rgba(226,211,174,.18) !important; border-radius:999px !important;
+  background:rgba(255,255,255,.055) !important; box-shadow:none !important;
+}
+#pionierScaleGroup .scale-stepper .step {
+  display:inline-flex !important; flex:0 0 24px !important; width:24px !important;
+  min-width:24px !important; height:30px !important; min-height:30px !important;
+  padding:0 !important; align-items:center; justify-content:center;
+  border:0 !important; border-radius:50% !important; background:transparent !important;
+}
+#pionierScaleGroup #scaleLabel {
+  display:block !important; flex:1 1 auto !important; min-width:0 !important;
+  width:auto !important; max-width:none !important; height:32px !important;
+  padding:0 4px !important; overflow:hidden !important; text-overflow:ellipsis !important;
+  white-space:nowrap !important; text-align:center !important; border:0 !important;
+  border-radius:999px !important; background:transparent !important;
+  font-size:clamp(10px, 2.7vw, 12px) !important;
+}
+#pionierScaleGroup > .control-half {
+  display:flex !important; flex:0 0 auto !important; align-items:center !important;
+  justify-content:center !important; width:auto !important; min-width:0 !important;
+  margin:0 !important; padding:0 !important;
+}
+#pionierScaleGroup > .control-half .stepper {
+  display:flex !important; align-items:center !important; justify-content:center !important;
+  gap:2px !important; height:40px !important; min-height:40px !important;
+  width:auto !important; min-width:66px !important; padding:3px 5px !important;
+  box-sizing:border-box !important; border:1px solid rgba(226,211,174,.18) !important;
+  border-radius:999px !important; background:rgba(255,255,255,.055) !important;
+}
+#pionierScaleGroup #rootPrev, #pionierScaleGroup #rootNext {
+  display:inline-flex !important; flex:0 0 18px !important; width:18px !important;
+  min-width:18px !important; height:28px !important; min-height:28px !important;
+  padding:0 !important; border:0 !important; border-radius:50% !important;
+  background:transparent !important; align-items:center; justify-content:center;
+}
+#pionierScaleGroup #rootLabel {
+  display:inline-block !important; flex:1 1 auto !important; min-width:22px !important;
+  width:auto !important; padding:0 2px !important; text-align:center !important;
+  white-space:nowrap !important; font-size:11px !important;
+}
+#pionierScaleGroup #noteCountPrev, #pionierScaleGroup #noteCountNext,
+#pionierScaleGroup #noteCountLabel, #pionierScaleGroup #notePlus,
+#pionierScaleGroup #noteMinus, #pionierScaleGroup #notePlusWrap { display:none !important; }
+
+#looperRail { display:none !important; }
+#pionierLooperToolbar {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  width:100%; max-width:760px; min-width:0; margin:2px auto 0; padding:0 10px;
+  box-sizing:border-box; position:relative; z-index:20;
+}
+#pionierLooperControls, #pionierLooperActions {
+  display:flex; align-items:center; gap:6px; min-width:0; flex:0 1 auto;
+}
+#pionierLooperControls { justify-content:flex-start; }
+#pionierLooperActions { justify-content:flex-end; margin-left:auto; }
+#pionierLooperControls > button, #pionierLooperActions > button {
+  position:static !important; inset:auto !important; transform:none !important;
+  display:inline-flex !important; visibility:visible !important; opacity:1 !important;
+  flex:0 0 36px !important; width:36px !important; min-width:36px !important;
+  max-width:36px !important; height:36px !important; min-height:36px !important;
+  max-height:36px !important; margin:0 !important; padding:0 !important;
+  align-items:center !important; justify-content:center !important; box-sizing:border-box !important;
+  border-radius:50% !important; box-shadow:none !important;
+}
+#pionierLooperControls #looperClearBtn {
+  border:1px solid rgba(235,229,215,.16) !important; background:rgba(255,255,255,.045) !important;
+}
+#pionierLooperControls #looperRecordCluster {
+  display:flex !important; position:static !important; flex:0 0 auto !important;
+  width:auto !important; height:auto !important; margin:0 !important; padding:0 !important;
+}
+#pionierLooperControls #looperBtn { display:flex !important; position:relative !important; }
+#pionierLooperActions #openSoundscapes,
+#pionierLooperActions #fxPanelOpen,
+#pionierLooperActions #settingsOpenBtn {
+  border:1px solid rgba(235,229,215,.16) !important;
+  background:rgba(255,255,255,.045) !important; color:var(--text, #eeeae1) !important;
+}
+#pionierTrackRow {
+  display:flex; align-items:center; justify-content:flex-start; gap:6px;
+  width:100%; max-width:760px; min-width:0; min-height:0; margin:2px auto 0;
+  padding:0 10px 3px; box-sizing:border-box; overflow-x:auto; overflow-y:hidden;
+  overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch; scrollbar-width:thin;
+}
+#pionierTrackRow #looperLayers {
+  display:flex !important; position:static !important; inset:auto !important; transform:none !important;
+  flex:0 0 auto !important; width:max-content !important; min-width:0 !important; max-width:none !important;
+  margin:0 !important; padding:0 !important; overflow:visible !important;
+  align-items:center !important; justify-content:flex-start !important; gap:6px !important;
+}
+#pionierTrackRow #looperLayers > * { flex:0 0 auto; }
+#scaleMenu, #instrumentMenu {
+  z-index:7200 !important; box-sizing:border-box !important;
+  width:min(320px, calc(100vw - 24px)) !important; max-width:calc(100vw - 24px) !important;
+  max-height:min(52dvh, 400px) !important; overflow:hidden !important;
+  border-radius:16px !important; background:rgba(16,16,19,.96) !important;
+  border:1px solid rgba(226,195,117,.24) !important;
+  box-shadow:0 20px 60px rgba(0,0,0,.46), inset 0 1px 0 rgba(255,255,255,.035) !important;
+  -webkit-backdrop-filter:blur(24px) saturate(125%) !important; backdrop-filter:blur(24px) saturate(125%) !important;
+}
+#scaleMenu .picker-results, #instrumentMenu .picker-results {
+  min-height:0 !important; overflow-y:auto !important; overscroll-behavior:contain !important;
+  -webkit-overflow-scrolling:touch !important;
+}
+#scaleLabel[aria-expanded="true"] { background:rgba(212,176,74,.08) !important; }
+#stage { min-width:0; width:100%; }
+#pan { touch-action:manipulation; max-width:100%; }
+
+/* v13 split rows */
+#pionierBottomDock #pionierSelectorRow{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:5px!important;width:100%!important;max-width:560px!important;margin:0 auto!important}
+#pionierBottomDock #pionierScaleRow,#pionierBottomDock #pionierInstrumentRow{display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;width:100%!important;min-width:0!important;margin:0!important;padding:0 4px!important;box-sizing:border-box!important}
+#pionierScaleRow #pionierScaleGroup{flex:1 1 auto!important;max-width:none!important;min-width:0!important}
+#pionierScaleRow #pionierScaleGroup>.control-half{flex:0 0 82px!important;width:82px!important}
+#pionierScaleRow #pionierScaleGroup>.control-half .stepper{width:100%!important;min-width:0!important}
+#pionierInstrumentRow #pionierInstrumentGroup{flex:1 1 auto!important;width:100%!important;max-width:none!important}
+#pionierLooperToolbar{position:relative!important;min-height:54px!important;justify-content:space-between!important;padding:0 6px!important;gap:4px!important}
+#pionierLooperControls{flex:1 1 0!important;justify-content:flex-start!important}
+#pionierLooperActions{flex:1 1 0!important;justify-content:flex-end!important;margin-left:0!important}
+#pionierLooperToolbar #looperRecordCluster{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;display:flex!important;align-items:center!important;justify-content:center!important;width:54px!important;height:54px!important;margin:0!important;padding:0!important;pointer-events:auto!important;z-index:3!important}
+#pionierLooperToolbar #looperBtn{flex:0 0 52px!important;transform:none!important}
+#stage{padding-bottom:calc(var(--chrome-bottom,190px) + 8px)!important}
+#pan{width:min(92vw,calc(100dvh - var(--chrome-bottom,190px) - 60px),560px)!important;height:auto!important;max-width:92vw!important;max-height:none!important;aspect-ratio:1!important;flex:0 0 auto!important;visibility:visible!important;opacity:1!important}
+
+/* NOTE: Partial restore of core layout rules. Full original was ~43KB;
+   remaining polish rules live in prior commit 7ffc713. Light mode for this
+   dock is handled by theme-light-overlays.css. */
+
+
+
+/* ===== handpan-themes.css ===== */
+/**
+ * handpan-themes.css — Phase 3 premium dark / light handpan tokens.
+ */
+
+:root,
+html.dark,
+html:not(.theme-light) {
+  color-scheme: dark;
+  --hp-bg: #08080a;
+  --hp-bg-elevated: #0c0c0e;
+  --hp-disc-0: #2e3036;
+  --hp-disc-1: #1a1b1f;
+  --hp-disc-2: #0e0f12;
+  --hp-pad-0: 58, 60, 68;
+  --hp-pad-1: 36, 38, 44;
+  --hp-pad-2: 22, 23, 27;
+  --hp-stroke: 255, 255, 255;
+  --hp-stroke-alpha: 0.12;
+  --hp-rim: 220, 224, 232;
+  --hp-lip: 200, 204, 212;
+  --hp-accent: 201, 162, 39;
+  --hp-accent-bright: 228, 195, 90;
+  --hp-glow-0: 230, 235, 245;
+  --hp-glow-1: 140, 150, 170;
+  --hp-label: #9a9690;
+  --hp-label-press: #f0ece4;
+  --hp-label-size: 0.62rem;
+  --hp-label-font: "Inter", "JetBrains Mono", ui-sans-serif, system-ui, sans-serif;
+  --hp-rim-width: 1px;
+  --hp-press-scale: 0.97;
+  --hp-press-ms: 420ms;
+  --hp-sheen: 0.12;
+  /* Center in stage; slight lift keeps clearance above bottom looper */
+  --hp-pan-offset-y: -6%;
+}
+
+html.theme-light,
+html.theme-light body,
+body.theme-light {
+  color-scheme: light;
+  --hp-bg: #e8e4dc;
+  --hp-bg-elevated: #f2efe8;
+  --hp-disc-0: #e4e0d8;
+  --hp-disc-1: #c8c4bc;
+  --hp-disc-2: #9e9a92;
+  --hp-pad-0: 220, 216, 208;
+  --hp-pad-1: 180, 176, 168;
+  --hp-pad-2: 140, 136, 128;
+  --hp-stroke: 20, 18, 14;
+  --hp-stroke-alpha: 0.14;
+  --hp-rim: 50, 48, 44;
+  --hp-lip: 70, 68, 62;
+  --hp-accent: 150, 118, 28;
+  --hp-accent-bright: 180, 140, 40;
+  --hp-glow-0: 60, 58, 52;
+  --hp-glow-1: 40, 38, 34;
+  --hp-label: #4a4640;
+  --hp-label-press: #1a1814;
+  --hp-sheen: 0.14;
+}
+
+html.theme-light,
+html.theme-light body {
+  background: var(--hp-bg) !important;
+}
+
+html:not(.theme-light) body {
+  background: var(--hp-bg);
+}
+
+/* Centered in .stage flex; mild upward offset for looper clearance */
+#pan {
+  transform: translateY(var(--hp-pan-offset-y, -6%)) !important;
+  transform-origin: center center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hp-note-label {
+  font-family: var(--hp-label-font);
+  font-weight: 400;
+  font-size: var(--hp-label-size);
+  color: var(--hp-label);
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  user-select: none;
+  text-align: center;
+  line-height: 1.15;
+}
+.hp-note-label sup {
+  font-size: 0.65em;
+  vertical-align: super;
+  line-height: 0;
+}
+.hp-note-label .hp-octave {
+  display: block;
+  font-size: 0.72em;
+  opacity: 0.55;
+  margin-top: 0.1em;
+}
+.hp-note-label.is-press {
+  color: var(--hp-label-press);
+}
+
+
+
+/* ===== theme-light-overlays.css ===== */
+/**
+ * Light-mode overlays for panels that stay dark without explicit theme rules.
+ */
+
+html.theme-light #soundscapesPanel {
+  background:
+    linear-gradient(180deg, rgba(255, 252, 245, 0.98), rgba(242, 236, 224, 0.98)) !important;
+  color: #1a1a1c !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+html.theme-light #soundscapesPanel .soundscapes-return-btn {
+  color: rgba(28, 28, 32, 0.75) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+html.theme-light #soundscapesPanel .soundscapes-return-btn:hover {
+  color: #8d6b1c !important;
+  border-color: rgba(157, 120, 32, 0.4) !important;
+  background: rgba(212, 176, 74, 0.12) !important;
+}
+html.theme-light #soundscapesPanel .soundscape-tab {
+  color: rgba(28, 28, 32, 0.42) !important;
+}
+html.theme-light #soundscapesPanel .soundscape-tab.is-active {
+  color: #8d6b1c !important;
+}
+html.theme-light #soundscapesPanel .soundscape-tab.is-active:after {
+  background: #b8952e !important;
+}
+html.theme-light #soundscapesPanel .soundscape-title {
+  color: rgba(28, 28, 32, 0.92) !important;
+}
+html.theme-light #soundscapesPanel .soundscape-transport-btn,
+html.theme-light #soundscapesPanel .soundscape-play {
+  color: rgba(28, 28, 32, 0.8) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+html.theme-light #soundscapesPanel .soundscape-transport-btn:hover,
+html.theme-light #soundscapesPanel .soundscape-play:hover {
+  border-color: rgba(157, 120, 32, 0.45) !important;
+  color: #8d6b1c !important;
+}
+html.theme-light #soundscapesPanel .soundscape-queue {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+html.theme-light #soundscapesPanel .soundscape-queue-item {
+  color: rgba(28, 28, 32, 0.88) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+html.theme-light #soundscapesPanel .sq-dur {
+  color: rgba(28, 28, 32, 0.4) !important;
+}
+html.theme-light #soundscapesPanel .soundscape-community-empty {
+  color: rgba(28, 28, 32, 0.45) !important;
+}
+html.theme-light #soundscapesPanel .soundscape-seek-row input,
+html.theme-light #soundscapesPanel .soundscape-vol-row input {
+  accent-color: #b8952e !important;
+}
+
+/* FX side-panel knob labels */
+html.theme-light .fx-panel,
+html.theme-light .sidebar.right.knobs-panel {
+  color: #1a1a1c !important;
+}
+html.theme-light .knob-value,
+html.theme-light .knob-val,
+html.theme-light .effect-knob-wrap .knob-label,
+html.theme-light .fx-knob-label-row .knob-label,
+html.theme-light .knob-name-row {
+  color: rgba(28, 28, 32, 0.88) !important;
+  text-shadow: none !important;
+}
+html.theme-light .knob-name-row,
+html.theme-light .effect-knob-wrap .knob-label {
+  color: rgba(28, 28, 32, 0.55) !important;
+}
+html.theme-light .fx-settings-shortcut {
+  color: rgba(28, 28, 32, 0.75) !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ===== Looper controls — light theme ===== */
+html.theme-light #looperRail.looper-rail,
+html.theme-light .looper-rail {
+  color: #2a2824 !important;
+}
+
+html.theme-light #looperSideControls .looper-dd-trigger {
+  background: rgba(255, 255, 255, 0.72) !important;
+  color: #2a2824 !important;
+  border-color: rgba(0, 0, 0, 0.14) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+html.theme-light #looperSideControls .looper-dd-trigger:hover,
+html.theme-light #looperSideControls .looper-dd-trigger[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(150, 118, 28, 0.45) !important;
+  color: #6b5410 !important;
+}
+html.theme-light #looperSideControls .looper-dd-value {
+  color: inherit !important;
+}
+html.theme-light #looperSideControls .looper-dd-caret {
+  color: rgba(42, 40, 36, 0.45) !important;
+  border-top-color: rgba(42, 40, 36, 0.45) !important;
+}
+html.theme-light .looper-dd-menu {
+  background: rgba(248, 245, 238, 0.98) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #2a2824 !important;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12) !important;
+}
+html.theme-light .looper-dd-title {
+  color: rgba(42, 40, 36, 0.45) !important;
+}
+html.theme-light .looper-dd-item {
+  color: rgba(42, 40, 36, 0.92) !important;
+  background: transparent !important;
+}
+html.theme-light .looper-dd-item:hover,
+html.theme-light .looper-dd-item:focus-visible {
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+html.theme-light .looper-dd-item.is-active {
+  background: rgba(150, 118, 28, 0.14) !important;
+  color: #6b5410 !important;
+}
+
+html.theme-light .looper-sync-ring {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+html.theme-light .looper-sync-seg {
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+html.theme-light .looper-sync-core {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #2a2824 !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+}
+html.theme-light .looper-sync-label {
+  color: rgba(42, 40, 36, 0.7) !important;
+}
+html.theme-light .looper-sync-dial.is-active .looper-sync-label {
+  color: #6b5410 !important;
+}
+html.theme-light .looper-sync-dial:hover .looper-sync-core {
+  border-color: rgba(150, 118, 28, 0.4) !important;
+}
+
+html.theme-light #looperRecordCluster .looper-save-btn,
+html.theme-light #looperRecordCluster .looper-timing-btn,
+html.theme-light .looper-save-btn,
+html.theme-light .looper-timing-btn {
+  background: rgba(255, 255, 255, 0.78) !important;
+  color: #2a2824 !important;
+  border-color: rgba(0, 0, 0, 0.14) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+html.theme-light .looper-save-btn.is-available,
+html.theme-light #looperRecordCluster .looper-save-btn.is-available {
+  border-color: rgba(150, 118, 28, 0.55) !important;
+  color: #6b5410 !important;
+  background: rgba(255, 250, 235, 0.95) !important;
+}
+html.theme-light #looperRecordCluster .looper-count-in-btn.is-active,
+html.theme-light #looperRecordCluster .looper-metronome-btn.is-active {
+  border-color: rgba(150, 118, 28, 0.5) !important;
+  background: rgba(150, 118, 28, 0.12) !important;
+  color: #6b5410 !important;
+}
+html.theme-light #looperRecordCluster .looper-bpm-btn {
+  border-color: rgba(150, 118, 28, 0.35) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  color: #2a2824 !important;
+}
+
+html.theme-light .looper-circle {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border-color: rgba(150, 118, 28, 0.35) !important;
+  color: #2a2824 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+}
+html.theme-light .looper-circle.is-playing,
+html.theme-light .looper-circle.is-paused {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(150, 118, 28, 0.55) !important;
+}
+html.theme-light .looper-circle.is-solo {
+  border-color: rgba(150, 118, 28, 0.7) !important;
+  box-shadow: 0 0 0 2px rgba(150, 118, 28, 0.2) !important;
+}
+
+html.theme-light .looper-clear-ring {
+  border-color: rgba(0, 0, 0, 0.28) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+}
+html.theme-light .looper-clear-x::before,
+html.theme-light .looper-clear-x::after {
+  background: rgba(42, 40, 36, 0.75) !important;
+}
+
+html.theme-light .looper-sheet {
+  background: rgba(248, 245, 238, 0.98) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #2a2824 !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12) !important;
+}
+html.theme-light .looper-sheet-btn {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #2a2824 !important;
+}
+html.theme-light .looper-sheet-btn.is-active {
+  border-color: rgba(150, 118, 28, 0.55) !important;
+  background: rgba(150, 118, 28, 0.14) !important;
+  color: #6b5410 !important;
+}
+
+html.theme-light #randomizeSetup,
+html.theme-light .randomize-setup,
+html.theme-light button#randomizeSetup {
+  background: rgba(255, 255, 255, 0.78) !important;
+  color: #2a2824 !important;
+  border-color: rgba(0, 0, 0, 0.14) !important;
+}
+
+/* ===== Bottom dock (#pionierBottomDock) — was still dark in light mode ===== */
+html.theme-light #pionierBottomDock {
+  background: linear-gradient(
+    to top,
+    rgba(244, 241, 235, 0.98) 64%,
+    rgba(244, 241, 235, 0.90) 100%
+  ) !important;
+  border-top: 1px solid rgba(40, 36, 28, 0.1) !important;
+  color: #1c1b1a !important;
+}
+
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle,
+html.theme-light #pionierBottomDock #pionierScaleGroup .scale-stepper,
+html.theme-light #pionierBottomDock #pionierScaleGroup > .control-half .stepper,
+html.theme-light #pionierBottomDock #pionierRootGroup .stepper {
+  background: linear-gradient(180deg, #ffffff, #f7f2e8) !important;
+  border-color: rgba(130, 105, 55, 0.22) !important;
+  color: #40382b !important;
+  box-shadow: inset 0 1px 0 #fff, 0 2px 8px rgba(55, 43, 23, 0.06) !important;
+}
+
+html.theme-light #pionierBottomDock #pionierScaleGroup #scaleLabel,
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle {
+  color: #40382b !important;
+}
+
+html.theme-light #pionierBottomDock #pionierScaleGroup #rootLabel,
+html.theme-light #pionierBottomDock #pionierRootGroup #rootLabel {
+  color: #8a6825 !important;
+}
+
+html.theme-light #pionierBottomDock #pionierScaleGroup .scale-stepper .step,
+html.theme-light #pionierBottomDock #pionierScaleGroup #rootPrev,
+html.theme-light #pionierBottomDock #pionierScaleGroup #rootNext,
+html.theme-light #pionierBottomDock #pionierRootGroup #rootPrev,
+html.theme-light #pionierBottomDock #pionierRootGroup #rootNext,
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #voicePrev,
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #voiceNext {
+  color: #5c5346 !important;
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #randomizeSetup {
+  background: linear-gradient(145deg, rgba(214, 178, 91, 0.22), rgba(255, 255, 255, 0.9)) !important;
+  color: #87631c !important;
+  border-color: rgba(145, 106, 32, 0.35) !important;
+}
+
+html.theme-light #pionierBottomDock #pionierLooperControls > button,
+html.theme-light #pionierBottomDock #pionierLooperActions > button,
+html.theme-light #pionierBottomDock #looperClearBtn,
+html.theme-light #pionierBottomDock .looper-clear-btn,
+html.theme-light #pionierBottomDock .looper-timing-btn,
+html.theme-light #pionierBottomDock #openSoundscapes,
+html.theme-light #pionierBottomDock #fxPanelOpen,
+html.theme-light #pionierBottomDock #settingsOpenBtn,
+html.theme-light #pionierBottomDock #looperRootMenuBtn {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #40382b !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.theme-light #pionierBottomDock .looper-timing-btn.is-active {
+  border-color: rgba(145, 106, 32, 0.55) !important;
+  color: #805d18 !important;
+  background: rgba(212, 176, 74, 0.16) !important;
+}
+
+html.theme-light #pionierBottomDock #openSoundscapes {
+  color: rgba(150, 110, 20, 0.95) !important;
+}
+
+html.theme-light #pionierBottomDock .looper-circle {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #40382b !important;
+  border-color: rgba(145, 106, 32, 0.4) !important;
+}
+html.theme-light #pionierBottomDock .looper-circle.is-playing {
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: #805d18 !important;
+  border-color: #c9a227 !important;
+}
+
+html.theme-light #scaleMenu,
+html.theme-light #instrumentMenu {
+  background: linear-gradient(180deg, #faf9f6, #eceae4) !important;
+  color: #1a1a1c !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 16px 48px rgba(55, 43, 23, 0.16) !important;
+}
+
+/* Override atelier dark glass on dock buttons */
+html.theme-light body #pionierBottomDock button {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.7)) !important;
+  color: #40382b !important;
+  box-shadow: inset 0 1px 0 #fff, 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+}
+
+
+
+/* ===== selectors-clean.css ===== */
+/* PIONIER — clean, neutral selectors.
+   Scale / instrument / base-note controls and their menus: quiet glass surfaces,
+   hairline borders, no gold. Loaded last so it wins over legacy accent rules.
+   Delete this file (and its <link> + sw.js entry) to restore the old look. */
+:root {
+  --sel-surface: rgba(255,255,255,.060);
+  --sel-surface-hover: rgba(255,255,255,.095);
+  --sel-border: rgba(255,255,255,.09);
+  --sel-text: #ecebe8;
+  --sel-muted: rgba(255,255,255,.58);
+  --sel-faint: rgba(255,255,255,.40);
+  --sel-active: rgba(255,255,255,.10);
+  --sel-focus: rgba(255,255,255,.38);
+  --sel-menu-bg: rgba(22,22,25,.94);
+  --sel-menu-border: rgba(255,255,255,.08);
+  --sel-radius: 12px;
+}
+html.theme-light {
+  --sel-surface: rgba(0,0,0,.045);
+  --sel-surface-hover: rgba(0,0,0,.075);
+  --sel-border: rgba(0,0,0,.10);
+  --sel-text: #1c1c1e;
+  --sel-muted: rgba(0,0,0,.58);
+  --sel-faint: rgba(0,0,0,.42);
+  --sel-active: rgba(0,0,0,.08);
+  --sel-focus: rgba(0,0,0,.40);
+  --sel-menu-bg: rgba(252,252,252,.97);
+  --sel-menu-border: rgba(0,0,0,.09);
+}
+
+/* Dock inherits theme tokens. Only force dark palette when NOT in light mode.
+   (Light mode paints the dock with a light surface via theme-light-overlays.css.) */
+html:not(.theme-light) #pionierBottomDock {
+  --sel-surface: rgba(255,255,255,.060); --sel-surface-hover: rgba(255,255,255,.095);
+  --sel-border: rgba(255,255,255,.09); --sel-text: #ecebe8; --sel-muted: rgba(255,255,255,.58);
+  --sel-faint: rgba(255,255,255,.40); --sel-active: rgba(255,255,255,.10);
+  --sel-focus: rgba(255,255,255,.38); --sel-menu-bg: rgba(22,22,25,.94);
+}
+html.theme-light #pionierBottomDock {
+  --sel-surface: rgba(255,255,255,.92); --sel-surface-hover: rgba(255,255,255,1);
+  --sel-border: rgba(40,36,28,.16); --sel-text: #2a2418; --sel-muted: rgba(42,40,36,.62);
+  --sel-faint: rgba(42,40,36,.42); --sel-active: rgba(150,118,28,.12);
+  --sel-focus: rgba(130,105,55,.45); --sel-menu-bg: rgba(252,252,252,.97);
+}
+
+/* ---------- Controls in the bottom dock ---------- */
+:is(html, html.theme-light) body #pionierBottomDock #pionierScaleGroup .scale-stepper,
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup .pionier-instrument-stepper,
+:is(html, html.theme-light) body #pionierBottomDock #pionierRootGroup #looperRootMenuBtn,
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #randomizeSetup {
+  background:var(--sel-surface) !important; background-image:none !important;
+  border:1px solid var(--sel-border) !important; border-radius:var(--sel-radius) !important;
+  box-shadow:none !important; color:var(--sel-text) !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  transition:background .18s ease, border-color .18s ease !important;
+}
+:is(html, html.theme-light) body #pionierBottomDock #pionierScaleGroup .scale-stepper:hover,
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup .pionier-instrument-stepper:hover,
+:is(html, html.theme-light) body #pionierBottomDock #pionierRootGroup #looperRootMenuBtn:hover,
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #randomizeSetup:hover {
+  background:var(--sel-surface-hover) !important; border-color:var(--sel-border) !important;
+}
+:is(html, html.theme-light) body #pionierBottomDock #looperRootMenuBtn[aria-expanded="true"],
+:is(html, html.theme-light) body #pionierBottomDock #scaleLabel[aria-expanded="true"] {
+  background:var(--sel-active) !important; border-color:var(--sel-border) !important;
+}
+:is(html, html.theme-light) body #pionierBottomDock #pionierScaleGroup #scaleLabel {
+  background:transparent !important; border:0 !important; box-shadow:none !important;
+  color:var(--sel-text) !important; font-weight:560 !important;
+}
+:is(html, html.theme-light) body #pionierBottomDock #pionierScaleGroup .scale-stepper .step,
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #voicePrev,
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #voiceNext {
+  background:transparent !important; background-image:none !important; border:0 !important;
+  box-shadow:none !important; color:var(--sel-muted) !important;
+}
+:is(html, html.theme-light) body #pionierBottomDock #pionierScaleGroup .scale-stepper .step:hover,
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #voicePrev:hover,
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #voiceNext:hover {
+  background:var(--sel-surface-hover) !important; color:var(--sel-text) !important;
+}
+:is(html, html.theme-light) body #pionierBottomDock #pionierRootGroup #looperRootMenuBtn { font-weight:600 !important; }
+:is(html, html.theme-light) body #pionierBottomDock #pionierRootGroup #looperRootMenuBtn .looper-dd-caret { opacity:.55 !important; }
+:is(html, html.theme-light) body #pionierBottomDock #randomizeSetup .randomize-die rect { stroke:var(--sel-border) !important; }
+:is(html, html.theme-light) body #pionierBottomDock #randomizeSetup .randomize-die g { fill:var(--sel-menu-bg) !important; }
+
+/* ---------- Menus: scale, instrument, base note ---------- */
+:is(html, html.theme-light) body #scaleMenu, :is(html, html.theme-light) body #instrumentMenu, :is(html, html.theme-light) body #looperRootMenu {
+  background:var(--sel-menu-bg) !important; background-image:none !important;
+  border:1px solid var(--sel-menu-border) !important; border-radius:16px !important;
+  box-shadow:0 18px 48px rgba(0,0,0,.42) !important;
+  -webkit-backdrop-filter:blur(22px) saturate(120%) !important; backdrop-filter:blur(22px) saturate(120%) !important;
+  color:var(--sel-text) !important;
+}
+html.theme-light body #scaleMenu, html.theme-light body #instrumentMenu, html.theme-light body #looperRootMenu {
+  box-shadow:0 14px 36px rgba(0,0,0,.16) !important;
+}
+:is(html, html.theme-light) body #scaleMenu .scale-menu-group, :is(html, html.theme-light) body #instrumentMenu .instrument-menu-group,
+:is(html, html.theme-light) body #looperRootMenu .looper-dd-title {
+  color:var(--sel-faint) !important; font-weight:600 !important; letter-spacing:.10em !important;
+}
+:is(html, html.theme-light) body #scaleMenu button, :is(html, html.theme-light) body #instrumentMenu button, :is(html, html.theme-light) body #looperRootMenu .looper-dd-item {
+  background:transparent !important; background-image:none !important;
+  border:1px solid transparent !important; border-radius:10px !important; box-shadow:none !important;
+  color:var(--sel-muted) !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+:is(html, html.theme-light) body #scaleMenu button:hover, :is(html, html.theme-light) body #instrumentMenu button:hover,
+:is(html, html.theme-light) body #looperRootMenu .looper-dd-item:hover {
+  background:var(--sel-surface) !important; color:var(--sel-text) !important; border-color:transparent !important;
+}
+:is(html, html.theme-light) body #scaleMenu button:focus-visible, :is(html, html.theme-light) body #instrumentMenu button:focus-visible,
+:is(html, html.theme-light) body #looperRootMenu .looper-dd-item:focus-visible {
+  background:var(--sel-surface) !important; color:var(--sel-text) !important;
+  outline:2px solid var(--sel-focus) !important; outline-offset:-2px !important;
+}
+:is(html, html.theme-light) body #scaleMenu button.is-active, :is(html, html.theme-light) body #instrumentMenu button.is-active,
+:is(html, html.theme-light) body #scaleMenu button[aria-selected="true"], :is(html, html.theme-light) body #instrumentMenu button[aria-selected="true"],
+:is(html, html.theme-light) body #looperRootMenu .looper-dd-item.is-active {
+  background:var(--sel-active) !important; color:var(--sel-text) !important; font-weight:600 !important;
+  border-color:transparent !important; box-shadow:none !important;
+}
+:is(html, html.theme-light) body #scaleMenu button.is-active::after, :is(html, html.theme-light) body #instrumentMenu button.is-active::after { color:var(--sel-muted) !important; }
+:is(html, html.theme-light) body #scaleMenu .scale-item-tuning { color:var(--sel-faint) !important; opacity:1 !important; }
+
+/* Search field + close button inside the menus */
+:is(html, html.theme-light) body #scaleMenu .picker-search, :is(html, html.theme-light) body #instrumentMenu .picker-search {
+  background:var(--sel-surface) !important; border:1px solid var(--sel-border) !important;
+  border-radius:10px !important; color:var(--sel-text) !important; box-shadow:none !important;
+}
+:is(html, html.theme-light) body #scaleMenu .picker-search:focus, :is(html, html.theme-light) body #instrumentMenu .picker-search:focus {
+  border-color:var(--sel-focus) !important; box-shadow:none !important; outline:none !important;
+}
+:is(html, html.theme-light) body #scaleMenu .picker-search::placeholder, :is(html, html.theme-light) body #instrumentMenu .picker-search::placeholder { color:var(--sel-faint) !important; }
+:is(html, html.theme-light) body #scaleMenu .picker-close, :is(html, html.theme-light) body #instrumentMenu .picker-close {
+  background:var(--sel-surface) !important; border:1px solid var(--sel-border) !important; color:var(--sel-muted) !important;
+}
+
+/* Quiet, thin scrollbar for the base-note list (the others scroll without a track). */
+:is(html, html.theme-light) body #looperRootMenu { scrollbar-width:thin; scrollbar-color:var(--sel-border) transparent; }
+
+/* ---------- Instrument selector: ‹ name › in one pill ---------- */
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup .pionier-instrument-stepper {
+  display:flex !important; flex:1 1 auto !important; align-items:center !important;
+  width:100% !important; min-width:0 !important; box-sizing:border-box !important;
+  height:42px !important; min-height:42px !important; padding:4px !important; gap:4px !important;
+}
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle {
+  flex:1 1 auto !important; width:auto !important; min-width:0 !important;
+  height:34px !important; min-height:34px !important; padding:0 8px !important;
+  background:transparent !important; background-image:none !important; border:0 !important;
+  border-radius:10px !important; box-shadow:none !important; color:var(--sel-text) !important;
+  font-weight:560 !important;
+}
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle[aria-expanded="true"] {
+  background:var(--sel-active) !important;
+}
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #voicePrev,
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #voiceNext {
+  display:inline-flex !important; flex:0 0 28px !important; width:28px !important; min-width:28px !important;
+  height:32px !important; min-height:32px !important; border-radius:9px !important; font-size:18px !important;
+}
+@media (max-width:430px) {
+  :is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup .pionier-instrument-stepper { height:39px !important; min-height:39px !important; padding:3px !important; gap:2px !important; }
+  :is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle { height:32px !important; min-height:32px !important; padding:0 4px !important; font-size:12px !important; }
+  :is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #voicePrev,
+  :is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #voiceNext { flex-basis:22px !important; width:22px !important; min-width:22px !important; height:30px !important; min-height:30px !important; }
+}
+@media (max-width:350px) {
+  :is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #voicePrev,
+  :is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #voiceNext { display:inline-flex !important; flex-basis:18px !important; width:18px !important; min-width:18px !important; }
+}
+
+/* ---------- Matching right-hand buttons: base note + randomizer share one size ---------- */
+#pionierBottomDock { --sel-h: 42px; --sel-side-w: 72px; }
+@media (max-width:430px) { #pionierBottomDock { --sel-h: 39px; --sel-side-w: 66px; } }
+@media (max-width:350px) { #pionierBottomDock { --sel-side-w: 60px; } }
+:is(html, html.theme-light) body #pionierBottomDock #pionierRootGroup {
+  flex:0 0 var(--sel-side-w) !important; width:var(--sel-side-w) !important;
+  min-width:var(--sel-side-w) !important; max-width:var(--sel-side-w) !important;
+}
+:is(html, html.theme-light) body #pionierBottomDock #pionierRootGroup #looperRootMenuBtn,
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #randomizeSetup {
+  box-sizing:border-box !important; width:var(--sel-side-w) !important; min-width:var(--sel-side-w) !important;
+  max-width:var(--sel-side-w) !important; height:var(--sel-h) !important; min-height:var(--sel-h) !important;
+  max-height:var(--sel-h) !important; flex:0 0 var(--sel-side-w) !important;
+  margin:0 !important; padding:0 !important; border-radius:var(--sel-radius) !important;
+}
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #randomizeSetup {
+  display:inline-flex !important; align-items:center !important; justify-content:center !important;
+}
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup #randomizeSetup .randomize-die { width:22px !important; height:22px !important; }
+:is(html, html.theme-light) body #pionierBottomDock #pionierScaleGroup .scale-stepper,
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup .pionier-instrument-stepper {
+  height:var(--sel-h) !important; min-height:var(--sel-h) !important;
+}
+/* Same gap in both rows so the pills end at the same x and the right-hand buttons stack cleanly. */
+:is(html, html.theme-light) body #pionierBottomDock #pionierScaleGroup,
+:is(html, html.theme-light) body #pionierBottomDock #pionierInstrumentGroup { gap:8px !important; }
+
+
+
+/* ===== ui-hotfix.css ===== */
+/* ui-hotfix.css — recover looper icons + light-mode selector / chrome visibility */
+
+/* --- Kill the leftover topbar strip (controls live in the bottom dock) --- */
+#app > .topbar,
+.topbar.topbar-minimal,
+header.topbar {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  min-height: 0 !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Hide the legacy looper rail entirely once the bottom dock owns the controls */
+#looperRail.looper-rail,
+#app > #looperRail {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Clear button must stay in the dock track row, never float mid-stage */
+#pionierBottomDock #looperClearBtn,
+#pionierTrackRow #looperClearBtn {
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  left: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+/* --- Looper timing / utility icons --- */
+#pionierLooperControls .looper-timing-btn {
+  display: inline-flex !important;
+  position: relative !important;
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  padding: 2px !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(235, 229, 215, 0.16) !important;
+  background: rgba(255, 255, 255, 0.045) !important;
+  color: var(--text, #eeeae1) !important;
+  font-size: 8px !important;
+  line-height: 1 !important;
+  overflow: visible !important;
+}
+#pionierLooperControls .looper-timing-btn .looper-icon,
+#pionierLooperControls .looper-timing-btn svg,
+#pionierBottomDock #pionierLooperControls .looper-timing-btn svg,
+#pionierBottomDock #pionierLooperActions > button svg,
+#pionierBottomDock #pionierLooperControls #looperUtilityControls svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 12px !important;
+  min-height: 12px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.5 !important;
+  color: inherit !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  flex: 0 0 auto !important;
+}
+#pionierLooperControls .looper-timing-btn .looper-icon path,
+#pionierLooperControls .looper-timing-btn svg path,
+#pionierLooperControls .looper-timing-btn svg circle,
+#pionierLooperControls .looper-timing-btn svg line {
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.5 !important;
+}
+/* Metronome / bpm filled tip dots */
+#pionierLooperControls .looper-metronome-btn svg circle,
+#pionierLooperControls .looper-bpm-btn svg circle {
+  fill: currentColor !important;
+  stroke: none !important;
+}
+#pionierLooperControls .looper-timing-btn .looper-timing-meta,
+#pionierLooperControls .looper-timing-btn .looper-bpm-value,
+#pionierLooperControls .looper-count-in-btn .looper-timing-meta {
+  display: block !important;
+  font-size: 7px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  line-height: 1 !important;
+  color: inherit !important;
+  opacity: 0.9 !important;
+  max-width: 32px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+#pionierLooperControls .looper-timing-btn.is-active {
+  border-color: rgba(212, 176, 74, 0.65) !important;
+  color: #f1d78e !important;
+}
+#pionierBottomDock #pionierLooperControls .looper-timing-btn {
+  flex-basis: 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+}
+
+/* Clear button X marks */
+#pionierBottomDock .looper-clear-x::before,
+#pionierBottomDock .looper-clear-x::after,
+.looper-clear-x::before,
+.looper-clear-x::after {
+  background: currentColor !important;
+  opacity: 0.9 !important;
+}
+
+/* --- Light mode: force visible scale + instrument + root selectors --- */
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle,
+html.theme-light #pionierBottomDock #instrumentDropdownToggle,
+html.theme-light body #pionierBottomDock #instrumentDropdownToggle,
+html.theme-light #pionierBottomDock #pionierScaleGroup #scaleLabel,
+html.theme-light #pionierBottomDock #scaleLabel,
+html.theme-light body #pionierBottomDock #scaleLabel,
+html.theme-light #pionierBottomDock #pionierScaleGroup .scale-stepper,
+html.theme-light #pionierBottomDock #pionierScaleGroup > .control-half .stepper,
+html.theme-light #pionierBottomDock #pionierRootGroup .stepper,
+html.theme-light #pionierBottomDock #pionierRootGroup #rootLabel,
+html.theme-light #pionierBottomDock #rootLabel,
+html.theme-light #pionierBottomDock #pionierRootGroup #looperRootMenuBtn,
+html.theme-light #pionierBottomDock #looperRootMenuBtn,
+html.theme-light #pionierBottomDock #looperRootMenuBtn .looper-dd-value,
+html.theme-light #pionierBottomDock #looperRootMenuBtn .looper-dd-caret {
+  color: #2a2418 !important;
+  -webkit-text-fill-color: #2a2418 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle,
+html.theme-light #pionierBottomDock #instrumentDropdownToggle,
+html.theme-light #pionierBottomDock #pionierScaleGroup .scale-stepper,
+html.theme-light #pionierBottomDock #pionierScaleGroup > .control-half .stepper,
+html.theme-light #pionierBottomDock #pionierRootGroup .stepper,
+html.theme-light #pionierBottomDock #pionierRootGroup #looperRootMenuBtn,
+html.theme-light #pionierBottomDock #looperRootMenuBtn {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid rgba(40, 36, 28, 0.18) !important;
+  box-shadow: 0 1px 3px rgba(40, 30, 10, 0.08) !important;
+}
+
+html.theme-light #pionierBottomDock #pionierScaleGroup #scaleLabel,
+html.theme-light #pionierBottomDock #scaleLabel {
+  background: transparent !important;
+  background-image: none !important;
+}
+
+html.theme-light #pionierBottomDock #pionierScaleGroup .step,
+html.theme-light #pionierBottomDock #pionierScaleGroup #rootPrev,
+html.theme-light #pionierBottomDock #pionierScaleGroup #rootNext,
+html.theme-light #pionierBottomDock #pionierRootGroup #rootPrev,
+html.theme-light #pionierBottomDock #pionierRootGroup #rootNext,
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #voicePrev,
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #voiceNext {
+  color: #3a3428 !important;
+  -webkit-text-fill-color: #3a3428 !important;
+  opacity: 1 !important;
+}
+
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #randomizeSetup {
+  color: #87631c !important;
+  -webkit-text-fill-color: #87631c !important;
+  background: #fff8e8 !important;
+  border: 1px solid rgba(145, 106, 32, 0.35) !important;
+}
+
+/* Root note button: ensure the note letter is centered and readable */
+html.theme-light #pionierBottomDock #looperRootMenuBtn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  font-weight: 650 !important;
+}
+html.theme-light #pionierBottomDock #looperRootMenuBtn .looper-dd-value {
+  display: inline-block !important;
+  min-width: 1.1em !important;
+  text-align: center !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  color: #2a2418 !important;
+  -webkit-text-fill-color: #2a2418 !important;
+}
+html.theme-light #pionierBottomDock #looperRootMenuBtn .looper-dd-caret {
+  font-size: 10px !important;
+  opacity: 0.55 !important;
+  color: #2a2418 !important;
+  -webkit-text-fill-color: #2a2418 !important;
+}
+
+/* Light mode looper icons stay readable */
+html.theme-light #pionierLooperControls .looper-timing-btn,
+html.theme-light #pionierBottomDock .looper-timing-btn {
+  color: #40382b !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+}
+html.theme-light #pionierLooperControls .looper-timing-btn.is-active {
+  color: #805d18 !important;
+  border-color: rgba(145, 106, 32, 0.55) !important;
+  background: rgba(212, 176, 74, 0.16) !important;
+}
+html.theme-light #pionierLooperControls .looper-timing-btn svg,
+html.theme-light #pionierBottomDock .looper-timing-btn svg {
+  stroke: currentColor !important;
+  fill: none !important;
+  color: inherit !important;
+}
+html.theme-light #pionierLooperControls .looper-timing-btn svg path,
+html.theme-light #pionierLooperControls .looper-timing-btn svg line {
+  stroke: currentColor !important;
+  fill: none !important;
+}
+html.theme-light #pionierLooperControls .looper-metronome-btn svg circle,
+html.theme-light #pionierLooperControls .looper-bpm-btn svg circle {
+  fill: currentColor !important;
+  stroke: none !important;
+}
+
+/* Neutralize any body::before chrome strip that can show as a dark hairline */
+html.theme-light body::before {
+  background: transparent !important;
+  opacity: 0 !important;
+  content: none !important;
+}
+
+/* Handpan transparency slider → canvas opacity */
+#pan {
+  opacity: var(--handpan-alpha, 1) !important;
+}
+

@@ -28,9 +28,12 @@ const appHtml = read('handpan-app/index.html');
 const shell = read('handpan-app/pionier-app.js');
 const coreSrc = read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js');
 const loopControls = read('handpan-app/js/looper.js');
-const loopStyles = read('handpan-app/looper.css');
+const loopStyles = read('handpan-app/pionier-base.css');
+read('handpan-app/pionier-controls.css');
+read('handpan-app/pionier-layout.css');
+read('handpan-app/pionier-ambient.css');
 const serviceWorker = read('handpan-app/sw.js');
-read('handpan-app/pionier.css');
+read('handpan-app/pionier-base.css');
 read('handpan-app/js/audio-core.js');
 read('handpan-app/js/instrument.js');
 read('handpan-app/js/gesture.js');
@@ -86,7 +89,7 @@ if (/export function mountLooper/.test(loopControls) && /startRecording|recordin
 else fail('Looper mount or record/clear surface is incomplete');
 if (!/repository-loop-save/.test(loopControls) && !/uploadLoopToRepository/.test(loopControls)) ok('Looper does not import community upload modules');
 else fail('Looper still references community upload modules');
-if (/\.looper-/.test(loopStyles) && /looper\.css\?v=\d+/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) ok('Looper styles and service-worker declare cache versions');
+if (/\.looper-/.test(loopStyles) && /pionier-base\.css\?v=\d+/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) ok('Looper styles and service-worker declare cache versions');
 else fail('Looper styles or service-worker cache versions missing');
 
 // Offline shell: critical instrument path must be listed in SHELL for airplane-mode play.
@@ -109,7 +112,7 @@ else fail('index still loads fonts.googleapis.com');
 const scaleSelector = read('handpan-app/js/scale-selector.js');
 if ((/Search instruments/.test(coreSrc) || /instrumentMenu/.test(appHtml) || /instrumentDropdownToggle/.test(appHtml)) && (/Search scales/.test(scaleSelector) || /scaleMenu/.test(appHtml) || /scaleLabel/.test(appHtml))) ok('Instrument and scale pickers are present');
 else fail('Scale/instrument picker wiring is incomplete');
-if (/scale-menu\.css\?v=\d+/.test(appHtml) && /pionier-app\.js\?v=\d+/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) ok('Picker assets use versioned cache stamps');
+if (/pionier-controls\.css\?v=\d+/.test(appHtml) && /pionier-app\.js\?v=\d+/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) ok('Picker assets use versioned cache stamps');
 else fail('Picker asset cache versions are stale');
 
 if (
@@ -155,7 +158,7 @@ if (appHtml.includes('id="randomizeSetup"') && !appHtml.includes('id="learnPanel
 else fail('Learn removal or randomizer replacement is incomplete');
 if (/looperBtn|looper-btn/.test(loopControls) && /looperClearBtn|looper-clear/.test(loopControls + appHtml)) ok('Looper record and clear controls are present');
 else fail('Looper record/clear controls are incomplete');
-if (appHtml.includes('looper.css?') && /pionier-v\d+/.test(serviceWorker)) ok('Looper CSS and service worker declare cache versions');
+if (appHtml.includes('pionier-base.css?') && /pionier-v\d+/.test(serviceWorker)) ok('Looper CSS and service worker declare cache versions');
 else fail('Looper CSS or service worker cache versions missing');
 
 if (!/repository-loop-save/.test(serviceWorker) && !/community-api/.test(serviceWorker)) ok('Service worker shell does not reference community upload modules');

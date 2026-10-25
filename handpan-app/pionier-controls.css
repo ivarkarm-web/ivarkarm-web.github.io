@@ -1,0 +1,2338 @@
+
+/* ===== settings-panel.css ===== */
+/* Settings button + sheet */
+
+.mobile-controls-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.settings-open-btn {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(18, 18, 22, 0.85);
+  color: rgba(240, 236, 230, 0.75);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.settings-open-btn:hover,
+.settings-open-btn[aria-expanded="true"] {
+  background: rgba(30, 28, 24, 0.95);
+  border-color: rgba(212, 176, 74, 0.35);
+  color: rgba(255, 240, 210, 0.95);
+}
+
+.settings-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2800;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+  pointer-events: none;
+}
+.settings-sheet-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.settings-sheet {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 110%);
+  z-index: 2900;
+  width: min(420px, 100vw);
+  max-height: min(78dvh, 640px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px 20px 0 0;
+  background: linear-gradient(180deg, #141416, #0c0c0e);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: none;
+  box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.5);
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden;
+}
+.settings-sheet.is-open {
+  transform: translate(-50%, 0);
+}
+
+.settings-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 10px;
+  flex: 0 0 auto;
+}
+.settings-sheet-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(245, 242, 236, 0.92);
+}
+.settings-sheet-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(245, 242, 236, 0.7);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.settings-sheet-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 18px 28px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.settings-section {
+  margin-bottom: 18px;
+}
+.settings-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(245, 242, 236, 0.4);
+  margin-bottom: 10px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+}
+.settings-row-label {
+  font-size: 14px;
+  color: rgba(245, 242, 236, 0.85);
+}
+
+.settings-toggle {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  flex: 0 0 auto;
+}
+.settings-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+.settings-toggle-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background 0.2s ease;
+  cursor: pointer;
+}
+.settings-toggle-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(245, 242, 236, 0.9);
+  transition: transform 0.2s ease;
+}
+.settings-toggle input:checked + .settings-toggle-track {
+  background: rgba(212, 176, 74, 0.45);
+  border-color: rgba(212, 176, 74, 0.5);
+}
+.settings-toggle input:checked + .settings-toggle-track::after {
+  transform: translateX(18px);
+}
+
+.settings-slider-row {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+.settings-slider-row input[type="range"] {
+  width: 100%;
+  accent-color: #d4b04a;
+}
+
+.settings-rgb-grid {
+  display: grid;
+  grid-template-columns: 36px 1fr 40px;
+  gap: 6px 10px;
+  align-items: center;
+  font-size: 12px;
+  color: rgba(245, 242, 236, 0.55);
+}
+.settings-rgb-grid input[type="range"] {
+  width: 100%;
+  accent-color: #d4b04a;
+}
+.settings-rgb-val {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: rgba(245, 242, 236, 0.7);
+}
+.settings-led-preview {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgb(110, 200, 255);
+  box-shadow: 0 0 16px rgb(110, 200, 255);
+}
+
+/* Dropdowns */
+.settings-dd { margin-bottom: 12px; }
+.settings-dd-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(245, 242, 236, 0.4);
+  margin-bottom: 6px;
+}
+.settings-dd-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(22, 22, 26, 0.9);
+  color: rgba(245, 242, 236, 0.92);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+}
+.settings-dd-toggle:hover,
+.settings-dd-toggle[aria-expanded="true"] {
+  border-color: rgba(212, 176, 74, 0.4);
+  background: rgba(28, 26, 22, 0.95);
+}
+.settings-dd-value {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.settings-dd-chevron {
+  flex: 0 0 auto;
+  opacity: 0.55;
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+.settings-dd-toggle[aria-expanded="true"] .settings-dd-chevron {
+  transform: rotate(180deg);
+}
+.settings-dd-menu {
+  position: fixed;
+  z-index: 4500;
+  max-height: 360px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+  border: 1px solid rgba(230, 224, 210, 0.18);
+  background: #141416 !important;
+  background-image: none !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(230, 224, 210, 0.06);
+  padding: 8px;
+  color: #e6e0d2;
+}
+.settings-dd-menu[hidden] { display: none !important; }
+.settings-dd-menu.is-open { display: block !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; z-index: 4500 !important; }
+.settings-dd-group {
+  padding: 8px 10px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(245, 242, 236, 0.35);
+}
+.settings-dd-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(245, 242, 236, 0.88);
+  font-size: 14px;
+  cursor: pointer;
+}
+.settings-dd-item:hover { background: rgba(255, 255, 255, 0.06); }
+.settings-dd-item.is-active {
+  background: rgba(212, 176, 74, 0.16);
+  color: #e8c86a;
+}
+
+/* ---- Light theme ---- */
+html.theme-light,
+html.theme-light body {
+  color-scheme: light;
+}
+html.theme-light body {
+  background: #ebe8e2 !important;
+  color: #1c1b1a !important;
+}
+html.theme-light body::before {
+  background:
+    radial-gradient(ellipse 90% 55% at 50% 40%, rgba(255, 255, 255, 0.85) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 35% at 50% 100%, rgba(196, 160, 70, 0.07) 0%, transparent 55%),
+    linear-gradient(180deg, #f4f1eb 0%, #e5e1d9 100%) !important;
+}
+
+/* --- Settings sheet --- */
+html.theme-light .settings-sheet {
+  background: linear-gradient(180deg, #faf8f4 0%, #f0ebe3 100%) !important;
+  border: 1px solid rgba(40, 36, 28, 0.12) !important;
+  border-bottom: none !important;
+  box-shadow: 0 -16px 48px rgba(40, 30, 10, 0.18) !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-sheet-title {
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-sheet-close {
+  background: rgba(40, 36, 28, 0.06) !important;
+  border: 1px solid rgba(40, 36, 28, 0.12) !important;
+  color: #3a3834 !important;
+}
+html.theme-light .settings-sheet-close:hover {
+  background: rgba(40, 36, 28, 0.1) !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-sheet-backdrop {
+  background: rgba(30, 28, 24, 0.35) !important;
+}
+html.theme-light .settings-section-label {
+  color: rgba(40, 36, 28, 0.45) !important;
+}
+html.theme-light .settings-row-label,
+html.theme-light .settings-row span,
+html.theme-light .settings-row {
+  color: #2a2824 !important;
+}
+html.theme-light .settings-dd-label {
+  color: rgba(40, 36, 28, 0.5) !important;
+}
+html.theme-light .settings-dd-toggle {
+  background: #ffffff !important;
+  border: 1px solid rgba(40, 36, 28, 0.14) !important;
+  color: #1c1b1a !important;
+  box-shadow: 0 1px 2px rgba(40, 30, 10, 0.04) !important;
+}
+html.theme-light .settings-dd-toggle:hover,
+html.theme-light .settings-dd-toggle[aria-expanded="true"] {
+  border-color: rgba(160, 120, 30, 0.45) !important;
+  background: #fffdf8 !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-dd-value {
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-dd-chevron {
+  color: rgba(40, 36, 28, 0.5) !important;
+  opacity: 1 !important;
+}
+html.theme-light .settings-dd-menu {
+  background: #faf8f4 !important;
+  background-image: none !important;
+  border: 1px solid rgba(40, 36, 28, 0.14) !important;
+  box-shadow: 0 16px 40px rgba(40, 30, 10, 0.16) !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-dd-item {
+  background: transparent !important;
+  color: #2a2824 !important;
+}
+html.theme-light .settings-dd-item:hover {
+  background: rgba(40, 36, 28, 0.06) !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .settings-dd-item.is-active {
+  background: rgba(196, 160, 70, 0.22) !important;
+  color: #6b4e0e !important;
+}
+html.theme-light .settings-dd-group {
+  color: rgba(40, 36, 28, 0.4) !important;
+}
+
+/* Toggles / sliders / values inside sheet */
+html.theme-light .settings-sheet input[type="range"] {
+  accent-color: #b8922e !important;
+}
+html.theme-light .settings-sheet .settings-value,
+html.theme-light .settings-sheet .settings-slider-value,
+html.theme-light .settings-transparency-val,
+html.theme-light .settings-sheet output {
+  color: #3a3834 !important;
+}
+html.theme-light .settings-switch,
+html.theme-light .settings-toggle {
+  background: rgba(40, 36, 28, 0.15) !important;
+}
+html.theme-light .settings-led-label,
+html.theme-light .settings-sheet label {
+  color: #2a2824 !important;
+}
+
+/* Gear button */
+html.theme-light .settings-open-btn,
+html.theme-light #settingsOpenBtn {
+  background: #ffffff !important;
+  border: 1px solid rgba(40, 36, 28, 0.12) !important;
+  color: #3a3834 !important;
+  box-shadow: 0 2px 8px rgba(40, 30, 10, 0.08) !important;
+}
+
+/* Catch-all text inside open sheet */
+html.theme-light .settings-sheet,
+html.theme-light .settings-sheet * {
+  /* do not force * color — would break gold accents; specific rules above */
+}
+html.theme-light .settings-sheet p,
+html.theme-light .settings-sheet h2,
+html.theme-light .settings-sheet h3,
+html.theme-light .settings-sheet div.settings-row-label {
+  color: #1c1b1a !important;
+}
+
+/* Stage / bottom bar leftovers */
+html.theme-light .stage-scale-bar,
+html.theme-light #stageScaleBar {
+  background: linear-gradient(
+    to top,
+    rgba(244, 241, 235, 0.98) 0%,
+    rgba(244, 241, 235, 0.9) 50%,
+    rgba(244, 241, 235, 0.4) 85%,
+    transparent 100%
+  ) !important;
+  border-top-color: rgba(40, 36, 28, 0.08) !important;
+}
+html.theme-light .instrument-name,
+html.theme-light .stage-scale-btn,
+html.theme-light .stage-instrument-nav .instrument-name {
+  background: #ffffff !important;
+  color: #1c1b1a !important;
+  border-color: rgba(40, 36, 28, 0.12) !important;
+}
+html.theme-light .icon-btn {
+  color: #3a3834 !important;
+}
+html.theme-light .bottom-bar {
+  background: linear-gradient(180deg, transparent, rgba(235, 232, 226, 0.94)) !important;
+}
+html.theme-light .app-status {
+  background: rgba(250, 248, 244, 0.95) !important;
+  color: #1c1b1a !important;
+  border-color: rgba(40, 36, 28, 0.1) !important;
+}
+html.theme-light .mobile-control-drawer {
+  background: linear-gradient(180deg, #faf8f4, #efeae2) !important;
+  border-color: rgba(40, 36, 28, 0.1) !important;
+  box-shadow: 0 -8px 40px rgba(40, 30, 10, 0.12) !important;
+  color: #1c1b1a !important;
+}
+html.theme-light .mobile-controls-toggle { color: rgba(40, 36, 28, 0.65) !important; }
+html.theme-light .mobile-controls-grip {
+  background: rgba(40, 36, 28, 0.2) !important;
+}
+
+html.theme-light .settings-toggle-track {
+  background: rgba(40, 36, 28, 0.12) !important;
+  border: 1px solid rgba(40, 36, 28, 0.14) !important;
+}
+html.theme-light .settings-toggle-track::after {
+  background: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(40, 30, 10, 0.2) !important;
+}
+html.theme-light .settings-toggle input:checked + .settings-toggle-track {
+  background: rgba(184, 146, 46, 0.55) !important;
+  border-color: rgba(160, 120, 30, 0.5) !important;
+}
+html.theme-light .settings-rgb-grid {
+  color: #3a3834 !important;
+}
+html.theme-light .settings-rgb-grid label {
+  color: #3a3834 !important;
+}
+html.theme-light .settings-rgb-val {
+  color: #2a2824 !important;
+}
+html.theme-light .settings-slider-row input[type="range"],
+html.theme-light .settings-rgb-grid input[type="range"] {
+  accent-color: #b8922e !important;
+}
+
+
+/* PIONIER customization interaction polish — lightweight, tactile, mobile-first. */
+.settings-sheet,
+.settings-sheet * {
+  -webkit-tap-highlight-color: transparent;
+}
+.settings-sheet {
+  overscroll-behavior: contain;
+  contain: layout paint;
+}
+.settings-sheet-body {
+  overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(190, 151, 53, .48) transparent;
+  touch-action: pan-y;
+}
+.settings-sheet-body::-webkit-scrollbar,
+.settings-dd-menu::-webkit-scrollbar {
+  width: 4px;
+}
+.settings-sheet-body::-webkit-scrollbar-track,
+.settings-dd-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+.settings-sheet-body::-webkit-scrollbar-thumb,
+.settings-dd-menu::-webkit-scrollbar-thumb {
+  border-radius: 99px;
+  background: rgba(190, 151, 53, .42);
+}
+.settings-dd-menu {
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(190, 151, 53, .48) transparent;
+  /* Avoid costly blur while a long option list is moving under the finger. */
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .24) !important;
+  border-radius: 16px !important;
+  padding: 6px !important;
+}
+.settings-dd-item {
+  min-height: 42px;
+  border-radius: 10px !important;
+  padding: 10px 12px !important;
+  transition: background-color 140ms ease, color 140ms ease, transform 140ms ease !important;
+  touch-action: manipulation;
+}
+.settings-dd-item:active {
+  transform: scale(.985);
+}
+.settings-dd-toggle,
+.settings-sheet-close,
+.settings-open-btn {
+  touch-action: manipulation;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease,
+    box-shadow 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1) !important;
+}
+.settings-dd-toggle:active,
+.settings-sheet-close:active,
+.settings-open-btn:active {
+  transform: scale(.975);
+}
+.settings-toggle {
+  width: 46px !important;
+  height: 28px !important;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.settings-toggle input {
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  cursor: pointer;
+  z-index: 2;
+}
+.settings-toggle-track {
+  border: 1px solid transparent !important;
+  outline: none !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.12) !important;
+  transition: background-color 220ms cubic-bezier(.2,.8,.2,1),
+    box-shadow 220ms cubic-bezier(.2,.8,.2,1) !important;
+}
+.settings-toggle-track::after {
+  top: 3px !important;
+  left: 3px !important;
+  width: 20px !important;
+  height: 20px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,.18) !important;
+  transition: transform 260ms cubic-bezier(.2,.85,.25,1.25),
+    background-color 180ms ease, box-shadow 180ms ease !important;
+  will-change: transform;
+}
+.settings-toggle input:checked + .settings-toggle-track::after {
+  transform: translateX(18px) !important;
+}
+.settings-toggle input:focus-visible + .settings-toggle-track {
+  outline: 2px solid rgba(190,151,53,.72) !important;
+  outline-offset: 3px;
+}
+.settings-sheet input[type="range"],
+.settings-rgb-grid input[type="range"] {
+  --range-fill: 50%;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 28px;
+  margin: 2px 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+.settings-sheet input[type="range"]::-webkit-slider-runnable-track,
+.settings-rgb-grid input[type="range"]::-webkit-slider-runnable-track {
+  height: 5px;
+  border-radius: 99px;
+  background: linear-gradient(to right, #c5a04a 0 var(--range-fill), rgba(128,124,116,.24) var(--range-fill) 100%);
+}
+.settings-sheet input[type="range"]::-moz-range-track,
+.settings-rgb-grid input[type="range"]::-moz-range-track {
+  height: 5px;
+  border-radius: 99px;
+  background: rgba(128,124,116,.24);
+}
+.settings-sheet input[type="range"]::-moz-range-progress,
+.settings-rgb-grid input[type="range"]::-moz-range-progress {
+  height: 5px;
+  border-radius: 99px;
+  background: #c5a04a;
+}
+.settings-sheet input[type="range"]::-webkit-slider-thumb,
+.settings-rgb-grid input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -6.5px;
+  border: 2px solid rgba(255,255,255,.96);
+  border-radius: 50%;
+  background: #c5a04a;
+  box-shadow: 0 1px 4px rgba(0,0,0,.22), 0 0 0 3px rgba(197,160,74,.12);
+  transition: box-shadow 160ms ease, transform 160ms cubic-bezier(.2,.8,.2,1);
+}
+.settings-sheet input[type="range"]::-moz-range-thumb,
+.settings-rgb-grid input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,.96);
+  border-radius: 50%;
+  background: #c5a04a;
+  box-shadow: 0 1px 4px rgba(0,0,0,.22);
+}
+.settings-sheet input[type="range"]:active::-webkit-slider-thumb,
+.settings-rgb-grid input[type="range"]:active::-webkit-slider-thumb {
+  transform: scale(1.12);
+  box-shadow: 0 1px 5px rgba(0,0,0,.2), 0 0 0 5px rgba(197,160,74,.17);
+}
+.settings-sheet input[type="range"]:focus-visible {
+  outline: none;
+}
+html.theme-light .settings-toggle-track {
+  border-color: transparent !important;
+  background: rgba(64, 58, 46, .17) !important;
+  box-shadow: inset 0 1px 2px rgba(40,30,10,.12) !important;
+}
+html.theme-light .settings-toggle input:checked + .settings-toggle-track {
+  border-color: transparent !important;
+  background: #c5a04a !important;
+  box-shadow: inset 0 1px 2px rgba(90,60,10,.12) !important;
+}
+html.theme-light .settings-toggle-track::after {
+  background: #fffdf8 !important;
+  box-shadow: 0 1px 3px rgba(40,30,10,.2) !important;
+}
+html.theme-light .settings-dd-menu {
+  box-shadow: 0 10px 28px rgba(43,35,20,.13) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .settings-sheet *, .settings-dd-menu, .settings-dd-menu * {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
+}
+
+
+/* PIONIER refinement pass — remove legacy boxed toggle styling and unify the
+   customization sheet with the quiet, premium instrument controls. */
+.settings-sheet {
+  width: min(410px, 100vw) !important;
+  max-height: min(80dvh, 660px) !important;
+  border: 1px solid rgba(230,224,210,.085) !important;
+  border-left: 1px solid rgba(230,224,210,.085) !important;
+  border-bottom: 0 !important;
+  border-radius: 24px 24px 0 0 !important;
+  background: linear-gradient(160deg, #17171a 0%, #111113 72%, #0e0e10 100%) !important;
+  box-shadow: 0 -18px 54px rgba(0,0,0,.34) !important;
+  backdrop-filter: blur(24px) saturate(118%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(118%) !important;
+}
+.settings-sheet-header {
+  padding: 18px 20px 12px !important;
+}
+.settings-sheet-title {
+  font-size: 14px !important;
+  letter-spacing: .075em !important;
+  text-transform: uppercase;
+}
+.settings-sheet-body {
+  padding: 6px 20px max(28px, env(safe-area-inset-bottom)) !important;
+  scroll-padding-block: 12px;
+}
+.settings-section {
+  margin-bottom: 22px !important;
+}
+.settings-section-label {
+  margin-bottom: 12px !important;
+  letter-spacing: .12em !important;
+  font-size: 10px !important;
+}
+.settings-row {
+  min-height: 44px;
+  padding: 7px 0 !important;
+}
+.settings-row-label {
+  letter-spacing: .005em;
+}
+.settings-toggle {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: flex-start;
+  width: 46px !important;
+  min-width: 46px;
+  height: 28px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 999px !important;
+  isolation: isolate;
+}
+.settings-toggle:hover,
+.settings-toggle:active,
+.settings-toggle:focus,
+.settings-toggle:focus-within {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.settings-toggle input {
+  appearance: none;
+  -webkit-appearance: none;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0;
+  z-index: 3;
+  cursor: pointer;
+}
+.settings-toggle-track {
+  inset: 0 !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: rgba(230,224,210,.14) !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.22) !important;
+  transition: background-color 240ms cubic-bezier(.2,.8,.2,1), box-shadow 240ms ease !important;
+}
+.settings-toggle-track::after {
+  top: 4px !important;
+  left: 4px !important;
+  width: 20px !important;
+  height: 20px !important;
+  background: #f2eee5 !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.2) !important;
+  transition: transform 280ms cubic-bezier(.2,.85,.25,1.15), background-color 180ms ease !important;
+}
+.settings-toggle input:checked + .settings-toggle-track {
+  background: #b99752 !important;
+  border: 0 !important;
+  box-shadow: inset 0 1px 2px rgba(70,45,8,.15) !important;
+}
+.settings-toggle input:checked + .settings-toggle-track::after {
+  transform: translateX(18px) !important;
+}
+.settings-toggle input:focus-visible + .settings-toggle-track {
+  outline: 2px solid rgba(197,160,74,.78) !important;
+  outline-offset: 3px;
+}
+.settings-dd {
+  margin-bottom: 14px !important;
+}
+.settings-dd-toggle {
+  min-height: 48px !important;
+  padding: 11px 15px !important;
+  border-radius: 15px !important;
+  border: 1px solid rgba(230,224,210,.095) !important;
+  background: rgba(255,255,255,.025) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
+  transition: background-color 180ms ease, border-color 180ms ease, transform 220ms cubic-bezier(.2,.8,.2,1) !important;
+}
+.settings-dd-toggle:hover,
+.settings-dd-toggle[aria-expanded="true"] {
+  background: rgba(200,164,114,.055) !important;
+  border-color: rgba(200,164,114,.26) !important;
+}
+.settings-dd-toggle:active { transform: scale(.99); }
+.settings-dd-menu {
+  border-radius: 16px !important;
+  border: 1px solid rgba(230,224,210,.09) !important;
+  padding: 6px !important;
+  box-shadow: 0 14px 38px rgba(0,0,0,.26) !important;
+}
+.settings-dd-item {
+  min-height: 44px !important;
+  padding: 11px 13px !important;
+  border-radius: 11px !important;
+  transition: background-color 160ms ease, color 160ms ease, transform 180ms cubic-bezier(.2,.8,.2,1) !important;
+}
+.settings-dd-item:active { transform: scale(.99); }
+.settings-sheet-close {
+  border: 1px solid transparent !important;
+  background: rgba(255,255,255,.045) !important;
+  transition: background-color 180ms ease, transform 220ms cubic-bezier(.2,.8,.2,1) !important;
+}
+.settings-sheet-close:hover { background: rgba(255,255,255,.085) !important; }
+.settings-sheet-close:active { transform: scale(.94); }
+
+/* Light theme: clean porcelain, not a beige card; toggles never inherit a box. */
+html.theme-light .settings-sheet {
+  background: linear-gradient(160deg, #fbfaf7 0%, #f7f6f2 100%) !important;
+  border: 1px solid rgba(46,40,28,.075) !important;
+  border-left: 1px solid rgba(46,40,28,.075) !important;
+  border-bottom: 0 !important;
+  box-shadow: 0 -16px 48px rgba(34,29,19,.12) !important;
+  color: #25231f !important;
+}
+html.theme-light .settings-sheet-header {
+  border-bottom: 1px solid rgba(46,40,28,.055);
+}
+html.theme-light .settings-sheet-title { color: #25231f !important; }
+html.theme-light .settings-section-label { color: rgba(48,43,34,.48) !important; }
+html.theme-light .settings-row-label { color: #302d27 !important; }
+html.theme-light .settings-toggle,
+html.theme-light .settings-toggle:hover,
+html.theme-light .settings-toggle:active,
+html.theme-light .settings-toggle:focus,
+html.theme-light .settings-toggle:focus-within {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+html.theme-light .settings-toggle-track {
+  background: #e5e2db !important;
+  border: 0 !important;
+  box-shadow: inset 0 1px 2px rgba(48,39,22,.10) !important;
+}
+html.theme-light .settings-toggle-track::after {
+  background: #fff !important;
+  box-shadow: 0 1px 3px rgba(48,39,22,.16) !important;
+}
+html.theme-light .settings-toggle input:checked + .settings-toggle-track {
+  background: #b99752 !important;
+  border: 0 !important;
+}
+html.theme-light .settings-dd-toggle {
+  background: rgba(255,255,255,.72) !important;
+  border-color: rgba(46,40,28,.085) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8) !important;
+}
+html.theme-light .settings-dd-toggle:hover,
+html.theme-light .settings-dd-toggle[aria-expanded="true"] {
+  background: #fff !important;
+  border-color: rgba(151,116,43,.30) !important;
+}
+html.theme-light .settings-dd-menu {
+  background: #fcfbf8 !important;
+  border-color: rgba(46,40,28,.085) !important;
+  box-shadow: 0 14px 36px rgba(34,29,19,.14) !important;
+}
+html.theme-light .settings-dd-item:hover { background: rgba(46,40,28,.045) !important; }
+html.theme-light .settings-dd-item.is-active { background: rgba(185,151,82,.14) !important; color: #624b1d !important; }
+html.theme-light .settings-sheet-close {
+  color: #37332c !important;
+  background: rgba(46,40,28,.045) !important;
+}
+html.theme-light .settings-sheet-close:hover { background: rgba(46,40,28,.085) !important; }
+
+@media (hover: none) {
+  .settings-dd-toggle:hover,
+  .settings-sheet-close:hover { filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .settings-sheet, .settings-sheet *, .settings-dd-menu, .settings-dd-menu * {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
+}
+
+
+/* Touch feedback preference: secondary copy stays quiet and the row remains easy to hit. */
+.settings-row-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+}
+.settings-row-hint {
+  display: block;
+  max-width: 245px;
+  color: rgba(230,224,210,.48);
+  font-size: 11px;
+  line-height: 1.35;
+  letter-spacing: .005em;
+}
+html.theme-light .settings-row-hint {
+  color: rgba(48,43,34,.52);
+}
+.settings-row-touch-feedback {
+  min-height: 54px;
+  margin-top: 2px;
+  margin-bottom: 8px;
+}
+.settings-row-touch-feedback .settings-toggle {
+  flex: 0 0 46px;
+  margin-left: 12px !important;
+}
+@media (max-width: 380px) {
+  .settings-row-hint { max-width: 210px; font-size: 10.5px; }
+}
+
+
+/* Quiet, instrument-like tuning glyph instead of the default gear character. */
+.settings-open-btn .settings-orbit-icon {
+  display:block;
+  width:22px;
+  height:22px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.25;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  color:#d9bd75;
+  filter:drop-shadow(0 0 5px rgba(212,176,74,.12));
+  transition:transform .24s ease, color .24s ease, filter .24s ease;
+}
+.settings-open-btn:hover .settings-orbit-icon,
+.settings-open-btn[aria-expanded="true"] .settings-orbit-icon {
+  color:#f2d995;
+  filter:drop-shadow(0 0 7px rgba(212,176,74,.28));
+  transform:rotate(12deg);
+}
+html.theme-light .settings-open-btn .settings-orbit-icon { color:#9a7725; }
+
+
+
+/* ===== atelier.css ===== */
+/* PIONIER ATELIER — premium visual layer.
+   Intentionally presentation-only: audio, pointer handling, hit testing and
+   the legacy surface API remain untouched. */
+
+:root {
+  color-scheme: dark;
+  --ink-0: #09090b;
+  --ink-1: #0f0f12;
+  --ink-2: #17171b;
+  --ink-3: #202025;
+  --ink-4: #2b2b31;
+  --stone-1: #4a4742;
+  --stone-2: #77726a;
+  --stone-3: #a8a297;
+  --bone: #e6e0d2;
+  --amber: #c8a472;
+  --ember: #d9a066;
+  --slate-teal: #6f8a94;
+  --hairline: rgba(230, 224, 210, .10);
+  --hairline-hi: rgba(230, 224, 210, .18);
+  --glass: rgba(15, 15, 18, .72);
+  --glass-strong: rgba(10, 10, 12, .9);
+  --atelier-shadow: 0 24px 70px rgba(0, 0, 0, .42), inset 0 1px 0 rgba(255,255,255,.035);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-spring: cubic-bezier(.2, .8, .2, 1);
+}
+
+/* Atmospheric stage: warm key light, cool reflected fill, deep edge falloff. */
+body::before {
+  inset: -8%;
+  background:
+    radial-gradient(70% 55% at 22% 12%, rgba(200,164,114,.16), transparent 70%),
+    radial-gradient(60% 50% at 82% 88%, rgba(111,138,148,.10), transparent 72%),
+    radial-gradient(90% 70% at 50% 50%, rgba(43,43,49,.55), transparent 80%),
+    radial-gradient(120% 90% at 50% 120%, rgba(9,9,11,.9), transparent 60%),
+    linear-gradient(180deg, #121215 0%, #0f0f12 55%, #0b0b0d 100%);
+  animation: none;
+}
+
+/* Keep the backdrop deliberately quiet: no synthetic noise layer or
+   full-screen animation competing with the instrument. */
+/* Keep the legacy application as the interaction authority; this layer only
+   upgrades the surface language of its existing DOM. */
+#app, .app {
+  isolation: isolate;
+}
+.topbar {
+  border: 1px solid rgba(230,224,210,.105) !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, rgba(27,27,31,.84), rgba(10,10,12,.74)) !important;
+  box-shadow: 0 12px 42px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.055) !important;
+  backdrop-filter: blur(28px) saturate(135%);
+  -webkit-backdrop-filter: blur(28px) saturate(135%);
+}
+.topbar button, .icon-btn, .pill, .instrument-name {
+  transition:
+    color .22s ease,
+    border-color .28s ease,
+    background-color .28s ease,
+    box-shadow .32s ease,
+    transform .32s var(--ease-out) !important;
+}
+.icon-btn, .pill, .instrument-name {
+  border-color: rgba(230,224,210,.12) !important;
+}
+.icon-btn:hover, .icon-btn:focus-visible,
+.pill:hover, .pill:focus-visible,
+.instrument-name:hover, .instrument-name:focus-visible {
+  border-color: rgba(200,164,114,.42) !important;
+  background-color: rgba(200,164,114,.09) !important;
+  box-shadow: 0 0 0 3px rgba(200,164,114,.045), 0 6px 22px rgba(0,0,0,.18);
+  outline: none;
+}
+button:active { transition-duration: .08s !important; }
+button:focus-visible, [role="button"]:focus-visible, [role="slider"]:focus-visible {
+  outline: 2px solid rgba(200,164,114,.72) !important;
+  outline-offset: 3px;
+}
+
+/* Shared material recipe for existing menus, drawers and floating panels. */
+.sidebar, .mobile-control-panel, .instrument-menu, .scale-menu,
+.effect-bubble, .sound-dock, .loop-controls,
+.settings-panel, .settings-sheet, .control-panel {
+  border-color: rgba(230,224,210,.12) !important;
+  background:
+    linear-gradient(145deg, rgba(35,34,35,.76), rgba(10,10,12,.91)) !important;
+  box-shadow: var(--atelier-shadow) !important;
+  backdrop-filter: blur(26px) saturate(125%);
+  -webkit-backdrop-filter: blur(26px) saturate(125%);
+}
+.sidebar, .mobile-control-panel, .instrument-menu, .scale-menu,
+.effect-bubble, .sound-dock {
+  border-radius: 20px !important;
+}
+.control-label, .dock-kicker, .knob-name-row, .knob-name-row span {
+  color: rgba(230,224,210,.56) !important;
+  letter-spacing: .13em;
+}
+.step, .step-value, .scale-dropdown-toggle, .knob-effect-trigger,
+.effect-choice-list button, .fx-type-btn {
+  transition: background .24s ease, color .24s ease, border-color .24s ease,
+    transform .24s var(--ease-out), box-shadow .24s ease !important;
+}
+.step, .step-value, .scale-dropdown-toggle, .knob-effect-trigger {
+  border-color: rgba(230,224,210,.12) !important;
+  background: rgba(255,255,255,.025) !important;
+  border-radius: 10px !important;
+}
+.step:hover, .scale-dropdown-toggle:hover, .knob-effect-trigger:hover,
+.effect-choice-list button:hover, .fx-type-btn:hover {
+  border-color: rgba(200,164,114,.36) !important;
+  background: rgba(200,164,114,.085) !important;
+}
+.step:active, .effect-choice-list button:active, .fx-type-btn:active {
+  transform: scale(.96);
+}
+.step-value, .scale-name, .instrument-name {
+  color: var(--bone) !important;
+}
+.scale-menu [role="menuitem"], .instrument-menu [role="menuitem"],
+.scale-menu button, .instrument-menu button {
+  border-radius: 10px;
+  transition: background .2s ease, color .2s ease, transform .2s var(--ease-out);
+}
+.scale-menu button:hover, .instrument-menu button:hover,
+.scale-menu [role="menuitem"]:hover, .instrument-menu [role="menuitem"]:hover {
+  background: rgba(200,164,114,.1) !important;
+}
+
+/* The instrument stays visually dominant: ambient halos live behind it,
+   never on top of the touch target or its canvas hit regions. */
+#ambientFxCanvas { filter: saturate(.82); }
+.knob {
+  transition: filter .3s ease, transform .3s var(--ease-out);
+}
+.knob:hover, .knob:focus-visible {
+  filter: drop-shadow(0 0 12px rgba(200,164,114,.14));
+}
+.knob-value {
+  color: rgba(230,224,210,.9) !important;
+}
+.knob-canvas { filter: drop-shadow(0 4px 10px rgba(0,0,0,.28)); }
+
+/* More intentional state language for the looper and mode controls. */
+.loop-orb {
+  border-color: rgba(220,190,125,.42) !important;
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255,246,214,.2), transparent 35%),
+    radial-gradient(circle at 50% 52%, rgba(200,164,114,.13), rgba(10,10,12,.35) 68%) !important;
+  box-shadow: 0 0 0 1px rgba(200,164,114,.055), 0 0 32px rgba(200,164,114,.1),
+    inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+.loop-orb:hover { transform: translateY(-2px) scale(1.025); }
+.loop-orb.is-recording {
+  border-color: rgba(255,113,94,.62) !important;
+  box-shadow: 0 0 42px rgba(255,95,76,.18), inset 0 0 24px rgba(255,95,76,.09) !important;
+}
+.app-modebar {
+  border-color: rgba(230,224,210,.13) !important;
+  background: rgba(13,13,15,.82) !important;
+  box-shadow: 0 18px 55px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.04) !important;
+  backdrop-filter: blur(24px) saturate(130%);
+  -webkit-backdrop-filter: blur(24px) saturate(130%);
+}
+.app-mode {
+  transition: background .25s ease, color .25s ease, transform .25s var(--ease-out) !important;
+}
+.app-mode.is-active {
+  color: #f4ead5 !important;
+  background: linear-gradient(135deg, rgba(200,164,114,.2), rgba(111,138,148,.09)) !important;
+  box-shadow: inset 0 0 0 1px rgba(200,164,114,.18), 0 4px 18px rgba(0,0,0,.15) !important;
+}
+
+/* Refined edges, typography and selection states in utility panels. */
+input, select, textarea {
+  accent-color: var(--amber);
+}
+select, input:not([type="range"]), textarea {
+  border-color: rgba(230,224,210,.14);
+}
+hr, .divider, .dock-section {
+  border-color: rgba(230,224,210,.085) !important;
+}
+[hidden] { display: none !important; }
+
+/* On smaller screens: less chrome, more instrument, respect device safe areas. */
+@media (max-width: 700px) {
+  .topbar {
+    border-radius: 18px !important;
+    background: linear-gradient(145deg, rgba(28,28,31,.88), rgba(9,9,11,.84)) !important;
+    backdrop-filter: blur(22px) saturate(125%);
+    -webkit-backdrop-filter: blur(22px) saturate(125%);
+  }
+  .sidebar, .mobile-control-panel, .instrument-menu, .scale-menu,
+  .effect-bubble, .sound-dock {
+    border-radius: 16px !important;
+  }
+}
+@media (max-height: 560px) and (orientation: landscape) {
+  body::before { animation-duration: 100s; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+  body::before { animation: none; }
+}
+
+
+/* Unified glass-control system — visual only; deliberately no transforms or
+   sizing changes, so controls cannot jump or affect the handpan hit surface. */
+:root {
+  --control-glass: rgba(25, 25, 29, .68);
+  --control-glass-hi: rgba(39, 38, 40, .76);
+  --control-edge: rgba(230, 224, 210, .16);
+  --control-edge-hover: rgba(200, 164, 114, .48);
+  --control-highlight: rgba(255, 255, 255, .075);
+}
+button {
+  border-radius: 14px;
+  border-color: var(--control-edge);
+  -webkit-backdrop-filter: blur(16px) saturate(135%);
+  backdrop-filter: blur(16px) saturate(135%);
+  box-shadow:
+    inset 0 1px 0 var(--control-highlight),
+    0 5px 16px rgba(0, 0, 0, .16);
+  transition:
+    background-color .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease,
+    color .2s ease !important;
+}
+button:hover:not(:disabled) {
+  border-color: var(--control-edge-hover);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.095),
+    0 0 0 1px rgba(200,164,114,.045),
+    0 7px 20px rgba(0,0,0,.2);
+}
+button:active:not(:disabled) {
+  box-shadow: inset 0 1px 5px rgba(0,0,0,.24);
+}
+button:disabled {
+  opacity: .42;
+  cursor: not-allowed;
+}
+/* Small transport/step controls stay compact and read as one control family. */
+.icon-btn, .stage-scale-step, .stage-instrument-nav .icon-btn,
+.stage-instrument-nav .soundscapes-open-btn, .stage-scale-row .stage-scale-step,
+#pionierTopDock #looperBtn, #pionierTopDock #looperSyncBtn,
+#pionierTopDock #looperClearBtn {
+  border-radius: 12px !important;
+  border: 1px solid rgba(230,224,210,.17) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.07),
+    0 4px 13px rgba(0,0,0,.18) !important;
+}
+.instrument-name, #instrumentDropdownToggle, #scaleLabel,
+.stage-instrument-nav .instrument-name, .stage-scale-row .stage-scale-btn {
+  border-radius: 15px !important;
+  border: 1px solid rgba(230,224,210,.19) !important;
+  background-color: rgba(24,24,28,.72) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
+  backdrop-filter: blur(20px) saturate(140%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.075),
+    0 5px 18px rgba(0,0,0,.18) !important;
+}
+#pionierTopDock .looper-rail {
+  border-color: rgba(230,224,210,.14) !important;
+  background: linear-gradient(145deg, rgba(32,32,36,.72), rgba(12,12,15,.82)) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(135%) !important;
+  backdrop-filter: blur(24px) saturate(135%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 10px 26px rgba(0,0,0,.22) !important;
+}
+#pionierTopDock #looperClearBtn {
+  background: rgba(255,255,255,.035) !important;
+}
+#pionierTopDock #looperBtn, #pionierTopDock #looperSyncBtn {
+  -webkit-backdrop-filter: blur(18px) saturate(145%) !important;
+  backdrop-filter: blur(18px) saturate(145%) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  button { transition: none !important; }
+}
+
+
+/* High-specificity glass finish to override legacy square-button rules. */
+html body button,
+html body .app button,
+html body #stageScaleBar button,
+html body #pionierTopDock button,
+html body .instrument-menu button,
+html body .scale-menu button,
+html body .mobile-control-panel button,
+html body .settings-panel button {
+  border-radius: 14px !important;
+  border-color: rgba(230,224,210,.19) !important;
+  background-image: linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.012)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.075), 0 5px 17px rgba(0,0,0,.19) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(135%) !important;
+  backdrop-filter: blur(18px) saturate(135%) !important;
+}
+html body button:hover:not(:disabled),
+html body .app button:hover:not(:disabled),
+html body #stageScaleBar button:hover:not(:disabled),
+html body #pionierTopDock button:hover:not(:disabled) {
+  border-color: rgba(200,164,114,.52) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 0 0 1px rgba(200,164,114,.05), 0 8px 23px rgba(0,0,0,.22) !important;
+}
+html body #stageScaleBar #instrumentDropdownToggle,
+html body #stageScaleBar #scaleLabel {
+  border-radius: 18px !important;
+}
+html body #stageScaleBar #looperRail #looperClearBtn {
+  border-radius: 12px !important;
+}
+
+
+/* Quiet, rounded controls: no decorative glow or bright hover halo. */
+html body button,
+html body .app button,
+html body #stageScaleBar button,
+html body #pionierTopDock button,
+html body .instrument-menu button,
+html body .scale-menu button,
+html body .mobile-control-panel button,
+html body .settings-panel button {
+  border-radius: 999px !important;
+  border-color: rgba(230,224,210,.10) !important;
+  box-shadow: none !important;
+}
+html body button:hover:not(:disabled),
+html body .app button:hover:not(:disabled),
+html body #stageScaleBar button:hover:not(:disabled),
+html body #pionierTopDock button:hover:not(:disabled) {
+  border-color: rgba(230,224,210,.16) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+html body #stageScaleBar #instrumentDropdownToggle,
+html body #stageScaleBar #scaleLabel,
+html body #stageScaleBar #looperRail,
+html body #stageScaleBar #looperRail #looperClearBtn {
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+html body .loop-orb,
+html body .loop-orb:hover,
+html body .loop-orb.is-recording {
+  box-shadow: none !important;
+}
+
+
+/* stepper pills owned by pionier bottom bar — do not restyle as separate chips */
+#stageScaleBar .stepper .step,
+#stageScaleBar .stepper .step-value {
+  border-color: transparent !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+
+
+/* ===== ui-stability.css ===== */
+/* PIONIER UI stability pass — theme-aware portals and fixed selector geometry.
+   Loaded last so these focused rules override legacy cascade conflicts. */
+
+/* Stable selector geometry: labels never determine the width of the control. */
+html body #stageScaleBar .stage-instrument-nav,
+html body #stageScaleBar #instrumentNav,
+html body #stageScaleBar #stageScaleRow,
+html body #stageScaleBar .stage-control-scale,
+html body #stageScaleBar .scale-stepper {
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+}
+
+html body #stageScaleBar .stage-instrument-nav,
+html body #stageScaleBar #instrumentNav,
+html body #stageScaleBar #stageScaleRow {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  width: max-content !important;
+  max-width: 100% !important;
+  margin-inline: auto !important;
+}
+
+html body #stageScaleBar .stage-instrument-nav #instrumentDropdownToggle,
+html body #stageScaleBar #instrumentNav #instrumentDropdownToggle,
+html body #stageScaleBar #stageScaleRow #scaleLabel,
+html body #stageScaleBar .stage-control-scale #scaleLabel {
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  flex: 0 0 clamp(116px, 34vw, 176px) !important;
+  width: clamp(116px, 34vw, 176px) !important;
+  min-width: 0 !important;
+  max-width: calc(100vw - 120px) !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: 0 !important;
+  line-height: 1.15 !important;
+  margin: 0 !important;
+  padding: 0 10px !important;
+  transform: none !important;
+}
+
+html body #stageScaleBar .stage-instrument-nav #voicePrev,
+html body #stageScaleBar .stage-instrument-nav #voiceNext,
+html body #stageScaleBar #stageScaleRow #scalePrev,
+html body #stageScaleBar #stageScaleRow #scaleNext {
+  box-sizing: border-box !important;
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  padding: 0 !important;
+  transform: none !important;
+}
+
+html body #stageScaleBar .stage-instrument-nav #openSoundscapes {
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 !important;
+}
+
+html body #stageScaleBar .stage-control-scale,
+html body #stageScaleBar .stage-control-scale .scale-stepper {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-wrap: nowrap !important;
+  gap: 6px !important;
+  width: max-content !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin-inline: auto !important;
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html body #stageScaleBar .step-value,
+html body #stageScaleBar .stage-root-row .step-value,
+html body #stageScaleBar #rootLabel,
+html body #stageScaleBar #noteCountLabel,
+html body #stageScaleBar .stepper .step-value {
+  box-sizing: border-box !important;
+  min-width: 2.8ch !important;
+  width: 2.8ch !important;
+  flex: 0 0 2.8ch !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" 1 !important;
+}
+
+html body #stageScaleBar .stage-control-scale::before,
+html body #stageScaleBar .stage-control-scale::after,
+html body #stageScaleBar .stage-control-scale .scale-stepper::before,
+html body #stageScaleBar .stage-control-scale .scale-stepper::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Theme tokens for menus portalled to body as well as menus inside the app.
+   Explicitly override dark defaults and any inline background declarations. */
+html.theme-light,
+html.theme-light body,
+html.theme-light body * {
+  color-scheme: light;
+}
+
+html.theme-light body .settings-dd-menu,
+html.theme-light .settings-dd-menu,
+body.theme-light .settings-dd-menu,
+html.theme-light .scale-menu,
+html.theme-light .instrument-menu,
+html.theme-light .scale-menu.picker-sheet,
+html.theme-light .instrument-menu.picker-sheet,
+html.theme-light .scale-menu.picker-popover,
+html.theme-light .instrument-menu.picker-popover,
+html.theme-light .looper-sheet {
+  background: #faf8f4 !important;
+  background-color: #faf8f4 !important;
+  background-image: linear-gradient(180deg, #fffdf9 0%, #f1ede5 100%) !important;
+  color: #24221e !important;
+  border-color: rgba(52, 44, 28, 0.14) !important;
+  box-shadow: 0 16px 42px rgba(43, 35, 20, 0.16) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(115%) !important;
+  backdrop-filter: blur(20px) saturate(115%) !important;
+}
+
+html.theme-light .settings-dd-group,
+html.theme-light .instrument-menu-group,
+html.theme-light .scale-menu-group,
+html.theme-light .looper-sheet,
+html.theme-light .settings-dd-item,
+html.theme-light .scale-menu-item,
+html.theme-light .instrument-menu-item,
+body.theme-light .settings-dd-item {
+  color: #302d27 !important;
+}
+
+html.theme-light .settings-dd-item,
+html.theme-light .scale-menu-item,
+html.theme-light .instrument-menu-item,
+html.theme-light .looper-sheet button {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html.theme-light .settings-dd-item:hover,
+html.theme-light .scale-menu-item:hover,
+html.theme-light .instrument-menu-item:hover,
+html.theme-light .looper-sheet button:hover {
+  background: rgba(73, 59, 30, 0.07) !important;
+  color: #171613 !important;
+}
+
+html.theme-light .settings-dd-item.is-active,
+html.theme-light .scale-menu-item.is-active,
+html.theme-light .instrument-menu-item.is-active {
+  background: rgba(190, 151, 53, 0.18) !important;
+  color: #654b12 !important;
+}
+
+html.theme-light .settings-dd-group,
+html.theme-light .scale-menu-group,
+html.theme-light .instrument-menu-group {
+  color: rgba(45, 40, 31, 0.58) !important;
+}
+
+html.theme-light .settings-dd-menu,
+html.theme-light .scale-menu,
+html.theme-light .instrument-menu,
+html.theme-light .looper-sheet {
+  border-radius: 18px !important;
+}
+
+html.theme-light .settings-dd-item,
+html.theme-light .scale-menu-item,
+html.theme-light .instrument-menu-item {
+  min-height: 42px !important;
+  border-radius: 11px !important;
+  transition: background-color 120ms ease, color 120ms ease !important;
+}
+
+/* Keep light-mode dropdowns legible even if the theme class is mirrored to body. */
+body.theme-light .settings-dd-menu,
+body.theme-light .scale-menu,
+body.theme-light .instrument-menu {
+  background: #faf8f4 !important;
+  background-color: #faf8f4 !important;
+  color: #24221e !important;
+}
+
+@media (max-width: 420px) {
+  html body #stageScaleBar .stage-instrument-nav,
+  html body #stageScaleBar #instrumentNav,
+  html body #stageScaleBar #stageScaleRow {
+    gap: 4px !important;
+  }
+
+  html body #stageScaleBar .stage-instrument-nav #instrumentDropdownToggle,
+  html body #stageScaleBar #instrumentNav #instrumentDropdownToggle,
+  html body #stageScaleBar #stageScaleRow #scaleLabel,
+  html body #stageScaleBar .stage-control-scale #scaleLabel {
+    flex-basis: clamp(108px, 35vw, 138px) !important;
+    width: clamp(108px, 35vw, 138px) !important;
+    max-width: calc(100vw - 116px) !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    padding-inline: 8px !important;
+    font-size: 12px !important;
+  }
+}
+
+
+/* Final pass: geometry is tied to the viewport, never to the selected label.
+   This targets the actual runtime rows assembled by layout-boot.js. */
+html body #stageScaleBar > #stageInstrumentRow,
+html body #stageScaleBar > #stageScaleRow {
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex: 0 1 auto !important;
+  flex-flow: row nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: min(520px, calc(100vw - 24px)) !important;
+  min-width: 0 !important;
+  max-width: calc(100vw - 24px) !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+html body #stageScaleBar #stageInstrumentRow .stage-instrument-nav {
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-flow: row nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+}
+
+html body #stageScaleBar #instrumentDropdownToggle,
+html body #stageScaleBar #stageScaleRow #scaleLabel {
+  box-sizing: border-box !important;
+  flex: 0 0 clamp(136px, calc(100vw - 220px), 190px) !important;
+  width: clamp(136px, calc(100vw - 220px), 190px) !important;
+  min-width: 0 !important;
+  max-width: min(190px, calc(100vw - 220px)) !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  padding: 0 12px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" 1 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.2 !important;
+  transform: none !important;
+}
+
+html body #stageScaleBar #instrumentDropdownToggle {
+  flex-shrink: 0 !important;
+}
+
+html body #stageScaleBar #stageInstrumentRow .icon-btn,
+html body #stageScaleBar #stageScaleRow #scalePrev,
+html body #stageScaleBar #stageScaleRow #scaleNext,
+html body #stageScaleBar #stageInstrumentRow #openSoundscapes {
+  box-sizing: border-box !important;
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+html body #stageScaleBar #stageBaseOnly,
+html body #stageScaleBar #stageNotesSlot {
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html body #stageScaleBar #stageBaseOnly { max-width: 88px !important; }
+html body #stageScaleBar #stageNotesSlot { max-width: 78px !important; }
+
+html body #stageScaleBar #rootLabel,
+html body #stageScaleBar #noteCountLabel,
+html body #stageScaleBar .step-value {
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" 1 !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+}
+
+/* Portal pickers: a light theme must remain light after JS positions them. */
+html.theme-light body #instrumentMenu,
+html.theme-light body #scaleMenu,
+body.theme-light #instrumentMenu,
+body.theme-light #scaleMenu {
+  color-scheme: light !important;
+  color: #24221e !important;
+  background: #faf8f4 !important;
+  background-color: #faf8f4 !important;
+  background-image: linear-gradient(180deg, #fffdf9 0%, #f1ede5 100%) !important;
+  border: 1px solid rgba(52, 44, 28, 0.14) !important;
+  box-shadow: 0 16px 42px rgba(43, 35, 20, 0.16) !important;
+}
+
+html.theme-light body #instrumentMenu button,
+html.theme-light body #scaleMenu button,
+body.theme-light #instrumentMenu button,
+body.theme-light #scaleMenu button {
+  color: #302d27 !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html.theme-light body #instrumentMenu button:hover,
+html.theme-light body #scaleMenu button:hover,
+body.theme-light #instrumentMenu button:hover,
+body.theme-light #scaleMenu button:hover {
+  color: #171613 !important;
+  background: rgba(73, 59, 30, 0.07) !important;
+}
+
+html.theme-light body #instrumentMenu button[aria-selected="true"],
+html.theme-light body #scaleMenu button[aria-selected="true"],
+html.theme-light body #instrumentMenu button.active,
+html.theme-light body #scaleMenu button.active,
+html.theme-light body #instrumentMenu button.is-active,
+html.theme-light body #scaleMenu button.is-active {
+  color: #654b12 !important;
+  background: rgba(190, 151, 53, 0.18) !important;
+}
+
+@media (max-width: 420px) {
+  html body #stageScaleBar > #stageInstrumentRow,
+  html body #stageScaleBar > #stageScaleRow {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    gap: 5px !important;
+  }
+
+  html body #stageScaleBar #stageInstrumentRow .stage-instrument-nav {
+    gap: 4px !important;
+  }
+
+  html body #stageScaleBar #instrumentDropdownToggle,
+  html body #stageScaleBar #stageScaleRow #scaleLabel {
+    flex-basis: clamp(124px, calc(100vw - 220px), 190px) !important;
+    width: clamp(124px, calc(100vw - 220px), 190px) !important;
+    max-width: calc(100vw - 220px) !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    padding-inline: 8px !important;
+    font-size: 12px !important;
+  }
+
+  html body #stageScaleBar #stageBaseOnly { max-width: 78px !important; }
+}
+
+
+/* Light-mode dropdowns: override legacy dark menu declarations with a cohesive
+   warm porcelain surface. These menus are portalled under body, so target them
+   explicitly rather than relying on the settings sheet's descendant styles. */
+html.theme-light body .settings-dd-menu,
+html.theme-light body #settingSkinMenu,
+html.theme-light body #settingTonefieldMenu,
+html.theme-light body #settingAmbientMenu,
+html.theme-light body .scale-menu,
+html.theme-light body #scaleMenu,
+html.theme-light body .instrument-menu,
+html.theme-light body #instrumentMenu,
+html.theme-light body .scale-menu.picker-sheet:not([hidden]),
+html.theme-light body .instrument-menu.picker-sheet:not([hidden]),
+html.theme-light body .scale-menu.picker-popover:not([hidden]),
+html.theme-light body .instrument-menu.picker-popover:not([hidden]) {
+  color: #302d27 !important;
+  background: #faf8f4 !important;
+  background-color: #faf8f4 !important;
+  background-image: none !important;
+  border: 1px solid rgba(62, 54, 40,  0.14) !important;
+  box-shadow: 0 14px 36px rgba(56, 44, 24, 0.14) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html.theme-light body .settings-dd-menu .settings-dd-group,
+html.theme-light body .scale-menu .scale-menu-group,
+html.theme-light body .instrument-menu .instrument-menu-group {
+  color: #82796b !important;
+}
+
+html.theme-light body .settings-dd-menu .settings-dd-item,
+html.theme-light body .scale-menu .scale-menu-item,
+html.theme-light body .instrument-menu .instrument-menu-item,
+html.theme-light body .scale-menu [role="menuitem"],
+html.theme-light body .instrument-menu [role="menuitem"] {
+  color: #39352e !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html.theme-light body .settings-dd-menu .settings-dd-item:hover,
+html.theme-light body .settings-dd-menu .settings-dd-item:focus-visible,
+html.theme-light body .scale-menu .scale-menu-item:hover,
+html.theme-light body .scale-menu .scale-menu-item:focus-visible,
+html.theme-light body .instrument-menu .instrument-menu-item:hover,
+html.theme-light body .instrument-menu .instrument-menu-item:focus-visible {
+  color: #24211b !important;
+  background: rgba(174, 137, 46, 0.10) !important;
+  background-color: rgba(174, 137, 46, 0.10) !important;
+  outline-color: rgba(174, 137, 46, 0.42) !important;
+}
+
+html.theme-light body .settings-dd-menu .settings-dd-item.is-active,
+html.theme-light body .scale-menu .scale-menu-item.is-active,
+html.theme-light body .instrument-menu .instrument-menu-item.is-active {
+  color: #70541a !important;
+  background: rgba(174, 137, 46, 0.14) !important;
+  background-color: rgba(174, 137, 46, 0.14) !important;
+  box-shadow: inset 2px 0 0 rgba(174, 137, 46, 0.72) !important;
+}
+
+
+/* Final light-mode cascade repair.
+   atelier.css gives every button a dark !important gradient. Removing only its
+   background-color is insufficient: the gradient still paints the menu items. */
+html.theme-light body .settings-dd-menu,
+html.theme-light body .settings-dd-menu *,
+html.theme-light body #settingSkinMenu,
+html.theme-light body #settingTonefieldMenu,
+html.theme-light body #settingAmbientMenu,
+html.theme-light body #scaleMenu,
+html.theme-light body #instrumentMenu,
+html.theme-light body #scaleMenu *,
+html.theme-light body #instrumentMenu *,
+body.theme-light .settings-dd-menu,
+body.theme-light #scaleMenu,
+body.theme-light #instrumentMenu,
+body.theme-light #scaleMenu *,
+body.theme-light #instrumentMenu * {
+  color-scheme: light !important;
+}
+html.theme-light body .settings-dd-menu,
+html.theme-light body #settingSkinMenu,
+html.theme-light body #settingTonefieldMenu,
+html.theme-light body #settingAmbientMenu,
+html.theme-light body #scaleMenu,
+html.theme-light body #instrumentMenu,
+body.theme-light .settings-dd-menu,
+body.theme-light #scaleMenu,
+body.theme-light #instrumentMenu {
+  background: #faf8f4 !important;
+  background-color: #faf8f4 !important;
+  background-image: none !important;
+  color: #302d27 !important;
+  border-color: rgba(62,54,40,.14) !important;
+  box-shadow: 0 14px 36px rgba(56,44,24,.14) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html.theme-light body .settings-dd-menu button,
+html.theme-light body #scaleMenu button,
+html.theme-light body #instrumentMenu button,
+body.theme-light .settings-dd-menu button,
+body.theme-light #scaleMenu button,
+body.theme-light #instrumentMenu button {
+  color: #39352e !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html.theme-light body .settings-dd-menu .settings-dd-group,
+body.theme-light .settings-dd-menu .settings-dd-group {
+  color: #82796b !important;
+}
+html.theme-light body .settings-dd-menu button:hover,
+html.theme-light body #scaleMenu button:hover,
+html.theme-light body #instrumentMenu button:hover,
+body.theme-light .settings-dd-menu button:hover,
+body.theme-light #scaleMenu button:hover,
+body.theme-light #instrumentMenu button:hover {
+  color: #24211b !important;
+  background: rgba(174,137,46,.10) !important;
+  background-color: rgba(174,137,46,.10) !important;
+  background-image: none !important;
+}
+html.theme-light body .settings-dd-menu button.is-active,
+html.theme-light body #scaleMenu button.is-active,
+html.theme-light body #instrumentMenu button.is-active,
+html.theme-light body #scaleMenu button[aria-selected="true"],
+html.theme-light body #instrumentMenu button[aria-selected="true"],
+body.theme-light .settings-dd-menu button.is-active,
+body.theme-light #scaleMenu button.is-active,
+body.theme-light #instrumentMenu button.is-active {
+  color: #70541a !important;
+  background: rgba(174,137,46,.14) !important;
+  background-color: rgba(174,137,46,.14) !important;
+  background-image: none !important;
+}
+
+
+/* Base-note and note-count steppers: seamless, rounded controls without boxed arrows. */
+html body #stageScaleBar .stepper {
+  border:1px solid rgba(230,224,210,.12) !important;
+  border-radius:999px !important;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.018)) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 3px 10px rgba(0,0,0,.10) !important;
+  overflow:hidden !important;
+}
+html body #stageScaleBar .stepper > .step,
+html body #stageScaleBar .stepper > .step:first-child,
+html body #stageScaleBar .stepper > .step:last-child {
+  border:0 !important;
+  border-radius:999px !important;
+  background:transparent !important;
+  color:rgba(230,224,210,.62) !important;
+}
+html body #stageScaleBar .stepper > .step:first-child { padding-left:2px !important; }
+html body #stageScaleBar .stepper > .step:last-child { padding-right:2px !important; }
+html body #stageScaleBar .stepper > .step:hover,
+html body #stageScaleBar .stepper > .step:focus-visible {
+  background:rgba(212,176,74,.10) !important;
+  color:#f0d17b !important;
+  outline:none !important;
+}
+html body #stageScaleBar .stepper > .step-value {
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+html.theme-light body #stageScaleBar .stepper {
+  border-color:rgba(80,65,35,.16) !important;
+  background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(240,235,225,.72)) !important;
+}
+
+
+
+/* ===== fx-editor.css ===== */
+/* Responsive FX editor: dark glass, fixed-ratio graph, touch-friendly controls. */
+.fx-editor-backdrop[hidden], .fx-editor[hidden] { display:none !important; }
+.fx-editor-backdrop {
+  position:fixed; inset:0; z-index:8800;
+  background:rgba(0,0,0,.58);
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+.fx-editor {
+  position:fixed; z-index:8810; left:50%; top:50%; transform:translate(-50%,-50%);
+  display:flex; flex-direction:column; gap:14px;
+  width:min(620px,calc(100vw - 28px)); max-height:min(88dvh,820px);
+  overflow-y:auto; overscroll-behavior:contain; box-sizing:border-box;
+  padding:18px; border:1px solid rgba(235,229,215,.13); border-radius:20px;
+  color:#f1eee6; background:rgba(17,17,20,.94);
+  box-shadow:0 24px 90px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.035);
+  -webkit-backdrop-filter:blur(26px) saturate(120%); backdrop-filter:blur(26px) saturate(120%);
+}
+.fx-editor-header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex:0 0 auto; }
+.fx-editor-current-title { font-size:15px; font-weight:600; letter-spacing:.02em; }
+.fx-editor-toolbar { display:flex; align-items:center; gap:10px; min-width:0; }
+.fx-editor-presets { flex:1 1 auto; min-width:0; }
+.fx-editor-bypass,.fx-editor-reset {
+  min-height:44px; padding:0 14px; border:1px solid rgba(235,229,215,.12); border-radius:10px;
+  color:rgba(242,238,229,.86); background:rgba(255,255,255,.045); font:inherit; cursor:pointer;
+}
+.fx-editor-bypass[aria-pressed="true"] { border-color:rgba(205,170,88,.45); color:#e3c985; }
+.fx-editor-curve-wrap { width:100%; min-width:0; }
+.fx-editor-curve { display:block; width:100%; height:auto; aspect-ratio:16/9; min-height:150px; max-height:300px; border:1px solid rgba(235,229,215,.1); border-radius:12px; background:rgba(5,5,7,.62); touch-action:pan-y; }
+.fx-editor-knobs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.fx-editor-knob { min-width:0; }
+.fx-editor-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:4px; }
+#fxEditorStatus { min-width:0; color:rgba(242,238,229,.52); font-size:12px; }
+.fx-editor-reset { white-space:nowrap; }
+.fx-editor .icon-btn { flex:0 0 44px; width:44px; height:44px; min-height:44px; border-radius:50%; color:rgba(242,238,229,.9); background:rgba(255,255,255,.05); border:1px solid rgba(235,229,215,.12); }
+.fx-editor .pionier-select { width:100%; }
+@media (max-width:600px) {
+  .fx-editor { left:0; right:0; top:auto; bottom:0; transform:none; width:100%; max-height:min(88dvh,820px); padding:16px 14px max(16px,env(safe-area-inset-bottom)); border-radius:20px 20px 0 0; }
+  .fx-editor-curve { aspect-ratio:16/9; min-height:160px; max-height:none; }
+  .fx-editor-knobs { gap:8px; }
+}
+@media (max-width:360px) {
+  .fx-editor { padding-inline:10px; gap:10px; }
+  .fx-editor-toolbar { gap:7px; }
+  .fx-editor-knobs { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (prefers-reduced-motion:reduce) { .fx-editor,.fx-editor-backdrop { transition:none !important; animation:none !important; } }
+
+
+.fx-editor-knob { display:flex; flex-direction:column; align-items:center; gap:5px; padding:8px 4px; border:1px solid rgba(235,229,215,.075); border-radius:12px; background:rgba(255,255,255,.018); }
+.fx-editor-dial { display:block; width:50px; height:50px; max-width:100%; touch-action:none; cursor:ns-resize; }
+.fx-editor-knob-name { color:rgba(242,238,229,.68); font-size:11px; text-align:center; }
+.fx-editor-knob-value { color:rgba(242,238,229,.92); font-size:12px; font-variant-numeric:tabular-nums; text-align:center; }
+.fx-settings-shortcut {
+  display:inline-grid !important; place-items:center !important; flex:0 0 44px !important;
+  width:44px !important; height:44px !important; min-width:44px !important; min-height:44px !important;
+  padding:0 !important; border:1px solid rgba(235,229,215,.13) !important; border-radius:50% !important;
+  color:rgba(242,238,229,.84) !important; background:rgba(255,255,255,.045) !important;
+  box-shadow:none !important; font-size:13px !important; line-height:1 !important;
+}
+.fx-settings-shortcut:hover,.fx-settings-shortcut:focus-visible {
+  color:#f1eee6 !important; background:rgba(255,255,255,.085) !important;
+  border-color:rgba(235,229,215,.26) !important; outline:none;
+}
+
+
+/* Keep the small advanced-settings shortcuts aligned with each FX knob label. */
+.fx-knob-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  min-height: 28px;
+  box-sizing: border-box;
+}
+.fx-knob-label-row .knob-label {
+  min-width: 0;
+  text-align: left;
+}
+.fx-settings-shortcut {
+  display: inline-grid !important;
+  place-items: center !important;
+  flex: 0 0 28px !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  max-width: 28px !important;
+  max-height: 28px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  border: 1px solid rgba(235,229,215,.13) !important;
+  border-radius: 50% !important;
+  color: rgba(242,238,229,.84) !important;
+  background: rgba(255,255,255,.045) !important;
+  box-shadow: none !important;
+  font: 500 11px/1 Inter, sans-serif !important;
+  text-transform: lowercase !important;
+}
+
+/* ========== Light mode — FX editor readable on light surfaces ========== */
+html.theme-light .fx-editor-backdrop {
+  background: rgba(34, 29, 19, 0.28);
+}
+html.theme-light .fx-editor {
+  color: #1a1a1c;
+  background: rgba(252, 251, 248, 0.97);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 24px 90px rgba(34, 29, 19, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+html.theme-light .fx-editor-current-title {
+  color: #1a1a1c;
+}
+html.theme-light .fx-editor-bypass,
+html.theme-light .fx-editor-reset {
+  color: rgba(28, 28, 32, 0.85);
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+html.theme-light .fx-editor-bypass[aria-pressed="true"] {
+  border-color: rgba(157, 120, 32, 0.45);
+  color: #8d6b1c;
+}
+html.theme-light .fx-editor-curve {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+html.theme-light #fxEditorStatus {
+  color: rgba(28, 28, 32, 0.45);
+}
+html.theme-light .fx-editor .icon-btn {
+  color: rgba(28, 28, 32, 0.85);
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+html.theme-light .fx-editor-knob {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+html.theme-light .fx-editor-knob-name {
+  color: rgba(28, 28, 32, 0.55);
+}
+html.theme-light .fx-editor-knob-value {
+  color: rgba(28, 28, 32, 0.92);
+}
+html.theme-light .fx-settings-shortcut {
+  color: rgba(28, 28, 32, 0.75) !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+html.theme-light .fx-settings-shortcut:hover,
+html.theme-light .fx-settings-shortcut:focus-visible {
+  color: #1a1a1c !important;
+  background: rgba(0, 0, 0, 0.07) !important;
+  border-color: rgba(0, 0, 0, 0.16) !important;
+}
+html.theme-light .fx-knob-label-row .knob-label {
+  color: rgba(28, 28, 32, 0.75);
+}
+
+
+
+/* ===== focus-visible.css ===== */
+/* Visible focus rings for keyboard / assistive users (WCAG 2.4.7).
+ * Gold outline matches Pionier chrome; offset keeps it clear on dark UI.
+ * Phase 3 base + expanded coverage for A11y ≥ 8.0.
+ */
+
+:root {
+  --pionier-focus-ring: 2px solid var(--gold, #e8c56a);
+  --pionier-focus-offset: 3px;
+}
+
+/* Shared utility for any control that needs an explicit ring */
+.pionier-focus-ring:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— Welcome / status —— */
+#enterPionier:focus-visible,
+#appStatusRetry:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— Top bar / instrument nav —— */
+.icon-btn:focus-visible,
+.instrument-name:focus-visible,
+#instrumentDropdownToggle:focus-visible,
+.soundscapes-open-btn:focus-visible,
+.randomize-setup-btn:focus-visible,
+.settings-open-btn:focus-visible,
+.fx-panel-open:focus-visible,
+#fxPanelOpen:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— Scale / base note / note-count steppers —— */
+.step:focus-visible,
+.scale-dropdown-toggle:focus-visible,
+.scale-name:focus-visible,
+.step-value:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— Looper —— */
+.looper-btn:focus-visible,
+.looper-clear-btn:focus-visible,
+.looper-layer-btn:focus-visible,
+.looper-layers button:focus-visible,
+#looperBtn:focus-visible,
+#looperClearBtn:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— Mobile drawer —— */
+.mobile-controls-toggle:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— Soundscapes panel —— */
+.soundscape-play:focus-visible,
+.soundscape-transport-btn:focus-visible,
+.soundscape-queue-item:focus-visible,
+.soundscapes-return-btn:focus-visible,
+.soundscape-tab:focus-visible,
+#soundscapeSeek:focus-visible,
+#soundscapeVolume:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— FX panel + editor —— */
+.fx-panel .icon-btn:focus-visible,
+.fx-settings-shortcut:focus-visible,
+.fx-editor-bypass:focus-visible,
+.fx-editor-reset:focus-visible,
+#fxPanelClose:focus-visible,
+#fxEditorClose:focus-visible,
+#fxEditorBypass:focus-visible,
+#fxEditorReset:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— Settings sheet —— */
+.settings-sheet-close:focus-visible,
+.settings-dd-toggle:focus-visible,
+.settings-dd-item:focus-visible,
+.settings-toggle input:focus-visible,
+.settings-row input[type="range"]:focus-visible,
+#settingsSheetClose:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* —— Menus / listboxes (scale, instrument, ambient) —— */
+[role="menu"] button:focus-visible,
+[role="listbox"] [role="option"]:focus-visible,
+[role="menuitem"]:focus-visible,
+.scale-menu button:focus-visible,
+.instrument-menu button:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: 2px;
+}
+
+/* —— Shell chrome (offline pill / update toast) —— */
+#pionierUpdateToast button:focus-visible,
+.pionier-update-toast button:focus-visible {
+  outline: var(--pionier-focus-ring);
+  outline-offset: var(--pionier-focus-offset);
+}
+
+/* Prefer :focus-visible only — no permanent rings on mouse/touch */
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+[tabindex]:focus:not(:focus-visible) {
+  outline: none;
+}
+
+
+
+/* ===== high-contrast.css ===== */
+/**
+ * High-contrast mode — opt-in via Settings → High contrast.
+ * Boosts text/control edge contrast on the dark glass UI so WCAG 2 AA
+ * color-contrast can pass without abandoning the artistic dark theme.
+ * Applied when html/body have class `high-contrast`.
+ */
+
+html.high-contrast,
+html.high-contrast body {
+  --hc-fg: #f5f0e6;
+  --hc-fg-muted: #d8d0c0;
+  --hc-bg: #0a0a0c;
+  --hc-surface: #141418;
+  --hc-border: rgba(245, 240, 230, 0.42);
+  --hc-gold: #f0c85a;
+  --hc-focus: #ffe08a;
+}
+
+/* Primary chrome text */
+html.high-contrast .instrument-name,
+html.high-contrast .scale-name,
+html.high-contrast .step-value,
+html.high-contrast .control-label,
+html.high-contrast .mobile-controls-label,
+html.high-contrast .settings-row-label,
+html.high-contrast .settings-sheet-title,
+html.high-contrast .settings-dd-value,
+html.high-contrast .settings-dd-item,
+html.high-contrast .knob-label,
+html.high-contrast .knob-val,
+html.high-contrast .soundscape-title,
+html.high-contrast .soundscape-note,
+html.high-contrast .soundscape-status,
+html.high-contrast .welcome-headline,
+html.high-contrast .welcome-deck,
+html.high-contrast .welcome-brand,
+html.high-contrast .app-status,
+html.high-contrast #appStatusMessage {
+  color: var(--hc-fg) !important;
+}
+
+html.high-contrast .settings-section-label,
+html.high-contrast .settings-dd-label,
+html.high-contrast .settings-row-hint,
+html.high-contrast .welcome-kicker,
+html.high-contrast .welcome-foot,
+html.high-contrast .welcome-edition {
+  color: var(--hc-fg-muted) !important;
+}
+
+/* Buttons / controls — stronger borders and fills */
+html.high-contrast .icon-btn,
+html.high-contrast .step,
+html.high-contrast .looper-btn,
+html.high-contrast .looper-clear-btn,
+html.high-contrast .randomize-setup-btn,
+html.high-contrast .soundscapes-open-btn,
+html.high-contrast .settings-open-btn,
+html.high-contrast .fx-panel-open,
+html.high-contrast #fxPanelOpen,
+html.high-contrast .settings-dd-toggle,
+html.high-contrast .settings-sheet-close,
+html.high-contrast .soundscape-play,
+html.high-contrast .soundscape-transport-btn,
+html.high-contrast .scale-dropdown-toggle {
+  border-color: var(--hc-border) !important;
+  color: var(--hc-fg) !important;
+  background-color: var(--hc-surface) !important;
+}
+
+html.high-contrast .instrument-name,
+html.high-contrast .scale-name,
+html.high-contrast .step-value {
+  border-color: var(--hc-border) !important;
+  background-color: var(--hc-surface) !important;
+}
+
+/* Gold accents stay readable */
+html.high-contrast .looper-btn.is-recording,
+html.high-contrast .looper-btn.looper-record.is-active,
+html.high-contrast .settings-dd-item.is-active {
+  color: var(--hc-gold) !important;
+  border-color: var(--hc-gold) !important;
+}
+
+/* Focus rings stronger in HC */
+html.high-contrast :focus-visible {
+  outline: 3px solid var(--hc-focus) !important;
+  outline-offset: 3px !important;
+}
+
+/* Surfaces */
+html.high-contrast .settings-sheet,
+html.high-contrast .settings-dd-menu,
+html.high-contrast .fx-panel,
+html.high-contrast .fx-editor,
+html.high-contrast .soundscapes-panel,
+html.high-contrast .mobile-control-drawer {
+  background: var(--hc-bg) !important;
+  border-color: var(--hc-border) !important;
+  color: var(--hc-fg) !important;
+}
+
+/* Light theme + high contrast */
+html.theme-light.high-contrast {
+  --hc-fg: #12110f;
+  --hc-fg-muted: #3a3834;
+  --hc-bg: #f7f4ee;
+  --hc-surface: #ffffff;
+  --hc-border: rgba(30, 28, 24, 0.55);
+  --hc-gold: #8a6a12;
+  --hc-focus: #6b4e0e;
+}
+
+html.theme-light.high-contrast body {
+  background: var(--hc-bg) !important;
+  color: var(--hc-fg) !important;
+}
+
+
+
+/* ===== system-fonts.css ===== */
+/* Phase 4 — no webfont CDN; prefer native UI fonts for offline + first paint */
+:root {
+  --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --pionier-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+body, .app, button, input, select, textarea {
+  font-family: var(--font);
+}
+
