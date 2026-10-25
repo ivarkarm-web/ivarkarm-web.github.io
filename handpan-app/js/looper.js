@@ -155,6 +155,7 @@ export function mountLooper({ root } = {}) {
   let silent = null;
   let tapSource = null;
   let tapPromise = null;
+  let recorderFlushResolve = null;
   let pressTimer = null;
   let longFired = false;
   let pendingTap = null;
@@ -223,7 +224,12 @@ export function mountLooper({ root } = {}) {
         });
         node.port.onmessage = (event) => {
           const data = event.data;
-          if (!recording || !recChunks || !data || !data.left) return;
+          if (data?.type === 'flushed') {
+            if (recorderFlushResolve) recorderFlushResolve();
+            recorderFlushResolve = null;
+            return;
+          }
+          if (!recChunks || !data || !data.left) return;
           recChunks.push({ L: new Float32Array(data.left), R: new Float32Array(data.right || data.left) });
         };
         const mute = ctx.createGain();
@@ -1184,8 +1190,15 @@ export function mountLooper({ root } = {}) {
     finishRecord();
   }
 
-  function finishRecord() {
+  async function finishRecord() {
     if (!recording && !pendingLoopStop) return;
+    if (recording && processor?.port && recChunks) {
+      await new Promise((resolve) => {
+        recorderFlushResolve = resolve;
+        processor.port.postMessage({ type: 'flush' });
+        setTimeout(() => { if (recorderFlushResolve === resolve) recorderFlushResolve = null; resolve(); }, 120);
+      });
+    }
     if (pendingLoopStopTimer) {
       clearTimeout(pendingLoopStopTimer);
       pendingLoopStopTimer = null;
