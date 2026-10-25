@@ -60,7 +60,7 @@ export function createAmbientSequenceEngine({ getNotes, getTransport } = {}) {
     if (!ctx) return false;
     if (!bus || bus.context !== ctx) {
       bus = createBus('pionier-ambient-sequence', 0.82);
-      if (bus) bus.gain.value = 0.82;
+      if (bus) bus.gain.value = 0.82 * level;
     }
     return !!bus;
   }
