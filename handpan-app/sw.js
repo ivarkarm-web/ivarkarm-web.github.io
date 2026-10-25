@@ -11,14 +11,14 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.
  */
-const CACHE_VERSION = 'pionier-v164';
+const CACHE_VERSION = 'pionier-v165';
 
 const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icon.svg',
-  './ambient-sequencer.css?v=1',
+  './ambient-sequencer.css?v=2',
   './atelier.css?v=10',
   './favorites.css?v=2',
   './focus-visible.css?v=2',
@@ -26,7 +26,7 @@ const SHELL = [
   './handpan-themes.css?v=2',
   './high-contrast.css?v=1',
   './js/ambient-fx.js?v=12',
-  './js/ambient-sequencer.js?v=1',
+  './js/ambient-sequencer.js?v=2',
   './js/app-state.js?v=1',
   './js/audio-core.js?v=2',
   './js/coach-marks.js?v=1',
