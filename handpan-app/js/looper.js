@@ -1,5 +1,5 @@
 /**
- * looper.js — four-layer phrase looper v3
+ * looper.js — eight-layer phrase looper v3
  * Record: arm/stop layer (pre-FX instrument bus)
  * Recording uses optional count-in, metronome and tempo controls:
  *   FREE  — independent lengths
@@ -11,7 +11,7 @@
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
 
-const MAX_LAYERS = 4;
+const MAX_LAYERS = 8;
 const LONG_MS = 480;
 const DEFAULT_LEVEL = 0.92;
 const BEATS_PER_BAR = 4;
