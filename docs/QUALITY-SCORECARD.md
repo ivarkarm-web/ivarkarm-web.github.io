@@ -10,7 +10,7 @@ This scorecard reports measurements and verification state only. A subjective re
 
 | Metric | Measurement | Method / scope |
 |---|---:|---|
-| Consolidated CSS source | 327,836 bytes | Sum of the four source CSS files from GitHub file metadata; raw, not minified |
+| Consolidated CSS source | 328,576 bytes | Sum of the four source CSS files from GitHub file metadata; raw, not minified |
 | `!important` declarations | 3,029 occurrences | Source text count across the four consolidated CSS files |
 | CSS delivery budget | 250,000 bytes | Proposed hard ceiling for the minified Vite CSS bundle; pending successful CI measurement |
 | JavaScript bundle bytes | Not measured | Vite app build must pass before reporting a number |
