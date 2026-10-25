@@ -48,6 +48,9 @@ jobs:
       - name: App unit tests
         run: npm run test:app
 
+      - name: Lighthouse app audit
+        run: npm run lighthouse:app
+
       - name: Browser tests
         run: npx playwright test
 
