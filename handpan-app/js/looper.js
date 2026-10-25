@@ -515,24 +515,24 @@ export function mountLooper({ root } = {}) {
     const overlay = document.createElement('div');
     overlay.className = 'looper-track-overlay is-floating';
     overlay.innerHTML = `
-      <section class="looper-track-panel" role="dialog" aria-modal="false" aria-label="Track ${index + 1} controls">
+      <section class="looper-track-panel" role="dialog" aria-modal="false" aria-label="Track controls">
         <header class="looper-track-header">
-          <div><div class="looper-track-eyebrow">PIONIER · LOOP MIXER</div><h2>Track ${index + 1}</h2><p>${(layer.buffer.duration || 0).toFixed(1)} sec loop</p></div>
+          <div><div class="looper-track-eyebrow">PIONIER · LOOP MIXER</div><h2 class="looper-track-title"></h2><p class="looper-track-length"></p></div>
           <button type="button" class="looper-track-close" aria-label="Close track controls">×</button>
         </header>
         <div class="looper-track-transport"><button type="button" class="looper-track-play"></button><span class="looper-track-status"></span></div>
         <div class="looper-waveform-wrap">
           <canvas class="looper-waveform" aria-label="Recorded audio waveform" role="img"></canvas>
-          <div class="looper-waveform-scrub"><input data-control="position" aria-label="Track playback position" type="range" min="0" max="${Math.max(0.01, layer.buffer.duration || 0.01)}" step="0.01"></div>
-          <div class="looper-track-position"><output class="looper-track-elapsed">0:00</output><span>/</span><span class="looper-track-duration">${formatLoopTime(layer.buffer.duration || 0)}</span></div>
+          <div class="looper-waveform-scrub"><input data-control="position" aria-label="Track playback position" type="range" min="0" max="1" step="0.01"></div>
+          <div class="looper-track-position"><output class="looper-track-elapsed">0:00</output><span>/</span><span class="looper-track-duration"></span></div>
           <button type="button" class="looper-crop-toggle" aria-expanded="false">Crop</button>
           <div class="looper-crop-editor" hidden>
             <p class="looper-crop-hint">Drag either edge to trim the beginning or end</p>
             <div class="looper-crop-range">
-              <input data-control="crop-start" aria-label="Crop beginning" type="range" min="0" max="${Math.max(0.01, layer.buffer.duration || 0.01)}" step="0.01" value="0">
-              <input data-control="crop-end" aria-label="Crop end" type="range" min="0" max="${Math.max(0.01, layer.buffer.duration || 0.01)}" step="0.01" value="${Math.max(0.01, layer.buffer.duration || 0.01)}">
+              <input data-control="crop-start" aria-label="Crop beginning" type="range" min="0" max="1" step="0.01" value="0">
+              <input data-control="crop-end" aria-label="Crop end" type="range" min="0" max="1" step="0.01" value="1">
             </div>
-            <div class="looper-crop-times"><span>In <output data-output="crop-start">0:00</output></span><span>Out <output data-output="crop-end">${formatLoopTime(layer.buffer.duration || 0)}</output></span></div>
+            <div class="looper-crop-times"><span>In <output data-output="crop-start">0:00</output></span><span>Out <output data-output="crop-end"></output></span></div>
             <div class="looper-crop-actions"><button type="button" data-action="crop-cancel">Cancel</button><button type="button" data-action="crop-apply">Apply crop</button></div>
           </div>
         </div>
@@ -542,9 +542,24 @@ export function mountLooper({ root } = {}) {
           <div class="looper-knob-control"><span class="looper-knob-label">Delay send</span><button type="button" class="looper-knob" data-control="delay" role="slider" aria-label="Delay send" aria-valuemin="0" aria-valuemax="0.75"><span class="looper-knob-face"><i></i></span></button><output class="looper-knob-value" data-output="delay"></output></div>
           <div class="looper-knob-control"><span class="looper-knob-label">Low-pass cut</span><button type="button" class="looper-knob" data-control="cut" role="slider" aria-label="Low-pass cutoff" aria-valuemin="300" aria-valuemax="20000"><span class="looper-knob-face"><i></i></span></button><output class="looper-knob-value" data-output="cut"></output></div>
         </div>
-        <div class="looper-track-control looper-track-quantize"><label for="track-quantize-${index}"><span>Quantize on resume</span></label><select id="track-quantize-${index}" data-control="quantize"><option value="off">Off</option><option value="beat">Beat</option><option value="eighth">1/8 note</option><option value="sixteenth">1/16 note</option></select></div>
+        <div class="looper-track-control looper-track-quantize"><label for="track-quantize"><span>Quantize on resume</span></label><select id="track-quantize" data-control="quantize"><option value="off">Off</option><option value="beat">Beat</option><option value="eighth">1/8 note</option><option value="sixteenth">1/16 note</option></select></div>
         <footer class="looper-track-footer"><button type="button" class="looper-track-mute"></button><button type="button" class="looper-track-delete">Delete track</button></footer>
       </section>`;
+    const duration = Math.max(0.01, layer.buffer.duration || 0.01);
+    const trackPanel = overlay.querySelector('.looper-track-panel');
+    trackPanel.setAttribute('aria-label', 'Track ' + (index + 1) + ' controls');
+    trackPanel.querySelector('.looper-track-title').textContent = 'Track ' + (index + 1);
+    trackPanel.querySelector('.looper-track-length').textContent = (layer.buffer.duration || 0).toFixed(1) + ' sec loop';
+    trackPanel.querySelector('[data-control="position"]').max = String(duration);
+    trackPanel.querySelector('[data-control="crop-start"]').max = String(duration);
+    const cropEnd = trackPanel.querySelector('[data-control="crop-end"]');
+    cropEnd.max = String(duration);
+    cropEnd.value = String(duration);
+    trackPanel.querySelector('.looper-track-duration').textContent = formatLoopTime(layer.buffer.duration || 0);
+    trackPanel.querySelector('[data-output="crop-end"]').textContent = formatLoopTime(layer.buffer.duration || 0);
+    const quantize = trackPanel.querySelector('[data-control="quantize"]');
+    quantize.id = 'track-quantize-' + index;
+    trackPanel.querySelector('label[for="track-quantize"]').htmlFor = quantize.id;
     document.body.appendChild(overlay);
     trackPanelEl = overlay;
     const panel = overlay.querySelector('.looper-track-panel');
@@ -901,13 +916,14 @@ export function mountLooper({ root } = {}) {
     dialog.innerHTML = `
       <form method="dialog" class="looper-save-form">
         <p class="looper-save-eyebrow">PIONIER · LOOP</p>
-        <h2>Delete track ${index + 1}?</h2>
+        <h2 class="looper-delete-title"></h2>
         <p class="looper-save-copy">This removes the recorded track. This cannot be undone.</p>
         <div class="looper-save-actions">
           <button type="button" class="looper-save-cancel">Keep track</button>
           <button type="button" class="looper-save-confirm">Delete track</button>
         </div>
       </form>`;
+    dialog.querySelector('.looper-delete-title').textContent = 'Delete track ' + (index + 1) + '?';
     document.body.appendChild(dialog);
     dialog.querySelector('.looper-save-cancel').addEventListener('click', () => dialog.close());
     dialog.querySelector('.looper-save-confirm').addEventListener('click', () => {
