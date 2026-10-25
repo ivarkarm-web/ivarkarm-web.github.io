@@ -1232,3 +1232,23 @@ html.theme-light body::before {
   opacity: var(--handpan-alpha, 1) !important;
 }
 
+
+/* Graceful, non-blocking notice for browsers without AudioWorklet recording. */
+.looper-recorder-status {
+  position: fixed;
+  z-index: 9500;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 86px);
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: min(90vw, 340px);
+  margin: 0;
+  padding: 9px 12px;
+  border: 1px solid rgba(212, 176, 74, 0.28);
+  border-radius: 10px;
+  background: rgba(14, 14, 16, 0.96);
+  color: var(--fg, #eceae6);
+  font: 500 12px/1.4 system-ui, sans-serif;
+  text-align: center;
+  pointer-events: none;
+}
