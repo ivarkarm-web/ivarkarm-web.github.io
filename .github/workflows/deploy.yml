@@ -63,6 +63,15 @@ jobs:
             playwright-report/
           if-no-files-found: ignore
 
+      - name: Build minified Pionier app with Vite
+        run: npm run build:app
+
+      - name: Enforce minified CSS budget
+        run: npm run check:app-css-size
+
+      - name: Overlay built app into Pages route
+        run: cp -a dist/handpan-app/. handpan-app/
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
