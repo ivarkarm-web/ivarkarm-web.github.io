@@ -154,6 +154,7 @@ export function mountLooper({ root } = {}) {
   let processor = null;
   let silent = null;
   let tapSource = null;
+  let tapPromise = null;
   let pressTimer = null;
   let longFired = false;
   let pendingTap = null;
@@ -198,10 +199,13 @@ export function mountLooper({ root } = {}) {
     return getAudioMaster();
   }
 
-  function ensureTap() {
+  async function ensureTap() {
     const ctx = getAudioContext();
     const bus = getRecordBus();
-    if (!ctx || !bus) return null;
+    if (!ctx || !bus || !ctx.audioWorklet || typeof AudioWorkletNode === 'undefined') {
+      console.error('[looper] AudioWorklet recording is unavailable in this browser/context.');
+      return null;
+    }
     if (processor && tapSource && tapSource !== bus) {
       try { tapSource.disconnect(processor); } catch (_) {}
       try { bus.connect(processor); } catch (_) {}
@@ -209,32 +213,39 @@ export function mountLooper({ root } = {}) {
       return ctx;
     }
     if (processor) return ctx;
-    processor = ctx.createScriptProcessor(4096, 2, 2);
-    silent = ctx.createGain();
-    silent.gain.value = 0;
-    processor.onaudioprocess = (e) => {
-      if (!recording || !recChunks) return;
-      const L = e.inputBuffer.getChannelData(0);
-      const R = e.inputBuffer.numberOfChannels > 1
-        ? e.inputBuffer.getChannelData(1)
-        : L;
-      recChunks.push({ L: new Float32Array(L), R: new Float32Array(R) });
-      e.outputBuffer.getChannelData(0).fill(0);
-      if (e.outputBuffer.numberOfChannels > 1) e.outputBuffer.getChannelData(1).fill(0);
-    };
-    try {
-      bus.connect(processor);
-      tapSource = bus;
-    } catch (_) {
-      const master = getAudioMaster();
-      if (master) {
-        master.connect(processor);
-        tapSource = master;
-      }
+    if (!tapPromise) {
+      tapPromise = (async () => {
+        await ctx.audioWorklet.addModule('./js/looper-recorder-worklet.js?v=1');
+        if (getAudioContext() !== ctx) throw new Error('Audio context changed while preparing recorder');
+        const node = new AudioWorkletNode(ctx, 'pionier-looper-recorder', {
+          numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [2],
+          channelCount: 2, channelCountMode: 'explicit', channelInterpretation: 'discrete'
+        });
+        node.port.onmessage = (event) => {
+          const data = event.data;
+          if (!recording || !recChunks || !data || !data.left) return;
+          recChunks.push({ L: new Float32Array(data.left), R: new Float32Array(data.right || data.left) });
+        };
+        const mute = ctx.createGain();
+        mute.gain.value = 0;
+        try { bus.connect(node); tapSource = bus; }
+        catch (err) {
+          const master = getAudioMaster();
+          if (!master) throw err;
+          master.connect(node); tapSource = master;
+        }
+        node.connect(mute);
+        mute.connect(ctx.destination);
+        processor = node;
+        silent = mute;
+      })().catch((err) => {
+        tapPromise = null;
+        console.error('[looper] AudioWorklet recorder failed to initialize', err);
+        return false;
+      });
     }
-    processor.connect(silent);
-    silent.connect(ctx.destination);
-    return ctx;
+    const ready = await tapPromise;
+    return ready === false ? null : ctx;
   }
 
   function cycleDuration() {
@@ -917,9 +928,9 @@ export function mountLooper({ root } = {}) {
   }
 
 
-  function beginRecording() {
+  async function beginRecording() {
     if (layers.length >= MAX_LAYERS) return;
-    const ctx = ensureTap();
+    const ctx = await ensureTap();
     if (!ctx) return;
     resumeAudio();
     try { window.PionierCore?.ensureAudio?.(); } catch (_) {}
@@ -980,15 +991,15 @@ export function mountLooper({ root } = {}) {
     tick();
   }
 
-  function startRecord() {
+  async function startRecord() {
     if (layers.length >= MAX_LAYERS || recording || pendingLoopStop || countInPending) return;
-    const ctx = ensureTap();
+    const ctx = await ensureTap();
     if (!ctx) return;
     resumeAudio();
     try { window.PionierCore?.ensureAudio?.(); } catch (_) {}
     ensureTap();
     if (countInEnabled) { runCountIn(); return; }
-    beginRecording();
+    await beginRecording();
   }
 
   function setMetronome(enabled) {
