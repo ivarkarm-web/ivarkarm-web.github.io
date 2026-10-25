@@ -551,10 +551,10 @@ export function mountLooper({ root } = {}) {
     trackPanel.querySelector('.looper-track-title').textContent = 'Track ' + (index + 1);
     trackPanel.querySelector('.looper-track-length').textContent = (layer.buffer.duration || 0).toFixed(1) + ' sec loop';
     trackPanel.querySelector('[data-control="position"]').max = String(loopDuration);
-    trackPanel.querySelector('[data-control="crop-start"]').max = String(duration);
-    const cropEnd = trackPanel.querySelector('[data-control="crop-end"]');
-    cropEnd.max = String(duration);
-    cropEnd.value = String(duration);
+    trackPanel.querySelector('[data-control="crop-start"]').max = String(loopDuration);
+    const cropEndInputEl = trackPanel.querySelector('[data-control="crop-end"]');
+    cropEndInputEl.max = String(loopDuration);
+    cropEndInputEl.value = String(loopDuration);
     trackPanel.querySelector('.looper-track-duration').textContent = formatLoopTime(layer.buffer.duration || 0);
     trackPanel.querySelector('[data-output="crop-end"]').textContent = formatLoopTime(layer.buffer.duration || 0);
     const quantize = trackPanel.querySelector('[data-control="quantize"]');
