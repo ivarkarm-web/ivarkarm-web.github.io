@@ -59,7 +59,7 @@ const SHELL = [
   './og-pionier-synth.svg',
   './pionier-app.js?v=248',
   './pionier-control-layout.css?v=23',
-  './pionier-control-layout.js?v=20',
+  './pionier-control-layout.js?v=21',
   './pionier-core-base.js?v=1',
   './pionier-core.js?v=81',
   './pionier.css?v=166',
