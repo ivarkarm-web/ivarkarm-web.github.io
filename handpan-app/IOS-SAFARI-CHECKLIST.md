@@ -36,11 +36,25 @@ Run on a real iPhone (or iPad) after each release that touches audio, SW, or the
 - [ ] VoiceOver: Enter, scale pill, instrument name, soundscapes, looper announce sensible labels.
 - [ ] External keyboard: Tab to scale control, open with Enter/Space, Escape closes and returns focus.
 
+## Quick Android Chrome pass
+
+Run on a real Android phone using Chrome against the same deployed `APP_VERSION`.
+
+- [ ] Enter Pionier and verify the first pad strike sounds after the first gesture.
+- [ ] Play several pads rapidly and play a multi-finger chord; no stuck or prematurely muted notes.
+- [ ] Open and close instrument and scale selectors repeatedly; they remain visible and usable.
+- [ ] Record, stop, play and clear a loop; toolbar remains aligned and controls stay tappable.
+- [ ] Open and close FX and Backing Tracks; overlays do not cover or disable the main controls unexpectedly.
+- [ ] Rotate the device and return to portrait; controls and pan remain usable.
+- [ ] Reload once and confirm the handpan loads without a blank or stuck welcome screen.
+
+Record failures as failures; do not check an item based on desktop emulation.
+
 ## Sign-off
 
 | Item | Value |
 |------|--------|
-| Device / iOS | |
+| Device / OS + browser | |
 | APP_VERSION | |
 | Tester | |
 | Date | |
