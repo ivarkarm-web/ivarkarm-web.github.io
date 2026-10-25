@@ -57,7 +57,7 @@ const SHELL = [
   './looper.css?v=223',
   './menu-light-fix.css?v=2',
   './og-pionier-synth.svg',
-  './pionier-app.js?v=247',
+  './pionier-app.js?v=248',
   './pionier-control-layout.css?v=23',
   './pionier-control-layout.js?v=20',
   './pionier-core-base.js?v=1',
