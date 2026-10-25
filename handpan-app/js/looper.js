@@ -814,7 +814,8 @@ export function mountLooper({ root } = {}) {
 
     const sheet = document.createElement('div');
     sheet.className = 'looper-sheet';
-    sheet.innerHTML = '<header class="looper-sheet-header"><div class="looper-sheet-title">Layer ' + (index + 1) + '</div><button type="button" class="looper-menu-close" aria-label="Close layer controls">×</button></header>';
+    sheet.innerHTML = '<header class="looper-sheet-header"><div class="looper-sheet-title"></div><button type="button" class="looper-menu-close" aria-label="Close layer controls">×</button></header>';
+    sheet.querySelector('.looper-sheet-title').textContent = 'Layer ' + (index + 1);
     const sheetCloseButton = sheet.querySelector('.looper-menu-close');
     sheetCloseButton.style.pointerEvents = 'auto';
     sheetCloseButton.addEventListener('pointerdown', event => { event.preventDefault(); event.stopPropagation(); closeSheet(); }, { capture: true });
@@ -921,13 +922,16 @@ export function mountLooper({ root } = {}) {
   }
 
   function renderCircles() {
-    layersEl.innerHTML = '';
+    layersEl.replaceChildren();
     layers.forEach((layer, i) => {
       const c = document.createElement('button');
       c.type = 'button';
       c.className = 'looper-circle' + (layer.paused ? ' is-paused' : ' is-playing') + (layer.muted ? ' is-muted' : '') + (layer.solo ? ' is-solo' : '');
       c.setAttribute('aria-label', 'Layer ' + (i + 1));
-      c.innerHTML = '<span class="looper-circle-core">' + (i + 1) + '</span>';
+      const core = document.createElement('span');
+      core.className = 'looper-circle-core';
+      core.textContent = String(i + 1);
+      c.appendChild(core);
       c.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         e.stopPropagation();
