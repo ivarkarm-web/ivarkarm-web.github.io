@@ -545,12 +545,12 @@ export function mountLooper({ root } = {}) {
         <div class="looper-track-control looper-track-quantize"><label for="track-quantize"><span>Quantize on resume</span></label><select id="track-quantize" data-control="quantize"><option value="off">Off</option><option value="beat">Beat</option><option value="eighth">1/8 note</option><option value="sixteenth">1/16 note</option></select></div>
         <footer class="looper-track-footer"><button type="button" class="looper-track-mute"></button><button type="button" class="looper-track-delete">Delete track</button></footer>
       </section>`;
-    const duration = Math.max(0.01, layer.buffer.duration || 0.01);
+    const loopDuration = Math.max(0.01, layer.buffer.duration || 0.01);
     const trackPanel = overlay.querySelector('.looper-track-panel');
     trackPanel.setAttribute('aria-label', 'Track ' + (index + 1) + ' controls');
     trackPanel.querySelector('.looper-track-title').textContent = 'Track ' + (index + 1);
     trackPanel.querySelector('.looper-track-length').textContent = (layer.buffer.duration || 0).toFixed(1) + ' sec loop';
-    trackPanel.querySelector('[data-control="position"]').max = String(duration);
+    trackPanel.querySelector('[data-control="position"]').max = String(loopDuration);
     trackPanel.querySelector('[data-control="crop-start"]').max = String(duration);
     const cropEnd = trackPanel.querySelector('[data-control="crop-end"]');
     cropEnd.max = String(duration);
