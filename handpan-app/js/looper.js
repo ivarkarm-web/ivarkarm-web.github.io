@@ -167,6 +167,7 @@ export function mountLooper({ root } = {}) {
   // LOOP is the default: the first recorded phrase becomes the master clock.
   let syncModeIndex = 1;
   let pendingLoopStop = false;
+  let pendingLoopStopTimer = null;
   let progressRaf = 0;
   let countInEnabled = false;
   let countInBars = 1;
@@ -1154,8 +1155,19 @@ export function mountLooper({ root } = {}) {
     if (!recording) return;
     const mode = syncMode();
     if (mode === 'loop' && layers.length > 0 && cycleDuration() > 0.2) {
+      // Finish the take at the next master-cycle boundary. Without this timer,
+      // pendingLoopStop stayed true forever and the second layer was never built.
+      if (pendingLoopStopTimer) clearTimeout(pendingLoopStopTimer);
       pendingLoopStop = true;
       setBtnState();
+      const duration = cycleDuration();
+      const phase = cyclePhase();
+      let waitSeconds = duration - phase;
+      if (waitSeconds < 0.025) waitSeconds = duration;
+      pendingLoopStopTimer = setTimeout(() => {
+        pendingLoopStopTimer = null;
+        if (recording && pendingLoopStop) finishRecord();
+      }, Math.max(20, waitSeconds * 1000));
       return;
     }
     finishRecord();
@@ -1163,6 +1175,10 @@ export function mountLooper({ root } = {}) {
 
   function finishRecord() {
     if (!recording && !pendingLoopStop) return;
+    if (pendingLoopStopTimer) {
+      clearTimeout(pendingLoopStopTimer);
+      pendingLoopStopTimer = null;
+    }
     recording = false;
     pendingLoopStop = false;
     const ctx = getAudioContext();
@@ -1242,6 +1258,10 @@ export function mountLooper({ root } = {}) {
   }
 
   function clearAll() {
+    if (pendingLoopStopTimer) {
+      clearTimeout(pendingLoopStopTimer);
+      pendingLoopStopTimer = null;
+    }
     recording = false;
     pendingLoopStop = false;
     if (countInPending) cancelCountIn();
