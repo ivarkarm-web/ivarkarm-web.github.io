@@ -36,6 +36,9 @@ test('phase10: mobile dock exposes 44px Clear/Record targets and seven layer tar
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'looper-circle';
+      // Measure the settled target size, not the 0.6x entrance-animation frame.
+      button.style.animation = 'none';
+      button.style.transform = 'none';
       button.setAttribute('aria-label', 'Layer probe ' + (index + 1));
       layers.appendChild(button);
       return button;
