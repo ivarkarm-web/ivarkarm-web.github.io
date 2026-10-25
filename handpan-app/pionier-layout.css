@@ -1252,3 +1252,16 @@ html.theme-light body::before {
   text-align: center;
   pointer-events: none;
 }
+
+/* Restore the mobile Clear touch target: the shared toolbar rule is 36px,
+   which is too small for the destructive/reset control. */
+#pionierLooperControls #looperClearBtn,
+#pionierBottomDock #looperClearBtn {
+  flex: 0 0 44px !important;
+  width: 44px !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+}
