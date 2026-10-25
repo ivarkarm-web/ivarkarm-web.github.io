@@ -69,7 +69,7 @@ Boot states: `loading` → `ready` | `degraded` | `failed` via `#appStatus`. Opt
 
 ## Measured CSS baseline (APP_VERSION 167)
 
-- Raw consolidated source CSS: **328,576 bytes** across the four linked files.
-- `!important` token count: **3,029** across those files.
+- Raw consolidated source CSS: **328,995 bytes** across the four linked files.
+- `!important` token count: **3,036** across those files.
 - Minified Vite bundle: **not yet measured**; release gate is below 250,000 bytes.
 - Device / VoiceOver checks: **pending**, not scored.
