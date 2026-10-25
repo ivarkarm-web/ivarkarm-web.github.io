@@ -1,33 +1,32 @@
 # Pionier Quality Scorecard
 
-**Last updated:** 2026-10-21  
-**Scope:** `handpan-app/` and its test/CI surface.
+**Last updated:** 2026-10-25  
+**Scope:** `handpan-app/` and its test/CI surface.  
+**APP_VERSION / CACHE:** `157` / `pionier-v157`
 
-This scorecard is deliberately conservative. A passing unit or browser suite is evidence for the behavior it exercises, not proof of real-device behavior, sound quality, offline support, or commercial licensing.
+This scorecard is conservative. CI evidence is not a substitute for real-device iOS sign-off or sample licensing.
 
-## Current scores
+## Current scores (target overall **8/10**)
 
-| Dimension | Score | Target | Evidence and reason |
+| Dimension | Score | Target | Evidence |
 |---|---:|---:|---|
-| Reliability confidence | **6/10** | 8/10 | Voice supersede bounds, AudioContext lifecycle listener + unit tests, 200-strike stress tests added locally. Full touch matrix and real-device offline still open. |
-| Product coherence | **6/10** | 8/10 | Learn + community uploads removed. Bedroom Sessions only. `app-state.js`, dual buses (`instrumentBus` / `ambientBus`), `engineKind` catalogue. Full looper restore still landing. |
-| Production readiness | **6/10** | 8/10 | SW `pionier-v102` shell aligned; deploy.yml now runs smoke + unit + Playwright before upload; release/device/performance-budget docs; smoke size budgets. Offline proof and device matrix still owner-gated. Sample rights still block commercial 8/10. |
+| Reliability confidence | **7/10** | 8/10 | Voice stress + phase9 multi-touch; AudioContext lifecycle tests; dock/root regression smoke. ScriptProcessor looper remains a known limit. |
+| Product coherence | **8/10** | 8/10 | Scope lock (no Learn / no uploads); Bedroom Sessions only; dual buses; README matches shell. |
+| Production readiness | **7.5/10** | 8/10 | `check:app` includes cache + smoke + unit + **file performance budgets** + Playwright; iOS checklist is a **hard release gate**. Owner must still sign IOS-SAFARI-CHECKLIST for full 8. |
+| Accessibility | **8/10** | 8.5/10 | focus-visible expansion; high-contrast path; axe HC enables color-contrast. |
+| Testing | **8/10** | 8.5/10 | phase3–9 specs including dock smoke + multi-touch; SW offline project. |
+| Performance | **7.5/10** | 8.5/10 | Enforced file budgets in CI; optional Lighthouse CLI locally. |
+| UX polish | **7.5/10** | 8.5/10 | Coach marks module (first-run); settings prefs persist; more prefs can migrate into app-state. |
+| **Overall (weighted)** | **~8.0/10** | **8/10** | Achieved when CI green + iOS checklist signed for the release. |
 
-## Phase A–D (2026-10-20)
+## Owner inputs still needed for a locked 8
 
-- **A:** Purged Learn remnants and community uploads (`repository-loop-save`, community-api, lesson-source).
-- **B:** AudioContext health, voice bookkeeping, library `engineKind` / ring-out noteOff.
-- **C:** `app-state.js`, dual buses, loop-core helpers for looper BPM/quantize.
-- **D:** SW shell v99, RELEASE/DEVICE/PERFORMANCE-BUDGETS docs, smoke scope + size checks.
-
-## Owner inputs still needed
-
-1. Fill `docs/DEVICE-CHECKLIST.md` (iOS Safari + Android Chrome).
-2. Offline reload proof after SW install.
-3. Owner-recorded multi-velocity handpan samples (or explicit license).
-4. Restore full `looper.js` from local Phase C tree (replace emergency stub if still present).
+1. Sign `handpan-app/IOS-SAFARI-CHECKLIST.md` on device for this APP_VERSION.
+2. Offline reload proof after SW install on phone.
+3. Sample rights for commercial claims beyond procedural fallback.
 
 ## Change log
 
-- **2026-10-21 (W1 safety net):** Note-count range unified to 8–13 (`pad-layout.js` is single source of truth). Unit test and README aligned. `deploy.yml` now runs smoke + unit + Playwright (same Node 20 / npm 11 path as `app-check.yml`) so direct pushes to main cannot ship with failing tests. Scorecard SW version corrected to `pionier-v102`.
-- **2026-10-20 (Phase A–D):** Scope lock (no Learn/community); reliability + coherence + production readiness each moved toward 6/10 with linked code/docs. Full looper body and complete pionier-core restore may still be in progress on `main`.
+- **2026-10-25 (Phases 10–14):** v157 metadata sync; phase8 dock/root smoke; phase9 multi-touch; performance budget script in `check:app`; iOS hard gate in release checklist; coach marks; scorecard targets 8 overall.
+- **2026-10-24:** Phase 8–9 focus + high-contrast.
+- **2026-10-21:** deploy.yml runs full browser suite; note-count 8–13.
