@@ -12,13 +12,13 @@ Source file sizes read from the current `main` branch; these are repository byte
 
 | Stylesheet | Bytes | Decimal kB |
 |---|---:|---:|
-| `handpan-app/pionier-base.css` | 172,845 | 172.8 |
-| `handpan-app/pionier-controls.css` | 77,523 | 77.5 |
-| `handpan-app/pionier-layout.css` | 54,108 | 54.1 |
-| `handpan-app/pionier-ambient.css` | 23,126 | 23.1 |
-| **Total (four linked stylesheets)** | **327,602** | **327.6** |
+| `handpan-app/pionier-base.css` | 172,891 | 172.9 |
+| `handpan-app/pionier-controls.css` | 77,631 | 77.6 |
+| `handpan-app/pionier-layout.css` | 54,130 | 54.1 |
+| `handpan-app/pionier-ambient.css` | 23,130 | 23.1 |
+| **Total (four linked stylesheets)** | **327,782** | **327.8** |
 
-Target: below 250,000 bytes total for shipped CSS. This baseline is **not yet passing**. No dead-rule removal or minified output is claimed by this measurement. The repository's `package.json` includes Vite, but `handpan-app/index.html` currently links these stylesheets directly; a Vite migration must preserve the GitHub Pages `/handpan-app/` path and service-worker cache behavior.
+Target: below 250,000 UTF-8 bytes total for shipped CSS. The CI gate uses this same decimal-byte threshold. This baseline is **not yet passing**. No dead-rule removal or minified output is claimed by this measurement. The repository's `package.json` includes Vite, but `handpan-app/index.html` currently links these stylesheets directly; a Vite migration must preserve the GitHub Pages `/handpan-app/` path and service-worker cache behavior.
 
 The shipping app version recorded in `handpan-app/APP_VERSION` is `167`. iOS Safari and Android Chrome remain unverified until a real-device pass is recorded.
 
