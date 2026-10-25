@@ -55,10 +55,15 @@
     const tip = document.createElement('div');
     tip.className = 'pionier-coach';
     tip.setAttribute('role', 'status');
-    tip.innerHTML = '<div>' + text + '</div><button type="button">Got it</button>';
+    const message = document.createElement('div');
+    message.textContent = text;
+    const dismiss = document.createElement('button');
+    dismiss.type = 'button';
+    dismiss.textContent = 'Got it';
+    tip.append(message, dismiss);
     document.body.appendChild(tip);
     placeNear(target, tip);
-    tip.querySelector('button').addEventListener('click', () => {
+    dismiss.addEventListener('click', () => {
       const next = load();
       next[id] = true;
       save(next);
