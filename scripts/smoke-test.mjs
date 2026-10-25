@@ -89,7 +89,7 @@ if (/export function mountLooper/.test(loopControls) && /startRecording|recordin
 else fail('Looper mount or record/clear surface is incomplete');
 if (!/repository-loop-save/.test(loopControls) && !/uploadLoopToRepository/.test(loopControls)) ok('Looper does not import community upload modules');
 else fail('Looper still references community upload modules');
-if (/\.looper-/.test(loopStyles) && /looper\.css\?v=\d+/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) ok('Looper styles and service-worker declare cache versions');
+if (/\.looper-/.test(loopStyles) && /pionier-base\.css\?v=\d+/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) ok('Looper styles and service-worker declare cache versions');
 else fail('Looper styles or service-worker cache versions missing');
 
 // Offline shell: critical instrument path must be listed in SHELL for airplane-mode play.
@@ -112,7 +112,7 @@ else fail('index still loads fonts.googleapis.com');
 const scaleSelector = read('handpan-app/js/scale-selector.js');
 if ((/Search instruments/.test(coreSrc) || /instrumentMenu/.test(appHtml) || /instrumentDropdownToggle/.test(appHtml)) && (/Search scales/.test(scaleSelector) || /scaleMenu/.test(appHtml) || /scaleLabel/.test(appHtml))) ok('Instrument and scale pickers are present');
 else fail('Scale/instrument picker wiring is incomplete');
-if (/scale-menu\.css\?v=\d+/.test(appHtml) && /pionier-app\.js\?v=\d+/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) ok('Picker assets use versioned cache stamps');
+if (/pionier-controls\.css\?v=\d+/.test(appHtml) && /pionier-app\.js\?v=\d+/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) ok('Picker assets use versioned cache stamps');
 else fail('Picker asset cache versions are stale');
 
 if (
