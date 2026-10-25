@@ -117,8 +117,13 @@ export function createAmbientSequenceEngine({ getNotes, getTransport } = {}) {
     const now = ctx.currentTime;
     const transport = transportState();
     let phase, cycle, stepDuration;
+    if (transport && transport.paused) {
+      stepIndex = -1;
+      timer = window.setTimeout(tick, 90);
+      return;
+    }
     if (transport && !transport.paused) {
-      cycle = Math.floor((transport.phase || 0) / transport.duration);
+      cycle = Number.isFinite(transport.cycle) ? transport.cycle : 0;
       phase = ((transport.phase || 0) % transport.duration + transport.duration) % transport.duration;
       stepDuration = transport.duration / STEPS;
     } else {
@@ -290,6 +295,8 @@ export function mountAmbientSequencer() {
       button.style.setProperty('--note-level', cell ? String(cell.velocity || 0.4) : '0');
     });
     panel.style.setProperty('--sequence-progress', String(Math.max(0, state.stepIndex) / STEPS));
+    const playhead = panel.querySelector('.sequence-playhead');
+    if (playhead) playhead.style.transform = 'rotate(' + (Math.max(0, state.stepIndex) / STEPS * 360) + 'deg)';
   }
 
   engine.setStepCallback((step) => {
