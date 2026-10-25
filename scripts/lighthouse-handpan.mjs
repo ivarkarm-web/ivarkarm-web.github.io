@@ -42,7 +42,8 @@ for (const rel of cssRefs) {
   const p = path.join(app, rel.replace(/^\.\//, ''));
   if (fs.existsSync(p)) cssSum += size(p);
 }
-const cssBudget = 250 * 1024;
+// Match the documented decimal-kilobyte target: strictly under 250,000 bytes.
+const cssBudget = 250_000;
 const cssOk = cssSum <= cssBudget;
 console.log((cssOk ? 'OK' : 'FAIL') + '  critical CSS sum  ' + cssSum + ' / ' + cssBudget + ' bytes (' + cssRefs.length + ' files)');
 if (!cssOk) failed = true;
