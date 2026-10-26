@@ -171,48 +171,45 @@ test('multitouch on one pad does not damp the note until the last pointer releas
   expect(result.off).toBe(1);
 });
 
-test('handpan uses owner samples and refuses synthetic replacement when recordings are unavailable', async ({ page }) => {
-  const result = await page.evaluate(async () => {
-    const instrument = window.PionierCore?.activeInstrument?.();
+test('E Amara uses the owner sample bank and never substitutes synth when samples are missing', async ({ page }) => {
+  const setup = await page.evaluate(async () => {
+    const instrument = window.PionierCore?.handpan;
     const { HANDPAN_SCALES } = await import('/handpan-app/js/instruments/handpan.js');
-    const recordedIndex = HANDPAN_SCALES.findIndex((scale) => scale.id === 'eamara');
-    if (instrument?.id === 'handpan' && recordedIndex >= 0) {
-      window.PionierCore.handpan.setScaleIndex(recordedIndex);
-      window.PionierCore.refreshPitch();
-    }
-    if (!instrument?.sampleBank) return { setup: false };
+    const eamaraIndex = HANDPAN_SCALES.findIndex((scale) => scale.id === 'eamara');
+    if (!instrument || eamaraIndex < 0) return { ok: false, reason: 'E Amara scale or handpan missing' };
+    instrument.setScaleIndex(eamaraIndex);
+    window.PionierCore.refreshPitch();
+    if (!instrument.sampleBank) return { ok: false, reason: 'owner sample bank did not initialize' };
     await instrument.sampleBank.load();
+    return { ok: true };
+  });
+  expect(setup.ok, setup.reason).toBe(true);
+  await expect.poll(() => page.evaluate(() => !!window.PionierCore?.handpan?.sampleBank?.ready), { timeout: 15000 }).toBe(true);
+
+  const result = await page.evaluate(() => {
+    const instrument = window.PionierCore.handpan;
     const firstZone = instrument.getZones?.()?.[0];
     instrument.noteOn({ velocity: 0.8, pointerId: 9281 }, {
       index: firstZone?.index ?? 0, radial: 0.35, angleRad: 0, nx: 0.5, ny: 0.5
     });
     const voice = instrument.activeVoices.values().next().value;
-    const result = {
-      setup: true,
+    const data = {
       sampleCount: instrument.sampleBank.byMidi.size,
       sampleReady: instrument.sampleBank.ready,
       voiceKind: voice?.kind,
       voiceCount: instrument.activeVoices.size,
-      status: instrument.sampleBank.manifest?.status || null
+      activeScale: instrument.sampleBank.activeScaleId
     };
     instrument.dampAll();
-    return result;
+    return data;
   });
-  expect(result.setup).toBe(true);
-  await expect.poll(() => page.evaluate(() => !!window.PionierCore?.handpan?.sampleBank?.ready), { timeout: 15000 }).toBe(true);
-  if (result.sampleCount > 0) {
-    // Owner-prototype bank is loaded.
-    expect(result.sampleReady).toBe(true);
-    expect(result.sampleCount).toBeGreaterThanOrEqual(9);
-    expect(['sample', 'synth']).toContain(result.voiceKind);
-  } else {
-    // Empty bank: recorded E Amara intentionally stays silent rather than
-    // substituting a synthetic timbre that would misrepresent the owner sample.
-    expect(result.sampleReady).toBe(false);
-    expect(result.voiceCount).toBe(0);
-    expect(result.voiceKind).toBeUndefined();
-  }
+  expect(result.activeScale).toBe('eamara');
+  expect(result.sampleReady).toBe(true);
+  expect(result.sampleCount).toBeGreaterThanOrEqual(9);
+  expect(result.voiceKind).toBe('sample');
+  expect(result.voiceCount).toBeGreaterThan(0);
 });
+
 
 test('stale saved instrument selection safely falls back to Handpan', async ({ page }) => {
   await page.evaluate(() => localStorage.setItem('pionier.activeInstrument', 'legacy-removed-instrument'));
