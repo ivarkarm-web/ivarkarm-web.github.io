@@ -34,21 +34,3 @@
     setTimeout(tryLock, 100);
   });
 })();
-
-/* Load ui-hotfix for looper icons + light-mode selector visibility */
-(function loadUiHotfix() {
-  if (document.querySelector('link[href*="ui-hotfix.css"]')) return;
-  var l = document.createElement('link');
-  l.rel = 'stylesheet';
-  l.href = './ui-hotfix.css?v=1';
-  document.head.appendChild(l);
-})();
-
-/* Android Chrome: dedicated scrollport CSS for scale / instrument pickers */
-(function loadAndroidPickerScroll() {
-  if (document.querySelector('link[href*="android-picker-scroll.css"]')) return;
-  var l = document.createElement('link');
-  l.rel = 'stylesheet';
-  l.href = './android-picker-scroll.css?v=1';
-  document.head.appendChild(l);
-})();
