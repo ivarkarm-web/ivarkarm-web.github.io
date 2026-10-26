@@ -298,7 +298,7 @@
 }
 #scaleLabel[aria-expanded="true"] { background:rgba(212,176,74,.08) !important; }
 #stage { min-width:0; width:100%; }
-#pan { touch-action:manipulation; max-width:100%; }
+#pan { touch-action:none; max-width:100%; }
 
 /* v13 split rows */
 #pionierBottomDock #pionierSelectorRow{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:5px!important;width:100%!important;max-width:560px!important;margin:0 auto!important}
