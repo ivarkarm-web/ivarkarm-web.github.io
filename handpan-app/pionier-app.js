@@ -107,7 +107,7 @@ async function loadSoundscapes() {
 
 async function loadAmbientSequencer() {
   try {
-    const { mountTonepad } = await import(new URL('./js/tonepad.js?v=1', BASE).href);
+    const { mountTonepad } = await import(new URL('./js/tonepad.js?v=2', BASE).href);
     if (typeof mountTonepad === 'function') mountTonepad();
   } catch (e) {
     console.warn('[boot] tonepad', e);
