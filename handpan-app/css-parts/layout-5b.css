@@ -1,0 +1,125 @@
+/* --- Light mode: force visible scale + instrument + root selectors --- */
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle,
+html.theme-light #pionierBottomDock #instrumentDropdownToggle,
+html.theme-light body #pionierBottomDock #instrumentDropdownToggle,
+html.theme-light #pionierBottomDock #pionierScaleGroup #scaleLabel,
+html.theme-light #pionierBottomDock #scaleLabel,
+html.theme-light body #pionierBottomDock #scaleLabel,
+html.theme-light #pionierBottomDock #pionierScaleGroup .scale-stepper,
+html.theme-light #pionierBottomDock #pionierScaleGroup > .control-half .stepper,
+html.theme-light #pionierBottomDock #pionierRootGroup .stepper,
+html.theme-light #pionierBottomDock #pionierRootGroup #rootLabel,
+html.theme-light #pionierBottomDock #rootLabel,
+html.theme-light #pionierBottomDock #pionierRootGroup #looperRootMenuBtn,
+html.theme-light #pionierBottomDock #looperRootMenuBtn,
+html.theme-light #pionierBottomDock #looperRootMenuBtn .looper-dd-value,
+html.theme-light #pionierBottomDock #looperRootMenuBtn .looper-dd-caret {
+  color: #2a2418 !important;
+  -webkit-text-fill-color: #2a2418 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #instrumentDropdownToggle,
+html.theme-light #pionierBottomDock #instrumentDropdownToggle,
+html.theme-light #pionierBottomDock #pionierScaleGroup .scale-stepper,
+html.theme-light #pionierBottomDock #pionierScaleGroup > .control-half .stepper,
+html.theme-light #pionierBottomDock #pionierRootGroup .stepper,
+html.theme-light #pionierBottomDock #pionierRootGroup #looperRootMenuBtn,
+html.theme-light #pionierBottomDock #looperRootMenuBtn {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid rgba(40, 36, 28, 0.18) !important;
+  box-shadow: 0 1px 3px rgba(40, 30, 10, 0.08) !important;
+}
+
+html.theme-light #pionierBottomDock #pionierScaleGroup #scaleLabel,
+html.theme-light #pionierBottomDock #scaleLabel {
+  background: transparent !important;
+  background-image: none !important;
+}
+
+html.theme-light #pionierBottomDock #pionierScaleGroup .step,
+html.theme-light #pionierBottomDock #pionierScaleGroup #rootPrev,
+html.theme-light #pionierBottomDock #pionierScaleGroup #rootNext,
+html.theme-light #pionierBottomDock #pionierRootGroup #rootPrev,
+html.theme-light #pionierBottomDock #pionierRootGroup #rootNext,
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #voicePrev,
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #voiceNext {
+  color: #3a3428 !important;
+  -webkit-text-fill-color: #3a3428 !important;
+  opacity: 1 !important;
+}
+
+html.theme-light #pionierBottomDock #pionierInstrumentGroup #randomizeSetup {
+  color: #87631c !important;
+  -webkit-text-fill-color: #87631c !important;
+  background: #fff8e8 !important;
+  border: 1px solid rgba(145, 106, 32, 0.35) !important;
+}
+
+/* Root note button: ensure the note letter is centered and readable */
+html.theme-light #pionierBottomDock #looperRootMenuBtn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  font-weight: 650 !important;
+}
+html.theme-light #pionierBottomDock #looperRootMenuBtn .looper-dd-value {
+  display: inline-block !important;
+  min-width: 1.1em !important;
+  text-align: center !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  color: #2a2418 !important;
+  -webkit-text-fill-color: #2a2418 !important;
+}
+html.theme-light #pionierBottomDock #looperRootMenuBtn .looper-dd-caret {
+  font-size: 10px !important;
+  opacity: 0.55 !important;
+  color: #2a2418 !important;
+  -webkit-text-fill-color: #2a2418 !important;
+}
+
+/* Light mode looper icons stay readable */
+html.theme-light #pionierLooperControls .looper-timing-btn,
+html.theme-light #pionierBottomDock .looper-timing-btn {
+  color: #40382b !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+}
+html.theme-light #pionierLooperControls .looper-timing-btn.is-active {
+  color: #805d18 !important;
+  border-color: rgba(145, 106, 32, 0.55) !important;
+  background: rgba(212, 176, 74, 0.16) !important;
+}
+html.theme-light #pionierLooperControls .looper-timing-btn svg,
+html.theme-light #pionierBottomDock .looper-timing-btn svg {
+  stroke: currentColor !important;
+  fill: none !important;
+  color: inherit !important;
+}
+html.theme-light #pionierLooperControls .looper-timing-btn svg path,
+html.theme-light #pionierLooperControls .looper-timing-btn svg line {
+  stroke: currentColor !important;
+  fill: none !important;
+}
+html.theme-light #pionierLooperControls .looper-metronome-btn svg circle,
+html.theme-light #pionierLooperControls .looper-bpm-btn svg circle {
+  fill: currentColor !important;
+  stroke: none !important;
+}
+
+/* Neutralize any body::before chrome strip that can show as a dark hairline */
+html.theme-light body::before {
+  background: transparent !important;
+  opacity: 0 !important;
+  content: none !important;
+}
+
+/* Handpan transparency slider → canvas opacity */
+#pan {
+  opacity: var(--handpan-alpha, 1) !important;
+}
