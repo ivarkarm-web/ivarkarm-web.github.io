@@ -1,0 +1,236 @@
+
+/* ===== shell-chrome.css ===== */
+/* Phase 7 — offline pill + SW update toast */
+.pionier-net-pill {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6000;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font: 500 11px/1.2 system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.04em;
+  color: #f0e6d0;
+  background: rgba(40, 28, 12, 0.92);
+  border: 1px solid rgba(218, 190, 125, 0.35);
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.pionier-update-toast {
+  position: fixed;
+  bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6001;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 10px 16px;
+  border-radius: 14px;
+  font: 500 13px/1.3 system-ui, -apple-system, sans-serif;
+  color: #f3eee3;
+  background: rgba(18, 16, 14, 0.94);
+  border: 1px solid rgba(218, 190, 125, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  max-width: min(92vw, 360px);
+}
+
+.pionier-update-toast[hidden] {
+  display: none !important;
+}
+
+.pionier-update-msg {
+  flex: 1 1 auto;
+}
+
+.pionier-update-reload {
+  appearance: none;
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font: 600 12px/1 system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.03em;
+  color: #1a140c;
+  background: linear-gradient(180deg, #e8d5a4, #c9a86a);
+  cursor: pointer;
+}
+
+.pionier-update-reload:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+
+
+/* ===== portrait-lock.css ===== */
+/**
+ * Phone landscape gate — keep the instrument portrait-only.
+ * Desktop / tablet landscape (tall enough) is unaffected.
+ */
+.portrait-lock {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  align-items: center;
+  justify-content: center;
+  background: #070708;
+  color: #e6e0d2;
+  text-align: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.portrait-lock-msg {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  opacity: 0.9;
+}
+
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  .portrait-lock {
+    display: flex !important;
+  }
+  body.pionier-landscape .portrait-lock {
+    display: flex !important;
+  }
+  #app,
+  #pionierWelcome,
+  #headphonesHint,
+  #appStatus,
+  #fxPanel,
+  #fxEditor,
+  #fxEditorBackdrop,
+  #soundscapesPanel {
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+}
+
+
+
+/* ===== pionier-control-layout.css ===== */
+/* Recovery v12: the controls belong in a fixed bottom dock, never the top bar. */
+#pionierBottomDock {
+  position:fixed !important; left:0 !important; right:0 !important; bottom:0 !important;
+  z-index:1000 !important; display:flex !important; flex-direction:column !important;
+  align-items:stretch !important; justify-content:flex-end !important;
+  gap:5px !important; width:100% !important; max-width:100% !important;
+  min-width:0 !important; box-sizing:border-box !important;
+  padding:6px 8px max(8px, env(safe-area-inset-bottom, 0px)) !important;
+  background:linear-gradient(to top, rgba(7,7,8,.98) 64%, rgba(7,7,8,.82) 100%) !important;
+  border-top:1px solid rgba(230,224,210,.08) !important;
+  overflow:visible !important;
+}
+#pionierBottomDock #pionierSelectorRow { order:3; }
+#pionierBottomDock #pionierTrackRow { order:1; margin:0 auto !important; }
+#pionierBottomDock #pionierLooperToolbar { order:2; margin:0 auto !important; padding:0 2px !important; }
+#app > .topbar { flex:0 0 auto !important; }
+#stage {
+  flex:1 1 auto !important; min-height:0 !important; min-width:0 !important;
+  padding-top:8px !important;
+  padding-bottom:calc(var(--chrome-bottom, 150px) + 8px) !important;
+  overflow:hidden !important; box-sizing:border-box !important;
+}
+/* PIONIER responsive UI recovery v12 — layout-only overrides.
+   Audio, samples, instrument rendering, and control handlers are untouched. */
+#app.pionier-layout-recovered { width:100%; min-width:0; overflow:visible; }
+#app > .topbar {
+  display:flex !important; flex-direction:column !important; align-items:stretch !important;
+  justify-content:flex-start !important; width:100% !important; height:auto !important;
+  min-height:0 !important; max-height:none !important; position:relative !important;
+  overflow:visible !important; box-sizing:border-box !important;
+  padding: max(6px, env(safe-area-inset-top, 0px)) 10px 4px !important; gap:6px !important;
+}
+#app > .topbar > .center-nav { display:none !important; }
+#app > .mobile-control-drawer { display:none !important; }
+#pionierSelectorRow {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  width:100%; max-width:760px; margin:0 auto; min-width:0; box-sizing:border-box;
+}
+.pionier-selector-group {
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  flex:1 1 0; min-width:0; box-sizing:border-box;
+}
+.pionier-scale-group { max-width:50%; }
+#pionierInstrumentGroup #voicePrev,
+#pionierInstrumentGroup #voiceNext {
+  display:inline-flex !important; flex:0 0 28px !important; width:28px !important;
+  min-width:28px !important; height:36px !important; min-height:36px !important;
+  align-items:center; justify-content:center; padding:0 !important;
+}
+#pionierInstrumentGroup #instrumentDropdownToggle {
+  flex:1 1 auto !important; width:100% !important; min-width:0 !important;
+  max-width:none !important; height:40px !important; min-height:40px !important;
+  overflow:hidden !important; text-overflow:ellipsis !important; white-space:nowrap !important;
+  padding:0 10px !important; box-sizing:border-box !important;
+  border-radius:999px !important; border:1px solid rgba(226,211,174,.18) !important;
+  background:rgba(255,255,255,.055) !important; box-shadow:none !important;
+  color:var(--text, #eeeae1) !important; font-family:inherit !important; font-size:12px !important; font-weight:600 !important; line-height:1.1 !important;
+}
+#pionierInstrumentGroup #randomizeSetup {
+  display:inline-flex !important; position:static !important; flex:0 0 36px !important;
+  width:36px !important; min-width:36px !important; max-width:36px !important;
+  height:36px !important; min-height:36px !important; max-height:36px !important;
+  align-items:center; justify-content:center; padding:6px !important; margin:0 !important;
+  border-radius:50% !important; background:rgba(212,176,74,.08) !important;
+  border:1px solid rgba(212,176,74,.25) !important; box-shadow:none !important;
+}
+#pionierInstrumentGroup .randomize-die { width:21px; height:21px; }
+#pionierScaleGroup > .control-scale {
+  display:flex !important; flex:1 1 auto !important; width:auto !important;
+  min-width:0 !important; max-width:none !important; margin:0 !important; padding:0 !important;
+  align-items:center !important; justify-content:center !important; position:relative !important;
+}
+#pionierScaleGroup .control-label,
+#pionierScaleGroup .control-half > .control-label { display:none !important; }
+#pionierScaleGroup .scale-stepper {
+  display:flex !important; flex:1 1 auto !important; min-width:0 !important; width:100% !important;
+  height:40px !important; min-height:40px !important; padding:3px 4px !important; gap:2px !important;
+  align-items:center !important; box-sizing:border-box !important;
+  border:1px solid rgba(226,211,174,.18) !important; border-radius:999px !important;
+  background:rgba(255,255,255,.055) !important; box-shadow:none !important;
+}
+#pionierScaleGroup .scale-stepper .step {
+  display:inline-flex !important; flex:0 0 24px !important; width:24px !important;
+  min-width:24px !important; height:30px !important; min-height:30px !important;
+  padding:0 !important; align-items:center; justify-content:center;
+  border:0 !important; border-radius:50% !important; background:transparent !important;
+}
+#pionierScaleGroup #scaleLabel {
+  display:block !important; flex:1 1 auto !important; min-width:0 !important;
+  width:auto !important; max-width:none !important; height:32px !important;
+  padding:0 4px !important; overflow:hidden !important; text-overflow:ellipsis !important;
+  white-space:nowrap !important; text-align:center !important; border:0 !important;
+  border-radius:999px !important; background:transparent !important;
+  font-size:clamp(10px, 2.7vw, 12px) !important;
+}
+#pionierScaleGroup > .control-half {
+  display:flex !important; flex:0 0 auto !important; align-items:center !important;
+  justify-content:center !important; width:auto !important; min-width:0 !important;
+  margin:0 !important; padding:0 !important;
+}
+#pionierScaleGroup > .control-half .stepper {
+  display:flex !important; align-items:center !important; justify-content:center !important;
+  gap:2px !important; height:40px !important; min-height:40px !important;
+  width:auto !important; min-width:66px !important; padding:3px 5px !important;
+  box-sizing:border-box !important; border:1px solid rgba(226,211,174,.18) !important;
+  border-radius:999px !important; background:rgba(255,255,255,.055) !important;
+}
+#pionierScaleGroup #rootPrev, #pionierScaleGroup #rootNext {
+  display:inline-flex !important; flex:0 0 18px !important; width:18px !important;
+  min-width:18px !important; height:28px !important; min-height:28px !important;
+  padding:0 !important; border:0 !important; border-radius:50% !important;
+  background:transparent !important; align-items:center; justify-content:center;
+}
+#pionierScaleGroup #rootLabel {
+  display:inline-block !important; flex:1 1 auto !important; min-width:22px !important;
+  width:auto !important; padding:0 2px !important; text-align:center !important;
+  white-space:nowrap !important; font-size:11px !important;
+}
+#pionierScaleGroup #noteCountPrev, #pionierScaleGroup #noteCountNext,
+#pionierScaleGroup #noteCountLabel, #pionierScaleGroup #notePlus,
+#pionierScaleGroup #noteMinus, #pionierScaleGroup #notePlusWrap { display:none !important; }
