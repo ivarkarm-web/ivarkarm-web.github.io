@@ -1,17 +1,7 @@
 /* Pionier layout CSS — split parts for tool-friendly deploys */
-@import url('./css-parts/layout-p0.css');
-@import url('./css-parts/layout-p1.css');
-@import url('./css-parts/layout-p2.css');
-@import url('./css-parts/layout-p3.css');
-@import url('./css-parts/layout-p4.css');
-@import url('./css-parts/layout-p5.css');
-@import url('./css-parts/layout-p6.css');
-@import url('./css-parts/layout-p7.css');
-@import url('./css-parts/layout-p8.css');
-@import url('./css-parts/layout-p9.css');
-@import url('./css-parts/layout-p10.css');
-@import url('./css-parts/layout-p11.css');
-@import url('./css-parts/layout-p12.css');
-@import url('./css-parts/layout-p13.css');
-@import url('./css-parts/layout-p14.css');
-@import url('./css-parts/layout-p15.css');
+@import url('./css-parts/layout-0.css');
+@import url('./css-parts/layout-1.css');
+@import url('./css-parts/layout-2.css');
+@import url('./css-parts/layout-3.css');
+@import url('./css-parts/layout-4.css');
+@import url('./css-parts/layout-5.css');
