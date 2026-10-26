@@ -1,4 +1,4 @@
-pionier-v167
-2026-10-25
+pionier-v168
+2026-10-26
 shell: 47 entries (4 consolidated stylesheets) (synced from index.html + pionier-app.js)
 run: npm run sync:handpan after changing ?v= stamps or APP_VERSION
