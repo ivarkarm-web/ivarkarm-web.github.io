@@ -107,10 +107,10 @@ async function loadSoundscapes() {
 
 async function loadAmbientSequencer() {
   try {
-    const { mountAmbientSequencer } = await import(new URL('./js/ambient-sequencer-grid.js?v=10', BASE).href);
-    if (typeof mountAmbientSequencer === 'function') await mountAmbientSequencer();
+    const { mountTonepad } = await import(new URL('./js/tonepad.js?v=1', BASE).href);
+    if (typeof mountTonepad === 'function') mountTonepad();
   } catch (e) {
-    console.warn('[boot] ambient sequencer', e);
+    console.warn('[boot] tonepad', e);
   }
 }
 
