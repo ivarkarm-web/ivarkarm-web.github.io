@@ -175,7 +175,7 @@ test('handpan uses owner samples and refuses synthetic replacement when recordin
   const result = await page.evaluate(async () => {
     const instrument = window.PionierCore?.activeInstrument?.();
     const { HANDPAN_SCALES } = await import('/handpan-app/js/instruments/handpan.js');
-    const recordedIndex = HANDPAN_SCALES.findIndex((scale) => scale.id === 'e-amara-recorded');
+    const recordedIndex = HANDPAN_SCALES.findIndex((scale) => scale.id === 'eamara');
     if (instrument?.id === 'handpan' && recordedIndex >= 0) {
       window.PionierCore.handpan.setScaleIndex(recordedIndex);
       window.PionierCore.refreshPitch();
@@ -199,6 +199,7 @@ test('handpan uses owner samples and refuses synthetic replacement when recordin
     return result;
   });
   expect(result.setup).toBe(true);
+  await expect.poll(() => page.evaluate(() => !!window.PionierCore?.handpan?.sampleBank?.ready), { timeout: 15000 }).toBe(true);
   if (result.sampleCount > 0) {
     // Owner-prototype bank is loaded.
     expect(result.sampleReady).toBe(true);

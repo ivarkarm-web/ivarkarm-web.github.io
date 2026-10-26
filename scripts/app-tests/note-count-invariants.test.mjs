@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { HandpanInstrument } from '../../handpan-app/js/instruments/handpan.js';
+import { HandpanInstrument, HANDPAN_SCALES } from '../../handpan-app/js/instruments/handpan.js';
 
 test('handpan starts with eight notes and preserves randomized count across tuning changes', () => {
   const handpan = new HandpanInstrument();
@@ -27,4 +27,13 @@ test('randomizer note count setter clamps to the 8–13 range', () => {
   assert.equal(handpan.noteCount, 8);
   handpan.setNoteCount(99);
   assert.equal(handpan.noteCount, 13);
+});
+
+
+test('E Amara routes through the owner-recording sample bank', () => {
+  const handpan = new HandpanInstrument();
+  const eamara = HANDPAN_SCALES.findIndex((scale) => scale.id === 'eamara');
+  assert.notEqual(eamara, -1, 'E Amara scale must be present');
+  handpan.setScaleIndex(eamara);
+  assert.equal(handpan._isRecordedScale(), true);
 });

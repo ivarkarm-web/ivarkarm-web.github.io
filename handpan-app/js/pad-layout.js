@@ -1,8 +1,8 @@
 /**
  * pad-layout.js — tonefield ring geometry for the handpan.
  *
- * Note count is fixed per scale (see HANDPAN_SCALES intervals).
- * MAX_NOTES sizes internal buffers; it is not a user control.
+ * The play surface defaults to 8 tonefields; the randomizer may select 8–13.
+ * MAX_NOTES sizes internal buffers and is not a manual add/remove control.
  */
 export const MIN_NOTES = 6;
 export const MAX_NOTES = 16;

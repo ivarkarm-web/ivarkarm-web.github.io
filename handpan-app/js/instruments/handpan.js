@@ -100,7 +100,9 @@ export class HandpanInstrument extends Instrument {
   }
 
   _isRecordedScale() {
-    return HANDPAN_SCALES[this.scaleIndex]?.id === 'e-amara-recorded';
+    const id = HANDPAN_SCALES[this.scaleIndex]?.id;
+    // The live scale id is "eamara"; older manifests used "e-amara-recorded".
+    return id === 'eamara' || id === 'e-amara-recorded';
   }
 
   _ensureSampleBank() {
