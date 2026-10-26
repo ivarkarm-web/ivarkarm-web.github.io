@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import fs from 'node:fs/promises';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/handpan-app/index.html', { waitUntil: 'domcontentloaded' });
@@ -542,6 +543,15 @@ test('Loop Studio exports a valid WAV mix after a track exists', async ({ page }
   await page.locator('#looperExportBtn').click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe('pionier-loop.wav');
+  const filePath = await download.path();
+  const wav = await fs.readFile(filePath);
+  expect(wav.subarray(0, 4).toString('ascii')).toBe('RIFF');
+  expect(wav.subarray(8, 12).toString('ascii')).toBe('WAVE');
+  expect(wav.readUInt16LE(20)).toBe(1);
+  expect(wav.readUInt16LE(22)).toBe(2);
+  expect(wav.readUInt16LE(34)).toBe(16);
+  expect(wav.readUInt32LE(40)).toBe(wav.length - 44);
+  expect(wav.length).toBeGreaterThan(44);
 });
 
 
