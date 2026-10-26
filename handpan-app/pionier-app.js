@@ -95,7 +95,7 @@ async function loadSoundscapes() {
 
 async function loadAmbientSequencer() {
   try {
-    const { mountTonepad } = await import(new URL('./js/tonepad.js?v=5', BASE).href);
+    const { mountTonepad } = await import(new URL('./js/tonepad.js?v=6', BASE).href);
     if (typeof mountTonepad === 'function') mountTonepad();
   } catch (e) {
     console.warn('[boot] tonepad', e);
@@ -157,8 +157,7 @@ async function boot() {
   document.getElementById('randomizeSetup')?.addEventListener('click', async () => {
     const dice = document.getElementById('randomizeSetup');
     if (dice?.dataset.rolling === '1') return;
-    if (dice) { dice.dataset.rolling = '1'; dice.classList.add('is-rolling');
-    }
+    if (dice) { dice.dataset.rolling = '1'; dice.classList.add('is-rolling'); }
     try {
       unlockAudioFromGesture();
       const core = window.PionierCore;
