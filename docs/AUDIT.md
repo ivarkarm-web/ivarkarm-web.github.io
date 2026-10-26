@@ -20,6 +20,10 @@ Source file sizes read from the current `main` branch; these are repository byte
 
 Target: below 250,000 UTF-8 bytes total for shipped CSS. The CI gate uses this same decimal-byte threshold. This baseline is **not yet passing**. No dead-rule removal or minified output is claimed by this measurement. The repository's `package.json` includes Vite, but `handpan-app/index.html` currently links these stylesheets directly; a Vite migration must preserve the GitHub Pages `/handpan-app/` path and service-worker cache behavior.
 
+## First optimized build measurement (2026-10-26)
+
+The CI optimizer (PurgeCSS against app HTML/JS, then esbuild CSS minification) measured **246,589 bytes** across the four linked stylesheets, down from 327,782 bytes (**24.8% smaller**) and 3,411 bytes below the strict 250,000-byte ceiling. This is a build-workspace result, not a reduction to the readable source files. It has very little headroom, so new CSS should be paired with a budget check. The first full browser run did not finish: the job hit its 25-minute workflow timeout while tests were still running. It also logged missing requests for `ui-hotfix.css` and `android-picker-scroll.css`; those loaders have now been removed from `portrait-lock.js` because the UI rules were consolidated into the primary stylesheet. The next CI run must verify that the regression is gone and complete the browser suite before the CSS change can be considered release-safe.
+
 The shipping app version recorded in `handpan-app/APP_VERSION` is `167`. iOS Safari and Android Chrome remain unverified until a real-device pass is recorded.
 
 ## Reference screenshots — inspected individually
