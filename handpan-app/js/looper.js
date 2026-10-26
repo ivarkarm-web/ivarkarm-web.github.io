@@ -379,6 +379,7 @@ export function mountLooper({ root } = {}) {
 
   function setBtnState() {
     const hasLayers = layers.length > 0;
+    exportBtn.hidden = !hasLayers;
     exportBtn.disabled = !hasLayers || recording || pendingLoopStop || countInPending;
     exportBtn.setAttribute('aria-disabled', String(exportBtn.disabled));
     btn.classList.toggle('is-recording', recording);
