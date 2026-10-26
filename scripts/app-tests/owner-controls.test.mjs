@@ -126,9 +126,9 @@ test('Learn system is retired and dice randomizer replaces the entry point', () 
 
 test('portrait lock does not request deleted CSS patches and all linked stylesheets exist', () => {
   const portrait = read('handpan-app/js/portrait-lock.js');
-  assert.doesNotMatch(portrait, /ui-hotfix\\.css|android-picker-scroll\\.css/);
+  assert.doesNotMatch(portrait, /ui-hotfix\.css|android-picker-scroll\.css/);
   const html = read('handpan-app/index.html');
-  const refs = [...html.matchAll(/href=["']\\.\\/([^"'?]+\\.css)(?:\\?[^"']*)?["']/g)].map((m) => m[1]);
+  const refs = [...html.matchAll(/href=["']\.\/([^"'?]+\.css)(?:\?[^"']*)?["']/g)].map((m) => m[1]);
   assert.ok(refs.length >= 4, 'expected the four primary Pionier stylesheets');
   for (const ref of refs) assert.equal(fs.existsSync(path.join(root, 'handpan-app', ref)), true, 'missing linked stylesheet: ' + ref);
 });
