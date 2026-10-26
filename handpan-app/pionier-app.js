@@ -90,8 +90,6 @@ async function loadSoundscapes() {
     await import(new URL('./js/soundscapes.js?v=11', BASE).href);
   } catch (e) {
     console.warn('[boot] soundscapes', e);
-    // The soundscape player is optional; keep the instrument usable and make
-    // the failed feature visible instead of silently hiding its error.
     if (window.PionierBootState !== 'failed') {
       setBootStatus('degraded', 'Soundscapes could not load. The instrument is still available; reload to retry.', true);
     }
@@ -100,8 +98,8 @@ async function loadSoundscapes() {
 
 async function loadAmbientSequencer() {
   try {
-    const { mountAmbientSequencer } = await import(new URL('./js/ambient-sequencer-grid.js?v=2', BASE).href);
-    if (typeof mountAmbientSequencer === 'function') mountAmbientSequencer();
+    const { mountAmbientSequencer } = await import(new URL('./js/ambient-sequencer-grid.js?v=3', BASE).href);
+    if (typeof mountAmbientSequencer === 'function') await mountAmbientSequencer();
   } catch (e) {
     console.warn('[boot] ambient sequencer', e);
   }
