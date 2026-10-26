@@ -54,7 +54,7 @@
 
     var pan = document.getElementById('pan');
     if (pan) {
-      ['position','left','right','top','bottom','transform','margin','z-index'].forEach(function (prop) {
+      ['position','left','right','top','bottom','margin','z-index'].forEach(function (prop) {
         pan.style.removeProperty(prop);
       });
     }
