@@ -1,0 +1,141 @@
+
+/* ===== ui-hotfix.css ===== */
+/* ui-hotfix.css — recover looper icons + light-mode selector / chrome visibility */
+
+/* --- Kill the leftover topbar strip (controls live in the bottom dock) --- */
+#app > .topbar,
+.topbar.topbar-minimal,
+header.topbar {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  min-height: 0 !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Hide the legacy looper rail entirely once the bottom dock owns the controls */
+#looperRail.looper-rail,
+#app > #looperRail {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Clear button must stay in the dock track row, never float mid-stage */
+#pionierBottomDock #looperClearBtn,
+#pionierTrackRow #looperClearBtn {
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  left: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+/* --- Looper timing / utility icons --- */
+#pionierLooperControls .looper-timing-btn {
+  display: inline-flex !important;
+  position: relative !important;
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  padding: 2px !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(235, 229, 215, 0.16) !important;
+  background: rgba(255, 255, 255, 0.045) !important;
+  color: var(--text, #eeeae1) !important;
+  font-size: 8px !important;
+  line-height: 1 !important;
+  overflow: visible !important;
+}
+#pionierLooperControls .looper-timing-btn .looper-icon,
+#pionierLooperControls .looper-timing-btn svg,
+#pionierBottomDock #pionierLooperControls .looper-timing-btn svg,
+#pionierBottomDock #pionierLooperActions > button svg,
+#pionierBottomDock #pionierLooperControls #looperUtilityControls svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 12px !important;
+  min-height: 12px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.5 !important;
+  color: inherit !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  flex: 0 0 auto !important;
+}
+#pionierLooperControls .looper-timing-btn .looper-icon path,
+#pionierLooperControls .looper-timing-btn svg path,
+#pionierLooperControls .looper-timing-btn svg circle,
+#pionierLooperControls .looper-timing-btn svg line {
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.5 !important;
+}
+/* Metronome / bpm filled tip dots */
+#pionierLooperControls .looper-metronome-btn svg circle,
+#pionierLooperControls .looper-bpm-btn svg circle {
+  fill: currentColor !important;
+  stroke: none !important;
+}
+#pionierLooperControls .looper-timing-btn .looper-timing-meta,
+#pionierLooperControls .looper-timing-btn .looper-bpm-value,
+#pionierLooperControls .looper-count-in-btn .looper-timing-meta {
+  display: block !important;
+  font-size: 7px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  line-height: 1 !important;
+  color: inherit !important;
+  opacity: 0.9 !important;
+  max-width: 32px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+#pionierLooperControls .looper-timing-btn.is-active {
+  border-color: rgba(212, 176, 74, 0.65) !important;
+  color: #f1d78e !important;
+}
+#pionierBottomDock #pionierLooperControls .looper-timing-btn {
+  flex-basis: 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+}
+
+/* Clear button X marks */
+#pionierBottomDock .looper-clear-x::before,
+#pionierBottomDock .looper-clear-x::after,
+.looper-clear-x::before,
+.looper-clear-x::after {
+  background: currentColor !important;
+  opacity: 0.9 !important;
+}
