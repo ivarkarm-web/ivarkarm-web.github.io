@@ -26,10 +26,27 @@ const safelist = {
     /^(active|open|hidden|playing|recording|selected|disabled|muted|loading|error|ready|visible|on|off)$/,
   ],
 };
-const before = cssFiles.reduce((sum, file) => sum + fs.statSync(file).size, 0);
+function resolveImports(filePath, text, seen = new Set()) {
+  const abs = path.resolve(filePath);
+  if (seen.has(abs)) return '';
+  seen.add(abs);
+  return text.replace(/@import\s+url\(['"]?(\.\/[^'")]+)['"]?\)\s*;?/g, (_, ref) => {
+    const target = path.resolve(path.dirname(abs), ref);
+    if (!fs.existsSync(target)) return '';
+    return resolveImports(target, fs.readFileSync(target, 'utf8'), seen);
+  });
+}
+
+// Expand @import chains so PurgeCSS sees layout/ambient parts (not only shells).
+const expandedCss = cssFiles.map((file) => {
+  const raw = fs.readFileSync(file, 'utf8');
+  const resolved = resolveImports(file, raw);
+  return { file, css: resolved };
+});
+const before = expandedCss.reduce((sum, item) => sum + Buffer.byteLength(item.css), 0);
 const purged = await new PurgeCSS().purge({
   content,
-  css: cssFiles,
+  css: expandedCss.map((item) => ({ raw: item.css, name: item.file })),
   safelist,
   keyframes: false,
   fontFace: false,
