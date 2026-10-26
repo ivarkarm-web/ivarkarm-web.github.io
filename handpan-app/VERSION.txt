@@ -1,4 +1,4 @@
-pionier-v170
-2026-10-26
-shell: 47 entries (synced from index.html + pionier-app.js)
+pionier-v171
+2026-10-27
+shell: tonepad carousel + colored playhead + BPM knob
 run: npm run sync:handpan after changing ?v= stamps or APP_VERSION
