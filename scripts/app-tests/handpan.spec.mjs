@@ -2,6 +2,13 @@ import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/handpan-app/index.html', { waitUntil: 'domcontentloaded' });
+  // The welcome screen intentionally covers the play surface until the user enters.
+  const enter = page.locator('#enterPionier');
+  if (await enter.isVisible().catch(() => false)) {
+    await enter.click();
+    await expect(enter).toBeHidden({ timeout: 8000 });
+  }
+  await expect.poll(() => page.evaluate(() => window.PionierBootState), { timeout: 15000 }).toBe('ready');
   await expect(page.locator('#pan')).toBeVisible();
   await expect(page.locator('#instrumentDropdownToggle')).toBeVisible();
   await expect.poll(() => page.evaluate(() => {
