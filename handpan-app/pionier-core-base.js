@@ -504,25 +504,6 @@ document.getElementById('voiceNext')?.addEventListener('click', () => {
 });
 
 function padCount() { return handpan.noteCount || 8; }
-function changeNoteCount(delta) {
-  const MIN = 8;
-  const MAX = 13;
-  const before = Number.isFinite(handpan.noteCount) ? handpan.noteCount : MIN;
-  const after = Math.max(MIN, Math.min(MAX, before + delta));
-  if (after === before) return false;
-  handpan.setNoteCount(after);
-  if (typeof surface.armTransition === 'function') surface.armTransition();
-  syncWorldPitch();
-  layoutFields();
-  const active = activeInstrument();
-  if (active && active.glow) {
-    for (let i = 0; i < active.glow.length; i++) active.glow[i] = i === after - 1 ? 1 : 0;
-  }
-  updateLabels();
-  draw();
-  return true;
-}
-
 window.addEventListener('blur', () => {
   for (const k of [...app.keysHeld]) {
     const pad = KEY_TO_PAD[k];
@@ -573,12 +554,9 @@ window.PionierCore = {
     instrumentReady: !!InstrumentRegistry.active?.ready
   }),
   draw() { draw(); },
-  addNote() { return changeNoteCount(1); },
-  removeNote() { return changeNoteCount(-1); },
-  setNoteCount(count) {
-    const target = Math.max(8, Math.min(13, Math.round(Number(count) || 8)));
-    return changeNoteCount(target - padCount());
-  },
+  addNote() { return false; },
+  removeNote() { return false; },
+  setNoteCount() { return false; },
   setScaleIndex(i) {
     handpan.setScaleIndex(i);
     refreshPitch();
@@ -628,10 +606,14 @@ window.PionierCore = {
       const scale = scales[next];
       if (label && scale) label.textContent = (scale.short || scale.label || 'Scale') + ' \u25be';
     }
-    draw();
+    // The die is the sole user-facing way to choose a new 8–13-note layout.
+    handpan.noteCount = 8 + Math.floor(Math.random() * 6);
+    handpan.rebuildNotes();
+    refreshPitch();
     return {
       instrument: activeInstrument()?.id,
       scaleIndex: handpan.scaleIndex,
+      noteCount: handpan.noteCount,
       instrumentCount: list.length,
     };
   },

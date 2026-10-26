@@ -1,4 +1,4 @@
-/** Phase 1 guard: note count is scale-driven only; block mutators + randomize pad growth. */
+/** Phase 1 guard: hide manual note-count controls; only the randomizer may choose 8–13 notes. */
 (function () {
   if (window.__pionierPhase1NoteGuardV3) return;
   window.__pionierPhase1NoteGuardV3 = true;
@@ -55,7 +55,7 @@
         try {
           var c = window.PionierCore;
           try { if (c && c.ensureAudio) c.ensureAudio(); } catch (_) {}
-          // Full randomize: instrument + scale (core path; does not grow note count)
+          // Full randomize: instrument + scale + note count (8–13).
           if (c && typeof c.randomizeSetup === 'function') {
             await c.randomizeSetup();
           } else {
@@ -75,6 +75,12 @@
               var label = document.getElementById('scaleLabel');
               var scale = scales[next];
               if (label && scale) label.textContent = (scale.short || scale.label || 'Scale') + ' \u25BE';
+            }
+            if (handpan) {
+              handpan.noteCount = 8 + Math.floor(Math.random() * 6);
+              if (typeof handpan.rebuildNotes === 'function') handpan.rebuildNotes();
+              if (c.refreshPitch) c.refreshPitch();
+            }
             }
           }
         } catch (err) {

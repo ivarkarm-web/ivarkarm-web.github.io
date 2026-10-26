@@ -237,7 +237,7 @@ test('boots the local core without runtime source-fetch errors', async ({ page }
     clientWidth: document.documentElement.clientWidth
   }));
   expect(boot.core).toBe(true);
-  expect(boot.noteCount).toBeGreaterThanOrEqual(9);
+  expect(boot.noteCount).toBe(8);
   expect(boot.scrollWidth).toBeLessThanOrEqual(boot.clientWidth + 1);
 });
 
@@ -447,23 +447,25 @@ test('Soundscapes exposes the User-Created collection without generated ambience
   await expect(page.locator('#ambientFxCanvas')).toHaveCount(0);
 });
 
-test('note-count steppers change the live pan and keep their label in sync', async ({ page }, testInfo) => {
-  if (!testInfo.project.name.startsWith('mobile')) {
-    const initial = await page.evaluate(() => window.PionierCore.handpan.noteCount);
-    await page.evaluate(() => { const h = window.PionierCore.handpan; h.setNoteCount(h.noteCount + 1); window.PionierCore.refreshPitch(); });
-    await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(initial + 1);
-    await page.evaluate(() => { const h = window.PionierCore.handpan; h.setNoteCount(h.noteCount - 1); window.PionierCore.refreshPitch(); });
-    await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(initial);
-    return;
-  }
-  await expect(page.locator('#noteCountLabel')).toHaveText('9');
-  await page.locator('#noteCountNext').click();
-  await expect(page.locator('#noteCountLabel')).toHaveText('10');
-  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(10);
-  await page.locator('#noteCountPrev').click();
-  await expect(page.locator('#noteCountLabel')).toHaveText('9');
-  const core = await page.evaluate(() => window.PionierCore.handpan.noteCount);
-  expect(core).toBe(9);
+test('note count starts at eight; randomizer chooses 8–13 and scale/instrument changes preserve it', async ({ page }) => {
+  const result = await page.evaluate(async () => {
+    const core = window.PionierCore;
+    const handpan = core.handpan;
+    const initial = handpan.noteCount;
+    await core.randomizeSetup();
+    const randomized = handpan.noteCount;
+    const { HANDPAN_SCALES } = await import('/handpan-app/js/instruments/handpan.js');
+    handpan.setScaleIndex((handpan.scaleIndex + 1) % HANDPAN_SCALES.length);
+    core.refreshPitch();
+    const afterScale = handpan.noteCount;
+    await core.setInstrument('handpan');
+    return { initial, randomized, afterScale, afterInstrument: handpan.noteCount };
+  });
+  expect(result.initial).toBe(8);
+  expect(result.randomized).toBeGreaterThanOrEqual(8);
+  expect(result.randomized).toBeLessThanOrEqual(13);
+  expect(result.afterScale).toBe(result.randomized);
+  expect(result.afterInstrument).toBe(result.randomized);
 });
 
 

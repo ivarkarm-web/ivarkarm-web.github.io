@@ -35,7 +35,9 @@ export function extendScaleCents(baseCents, count) {
   return out;
 }
 
-const FIXED_NOTE_COUNT = 8;
+const DEFAULT_NOTE_COUNT = 8;
+const MIN_RANDOM_NOTE_COUNT = 8;
+const MAX_RANDOM_NOTE_COUNT = 13;
 const PITCH_BEND_RANGE = 2;
 const GLIDE_TIME = 0.12;
 const BEND_SMOOTH = 0.055;
@@ -77,7 +79,7 @@ export class HandpanInstrument extends Instrument {
     this.rootIndex = 2;
     this.octaveOffset = 0;
     this.voiceIndex = 0;
-    this.noteCount = MIN_NOTES;
+    this.noteCount = DEFAULT_NOTE_COUNT;
     this.notes = [];
     this.sampleBank = null;
     this.lastStrikeAt = new Map();
@@ -129,10 +131,14 @@ export class HandpanInstrument extends Instrument {
   rebuildNotes() {
     const scale = HANDPAN_SCALES[this.scaleIndex] || HANDPAN_SCALES[0];
     const base = rootToMidi(this.rootIndex, this.octaveOffset);
-    // Note count is fixed by the active scale definition (not user-adjustable).
-    const scaleCents = extendScaleCents(scaleToCents(scale), FIXED_NOTE_COUNT);
-    this.noteCount = FIXED_NOTE_COUNT;
-    const centsList = scaleCents.slice(0, FIXED_NOTE_COUNT);
+    // Scale/root changes preserve the current count; only the randomizer changes it.
+    const count = Math.max(MIN_RANDOM_NOTE_COUNT, Math.min(
+      MAX_RANDOM_NOTE_COUNT,
+      Number.isFinite(this.noteCount) ? Math.round(this.noteCount) : DEFAULT_NOTE_COUNT
+    ));
+    const scaleCents = extendScaleCents(scaleToCents(scale), count);
+    this.noteCount = count;
+    const centsList = scaleCents.slice(0, count);
     const isMicro = !!(scale.cents && scale.cents.length) || (scale.tuning && scale.tuning !== '12-TET');
     const angles = ringAngles(Math.max(1, centsList.length - 1));
 
@@ -160,7 +166,14 @@ export class HandpanInstrument extends Instrument {
   getZones() { return this._zones || []; }
 
   addNote() { return false; }
-  setNoteCount(_n) { this.rebuildNotes(); }
+  setNoteCount(n) {
+    this.noteCount = Math.max(MIN_RANDOM_NOTE_COUNT, Math.min(
+      MAX_RANDOM_NOTE_COUNT,
+      Math.round(Number(n) || DEFAULT_NOTE_COUNT)
+    ));
+    this.rebuildNotes();
+    return this.noteCount;
+  }
 
   setScaleIndex(i) {
     this.scaleIndex = ((i % HANDPAN_SCALES.length) + HANDPAN_SCALES.length) % HANDPAN_SCALES.length;

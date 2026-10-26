@@ -36,17 +36,17 @@ test('legacy root/note-count steppers are retired: markup exists, guards hide th
   assert.doesNotMatch(core, /wire\('octUp'/);
 });
 
-test('core exposes addNote/removeNote and clamps note count 8–13', () => {
+test('manual note-count mutators are disabled while the handpan supports 8–13 randomizer notes', () => {
   const core = (read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js'));
-  const layout = read('handpan-app/js/pad-layout.js');
-  // pad-layout.js documents the range; core mirrors it with local MIN/MAX consts
-  assert.match(layout, /export const MIN_NOTES = 6/);
-  assert.match(layout, /export const MAX_NOTES = 16/);
-  assert.match(core, /addNote\(\)\s*\{\s*return changeNoteCount\(1\)/);
-  assert.match(core, /removeNote\(\)\s*\{\s*return changeNoteCount\(-1\)/);
-  assert.match(core, /const MIN = 8/);
-  assert.match(core, /const MAX = 13/);
-  assert.match(core, /noteCountLabel/);
+  const handpan = read('handpan-app/js/instruments/handpan.js');
+  assert.match(core, /addNote\(\)\s*\{\s*return false/);
+  assert.match(core, /removeNote\(\)\s*\{\s*return false/);
+  assert.match(core, /setNoteCount\(\)\s*\{\s*return false/);
+  assert.match(handpan, /const DEFAULT_NOTE_COUNT = 8/);
+  assert.match(handpan, /const MIN_RANDOM_NOTE_COUNT = 8/);
+  assert.match(handpan, /const MAX_RANDOM_NOTE_COUNT = 13/);
+  assert.match(handpan, /setNoteCount\(n\)/);
+  assert.doesNotMatch(core, /function changeNoteCount/);
 });
 
 test('overlay controller owns pickers and control layout positions the looper toolbar', () => {
@@ -96,7 +96,8 @@ test('scale picker and labels are wired through the scale selector and core labe
   assert.match(core, /function updateLabels/);
   assert.match(core, /getElementById\('scaleLabel'\)/);
   assert.match(core, /getElementById\('rootLabel'\)/);
-  assert.match(core, /function changeNoteCount/);
+  assert.match(core, /async randomizeSetup\(\)/);
+  assert.match(core, /handpan\.noteCount = 8 \+ Math\.floor\(Math\.random\(\) \* 6\)/);
 });
 
 test('scale picker opens from the restored scale label', () => {
