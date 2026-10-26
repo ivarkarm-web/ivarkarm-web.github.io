@@ -19,7 +19,8 @@
     "sync:handpan": "node scripts/sync-handpan-cache.mjs",
     "check:handpan-cache": "node scripts/sync-handpan-cache.mjs --check",
     "lighthouse:app": "node scripts/lighthouse-handpan.mjs",
-    "check:release": "npm run check:app && node -e \"console.log('Remember: fill IOS-SAFARI-CHECKLIST.md before claiming production readiness 8/10')\""
+    "check:release": "npm run check:app && node -e \"console.log('Remember: fill IOS-SAFARI-CHECKLIST.md before claiming production readiness 8/10')\"",
+    "optimize:handpan-css": "node scripts/optimize-handpan-css.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.0",
@@ -27,6 +28,8 @@
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
-    "@playwright/test": "^1.56.1"
+    "@playwright/test": "^1.56.1",
+    "esbuild": "^0.25.0",
+    "purgecss": "^7.0.2"
   }
 }
