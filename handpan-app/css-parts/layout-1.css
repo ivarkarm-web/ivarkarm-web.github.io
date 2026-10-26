@@ -1,0 +1,164 @@
+
+#looperRail { display:none !important; }
+#pionierLooperToolbar {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  width:100%; max-width:760px; min-width:0; margin:2px auto 0; padding:0 10px;
+  box-sizing:border-box; position:relative; z-index:20;
+}
+#pionierLooperControls, #pionierLooperActions {
+  display:flex; align-items:center; gap:6px; min-width:0; flex:0 1 auto;
+}
+#pionierLooperControls { justify-content:flex-start; }
+#pionierLooperActions { justify-content:flex-end; margin-left:auto; }
+#pionierLooperControls > button, #pionierLooperActions > button {
+  position:static !important; inset:auto !important; transform:none !important;
+  display:inline-flex !important; visibility:visible !important; opacity:1 !important;
+  flex:0 0 36px !important; width:36px !important; min-width:36px !important;
+  max-width:36px !important; height:36px !important; min-height:36px !important;
+  max-height:36px !important; margin:0 !important; padding:0 !important;
+  align-items:center !important; justify-content:center !important; box-sizing:border-box !important;
+  border-radius:50% !important; box-shadow:none !important;
+}
+#pionierLooperControls #looperClearBtn {
+  border:1px solid rgba(235,229,215,.16) !important; background:rgba(255,255,255,.045) !important;
+}
+#pionierLooperControls #looperRecordCluster {
+  display:flex !important; position:static !important; flex:0 0 auto !important;
+  width:auto !important; height:auto !important; margin:0 !important; padding:0 !important;
+}
+#pionierLooperControls #looperBtn { display:flex !important; position:relative !important; }
+#pionierLooperActions #openSoundscapes,
+#pionierLooperActions #fxPanelOpen,
+#pionierLooperActions #settingsOpenBtn {
+  border:1px solid rgba(235,229,215,.16) !important;
+  background:rgba(255,255,255,.045) !important; color:var(--text, #eeeae1) !important;
+}
+#pionierTrackRow {
+  display:flex; align-items:center; justify-content:flex-start; gap:6px;
+  width:100%; max-width:760px; min-width:0; min-height:0; margin:2px auto 0;
+  padding:0 10px 3px; box-sizing:border-box; overflow-x:auto; overflow-y:hidden;
+  overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch; scrollbar-width:thin;
+}
+#pionierTrackRow #looperLayers {
+  display:flex !important; position:static !important; inset:auto !important; transform:none !important;
+  flex:0 0 auto !important; width:max-content !important; min-width:0 !important; max-width:none !important;
+  margin:0 !important; padding:0 !important; overflow:visible !important;
+  align-items:center !important; justify-content:flex-start !important; gap:6px !important;
+}
+#pionierTrackRow #looperLayers > * { flex:0 0 auto; }
+#scaleMenu, #instrumentMenu {
+  z-index:7200 !important; box-sizing:border-box !important;
+  width:min(320px, calc(100vw - 24px)) !important; max-width:calc(100vw - 24px) !important;
+  max-height:min(52dvh, 400px) !important; overflow:hidden !important;
+  border-radius:16px !important; background:rgba(16,16,19,.96) !important;
+  border:1px solid rgba(226,195,117,.24) !important;
+  box-shadow:0 20px 60px rgba(0,0,0,.46), inset 0 1px 0 rgba(255,255,255,.035) !important;
+  -webkit-backdrop-filter:blur(24px) saturate(125%) !important; backdrop-filter:blur(24px) saturate(125%) !important;
+}
+#scaleMenu .picker-results, #instrumentMenu .picker-results {
+  min-height:0 !important; overflow-y:auto !important; overscroll-behavior:contain !important;
+  -webkit-overflow-scrolling:touch !important;
+}
+#scaleLabel[aria-expanded="true"] { background:rgba(212,176,74,.08) !important; }
+#stage { min-width:0; width:100%; }
+#pan { touch-action:none; max-width:100%; }
+
+/* v13 split rows */
+#pionierBottomDock #pionierSelectorRow{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:5px!important;width:100%!important;max-width:560px!important;margin:0 auto!important}
+#pionierBottomDock #pionierScaleRow,#pionierBottomDock #pionierInstrumentRow{display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;width:100%!important;min-width:0!important;margin:0!important;padding:0 4px!important;box-sizing:border-box!important}
+#pionierScaleRow #pionierScaleGroup{flex:1 1 auto!important;max-width:none!important;min-width:0!important}
+#pionierScaleRow #pionierScaleGroup>.control-half{flex:0 0 82px!important;width:82px!important}
+#pionierScaleRow #pionierScaleGroup>.control-half .stepper{width:100%!important;min-width:0!important}
+#pionierInstrumentRow #pionierInstrumentGroup{flex:1 1 auto!important;width:100%!important;max-width:none!important}
+#pionierLooperToolbar{position:relative!important;min-height:54px!important;justify-content:space-between!important;padding:0 6px!important;gap:4px!important}
+#pionierLooperControls{flex:1 1 0!important;justify-content:flex-start!important}
+#pionierLooperActions{flex:1 1 0!important;justify-content:flex-end!important;margin-left:0!important}
+#pionierLooperToolbar #looperRecordCluster{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;display:flex!important;align-items:center!important;justify-content:center!important;width:54px!important;height:54px!important;margin:0!important;padding:0!important;pointer-events:auto!important;z-index:3!important}
+#pionierLooperToolbar #looperBtn{flex:0 0 52px!important;transform:none!important}
+#stage{padding-bottom:calc(var(--chrome-bottom,190px) + 8px)!important}
+#pan{width:min(92vw,calc(100dvh - var(--chrome-bottom,190px) - 60px),560px)!important;height:auto!important;max-width:92vw!important;max-height:none!important;aspect-ratio:1!important;flex:0 0 auto!important;visibility:visible!important;opacity:1!important}
+
+/* NOTE: Partial restore of core layout rules. Full original was ~43KB;
+   remaining polish rules live in prior commit 7ffc713. Light mode for this
+   dock is handled by theme-light-overlays.css. */
+
+
+
+/* ===== handpan-themes.css ===== */
+/**
+ * handpan-themes.css — Phase 3 premium dark / light handpan tokens.
+ */
+
+:root,
+html.dark,
+html:not(.theme-light) {
+  color-scheme: dark;
+  --hp-bg: #08080a;
+  --hp-bg-elevated: #0c0c0e;
+  --hp-disc-0: #2e3036;
+  --hp-disc-1: #1a1b1f;
+  --hp-disc-2: #0e0f12;
+  --hp-pad-0: 58, 60, 68;
+  --hp-pad-1: 36, 38, 44;
+  --hp-pad-2: 22, 23, 27;
+  --hp-stroke: 255, 255, 255;
+  --hp-stroke-alpha: 0.12;
+  --hp-rim: 220, 224, 232;
+  --hp-lip: 200, 204, 212;
+  --hp-accent: 201, 162, 39;
+  --hp-accent-bright: 228, 195, 90;
+  --hp-glow-0: 230, 235, 245;
+  --hp-glow-1: 140, 150, 170;
+  --hp-label: #9a9690;
+  --hp-label-press: #f0ece4;
+  --hp-label-size: 0.62rem;
+  --hp-label-font: "Inter", "JetBrains Mono", ui-sans-serif, system-ui, sans-serif;
+  --hp-rim-width: 1px;
+  --hp-press-scale: 0.97;
+  --hp-press-ms: 420ms;
+  --hp-sheen: 0.12;
+  /* Center in stage; slight lift keeps clearance above bottom looper */
+  --hp-pan-offset-y: -6%;
+}
+
+html.theme-light,
+html.theme-light body,
+body.theme-light {
+  color-scheme: light;
+  --hp-bg: #e8e4dc;
+  --hp-bg-elevated: #f2efe8;
+  --hp-disc-0: #e4e0d8;
+  --hp-disc-1: #c8c4bc;
+  --hp-disc-2: #9e9a92;
+  --hp-pad-0: 220, 216, 208;
+  --hp-pad-1: 180, 176, 168;
+  --hp-pad-2: 140, 136, 128;
+  --hp-stroke: 20, 18, 14;
+  --hp-stroke-alpha: 0.14;
+  --hp-rim: 50, 48, 44;
+  --hp-lip: 70, 68, 62;
+  --hp-accent: 150, 118, 28;
+  --hp-accent-bright: 180, 140, 40;
+  --hp-glow-0: 60, 58, 52;
+  --hp-glow-1: 40, 38, 34;
+  --hp-label: #4a4640;
+  --hp-label-press: #1a1814;
+  --hp-sheen: 0.14;
+}
+
+html.theme-light,
+html.theme-light body {
+  background: var(--hp-bg) !important;
+}
+
+html:not(.theme-light) body {
+  background: var(--hp-bg);
+}
+
+/* Centered in .stage flex; mild upward offset for looper clearance */
+#pan {
+  transform: translateY(var(--hp-pan-offset-y, -6%)) !important;
+  transform-origin: center center;
+  margin-left: auto;
+  margin-right: auto;
+}
