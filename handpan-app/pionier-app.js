@@ -68,18 +68,7 @@ async function loadFxEditor() {
 async function loadArps() {
   try {
     const { createArpInstruments } = await import(new URL('./js/instruments/arp-family.js?v=3', BASE).href);
-    if (typeof createArpInstruments !== 'function') return;
-    const arps = createArpInstruments() || [];
-    if (typeof window.PionierCore?.registerInstrument === 'function') {
-      arps.forEach((a) => {
-        try { window.PionierCore.registerInstrument(a); } catch (_) {}
-      });
-      return;
-    }
-    const { InstrumentRegistry } = await import(new URL('./js/instrument.js', BASE).href);
-    arps.forEach((a) => {
-      try { InstrumentRegistry.register?.(a); } catch (_) {}
-    });
+    if (typeof createArpInstruments === 'function') createArpInstruments();
   } catch (e) {
     console.warn('[boot] arps', e);
   }
@@ -87,8 +76,7 @@ async function loadArps() {
 
 async function loadNotePlus() {
   try {
-    const { mountNotePlus } = await import(new URL('./js/note-plus.js?v=3', BASE).href);
-    if (typeof mountNotePlus === 'function') mountNotePlus();
+    await import(new URL('./js/note-plus.js?v=3', BASE).href);
   } catch (e) {
     console.warn('[boot] note-plus', e);
   }
@@ -107,7 +95,7 @@ async function loadSoundscapes() {
 
 async function loadAmbientSequencer() {
   try {
-    const { mountTonepad } = await import(new URL('./js/tonepad.js?v=4', BASE).href);
+    const { mountTonepad } = await import(new URL('./js/tonepad.js?v=5', BASE).href);
     if (typeof mountTonepad === 'function') mountTonepad();
   } catch (e) {
     console.warn('[boot] tonepad', e);
