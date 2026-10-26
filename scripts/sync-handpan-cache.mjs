@@ -42,7 +42,7 @@ const EXTRA_SHELL = [
   './js/pionier-surface.js?v=146',
   './js/instruments/handpan-scales.js?v=6',
   './js/pad-layout.js?v=2',
-  './pionier-core-base.js?v=1',
+  './pionier-core-base.js?v=2',
   './og-pionier-synth.svg',
 ];
 
