@@ -485,9 +485,8 @@ test('mobile instrument and scale pickers open as visible, tappable sheets', asy
 
   const touchAction = await page.locator('#pan').evaluate((canvas) => getComputedStyle(canvas).pointerEvents);
   expect(touchAction).not.toBe('none');
-  const before = await page.evaluate(() => window.PionierCore.noteCount());
-  await page.locator('#noteCountNext').click();
-  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(before + 1);
+  await expect(page.locator('#noteCountNext')).toBeHidden();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(8);
 });
 
 test('desktop scale, base-note and octave steppers update the shared handpan state', async ({ page }, testInfo) => {

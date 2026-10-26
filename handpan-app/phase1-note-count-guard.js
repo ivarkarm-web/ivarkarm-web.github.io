@@ -81,7 +81,6 @@
               if (typeof handpan.rebuildNotes === 'function') handpan.rebuildNotes();
               if (c.refreshPitch) c.refreshPitch();
             }
-            }
           }
         } catch (err) {
           console.warn('[phase1-randomize]', err);
