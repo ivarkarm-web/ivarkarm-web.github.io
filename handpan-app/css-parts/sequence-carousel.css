@@ -1,0 +1,173 @@
+/* sequence-carousel.css — loaded last; wins cascade for carousel + playhead + bpm knob */
+
+/* Kill legacy hard-hide that blocked exit animation */
+.pionier-sequence[hidden] {
+  display: grid !important;
+}
+.pionier-sequence[hidden].is-settled {
+  display: none !important;
+}
+
+.pionier-sequence {
+  opacity: 0 !important;
+  transform: translate3d(100%, 0, 0) !important;
+  visibility: hidden;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transition: none !important;
+}
+.pionier-sequence.is-open {
+  opacity: 1 !important;
+  transform: translate3d(0, 0, 0) !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  animation: pionier-seq-in .42s cubic-bezier(.22, .82, .2, 1) both !important;
+}
+.pionier-sequence.is-closing {
+  opacity: 0 !important;
+  transform: translate3d(100%, 0, 0) !important;
+  visibility: visible !important;
+  pointer-events: none !important;
+  animation: pionier-seq-out .38s cubic-bezier(.4, 0, .2, 1) both !important;
+}
+@keyframes pionier-seq-in {
+  from { opacity: 0; transform: translate3d(100%, 0, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes pionier-seq-out {
+  from { opacity: 1; transform: translate3d(0, 0, 0); }
+  to   { opacity: 0; transform: translate3d(100%, 0, 0); }
+}
+
+#app {
+  transition: transform .42s cubic-bezier(.22, .82, .2, 1), opacity .34s ease, filter .34s ease !important;
+  will-change: transform, opacity;
+}
+body.pionier-sequence-open #app {
+  transform: translate3d(-22%, 0, 0) scale(0.96) !important;
+  opacity: 0.22 !important;
+  filter: blur(2px);
+  pointer-events: none !important;
+}
+body.pionier-sequence-open #app .topbar,
+body.pionier-sequence-open #app .mobile-control-drawer,
+body.pionier-sequence-open #app .looper-rail {
+  opacity: 0 !important;
+}
+
+/* Active steps keep row colors; playhead pops harder */
+.pionier-sequence .sequence-step.is-current {
+  outline: 2px solid #f5e6b0 !important;
+  outline-offset: -2px;
+  z-index: 2;
+  filter: brightness(1.3) saturate(1.1);
+  box-shadow: 0 0 16px rgba(245, 230, 176, 0.55) !important;
+  animation: pionier-step-hit .28s ease-out;
+}
+.pionier-sequence .sequence-step.is-active.is-current {
+  filter: brightness(1.45) saturate(1.2);
+  box-shadow: 0 0 20px rgba(245, 230, 176, 0.7) !important;
+}
+.pionier-sequence .sequence-row-mallet .sequence-step.is-active {
+  background: #c9b06a !important;
+  border-color: #e8d48a !important;
+}
+.pionier-sequence .sequence-row-deep .sequence-step.is-active {
+  background: #7a9a82 !important;
+  border-color: #a8c4b0 !important;
+}
+.pionier-sequence .sequence-row-pluck .sequence-step.is-active {
+  background: #b07a5c !important;
+  border-color: #d4a080 !important;
+}
+.pionier-sequence .sequence-row-air .sequence-step.is-active {
+  background: #7a92a8 !important;
+  border-color: #a8c0d4 !important;
+}
+.pionier-sequence .sequence-row-shimmer .sequence-step.is-active {
+  background: #d4b878 !important;
+  border-color: #f0e0b0 !important;
+}
+.pionier-sequence .sequence-row-pulse .sequence-step.is-active {
+  background: #a87898 !important;
+  border-color: #d0a8c0 !important;
+}
+.pionier-sequence .sequence-row-glass .sequence-step.is-active {
+  background: #5a9890 !important;
+  border-color: #90d0c8 !important;
+}
+.pionier-sequence .sequence-row-drone .sequence-step.is-active {
+  background: #6a6a58 !important;
+  border-color: #9a9a80 !important;
+}
+.pionier-sequence .sequence-row-mallet .sequence-step.is-current {
+  outline-color: #f0d99a !important;
+  box-shadow: 0 0 18px rgba(216, 196, 127, 0.8) !important;
+}
+.pionier-sequence .sequence-row-deep .sequence-step.is-current {
+  outline-color: #a8c4b0 !important;
+  box-shadow: 0 0 18px rgba(122, 154, 130, 0.8) !important;
+}
+.pionier-sequence .sequence-row-pluck .sequence-step.is-current {
+  outline-color: #d4a080 !important;
+  box-shadow: 0 0 18px rgba(176, 122, 92, 0.8) !important;
+}
+.pionier-sequence .sequence-row-air .sequence-step.is-current {
+  outline-color: #a8c0d4 !important;
+  box-shadow: 0 0 18px rgba(122, 146, 168, 0.8) !important;
+}
+.pionier-sequence .sequence-row-shimmer .sequence-step.is-current {
+  outline-color: #f0e0b0 !important;
+  box-shadow: 0 0 18px rgba(212, 184, 120, 0.85) !important;
+}
+.pionier-sequence .sequence-row-pulse .sequence-step.is-current {
+  outline-color: #d0a8c0 !important;
+  box-shadow: 0 0 18px rgba(168, 120, 152, 0.8) !important;
+}
+.pionier-sequence .sequence-row-glass .sequence-step.is-current {
+  outline-color: #90d0c8 !important;
+  box-shadow: 0 0 18px rgba(90, 152, 144, 0.8) !important;
+}
+.pionier-sequence .sequence-row-drone .sequence-step.is-current {
+  outline-color: #9a9a80 !important;
+  box-shadow: 0 0 18px rgba(106, 106, 88, 0.8) !important;
+}
+@keyframes pionier-step-hit {
+  0% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+.pionier-sequence .sequence-beat-numbers span.is-playhead {
+  color: #f0d99a !important;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(240, 217, 154, 0.65);
+}
+
+/* BPM knob */
+.pionier-sequence .sequence-knob[data-knob="bpm"] .sequence-knob-dial {
+  border-color: rgba(232, 212, 138, 0.55);
+  background: linear-gradient(160deg, #1e241c, #141914);
+}
+.pionier-sequence .sequence-knob[data-knob="bpm"] .sequence-knob-label { color: #c9b06a; }
+.pionier-sequence .sequence-knob[data-knob="bpm"] .sequence-knob-value {
+  color: #f0d99a;
+  font-size: 11px;
+}
+.pionier-sequence.has-bpm-knob .sequence-bpm { display: none !important; }
+.pionier-sequence .sequence-topbar .sequence-knob[data-knob="bpm"] .sequence-knob-dial {
+  width: 44px;
+  height: 44px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pionier-sequence.is-open,
+  .pionier-sequence.is-closing,
+  #app {
+    animation: none !important;
+    transition: none !important;
+  }
+  body.pionier-sequence-open #app {
+    filter: none;
+    transform: none !important;
+    opacity: 0 !important;
+  }
+}
