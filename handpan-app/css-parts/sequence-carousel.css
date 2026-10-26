@@ -78,96 +78,22 @@ body.pionier-sequence-open #app .looper-rail {
 }
 .pionier-sequence .sequence-row-pluck .sequence-step.is-active {
   background: #b07a5c !important;
-  border-color: #d4a080 !important;
-}
-.pionier-sequence .sequence-row-air .sequence-step.is-active {
-  background: #7a92a8 !important;
-  border-color: #a8c0d4 !important;
-}
-.pionier-sequence .sequence-row-shimmer .sequence-step.is-active {
-  background: #d4b878 !important;
-  border-color: #f0e0b0 !important;
-}
-.pionier-sequence .sequence-row-pulse .sequence-step.is-active {
-  background: #a87898 !important;
-  border-color: #d0a8c0 !important;
-}
-.pionier-sequence .sequence-row-glass .sequence-step.is-active {
-  background: #5a9890 !important;
-  border-color: #90d0c8 !important;
-}
-.pionier-sequence .sequence-row-drone .sequence-step.is-active {
-  background: #6a6a58 !important;
-  border-color: #9a9a80 !important;
-}
-.pionier-sequence .sequence-row-mallet .sequence-step.is-current {
-  outline-color: #f0d99a !important;
-  box-shadow: 0 0 18px rgba(216, 196, 127, 0.8) !important;
-}
-.pionier-sequence .sequence-row-deep .sequence-step.is-current {
-  outline-color: #a8c4b0 !important;
-  box-shadow: 0 0 18px rgba(122, 154, 130, 0.8) !important;
-}
-.pionier-sequence .sequence-row-pluck .sequence-step.is-current {
-  outline-color: #d4a080 !important;
-  box-shadow: 0 0 18px rgba(176, 122, 92, 0.8) !important;
-}
-.pionier-sequence .sequence-row-air .sequence-step.is-current {
-  outline-color: #a8c0d4 !important;
-  box-shadow: 0 0 18px rgba(122, 146, 168, 0.8) !important;
-}
-.pionier-sequence .sequence-row-shimmer .sequence-step.is-current {
-  outline-color: #f0e0b0 !important;
-  box-shadow: 0 0 18px rgba(212, 184, 120, 0.85) !important;
-}
-.pionier-sequence .sequence-row-pulse .sequence-step.is-current {
-  outline-color: #d0a8c0 !important;
-  box-shadow: 0 0 18px rgba(168, 120, 152, 0.8) !important;
-}
-.pionier-sequence .sequence-row-glass .sequence-step.is-current {
-  outline-color: #90d0c8 !important;
-  box-shadow: 0 0 18px rgba(90, 152, 144, 0.8) !important;
-}
-.pionier-sequence .sequence-row-drone .sequence-step.is-current {
-  outline-color: #9a9a80 !important;
-  box-shadow: 0 0 18px rgba(106, 106, 88, 0.8) !important;
-}
-@keyframes pionier-step-hit {
-  0% { transform: scale(1.1); }
-  100% { transform: scale(1); }
-}
-.pionier-sequence .sequence-beat-numbers span.is-playhead {
-  color: #f0d99a !important;
-  font-weight: 700;
-  text-shadow: 0 0 8px rgba(240, 217, 154, 0.65);
+  border-color: #d4a08a !important;
 }
 
-/* BPM knob */
-.pionier-sequence .sequence-knob[data-knob="bpm"] .sequence-knob-dial {
-  border-color: rgba(232, 212, 138, 0.55);
-  background: linear-gradient(160deg, #1e241c, #141914);
+/* TonePad card carousel — handpan exits fully to the left */
+#pan {
+  transition: transform .42s cubic-bezier(.22, .82, .2, 1), opacity .36s ease;
+  will-change: transform, opacity;
 }
-.pionier-sequence .sequence-knob[data-knob="bpm"] .sequence-knob-label { color: #c9b06a; }
-.pionier-sequence .sequence-knob[data-knob="bpm"] .sequence-knob-value {
-  color: #f0d99a;
-  font-size: 11px;
+body.tonepad-open #pan {
+  transform: translate3d(-110%, 0, 0) !important;
+  opacity: 0.06 !important;
+  pointer-events: none !important;
+  contain: none !important;
 }
-.pionier-sequence.has-bpm-knob .sequence-bpm { display: none !important; }
-.pionier-sequence .sequence-topbar .sequence-knob[data-knob="bpm"] .sequence-knob-dial {
-  width: 44px;
-  height: 44px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .pionier-sequence.is-open,
-  .pionier-sequence.is-closing,
-  #app {
-    animation: none !important;
-    transition: none !important;
-  }
-  body.pionier-sequence-open #app {
-    filter: none;
-    transform: none !important;
-    opacity: 0 !important;
-  }
+body.tonepad-open .stage::before {
+  transform: translate(calc(-50% - 55vw), 50%) !important;
+  opacity: 0.1 !important;
+  transition: transform .42s cubic-bezier(.22, .82, .2, 1), opacity .36s ease;
 }
