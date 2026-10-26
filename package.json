@@ -30,6 +30,7 @@
     "@types/node": "22.20.5",
     "@playwright/test": "1.56.1",
     "esbuild": "0.28.2",
+    "glob": "11.1.0",
     "purgecss": "7.0.2"
   }
 }
