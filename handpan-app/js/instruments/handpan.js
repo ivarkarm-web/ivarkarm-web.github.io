@@ -283,7 +283,7 @@ export class HandpanInstrument extends Instrument {
     this.held[idx] = 1;
     this.pitchBendCents[idx] = 0;
     this.lastStrikeAt.set(idx, performance.now());
-    const recordedScale = HANDPAN_SCALES[this.scaleIndex]?.id === 'e-amara-recorded';
+    const recordedScale = this._isRecordedScale();
     if (recordedScale && (!this.sampleBank || !this.sampleBank.ready)) return;
     if (recordedScale && this.sampleBank && this.sampleBank.ready) {
       const played = this.sampleBank.play(note.midiExact ?? note.midi, this.bus, t, { vel, radial, angleRad });
