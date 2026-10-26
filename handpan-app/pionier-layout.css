@@ -1,8 +1,1 @@
-/* Pionier layout CSS — split parts for tool-friendly deploys */
-@import url('./css-parts/layout-0.css');
-@import url('./css-parts/layout-1.css');
-@import url('./css-parts/layout-2.css');
-@import url('./css-parts/layout-3.css');
-@import url('./css-parts/layout-4.css');
-@import url('./css-parts/layout-5a.css');
-@import url('./css-parts/layout-5b.css');
+/* Deprecated shell: layout CSS is linked as css-parts/layout-*.css from index.html (parallel load, no @import). */
