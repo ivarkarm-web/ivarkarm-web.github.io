@@ -1,11 +1,5 @@
 /**
- * Pionier Sequence — upgraded 16-step multivoice sequencer.
- * RESTORE_MARKER - content loaded from local build
+ * Temporary restore shim — loads the last known-good sequencer build.
+ * Replaced in a follow-up with the in-repo source + Play/Pause transport.
  */
-export function mountAmbientSequencer() {
-  console.warn('[sequence] incomplete restore - reload pending');
-  return null;
-}
-export function createAmbientSequenceEngine() {
-  return { start(){}, stop(){}, snapshot(){ return {playing:false,pattern:[]}; } };
-}
+export { createAmbientSequenceEngine, mountAmbientSequencer } from 'https://cdn.jsdelivr.net/gh/ivarkarm-web/ivarkarm-web.github.io@dcbb7bae36652186eb2148839f2d88a38bf22463/handpan-app/js/ambient-sequencer-grid.js';
