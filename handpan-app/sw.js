@@ -11,7 +11,7 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.
  */
-const CACHE_VERSION = 'pionier-v167';
+const CACHE_VERSION = 'pionier-v168';
 
 const SHELL = [
   './',
@@ -50,14 +50,14 @@ const SHELL = [
   './looper-circle-progress.js?v=2',
   './looper-side-menus.js?v=9',
   './og-pionier-synth.svg',
-  './pionier-ambient.css?v=1',
+  './pionier-ambient.css?v=2',
   './pionier-app.js?v=250',
-  './pionier-base.css?v=1',
+  './pionier-base.css?v=2',
   './pionier-control-layout.js?v=21',
-  './pionier-controls.css?v=1',
+  './pionier-controls.css?v=2',
   './pionier-core-base.js?v=1',
   './pionier-core.js?v=81',
-  './pionier-layout.css?v=1',
+  './pionier-layout.css?v=2',
   './registerSW.js',
   './registerSW.js?v=2',
   './welcome-screen.js?v=9',
