@@ -1,10 +1,25 @@
-# Pionier app audit — 2026-10-25 (source + CI follow-up)
+# Pionier app audit — 2026-10-26 (v168)
 
 ## Scope and baseline
 
-Repository: `ivarkarm-web/ivarkarm-web.github.io`, default branch `main`.
-Live route: `/handpan-app/`. Current source release is `APP_VERSION` 167 (`pionier-v167`). The live route currently serves the source HTML/CSS/ES modules. The readiness branch adds an app-specific Vite build and a 250,000-byte minified CSS gate; these remain unverified until CI passes and the branch is merged.
-This is a source-level audit. No physical iOS/Android device or browser automation was run as part of this audit, so the user-reported mobile failures below remain reproduction targets rather than independently reproduced findings.
+Repository: `ivarkarm-web/ivarkarm-web.github.io`, default branch `main`.  
+Live route: `/handpan-app/`. Shipping metadata: `APP_VERSION` **168** (`pionier-v168`).  
+Static HTML/CSS/ES modules; optional Vite path and CSS optimize gate on the readiness branch.  
+This is a source-level audit. No physical iOS/Android device or VoiceOver/TalkBack session was run as part of this pass.
+
+## Measured baseline — app version 168 (2026-10-26)
+
+Source file sizes from repository byte counts (not transfer size).
+
+| Stylesheet | Bytes | Decimal kB |
+|---|---:|---:|
+| `handpan-app/pionier-base.css` | 172,891 | 172.9 |
+| `handpan-app/pionier-controls.css` | 77,631 | 77.6 |
+| `handpan-app/pionier-layout.css` | 54,122 | 54.1 |
+| `handpan-app/pionier-ambient.css` | 23,130 | 23.1 |
+| **Total (four linked stylesheets)** | **327,774** | **327.8** |
+
+**Optimized (CI workspace):** PurgeCSS + esbuild minify measured **246,589 bytes** across the four linked stylesheets (**24.8% smaller**), **3,411 bytes** under the 250,000-byte ceiling. Headroom is thin; new CSS should be paired with a budget check. Ideal target remains under **200 KB** after further source pruning.
 
 ## Reference screenshots — inspected individually
 
@@ -39,7 +54,7 @@ All six PNGs were visually inspected. The capture set shows the same dark, restr
 - Effects/filter controls and XY/effect surface (depending on active markup).
 - Looper/transport controls and loop/layer UI.
 - Soundscapes / Bedroom Sessions player entry points and playlist-related code.
-- Skin/customization and ambient modules remain. Learn styles were removed in the v167 cleanup; the ambient sequencer modules still exist and require an explicit product decision about whether they are supported or hidden.
+- Skin/customization and ambient modules remain. The multitrack step sequencer (`ambient-sequencer-grid.js`) is implemented; product unhide waits on real-device timing, level, and accessibility checks.
 
 ## Reported live-phone bugs — automated coverage status (2026-10-21)
 
@@ -63,8 +78,9 @@ Treat remaining gaps as release blockers until W2 Playwright suite closes them. 
 - `js/instruments/handpan.js` + `handpan-scales.js`: note layout, scale/root/transpose behavior, samples and synthesis fallback.
 - `js/gesture.js`, `js/pionier-surface.js`, `js/pad-layout.js`: pointer/gesture and radial interaction layers.
 - `js/looper.js`: current multi-layer looper with AudioWorklet recording, FREE/LOOP/BEAT/SERIAL modes, and an accessible unsupported-browser fallback. It still needs real-device audio and toolbar verification.
-- `screenshot-ui.css`, `legacy-hide.css`, `topbar-narrow.css`, `looper.css`, `scale-menu.css`, `atelier.css`, `ui-stability.css`: layered UI overrides. Their cascade is a likely source of regressions and needs consolidation only after behavior is stable.
-- `README.md`: says Bedroom Sessions is the owner's eight archive.org recordings only, no Learn mode, no third-party embeds and no generated ambience; it also notes the panel remains experimentally present.
+- `js/ambient-sequencer-grid.js`: four-voice, sixteen-step sequencer (active mount path); older single-pattern `ambient-sequencer.js` is legacy.
+- Layered UI override CSS files remain a cascade risk; consolidate only after behavior is stable.
+- `README.md`: Bedroom Sessions is the owner's archive.org recordings only; no third-party embeds and no generated ambience product surface.
 - Five/six reference screenshot assets live in the app folder.
 
 ## Reuse / rewrite / remove
@@ -75,6 +91,7 @@ Treat remaining gaps as release blockers until W2 Playwright suite closes them. 
 - Scale data and note-name calculation, after regression tests cover root/octave/note count.
 - Existing radial canvas/DOM surface and pointer-ID gesture foundation if hit-testing is sound.
 - Owner-only Bedroom Sessions source list/player assets.
+- Multitrack sequencer engine once device and a11y gates pass.
 
 ### Rewrite in small, independently testable steps
 - Skin/customization state-to-surface synchronization and pad hit testing.
@@ -82,11 +99,12 @@ Treat remaining gaps as release blockers until W2 Playwright suite closes them. 
 - Responsive layout and safe-area sizing; remove contradictory CSS only after visual baseline capture.
 - Looper UI and engine toward four fixed tracks, AudioContext-clock scheduling, explicit trim/export and automated drift tests.
 - Soundscapes navigation and loop-menu state so the main player and pan cannot leave overlays stuck.
+- Further CSS source pruning to regain headroom under ~200 KB optimized.
 
 ### Remove only after reference and dependency checks
-- Learn Mode runtime, styles, menu hooks and orphaned lesson modules.
-- Bird/kitchen instrument entries and generated ambience controls/beds.
+- Bird/kitchen instrument entries and generated ambience controls/beds if still present.
 - Dead/duplicate styles and unreachable customization UI. Do not delete assets/modules merely because a stylesheet currently hides their UI until imports and tests prove them unused.
+- Legacy single-pattern sequencer module once grid is the sole supported path.
 
 ## Validation status
 
@@ -94,21 +112,21 @@ Treat remaining gaps as release blockers until W2 Playwright suite closes them. 
 - [x] Six screenshot files located by repository tree.
 - [x] Active entry, core, stylesheet and handpan module inspected.
 - [x] Note-count range unified (8–13) and unit-tested (W1).
-- [x] deploy workflow runs smoke + unit + Playwright before Pages upload; a v167 deployment attempt was blocked by a brittle, incorrectly escaped CSS assertion (the source positioning rule is present). The over-escaped assertions were corrected on the readiness branch; the branch also adds a Vite build and minified CSS budget gate. Fresh CI is still pending.
+- [x] Optimized CSS measured at 246,589 bytes under a 250,000-byte gate (thin headroom).
 - [ ] Per-screenshot visual inventory and exact reference comparison.
 - [x] Phone bug #4 (root / note-count) covered by unit tests; others partial or planned for W2.
-- [ ] Automated tests at 360×640, 390×844 and tablet/desktop viewport (W2).
-- [ ] Real iOS Safari and Android Chrome checks for v167 (owner-gated; not performed by this audit).
+- [ ] Automated tests at 360×640, 390×844 and tablet/desktop viewport green on the release commit.
+- [ ] Real iOS Safari and Android Chrome checks for v168 (owner-gated).
 - [ ] Multitouch, rapid strikes, audio latency, looper drift, export, offline and VoiceOver/TalkBack checks.
 
 ## Release posture
 
-Do not claim the requested 8/10 reliability or production-readiness score until the blocker regressions and acceptance matrix pass. No live-device test is claimed here.
+Do not claim an 8/10 reliability or production-readiness score until the blocker regressions and acceptance matrix pass. No live-device or VoiceOver test is claimed here.
 
+## Release readiness — v168
 
-## Release readiness — v167
-
-- **Measured:** four source CSS files total 328,995 bytes (raw, before gzip/minification).
-- **Not measured:** final minified CSS bytes and JS bundle bytes until CI completes; mobile-device behavior remains untested.
-- **CI issue found:** the last deployment run failed at the looper-toolbar unit assertion because the regular expression was over-escaped; this was a test defect, not evidence that the positioning rule was missing.
-- **Release gate:** do not mark production-ready or assign a numeric readiness score until the corrected CI run passes, CSS/JS performance budgets are measured, and the real-device checklist is signed by a human tester.
+- **Measured:** four source CSS files ≈ 327.8 KB; optimized linked CSS **246.6 KB** of **250 KB**.
+- **Not measured this pass:** final production JS bundle; mobile-device behavior; VoiceOver/TalkBack.
+- **Headroom:** prefer further prune toward under 200 KB optimized before large new UI CSS.
+- **Sequencer:** grid implementation present; keep hidden or experimental until real-device timing, level, and accessibility pass.
+- **Release gate:** CI green on the exact commit, CSS budget held, human-signed device checklist for APP_VERSION 168.
