@@ -149,6 +149,10 @@ export function mountLooper({ root } = {}) {
   syncBtn.title = SYNC_MODES[0].title;
 
   const layers = [];
+  const exportBtn = ensureTimingButton('looperExportBtn', 'looper-export-btn', 'Export loop as WAV', '<span class="looper-timing-main">WAV</span>');
+  exportBtn.disabled = true;
+  rail.appendChild(exportBtn);
+  exportBtn.addEventListener('click', exportWav);
   let recording = false;
   let recChunks = null;
   let processor = null;
@@ -300,8 +304,73 @@ export function mountLooper({ root } = {}) {
     for (const layer of layers) applyLayerGain(layer);
   }
 
+  function exportWav() {
+    const audible = layers.filter((layer) => layer?.buffer && !effectiveMuted(layer));
+    if (!audible.length) return;
+    const sampleRate = audible[0].buffer.sampleRate || getAudioContext()?.sampleRate || 44100;
+    const totalFrames = Math.max(1, ...audible.map((layer) =>
+      Math.round((Math.max(0, Number(layer.offset) || 0) + layer.buffer.duration) * sampleRate)
+    ));
+    const left = new Float32Array(totalFrames);
+    const right = new Float32Array(totalFrames);
+
+    for (const layer of audible) {
+      const buffer = layer.buffer;
+      if (!buffer || typeof buffer.getChannelData !== 'function') continue;
+      const sourceLeft = buffer.getChannelData(0);
+      const sourceRight = buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : sourceLeft;
+      const offset = Math.round(Math.max(0, Number(layer.offset) || 0) * sampleRate);
+      const level = Math.max(0, Math.min(2, Number.isFinite(layer.level) ? layer.level : DEFAULT_LEVEL));
+      const pan = Math.max(-1, Math.min(1, Number(layer.pan) || 0));
+      const leftGain = pan > 0 ? 1 - pan : 1;
+      const rightGain = pan < 0 ? 1 + pan : 1;
+      const count = Math.min(sourceLeft.length, totalFrames - offset);
+      for (let i = 0; i < count; i++) {
+        left[offset + i] += sourceLeft[i] * level * leftGain;
+        right[offset + i] += sourceRight[i] * level * rightGain;
+      }
+    }
+
+    const dataBytes = totalFrames * 4;
+    const wav = new ArrayBuffer(44 + dataBytes);
+    const view = new DataView(wav);
+    const write = (offset, value) => {
+      for (let i = 0; i < value.length; i++) view.setUint8(offset + i, value.charCodeAt(i));
+    };
+    write(0, 'RIFF');
+    view.setUint32(4, 36 + dataBytes, true);
+    write(8, 'WAVE');
+    write(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 2, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 4, true);
+    view.setUint16(32, 4, true);
+    view.setUint16(34, 16, true);
+    write(36, 'data');
+    view.setUint32(40, dataBytes, true);
+    for (let i = 0; i < totalFrames; i++) {
+      const l = Math.max(-1, Math.min(1, left[i]));
+      const r = Math.max(-1, Math.min(1, right[i]));
+      view.setInt16(44 + i * 4, l < 0 ? l * 0x8000 : l * 0x7fff, true);
+      view.setInt16(46 + i * 4, r < 0 ? r * 0x8000 : r * 0x7fff, true);
+    }
+    const url = URL.createObjectURL(new Blob([wav], { type: 'audio/wav' }));
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'pionier-loop.wav';
+    anchor.style.display = 'none';
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
   function setBtnState() {
     const hasLayers = layers.length > 0;
+    exportBtn.disabled = !hasLayers || recording || pendingLoopStop || countInPending;
+    exportBtn.setAttribute('aria-disabled', String(exportBtn.disabled));
     btn.classList.toggle('is-recording', recording);
     btn.classList.toggle('has-layers', hasLayers);
     btn.classList.toggle('is-pending-stop', pendingLoopStop);

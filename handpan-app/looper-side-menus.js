@@ -1,6 +1,6 @@
 /**
  * Compact dropdown for base note on the looper rail.
- * Note-count control removed (Phase 1) — count follows active scale.
+ * Manual note-count controls are retired; only the dice chooses 8–13 tonefields.
  */
 (function looperSideMenus() {
   if (window.__pionierSideMenusV4) return;

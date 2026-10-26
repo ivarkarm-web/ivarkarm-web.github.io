@@ -18,7 +18,7 @@ Source file sizes read from the current `main` branch; these are repository byte
 | `handpan-app/pionier-ambient.css` | 23,130 | 23.1 |
 | **Total (four linked stylesheets)** | **327,782** | **327.8** |
 
-Target: below 250,000 UTF-8 bytes total for shipped CSS. The CI gate uses this same decimal-byte threshold. This baseline is **not yet passing**. No dead-rule removal or minified output is claimed by this measurement. The repository's `package.json` includes Vite, but `handpan-app/index.html` currently links these stylesheets directly; a Vite migration must preserve the GitHub Pages `/handpan-app/` path and service-worker cache behavior.
+Target: below 250,000 UTF-8 bytes total for shipped CSS. The CI gate uses this same decimal-byte threshold. This baseline is **not yet passing**. No dead-rule removal or minified output is claimed by this measurement. Pionier now has a CI-only PurgeCSS + esbuild CSS optimization step; JavaScript remains native ES modules. A Vite JS build is still deferred until its dynamic imports and service-worker cache paths can be preserved safely.
 
 ## First optimized build measurement (2026-10-26)
 

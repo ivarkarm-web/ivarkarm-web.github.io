@@ -353,8 +353,6 @@ test('dice randomizer replaces Learn and chooses a new instrument', async ({ pag
 });
 
 test('looper timing controls are aligned, count-in toggles, and metronome menu has ten click styles', async ({ page }) => {
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#toggleLooper').click();
   const controls = ['#looperClearBtn','#looperBtn','#looperCountInBtn','#looperMetronomeBtn','#looperBpmBtn'];
   for (const selector of controls) await expect(page.locator(selector)).toBeVisible();
   const sizes = await Promise.all(controls.map(selector => page.locator(selector).boundingBox()));
@@ -407,43 +405,43 @@ test('FX designer uses the compact main-FX width and drops in from the top', asy
 test('mobile scale controls remain visible without a hidden drawer toggle', async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.startsWith('mobile'), 'portrait layout only');
   await expect(page.locator('#scaleNext')).toBeVisible();
-  await expect(page.locator('#rootNext')).toBeVisible();
-  await expect(page.locator('#noteCountNext')).toBeVisible();
+  await expect(page.locator('#looperRootMenuBtn')).toBeVisible();
+  await expect(page.locator('#noteCountNext')).toBeHidden();
   await expect(page.locator('#mobileControlsToggle')).toBeHidden();
 });
 
-test('Soundscapes opens from the app menu and returns to the instrument', async ({ page }) => {
-  await page.locator('#topMenuBtn').click();
-  await expect(page.locator('#appMenu')).toBeVisible();
-  await page.locator('#tabSoundscapes').click();
-  const soundscapes = page.locator('#soundscapesPage');
-  await expect(soundscapes).toHaveClass(/is-active/);
+test('Soundscapes opens from the dock and returns to the instrument', async ({ page }) => {
+  await page.locator('#openSoundscapes').click();
+  const panel = page.locator('#soundscapesPanel');
+  await expect(panel).toBeVisible();
   await expect(page.locator('#soundscapeAudio')).toBeAttached();
   await expect(page.locator('#soundscapeQueue .soundscape-queue-item')).toHaveCount(8);
-  await page.locator('#tabHandpanFromSS').click();
-  await expect(soundscapes).not.toHaveClass(/is-active/);
+  await page.locator('#closeSoundscapes').click();
+  await expect(panel).toBeHidden();
   await expect(page.locator('#pan')).toBeVisible();
 });
 
 test('Soundscapes track controls update the selected Bedroom Sessions track', async ({ page }) => {
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#tabSoundscapes').click();
+  await page.locator('#openSoundscapes').click();
+  await expect(page.locator('#soundscapesPanel')).toBeVisible();
   await expect(page.locator('#soundscapeTitle')).toContainText('Improvisation 1');
   await page.locator('#soundscapeNext').click();
   await expect(page.locator('#soundscapeTitle')).toContainText('Improvisation 2');
   await page.locator('#soundscapePrev').click();
   await expect(page.locator('#soundscapeTitle')).toContainText('Improvisation 1');
+  await page.locator('#closeSoundscapes').click();
 });
 
-test('Soundscapes exposes the User-Created collection without generated ambience beds', async ({ page }) => {
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#tabSoundscapes').click();
-  await page.locator('#soundscapeCommunityTab').click();
-  await expect(page.locator('#soundscapeCommunityQueue')).toBeAttached();
+test('Soundscapes exposes the eight owner recordings without generated ambience beds', async ({ page }) => {
+  await page.locator('#openSoundscapes').click();
+  await expect(page.locator('#soundscapesPanel')).toBeVisible();
+  await expect(page.locator('#soundscapeQueue .soundscape-queue-item')).toHaveCount(8);
   const legacyAmbientPlayer = await page.evaluate(() => !!window.PionierBackdropPlayer);
   expect(legacyAmbientPlayer).toBe(false);
   await expect(page.locator('#ambientFxCanvas')).toHaveCount(0);
+  await page.locator('#closeSoundscapes').click();
 });
+
 
 test('note count starts at eight; randomizer chooses 8–13 and scale/instrument changes preserve it', async ({ page }) => {
   const result = await page.evaluate(async () => {
@@ -487,35 +485,31 @@ test('mobile instrument and scale pickers open as visible, tappable sheets', asy
   await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.noteCount)).toBe(8);
 });
 
-test('desktop scale, base-note and octave steppers update the shared handpan state', async ({ page }, testInfo) => {
+test('desktop scale and base-note selectors update the shared handpan state', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.startsWith('mobile'), 'desktop control layout only');
   await page.setViewportSize({ width: 1280, height: 800 });
-  const before = await page.evaluate(() => {
-    const h = window.PionierCore.handpan;
-    return { scale: h.scaleIndex, root: h.rootIndex, octave: h.octaveOffset };
-  });
-  await page.locator('#rootNextDesktop').click();
-  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.rootIndex)).toBe((before.root + 1) % 12);
-  await page.locator('#octaveNext').click();
-  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.octaveOffset)).toBe(Math.min(1, before.octave + 1));
-  const { scaleBefore, scaleCount } = await page.evaluate(() => ({
-    scaleBefore: window.PionierCore.handpan.scaleIndex,
+  const before = await page.evaluate(() => ({
+    scale: window.PionierCore.handpan.scaleIndex,
+    root: window.PionierCore.handpan.rootIndex,
     scaleCount: window.HANDPAN_SCALES.length
   }));
-  await page.locator('#scaleNextDesktop').click();
-  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.scaleIndex)).toBe((scaleBefore + 1) % scaleCount);
-  await page.locator('#scaleLabelDesktop').click();
+  await page.locator('#scaleNext').click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.scaleIndex)).toBe((before.scale + 1) % before.scaleCount);
+  await page.locator('#scaleLabel').click();
   await expect(page.locator('#scaleMenu')).toBeVisible();
-  await expect(page.locator('#scaleLabelDesktop')).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('#scaleLabel')).toHaveAttribute('aria-expanded', 'true');
+  await page.locator('#looperRootMenuBtn').click();
+  await expect(page.locator('#looperRootMenu')).toBeVisible();
+  const targetRoot = (before.root + 1) % 12;
+  await page.locator('#looperRootMenu button[role="option"]').nth(targetRoot).click();
+  await expect.poll(() => page.evaluate(() => window.PionierCore.handpan.rootIndex)).toBe(targetRoot);
 });
 
 
 test('Loop Studio is reachable and the four-track controls fit the viewport', async ({ page }) => {
   await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#toggleLooper').click();
-  const rail = page.locator('#looperRail');
-  await expect(rail).toBeVisible();
+  await expect(page.locator('#pionierBottomDock')).toBeVisible();
+  await expect(page.locator('#pionierLooperToolbar')).toBeVisible();
   await expect(page.locator('#looperBtn')).toBeVisible();
   await expect(page.locator('#looperExportBtn')).toBeDisabled();
   const state = await page.evaluate(() => window.PionierLooper.getState());
@@ -544,8 +538,6 @@ test('Loop Studio exports a valid WAV mix after a track exists', async ({ page }
     });
     window.PionierLooper.refresh();
   });
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#toggleLooper').click();
   const downloadPromise = page.waitForEvent('download');
   await page.locator('#looperExportBtn').click();
   const download = await downloadPromise;
@@ -555,8 +547,6 @@ test('Loop Studio exports a valid WAV mix after a track exists', async ({ page }
 
 test('Loop Studio records and overdubs a second independent track', async ({ page }) => {
   await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
-  await page.locator('#topMenuBtn').click();
-  await page.locator('#toggleLooper').click();
   const record = page.locator('#looperBtn');
   await record.click();
   await page.waitForTimeout(320);

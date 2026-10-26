@@ -114,6 +114,7 @@
     var fx = document.getElementById('fxPanelOpen');
     var customize = document.getElementById('settingsOpenBtn');
     [soundscapes, fx, customize].forEach(function (el) { appendIfNeeded(actionGroup, el); });
+    appendIfNeeded(actionGroup, document.getElementById('looperExportBtn'));
     appendIfNeeded(actionGroup, document.getElementById('looperSaveBtn'));
 
     var layers = document.getElementById('looperLayers');
