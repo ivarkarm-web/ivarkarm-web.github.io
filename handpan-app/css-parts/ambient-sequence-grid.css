@@ -1,4 +1,4 @@
-/* Ambient step sequencer — fit-to-screen, modern square cells */
+/* Ambient step sequencer — fit-to-screen, modern square cells + card carousel */
 .pionier-sequence-edge {
   position: fixed; right: 12px; bottom: 80px; z-index: 42;
   width: 44px; height: 44px; border-radius: 4px;
@@ -6,9 +6,12 @@
   background: #1a1f1b;
   color: #e8dfc4; font-size: 16px; cursor: pointer;
   box-shadow: 0 4px 16px rgba(0,0,0,.4);
+  transition: opacity .22s ease, transform .22s ease;
 }
 .pionier-sequence-edge:hover { border-color: #f0d99a; background: #222822; }
+body.pionier-sequence-open .pionier-sequence-edge { opacity: 0; pointer-events: none; transform: translateX(8px); }
 
+/* Card carousel: sequencer slides in from the right; handpan eases left + fades */
 .pionier-sequence {
   position: fixed; inset: 0; z-index: 60;
   display: grid;
@@ -21,8 +24,76 @@
   height: 100dvh;
   max-height: 100dvh;
   box-sizing: border-box;
+  opacity: 0;
+  transform: translate3d(100%, 0, 0);
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity .34s ease,
+    transform .4s cubic-bezier(.22, .82, .2, 1),
+    visibility 0s linear .4s;
+  will-change: transform, opacity;
 }
-.pionier-sequence[hidden] { display: none !important; }
+.pionier-sequence.is-open {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    opacity .34s ease,
+    transform .4s cubic-bezier(.22, .82, .2, 1),
+    visibility 0s linear 0s;
+}
+/* Keep layout during exit animation; only hide fully after transition (JS sets [hidden]) */
+.pionier-sequence[hidden]:not(.is-open) {
+  display: grid !important;
+  opacity: 0;
+  transform: translate3d(100%, 0, 0);
+  visibility: hidden;
+  pointer-events: none;
+}
+.pionier-sequence[hidden].is-settled {
+  display: none !important;
+}
+
+#app {
+  transition:
+    transform .4s cubic-bezier(.22, .82, .2, 1),
+    opacity .34s ease,
+    filter .34s ease;
+  will-change: transform, opacity;
+  transform-origin: center center;
+}
+body.pionier-sequence-open #app {
+  transform: translate3d(-22%, 0, 0) scale(0.96);
+  opacity: 0.28;
+  filter: blur(1.5px);
+  pointer-events: none;
+}
+body.pionier-sequence-open #app .topbar,
+body.pionier-sequence-open #app .mobile-control-drawer,
+body.pionier-sequence-open #app .looper-rail {
+  opacity: 0;
+  transition: opacity .28s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pionier-sequence,
+  .pionier-sequence.is-open,
+  #app,
+  body.pionier-sequence-open #app,
+  .pionier-sequence-edge {
+    transition: none !important;
+  }
+  body.pionier-sequence-open #app {
+    filter: none;
+    transform: none;
+    opacity: 0;
+  }
+  .pionier-sequence {
+    transform: none;
+  }
+}
 
 .pionier-sequence .sequence-topbar {
   display: flex; align-items: center; justify-content: space-between;
@@ -289,6 +360,9 @@
 @media (max-width: 560px) {
   .pionier-sequence {
     padding: max(4px, env(safe-area-inset-top)) 6px max(6px, env(safe-area-inset-bottom));
+  }
+  body.pionier-sequence-open #app {
+    transform: translate3d(-16%, 0, 0) scale(0.97);
   }
   .pionier-sequence .sequence-grid-head,
   .pionier-sequence .sequence-row {
