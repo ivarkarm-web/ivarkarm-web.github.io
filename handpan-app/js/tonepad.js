@@ -447,10 +447,10 @@ export function mountTonepad() {
     }
   }
 
-  window.addEventListener('pointerdown', onDown, { passive: true });
-  window.addEventListener('pointermove', onMove, { passive: true });
-  window.addEventListener('pointerup', onUp, { passive: true });
-  window.addEventListener('pointercancel', onUp, { passive: true });
+  window.addEventListener('pointerdown', onDown, { capture: true, passive: true });
+  window.addEventListener('pointermove', onMove, { capture: true, passive: true });
+  window.addEventListener('pointerup', onUp, { capture: true, passive: true });
+  window.addEventListener('pointercancel', onUp, { capture: true, passive: true });
   window.addEventListener('resize', resizeCanvas);
   window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 200));
 
