@@ -1,0 +1,31 @@
+name: Expand package-lock
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/lock-parts/**'
+      - 'scripts/ensure-lock.mjs'
+    branches: [main]
+jobs:
+  expand:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Reconstruct full package-lock.json
+        run: node scripts/ensure-lock.mjs
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          if git diff --staged --quiet; then
+            echo "No changes"
+          else
+            git commit -m "chore: expand package-lock.json to full dependency tree"
+            git push
+          fi
