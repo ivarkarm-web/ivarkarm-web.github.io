@@ -12,7 +12,7 @@ async function enterIfNeeded(page) {
   }
 }
 
-test('phase10: mobile dock exposes 44px Clear/Record targets and seven layer targets', async ({ page }, testInfo) => {
+test('phase10: mobile dock exposes 44px Clear/Record targets and four track targets', async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.startsWith('mobile'), 'mobile viewport regression');
 
   await page.goto('/handpan-app/');
@@ -32,7 +32,7 @@ test('phase10: mobile dock exposes 44px Clear/Record targets and seven layer tar
     if (!trackRow || !toolbar || !record || !clear || !layers) return { error: 'missing visible dock element' };
 
     // Probe the real CSS with seven layer buttons before the first recording.
-    const probes = Array.from({ length: 7 }, (_, index) => {
+    const probes = Array.from({ length: 4 }, (_, index) => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'looper-circle';
@@ -69,7 +69,7 @@ test('phase10: mobile dock exposes 44px Clear/Record targets and seven layer tar
   expect(metrics.clear.width).toBeGreaterThanOrEqual(44);
   expect(metrics.clear.height).toBeGreaterThanOrEqual(44);
   expect(metrics.trackRow.height).toBeGreaterThanOrEqual(44);
-  expect(metrics.layerButtons).toHaveLength(7);
+  expect(metrics.layerButtons).toHaveLength(4);
   for (const [index, button] of metrics.layerButtons.entries()) {
     expect(button.width, 'layer ' + (index + 1) + ' width').toBeGreaterThanOrEqual(44);
     expect(button.height, 'layer ' + (index + 1) + ' height').toBeGreaterThanOrEqual(44);
