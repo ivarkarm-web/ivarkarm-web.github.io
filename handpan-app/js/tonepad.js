@@ -53,9 +53,10 @@ export function mountTonepad() {
     const style = document.createElement('style');
     style.id = 'tonepad-css';
     style.textContent = [
-      '.tonepad-layer{position:fixed;left:0;right:0;z-index:12;overflow:hidden;background:#070807;transform:translateX(-105%);pointer-events:none;touch-action:none}',
+      '#stage{overflow:hidden}',
+      '#pan{will-change:transform}',
+      '.tonepad-layer{position:fixed;z-index:12;overflow:hidden;background:#070807;pointer-events:none;touch-action:none;will-change:transform}',
       'body.tonepad-open .tonepad-layer{pointer-events:auto}',
-      'body.tonepad-open #pan{visibility:hidden}',
       '.tonepad-layer canvas{display:block;width:100%;height:100%;touch-action:none}'
     ].join('');
     document.head.appendChild(style);
@@ -80,23 +81,60 @@ export function mountTonepad() {
   let anchor = 0;
   let lastVisStep = -1;
   let raf = 0;
+  // Horizontal instrument carousel. Page 0 is the handpan, page 1 is this grid.
+  // Later instruments append to PAGES and the same edge-swipe moves between them.
+  const PAGES = ['handpan', 'tonepad'];
+  let page = 0;
+  let dragDx = null;
+
+  function homeBox() {
+    const pan = document.getElementById('pan');
+    const stage = document.getElementById('stage');
+    if (!pan || !stage) return null;
+    const sr = stage.getBoundingClientRect();
+    return {
+      left: sr.left + pan.offsetLeft,
+      top: sr.top + pan.offsetTop,
+      width: pan.offsetWidth || sr.width,
+      height: pan.offsetHeight || sr.height
+    };
+  }
 
   function place() {
-    const topbar = document.querySelector('#app > .topbar');
-    const rail = document.getElementById('looperRail');
-    const top = topbar ? Math.max(0, topbar.getBoundingClientRect().bottom) : 0;
-    const railTop = rail ? rail.getBoundingClientRect().top : window.innerHeight - 160;
-    const h = Math.max(160, railTop - top);
-    layer.style.top = top + 'px';
-    layer.style.height = h + 'px';
+    const box = homeBox();
+    if (!box) return;
+    const stage = document.getElementById('stage');
+    if (stage) stage.style.overflow = 'hidden';
+    layer.style.left = box.left + 'px';
+    layer.style.top = box.top + 'px';
+    layer.style.width = box.width + 'px';
+    layer.style.height = box.height + 'px';
+    layer.style.right = 'auto';
+  }
+
+  function shiftCarousel(animate) {
+    const box = homeBox();
+    if (!box) return;
+    place();
+    const dx = dragDx || 0;
+    const x = -page * box.width + dx;
+    const tr = animate ? 'transform .36s cubic-bezier(.22,.85,.2,1)' : 'none';
+    const pan = document.getElementById('pan');
+    if (pan) {
+      pan.style.transition = tr;
+      pan.style.transform = `translate3d(${x}px,0,0)`;
+    }
+    layer.style.transition = tr;
+    layer.style.transform = `translate3d(${x + box.width}px,0,0)`;
   }
 
   function resizeCanvas() {
     place();
-    const r = layer.getBoundingClientRect();
+    const box = homeBox();
+    if (!box) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
-    const w = Math.max(1, Math.floor(r.width * dpr));
-    const h = Math.max(1, Math.floor(r.height * dpr));
+    const w = Math.max(1, Math.floor(box.width * dpr));
+    const h = Math.max(1, Math.floor(box.height * dpr));
     if (canvas.width !== w || canvas.height !== h) {
       canvas.width = w;
       canvas.height = h;
@@ -332,12 +370,13 @@ export function mountTonepad() {
     raf = requestAnimationFrame(draw);
   }
 
-  function setOpen(next) {
-    open = next;
+  function setPage(next, animate) {
+    page = Math.max(0, Math.min(PAGES.length - 1, next));
+    dragDx = null;
+    open = page === 1;
     document.body.classList.toggle('tonepad-open', open);
     layer.setAttribute('aria-hidden', open ? 'false' : 'true');
-    layer.style.transition = 'transform .32s cubic-bezier(.2,.8,.2,1)';
-    layer.style.transform = open ? 'translateX(0)' : 'translateX(-105%)';
+    shiftCarousel(animate);
     if (open) {
       start();
       resizeCanvas();
@@ -346,10 +385,8 @@ export function mountTonepad() {
     }
   }
 
-  // Draw gesture
+  // Draw on the grid. Navigation is only from the screen edges, so drawing stays free.
   let mode = null;
-  let sx = 0;
-  let sy = 0;
   let pid = null;
   const seen = new Set();
 
@@ -365,16 +402,10 @@ export function mountTonepad() {
 
   canvas.addEventListener('pointerdown', (e) => {
     if (!open) return;
+    if (e.clientX < 28 || e.clientX > window.innerWidth - 28) return;
     canvas.setPointerCapture?.(e.pointerId);
     pid = e.pointerId;
-    sx = e.clientX; sy = e.clientY;
     seen.clear();
-    const rect = canvas.getBoundingClientRect();
-    const localX = e.clientX - rect.left;
-    if (localX < 22) {
-      mode = 'maybe-back';
-      return;
-    }
     const hit = cellAt(e.clientX, e.clientY);
     mode = hit && grid[idx(hit.col, hit.row)] ? 'erase' : 'paint';
     applyAt(e.clientX, e.clientY);
@@ -382,21 +413,6 @@ export function mountTonepad() {
 
   canvas.addEventListener('pointermove', (e) => {
     if (pid !== e.pointerId || !mode) return;
-    if (mode === 'maybe-back') {
-      const dx = e.clientX - sx;
-      const dy = e.clientY - sy;
-      if (dx < -56 && Math.abs(dy) < 48) {
-        mode = null;
-        setOpen(false);
-        return;
-      }
-      if (Math.hypot(dx, dy) > 14) {
-        const hit = cellAt(sx, sy);
-        mode = hit && grid[idx(hit.col, hit.row)] ? 'erase' : 'paint';
-        applyAt(e.clientX, e.clientY);
-      }
-      return;
-    }
     applyAt(e.clientX, e.clientY);
   });
 
@@ -409,58 +425,65 @@ export function mountTonepad() {
   canvas.addEventListener('pointerup', endDraw);
   canvas.addEventListener('pointercancel', endDraw);
 
-  // Swipe the handpan to the right to reveal the sequencer.
+  // Edge swipe: from the right edge, drag left to the next instrument.
+  // From the left edge, drag right to the previous one.
+  const EDGE = 32;
   let swipe = null;
   function onDown(e) {
-    if (open) return;
-    if (e.target.closest && e.target.closest('#looperRail, .topbar, #pionierBottomDock, #fxPanel, button, a, input')) return;
-    const stage = document.getElementById('stage');
-    const pan = document.getElementById('pan');
-    if (!stage) return;
-    if (e.target !== pan && e.target !== stage && !stage.contains(e.target)) return;
-    swipe = { x: e.clientX, y: e.clientY, id: e.pointerId, active: false };
+    if (swipe) return;
+    if (e.target.closest && e.target.closest('#looperRail, .topbar, #pionierBottomDock, #fxPanel, #pionierWelcome, button, a, input')) return;
+    const fromRight = e.clientX >= window.innerWidth - EDGE && page < PAGES.length - 1;
+    const fromLeft = e.clientX <= EDGE && page > 0;
+    if (!fromRight && !fromLeft) return;
+    swipe = { x: e.clientX, y: e.clientY, id: e.pointerId, dir: fromRight ? 1 : -1, active: false };
   }
   function onMove(e) {
-    if (!swipe || swipe.id !== e.pointerId || open) return;
+    if (!swipe || swipe.id !== e.pointerId) return;
     const dx = e.clientX - swipe.x;
     const dy = e.clientY - swipe.y;
+    const toward = swipe.dir === 1 ? dx < -8 : dx > 8;
     if (!swipe.active) {
-      if (Math.abs(dx) < 12 && Math.abs(dy) < 12) return;
-      if (dx > 10 && dx > Math.abs(dy) * 1.35) swipe.active = true;
-      else if (Math.abs(dy) > Math.abs(dx)) { swipe = null; return; }
-      else return;
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+      if (toward && Math.abs(dx) > Math.abs(dy) * 1.2) swipe.active = true;
+      else { swipe = null; return; }
     }
-    const w = window.innerWidth || 1;
-    const p = Math.max(0, Math.min(1, dx / Math.min(w * 0.55, 280)));
-    layer.style.transition = 'none';
-    layer.style.transform = `translateX(${(-105 + p * 105).toFixed(2)}%)`;
+    const box = homeBox();
+    const w = box ? box.width : window.innerWidth;
+    const capped = swipe.dir === 1 ? Math.max(-w, Math.min(0, dx)) : Math.min(w, Math.max(0, dx));
+    dragDx = capped;
+    shiftCarousel(false);
   }
   function onUp(e) {
     if (!swipe || swipe.id !== e.pointerId) return;
     const dx = e.clientX - swipe.x;
+    const dir = swipe.dir;
     const was = swipe.active;
     swipe = null;
-    if (was && dx > 72) setOpen(true);
-    else {
-      layer.style.transition = 'transform .28s cubic-bezier(.2,.8,.2,1)';
-      layer.style.transform = 'translateX(-105%)';
-    }
+    const box = homeBox();
+    const w = box ? box.width : 240;
+    if (was && dir === 1 && dx < -Math.min(72, w * 0.22)) setPage(page + 1, true);
+    else if (was && dir === -1 && dx > Math.min(72, w * 0.22)) setPage(page - 1, true);
+    else setPage(page, true);
   }
 
   window.addEventListener('pointerdown', onDown, { capture: true, passive: true });
   window.addEventListener('pointermove', onMove, { capture: true, passive: true });
   window.addEventListener('pointerup', onUp, { capture: true, passive: true });
   window.addEventListener('pointercancel', onUp, { capture: true, passive: true });
-  window.addEventListener('resize', resizeCanvas);
-  window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 200));
+  window.addEventListener('resize', () => { dragDx = null; shiftCarousel(false); resizeCanvas(); });
+  window.addEventListener('orientationchange', () => setTimeout(() => { dragDx = null; shiftCarousel(false); resizeCanvas(); }, 200));
 
-  layer.style.transform = 'translateX(-105%)';
-  resizeCanvas();
+  setPage(0, false);
   raf = requestAnimationFrame(draw);
 
+  window.PionierStageCarousel = {
+    pages: PAGES,
+    index: () => page,
+    go(i) { setPage(i, true); }
+  };
   window.PionierTonepad = {
-    open: () => setOpen(true),
-    close: () => setOpen(false),
-    toggle: () => setOpen(!open)
+    open: () => setPage(1, true),
+    close: () => setPage(0, true),
+    toggle: () => setPage(page === 1 ? 0 : 1, true)
   };
 }
