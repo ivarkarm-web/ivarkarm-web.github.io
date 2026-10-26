@@ -44,7 +44,7 @@ for (const rel of cssRefs) {
 }
 // Match the documented decimal-kilobyte target: strictly under 250,000 bytes.
 const cssBudget = 250_000;
-const cssOk = cssSum <= cssBudget;
+const cssOk = cssSum < cssBudget;
 console.log((cssOk ? 'OK' : 'FAIL') + '  critical CSS sum  ' + cssSum + ' / ' + cssBudget + ' bytes (' + cssRefs.length + ' files)');
 if (!cssOk) failed = true;
 
