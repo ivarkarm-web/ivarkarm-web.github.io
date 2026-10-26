@@ -11,22 +11,23 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
 
-/** Resolve a linked stylesheet, following local @import url(...) chains once. */
-function readCssResolved(rel) {
-  const baseDir = path.dirname(path.join(root, rel));
-  const seen = new Set();
-  const visit = (filePath) => {
-    const abs = path.resolve(filePath);
-    if (seen.has(abs) || !fs.existsSync(abs)) return '';
-    seen.add(abs);
-    let text = fs.readFileSync(abs, 'utf8');
-    text = text.replace(/@import\s+url\(['"]?(\.\/[^'")]+)['"]?\)\s*;?/g, (_, ref) => {
-      const target = path.resolve(path.dirname(abs), ref);
-      return `/* inlined ${ref} */\n` + visit(target);
-    });
-    return text;
-  };
-  return visit(path.join(root, rel));
+/** Layout CSS may be an @import shell or split under css-parts/. Always aggregate. */
+function readLayoutCss() {
+  const partsDir = path.join(root, 'handpan-app/css-parts');
+  const partFiles = fs.existsSync(partsDir)
+    ? fs.readdirSync(partsDir).filter((n) => n.startsWith('layout-') && n.endsWith('.css')).sort()
+    : [];
+  if (partFiles.length) {
+    return partFiles.map((n) => fs.readFileSync(path.join(partsDir, n), 'utf8')).join('\n');
+  }
+  const shell = path.join(root, 'handpan-app/pionier-layout.css');
+  if (!fs.existsSync(shell)) return '';
+  let text = fs.readFileSync(shell, 'utf8');
+  text = text.replace(/@import\s+url\(['"]?(\.\/[^'")]+)['"]?\)\s*;?/g, (_, ref) => {
+    const target = path.resolve(path.dirname(shell), ref);
+    return fs.existsSync(target) ? fs.readFileSync(target, 'utf8') : '';
+  });
+  return text;
 }
 
 test('legacy root/note-count steppers are retired: markup exists, guards hide them, core cannot grow note count', () => {
@@ -81,7 +82,7 @@ test('overlay controller owns pickers and control layout positions the looper to
 });
 
 test('consolidated layout CSS owns the relative looper toolbar and fixed-size controls', () => {
-  const css = readCssResolved('handpan-app/pionier-layout.css');
+  const css = readLayoutCss();
   assert.ok(css.length > 1000, 'layout CSS (including parts) should be substantial');
   const toolbarRules = [...css.matchAll(/#pionierLooperToolbar\s*\{([^}]*)\}/g)].map((m) => m[1]);
   assert.ok(toolbarRules.some((rule) => /position:\s*relative/.test(rule)), 'toolbar must have a relative-position rule');
@@ -140,6 +141,7 @@ test('portrait lock does not request deleted CSS patches and all linked styleshe
   assert.doesNotMatch(portrait, /ui-hotfix\.css|android-picker-scroll\.css/);
   const html = read('handpan-app/index.html');
   const refs = [...html.matchAll(/href=["']\.\/([^"'?]+\.css)(?:\?[^"']*)?["']/g)].map((m) => m[1]);
-  assert.ok(refs.length >= 4, 'expected the four primary Pionier stylesheets');
+  assert.ok(refs.length >= 4, 'expected primary Pionier stylesheets (base/controls + layout/ambient parts)');
   for (const ref of refs) assert.equal(fs.existsSync(path.join(root, 'handpan-app', ref)), true, 'missing linked stylesheet: ' + ref);
+  assert.ok(refs.some((r) => r.includes('css-parts/layout-')), 'layout should be linked as css-parts for parallel fetch');
 });
