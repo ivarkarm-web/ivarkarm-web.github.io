@@ -1,6 +1,6 @@
 # Pionier — playable handpan
 
-Mobile-first virtual handpan on GitHub Pages. Static files only (ES modules, no build step).
+Mobile-first virtual handpan on GitHub Pages. The app remains native HTML/CSS/ES modules; CI purges unused CSS and minifies the linked stylesheets before deployment. JavaScript bundling is not yet enabled for Pionier.
 
 Live: https://ivarkarm-web.github.io/handpan-app/
 
@@ -10,7 +10,7 @@ Live: https://ivarkarm-web.github.io/handpan-app/
 - Multiple scales and roots
 - Sampled notes where available, synthesis fallback
 - Instrument voices (handpan + library / ambient synths)
-- Looper
+- Four-track looper
 - **Bedroom Sessions** soundscapes — the owner’s eight archive.org recordings only
 - Skins and mandalas
 
@@ -32,15 +32,15 @@ Live: https://ivarkarm-web.github.io/handpan-app/
 | Input | Action |
 |-------|--------|
 | Touch / mouse | Strike pads; multi-touch chords |
-| Keys `1`–`9` or `Q`–`O` | Pads 0–8 (hold to sustain) |
-| Bottom bar | Instrument, scale, base note, note count |
+| Keys `Q W E R T Y U I O P A S D` | Pads 0–12 (hold to sustain) |
+| Bottom dock | Instrument, scale, base note; dice randomizes the note count (8–13) |
 | ♫ | Bedroom Sessions player |
 
 Audio unlocks on the first gesture (required by browsers, including iOS Safari).
 
 ## Stack
 
-Plain HTML/CSS/JS on GitHub Pages. Service worker (`sw.js`) uses network-first HTML and cache-first assets. See `ARCHITECTURE.md`.
+Plain HTML/CSS/JS on GitHub Pages. CI runs PurgeCSS + esbuild to remove unused CSS and minify the production stylesheets; JavaScript is still served as native ES modules. Service worker (`sw.js`) uses network-first HTML and cache-first assets. See `ARCHITECTURE.md`.
 
 ## Develop
 
