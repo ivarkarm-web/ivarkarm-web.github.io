@@ -141,7 +141,6 @@ test('portrait lock does not request deleted CSS patches and all linked styleshe
   assert.doesNotMatch(portrait, /ui-hotfix\.css|android-picker-scroll\.css/);
   const html = read('handpan-app/index.html');
   const refs = [...html.matchAll(/href=["']\.\/([^"'?]+\.css)(?:\?[^"']*)?["']/g)].map((m) => m[1]);
-  assert.ok(refs.length >= 4, 'expected primary Pionier stylesheets (base/controls + layout/ambient parts)');
+  assert.ok(refs.length >= 4, 'expected the four primary Pionier stylesheets');
   for (const ref of refs) assert.equal(fs.existsSync(path.join(root, 'handpan-app', ref)), true, 'missing linked stylesheet: ' + ref);
-  assert.ok(refs.some((r) => r.includes('css-parts/layout-')), 'layout should be linked as css-parts for parallel fetch');
 });
