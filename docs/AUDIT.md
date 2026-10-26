@@ -13,13 +13,15 @@ Source file sizes from repository byte counts (not transfer size).
 
 | Stylesheet | Bytes | Decimal kB |
 |---|---:|---:|
-| `handpan-app/pionier-base.css` | 172,891 | 172.9 |
-| `handpan-app/pionier-controls.css` | 77,631 | 77.6 |
-| `handpan-app/pionier-layout.css` | 54,122 | 54.1 |
-| `handpan-app/pionier-ambient.css` | 23,130 | 23.1 |
-| **Total (four linked stylesheets)** | **327,774** | **327.8** |
+| `handpan-app/pionier-base.css` | 158,280 | 158.3 |
+| `handpan-app/pionier-controls.css` | 74,098 | 74.1 |
+| `handpan-app/pionier-layout.css` | 53,197 | 53.2 |
+| `handpan-app/pionier-ambient.css` | 23,123 | 23.1 |
+| **Total (four linked stylesheets)** | **308,698** | **308.7** |
 
-**Optimized (CI workspace):** PurgeCSS + esbuild minify measured **246,589 bytes** across the four linked stylesheets (**24.8% smaller**), **3,411 bytes** under the 250,000-byte ceiling. Headroom is thin; new CSS should be paired with a budget check. Ideal target remains under **200 KB** after further source pruning.
+**Optimized (CI workspace, pre-prune):** PurgeCSS + esbuild minify measured **246,589 bytes** across the four linked stylesheets (**24.8% smaller** than the prior 327.8 KB source), **3,411 bytes** under the 250,000-byte ceiling. Headroom is thin; new CSS should be paired with a budget check. Ideal target remains under **200 KB** after further source pruning.
+
+**Source prune (2026-10-26):** Removed confirmed-unused rules (backdrop-player/bp-*, removed note-plus UI, disabled mandala decorations, orphan effect-bubble/dock/stage-scale/sound-dock helpers, and other selectors with zero HTML/JS references). Source total **308,698** bytes (−19.1 KB). Optimized size still requires a fresh CI `optimize:handpan-css` measurement; expect additional headroom beyond the prior 246,589-byte result.
 
 ## Reference screenshots — inspected individually
 
@@ -112,7 +114,8 @@ Treat remaining gaps as release blockers until W2 Playwright suite closes them. 
 - [x] Six screenshot files located by repository tree.
 - [x] Active entry, core, stylesheet and handpan module inspected.
 - [x] Note-count range unified (8–13) and unit-tested (W1).
-- [x] Optimized CSS measured at 246,589 bytes under a 250,000-byte gate (thin headroom).
+- [x] Optimized CSS measured at 246,589 bytes under a 250,000-byte gate (thin headroom, pre-prune).
+- [x] Dead-rule source prune to 308,698 bytes (confirmed-unused selectors only).
 - [ ] Per-screenshot visual inventory and exact reference comparison.
 - [x] Phone bug #4 (root / note-count) covered by unit tests; others partial or planned for W2.
 - [ ] Automated tests at 360×640, 390×844 and tablet/desktop viewport green on the release commit.
@@ -125,8 +128,8 @@ Do not claim an 8/10 reliability or production-readiness score until the blocker
 
 ## Release readiness — v168
 
-- **Measured:** four source CSS files ≈ 327.8 KB; optimized linked CSS **246.6 KB** of **250 KB**.
-- **Not measured this pass:** final production JS bundle; mobile-device behavior; VoiceOver/TalkBack.
+- **Measured:** four source CSS files **308.7 KB** after dead-rule prune (was 327.8 KB); prior optimized linked CSS **246.6 KB** of **250 KB** (re-measure after prune).
+- **Not measured this pass:** final production JS bundle; post-prune optimized CSS; mobile-device behavior; VoiceOver/TalkBack.
 - **Headroom:** prefer further prune toward under 200 KB optimized before large new UI CSS.
 - **Sequencer:** grid implementation present; keep hidden or experimental until real-device timing, level, and accessibility pass.
 - **Release gate:** CI green on the exact commit, CSS budget held, human-signed device checklist for APP_VERSION 168.
