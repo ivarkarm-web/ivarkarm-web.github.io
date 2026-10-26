@@ -107,7 +107,7 @@ async function loadSoundscapes() {
 
 async function loadAmbientSequencer() {
   try {
-    const { mountAmbientSequencer } = await import(new URL('./js/ambient-sequencer-grid.js?v=8', BASE).href);
+    const { mountAmbientSequencer } = await import(new URL('./js/ambient-sequencer-grid.js?v=9', BASE).href);
     if (typeof mountAmbientSequencer === 'function') await mountAmbientSequencer();
   } catch (e) {
     console.warn('[boot] ambient sequencer', e);
