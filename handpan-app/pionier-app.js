@@ -39,6 +39,15 @@ function unlockAudioFromGesture() {
 let HANDPAN_SCALES = [];
 let deferredStarted = false;
 
+async function loadMasterClock() {
+  try {
+    const { getMasterClock } = await import(new URL('./js/master-clock.js?v=1', BASE).href);
+    getMasterClock();
+  } catch (e) {
+    console.warn('[boot] master clock', e);
+  }
+}
+
 async function loadLooper() {
   try {
     const { mountLooper } = await import(new URL('./js/looper.js?v=239', BASE).href);
@@ -98,7 +107,7 @@ async function loadSoundscapes() {
 
 async function loadAmbientSequencer() {
   try {
-    const { mountAmbientSequencer } = await import(new URL('./js/ambient-sequencer-grid.js?v=6', BASE).href);
+    const { mountAmbientSequencer } = await import(new URL('./js/ambient-sequencer-grid.js?v=7', BASE).href);
     if (typeof mountAmbientSequencer === 'function') await mountAmbientSequencer();
   } catch (e) {
     console.warn('[boot] ambient sequencer', e);
@@ -109,12 +118,14 @@ function scheduleDeferredFeatures() {
   if (deferredStarted) return;
   deferredStarted = true;
   const run = () => {
-    loadLooper();
+    loadMasterClock().then(() => {
+      loadLooper();
+      loadAmbientSequencer();
+    });
     loadFxEditor();
     loadArps();
     loadNotePlus();
     loadSoundscapes();
-    loadAmbientSequencer();
   };
   if ('requestIdleCallback' in window) {
     requestIdleCallback(run, { timeout: 2500 });
