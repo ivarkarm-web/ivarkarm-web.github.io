@@ -1,12 +1,11 @@
 /**
- * TonePad v18 — 5 pattern layers, BPM left, skip empty layers on play.
- * Fix: layer button UI no longer touches `playing` before it exists.
+ * TonePad v19 — Velocity, Probability, Humanize knobs + musical scheduling.
  */
 export async function mountTonepad() {
   if (window.__tonepadMounting) return window.__tonepadMounting;
   window.__tonepadMounting = (async () => {
     const base = import.meta.url;
-    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=18', base));
+    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=19', base));
     const parts = await Promise.all(
       urls.map((u) =>
         fetch(u, { cache: 'no-cache' }).then((r) => {
@@ -27,6 +26,12 @@ export async function mountTonepad() {
       (m, q, rel) => `from ${q}${new URL(rel, dirUrl).href}${q}`
     );
 
+    // Load /tmp built transforms by re-reading isn't available — inline critical path from v19 build
+    const patchUrl = new URL('./tonepad.js?v=19', base);
+    // Apply full transform set from pre-built logic:
+    const transforms = await fetch(new URL('./tonepad-v19-patches.js?v=1', base).href).catch(() => null);
+
+    // --- Full inline transforms (self-contained) ---
     src = src.replace(
       /const grid = new Uint8Array\(COLS \* ROWS\);\nlet bpm = 92;/,
       `const grid = new Uint8Array(COLS * ROWS);
@@ -35,6 +40,9 @@ const layers = Array.from({ length: LAYER_COUNT }, () => new Uint8Array(COLS * R
 let activeLayer = 0;
 let playLayer = 0;
 let bpm = 92;
+let velocity = 0.72;
+let probability = 1;
+let humanizeAmt = 0.12;
 function layerHasNotes(i) {
   const g = layers[i];
   if (!g) return false;
@@ -75,6 +83,9 @@ function commitActiveToLayer() {
       saved.cells.forEach((v, i) => { layers[0][i] = v ? 1 : 0; });
     }
     if (saved.bpm) bpm = Math.max(48, Math.min(160, Number(saved.bpm) || bpm));
+    if (saved.velocity != null) velocity = Math.max(0, Math.min(1, Number(saved.velocity)));
+    if (saved.probability != null) probability = Math.max(0, Math.min(1, Number(saved.probability)));
+    if (saved.humanize != null) humanizeAmt = Math.max(0, Math.min(1, Number(saved.humanize)));
     if (Number.isFinite(saved.activeLayer)) activeLayer = Math.max(0, Math.min(LAYER_COUNT - 1, saved.activeLayer | 0));
     syncGridFromActive();
   } catch (_) {}
@@ -87,8 +98,11 @@ function save() {
       layers: layers.map((l) => Array.from(l)),
       cells: Array.from(layers[0]),
       bpm,
+      velocity,
+      probability,
+      humanize: humanizeAmt,
       activeLayer,
-      version: 2
+      version: 3
     }));
   } catch (_) {}
 }`
@@ -121,8 +135,15 @@ function save() {
       }
       const when = anchor + lastVisStep * sd;
       const g = layers[playLayer];
+      const accent = (step % 4 === 0) ? 1.18 : (step % 2 === 0 ? 1.05 : 0.9);
+      const baseVel = 0.28 + velocity * 0.65;
       for (let row = 0; row < ROWS; row++) {
-        if (g[idx(step, row)]) trigger(row, when, 0.55 + Math.random() * 0.25);
+        if (!g[idx(step, row)]) continue;
+        if (Math.random() > probability) continue;
+        const jt = (Math.random() - 0.5) * 2 * humanizeAmt * sd * 0.4;
+        const jv = (Math.random() - 0.5) * 2 * humanizeAmt * 0.4;
+        const vel = Math.max(0.05, Math.min(1, baseVel * accent + jv));
+        trigger(row, when + jt, vel);
       }
     }
   }`
@@ -148,12 +169,35 @@ function save() {
       /layer\.innerHTML\s*=\s*[\s\S]*?document\.body\.appendChild\(layer\);/,
       `layer.innerHTML =
     '<div class="tonepad-chrome">' +
-      '<div class="tonepad-bpm">' +
-        '<span class="tonepad-bpm-label">BPM</span>' +
-        '<div class="tonepad-bpm-dial" tabindex="0" role="slider" aria-label="Tempo" aria-valuemin="48" aria-valuemax="160">' +
-          '<canvas width="96" height="96"></canvas>' +
+      '<div class="tonepad-knobs">' +
+        '<div class="tonepad-bpm" data-knob="bpm">' +
+          '<span class="tonepad-bpm-label">BPM</span>' +
+          '<div class="tonepad-bpm-dial" data-dial tabindex="0" role="slider" aria-label="Tempo" aria-valuemin="48" aria-valuemax="160">' +
+            '<canvas width="96" height="96"></canvas>' +
+          '</div>' +
+          '<span class="tonepad-bpm-val" data-bpm-val>92</span>' +
         '</div>' +
-        '<span class="tonepad-bpm-val" data-bpm-val>92</span>' +
+        '<div class="tonepad-bpm" data-knob="vel">' +
+          '<span class="tonepad-bpm-label">VEL</span>' +
+          '<div class="tonepad-bpm-dial" data-dial tabindex="0" role="slider" aria-label="Velocity" aria-valuemin="0" aria-valuemax="100">' +
+            '<canvas width="96" height="96"></canvas>' +
+          '</div>' +
+          '<span class="tonepad-bpm-val" data-vel-val>72</span>' +
+        '</div>' +
+        '<div class="tonepad-bpm" data-knob="prob">' +
+          '<span class="tonepad-bpm-label">PROB</span>' +
+          '<div class="tonepad-bpm-dial" data-dial tabindex="0" role="slider" aria-label="Probability" aria-valuemin="0" aria-valuemax="100">' +
+            '<canvas width="96" height="96"></canvas>' +
+          '</div>' +
+          '<span class="tonepad-bpm-val" data-prob-val>100</span>' +
+        '</div>' +
+        '<div class="tonepad-bpm" data-knob="hum">' +
+          '<span class="tonepad-bpm-label">HUM</span>' +
+          '<div class="tonepad-bpm-dial" data-dial tabindex="0" role="slider" aria-label="Humanize" aria-valuemin="0" aria-valuemax="100">' +
+            '<canvas width="96" height="96"></canvas>' +
+          '</div>' +
+          '<span class="tonepad-bpm-val" data-hum-val>12</span>' +
+        '</div>' +
       '</div>' +
       '<div class="tonepad-layers" role="tablist" aria-label="Pattern layers">' +
         [0,1,2,3,4].map((i) =>
@@ -175,15 +219,16 @@ function save() {
       '.tonepad-layer{position:fixed;z-index:14;overflow:hidden;background:#0a0d0b;pointer-events:none;touch-action:none;will-change:transform;border-radius:10px;display:flex;flex-direction:column}',
       'body.tonepad-open .tonepad-layer{pointer-events:auto}',
       '.tonepad-layer canvas#tonepadCanvas{display:block;flex:1 1 auto;min-height:0;width:100%;touch-action:none;border-radius:0 0 10px 10px}',
-      '.tonepad-chrome{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 10px;pointer-events:none;background:rgba(10,13,11,.96);border-bottom:1px solid rgba(200,210,200,.08)}',
+      '.tonepad-chrome{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px;pointer-events:none;background:rgba(10,13,11,.96);border-bottom:1px solid rgba(200,210,200,.08)}',
       '.tonepad-chrome *{pointer-events:auto}',
-      '.tonepad-bpm{display:flex;flex-direction:row;align-items:center;gap:8px;flex:0 0 auto}',
-      '.tonepad-bpm-label{font:600 9px/1 Inter,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#c9b06a}',
-      '.tonepad-bpm-dial{width:36px;height:36px;border-radius:8px;border:1px solid rgba(232,212,138,.4);background:linear-gradient(160deg,#1a2018,#0e120f);cursor:ns-resize;touch-action:none}',
+      '.tonepad-knobs{display:flex;flex-direction:row;align-items:center;gap:8px;flex:0 1 auto;flex-wrap:wrap}',
+      '.tonepad-bpm{display:flex;flex-direction:row;align-items:center;gap:4px;flex:0 0 auto}',
+      '.tonepad-bpm-label{font:600 8px/1 Inter,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#c9b06a}',
+      '.tonepad-bpm-dial{width:30px;height:30px;border-radius:8px;border:1px solid rgba(232,212,138,.4);background:linear-gradient(160deg,#1a2018,#0e120f);cursor:ns-resize;touch-action:none}',
       '.tonepad-bpm-dial canvas{width:100%;height:100%;display:block;pointer-events:none}',
-      '.tonepad-bpm-val{font:600 12px/1 Inter,system-ui,sans-serif;color:#f0d99a;min-width:2ch}',
-      '.tonepad-layers{display:flex;align-items:center;gap:6px;flex:0 0 auto}',
-      '.tonepad-layer-btn{appearance:none;width:30px;height:30px;border-radius:8px;border:1px solid rgba(200,210,200,.18);background:rgba(255,255,255,.04);color:#9aab9e;font:600 12px/1 Inter,system-ui,sans-serif;cursor:pointer;padding:0}',
+      '.tonepad-bpm-val{font:600 11px/1 Inter,system-ui,sans-serif;color:#f0d99a;min-width:2ch}',
+      '.tonepad-layers{display:flex;align-items:center;gap:5px;flex:0 0 auto}',
+      '.tonepad-layer-btn{appearance:none;width:28px;height:28px;border-radius:8px;border:1px solid rgba(200,210,200,.18);background:rgba(255,255,255,.04);color:#9aab9e;font:600 11px/1 Inter,system-ui,sans-serif;cursor:pointer;padding:0}',
       '.tonepad-layer-btn.is-active{border-color:rgba(232,212,138,.55);background:rgba(232,212,138,.14);color:#f0d99a}',
       '.tonepad-layer-btn.is-playing{box-shadow:0 0 0 2px rgba(120,200,160,.45)}',
       '.tonepad-layer-btn.is-empty{opacity:.45}',
@@ -253,7 +298,82 @@ function save() {
       save();
     });
   });
-  queueMicrotask(() => { try { updateLayerButtons(); } catch (_) {} });`
+  queueMicrotask(() => { try { updateLayerButtons(); } catch (_) {} });
+  (function wireExtraKnobs() {
+    function isLight() {
+      return document.documentElement.classList.contains('theme-light') || document.body.classList.contains('theme-light');
+    }
+    function paintOne(dialEl, t01) {
+      const cnv = dialEl && dialEl.querySelector('canvas');
+      if (!cnv) return;
+      const c = cnv.getContext('2d');
+      if (!c) return;
+      const w = cnv.width, h = cnv.height, cx = w/2, cy = h/2;
+      const r = Math.min(w,h)*0.38;
+      const start = Math.PI*0.75, span = Math.PI*1.5;
+      const t = Math.max(0, Math.min(1, t01));
+      c.clearRect(0,0,w,h);
+      c.lineWidth = Math.max(3, w*0.07);
+      c.lineCap = 'round';
+      c.strokeStyle = isLight() ? 'rgba(80,70,40,.25)' : 'rgba(120,130,118,.35)';
+      c.beginPath(); c.arc(cx,cy,r,start,start+span); c.stroke();
+      c.strokeStyle = isLight() ? '#a08020' : '#e1cc8b';
+      c.beginPath(); c.arc(cx,cy,r,start,start+span*t); c.stroke();
+      const a = start + span * t;
+      c.fillStyle = isLight() ? '#5c4a12' : '#f0d99a';
+      c.beginPath(); c.arc(cx + Math.cos(a)*r, cy + Math.sin(a)*r, Math.max(3,w*0.055), 0, Math.PI*2); c.fill();
+    }
+    function paintAll() {
+      paintOne(layer.querySelector('[data-knob="bpm"] [data-dial]'), (bpm-48)/(160-48));
+      paintOne(layer.querySelector('[data-knob="vel"] [data-dial]'), velocity);
+      paintOne(layer.querySelector('[data-knob="prob"] [data-dial]'), probability);
+      paintOne(layer.querySelector('[data-knob="hum"] [data-dial]'), humanizeAmt);
+      const bv = layer.querySelector('[data-bpm-val]');
+      const vv = layer.querySelector('[data-vel-val]');
+      const pv = layer.querySelector('[data-prob-val]');
+      const hv = layer.querySelector('[data-hum-val]');
+      if (bv) bv.textContent = String(Math.round(bpm));
+      if (vv) vv.textContent = String(Math.round(velocity*100));
+      if (pv) pv.textContent = String(Math.round(probability*100));
+      if (hv) hv.textContent = String(Math.round(humanizeAmt*100));
+    }
+    window.__tonepadPaintKnobs = paintAll;
+    function wireDial(knobKey, getV, setV) {
+      const dial = layer.querySelector('[data-knob="'+knobKey+'"] [data-dial]');
+      if (!dial) return;
+      let drag=false, y0=0, v0=0;
+      const apply = (v) => { setV(v); paintAll(); save(); };
+      dial.addEventListener('pointerdown', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        drag=true; y0=e.clientY; v0=getV();
+        dial.setPointerCapture && dial.setPointerCapture(e.pointerId);
+      });
+      dial.addEventListener('pointermove', (e) => {
+        if (!drag) return; e.stopPropagation();
+        apply(v0 + (y0 - e.clientY) / 120);
+      });
+      const stop = (e) => { if (!drag) return; drag=false; e && e.stopPropagation && e.stopPropagation(); };
+      dial.addEventListener('pointerup', stop);
+      dial.addEventListener('pointercancel', stop);
+      dial.addEventListener('keydown', (e) => {
+        if (e.key==='ArrowUp'||e.key==='ArrowRight') { e.preventDefault(); apply(getV()+0.02); }
+        else if (e.key==='ArrowDown'||e.key==='ArrowLeft') { e.preventDefault(); apply(getV()-0.02); }
+      });
+    }
+    wireDial('vel', () => velocity, (t) => { velocity = Math.max(0, Math.min(1, t)); });
+    wireDial('prob', () => probability, (t) => { probability = Math.max(0, Math.min(1, t)); });
+    wireDial('hum', () => humanizeAmt, (t) => { humanizeAmt = Math.max(0, Math.min(1, t)); });
+    paintAll();
+  })();`
+    );
+
+    src = src.replace(
+      /function paintBpmKnob\(\) \{[\s\S]*?\n  \}\n\n  \(function wireBpm/,
+      `function paintBpmKnob() {
+    try { if (window.__tonepadPaintKnobs) return window.__tonepadPaintKnobs(); } catch (_) {}
+  }
+
+  (function wireBpm`
     );
 
     src = src.replace(
