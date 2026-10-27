@@ -1,7 +1,5 @@
 /**
  * Pionier app shell: load the vendored local core and optional UI modules.
- * Critical path: core + scales + scale selector.
- * Deferred: looper, FX editor, arps, note-plus, soundscapes (idle or first use).
  */
 const BASE = new URL('.', import.meta.url).href;
 const statusEl = document.getElementById('appStatus');
@@ -92,7 +90,7 @@ async function loadSoundscapes() {
 
 async function loadAmbientSequencer() {
   try {
-    const { mountTonepad } = await import(new URL('./js/tonepad.js?v=9', BASE).href);
+    const { mountTonepad } = await import(new URL('./js/tonepad.js?v=10', BASE).href);
     if (typeof mountTonepad === 'function') await mountTonepad();
   } catch (e) {
     console.warn('[boot] tonepad', e);
