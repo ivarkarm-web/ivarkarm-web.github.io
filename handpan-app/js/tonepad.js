@@ -1,11 +1,17 @@
 /**
- * TonePad v12 — infinite 2-card carousel (handpan ↔ sequencer ↔ handpan …).
+ * TonePad v13 — infinite carousel with smooth wrap (no jumps).
+ *
+ * Normal: page 0 handpan (x=0), page 1 sequencer (x=-w).
+ * Wrap forward (sequencer → handpan via swipe left):
+ *   pan teleports off-right (hidden), then both animate — sequencer exits left, handpan enters right.
+ * Wrap back (handpan → sequencer via swipe right):
+ *   layer teleports off-left, then sequencer enters left, handpan exits right.
  */
 export async function mountTonepad() {
   if (window.__tonepadMounting) return window.__tonepadMounting;
   window.__tonepadMounting = (async () => {
     const base = import.meta.url;
-    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=12', base));
+    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=13', base));
     const parts = await Promise.all(
       urls.map((u) =>
         fetch(u, { cache: 'no-cache' }).then((r) => {
@@ -26,23 +32,13 @@ export async function mountTonepad() {
       (m, q, rel) => `from ${q}${new URL(rel, dirUrl).href}${q}`
     );
 
-    // Inject cycle helpers + replace shiftCarousel for infinite track
+    // Clean dual-card track + wrap helpers
     src = src.replace(
       /function shiftCarousel\(animate\) \{[\s\S]*?\n  \}\n\n  function resizeCanvas/,
-      `let wrapBias = 0; // ±1 during forward/back wrap past ends
-
-  function applyTrack(x, w, animate) {
+      `function setTrack(panX, layerX, animate) {
     const root = document.documentElement;
-    root.style.setProperty('--tp-tr', animate ? '.42s' : '0s');
-    // Infinite 2-card: positions mod 2w so cards always loop
-    // Handpan home slots at …, -2w, 0, 2w, …
-    // Sequencer slots at …, -w, w, 3w, …
-    const cycle = w * 2;
-    let panX = x;
-    let layerX = x + w;
-    // Nudge into a nearby cycle so the visible card is on-screen when possible
-    while (panX < -1.5 * w) { panX += cycle; layerX += cycle; }
-    while (panX > 0.5 * w) { panX -= cycle; layerX -= cycle; }
+    const tr = animate ? '.42s' : '0s';
+    root.style.setProperty('--tp-tr', tr);
     root.style.setProperty('--tp-x', panX + 'px');
     root.style.setProperty('--tp-lx', layerX + 'px');
     const pan = document.getElementById('pan');
@@ -60,20 +56,69 @@ export async function mountTonepad() {
     place();
     const dx = dragDx != null ? dragDx : 0;
     const w = Math.max(1, box.width);
-    // page 0 → 0, page 1 → -w, wrapBias shifts a full cycle during edge wrap
-    const x = -(page + wrapBias) * w + dx;
-    const progress = ((-x / w) % 2 + 2) % 2; // 0..2 continuous
-    slideProgress = Math.min(1, progress > 1 ? progress - 1 : progress);
-    applyTrack(x, w, animate);
-    const showOpen = (progress > 0.5 && progress < 1.5) || (page === 1 && dragDx == null && wrapBias === 0);
-    if (showOpen) document.body.classList.add('tonepad-open');
+    // Strict 2-page positions — no modulo during drag (avoids teleports)
+    const x = -page * w + dx;
+    slideProgress = Math.max(0, Math.min(1, -x / w));
+    setTrack(x, x + w, animate);
+    if (slideProgress > 0.55) document.body.classList.add('tonepad-open');
     else if (!animate) document.body.classList.toggle('tonepad-open', page === 1);
+  }
+
+  /** Sequencer → handpan continuing left (infinite). */
+  function wrapForwardToHandpan() {
+    const box = homeBox();
+    if (!box) return;
+    const w = Math.max(1, box.width);
+    dragDx = null;
+    // 1) Park handpan just off the right (invisible), sequencer stays centered
+    setTrack(w, 0, false);
+    // 2) Animate: handpan slides in from right, sequencer exits left
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setTrack(0, -w, true);
+        page = 0;
+        open = false;
+        document.body.classList.remove('tonepad-open');
+        layer.setAttribute('aria-hidden', 'true');
+        // 3) After anim, snap sequencer to off-right home (same off-screen, no flash)
+        setTimeout(() => {
+          setTrack(0, w, false);
+          shiftCarousel(false);
+        }, 450);
+      });
+    });
+  }
+
+  /** Handpan → sequencer continuing right (infinite the other way). */
+  function wrapBackwardToSequencer() {
+    const box = homeBox();
+    if (!box) return;
+    const w = Math.max(1, box.width);
+    dragDx = null;
+    // 1) Park sequencer just off the left
+    setTrack(0, -w, false);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setTrack(w, 0, true); // pan exits right, sequencer enters from left
+        page = 1;
+        open = true;
+        document.body.classList.add('tonepad-open');
+        layer.setAttribute('aria-hidden', 'false');
+        start();
+        resizeCanvas();
+        setTimeout(() => {
+          // Snap to normal page-1 layout: pan off left, layer centered
+          setTrack(-w, 0, false);
+          shiftCarousel(false);
+        }, 450);
+      });
+    });
   }
 
   function resizeCanvas`
     );
 
-    // Keep playing when on handpan
+    // Keep playing on handpan
     src = src.replace(
       /if \(open\) \{\s*start\(\);\s*resizeCanvas\(\);\s*\} else \{\s*stop\(\);\s*\}/,
       `if (open) {
@@ -82,7 +127,7 @@ export async function mountTonepad() {
     }`
     );
 
-    // Infinite edge detection: always allow right-edge (forward) and left-edge (back)
+    // Edges: forward always from right; back from left (or left portion of layer)
     src = src.replace(
       /const fromRight = e\.clientX >= window\.innerWidth - EDGE && page < PAGES\.length - 1;\s*const fromLeft = e\.clientX <= EDGE && page > 0;\s*if \(!fromRight && !fromLeft\) return;\s*swipe = \{ x: e\.clientX, y: e\.clientY, id: e\.pointerId, dir: fromRight \? 1 : -1, active: false \};/,
       `const edge = Math.max(EDGE, Math.min(56, window.innerWidth * 0.12));
@@ -91,73 +136,39 @@ export async function mountTonepad() {
     const layerEl = document.getElementById('tonepadLayer');
     const lr = layerEl && page === 1 ? layerEl.getBoundingClientRect() : null;
     const onLayerLeft = !!(lr && e.clientX >= lr.left && e.clientX <= lr.left + Math.max(edge, lr.width * 0.4));
-    // Forward = swipe left (dir 1); back = swipe right (dir -1). Always available (infinite).
     const wantForward = onRightEdge;
-    const wantBack = onLeftEdge || onLayerLeft || (page === 1 && onRightEdge);
+    const wantBack = onLeftEdge || onLayerLeft;
     if (!wantForward && !wantBack) return;
-    // Prefer forward when starting on right edge; back when on left.
-    const useForward = onRightEdge && !onLeftEdge;
     swipe = {
       x: e.clientX,
       y: e.clientY,
       id: e.pointerId,
-      dir: useForward ? 1 : -1,
+      dir: wantForward && !onLeftEdge ? 1 : -1,
       active: false
     };`
     );
 
-    // onUp: wrap pages infinitely
+    // Commit: normal step or smooth infinite wrap
     src = src.replace(
       /if \(was && dir === 1 && dx < -Math\.min\(64, w \* 0\.18\)\) setPage\(page \+ 1, true\);\s*else if \(was && dir === -1 && dx > Math\.min\(64, w \* 0\.18\)\) setPage\(page - 1, true\);\s*else setPage\(page, true\);/,
       `const thresh = Math.min(48, w * 0.12);
     if (was && dir === 1 && dx < -thresh) {
-      // forward (swipe left) — infinite
-      if (page >= PAGES.length - 1) {
-        wrapBias = 1; // animate one extra step past the end
-        shiftCarousel(false);
-        requestAnimationFrame(() => {
-          page = 0;
-          open = false;
-          wrapBias = 0;
-          dragDx = null;
-          document.body.classList.remove('tonepad-open');
-          layer.setAttribute('aria-hidden', 'true');
-          shiftCarousel(true);
-        });
-      } else {
-        setPage(page + 1, true);
-      }
+      if (page >= PAGES.length - 1) wrapForwardToHandpan();
+      else setPage(page + 1, true);
     } else if (was && dir === -1 && dx > thresh) {
-      // back (swipe right) — infinite
-      if (page <= 0) {
-        wrapBias = -1;
-        shiftCarousel(false);
-        requestAnimationFrame(() => {
-          page = PAGES.length - 1;
-          open = true;
-          wrapBias = 0;
-          dragDx = null;
-          document.body.classList.add('tonepad-open');
-          layer.setAttribute('aria-hidden', 'false');
-          start();
-          resizeCanvas();
-          shiftCarousel(true);
-        });
-      } else {
-        setPage(page - 1, true);
-      }
+      if (page <= 0) wrapBackwardToSequencer();
+      else setPage(page - 1, true);
     } else {
       setPage(page, true);
     }`
     );
 
-    // Allow overscroll drag past ends (infinite feel while dragging)
+    // Slight overscroll rubber-band only (no second page teleport while dragging)
     src = src.replace(
       /const capped = swipe\.dir === 1 \? Math\.max\(-w, Math\.min\(0, dx\)\) : Math\.min\(w, Math\.max\(0, dx\)\);/,
-      `// Free drag with soft clamp past one full page for infinite preview
-    const capped = swipe.dir === 1
-      ? Math.max(-w * 1.15, Math.min(0, dx))
-      : Math.min(w * 1.15, Math.max(0, dx));`
+      `const capped = swipe.dir === 1
+      ? Math.max(-w * 1.08, Math.min(0, dx))
+      : Math.min(w * 1.08, Math.max(0, dx));`
     );
 
     const blob = new Blob([src], { type: 'text/javascript' });
