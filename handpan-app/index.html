@@ -134,7 +134,34 @@
     </main>
   </div>
   <section id="soundscapesPanel" class="soundscapes-panel" hidden aria-label="Backing Tracks"></section>
-  <div id="fxPanel" class="fx-panel" hidden></div>
+  <div id="fxPanel" class="fx-panel" hidden>
+    <header class="fx-panel-header">
+      <h2>Effects</h2>
+      <button type="button" id="fxPanelClose" class="icon-btn" aria-label="Close effects">×</button>
+    </header>
+    <div class="fx-panel-body knobs-panel">
+      <div class="effect-knob-wrap" id="knobCompress"><canvas class="knob-canvas" width="68" height="68"></canvas><div class="fx-knob-label-row"><span class="knob-label">Comp</span><button type="button" class="fx-settings-shortcut" data-fx-editor-open="compressor" aria-label="Open Compressor curve and presets" title="Open advanced settings">s</button></div><span class="knob-val" id="valCompress">40%</span></div>
+      <div class="effect-knob-wrap" id="knobDelay"><canvas class="knob-canvas" width="68" height="68"></canvas><div class="fx-knob-label-row"><span class="knob-label">Delay</span><button type="button" class="fx-settings-shortcut" data-fx-editor-open="delay" aria-label="Open Delay curve and presets" title="Open advanced settings">s</button></div><span class="knob-val" id="valDelay">15%</span></div>
+      <div class="effect-knob-wrap" id="knobFilter"><canvas class="knob-canvas" width="68" height="68"></canvas><div class="fx-knob-label-row"><span class="knob-label">Filter</span><button type="button" class="fx-settings-shortcut" data-fx-editor-open="filter" aria-label="Open Filter curve and presets" title="Open advanced settings">s</button></div><span class="knob-val" id="valFilter">12%</span></div>
+      <div class="effect-knob-wrap" id="knobReverb"><canvas class="knob-canvas" width="68" height="68"></canvas><div class="fx-knob-label-row"><span class="knob-label">Reverb</span><button type="button" class="fx-settings-shortcut" data-fx-editor-open="reverb" aria-label="Open Reverb curve and presets" title="Open advanced settings">s</button></div><span class="knob-val" id="valReverb">25%</span></div>
+      <div class="effect-knob-wrap" id="knobBass"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Bass</span><span class="knob-val" id="valBass">50%</span></div>
+      <div class="effect-knob-wrap" id="knobLow"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Low</span><span class="knob-val" id="valLow">50%</span></div>
+      <div class="effect-knob-wrap" id="knobMid"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Mid</span><span class="knob-val" id="valMid">50%</span></div>
+      <div class="effect-knob-wrap" id="knobMaster"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Master</span><span class="knob-val" id="valMaster">82%</span></div>
+    </div>
+  </div>
+  <div id="fxEditorBackdrop" class="fx-editor-backdrop" hidden></div>
+  <section id="fxEditor" class="fx-editor" role="dialog" aria-modal="true" aria-labelledby="fxEditorTitle" hidden>
+    <header class="fx-editor-header fx-editor-header-compact">
+      <span id="fxEditorTitle" class="fx-editor-current-title">Comp</span>
+      <span id="fxEditorSubtitle" hidden></span>
+      <button type="button" id="fxEditorClose" class="icon-btn" aria-label="Close effect editor">×</button>
+    </header>
+    <div class="fx-editor-toolbar"><div id="fxEditorPresets" class="fx-editor-presets" aria-label="Effect presets"></div><button type="button" id="fxEditorBypass" class="fx-editor-bypass" aria-pressed="false">Bypass</button></div>
+    <div class="fx-editor-curve-wrap"><canvas id="fxEditorCurve" class="fx-editor-curve" aria-label="Interactive effect response curve" role="img"></canvas><div class="fx-editor-axis-labels" hidden><span id="fxEditorAxisX"></span><span id="fxEditorAxisY"></span></div></div>
+    <div id="fxEditorKnobs" class="fx-editor-knobs" aria-label="Effect parameters"></div>
+    <footer class="fx-editor-footer"><span id="fxEditorStatus" role="status">Changes apply live</span><button type="button" id="fxEditorReset" class="fx-editor-reset">Reset effect</button></footer>
+  </section>
   <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
   <script src="./js/skin-palette.js?v=3"></script>
   <script src="./js/customization-catalog.js?v=7"></script>
@@ -148,7 +175,7 @@
   <script src="./js/favorites.js?v=1"></script>
   <script src="./js/ambient-fx.js?v=12"></script>
   <script src="./js/skin-mandala.js?v=6"></script>
-  <script type="module" src="./pionier-app.js?v=274"></script>
+  <script type="module" src="./pionier-app.js?v=275"></script>
   <script src="./js/sequence-carousel-patch.js?v=2"></script>
   <script src="./welcome-screen.js?v=9"></script>
   <script src="./js/portrait-lock.js?v=2"></script>
