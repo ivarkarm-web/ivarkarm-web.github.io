@@ -21,16 +21,16 @@
 }
 
 /*
- * TonePad carousel track — driven by CSS variables from JS.
- * !important so nothing else can pin the handpan in place.
- * --tp-x: handpan offset (0 = home, -W = off to the left)
- * --tp-lx: sequencer offset (W = off to the right, 0 = home)
+ * TonePad track — CSS vars from JS.
+ * Easing tuned for finger-follow settle (iOS-like decelerate).
  */
 #pan {
   will-change: transform;
   transform-origin: center center;
-  transition: transform var(--tp-tr, 0s) cubic-bezier(.22, .82, .2, 1) !important;
-  transform: translate3d(var(--tp-x, 0px), 0, 0) !important;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform var(--tp-tr, 0s) var(--tp-ease, cubic-bezier(0.32, 0.72, 0, 1)) !important;
+  transform: translate3d(var(--tp-x, 0px), 0, 0) translateZ(0) !important;
 }
 body.tonepad-open #pan {
   pointer-events: none !important;
@@ -39,7 +39,9 @@ body.tonepad-open #pan {
 
 .tonepad-layer {
   will-change: transform;
-  transition: transform var(--tp-tr, 0s) cubic-bezier(.22, .82, .2, 1) !important;
-  transform: translate3d(var(--tp-lx, 100vw), 0, 0) !important;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform var(--tp-tr, 0s) var(--tp-ease, cubic-bezier(0.32, 0.72, 0, 1)) !important;
+  transform: translate3d(var(--tp-lx, 100vw), 0, 0) translateZ(0) !important;
   opacity: 1 !important;
 }
