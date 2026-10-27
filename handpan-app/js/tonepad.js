@@ -1,11 +1,12 @@
 /**
- * TonePad v17 — 5 pattern layers, BPM left, skip empty layers on play.
+ * TonePad v18 — 5 pattern layers, BPM left, skip empty layers on play.
+ * Fix: layer button UI no longer touches `playing` before it exists.
  */
 export async function mountTonepad() {
   if (window.__tonepadMounting) return window.__tonepadMounting;
   window.__tonepadMounting = (async () => {
     const base = import.meta.url;
-    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=17', base));
+    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=18', base));
     const parts = await Promise.all(
       urls.map((u) =>
         fetch(u, { cache: 'no-cache' }).then((r) => {
@@ -26,7 +27,6 @@ export async function mountTonepad() {
       (m, q, rel) => `from ${q}${new URL(rel, dirUrl).href}${q}`
     );
 
-    // --- 5 layers ---
     src = src.replace(
       /const grid = new Uint8Array\(COLS \* ROWS\);\nlet bpm = 92;/,
       `const grid = new Uint8Array(COLS * ROWS);
@@ -234,7 +234,8 @@ function save() {
     layer.querySelectorAll('.tonepad-layer-btn').forEach((btn) => {
       const i = Number(btn.getAttribute('data-layer'));
       btn.classList.toggle('is-active', i === activeLayer);
-      btn.classList.toggle('is-playing', playing && i === playLayer);
+      const isPlaying = (typeof playing !== 'undefined') && playing && i === playLayer;
+      btn.classList.toggle('is-playing', !!isPlaying);
       btn.classList.toggle('is-empty', !layerHasNotes(i));
       btn.setAttribute('aria-selected', i === activeLayer ? 'true' : 'false');
     });
@@ -252,7 +253,7 @@ function save() {
       save();
     });
   });
-  updateLayerButtons();`
+  queueMicrotask(() => { try { updateLayerButtons(); } catch (_) {} });`
     );
 
     src = src.replace(
