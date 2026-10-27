@@ -44,6 +44,7 @@
       margin-bottom: 0 !important;
     }
     #portraitLock[hidden] { display: none !important; pointer-events: none !important; }
+    #tonepadToggle.is-active { color: #e1cc8b; }
   </style>
 </head>
 <body>
@@ -80,6 +81,7 @@
           <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Handpan ▾</button>
           <button type="button" class="icon-btn" id="voiceNext" aria-label="Next voice">›</button>
           <button type="button" class="icon-btn soundscapes-open-btn" id="openSoundscapes" aria-label="Open Soundscapes" title="Soundscapes">♫</button>
+          <button type="button" class="icon-btn" id="tonepadToggle" aria-label="Sequencer" title="Sequencer" aria-pressed="false">▦</button>
           <button type="button" class="icon-btn" id="fxPanelOpen" aria-label="Open effects" title="Effects" aria-expanded="false" aria-controls="fxPanel">✦</button>
           <button type="button" class="randomize-setup-btn" id="randomizeSetup" aria-label="Randomize" title="Surprise me">🎲</button>
         </div>
@@ -144,7 +146,7 @@
       <div class="effect-knob-wrap" id="knobCompress"><canvas class="knob-canvas" width="68" height="68"></canvas><div class="fx-knob-label-row"><span class="knob-label">Comp</span><button type="button" class="fx-settings-shortcut" data-fx-editor-open="compressor" aria-label="Open Compressor curve and presets" title="Open advanced settings">s</button></div><span class="knob-val" id="valCompress">40%</span></div>
       <div class="effect-knob-wrap" id="knobDelay"><canvas class="knob-canvas" width="68" height="68"></canvas><div class="fx-knob-label-row"><span class="knob-label">Delay</span><button type="button" class="fx-settings-shortcut" data-fx-editor-open="delay" aria-label="Open Delay curve and presets" title="Open advanced settings">s</button></div><span class="knob-val" id="valDelay">15%</span></div>
       <div class="effect-knob-wrap" id="knobFilter"><canvas class="knob-canvas" width="68" height="68"></canvas><div class="fx-knob-label-row"><span class="knob-label">Filter</span><button type="button" class="fx-settings-shortcut" data-fx-editor-open="filter" aria-label="Open Filter curve and presets" title="Open advanced settings">s</button></div><span class="knob-val" id="valFilter">12%</span></div>
-      <div class="effect-knob-wrap" id="knobReverb"><canvas class="knob-canvas" width="68" height="68"></canvas><div class="fx-knob-label-row"><span class="knob-label">Reverb</span><button type="button" class="fx-settings-shortcut" data-fx-editor-open="reverb" aria-label="Open Reverb curve and presets" title="Open advanced settings">s</button></div><span class="knob-val" id="valReverb">25%</span></div>
+      <div class="effect-knob-wrap" id="knobReverb"><canvas class="knob-canvas" width="72" height="72"></canvas><div class="fx-knob-label-row"><span class="knob-label">Reverb</span><button type="button" class="fx-settings-shortcut" data-fx-editor-open="reverb" aria-label="Open Reverb curve and presets" title="Open advanced settings">s</button></div><span class="knob-val" id="valReverb">25%</span></div>
       <div class="effect-knob-wrap" id="knobBass"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Bass</span><span class="knob-val" id="valBass">50%</span></div>
       <div class="effect-knob-wrap" id="knobLow"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Low</span><span class="knob-val" id="valLow">50%</span></div>
       <div class="effect-knob-wrap" id="knobMid"><canvas class="knob-canvas" width="72" height="72"></canvas><span class="knob-label">Mid</span><span class="knob-val" id="valMid">50%</span></div>
