@@ -1,11 +1,11 @@
 /**
- * TonePad v7 — assemble tb0..tb7, rewrite imports, inject left-slide fix.
+ * TonePad v8 — assemble tb0..tb7 + true carousel (both cards slide together).
  */
 export async function mountTonepad() {
   if (window.__tonepadMounting) return window.__tonepadMounting;
   window.__tonepadMounting = (async () => {
     const base = import.meta.url;
-    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=7', base));
+    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=8', base));
     const parts = await Promise.all(
       urls.map((u) =>
         fetch(u, { cache: 'no-cache' }).then((r) => {
@@ -26,12 +26,60 @@ export async function mountTonepad() {
       (m, q, rel) => `from ${q}${new URL(rel, dir).href}${q}`
     );
 
+    // Replace entire shiftCarousel with real dual-card carousel
     src = src.replace(
-      /pan\.style\.transform\s*=\s*`translate3d\(\$\{x\}px,0,0\)`;\s*pan\.style\.opacity\s*=\s*String\(1\s*-\s*progress\s*\*\s*0\.85\);/,
-      `const panPct = -progress * 110;
-      pan.style.setProperty('transform', 'translate3d(' + panPct + '%,0,0)');
-      pan.style.setProperty('opacity', String(Math.max(0, 1 - progress * 0.95)));
-      pan.style.setProperty('contain', progress > 0.02 ? 'none' : '');`
+      /function shiftCarousel\(animate\) \{[\s\S]*?\n  \}\n\n  function resizeCanvas/,
+      `function shiftCarousel(animate) {
+    const box = homeBox();
+    if (!box) return;
+    place();
+    const dx = dragDx != null ? dragDx : 0;
+    const w = Math.max(1, box.width);
+    // x is the track offset: 0 = handpan centered, -w = sequencer centered
+    const x = -page * w + dx;
+    const progress = Math.max(0, Math.min(1, -x / w));
+    slideProgress = progress;
+    const tr = animate
+      ? 'transform .42s cubic-bezier(.22,.82,.2,1)'
+      : 'none';
+
+    const pan = document.getElementById('pan');
+    if (pan) {
+      pan.style.setProperty('transition', tr);
+      // Handpan slides left with the track — stays fully visible
+      pan.style.setProperty('transform', 'translate3d(' + x + 'px,0,0)');
+      pan.style.setProperty('opacity', '1');
+      pan.style.setProperty('contain', progress > 0.01 ? 'none' : '');
+    }
+
+    // Sequencer sits one card-width to the right of the handpan home
+    layer.style.transition = tr;
+    layer.style.transform = 'translate3d(' + (x + w) + 'px,0,0)';
+    layer.style.opacity = '1';
+
+    if (progress > 0.55) document.body.classList.add('tonepad-open');
+    else if (!animate) document.body.classList.toggle('tonepad-open', page === 1);
+  }
+
+  function resizeCanvas`
+    );
+
+    // Easier swipe-back: when sequencer is open, allow starting from left 28% of the layer
+    src = src.replace(
+      /const fromRight = e\.clientX >= window\.innerWidth - EDGE && page < PAGES\.length - 1;\s*const fromLeft = e\.clientX <= EDGE && page > 0;/,
+      `const layerEl = document.getElementById('tonepadLayer');
+    const lr = layerEl && open ? layerEl.getBoundingClientRect() : null;
+    const fromRight = e.clientX >= window.innerWidth - EDGE && page < PAGES.length - 1;
+    const fromLeft = page > 0 && (
+      e.clientX <= EDGE ||
+      (lr && e.clientX >= lr.left && e.clientX <= lr.left + Math.max(EDGE, lr.width * 0.28))
+    );`
+    );
+
+    // Keep opacity full in injected chrome CSS
+    src = src.replace(
+      "'#pan{will-change:transform,opacity;transition:none}',",
+      "'#pan{will-change:transform;transition:none;opacity:1}',"
     );
 
     const blob = new Blob([src], { type: 'text/javascript' });
