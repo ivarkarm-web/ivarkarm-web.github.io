@@ -1,11 +1,11 @@
 /**
- * TonePad v10 — assemble tb0..tb7; carousel driven by CSS variables.
+ * TonePad v11 — carousel + swipe-back from either edge when sequencer is open.
  */
 export async function mountTonepad() {
   if (window.__tonepadMounting) return window.__tonepadMounting;
   window.__tonepadMounting = (async () => {
     const base = import.meta.url;
-    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=10', base));
+    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=11', base));
     const parts = await Promise.all(
       urls.map((u) =>
         fetch(u, { cache: 'no-cache' }).then((r) => {
@@ -26,7 +26,7 @@ export async function mountTonepad() {
       (m, q, rel) => `from ${q}${new URL(rel, dir).href}${q}`
     );
 
-    // Replace shiftCarousel: drive --tp-x / --tp-lx on :root (CSS !important picks them up)
+    // Dual-card track via CSS vars
     src = src.replace(
       /function shiftCarousel\(animate\) \{[\s\S]*?\n  \}\n\n  function resizeCanvas/,
       `function shiftCarousel(animate) {
@@ -42,7 +42,6 @@ export async function mountTonepad() {
     root.style.setProperty('--tp-tr', animate ? '.42s' : '0s');
     root.style.setProperty('--tp-x', x + 'px');
     root.style.setProperty('--tp-lx', (x + w) + 'px');
-    // Also set inline as backup (without !important)
     const pan = document.getElementById('pan');
     if (pan) {
       pan.style.transform = 'translate3d(' + x + 'px,0,0)';
@@ -57,7 +56,7 @@ export async function mountTonepad() {
   function resizeCanvas`
     );
 
-    // Keep playing when returning to handpan
+    // Keep playing on handpan view
     src = src.replace(
       /if \(open\) \{\s*start\(\);\s*resizeCanvas\(\);\s*\} else \{\s*stop\(\);\s*\}/,
       `if (open) {
@@ -66,16 +65,35 @@ export async function mountTonepad() {
     }`
     );
 
-    // Easier swipe-back from left side of sequencer
+    // Replace edge detection: open from right edge; close from left OR right edge
     src = src.replace(
-      /const fromRight = e\.clientX >= window\.innerWidth - EDGE && page < PAGES\.length - 1;\s*const fromLeft = e\.clientX <= EDGE && page > 0;/,
-      `const layerEl = document.getElementById('tonepadLayer');
-    const lr = layerEl && open ? layerEl.getBoundingClientRect() : null;
-    const fromRight = e.clientX >= window.innerWidth - EDGE && page < PAGES.length - 1;
-    const fromLeft = page > 0 && (
-      e.clientX <= EDGE ||
-      (lr && e.clientX >= lr.left && e.clientX <= lr.left + Math.max(EDGE, lr.width * 0.28))
-    );`
+      /const fromRight = e\.clientX >= window\.innerWidth - EDGE && page < PAGES\.length - 1;\s*const fromLeft = e\.clientX <= EDGE && page > 0;\s*if \(!fromRight && !fromLeft\) return;\s*swipe = \{ x: e\.clientX, y: e\.clientY, id: e\.pointerId, dir: fromRight \? 1 : -1, active: false \};/,
+      `const edge = Math.max(EDGE, Math.min(56, window.innerWidth * 0.12));
+    const onRightEdge = e.clientX >= window.innerWidth - edge;
+    const onLeftEdge = e.clientX <= edge;
+    const layerEl = document.getElementById('tonepadLayer');
+    const lr = layerEl && page > 0 ? layerEl.getBoundingClientRect() : null;
+    const onLayerLeft = !!(lr && e.clientX >= lr.left && e.clientX <= lr.left + Math.max(edge, lr.width * 0.4));
+    // page 0 → open (swipe left from right edge)
+    // page 1 → close (swipe right from left edge, right edge, or left 40% of grid)
+    const wantOpen = page < PAGES.length - 1 && onRightEdge;
+    const wantClose = page > 0 && (onLeftEdge || onRightEdge || onLayerLeft);
+    if (!wantOpen && !wantClose) return;
+    swipe = {
+      x: e.clientX,
+      y: e.clientY,
+      id: e.pointerId,
+      dir: wantOpen ? 1 : -1,
+      active: false
+    };`
+    );
+
+    // Lower threshold to commit close/open so short edge swipes work
+    src = src.replace(
+      /if \(was && dir === 1 && dx < -Math\.min\(64, w \* 0\.18\)\) setPage\(page \+ 1, true\);\s*else if \(was && dir === -1 && dx > Math\.min\(64, w \* 0\.18\)\) setPage\(page - 1, true\);/,
+      `const thresh = Math.min(48, w * 0.12);
+    if (was && dir === 1 && dx < -thresh) setPage(page + 1, true);
+    else if (was && dir === -1 && dx > thresh) setPage(page - 1, true);`
     );
 
     const blob = new Blob([src], { type: 'text/javascript' });
