@@ -1,11 +1,11 @@
 /**
- * TonePad v16 — no title/hint, BPM in its own bar, light mode.
+ * TonePad v17 — 5 pattern layers, BPM left, skip empty layers on play.
  */
 export async function mountTonepad() {
   if (window.__tonepadMounting) return window.__tonepadMounting;
   window.__tonepadMounting = (async () => {
     const base = import.meta.url;
-    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=16', base));
+    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=17', base));
     const parts = await Promise.all(
       urls.map((u) =>
         fetch(u, { cache: 'no-cache' }).then((r) => {
@@ -26,7 +26,124 @@ export async function mountTonepad() {
       (m, q, rel) => `from ${q}${new URL(rel, dirUrl).href}${q}`
     );
 
-    // --- Chrome: BPM only, no TonePad title / hint ---
+    // --- 5 layers ---
+    src = src.replace(
+      /const grid = new Uint8Array\(COLS \* ROWS\);\nlet bpm = 92;/,
+      `const grid = new Uint8Array(COLS * ROWS);
+const LAYER_COUNT = 5;
+const layers = Array.from({ length: LAYER_COUNT }, () => new Uint8Array(COLS * ROWS));
+let activeLayer = 0;
+let playLayer = 0;
+let bpm = 92;
+function layerHasNotes(i) {
+  const g = layers[i];
+  if (!g) return false;
+  for (let k = 0; k < g.length; k++) if (g[k]) return true;
+  return false;
+}
+function nextNonEmptyLayer(from) {
+  for (let n = 1; n <= LAYER_COUNT; n++) {
+    const i = (from + n) % LAYER_COUNT;
+    if (layerHasNotes(i)) return i;
+  }
+  return from;
+}
+function firstNonEmptyLayer() {
+  for (let i = 0; i < LAYER_COUNT; i++) if (layerHasNotes(i)) return i;
+  return 0;
+}
+function syncGridFromActive() {
+  grid.set(layers[activeLayer]);
+}
+function commitActiveToLayer() {
+  layers[activeLayer].set(grid);
+}`
+    );
+
+    src = src.replace(
+      /function load\(\) \{\n  try \{\n    const saved = JSON\.parse\(localStorage\.getItem\(STORE\) \|\| 'null'\);\n    if \(saved && Array\.isArray\(saved\.cells\) && saved\.cells\.length === grid\.length\) \{\n      saved\.cells\.forEach\(\(v, i\) => \{ grid\[i\] = v \? 1 : 0; \}\);\n    \}\n    if \(saved && saved\.bpm\) bpm = Math\.max\(48, Math\.min\(160, Number\(saved\.bpm\) \|\| bpm\)\);\n  \} catch \(_\) \{\}\n\}\n\nfunction save\(\) \{\n  try \{\n    localStorage\.setItem\(STORE, JSON\.stringify\(\{ cells: Array\.from\(grid\), bpm, version: 1 \}\)\);\n  \} catch \(_\) \{\}\n\}/,
+      `function load() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE) || 'null');
+    if (!saved) return;
+    if (Array.isArray(saved.layers)) {
+      saved.layers.forEach((cells, li) => {
+        if (li >= LAYER_COUNT || !Array.isArray(cells)) return;
+        cells.forEach((v, i) => { if (i < layers[li].length) layers[li][i] = v ? 1 : 0; });
+      });
+    } else if (Array.isArray(saved.cells) && saved.cells.length === grid.length) {
+      saved.cells.forEach((v, i) => { layers[0][i] = v ? 1 : 0; });
+    }
+    if (saved.bpm) bpm = Math.max(48, Math.min(160, Number(saved.bpm) || bpm));
+    if (Number.isFinite(saved.activeLayer)) activeLayer = Math.max(0, Math.min(LAYER_COUNT - 1, saved.activeLayer | 0));
+    syncGridFromActive();
+  } catch (_) {}
+}
+
+function save() {
+  try {
+    commitActiveToLayer();
+    localStorage.setItem(STORE, JSON.stringify({
+      layers: layers.map((l) => Array.from(l)),
+      cells: Array.from(layers[0]),
+      bpm,
+      activeLayer,
+      version: 2
+    }));
+  } catch (_) {}
+}`
+    );
+
+    src = src.replace(
+      /function setCell\(col, row, on\) \{\n    grid\[idx\(col, row\)\] = on \? 1 : 0;\n    save\(\);\n  \}/,
+      `function setCell(col, row, on) {
+    const v = on ? 1 : 0;
+    grid[idx(col, row)] = v;
+    layers[activeLayer][idx(col, row)] = v;
+    save();
+    try { window.__tonepadUpdateLayers?.(); } catch (_) {}
+  }`
+    );
+
+    src = src.replace(
+      /function scheduleAhead\(\) \{\n    if \(!playing \|\| !audioCtx\) return;\n    const sd = stepDur\(\);\n    const now = audioCtx\.currentTime;\n    const look = 0\.12;\n    while \(anchor \+ lastVisStep \* sd < now \+ look\) \{\n      lastVisStep \+= 1;\n      const step = \(\(lastVisStep % COLS\) \+ COLS\) % COLS;\n      const when = anchor \+ lastVisStep \* sd;\n      for \(let row = 0; row < ROWS; row\+\+\) \{\n        if \(grid\[idx\(step, row\)\]\) trigger\(row, when, 0\.55 \+ Math\.random\(\) \* 0\.25\);\n      \}\n    \}\n  \}/,
+      `function scheduleAhead() {
+    if (!playing || !audioCtx) return;
+    const sd = stepDur();
+    const now = audioCtx.currentTime;
+    const look = 0.12;
+    while (anchor + lastVisStep * sd < now + look) {
+      lastVisStep += 1;
+      const step = ((lastVisStep % COLS) + COLS) % COLS;
+      if (step === 0 && lastVisStep > 0) {
+        playLayer = nextNonEmptyLayer(playLayer);
+        try { window.__tonepadUpdateLayers?.(); } catch (_) {}
+      }
+      const when = anchor + lastVisStep * sd;
+      const g = layers[playLayer];
+      for (let row = 0; row < ROWS; row++) {
+        if (g[idx(step, row)]) trigger(row, when, 0.55 + Math.random() * 0.25);
+      }
+    }
+  }`
+    );
+
+    src = src.replace(
+      /function start\(\) \{\n    if \(playing\) return;\n    if \(!ensureAudio\(\)\) return;\n    resumeAudio\(\);\n    playing = true;\n    anchor = audioCtx\.currentTime \+ 0\.05;\n    lastVisStep = -1;\n    if \(timer\) clearTimeout\(timer\);\n    timer = window\.setTimeout\(tick, 20\);\n  \}/,
+      `function start() {
+    if (playing) return;
+    if (!ensureAudio()) return;
+    resumeAudio();
+    playing = true;
+    playLayer = firstNonEmptyLayer();
+    anchor = audioCtx.currentTime + 0.05;
+    lastVisStep = -1;
+    if (timer) clearTimeout(timer);
+    timer = window.setTimeout(tick, 20);
+    try { window.__tonepadUpdateLayers?.(); } catch (_) {}
+  }`
+    );
+
     src = src.replace(
       /layer\.innerHTML\s*=\s*[\s\S]*?document\.body\.appendChild\(layer\);/,
       `layer.innerHTML =
@@ -38,12 +155,18 @@ export async function mountTonepad() {
         '</div>' +
         '<span class="tonepad-bpm-val" data-bpm-val>92</span>' +
       '</div>' +
+      '<div class="tonepad-layers" role="tablist" aria-label="Pattern layers">' +
+        [0,1,2,3,4].map((i) =>
+          '<button type="button" class="tonepad-layer-btn' + (i === 0 ? ' is-active' : '') +
+          '" data-layer="' + i + '" role="tab" aria-selected="' + (i === 0 ? 'true' : 'false') +
+          '" aria-label="Layer ' + (i + 1) + '">' + (i + 1) + '</button>'
+        ).join('') +
+      '</div>' +
     '</div>' +
     '<canvas id="tonepadCanvas" aria-label="Pentatonic step sequencer"></canvas>';
   document.body.appendChild(layer);`
     );
 
-    // --- Injected CSS: flex column (BPM bar above grid) + light mode ---
     src = src.replace(
       /style\.textContent\s*=\s*\[[\s\S]*?\]\.join\(''\);/,
       `style.textContent = [
@@ -52,24 +175,30 @@ export async function mountTonepad() {
       '.tonepad-layer{position:fixed;z-index:14;overflow:hidden;background:#0a0d0b;pointer-events:none;touch-action:none;will-change:transform;border-radius:10px;display:flex;flex-direction:column}',
       'body.tonepad-open .tonepad-layer{pointer-events:auto}',
       '.tonepad-layer canvas#tonepadCanvas{display:block;flex:1 1 auto;min-height:0;width:100%;touch-action:none;border-radius:0 0 10px 10px}',
-      '.tonepad-chrome{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:8px;padding:6px 10px 4px;pointer-events:none;background:rgba(10,13,11,.96);border-bottom:1px solid rgba(200,210,200,.08)}',
+      '.tonepad-chrome{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 10px;pointer-events:none;background:rgba(10,13,11,.96);border-bottom:1px solid rgba(200,210,200,.08)}',
       '.tonepad-chrome *{pointer-events:auto}',
-      '.tonepad-bpm{display:flex;flex-direction:row;align-items:center;gap:8px}',
+      '.tonepad-bpm{display:flex;flex-direction:row;align-items:center;gap:8px;flex:0 0 auto}',
       '.tonepad-bpm-label{font:600 9px/1 Inter,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#c9b06a}',
       '.tonepad-bpm-dial{width:36px;height:36px;border-radius:8px;border:1px solid rgba(232,212,138,.4);background:linear-gradient(160deg,#1a2018,#0e120f);cursor:ns-resize;touch-action:none}',
       '.tonepad-bpm-dial canvas{width:100%;height:100%;display:block;pointer-events:none}',
       '.tonepad-bpm-val{font:600 12px/1 Inter,system-ui,sans-serif;color:#f0d99a;min-width:2ch}',
+      '.tonepad-layers{display:flex;align-items:center;gap:6px;flex:0 0 auto}',
+      '.tonepad-layer-btn{appearance:none;width:30px;height:30px;border-radius:8px;border:1px solid rgba(200,210,200,.18);background:rgba(255,255,255,.04);color:#9aab9e;font:600 12px/1 Inter,system-ui,sans-serif;cursor:pointer;padding:0}',
+      '.tonepad-layer-btn.is-active{border-color:rgba(232,212,138,.55);background:rgba(232,212,138,.14);color:#f0d99a}',
+      '.tonepad-layer-btn.is-playing{box-shadow:0 0 0 2px rgba(120,200,160,.45)}',
+      '.tonepad-layer-btn.is-empty{opacity:.45}',
       'body.tonepad-open #pan{pointer-events:none}',
-      /* Light mode */
       'html.theme-light .tonepad-layer,body.theme-light .tonepad-layer{background:#f2f0ea}',
       'html.theme-light .tonepad-chrome,body.theme-light .tonepad-chrome{background:rgba(242,240,234,.98);border-bottom-color:rgba(40,36,28,.1)}',
       'html.theme-light .tonepad-bpm-label,body.theme-light .tonepad-bpm-label{color:#8a7020}',
       'html.theme-light .tonepad-bpm-dial,body.theme-light .tonepad-bpm-dial{border-color:rgba(140,110,30,.35);background:linear-gradient(160deg,#f7f4ec,#e8e4da)}',
-      'html.theme-light .tonepad-bpm-val,body.theme-light .tonepad-bpm-val{color:#5c4a12}'
+      'html.theme-light .tonepad-bpm-val,body.theme-light .tonepad-bpm-val{color:#5c4a12}',
+      'html.theme-light .tonepad-layer-btn,body.theme-light .tonepad-layer-btn{border-color:rgba(40,36,28,.12);background:rgba(40,36,28,.04);color:#5a564c}',
+      'html.theme-light .tonepad-layer-btn.is-active,body.theme-light .tonepad-layer-btn.is-active{border-color:rgba(140,110,30,.45);background:rgba(200,170,60,.18);color:#5c4a12}',
+      'html.theme-light .tonepad-layer-btn.is-playing,body.theme-light .tonepad-layer-btn.is-playing{box-shadow:0 0 0 2px rgba(100,140,80,.4)}'
     ].join('');`
     );
 
-    // Canvas draw: theme-aware background + empty cells
     src = src.replace(
       /g\.clearRect\(0, 0, w, h\);\s*\/\/ card background\s*g\.fillStyle = '#0a0d0b';\s*g\.fillRect\(0, 0, w, h\);\s*g\.strokeStyle = 'rgba\(200, 210, 200, 0\.12\)';/,
       `g.clearRect(0, 0, w, h);
@@ -78,15 +207,12 @@ export async function mountTonepad() {
     g.fillRect(0, 0, w, h);
     g.strokeStyle = light ? 'rgba(40, 36, 28, 0.12)' : 'rgba(200, 210, 200, 0.12)';`
     );
-
     src = src.replace(
       /g\.fillStyle = beat \? 'rgba\(255,255,255,0\.04\)' : 'rgba\(255,255,255,0\.018\)';/,
       `g.fillStyle = light
           ? (beat ? 'rgba(40,36,28,0.07)' : 'rgba(40,36,28,0.035)')
           : (beat ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.018)');`
     );
-
-    // BPM knob ring colors in light mode
     src = src.replace(
       /c\.strokeStyle = 'rgba\(120,130,118,\.35\)';\s*c\.beginPath\(\);\s*c\.arc\(cx, cy, r, start, start \+ span\);\s*c\.stroke\(\);\s*c\.strokeStyle = '#e1cc8b';/,
       `const lightKnob = document.documentElement.classList.contains('theme-light') || document.body.classList.contains('theme-light');
@@ -96,14 +222,39 @@ export async function mountTonepad() {
     c.stroke();
     c.strokeStyle = lightKnob ? '#a08020' : '#e1cc8b';`
     );
-
-    // metrics: smaller top chrome now that bar is outside canvas flow — still pad a little
     src = src.replace(
       /const topChrome = Math\.round\(Math\.min\(w, h\) \* 0\.11\);/,
       `const topChrome = Math.round(Math.min(w, h) * 0.02);`
     );
 
-    // --- Carousel track (v15 park + smooth) ---
+    src = src.replace(
+      /const bpmVal = layer\.querySelector\('\[data-bpm-val\]'\);/,
+      `const bpmVal = layer.querySelector('[data-bpm-val]');
+  function updateLayerButtons() {
+    layer.querySelectorAll('.tonepad-layer-btn').forEach((btn) => {
+      const i = Number(btn.getAttribute('data-layer'));
+      btn.classList.toggle('is-active', i === activeLayer);
+      btn.classList.toggle('is-playing', playing && i === playLayer);
+      btn.classList.toggle('is-empty', !layerHasNotes(i));
+      btn.setAttribute('aria-selected', i === activeLayer ? 'true' : 'false');
+    });
+  }
+  window.__tonepadUpdateLayers = updateLayerButtons;
+  layer.querySelectorAll('.tonepad-layer-btn').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const i = Number(btn.getAttribute('data-layer'));
+      if (!Number.isFinite(i) || i === activeLayer) return;
+      commitActiveToLayer();
+      activeLayer = i;
+      syncGridFromActive();
+      updateLayerButtons();
+      save();
+    });
+  });
+  updateLayerButtons();`
+    );
+
     src = src.replace(
       /function shiftCarousel\(animate\) \{[\s\S]*?\n  \}\n\n  function resizeCanvas/,
       `const TP_EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
