@@ -87,16 +87,13 @@ async function loadSoundscapes() {
     await import(new URL('./js/soundscapes.js?v=11', BASE).href);
   } catch (e) {
     console.warn('[boot] soundscapes', e);
-    if (window.PionierBootState !== 'failed') {
-      setBootStatus('degraded', 'Soundscapes could not load. The instrument is still available; reload to retry.', true);
-    }
   }
 }
 
 async function loadAmbientSequencer() {
   try {
-    const { mountTonepad } = await import(new URL('./js/tonepad.js?v=6', BASE).href);
-    if (typeof mountTonepad === 'function') mountTonepad();
+    const { mountTonepad } = await import(new URL('./js/tonepad.js?v=7', BASE).href);
+    if (typeof mountTonepad === 'function') await mountTonepad();
   } catch (e) {
     console.warn('[boot] tonepad', e);
   }
@@ -162,26 +159,9 @@ async function boot() {
       unlockAudioFromGesture();
       const core = window.PionierCore;
       if (typeof core?.randomizeSetup === 'function') {
-        const result = await core.randomizeSetup();
-        if (result && result.instrumentCount === 0) {
-          console.warn('[randomize] no instruments in registry');
-        }
-      } else {
-        const steps = 1 + Math.floor(Math.random() * 6);
-        for (let i = 0; i < steps; i++) document.getElementById('voiceNext')?.click();
-        const scales = window.HANDPAN_SCALES || [];
-        const handpan = core?.handpan;
-        if (handpan && scales.length > 1) {
-          const next = Math.floor(Math.random() * scales.length);
-          if (typeof core.setScaleIndex === 'function') core.setScaleIndex(next);
-          else { handpan.setScaleIndex(next); core?.refreshPitch?.(); }
-          const label = document.getElementById('scaleLabel');
-          const scale = scales[next];
-          if (label && scale) label.textContent = (scale.short || scale.label || 'Scale') + ' \u25be';
-          core?.draw?.();
-        }
+        await core.randomizeSetup();
       }
-    } catch (err) { console.warn('[randomize] setup selection failed', err); }
+    } catch (err) { console.warn('[randomize]', err); }
     finally {
       if (dice) { delete dice.dataset.rolling; dice.classList.remove('is-rolling'); }
     }
