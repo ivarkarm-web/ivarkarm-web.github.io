@@ -1,6 +1,5 @@
-/* sequence-carousel.css — loaded last; wins cascade for carousel + playhead + bpm knob */
+/* sequence-carousel.css — TonePad + legacy sequence panel */
 
-/* Kill legacy hard-hide that blocked exit animation */
 .pionier-sequence[hidden] {
   display: grid !important;
 }
@@ -39,61 +38,21 @@
   to   { opacity: 0; transform: translate3d(100%, 0, 0); }
 }
 
-#app {
-  transition: transform .42s cubic-bezier(.22, .82, .2, 1), opacity .34s ease, filter .34s ease !important;
-  will-change: transform, opacity;
-}
-body.pionier-sequence-open #app {
-  transform: translate3d(-22%, 0, 0) scale(0.96) !important;
-  opacity: 0.22 !important;
-  filter: blur(2px);
-  pointer-events: none !important;
-}
-body.pionier-sequence-open #app .topbar,
-body.pionier-sequence-open #app .mobile-control-drawer,
-body.pionier-sequence-open #app .looper-rail {
-  opacity: 0 !important;
-}
-
-/* Active steps keep row colors; playhead pops harder */
-.pionier-sequence .sequence-step.is-current {
-  outline: 2px solid #f5e6b0 !important;
-  outline-offset: -2px;
-  z-index: 2;
-  filter: brightness(1.3) saturate(1.1);
-  box-shadow: 0 0 16px rgba(245, 230, 176, 0.55) !important;
-  animation: pionier-step-hit .28s ease-out;
-}
-.pionier-sequence .sequence-step.is-active.is-current {
-  filter: brightness(1.45) saturate(1.2);
-  box-shadow: 0 0 20px rgba(245, 230, 176, 0.7) !important;
-}
-.pionier-sequence .sequence-row-mallet .sequence-step.is-active {
-  background: #c9b06a !important;
-  border-color: #e8d48a !important;
-}
-.pionier-sequence .sequence-row-deep .sequence-step.is-active {
-  background: #7a9a82 !important;
-  border-color: #a8c4b0 !important;
-}
-.pionier-sequence .sequence-row-pluck .sequence-step.is-active {
-  background: #b07a5c !important;
-  border-color: #d4a08a !important;
-}
-
-/* TonePad card carousel — handpan exits fully to the left */
+/* TonePad card carousel — JS drives transforms; do NOT force opacity 0 */
 #pan {
-  transition: transform .42s cubic-bezier(.22, .82, .2, 1), opacity .36s ease;
-  will-change: transform, opacity;
+  will-change: transform;
+  transform-origin: center center;
 }
 body.tonepad-open #pan {
-  transform: translate3d(-110%, 0, 0) !important;
-  opacity: 0.06 !important;
   pointer-events: none !important;
   contain: none !important;
 }
+/* Soft dim only — handpan stays visible as it slides off left */
 body.tonepad-open .stage::before {
-  transform: translate(calc(-50% - 55vw), 50%) !important;
-  opacity: 0.1 !important;
-  transition: transform .42s cubic-bezier(.22, .82, .2, 1), opacity .36s ease;
+  opacity: 0.25;
+  transition: opacity .36s ease;
+}
+
+.tonepad-layer {
+  will-change: transform;
 }
