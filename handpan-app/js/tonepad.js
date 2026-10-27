@@ -1,11 +1,11 @@
 /**
- * TonePad v9 — assemble tb0..tb7 + carousel + keep playing on handpan view.
+ * TonePad v10 — assemble tb0..tb7; carousel driven by CSS variables.
  */
 export async function mountTonepad() {
   if (window.__tonepadMounting) return window.__tonepadMounting;
   window.__tonepadMounting = (async () => {
     const base = import.meta.url;
-    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=9', base));
+    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=10', base));
     const parts = await Promise.all(
       urls.map((u) =>
         fetch(u, { cache: 'no-cache' }).then((r) => {
@@ -26,7 +26,7 @@ export async function mountTonepad() {
       (m, q, rel) => `from ${q}${new URL(rel, dir).href}${q}`
     );
 
-    // True dual-card carousel
+    // Replace shiftCarousel: drive --tp-x / --tp-lx on :root (CSS !important picks them up)
     src = src.replace(
       /function shiftCarousel\(animate\) \{[\s\S]*?\n  \}\n\n  function resizeCanvas/,
       `function shiftCarousel(animate) {
@@ -38,22 +38,18 @@ export async function mountTonepad() {
     const x = -page * w + dx;
     const progress = Math.max(0, Math.min(1, -x / w));
     slideProgress = progress;
-    const tr = animate
-      ? 'transform .42s cubic-bezier(.22,.82,.2,1)'
-      : 'none';
-
+    const root = document.documentElement;
+    root.style.setProperty('--tp-tr', animate ? '.42s' : '0s');
+    root.style.setProperty('--tp-x', x + 'px');
+    root.style.setProperty('--tp-lx', (x + w) + 'px');
+    // Also set inline as backup (without !important)
     const pan = document.getElementById('pan');
     if (pan) {
-      pan.style.setProperty('transition', tr);
-      pan.style.setProperty('transform', 'translate3d(' + x + 'px,0,0)');
-      pan.style.setProperty('opacity', '1');
-      pan.style.setProperty('contain', progress > 0.01 ? 'none' : '');
+      pan.style.transform = 'translate3d(' + x + 'px,0,0)';
+      pan.style.opacity = '1';
     }
-
-    layer.style.transition = tr;
     layer.style.transform = 'translate3d(' + (x + w) + 'px,0,0)';
     layer.style.opacity = '1';
-
     if (progress > 0.55) document.body.classList.add('tonepad-open');
     else if (!animate) document.body.classList.toggle('tonepad-open', page === 1);
   }
@@ -61,14 +57,13 @@ export async function mountTonepad() {
   function resizeCanvas`
     );
 
-    // Keep playing when returning to handpan — only start when opening, never stop on close
+    // Keep playing when returning to handpan
     src = src.replace(
       /if \(open\) \{\s*start\(\);\s*resizeCanvas\(\);\s*\} else \{\s*stop\(\);\s*\}/,
       `if (open) {
       start();
       resizeCanvas();
-    }
-    // stay playing in background when viewing handpan`
+    }`
     );
 
     // Easier swipe-back from left side of sequencer
@@ -81,11 +76,6 @@ export async function mountTonepad() {
       e.clientX <= EDGE ||
       (lr && e.clientX >= lr.left && e.clientX <= lr.left + Math.max(EDGE, lr.width * 0.28))
     );`
-    );
-
-    src = src.replace(
-      "'#pan{will-change:transform,opacity;transition:none}',",
-      "'#pan{will-change:transform;transition:none;opacity:1}',"
     );
 
     const blob = new Blob([src], { type: 'text/javascript' });
