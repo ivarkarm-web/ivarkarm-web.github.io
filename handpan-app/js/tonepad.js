@@ -1,11 +1,11 @@
 /**
- * TonePad v15 — park inactive card fully off-screen (no edge sliver).
+ * TonePad v16 — no title/hint, BPM in its own bar, light mode.
  */
 export async function mountTonepad() {
   if (window.__tonepadMounting) return window.__tonepadMounting;
   window.__tonepadMounting = (async () => {
     const base = import.meta.url;
-    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=15', base));
+    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=16', base));
     const parts = await Promise.all(
       urls.map((u) =>
         fetch(u, { cache: 'no-cache' }).then((r) => {
@@ -26,6 +26,84 @@ export async function mountTonepad() {
       (m, q, rel) => `from ${q}${new URL(rel, dirUrl).href}${q}`
     );
 
+    // --- Chrome: BPM only, no TonePad title / hint ---
+    src = src.replace(
+      /layer\.innerHTML\s*=\s*[\s\S]*?document\.body\.appendChild\(layer\);/,
+      `layer.innerHTML =
+    '<div class="tonepad-chrome">' +
+      '<div class="tonepad-bpm">' +
+        '<span class="tonepad-bpm-label">BPM</span>' +
+        '<div class="tonepad-bpm-dial" tabindex="0" role="slider" aria-label="Tempo" aria-valuemin="48" aria-valuemax="160">' +
+          '<canvas width="96" height="96"></canvas>' +
+        '</div>' +
+        '<span class="tonepad-bpm-val" data-bpm-val>92</span>' +
+      '</div>' +
+    '</div>' +
+    '<canvas id="tonepadCanvas" aria-label="Pentatonic step sequencer"></canvas>';
+  document.body.appendChild(layer);`
+    );
+
+    // --- Injected CSS: flex column (BPM bar above grid) + light mode ---
+    src = src.replace(
+      /style\.textContent\s*=\s*\[[\s\S]*?\]\.join\(''\);/,
+      `style.textContent = [
+      '#stage{overflow:hidden}',
+      '#pan{will-change:transform;transition:none}',
+      '.tonepad-layer{position:fixed;z-index:14;overflow:hidden;background:#0a0d0b;pointer-events:none;touch-action:none;will-change:transform;border-radius:10px;display:flex;flex-direction:column}',
+      'body.tonepad-open .tonepad-layer{pointer-events:auto}',
+      '.tonepad-layer canvas#tonepadCanvas{display:block;flex:1 1 auto;min-height:0;width:100%;touch-action:none;border-radius:0 0 10px 10px}',
+      '.tonepad-chrome{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:8px;padding:6px 10px 4px;pointer-events:none;background:rgba(10,13,11,.96);border-bottom:1px solid rgba(200,210,200,.08)}',
+      '.tonepad-chrome *{pointer-events:auto}',
+      '.tonepad-bpm{display:flex;flex-direction:row;align-items:center;gap:8px}',
+      '.tonepad-bpm-label{font:600 9px/1 Inter,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#c9b06a}',
+      '.tonepad-bpm-dial{width:36px;height:36px;border-radius:8px;border:1px solid rgba(232,212,138,.4);background:linear-gradient(160deg,#1a2018,#0e120f);cursor:ns-resize;touch-action:none}',
+      '.tonepad-bpm-dial canvas{width:100%;height:100%;display:block;pointer-events:none}',
+      '.tonepad-bpm-val{font:600 12px/1 Inter,system-ui,sans-serif;color:#f0d99a;min-width:2ch}',
+      'body.tonepad-open #pan{pointer-events:none}',
+      /* Light mode */
+      'html.theme-light .tonepad-layer,body.theme-light .tonepad-layer{background:#f2f0ea}',
+      'html.theme-light .tonepad-chrome,body.theme-light .tonepad-chrome{background:rgba(242,240,234,.98);border-bottom-color:rgba(40,36,28,.1)}',
+      'html.theme-light .tonepad-bpm-label,body.theme-light .tonepad-bpm-label{color:#8a7020}',
+      'html.theme-light .tonepad-bpm-dial,body.theme-light .tonepad-bpm-dial{border-color:rgba(140,110,30,.35);background:linear-gradient(160deg,#f7f4ec,#e8e4da)}',
+      'html.theme-light .tonepad-bpm-val,body.theme-light .tonepad-bpm-val{color:#5c4a12}'
+    ].join('');`
+    );
+
+    // Canvas draw: theme-aware background + empty cells
+    src = src.replace(
+      /g\.clearRect\(0, 0, w, h\);\s*\/\/ card background\s*g\.fillStyle = '#0a0d0b';\s*g\.fillRect\(0, 0, w, h\);\s*g\.strokeStyle = 'rgba\(200, 210, 200, 0\.12\)';/,
+      `g.clearRect(0, 0, w, h);
+    const light = document.documentElement.classList.contains('theme-light') || document.body.classList.contains('theme-light');
+    g.fillStyle = light ? '#f2f0ea' : '#0a0d0b';
+    g.fillRect(0, 0, w, h);
+    g.strokeStyle = light ? 'rgba(40, 36, 28, 0.12)' : 'rgba(200, 210, 200, 0.12)';`
+    );
+
+    src = src.replace(
+      /g\.fillStyle = beat \? 'rgba\(255,255,255,0\.04\)' : 'rgba\(255,255,255,0\.018\)';/,
+      `g.fillStyle = light
+          ? (beat ? 'rgba(40,36,28,0.07)' : 'rgba(40,36,28,0.035)')
+          : (beat ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.018)');`
+    );
+
+    // BPM knob ring colors in light mode
+    src = src.replace(
+      /c\.strokeStyle = 'rgba\(120,130,118,\.35\)';\s*c\.beginPath\(\);\s*c\.arc\(cx, cy, r, start, start \+ span\);\s*c\.stroke\(\);\s*c\.strokeStyle = '#e1cc8b';/,
+      `const lightKnob = document.documentElement.classList.contains('theme-light') || document.body.classList.contains('theme-light');
+    c.strokeStyle = lightKnob ? 'rgba(80,70,40,.25)' : 'rgba(120,130,118,.35)';
+    c.beginPath();
+    c.arc(cx, cy, r, start, start + span);
+    c.stroke();
+    c.strokeStyle = lightKnob ? '#a08020' : '#e1cc8b';`
+    );
+
+    // metrics: smaller top chrome now that bar is outside canvas flow — still pad a little
+    src = src.replace(
+      /const topChrome = Math\.round\(Math\.min\(w, h\) \* 0\.11\);/,
+      `const topChrome = Math.round(Math.min(w, h) * 0.02);`
+    );
+
+    // --- Carousel track (v15 park + smooth) ---
     src = src.replace(
       /function shiftCarousel\(animate\) \{[\s\S]*?\n  \}\n\n  function resizeCanvas/,
       `const TP_EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
@@ -46,12 +124,9 @@ export async function mountTonepad() {
     layer.style.opacity = '1';
   }
 
-  /** Distances that push each card fully past the viewport edge. */
   function parkDistances(box) {
     const w = Math.max(1, box.width);
-    // layer is position:fixed at box.left — need box.left + layerX >= innerWidth
     const parkRight = Math.ceil(Math.max(w + 24, window.innerWidth - box.left + 16));
-    // pan layout left is box.left — need box.left + panX + w <= 0
     const parkLeft = -Math.ceil(Math.max(w + 24, box.left + w + 16));
     return { w, parkRight, parkLeft };
   }
@@ -62,16 +137,10 @@ export async function mountTonepad() {
     place();
     const dx = dragDx != null ? dragDx : 0;
     const { w, parkRight, parkLeft } = parkDistances(box);
-    // progress 0 = handpan, 1 = sequencer
-    const t = Math.max(0, Math.min(1, page + (-dx) / w * (page === 0 ? 1 : 1)));
-    // cleaner: base offset in "page units"
     const x = -page * w + dx;
     const progress = Math.max(0, Math.min(1, -x / w));
     slideProgress = progress;
-    // Interpolate between fully-parked positions so nothing peeks at rest
-    const panX = parkLeft * progress;
-    const layerX = parkRight * (1 - progress);
-    setTrack(panX, layerX, animate);
+    setTrack(parkLeft * progress, parkRight * (1 - progress), animate);
     if (progress > 0.55) document.body.classList.add('tonepad-open');
     else if (!animate) document.body.classList.toggle('tonepad-open', page === 1);
   }
@@ -95,15 +164,9 @@ export async function mountTonepad() {
   function wrapForwardToHandpan() {
     const box = homeBox();
     if (!box) return;
-    const { w, parkRight, parkLeft } = parkDistances(box);
+    const { parkRight } = parkDistances(box);
     const dx = dragDx != null ? dragDx : 0;
     dragDx = null;
-    const progress = Math.max(0, Math.min(1, (w - dx) / w));
-    // Continue from current interpolated positions
-    const curPan = parkLeft * Math.max(0, Math.min(1, 1 + dx / w));
-    const curLayer = parkRight * (1 - Math.max(0, Math.min(1, 1 + dx / w)));
-    // From sequencer (progress~1): pan near parkLeft, layer near 0
-    // Wrap forward: pan enters from right (parkRight → 0), layer exits left (0 → parkLeft-ish)
     setTrack(parkRight + dx, dx, false);
     void layer.offsetWidth;
     requestAnimationFrame(() => {
@@ -112,16 +175,14 @@ export async function mountTonepad() {
       open = false;
       document.body.classList.remove('tonepad-open');
       layer.setAttribute('aria-hidden', 'true');
-      afterTransition(layer, TP_MS, () => {
-        setTrack(0, parkRight, false);
-      });
+      afterTransition(layer, TP_MS, () => setTrack(0, parkRight, false));
     });
   }
 
   function wrapBackwardToSequencer() {
     const box = homeBox();
     if (!box) return;
-    const { w, parkRight, parkLeft } = parkDistances(box);
+    const { parkLeft } = parkDistances(box);
     const dx = dragDx != null ? dragDx : 0;
     dragDx = null;
     setTrack(dx, parkLeft + dx, false);
@@ -134,9 +195,7 @@ export async function mountTonepad() {
       layer.setAttribute('aria-hidden', 'false');
       start();
       resizeCanvas();
-      afterTransition(layer, TP_MS, () => {
-        setTrack(parkLeft, 0, false);
-      });
+      afterTransition(layer, TP_MS, () => setTrack(parkLeft, 0, false));
     });
   }
 
