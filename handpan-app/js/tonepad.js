@@ -1,11 +1,11 @@
 /**
- * TonePad v8 — assemble tb0..tb7 + true carousel (both cards slide together).
+ * TonePad v9 — assemble tb0..tb7 + carousel + keep playing on handpan view.
  */
 export async function mountTonepad() {
   if (window.__tonepadMounting) return window.__tonepadMounting;
   window.__tonepadMounting = (async () => {
     const base = import.meta.url;
-    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=8', base));
+    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=9', base));
     const parts = await Promise.all(
       urls.map((u) =>
         fetch(u, { cache: 'no-cache' }).then((r) => {
@@ -26,7 +26,7 @@ export async function mountTonepad() {
       (m, q, rel) => `from ${q}${new URL(rel, dir).href}${q}`
     );
 
-    // Replace entire shiftCarousel with real dual-card carousel
+    // True dual-card carousel
     src = src.replace(
       /function shiftCarousel\(animate\) \{[\s\S]*?\n  \}\n\n  function resizeCanvas/,
       `function shiftCarousel(animate) {
@@ -35,7 +35,6 @@ export async function mountTonepad() {
     place();
     const dx = dragDx != null ? dragDx : 0;
     const w = Math.max(1, box.width);
-    // x is the track offset: 0 = handpan centered, -w = sequencer centered
     const x = -page * w + dx;
     const progress = Math.max(0, Math.min(1, -x / w));
     slideProgress = progress;
@@ -46,13 +45,11 @@ export async function mountTonepad() {
     const pan = document.getElementById('pan');
     if (pan) {
       pan.style.setProperty('transition', tr);
-      // Handpan slides left with the track — stays fully visible
       pan.style.setProperty('transform', 'translate3d(' + x + 'px,0,0)');
       pan.style.setProperty('opacity', '1');
       pan.style.setProperty('contain', progress > 0.01 ? 'none' : '');
     }
 
-    // Sequencer sits one card-width to the right of the handpan home
     layer.style.transition = tr;
     layer.style.transform = 'translate3d(' + (x + w) + 'px,0,0)';
     layer.style.opacity = '1';
@@ -64,7 +61,17 @@ export async function mountTonepad() {
   function resizeCanvas`
     );
 
-    // Easier swipe-back: when sequencer is open, allow starting from left 28% of the layer
+    // Keep playing when returning to handpan — only start when opening, never stop on close
+    src = src.replace(
+      /if \(open\) \{\s*start\(\);\s*resizeCanvas\(\);\s*\} else \{\s*stop\(\);\s*\}/,
+      `if (open) {
+      start();
+      resizeCanvas();
+    }
+    // stay playing in background when viewing handpan`
+    );
+
+    // Easier swipe-back from left side of sequencer
     src = src.replace(
       /const fromRight = e\.clientX >= window\.innerWidth - EDGE && page < PAGES\.length - 1;\s*const fromLeft = e\.clientX <= EDGE && page > 0;/,
       `const layerEl = document.getElementById('tonepadLayer');
@@ -76,7 +83,6 @@ export async function mountTonepad() {
     );`
     );
 
-    // Keep opacity full in injected chrome CSS
     src = src.replace(
       "'#pan{will-change:transform,opacity;transition:none}',",
       "'#pan{will-change:transform;transition:none;opacity:1}',"
