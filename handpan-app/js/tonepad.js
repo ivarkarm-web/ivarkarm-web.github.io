@@ -1,32 +1,20 @@
 /**
- * TonePad entry — direct pin import (reliable mount).
- * Pin includes layers, VEL/PROB/HUM, infinite carousel, shared BPM.
+ * TonePad v33 — self-contained sequencer (no CDN pin).
  */
 export async function mountTonepad() {
   if (window.__tonepadMounting) return window.__tonepadMounting;
   window.__tonepadMounting = (async () => {
-    const pinned =
-      'https://cdn.jsdelivr.net/gh/ivarkarm-web/ivarkarm-web.github.io@0bf964545e733bfb6002a78e7738e1e2aabf2c75/handpan-app/js/tonepad.js';
-    const mod = await import(/* @vite-ignore */ pinned);
-    const api = await mod.mountTonepad();
-
+    const mod = await import(new URL('./tonepad-impl.js?v=33', import.meta.url).href);
+    const api = typeof mod.mountTonepad === 'function' ? await mod.mountTonepad() : mod;
     try {
-      if (!document.getElementById('tonepad-smooth-v32')) {
+      if (!document.getElementById('tonepad-smooth-v33')) {
         const style = document.createElement('style');
-        style.id = 'tonepad-smooth-v32';
-        style.textContent = [
-          '#pan, .tonepad-layer {',
-          '  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;',
-          '  will-change: transform;',
-          '  backface-visibility: hidden;',
-          '  -webkit-backface-visibility: hidden;',
-          '}',
-        ].join('\n');
+        style.id = 'tonepad-smooth-v33';
+        style.textContent = '#pan,.tonepad-layer{transition-timing-function:cubic-bezier(0.22,1,0.36,1)!important;will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden}';
         document.head.appendChild(style);
       }
       document.documentElement.style.setProperty('--tp-ease', 'cubic-bezier(0.22, 1, 0.36, 1)');
     } catch (_) {}
-
     try {
       const btn = document.getElementById('tonepadToggle');
       if (btn && !btn.dataset.tpWired) {
@@ -42,7 +30,6 @@ export async function mountTonepad() {
         });
       }
     } catch (_) {}
-
     try { window.PionierTonepad = api || window.PionierTonepad; } catch (_) {}
     return api;
   })().catch((err) => {
