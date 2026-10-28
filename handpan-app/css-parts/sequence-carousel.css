@@ -22,14 +22,14 @@
 
 /*
  * TonePad track — CSS vars from JS.
- * Easing tuned for finger-follow settle (iOS-like decelerate).
+ * iOS-like decelerate; GPU-friendly.
  */
 #pan {
   will-change: transform;
   transform-origin: center center;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  transition: transform var(--tp-tr, 0s) var(--tp-ease, cubic-bezier(0.32, 0.72, 0, 1)) !important;
+  transition: transform var(--tp-tr, 0s) var(--tp-ease, cubic-bezier(0.22, 1, 0.36, 1)) !important;
   transform: translate3d(var(--tp-x, 0px), 0, 0) translateZ(0) !important;
 }
 body.tonepad-open #pan {
@@ -41,7 +41,7 @@ body.tonepad-open #pan {
   will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  transition: transform var(--tp-tr, 0s) var(--tp-ease, cubic-bezier(0.32, 0.72, 0, 1)) !important;
+  transition: transform var(--tp-tr, 0s) var(--tp-ease, cubic-bezier(0.22, 1, 0.36, 1)) !important;
   transform: translate3d(var(--tp-lx, 100vw), 0, 0) translateZ(0) !important;
   opacity: 1 !important;
 }
