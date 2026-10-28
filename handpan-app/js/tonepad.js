@@ -1,33 +1,49 @@
 /**
- * TonePad v28 - smoother infinite carousel, layers, VEL/PROB/HUM (BPM via looper).
+ * TonePad entry - pinned working build + smoother carousel CSS.
  */
 export async function mountTonepad() {
   if (window.__tonepadMounting) return window.__tonepadMounting;
   window.__tonepadMounting = (async () => {
-    const base = import.meta.url;
-    const n = 9;
-    const urls = Array.from({ length: n }, (_, i) => new URL('./tp28c' + i + '.js?v=1', base));
-    const parts = await Promise.all(
-      urls.map((u) =>
-        fetch(u, { cache: 'no-cache' }).then((r) => {
-          if (!r.ok) throw new Error('missing ' + u);
-          return r.text();
-        })
-      )
-    );
-    const b64 = parts.join('').replace(/\s+/g, '');
-    const bin = atob(b64);
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    const src = new TextDecoder().decode(bytes);
-    const blob = new Blob([src], { type: 'text/javascript' });
-    const url = URL.createObjectURL(blob);
+    const pinned =
+      'https://cdn.jsdelivr.net/gh/ivarkarm-web/ivarkarm-web.github.io@0bf964545e733bfb6002a78e7738e1e2aabf2c75/handpan-app/js/tonepad.js';
+    const mod = await import(/* @vite-ignore */ pinned);
+    const api = await mod.mountTonepad();
+
     try {
-      const mod = await import(/* @vite-ignore */ url);
-      return mod.mountTonepad();
-    } finally {
-      URL.revokeObjectURL(url);
-    }
+      if (!document.getElementById('tonepad-smooth-v28')) {
+        const style = document.createElement('style');
+        style.id = 'tonepad-smooth-v28';
+        style.textContent = [
+          '#pan, .tonepad-layer {',
+          '  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;',
+          '  will-change: transform;',
+          '  backface-visibility: hidden;',
+          '  -webkit-backface-visibility: hidden;',
+          '}',
+        ].join('\n');
+        document.head.appendChild(style);
+      }
+      document.documentElement.style.setProperty('--tp-ease', 'cubic-bezier(0.22, 1, 0.36, 1)');
+    } catch (_) {}
+
+    try {
+      const btn = document.getElementById('tonepadToggle');
+      if (btn && !btn.dataset.tpWired) {
+        btn.dataset.tpWired = '1';
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const tp = window.PionierTonepad;
+          if (!tp) return;
+          if (typeof tp.toggle === 'function') tp.toggle();
+          else if (document.body.classList.contains('tonepad-open') && tp.close) tp.close();
+          else if (tp.open) tp.open();
+        });
+      }
+    } catch (_) {}
+
+    try { window.PionierTonepad = api || window.PionierTonepad; } catch (_) {}
+    return api;
   })().catch((err) => {
     console.error('[tonepad] mount failed', err);
     window.__tonepadMounting = null;
