@@ -1,11 +1,11 @@
 /**
- * TonePad v25 — CSS-var carousel, BPM left, 5 layers, no title chrome.
+ * TonePad v26 — infinite carousel (both directions), layers, BPM left.
  */
 export async function mountTonepad() {
   if (window.__tonepadMounting) return window.__tonepadMounting;
   window.__tonepadMounting = (async () => {
     const base = import.meta.url;
-    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=25', base));
+    const urls = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => new URL('./tb' + i + '.js?v=26', base));
     const parts = await Promise.all(
       urls.map((u) =>
         fetch(u, { cache: 'no-cache' }).then((r) => {
@@ -26,7 +26,7 @@ export async function mountTonepad() {
       (m, q, rel) => `from ${q}${new URL(rel, dirUrl).href}${q}`
     );
 
-    // Multi-layer store + active/play pointers
+    // --- layers ---
     src = src.replace(
       /const grid = new Uint8Array\(COLS \* ROWS\);\s*let bpm = 92;/,
       `const LAYER_COUNT = 5;
@@ -47,20 +47,9 @@ function nextNonEmptyLayer(from) {
     if (layerHasNotes(i)) return i;
   }
   return from;
-}
-function selectLayer(i) {
-  i = Math.max(0, Math.min(LAYER_COUNT - 1, i | 0));
-  activeLayer = i;
-  // grid is always layers[activeLayer] via rebinding isn't possible (const),
-  // so we copy views: paint/draw use layers[activeLayer] via sync helpers.
-  try { updateLayerButtons(); } catch (_) {}
-}
-function activeGrid() { return layers[activeLayer]; }
-function playGrid() { return layers[playLayer]; }`
+}`
     );
 
-    // Route all grid reads/writes through active layer except playback
-    // After layers patch, `grid` still points to layers[0]. Redirect setCell/draw/paint to activeGrid.
     src = src.replace(
       /function save\(\) \{\s*try \{\s*localStorage\.setItem\(STORE, JSON\.stringify\(\{ cells: Array\.from\(grid\), bpm, version: 1 \}\)\);\s*\} catch \(_\) \{\}\s*\}/,
       `function save() {
@@ -68,9 +57,7 @@ function playGrid() { return layers[playLayer]; }`
     localStorage.setItem(STORE, JSON.stringify({
       cells: Array.from(layers[activeLayer]),
       layers: layers.map((g) => Array.from(g)),
-      activeLayer,
-      bpm,
-      version: 2
+      activeLayer, bpm, version: 2
     }));
   } catch (_) {}
 }`
@@ -98,7 +85,7 @@ function playGrid() { return layers[playLayer]; }`
 }`
     );
 
-    // Chrome: BPM left + layer buttons, no title/hint
+    // chrome
     src = src.replace(
       /layer\.innerHTML =\s*'<div class="tonepad-chrome">' \+[\s\S]*?'<canvas id="tonepadCanvas" aria-label="Pentatonic step sequencer"><\/canvas>';/,
       `layer.innerHTML =
@@ -121,7 +108,6 @@ function playGrid() { return layers[playLayer]; }`
     '<canvas id="tonepadCanvas" aria-label="Pentatonic step sequencer"></canvas>';`
     );
 
-    // Inject layer button helpers + wire after bpmVal
     src = src.replace(
       /const bpmVal = layer\.querySelector\('\[data-bpm-val\]'\);/,
       `const bpmVal = layer.querySelector('[data-bpm-val]');
@@ -142,36 +128,23 @@ function playGrid() { return layers[playLayer]; }`
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      const i = Number(btn.dataset.layer) || 0;
-      activeLayer = i;
+      activeLayer = Number(btn.dataset.layer) || 0;
       updateLayerButtons();
       save();
     });
   });`
     );
 
-    // Draw + paint use active layer
-    src = src.replace(
-      /const on = grid\[idx\(col, row\)\];/,
-      'const on = layers[activeLayer][idx(col, row)];'
-    );
-    src = src.replace(
-      /const on = !grid\[idx\(hit\.col, hit\.row\)\];/,
-      'const on = !layers[activeLayer][idx(hit.col, hit.row)];'
-    );
-
-    // setCell if exists
+    src = src.replace(/const on = grid\[idx\(col, row\)\];/, 'const on = layers[activeLayer][idx(col, row)];');
+    src = src.replace(/const on = !grid\[idx\(hit\.col, hit\.row\)\];/, 'const on = !layers[activeLayer][idx(hit.col, hit.row)];');
     src = src.replace(
       /function setCell\(col, row, on\) \{\s*grid\[idx\(col, row\)\] = on \? 1 : 0;/,
       `function setCell(col, row, on) {
     layers[activeLayer][idx(col, row)] = on ? 1 : 0;`
     );
-
-    // Playback: use playLayer, advance on cycle when step wraps
     src = src.replace(
       /for \(let row = 0; row < ROWS; row\+\+\) \{\s*if \(grid\[idx\(step, row\)\]\) trigger\(row, when, 0\.55 \+ Math\.random\(\) \* 0\.25\);\s*\}/,
-      `// Advance layer at the start of a new cycle (skip empty layers)
-      if (step === 0 && lastVisStep > 0) {
+      `if (step === 0 && lastVisStep > 0) {
         playLayer = nextNonEmptyLayer(playLayer);
         try { updateLayerButtons(); } catch (_) {}
       }
@@ -181,7 +154,6 @@ function playGrid() { return layers[playLayer]; }`
       }`
     );
 
-    // Shared BPM for step duration
     src = src.replace(
       /function stepDur\(\) \{ return 60 \/ bpm \/ 4; \}/,
       `function getSharedBpm() {
@@ -199,19 +171,13 @@ function playGrid() { return layers[playLayer]; }`
   function stepDur() { return 60 / getSharedBpm() / 4; }`
     );
 
-    // Replace injected chrome CSS (title/hint styles → layer bar)
+    // CSS chrome
     src = src.replace(
       /'\.tonepad-chrome\{[^']*\}',/,
       `'.tonepad-chrome{position:absolute;left:0;right:0;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px;pointer-events:none;background:linear-gradient(180deg,rgba(7,8,7,.94),rgba(7,8,7,0));box-sizing:border-box}',`
     );
-    src = src.replace(
-      /'\.tonepad-title\{[^']*\}',/,
-      `'.tonepad-layers{display:flex;align-items:center;gap:4px;pointer-events:auto}',`
-    );
-    src = src.replace(
-      /'\.tonepad-bpm\{[^']*\}',/,
-      `'.tonepad-bpm{display:flex;flex-direction:row;align-items:center;gap:6px;min-width:0;pointer-events:auto}',`
-    );
+    src = src.replace(/'\.tonepad-title\{[^']*\}',/, `'.tonepad-layers{display:flex;align-items:center;gap:4px;pointer-events:auto}',`);
+    src = src.replace(/'\.tonepad-bpm\{[^']*\}',/, `'.tonepad-bpm{display:flex;flex-direction:row;align-items:center;gap:6px;min-width:0;pointer-events:auto}',`);
     src = src.replace(
       /'\.tonepad-bpm-dial\{[^']*\}',/,
       `'.tonepad-bpm-dial{width:36px;height:36px;border-radius:6px;border:1px solid rgba(232,212,138,.45);background:linear-gradient(160deg,#1a2018,#0e120f);cursor:ns-resize;touch-action:none;position:relative;flex:0 0 auto}',`
@@ -224,7 +190,6 @@ function playGrid() { return layers[playLayer]; }`
       '.tonepad-layer-btn.is-empty{opacity:.45}',`
     );
 
-    // After paintBpmKnob first call / load - update layer buttons
     src = src.replace(
       /load\(\);\s*\n\s*if \(!document\.getElementById\('tonepad-css'\)\)/,
       `load();
@@ -233,38 +198,167 @@ function playGrid() { return layers[playLayer]; }`
   if (!document.getElementById('tonepad-css'))`
     );
 
-    // Carousel / edge swipe (same as v24)
-    src = src.replace(/const EDGE = 36;/, 'const EDGE = 64;');
     src = src.replace(
-      /if \(e\.target\.closest && e\.target\.closest\('#looperRail, \.topbar, #pionierBottomDock, #fxPanel, #pionierWelcome, \.tonepad-bpm, button, a, input'\)\) return;/,
-      `if (e.target.closest && e.target.closest('#looperRail, .topbar, #pionierBottomDock, #fxPanel, #fxEditor, #pionierWelcome, .tonepad-bpm, .tonepad-chrome, .tonepad-layers, button, a, input')) return;`
+      /function start\(\) \{\s*if \(playing\) return;\s*if \(!ensureAudio\(\)\) return;\s*resumeAudio\(\);\s*playing = true;/,
+      `function start() {
+    if (playing) return;
+    if (!ensureAudio()) return;
+    resumeAudio();
+    playLayer = layerHasNotes(activeLayer) ? activeLayer : nextNonEmptyLayer(activeLayer);
+    try { updateLayerButtons(); } catch (_) {}
+    playing = true;`
     );
+
+    // ===== INFINITE CAROUSEL =====
+    src = src.replace(/const EDGE = 36;/, 'const EDGE = 64;');
+
+    // Replace entire onDown / onMove / onUp block
     src = src.replace(
-      /const fromRight = e\.clientX >= window\.innerWidth - EDGE && page < PAGES\.length - 1;\s*const fromLeft = e\.clientX <= EDGE && page > 0;\s*if \(!fromRight && !fromLeft\) return;\s*swipe = \{ x: e\.clientX, y: e\.clientY, id: e\.pointerId, dir: fromRight \? 1 : -1, active: false \};/,
-      `const edge = Math.max(EDGE, Math.min(96, window.innerWidth * 0.22));
+      /function onDown\(e\) \{[\s\S]*?window\.addEventListener\('pointerdown', onDown/,
+      `function parkDistances() {
+    const box = homeBox();
+    const w = box ? Math.max(1, box.width) : window.innerWidth;
+    const left = box ? box.left : 0;
+    const parkRight = Math.ceil(Math.max(w + 48, window.innerWidth - left + 24));
+    const parkLeft = -Math.ceil(Math.max(w + 48, left + w + 24));
+    return { box, w, parkRight, parkLeft };
+  }
+
+  function onDown(e) {
+    if (swipe) return;
+    if (e.target.closest && e.target.closest('#looperRail, .topbar, #pionierBottomDock, #fxPanel, #fxEditor, #pionierWelcome, .tonepad-bpm, .tonepad-chrome, .tonepad-layers, button, a, input')) return;
+    const edge = Math.max(EDGE, Math.min(96, window.innerWidth * 0.22));
     const onRight = e.clientX >= window.innerWidth - edge;
     const onLeft = e.clientX <= edge;
-    const layerEl = document.getElementById('tonepadLayer');
-    const lr = layerEl && page === 1 ? layerEl.getBoundingClientRect() : null;
-    const onLayerLeft = !!(lr && e.clientX >= lr.left && e.clientX <= lr.left + Math.max(edge, lr.width * 0.45));
-    const wantOpen = onRight && page < PAGES.length - 1;
-    const wantClose = (onLeft || onLayerLeft) && page > 0;
-    if (!wantOpen && !wantClose) return;
-    swipe = {
-      x: e.clientX,
-      y: e.clientY,
-      id: e.pointerId,
-      dir: wantOpen && !onLeft ? 1 : -1,
-      active: false
-    };`
-    );
-    src = src.replace(
-      /if \(open\) \{\s*start\(\);\s*resizeCanvas\(\);\s*\} else \{\s*stop\(\);\s*\}/,
-      `if (open) {
+    if (!onRight && !onLeft) return;
+    // Infinite: either edge works on either page
+    // dir 1 = content moves left (open forward / wrap forward)
+    // dir -1 = content moves right (close / wrap backward)
+    const dir = onRight ? 1 : -1;
+    swipe = { x: e.clientX, y: e.clientY, id: e.pointerId, dir, active: false };
+  }
+
+  function onMove(e) {
+    if (!swipe || swipe.id !== e.pointerId) return;
+    const dx = e.clientX - swipe.x;
+    const dy = e.clientY - swipe.y;
+    const toward = swipe.dir === 1 ? dx < -8 : dx > 8;
+    if (!swipe.active) {
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+      if (toward && Math.abs(dx) > Math.abs(dy) * 1.15) swipe.active = true;
+      else { swipe = null; return; }
+    }
+    const { w } = parkDistances();
+    // Continuous drag: map dx onto progress delta from current page
+    const capped = swipe.dir === 1
+      ? Math.max(-w, Math.min(0, dx))
+      : Math.min(w, Math.max(0, dx));
+    dragDx = capped;
+    shiftCarousel(false);
+  }
+
+  function wrapForwardToHandpan() {
+    // Sequencer visible → swipe left → handpan enters from the right
+    const { parkRight, parkLeft } = parkDistances();
+    place();
+    // Start: seq at 0, handpan waiting off-right
+    setTrack(parkRight, 0, false);
+    page = 0;
+    open = false;
+    document.body.classList.remove('tonepad-open');
+    layer.setAttribute('aria-hidden', 'true');
+    try {
+      const btn = document.getElementById('tonepadToggle');
+      if (btn) { btn.setAttribute('aria-pressed', 'false'); btn.classList.remove('is-active'); }
+    } catch (_) {}
+    requestAnimationFrame(() => {
+      // Handpan slides in from right; sequencer exits left
+      setTrack(0, parkLeft, true);
+      setTimeout(() => {
+        // Park sequencer back off-right for the next open
+        setTrack(0, parkRight, false);
+        dragDx = null;
+      }, TP_MS + 30);
+    });
+  }
+
+  function wrapBackwardToSequencer() {
+    // Handpan visible → swipe right → sequencer enters from the left
+    const { parkRight, parkLeft } = parkDistances();
+    place();
+    setTrack(0, parkLeft, false);
+    page = 1;
+    open = true;
+    document.body.classList.add('tonepad-open');
+    layer.setAttribute('aria-hidden', 'false');
+    try {
+      const btn = document.getElementById('tonepadToggle');
+      if (btn) { btn.setAttribute('aria-pressed', 'true'); btn.classList.add('is-active'); }
+    } catch (_) {}
+    requestAnimationFrame(() => {
+      setTrack(parkLeft, 0, true);
       start();
       resizeCanvas();
-    }`
+      dragDx = null;
+    });
+  }
+
+  function onUp(e) {
+    if (!swipe || swipe.id !== e.pointerId) return;
+    const dx = e.clientX - swipe.x;
+    const dir = swipe.dir;
+    const was = swipe.active;
+    swipe = null;
+    const { w } = parkDistances();
+    const thresh = Math.min(56, w * 0.16);
+    dragDx = null;
+
+    if (!was) {
+      setPage(page, true);
+      return;
+    }
+
+    if (dir === 1 && dx < -thresh) {
+      // Forward (content left)
+      if (page === 0) setPage(1, true);
+      else wrapForwardToHandpan();
+    } else if (dir === -1 && dx > thresh) {
+      // Backward (content right)
+      if (page === 1) setPage(0, true);
+      else wrapBackwardToSequencer();
+    } else {
+      setPage(page, true);
+    }
+  }
+
+  window.addEventListener('pointerdown', onDown`
     );
+
+    // setPage: keep playing when leaving sequencer
+    src = src.replace(
+      /function setPage\(next, animate\) \{\s*page = Math\.max\(0, Math\.min\(PAGES\.length - 1, next\)\);\s*dragDx = null;\s*open = page === 1;\s*document\.body\.classList\.toggle\('tonepad-open', open\);\s*layer\.setAttribute\('aria-hidden', open \? 'false' : 'true'\);\s*shiftCarousel\(animate\);\s*if \(open\) \{\s*start\(\);\s*resizeCanvas\(\);\s*\} else \{\s*stop\(\);\s*\}\s*\}/,
+      `function setPage(next, animate) {
+    page = ((next % PAGES.length) + PAGES.length) % PAGES.length;
+    dragDx = null;
+    open = page === 1;
+    document.body.classList.toggle('tonepad-open', open);
+    layer.setAttribute('aria-hidden', open ? 'false' : 'true');
+    shiftCarousel(animate);
+    if (open) {
+      start();
+      resizeCanvas();
+    }
+    try {
+      const btn = document.getElementById('tonepadToggle');
+      if (btn) {
+        btn.setAttribute('aria-pressed', open ? 'true' : 'false');
+        btn.classList.toggle('is-active', open);
+      }
+    } catch (_) {}
+  }`
+    );
+
+    // shiftCarousel with CSS vars
     src = src.replace(
       /function shiftCarousel\(animate\) \{[\s\S]*?\n  \}\n\n  function resizeCanvas/,
       `const TP_EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
@@ -286,18 +380,56 @@ function playGrid() { return layers[playLayer]; }`
   }
 
   function shiftCarousel(animate) {
-    const box = homeBox();
+    const { box, w, parkRight, parkLeft } = parkDistances();
     if (!box) return;
     place();
     const dx = dragDx != null ? dragDx : 0;
-    const w = Math.max(1, box.width);
-    const parkRight = Math.ceil(Math.max(w + 48, window.innerWidth - box.left + 24));
-    const parkLeft = -Math.ceil(Math.max(w + 48, box.left + w + 24));
-    const x = -page * w + dx;
-    const progress = Math.max(0, Math.min(1, -x / w));
-    slideProgress = progress;
-    setTrack(parkLeft * progress, parkRight * (1 - progress), animate);
-    if (progress > 0.5) document.body.classList.add('tonepad-open');
+    // progress 0 = handpan, 1 = sequencer; drag adjusts live
+    let progress = page + (-dx / w);
+    if (page === 0 && dragDx != null && dragDx > 0) {
+      // dragging right on handpan → peek sequencer from left (negative progress toward wrap)
+      progress = -dx / w;
+    }
+    if (page === 1 && dragDx != null && dragDx < 0) {
+      // dragging left on sequencer → progress > 1 toward wrap
+      progress = 1 + (-dx / w);
+    }
+    // Clamp for intermediate non-wrap peeks is soft; wrap handled on release
+    slideProgress = Math.max(0, Math.min(1, progress));
+
+    let panX, layerX;
+    if (progress >= 0 && progress <= 1) {
+      panX = parkLeft * progress;
+      layerX = parkRight * (1 - progress);
+    } else if (progress > 1) {
+      // Past sequencer toward wrap: seq exits left, handpan enters from right
+      const t = progress - 1;
+      panX = parkRight * (1 - t) + parkLeft * 0; // from right toward center
+      // blend: at t=0 pan is at parkLeft (open state), we need from parkRight
+      panX = parkLeft + (0 - parkLeft) * Math.min(1, t); // wrong
+      // Correct: at progress=1, pan=parkLeft, layer=0
+      // at progress=2, pan=0, layer=parkLeft
+      // Linear: pan = parkLeft + (0-parkLeft)*(progress-1) = parkLeft*(2-progress)
+      // layer = 0 + (parkLeft-0)*(progress-1) = parkLeft*(progress-1)
+      // But then snap layer to parkRight — during drag use parkLeft exit:
+      const u = Math.min(1, progress - 1);
+      panX = parkLeft * (1 - u);
+      layerX = parkLeft * u; // exits left
+      // Also bring handpan in from right for the second half:
+      // Use pan from parkRight when u increases: panX = parkRight*(1-u) mixes poorly with parkLeft
+      // Prefer: pan travels parkLeft → further left while a conceptual handpan comes from right.
+      // Practical: panX = parkLeft + (parkRight - parkLeft) wait
+      // Simple smooth: panX goes from parkLeft toward 0 via coming from right:
+      panX = parkRight * (1 - u);
+      layerX = 0 + (parkLeft - 0) * u;
+    } else {
+      // progress < 0: handpan exits right, sequencer enters from left
+      const u = Math.min(1, -progress);
+      panX = parkRight * u;
+      layerX = parkLeft * (1 - u);
+    }
+    setTrack(panX, layerX, animate);
+    if (slideProgress > 0.5) document.body.classList.add('tonepad-open');
     else if (!animate) document.body.classList.toggle('tonepad-open', page === 1);
     try {
       const btn = document.getElementById('tonepadToggle');
@@ -309,18 +441,6 @@ function playGrid() { return layers[playLayer]; }`
   }
 
   function resizeCanvas`
-    );
-
-    // start() should set playLayer to first non-empty from active
-    src = src.replace(
-      /function start\(\) \{\s*if \(playing\) return;\s*if \(!ensureAudio\(\)\) return;\s*resumeAudio\(\);\s*playing = true;/,
-      `function start() {
-    if (playing) return;
-    if (!ensureAudio()) return;
-    resumeAudio();
-    playLayer = layerHasNotes(activeLayer) ? activeLayer : nextNonEmptyLayer(activeLayer);
-    try { updateLayerButtons(); } catch (_) {}
-    playing = true;`
     );
 
     const blob = new Blob([src], { type: 'text/javascript' });
