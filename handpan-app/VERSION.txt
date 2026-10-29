@@ -1,4 +1,4 @@
-pionier-v171
-2026-10-27
-shell: tonepad carousel + colored playhead + BPM knob
+pionier-v180
+2026-10-29
+shell: TonePad toggle in bottom dock + carousel mount harden
 run: npm run sync:handpan after changing ?v= stamps or APP_VERSION

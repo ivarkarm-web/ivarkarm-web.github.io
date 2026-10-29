@@ -2,8 +2,8 @@
    This only reparents existing DOM controls; audio and control event handlers remain attached. */
 (function () {
   'use strict';
-  if (window.__pionierLayoutRecoveryV15) return;
-  window.__pionierLayoutRecoveryV15 = true;
+  if (window.__pionierLayoutRecoveryV16) return;
+  window.__pionierLayoutRecoveryV16 = true;
 
   var scheduled = false;
   var observer = null;
@@ -111,9 +111,11 @@
     appendIfNeeded(toolbar, recordCluster);
 
     var soundscapes = document.getElementById('openSoundscapes');
+    var tonepad = document.getElementById('tonepadToggle');
     var fx = document.getElementById('fxPanelOpen');
     var customize = document.getElementById('settingsOpenBtn');
-    [soundscapes, fx, customize].forEach(function (el) { appendIfNeeded(actionGroup, el); });
+    /* TonePad toggle must live in the visible dock — the topbar is hidden after recovery. */
+    [soundscapes, tonepad, fx, customize].forEach(function (el) { appendIfNeeded(actionGroup, el); });
     appendIfNeeded(actionGroup, document.getElementById('looperExportBtn'));
     appendIfNeeded(actionGroup, document.getElementById('looperSaveBtn'));
 
