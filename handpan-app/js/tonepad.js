@@ -1,10 +1,30 @@
 /**
- * TonePad v50 — assemble from 8 base64 parts (themes + premium pads + carousel + Clear + 9 sounds).
+ * TonePad v48 — 8-part gzip bootstrap (carousel + Clear + 9 sounds).
  */
-const parts = await Promise.all([0,1,2,3,4,5,6,7].map(i =>
-  import(`./tonepad-impl-p${i}.js?v=50`).then(m => m.default)
-));
-const src = atob(parts.join(''));
+async function loadB64() {
+  const base = new URL('.', import.meta.url).href;
+  const parts = await Promise.all([0,1,2,3,4,5,6,7].map(i =>
+    fetch(new URL(`./tonepad-b64-${i}.txt?v=48`, base).href).then(r => {
+      if (!r.ok) throw new Error('b64 part ' + i + ' ' + r.status);
+      return r.text();
+    })
+  ));
+  return parts.join('').replace(/\s+/g, '');
+}
+function b64ToU8(s) {
+  const bin = atob(s);
+  const u8 = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  return u8;
+}
+async function gunzip(u8) {
+  const ds = new DecompressionStream('gzip');
+  const ab = await new Response(new Blob([u8]).stream().pipeThrough(ds)).arrayBuffer();
+  return new TextDecoder().decode(ab);
+}
+const audioUrl = new URL('./audio-core.js?v=2', import.meta.url).href;
+const b64 = await loadB64();
+const src = (await gunzip(b64ToU8(b64))).split('__AUDIO_CORE_URL__').join(audioUrl);
 const blob = new Blob([src], { type: 'text/javascript' });
 const url = URL.createObjectURL(blob);
 const mod = await import(/* @vite-ignore */ url);
