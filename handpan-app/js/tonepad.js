@@ -1,12 +1,24 @@
 /**
- * TonePad v46 loader — fetches full engine (9 sounds + Clear + carousel).
+ * TonePad v46 — gzip bootstrap (carousel + Clear + 9 sounds).
  */
+const B64 = "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";
+
+function b64ToU8(s) {
+  const bin = atob(s);
+  const u8 = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  return u8;
+}
+
+async function gunzip(u8) {
+  const ds = new DecompressionStream('gzip');
+  const ab = await new Response(new Blob([u8]).stream().pipeThrough(ds)).arrayBuffer();
+  return new TextDecoder().decode(ab);
+}
+
 const audioUrl = new URL('./audio-core.js?v=2', import.meta.url).href;
-const implUrl = new URL('./tonepad-impl.js?v=46', import.meta.url).href;
-const res = await fetch(implUrl);
-if (!res.ok) throw new Error('tonepad-impl fetch failed ' + res.status);
-let src = await res.text();
-src = src.split('__AUDIO_CORE_URL__').join(audioUrl);
+const src = (await gunzip(b64ToU8(B64))).split('__AUDIO_CORE_URL__').join(audioUrl);
 const blob = new Blob([src], { type: 'text/javascript' });
 const url = URL.createObjectURL(blob);
 const mod = await import(/* @vite-ignore */ url);
