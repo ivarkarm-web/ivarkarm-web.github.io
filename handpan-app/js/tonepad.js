@@ -1,9 +1,9 @@
 /**
- * TonePad v46 — multi-part gzip bootstrap (9 sounds + Clear + carousel).
+ * TonePad v46 — 8-part gzip bootstrap (9 sounds + Clear + carousel).
  */
 async function loadB64() {
   const base = new URL('.', import.meta.url).href;
-  const parts = await Promise.all([0,1,2,3].map(i =>
+  const parts = await Promise.all([0,1,2,3,4,5,6,7].map(i =>
     fetch(new URL(`./tonepad-b64-${i}.txt?v=46`, base).href).then(r => {
       if (!r.ok) throw new Error('b64 part ' + i + ' ' + r.status);
       return r.text();
