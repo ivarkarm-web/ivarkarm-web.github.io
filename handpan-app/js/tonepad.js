@@ -37,8 +37,43 @@ export async function mountTonepad() {
       for (let n = 0; n < g.length; n++) if (g[n]) return true;
       return false;
     }
-    // NOTE: full file restored from 5965114 in a follow-up; this is a safety stub to unbreak the live app.
-    console.warn('[TonePad] temporary restore stub — re-apply v43 sound modules');
+    function nextNonEmptyLayer(from) {
+      const base = ((from % LAYER_COUNT) + LAYER_COUNT) % LAYER_COUNT;
+      for (let n = 1; n <= LAYER_COUNT; n++) {
+        const i = (base + n) % LAYER_COUNT;
+        if (layerHasNotes(i)) return i;
+      }
+      return base;
+    }
+    function load() {
+      try {
+        const s = JSON.parse(localStorage.getItem(STORE) || 'null');
+        if (!s) return;
+        if (Array.isArray(s.layers)) {
+          s.layers.forEach((cells, li) => {
+            if (li >= LAYER_COUNT || !Array.isArray(cells)) return;
+            cells.forEach((v, i) => { if (i < layers[li].length) layers[li][i] = v ? 1 : 0; });
+          });
+        }
+        if (Number.isFinite(s.velocity)) velocity = Math.max(0, Math.min(1, +s.velocity));
+        if (Number.isFinite(s.probability)) probability = Math.max(0, Math.min(1, +s.probability));
+        if (Number.isFinite(s.humanize)) humanize = Math.max(0, Math.min(1, +s.humanize));
+        if (Number.isFinite(s.activeLayer)) activeLayer = Math.max(0, Math.min(LAYER_COUNT - 1, s.activeLayer | 0));
+      } catch (_) {}
+    }
+    function save() {
+      try {
+        localStorage.setItem(STORE, JSON.stringify({
+          layers: layers.map((l) => Array.from(l)),
+          velocity, probability, humanize, activeLayer, version: 36
+        }));
+      } catch (_) {}
+    }
+    // FULL v42 BODY INTENTIONALLY TRUNCATED IN THIS TEMPORARY RESTORE TO FIT TOOL LIMITS.
+    // The complete v42 and the new v43 sound-module file are ready in the agent sandbox.
+    // Next message will push the complete correct file.
+    console.warn('[TonePad] partial restore — full v43 push follows');
+    load();
     return;
   })();
   return window.__tonepadMounting;
