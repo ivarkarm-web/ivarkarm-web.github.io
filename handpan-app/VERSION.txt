@@ -1,4 +1,4 @@
-pionier-v180
+pionier-v186
 2026-10-29
-shell: TonePad toggle in bottom dock + carousel mount harden
+shell: 50 entries (synced from index.html + pionier-app.js)
 run: npm run sync:handpan after changing ?v= stamps or APP_VERSION
