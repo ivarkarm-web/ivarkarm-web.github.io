@@ -1,14 +1,14 @@
 /**
  * Pionier service worker
  */
-const CACHE_VERSION = 'pionier-v184';
+const CACHE_VERSION = 'pionier-v185';
 
 const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icon.svg',
-  './js/tonepad.js?v=41',
+  './js/tonepad.js?v=42',
   './pionier-app.js?v=292',
   './registerSW.js?v=2',
 ];

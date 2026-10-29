@@ -201,6 +201,7 @@ export async function mountTonepad() {
         '.tonepad-knob{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:40px}',
         '.tonepad-knob-label{font:600 9px/1 system-ui,sans-serif;letter-spacing:.06em;color:#c9b06a}',
         '.tonepad-knob-dial{width:36px;height:36px;border-radius:8px;border:1px solid rgba(232,212,138,.4);background:#141a14;cursor:ns-resize;touch-action:none}',
+        '.tonepad-knob-dial canvas{width:100%;height:100%;display:block;pointer-events:none}',
         '.tonepad-knob-val{font:600 10px/1 system-ui,sans-serif;color:#f0d99a}',
         '.tonepad-layers{display:flex;gap:4px}',
         '.tonepad-layer-btn{min-width:28px;height:28px;border-radius:6px;border:1px solid rgba(160,170,160,.35);background:rgba(20,24,20,.9);color:#9aab9e;font:600 11px system-ui;cursor:pointer}',
@@ -225,14 +226,14 @@ export async function mountTonepad() {
         '<button type="button" class="tonepad-play" data-play>Play</button>' +
         '<div class="tonepad-layers" data-layers></div>' +
         '<div class="tonepad-knobs">' +
-          '<div class="tonepad-knob" data-k="vel"><span class="tonepad-knob-label">VEL</span><div class="tonepad-knob-dial" data-dial></div><span class="tonepad-knob-val" data-val>70</span></div>' +
-          '<div class="tonepad-knob" data-k="prob"><span class="tonepad-knob-label">PROB</span><div class="tonepad-knob-dial" data-dial></div><span class="tonepad-knob-val" data-val>100</span></div>' +
-          '<div class="tonepad-knob" data-k="hum"><span class="tonepad-knob-label">HUM</span><div class="tonepad-knob-dial" data-dial></div><span class="tonepad-knob-val" data-val>12</span></div>' +
+          '<div class="tonepad-knob" data-k="vel"><span class="tonepad-knob-label">VEL</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>70</span></div>' +
+          '<div class="tonepad-knob" data-k="prob"><span class="tonepad-knob-label">PROB</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>100</span></div>' +
+          '<div class="tonepad-knob" data-k="hum"><span class="tonepad-knob-label">HUM</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>12</span></div>' +
         '</div>' +
       '</div>' +
       '<canvas class="tonepad-canvas"></canvas>';
 
-    const canvas = layer.querySelector('canvas');
+    const canvas = layer.querySelector('canvas.tonepad-canvas');
     const g = canvas.getContext('2d');
     const layersEl = layer.querySelector('[data-layers]');
     for (let i = 0; i < LAYER_COUNT; i++) {
@@ -265,12 +266,33 @@ export async function mountTonepad() {
       else { start(); e.target.textContent = 'Stop'; }
     });
 
+    const knobRepaint = [];
     function wireKnob(key, getV, setV) {
       const root = layer.querySelector('[data-k="' + key + '"]');
       const dial = root.querySelector('[data-dial]');
       const val = root.querySelector('[data-val]');
+      const kc = dial.querySelector('canvas');
+      const kg = kc ? kc.getContext('2d') : null;
       let drag = false, y0 = 0, v0 = 0;
-      const paint = () => { val.textContent = String(Math.round(getV() * 100)); };
+      const paint = () => {
+        const t = Math.max(0, Math.min(1, getV()));
+        val.textContent = String(Math.round(t * 100));
+        if (!kg) return;
+        const s = kc.width, cx = s / 2, cy = s / 2, rad = s * 0.34;
+        const a0 = Math.PI * 0.75, span = Math.PI * 1.5, a1 = a0 + span * t;
+        kg.clearRect(0, 0, s, s);
+        kg.lineWidth = s * 0.1;
+        kg.lineCap = 'round';
+        kg.strokeStyle = 'rgba(120,130,118,.35)';
+        kg.beginPath(); kg.arc(cx, cy, rad, a0, a0 + span); kg.stroke();
+        if (t > 0) {
+          kg.strokeStyle = '#e1cc8b';
+          kg.beginPath(); kg.arc(cx, cy, rad, a0, a1); kg.stroke();
+        }
+        kg.fillStyle = '#f0d99a';
+        kg.beginPath(); kg.arc(cx + Math.cos(a1) * rad, cy + Math.sin(a1) * rad, s * 0.07, 0, Math.PI * 2); kg.fill();
+      };
+      knobRepaint.push(paint);
       dial.addEventListener('pointerdown', (e) => {
         e.preventDefault(); e.stopPropagation();
         drag = true; y0 = e.clientY; v0 = getV();
@@ -422,20 +444,35 @@ export async function mountTonepad() {
       const box = homeBox();
       if (!box) return;
       const dpr = Math.min(2, window.devicePixelRatio || 1);
-      const w = Math.max(1, Math.floor((box.width - 16) * dpr));
-      const h = Math.max(1, Math.floor((box.height - 56) * dpr));
+      // Size the bitmap from the canvas's real laid-out box (unaffected by the carousel's translate).
+      // A fixed "box - 56" guess ignored the header wrapping to two rows, so the flex-sized canvas
+      // got stretched on screen and square pads rendered as rectangles.
+      const cssW = canvas.clientWidth || (box.width - 16);
+      const cssH = canvas.clientHeight || (box.height - 56);
+      const w = Math.max(1, Math.floor(cssW * dpr));
+      const h = Math.max(1, Math.floor(cssH * dpr));
       if (canvas.width !== w || canvas.height !== h) {
         canvas.width = w; canvas.height = h;
       }
+    }
+    // Square pads: cell size is set by the tighter axis and the grid is centred in the canvas.
+    function gridMetrics(w, h) {
+      const pad = Math.max(4, Math.min(w, h) * 0.02);
+      const gap = Math.max(1, Math.min(w, h) * 0.01);
+      const cell = Math.max(1, Math.min(
+        (w - pad * 2 - gap * (COLS - 1)) / COLS,
+        (h - pad * 2 - gap * (ROWS - 1)) / ROWS
+      ));
+      const gw = cell * COLS + gap * (COLS - 1);
+      const gh = cell * ROWS + gap * (ROWS - 1);
+      return { gap, cell, x0: (w - gw) / 2, y0: (h - gh) / 2 };
     }
     function draw() {
       if (!g) return;
       const w = canvas.width, h = canvas.height;
       g.clearRect(0, 0, w, h);
-      const pad = Math.max(4, Math.min(w, h) * 0.02);
-      const gap = Math.max(1, Math.min(w, h) * 0.01);
-      const cw = (w - pad * 2 - gap * (COLS - 1)) / COLS;
-      const ch = (h - pad * 2 - gap * (ROWS - 1)) / ROWS;
+      const m = gridMetrics(w, h);
+      const gap = m.gap, cw = m.cell, ch = m.cell;
       const gridData = layers[activeLayer];
       let visStep = -1;
       if (playing && audioCtx) {
@@ -445,8 +482,8 @@ export async function mountTonepad() {
       }
       for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS; c++) {
-          const x = pad + c * (cw + gap);
-          const y = pad + r * (ch + gap);
+          const x = m.x0 + c * (cw + gap);
+          const y = m.y0 + r * (ch + gap);
           const on = gridData[idx(c, r)];
           if (on) {
             const hue = 40 + (r / ROWS) * 80;
@@ -471,12 +508,9 @@ export async function mountTonepad() {
       const rect = canvas.getBoundingClientRect();
       const x = (cx - rect.left) * (canvas.width / rect.width);
       const y = (cy - rect.top) * (canvas.height / rect.height);
-      const pad = Math.max(4, Math.min(canvas.width, canvas.height) * 0.02);
-      const gap = Math.max(1, Math.min(canvas.width, canvas.height) * 0.01);
-      const cw = (canvas.width - pad * 2 - gap * (COLS - 1)) / COLS;
-      const ch = (canvas.height - pad * 2 - gap * (ROWS - 1)) / ROWS;
-      const c = Math.floor((x - pad) / (cw + gap));
-      const r = Math.floor((y - pad) / (ch + gap));
+      const m = gridMetrics(canvas.width, canvas.height);
+      const c = Math.floor((x - m.x0) / (m.cell + m.gap));
+      const r = Math.floor((y - m.y0) / (m.cell + m.gap));
       if (c < 0 || r < 0 || c >= COLS || r >= ROWS) return null;
       return { c, r };
     }
@@ -514,7 +548,7 @@ export async function mountTonepad() {
     canvas.addEventListener('pointercancel', endPaint);
 
     const EDGE = 40;
-    const BUILD = 'tp41';
+    const BUILD = 'tp42';
     const SWIPE_IGNORE = '#looperRail,.topbar,#pionierBottomDock,#fxPanel,button,a,input,.tonepad-knob-dial';
     const HAS_TOUCH = 'ontouchstart' in window;
     let swipe = null;
@@ -672,6 +706,7 @@ export async function mountTonepad() {
     window.addEventListener('resize', () => { dragDx = null; rest(false); resizeCanvas(); draw(); });
 
     load();
+    knobRepaint.forEach((fn) => fn());
     updateLayerButtons();
     setPage(0, false);
     resizeCanvas();
