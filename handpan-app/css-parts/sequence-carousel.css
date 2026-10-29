@@ -1,4 +1,4 @@
-/* sequence-carousel.css — TonePad dual-card track */
+/* sequence-carousel.css — TonePad dual-card infinity track */
 
 .pionier-sequence[hidden] {
   display: grid !important;
@@ -21,16 +21,17 @@
 }
 
 /*
- * TonePad track — CSS vars from JS (no !important on transform so
- * inline style.transform from tonepad.js can win when vars are unset).
+ * Beat pionier-base.css `#pan { transform: none !important }` so the
+ * handpan and sequencer card can slide as a dual-page carousel.
+ * JS drives --tp-x / --tp-lx (and --tp-tr for duration).
  */
 #pan {
-  will-change: transform;
-  transform-origin: center center;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transition: transform var(--tp-tr, 0s) var(--tp-ease, cubic-bezier(0.22, 1, 0.36, 1));
-  transform: translate3d(var(--tp-x, 0px), 0, 0) translateZ(0);
+  will-change: transform !important;
+  transform-origin: center center !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+  transition: transform var(--tp-tr, 0s) var(--tp-ease, cubic-bezier(0.22, 1, 0.36, 1)) !important;
+  transform: translate3d(var(--tp-x, 0px), 0, 0) translateZ(0) !important;
 }
 body.tonepad-open #pan {
   pointer-events: none !important;
@@ -38,10 +39,17 @@ body.tonepad-open #pan {
 }
 
 .tonepad-layer {
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transition: transform var(--tp-tr, 0s) var(--tp-ease, cubic-bezier(0.22, 1, 0.36, 1));
-  transform: translate3d(var(--tp-lx, 100vw), 0, 0) translateZ(0);
-  opacity: 1;
+  position: fixed !important;
+  z-index: 40 !important;
+  box-sizing: border-box !important;
+  will-change: transform !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+  transition: transform var(--tp-tr, 0s) var(--tp-ease, cubic-bezier(0.22, 1, 0.36, 1)) !important;
+  transform: translate3d(var(--tp-lx, 100vw), 0, 0) translateZ(0) !important;
+  opacity: 1 !important;
+  pointer-events: none;
+}
+body.tonepad-open .tonepad-layer {
+  pointer-events: auto !important;
 }
