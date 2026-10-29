@@ -21,16 +21,16 @@
 }
 
 /*
- * TonePad track — CSS vars from JS.
- * iOS-like decelerate; GPU-friendly.
+ * TonePad track — CSS vars from JS (no !important on transform so
+ * inline style.transform from tonepad.js can win when vars are unset).
  */
 #pan {
   will-change: transform;
   transform-origin: center center;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  transition: transform var(--tp-tr, 0s) var(--tp-ease, cubic-bezier(0.22, 1, 0.36, 1)) !important;
-  transform: translate3d(var(--tp-x, 0px), 0, 0) translateZ(0) !important;
+  transition: transform var(--tp-tr, 0s) var(--tp-ease, cubic-bezier(0.22, 1, 0.36, 1));
+  transform: translate3d(var(--tp-x, 0px), 0, 0) translateZ(0);
 }
 body.tonepad-open #pan {
   pointer-events: none !important;
@@ -41,7 +41,7 @@ body.tonepad-open #pan {
   will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  transition: transform var(--tp-tr, 0s) var(--tp-ease, cubic-bezier(0.22, 1, 0.36, 1)) !important;
-  transform: translate3d(var(--tp-lx, 100vw), 0, 0) translateZ(0) !important;
-  opacity: 1 !important;
+  transition: transform var(--tp-tr, 0s) var(--tp-ease, cubic-bezier(0.22, 1, 0.36, 1));
+  transform: translate3d(var(--tp-lx, 100vw), 0, 0) translateZ(0);
+  opacity: 1;
 }
