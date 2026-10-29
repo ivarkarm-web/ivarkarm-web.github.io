@@ -1,4 +1,4 @@
-pionier-v186
+pionier-v187
 2026-10-29
-shell: 50 entries (synced from index.html + pionier-app.js)
+shell: synced for TonePad v44 (infinity carousel restore + clear + sounds)
 run: npm run sync:handpan after changing ?v= stamps or APP_VERSION
