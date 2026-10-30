@@ -48,7 +48,7 @@ const handpanSource = read('handpan-app/js/instruments/handpan.js');
 const notesDir = path.join(root, 'handpan-app/sounds/notes');
 const noteSampleBank = path.join(root, 'handpan-app/js/note-sample-bank.js');
 if (
-  !/NoteSampleBank|sampleBank|recordedScale|sounds\\/notes/.test(handpanSource) &&
+  !(/NoteSampleBank|sampleBank|recordedScale/.test(handpanSource) || handpanSource.includes('sounds/notes')) &&
   !fs.existsSync(noteSampleBank) &&
   !fs.existsSync(notesDir)
 ) ok('Handpan is fully synthesized; no sample bank or note recordings are shipped');
