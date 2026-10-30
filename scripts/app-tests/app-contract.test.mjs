@@ -40,7 +40,8 @@ test('Pionier entry surface matches the deployed instrument UI', () => {
 test('handpan voices are synthesized locally without a note-sample bank', () => {
   const handpan = read('handpan-app/js/instruments/handpan.js');
   assert.match(handpan, /engineKind: 'procedural'/);
-  assert.doesNotMatch(handpan, /NoteSampleBank|sampleBank|sounds\\/notes|recordedScale/);
+  assert.doesNotMatch(handpan, /NoteSampleBank|sampleBank|recordedScale/);
+  assert.ok(!handpan.includes('sounds/notes'));
   assert.ok(!fs.existsSync(path.join(app, 'js/note-sample-bank.js')));
   assert.ok(!fs.existsSync(path.join(app, 'sounds/notes')));
 });
