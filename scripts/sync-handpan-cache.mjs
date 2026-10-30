@@ -34,7 +34,6 @@ const EXTRA_SHELL = [
   './js/instrument.js',
   './js/gesture.js',
   './js/fx.js',
-  './js/note-sample-bank.js',
   // Tonepad fetches these chunks through a computed URL; include them explicitly
   // because extractDynamicImports() cannot discover runtime fetch() assets.
   './js/tonepad-b64-0.txt?v=51',

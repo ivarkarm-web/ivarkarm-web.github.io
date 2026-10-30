@@ -3,7 +3,6 @@
  * Phase 1: note count is fixed by each scale's intervals (not user +/-).
  */
 import { Instrument } from '../instrument.js';
-import { NoteSampleBank } from '../note-sample-bank.js?v=4';
 import { getSoundLibrary } from './library-family.js?v=1';
 import { HANDPAN_SCALES, scaleToCents } from './handpan-scales.js?v=6';
 import { MIN_NOTES, MAX_NOTES, ringAngles } from '../pad-layout.js?v=3';
@@ -71,7 +70,7 @@ export class HandpanInstrument extends Instrument {
       name: 'Handpan',
       description: 'Radial steel handpan with scale-fixed tonefields, aftertouch and MPE pitch bend.',
       category: 'handpan',
-      engineKind: 'sample',
+      engineKind: 'procedural',
       polyphony: MAX_NOTES,
       compatibleFx: ['compressor', 'delay', 'reverb', 'warmth', 'air', 'chorus', 'shimmer']
     });
@@ -81,7 +80,6 @@ export class HandpanInstrument extends Instrument {
     this.voiceIndex = 0;
     this.noteCount = DEFAULT_NOTE_COUNT;
     this.notes = [];
-    this.sampleBank = null;
     this.lastStrikeAt = new Map();
     this.glow = new Float32Array(MAX_NOTES);
     this.zoneFlash = new Float32Array(MAX_NOTES);
@@ -95,33 +93,11 @@ export class HandpanInstrument extends Instrument {
   async activate(audioCtx, bus) {
     await super.activate(audioCtx, bus);
     this.lib = getSoundLibrary(audioCtx, bus);
-    this._ensureSampleBank();
     this.rebuildNotes();
   }
 
-  _isRecordedScale() {
-    const id = HANDPAN_SCALES[this.scaleIndex]?.id;
-    // The live scale id is "eamara"; older manifests used "e-amara-recorded".
-    return id === 'eamara' || id === 'e-amara-recorded';
-  }
-
-  _ensureSampleBank() {
-    if (!this._isRecordedScale() || !this.audioCtx || this.sampleBank) return;
-    this.sampleBank = new NoteSampleBank(this.audioCtx, './sounds/notes/');
-    try {
-      this.sampleBank.load()
-        .then(() => {
-          const sc = HANDPAN_SCALES[this.scaleIndex];
-          if (sc?.id) this.sampleBank.setActiveScale(sc.id);
-        })
-        .catch((e) => console.warn('[handpan] recorded sample load failed', e));
-    } catch (e) {
-      console.warn('[handpan] recorded sample load failed', e);
-    }
-  }
-
   _prewarm() {
-    if (!this.lib || !this.ready || this._isRecordedScale()) return;
+    if (!this.lib || !this.ready) return;
     const freqs = this.notes.map((n) => n.freq);
     this._prewarmToken = (this._prewarmToken || 0) + 1;
     const token = this._prewarmToken;
@@ -195,10 +171,6 @@ export class HandpanInstrument extends Instrument {
     } else if (s && typeof s.rootPc === 'number') {
       this.rootIndex = ((s.rootPc % 12) + 12) % 12;
     }
-    this._ensureSampleBank();
-    if (this.sampleBank && s?.id && typeof this.sampleBank.setActiveScale === 'function') {
-      this.sampleBank.setActiveScale(s.id);
-    }
     this.rebuildNotes();
   }
   setRootIndex(i) {
@@ -243,19 +215,6 @@ export class HandpanInstrument extends Instrument {
         }
       }
     }
-    if (voice.sampleSources) {
-      const ratio = Math.pow(2, clamped / 1200);
-      for (const src of voice.sampleSources) {
-        if (!src || !src.playbackRate) continue;
-        const base = src._baseRate ?? 1;
-        try {
-          src.playbackRate.cancelScheduledValues(t);
-          src.playbackRate.setTargetAtTime(base * ratio, t, smooth);
-        } catch (_) {
-          try { src.playbackRate.value = base * ratio; } catch (_) {}
-        }
-      }
-    }
   }
 
   glideTo() { return false; }
@@ -283,60 +242,6 @@ export class HandpanInstrument extends Instrument {
     this.held[idx] = 1;
     this.pitchBendCents[idx] = 0;
     this.lastStrikeAt.set(idx, performance.now());
-    const recordedScale = this._isRecordedScale();
-    if (recordedScale && (!this.sampleBank || !this.sampleBank.ready)) return;
-    if (recordedScale && this.sampleBank && this.sampleBank.ready) {
-      const played = this.sampleBank.play(note.midiExact ?? note.midi, this.bus, t, { vel, radial, angleRad });
-      if (played) {
-        const expressGain = ctx.createGain();
-        const pc = pressureCurve(pressure);
-        expressGain.gain.setValueAtTime(0.8 + pc * 0.4, t);
-        try {
-          played.bus.disconnect();
-          played.bus.connect(expressGain);
-          expressGain.connect(this.bus);
-        } catch (_) {}
-        const sampleSources = [];
-        if (Array.isArray(played.nodes)) {
-          for (const n of played.nodes) {
-            if (n && typeof n.start === 'function' && n.playbackRate) {
-              n._baseRate = n.playbackRate.value || 1;
-              sampleSources.push(n);
-            }
-          }
-        }
-        const voice = {
-          idx,
-          stop: (tt, tc) => {
-            played.stop(tt, tc);
-            try {
-              expressGain.gain.cancelScheduledValues(tt);
-              expressGain.gain.setTargetAtTime(0, tt, tc);
-            } catch (_) {}
-          },
-          released: false,
-          expressGain,
-          expressFilter: null,
-          vibGain: null,
-          sampleSources,
-          kind: 'sample',
-          baseGain: 0.8 + pc * 0.4,
-          baseFreq: note.freq
-        };
-        this.activeVoices.set(idx, voice);
-        const strikeSource = played.nodes && played.nodes.find((node) => node && typeof node.start === 'function' && node.buffer);
-        if (strikeSource) {
-          const onEnded = strikeSource.onended;
-          strikeSource.onended = (event) => {
-            try { onEnded && onEnded.call(strikeSource, event); } catch (_) {}
-            if (this.activeVoices.get(idx) === voice) this.activeVoices.delete(idx);
-            try { expressGain.disconnect(); } catch (_) {}
-          };
-        }
-        return;
-      }
-    }
-    if (recordedScale) return;
     this._strikeLibrary(note, idx, vel, angleRad, pressure);
   }
 

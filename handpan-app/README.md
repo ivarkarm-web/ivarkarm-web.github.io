@@ -8,7 +8,7 @@ Live: https://ivarkarm-web.github.io/handpan-app/
 
 - Radial pan surface (8–13 notes)
 - Multiple scales and roots
-- Sampled notes where available, synthesis fallback
+- Fully synthesized handpan and library/ambient voices
 - Instrument voices (handpan + library / ambient synths)
 - Four-track looper
 - **Bedroom Sessions** soundscapes — the owner’s eight archive.org recordings only
