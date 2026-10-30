@@ -24,7 +24,6 @@ test('Pionier entry surface matches the deployed instrument UI', () => {
     'mobileControlPanel',
     'openSoundscapes',
     'soundscapesPanel',
-    'soundscapePlay',
     'soundscapeAudio',
     'scaleLabel',
     'scaleMenu',
@@ -36,6 +35,14 @@ test('Pionier entry surface matches the deployed instrument UI', () => {
     assert.match(html, new RegExp('id="' + id + '"'), 'missing #' + id);
   }
   assert.match(html, /id="pan"[^>]*aria-label="Handpan instrument"/);
+});
+
+test('handpan voices are synthesized locally without a note-sample bank', () => {
+  const handpan = read('handpan-app/js/instruments/handpan.js');
+  assert.match(handpan, /engineKind: 'procedural'/);
+  assert.doesNotMatch(handpan, /NoteSampleBank|sampleBank|sounds\\/notes|recordedScale/);
+  assert.ok(!fs.existsSync(path.join(app, 'js/note-sample-bank.js')));
+  assert.ok(!fs.existsSync(path.join(app, 'sounds/notes')));
 });
 
 test('boot chain is local and does not fetch or rewrite executable source at runtime', () => {
