@@ -30,10 +30,14 @@ test('randomizer note count setter clamps to the 8–13 range', () => {
 });
 
 
-test('E Amara routes through the owner-recording sample bank', () => {
+test('every handpan scale, including E Amara, produces procedural note frequencies', () => {
   const handpan = new HandpanInstrument();
-  const eamara = HANDPAN_SCALES.findIndex((scale) => scale.id === 'eamara');
-  assert.notEqual(eamara, -1, 'E Amara scale must be present');
-  handpan.setScaleIndex(eamara);
-  assert.equal(handpan._isRecordedScale(), true);
+  assert.equal(handpan.engineKind, 'procedural');
+  for (let index = 0; index < HANDPAN_SCALES.length; index++) {
+    handpan.setScaleIndex(index);
+    const notes = handpan.getNotes();
+    assert.equal(notes.length, handpan.noteCount, HANDPAN_SCALES[index].id);
+    assert.ok(notes.every((note) => Number.isFinite(note.freq) && note.freq > 0), HANDPAN_SCALES[index].id);
+  }
+  assert.ok(HANDPAN_SCALES.some((scale) => scale.id === 'eamara'), 'E Amara scale must remain available');
 });
