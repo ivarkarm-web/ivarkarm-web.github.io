@@ -20,6 +20,16 @@ export function mountScaleSelector({ getHandpan, onScaleChange }) {
     });
 
   }
+  function stepScale(delta) {
+    const handpan = getHandpan();
+    if (!handpan || !HANDPAN_SCALES.length) return;
+    handpan.setScaleIndex(handpan.scaleIndex + delta);
+    onScaleChange?.();
+    render();
+    updateLabel();
+  }
+  document.getElementById('scalePrev')?.addEventListener('click', () => stepScale(-1));
+  document.getElementById('scaleNext')?.addEventListener('click', () => stepScale(1));
   const mo = new MutationObserver(() => { if (!menu.hidden) render(); }); mo.observe(menu, { attributes: true, attributeFilter: ['hidden'] });
   document.addEventListener('pionier:picker-open', (e) => { if (e.detail?.id === 'scaleMenu') render(); }); updateLabel(); return { render, updateLabel };
 }

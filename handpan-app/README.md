@@ -10,7 +10,7 @@ Live: https://ivarkarm-web.github.io/handpan-app/
 - Multiple scales and roots
 - Fully synthesized handpan and library/ambient voices
 - Instrument voices (handpan + library / ambient synths)
-- Four-track looper
+- Seven-layer looper synchronized to its first recorded layer
 - **Bedroom Sessions** soundscapes — the owner’s eight archive.org recordings only
 - Skins and mandalas
 

@@ -1,6 +1,8 @@
 let context = null;
 let master = null;
 let compressor = null;
+const MASTER_DEFAULT = 0.85;
+let resumeAfterVisibility = false;
 
 function audioConstructor() {
   return globalThis.AudioContext || globalThis.webkitAudioContext || globalThis.window?.AudioContext || globalThis.window?.webkitAudioContext;
@@ -18,18 +20,18 @@ export function getAudioContext() {
 
   try {
     context.addEventListener('statechange', () => {
-      // Auto-resume when the browser unlocks after an interruption (phone call,
-      // Control Center, route change). Failures are silent — next user gesture retries.
-      if (context && context.state === 'interrupted') {
-        /* iOS may report interrupted; wait for next unlock */
-      } else if (context && context.state === 'suspended' && typeof document !== 'undefined' && !document.hidden) {
-        context.resume().catch(() => undefined);
+      if (context?.state === 'interrupted') resumeAfterVisibility = true;
+      else if (context?.state === 'suspended' && resumeAfterVisibility && typeof document !== 'undefined' && !document.hidden) {
+        resumeExistingAudio();
+        resumeAfterVisibility = false;
       }
     });
   } catch (_) {}
 
   master = context.createGain();
-  master.gain.value = 1.15;
+  // Leave headroom for concurrent instruments and loop layers before the
+  // shared compressor; individual source buses retain their own level controls.
+  master.gain.value = MASTER_DEFAULT;
   compressor = context.createDynamicsCompressor();
   compressor.threshold.value = -12;
   compressor.knee.value = 20;
@@ -44,6 +46,17 @@ export function getAudioContext() {
 export function getAudioMaster() {
   getAudioContext();
   return master;
+}
+
+export function getMasterGain() { return master?.gain?.value ?? MASTER_DEFAULT; }
+
+export function setMasterGain(value) {
+  getAudioContext();
+  if (!master) return MASTER_DEFAULT;
+  const gain = Math.max(0, Math.min(1, Number(value) || 0));
+  master.gain.setTargetAtTime(gain, context.currentTime, 0.025);
+  if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('pionier-master-gain', { detail: { gain } }));
+  return gain;
 }
 
 export function createBus(name, initialGain = 1) {
@@ -62,6 +75,11 @@ export function resumeAudio() {
   return ctx.resume().catch(() => ctx);
 }
 
+function resumeExistingAudio() {
+  if (!context || context.state === 'closed' || context.state === 'running') return Promise.resolve(context);
+  return context.resume().catch(() => context);
+}
+
 export function suspendAudio() {
   if (!context || context.state === 'closed' || context.state === 'suspended') return Promise.resolve();
   return context.suspend().catch(() => undefined);
@@ -73,6 +91,7 @@ export function closeAudio() {
   context = null;
   master = null;
   compressor = null;
+  resumeAfterVisibility = false;
   return closing;
 }
 
@@ -88,22 +107,26 @@ if (typeof document !== 'undefined') {
   let suspendTimer = 0;
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
+      resumeAfterVisibility = resumeAfterVisibility || (!!context && context.state === 'running');
       clearTimeout(suspendTimer);
       suspendTimer = setTimeout(() => {
         if (document.hidden) suspendAudio();
       }, 2500);
     } else {
       clearTimeout(suspendTimer);
-      resumeAudio();
+      if (resumeAfterVisibility) resumeExistingAudio();
+      resumeAfterVisibility = false;
     }
   });
   window.addEventListener('pageshow', () => {
     clearTimeout(suspendTimer);
-    resumeAudio();
+    if (resumeAfterVisibility) resumeExistingAudio();
+    resumeAfterVisibility = false;
   });
   window.addEventListener('focus', () => {
     clearTimeout(suspendTimer);
-    resumeAudio();
+    if (resumeAfterVisibility) resumeExistingAudio();
+    resumeAfterVisibility = false;
   });
 }
 
@@ -119,6 +142,8 @@ export function audioHealth() {
 export const HandpanAudio = {
   getAudioContext,
   getAudioMaster,
+  getMasterGain,
+  setMasterGain,
   createBus,
   resumeAudio,
   suspendAudio,

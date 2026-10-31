@@ -1,3 +1,5 @@
+import { getMasterGain } from './audio-core.js?v=2';
+
 /** Soundscapes: Ivar's Bedroom Sessions only (owner archive.org recordings).
  *  No community uploads — removed for scale and product scope.
  */
@@ -101,6 +103,15 @@ if (page && audio) {
   let index = 0;
   let seeking = false;
   let repeat = false;
+  let trackFailed = false;
+  let userVolume = Number(volEl?.value || 0.85);
+
+  function applyVolume() {
+    // Preserve direct media streaming (including archive.org) and mirror only
+    // the shared master trim. The slider remains the single user volume stage.
+    audio.volume = Math.max(0, Math.min(1, userVolume * getMasterGain() / 0.85));
+  }
+  window.addEventListener('pionier-master-gain', applyVolume);
 
   function fmt(seconds) {
     if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
@@ -149,6 +160,7 @@ if (page && audio) {
     }
     index = (i + tracks.length) % tracks.length;
     const track = tracks[index];
+    trackFailed = false;
     syncMeta();
     setStatus('Loading…');
     audio.pause();
@@ -247,9 +259,10 @@ if (page && audio) {
   });
 
   volEl?.addEventListener('input', () => {
-    audio.volume = Number(volEl.value);
+    userVolume = Number(volEl.value);
+    applyVolume();
   });
-  if (volEl) audio.volume = Number(volEl.value || 0.85);
+  applyVolume();
 
   seekEl?.addEventListener('pointerdown', () => {
     seeking = true;
@@ -287,7 +300,7 @@ if (page && audio) {
       playBtn.textContent = '▶';
       playBtn.setAttribute('aria-label', 'Play');
     }
-    if (!audio.ended) setStatus('Paused');
+    if (!audio.ended && !trackFailed) setStatus('Paused');
   });
   audio.addEventListener('ended', () => {
     if (repeat) return;
@@ -304,6 +317,7 @@ if (page && audio) {
       audio.play().catch(() => setStatus(networkStatusMessage()));
     } else {
       delete audio.dataset.triedWav;
+      trackFailed = true;
       setStatus(networkStatusMessage());
     }
   });

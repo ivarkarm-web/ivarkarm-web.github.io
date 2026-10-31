@@ -214,6 +214,7 @@
       sheet.className = 'settings-sheet';
       sheet.setAttribute('role', 'dialog');
       sheet.setAttribute('aria-modal', 'true');
+      sheet.setAttribute('aria-labelledby', 'settingsSheetTitle');
       sheet.hidden = true;
       sheet.innerHTML =
         '<div class="settings-sheet-header">' +
@@ -328,6 +329,7 @@
     els.sheet.removeAttribute('hidden');
     els.backdrop.hidden = false;
     els.backdrop.removeAttribute('hidden');
+    els.backdrop.classList.add('is-open');
     requestAnimationFrame(() => els.sheet.classList.add('is-open'));
     els.btn.setAttribute('aria-expanded', 'true');
   }
@@ -335,6 +337,7 @@
   function closeSheet(els) {
     closeMenus();
     els.sheet.classList.remove('is-open');
+    els.backdrop.classList.remove('is-open');
     els.btn.setAttribute('aria-expanded', 'false');
     setTimeout(() => {
       els.sheet.hidden = true;
@@ -343,6 +346,8 @@
   }
 
   function wire(state, els) {
+    if (els.btn.dataset.settingsWired === '1') return;
+    els.btn.dataset.settingsWired = '1';
     const open = () => openSheet(els, state);
     els.btn.addEventListener('click', (e) => { e.preventDefault(); open(); });
     if (els.bottomBtn) els.bottomBtn.addEventListener('click', (e) => { e.preventDefault(); open(); });

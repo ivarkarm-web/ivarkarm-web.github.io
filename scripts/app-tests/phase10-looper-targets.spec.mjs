@@ -12,7 +12,7 @@ async function enterIfNeeded(page) {
   }
 }
 
-test('phase10: mobile dock exposes 44px Clear/Record targets and four track targets', async ({ page }, testInfo) => {
+test('phase10: mobile dock exposes 44px Clear/Record targets and seven reachable track targets', async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.startsWith('mobile'), 'mobile viewport regression');
 
   await page.goto('/handpan-app/');
@@ -32,7 +32,7 @@ test('phase10: mobile dock exposes 44px Clear/Record targets and four track targ
     if (!trackRow || !toolbar || !record || !clear || !layers) return { error: 'missing visible dock element' };
 
     // Probe the real CSS with seven layer buttons before the first recording.
-    const probes = Array.from({ length: 4 }, (_, index) => {
+    const probes = Array.from({ length: 7 }, (_, index) => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'looper-circle';
@@ -69,12 +69,13 @@ test('phase10: mobile dock exposes 44px Clear/Record targets and four track targ
   expect(metrics.clear.width).toBeGreaterThanOrEqual(44);
   expect(metrics.clear.height).toBeGreaterThanOrEqual(44);
   expect(metrics.trackRow.height).toBeGreaterThanOrEqual(44);
-  expect(metrics.layerButtons).toHaveLength(4);
+  expect(metrics.layerButtons).toHaveLength(7);
   for (const [index, button] of metrics.layerButtons.entries()) {
     expect(button.width, 'layer ' + (index + 1) + ' width').toBeGreaterThanOrEqual(44);
     expect(button.height, 'layer ' + (index + 1) + ' height').toBeGreaterThanOrEqual(44);
     expect(button.left, 'layer ' + (index + 1) + ' left edge').toBeGreaterThanOrEqual(metrics.layers.left - 1);
     expect(button.right, 'layer ' + (index + 1) + ' right edge').toBeLessThanOrEqual(metrics.layers.right + 1);
+    expect(button.bottom, 'layer ' + (index + 1) + ' overlaps the toolbar').toBeLessThanOrEqual(metrics.toolbar.top + 1);
   }
   expect(metrics.layerScrollWidth).toBeLessThanOrEqual(metrics.layerClientWidth + 1);
 });

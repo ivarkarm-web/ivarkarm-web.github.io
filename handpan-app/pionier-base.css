@@ -3098,6 +3098,24 @@ html:not(.pionier-welcome-active) #app {
   background: #e03636;
   box-shadow: 0 0 14px rgba(224, 54, 54, 0.55);
 }
+.looper-btn.is-recording::after,
+.looper-btn.is-pending-stop::after {
+  content: attr(data-recording-layer);
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgba(19, 19, 22, 0.85);
+  border-radius: 50%;
+  background: #f4cf69;
+  color: #161518;
+  font: 700 9px/1 Inter, system-ui, sans-serif;
+  pointer-events: none;
+}
 .looper-btn.is-pending-stop .looper-btn-ring {
   border-color: #f4cf69;
   animation: looper-pulse-rec 0.7s ease-in-out infinite;
@@ -3774,7 +3792,7 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 }
 
 
-/* Loop tracks match Record, while preserving room for four tracks on phones. */
+/* Legacy hidden-rail circles stay compact; the active dock sets touch sizing below. */
 #looperRail #looperLayers .looper-circle {
   box-sizing: border-box !important;
   width: 34px !important;
@@ -3934,6 +3952,40 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
     max-width: 44px !important;
     max-height: 44px !important;
     flex: 0 0 44px !important;
+  }
+
+  /* Reserve a real center track for Record so its 52px hit target cannot
+     overlap the fixed-width action buttons beside it. */
+  #pionierBottomDock #pionierLooperToolbar {
+    display: grid !important;
+    grid-template-columns: max-content 52px max-content !important;
+    justify-content: space-between !important;
+  }
+
+  #pionierBottomDock #pionierLooperControls {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    flex: none !important;
+    width: max-content !important;
+  }
+
+  #pionierBottomDock #pionierLooperToolbar #looperRecordCluster {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    z-index: auto !important;
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    justify-self: center !important;
+  }
+
+  #pionierBottomDock #pionierLooperActions {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    flex: none !important;
+    width: max-content !important;
+    margin: 0 !important;
   }
 }
 

@@ -174,9 +174,13 @@
     if (!panel) return api;
 
     let closeTimer = 0;
+    let closeGeneration = 0;
 
     function open() {
       if (panel.classList.contains('is-open') && !panel.classList.contains('is-closing')) return;
+      // A transitionend may have completed a close while its fallback timer is
+      // still queued. Invalidate that close before making the panel visible.
+      closeGeneration += 1;
       if (closeTimer) {
         clearTimeout(closeTimer);
         closeTimer = 0;
@@ -193,15 +197,20 @@
     function close() {
       if (panel.classList.contains('is-closing')) return;
       if (!panel.classList.contains('is-open') && panel.hidden) return;
+      const generation = ++closeGeneration;
       panel.classList.remove('is-open');
       panel.classList.add('is-closing');
       document.body.classList.remove('pionier-sequence-open');
       const finish = () => {
+        if (generation !== closeGeneration || !panel.classList.contains('is-closing')) return;
+        if (closeTimer) {
+          clearTimeout(closeTimer);
+          closeTimer = 0;
+        }
         panel.classList.remove('is-closing');
         panel.classList.add('is-settled');
         panel.hidden = true;
         if (edge) edge.hidden = false;
-        closeTimer = 0;
       };
       const onEnd = (event) => {
         if (event.target !== panel) return;

@@ -6,12 +6,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
-    "build": "vite build",
+    "build": "vite build && node scripts/stage-pages.mjs && node scripts/optimize-handpan-css.mjs --app-dir dist/handpan-app",
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "test": "node scripts/smoke-test.mjs",
     "smoke": "node scripts/smoke-test.mjs",
     "test:app": "node --test scripts/app-tests/*.test.mjs",
+    "test:staged": "playwright test --config=playwright.staged.config.mjs",
     "test:sw": "npx playwright test --project=sw-desktop",
     "test:a11y": "npx playwright test phase5-a11y phase6-axe",
     "test:axe": "npx playwright test phase6-axe",
@@ -31,6 +32,7 @@
     "@playwright/test": "1.56.1",
     "esbuild": "0.28.2",
     "glob": "11.1.0",
+    "lightningcss": "1.33.0",
     "purgecss": "7.0.2"
   }
 }

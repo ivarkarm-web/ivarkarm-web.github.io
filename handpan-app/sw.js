@@ -11,7 +11,7 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.
  */
-const CACHE_VERSION = 'pionier-v195';
+const CACHE_VERSION = 'pionier-v196';
 
 const SHELL = [
   './',
@@ -35,19 +35,19 @@ const SHELL = [
   './js/layout-boot.js?v=70',
   './js/loop-core.js',
   './js/looper-recorder-worklet.js?v=1',
-  './js/looper.js?v=239',
+  './js/looper.js?v=240',
   './js/master-clock.js?v=1',
   './js/note-plus.js?v=3',
   './js/overlay-controller.js?v=23',
   './js/pad-layout.js?v=2',
   './js/pionier-surface.js?v=146',
   './js/portrait-lock.js?v=2',
-  './js/scale-selector.js?v=14',
+  './js/scale-selector.js?v=15',
   './js/sequence-carousel-patch.js?v=2',
-  './js/settings-panel.js?v=33',
+  './js/settings-panel.js?v=34',
   './js/skin-mandala.js?v=6',
   './js/skin-palette.js?v=3',
-  './js/soundscapes.js?v=11',
+  './js/soundscapes.js?v=12',
   './js/tonepad-b64-0.txt?v=51',
   './js/tonepad-b64-1.txt?v=51',
   './js/tonepad-b64-2.txt?v=51',
@@ -61,8 +61,8 @@ const SHELL = [
   './looper-side-menus.js?v=10',
   './og-pionier-synth.svg',
   './pionier-ambient.css?v=8',
-  './pionier-app.js?v=292',
-  './pionier-base.css?v=3',
+  './pionier-app.js?v=293',
+  './pionier-base.css?v=4',
   './pionier-control-layout.js?v=23',
   './pionier-controls.css?v=3',
   './pionier-core-base.js?v=2',

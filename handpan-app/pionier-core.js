@@ -60,6 +60,7 @@ function apply(m, v01) {
   const key = m.tone || m.fxId;
   values[key] = v;
   try {
+    if (m.tone === 'master') window.HandpanAudio?.setMasterGain?.(v);
     core.ensureAudio?.();
     if (typeof core.setFxTone === 'function' && m.tone) {
       core.setFxTone(m.tone, v);

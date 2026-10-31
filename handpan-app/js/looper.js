@@ -1,5 +1,5 @@
 /**
- * looper.js — four-track phrase looper v3
+ * looper.js — seven-layer phrase looper v3
  * Record: arm/stop layer (pre-FX instrument bus)
  * Recording uses optional count-in, metronome and tempo controls:
  *   FREE  — independent lengths
@@ -10,8 +10,8 @@
  * Clear: wipe all layers
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
+import { MAX_LAYERS } from './loop-core.js';
 
-const MAX_LAYERS = 4;
 const LONG_MS = 480;
 const DEFAULT_LEVEL = 0.92;
 const BEATS_PER_BAR = 4;
@@ -154,6 +154,7 @@ export function mountLooper({ root } = {}) {
   rail.appendChild(exportBtn);
   exportBtn.addEventListener('click', exportWav);
   let recording = false;
+  let recordStartGeneration = 0;
   let recChunks = null;
   let processor = null;
   let silent = null;
@@ -220,42 +221,68 @@ export function mountLooper({ root } = {}) {
     if (processor) return ctx;
     if (!tapPromise) {
       tapPromise = (async () => {
-        await ctx.audioWorklet.addModule('./js/looper-recorder-worklet.js?v=1');
-        if (getAudioContext() !== ctx) throw new Error('Audio context changed while preparing recorder');
-        const node = new AudioWorkletNode(ctx, 'pionier-looper-recorder', {
-          numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [2],
-          channelCount: 2, channelCountMode: 'explicit', channelInterpretation: 'discrete'
-        });
-        node.port.onmessage = (event) => {
-          const data = event.data;
-          if (data?.type === 'flushed') {
-            if (recorderFlushResolve) recorderFlushResolve();
-            recorderFlushResolve = null;
-            return;
+        let node = null;
+        let mute = null;
+        let source = null;
+        try {
+          await ctx.audioWorklet.addModule('./js/looper-recorder-worklet.js?v=1');
+          if (getAudioContext() !== ctx) throw new Error('Audio context changed while preparing recorder');
+          node = new AudioWorkletNode(ctx, 'pionier-looper-recorder', {
+            numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [2],
+            channelCount: 2, channelCountMode: 'explicit', channelInterpretation: 'discrete'
+          });
+          node.port.onmessage = (event) => {
+            const data = event.data;
+            if (data?.type === 'flushed') {
+              if (recorderFlushResolve) recorderFlushResolve();
+              recorderFlushResolve = null;
+              return;
+            }
+            if (!recChunks || !data || !data.left) return;
+            recChunks.push({ L: new Float32Array(data.left), R: new Float32Array(data.right || data.left) });
+          };
+          mute = ctx.createGain();
+          mute.gain.value = 0;
+          try { bus.connect(node); source = bus; }
+          catch (err) {
+            const master = getAudioMaster();
+            if (!master) throw err;
+            master.connect(node); source = master;
           }
-          if (!recChunks || !data || !data.left) return;
-          recChunks.push({ L: new Float32Array(data.left), R: new Float32Array(data.right || data.left) });
-        };
-        const mute = ctx.createGain();
-        mute.gain.value = 0;
-        try { bus.connect(node); tapSource = bus; }
-        catch (err) {
-          const master = getAudioMaster();
-          if (!master) throw err;
-          master.connect(node); tapSource = master;
+          node.connect(mute);
+          mute.connect(ctx.destination);
+          processor = node;
+          silent = mute;
+          tapSource = source;
+        } catch (err) {
+          try { if (source && node) source.disconnect(node); } catch (_) {}
+          try { node?.disconnect(); } catch (_) {}
+          try { mute?.disconnect(); } catch (_) {}
+          processor = null;
+          silent = null;
+          tapSource = null;
+          throw err;
         }
-        node.connect(mute);
-        mute.connect(ctx.destination);
-        processor = node;
-        silent = mute;
       })().catch((err) => {
         tapPromise = null;
         console.error('[looper] AudioWorklet recorder failed to initialize', err);
-        return false;
+        throw err;
       });
     }
-    const ready = await tapPromise;
-    return ready === false ? null : ctx;
+    await tapPromise;
+    return ctx;
+  }
+
+  function reportRecorderError() {
+    const status = document.getElementById('appStatus');
+    const message = document.getElementById('appStatusMessage');
+    const retry = document.getElementById('appStatusRetry');
+    if (!status || !message) return;
+    status.dataset.state = 'degraded';
+    status.hidden = false;
+    status.setAttribute('role', 'alert');
+    message.textContent = 'Loop recording could not start. Reload to retry.';
+    if (retry) retry.hidden = false;
   }
 
   function cycleDuration() {
@@ -382,17 +409,22 @@ export function mountLooper({ root } = {}) {
     exportBtn.hidden = !hasLayers;
     exportBtn.disabled = !hasLayers || recording || pendingLoopStop || countInPending;
     exportBtn.setAttribute('aria-disabled', String(exportBtn.disabled));
+    btn.disabled = !recording && !pendingLoopStop && !countInPending && layers.length >= MAX_LAYERS;
     btn.classList.toggle('is-recording', recording);
     btn.classList.toggle('has-layers', hasLayers);
     btn.classList.toggle('is-pending-stop', pendingLoopStop);
+    const targetLayer = Math.min(layers.length + 1, MAX_LAYERS);
+    const recordingLabel = 'Layer ' + targetLayer;
+    if (recording || pendingLoopStop || countInPending) btn.dataset.recordingLayer = String(targetLayer);
+    else delete btn.dataset.recordingLayer;
     btn.title = recording
-      ? (pendingLoopStop ? 'Waiting for cycle end…' : 'Stop recording layer')
+      ? (pendingLoopStop ? 'Layer ' + targetLayer + ' · waiting for cycle end…' : 'Recording layer ' + targetLayer + ' · press to stop')
       : layers.length >= MAX_LAYERS
         ? 'Max layers (' + MAX_LAYERS + ')'
         : hasLayers
           ? 'Record next layer'
           : 'Start loop recording';
-    btn.setAttribute('aria-label', btn.title);
+    btn.setAttribute('aria-label', (recording || pendingLoopStop || countInPending) ? recordingLabel + ' · ' + btn.title : btn.title);
     clearBtn.classList.toggle('has-layers', hasLayers || recording);
     clearBtn.hidden = false;
 
@@ -986,8 +1018,8 @@ export function mountLooper({ root } = {}) {
     layers.forEach((layer, i) => {
       const c = document.createElement('button');
       c.type = 'button';
-      c.className = 'looper-circle' + (layer.paused ? ' is-paused' : ' is-playing') + (layer.muted ? ' is-muted' : '') + (layer.solo ? ' is-solo' : '');
-      c.setAttribute('aria-label', 'Layer ' + (i + 1));
+      c.className = 'looper-circle' + (i === 0 ? ' is-master' : '') + (layer.paused ? ' is-paused' : ' is-playing') + (layer.muted ? ' is-muted' : '') + (layer.solo ? ' is-solo' : '');
+      c.setAttribute('aria-label', i === 0 ? 'Layer 1, master' : 'Layer ' + (i + 1));
       c.innerHTML = '<span class="looper-circle-core">' + (i + 1) + '</span>';
       c.addEventListener('pointerdown', (e) => {
         e.preventDefault();
@@ -1014,10 +1046,10 @@ export function mountLooper({ root } = {}) {
   }
 
 
-  async function beginRecording() {
+  async function beginRecording(generation = recordStartGeneration) {
     if (layers.length >= MAX_LAYERS) return;
     const ctx = await ensureTap();
-    if (!ctx) return;
+    if (!ctx || generation !== recordStartGeneration) return;
     resumeAudio();
     try { window.PionierCore?.ensureAudio?.(); } catch (_) {}
     ensureTap();
@@ -1055,7 +1087,7 @@ export function mountLooper({ root } = {}) {
     setBtnState();
   }
 
-  function runCountIn() {
+  function runCountIn(generation = recordStartGeneration) {
     if (countInPending) return;
     countInPending = true;
     countInCurrent = 0;
@@ -1070,7 +1102,7 @@ export function mountLooper({ root } = {}) {
         countInTimer = setTimeout(() => {
           if (!countInPending) return;
           countInPending = false; countInCurrent = 0; countInTimer = null;
-          setBtnState(); beginRecording();
+          setBtnState(); beginRecording(generation);
         }, beatMs);
       } else countInTimer = setTimeout(tick, beatMs);
     };
@@ -1079,13 +1111,25 @@ export function mountLooper({ root } = {}) {
 
   async function startRecord() {
     if (layers.length >= MAX_LAYERS || recording || pendingLoopStop || countInPending) return;
-    const ctx = await ensureTap();
-    if (!ctx) return;
-    resumeAudio();
-    try { window.PionierCore?.ensureAudio?.(); } catch (_) {}
-    ensureTap();
-    if (countInEnabled) { runCountIn(); return; }
-    await beginRecording();
+    const generation = ++recordStartGeneration;
+    try {
+      const ctx = await ensureTap();
+      if (!ctx) throw new Error('AudioWorklet recorder is unavailable');
+      if (generation !== recordStartGeneration) return;
+      resumeAudio();
+      try { window.PionierCore?.ensureAudio?.(); } catch (_) {}
+      ensureTap();
+      if (countInEnabled) { runCountIn(generation); return; }
+      await beginRecording(generation);
+    } catch (err) {
+      recording = false;
+      countInPending = false;
+      if (countInTimer) clearTimeout(countInTimer);
+      countInTimer = null;
+      setBtnState();
+      reportRecorderError();
+      console.error('[looper] Recording could not start', err);
+    }
   }
 
   function setMetronome(enabled) {
@@ -1290,9 +1334,13 @@ export function mountLooper({ root } = {}) {
     const chunks = recChunks;
     recChunks = null;
     setBtnState();
-    if (!ctx || !master || !chunks || chunks.length < 2) return;
+    if (!ctx || !master || !chunks?.length) return;
+    // A second start can race the async audio/worklet readiness checks. Keep
+    // the shared MAX_LAYERS limit authoritative at finalization as well.
+    if (layers.length >= MAX_LAYERS) return;
 
     let frameCount = chunks.reduce((n, c) => n + c.L.length, 0);
+    if (!Number.isSafeInteger(frameCount) || frameCount <= 0) return;
     let buffer = ctx.createBuffer(2, frameCount, ctx.sampleRate);
     const ch0 = buffer.getChannelData(0);
     const ch1 = buffer.getChannelData(1);
@@ -1362,6 +1410,8 @@ export function mountLooper({ root } = {}) {
   }
 
   function clearAll() {
+    // Invalidate a recorder startup that is still awaiting AudioWorklet setup.
+    recordStartGeneration += 1;
     if (pendingLoopStopTimer) {
       clearTimeout(pendingLoopStopTimer);
       pendingLoopStopTimer = null;
