@@ -1,6 +1,4 @@
 /* Pionier ambient CSS — split parts for tool-friendly deploys */
 @import url('./css-parts/ambient-favorites.css');
 @import url('./css-parts/ambient-menu-light-fix.css');
-@import url('./css-parts/ambient-ambient-sequencer-0.css');
-@import url('./css-parts/ambient-ambient-sequencer-1.css');
 @import url('./css-parts/ambient-sequence-grid.css');
