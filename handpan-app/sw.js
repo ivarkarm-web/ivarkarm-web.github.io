@@ -11,14 +11,14 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.
  */
-const CACHE_VERSION = 'pionier-v196';
+const CACHE_VERSION = 'pionier-v197';
 
 const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icon.svg',
-  './css-parts/sequence-carousel.css?v=8',
+  './css-parts/sequence-carousel.css?v=9',
   './js/ambient-fx.js?v=12',
   './js/app-state.js?v=1',
   './js/audio-core.js?v=2',
@@ -43,7 +43,6 @@ const SHELL = [
   './js/pionier-surface.js?v=146',
   './js/portrait-lock.js?v=2',
   './js/scale-selector.js?v=15',
-  './js/sequence-carousel-patch.js?v=2',
   './js/settings-panel.js?v=34',
   './js/skin-mandala.js?v=6',
   './js/skin-palette.js?v=3',
@@ -61,7 +60,7 @@ const SHELL = [
   './looper-side-menus.js?v=10',
   './og-pionier-synth.svg',
   './pionier-ambient.css?v=8',
-  './pionier-app.js?v=293',
+  './pionier-app.js?v=294',
   './pionier-base.css?v=4',
   './pionier-control-layout.js?v=23',
   './pionier-controls.css?v=3',

@@ -96,12 +96,6 @@ async function loadAmbientSequencer() {
   } catch (e) {
     console.warn('[boot] tonepad', e);
   }
-  try {
-    const { mountAmbientSequencer } = await import(new URL('./js/ambient-sequencer-grid.js?v=1', BASE).href);
-    if (typeof mountAmbientSequencer === 'function') mountAmbientSequencer();
-  } catch (e) {
-    console.warn('[boot] ambient sequencer', e);
-  }
 }
 
 function scheduleDeferredFeatures() {

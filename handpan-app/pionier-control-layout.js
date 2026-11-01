@@ -114,7 +114,6 @@
     var tonepad = document.getElementById('tonepadToggle');
     var fx = document.getElementById('fxPanelOpen');
     var customize = document.getElementById('settingsOpenBtn');
-    /* TonePad toggle must live in the visible dock — the topbar is hidden after recovery. */
     [soundscapes, tonepad, fx, customize].forEach(function (el) { appendIfNeeded(actionGroup, el); });
     appendIfNeeded(actionGroup, document.getElementById('looperExportBtn'));
     appendIfNeeded(actionGroup, document.getElementById('looperSaveBtn'));
