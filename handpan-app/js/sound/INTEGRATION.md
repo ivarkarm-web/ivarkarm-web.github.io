@@ -21,12 +21,12 @@ Drop this folder in as `handpan-app/js/sound/`. Open `preview.html` (on GitHub P
 ## How the app uses it
 
 - `js/instruments/library-family.js` creates one `LibraryInstrument` per voice and owns the shared `SoundLibrary` (`getSoundLibrary(ctx, bus)`).
-- `js/instruments/handpan.js` plays the `handpan` voice through the same library. Its scale, root, octave and note-count logic only produce frequencies. The E Amara recorded scale still uses its real samples, loaded on demand.
+- `js/instruments/handpan.js` plays the `handpan` voice through the same library. Its scale, root, octave and note-count logic only produce frequencies.
 - `pionier-core.js` registers the handpan plus `createLibraryInstruments()`.
 - Pressure maps to live level, vertical drag to pitch bend (±2 semitones), pad position to stereo pan. Bowl, breath, choir, drone and cloud sustain while the finger is down and fade on release.
 - Moving between pads re-strikes instead of sliding, since notes are pre-rendered.
 
-Removed: `voice-presets.js`, `instruments/tonal-family.js`, the oscillator synth fallback, and per-scale sample loading for the synthesised scales. The chopped per-scale WAVs in `sounds/notes/` are still in the repo (untouched) and can be deleted once you're sure you don't want them.
+Removed: `voice-presets.js`, `instruments/tonal-family.js`, the oscillator synth fallback, per-scale sample loading for the synthesised scales, and the chopped per-scale WAVs under `sounds/notes/`.
 
 ## Known limits
 
