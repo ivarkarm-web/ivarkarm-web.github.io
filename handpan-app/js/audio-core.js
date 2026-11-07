@@ -20,10 +20,14 @@ export function getAudioContext() {
 
   try {
     context.addEventListener('statechange', () => {
-      if (context?.state === 'interrupted') resumeAfterVisibility = true;
-      else if (context?.state === 'suspended' && resumeAfterVisibility && typeof document !== 'undefined' && !document.hidden) {
-        resumeExistingAudio();
-        resumeAfterVisibility = false;
+      try {
+        if (context?.state === 'interrupted') resumeAfterVisibility = true;
+        else if (context?.state === 'suspended' && resumeAfterVisibility && typeof document !== 'undefined' && !document.hidden) {
+          resumeExistingAudio();
+          resumeAfterVisibility = false;
+        }
+      } catch (err) {
+        console.error('[audio-core] State change handler error:', err);
       }
     });
   } catch (_) {}
