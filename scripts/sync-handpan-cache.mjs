@@ -44,7 +44,7 @@ const EXTRA_SHELL = [
   './js/app-state.js?v=1',
   './js/audio-core.js?v=2',
   './js/pionier-surface.js?v=147',
-  './js/instruments/handpan-scales.js?v=6',
+  './js/instruments/handpan-scales.js?v=7',
   './js/pad-layout.js?v=3',
   './pionier-core-base.js?v=2',
   './og-pionier-synth.svg',

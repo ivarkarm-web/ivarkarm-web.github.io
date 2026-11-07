@@ -30,7 +30,7 @@ const SHELL = [
   './js/gesture.js',
   './js/instrument.js',
   './js/instruments/arp-family.js?v=3',
-  './js/instruments/handpan-scales.js?v=6',
+  './js/instruments/handpan-scales.js?v=7',
   './js/instruments/handpan.js?v=13',
   './js/layout-boot.js?v=70',
   './js/library-store.js?v=1',

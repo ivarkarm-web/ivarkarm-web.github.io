@@ -39,5 +39,6 @@ test('every available handpan scale produces procedural note frequencies', () =>
     assert.equal(notes.length, handpan.noteCount, HANDPAN_SCALES[index].id);
     assert.ok(notes.every((note) => Number.isFinite(note.freq) && note.freq > 0), HANDPAN_SCALES[index].id);
   }
-  assert.ok(!HANDPAN_SCALES.some((scale) => scale.id === 'eamara'), 'removed E Amara must not be user selectable');
+  assert.ok(HANDPAN_SCALES.some((scale) => scale.id === 'eamara'), 'E Amara is available in the scale library');
+  assert.ok(HANDPAN_SCALES.every((scale) => Number.isFinite(scale.rootMidi) && Number.isFinite(scale.rootPc)), 'every scale has a valid root');
 });

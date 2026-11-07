@@ -1,24 +1,57 @@
 /** Searchable scale picker. Overlay ownership remains in overlay-controller.js. */
-import { HANDPAN_SCALES } from './instruments/handpan.js?v=13';
+import { HANDPAN_SCALES, SCALE_FAMILIES } from './instruments/handpan-scales.js?v=7';
 
 export function mountScaleSelector({ getHandpan, onScaleChange }) {
   const menu = document.getElementById('scaleMenu'); const toggle = document.getElementById('scaleLabel');
   if (!menu || !toggle) return { render() {}, updateLabel() {} };
-  function updateLabel() { const handpan = getHandpan(); if (!handpan) return; const s = HANDPAN_SCALES[handpan.scaleIndex]; let short = s?.short || s?.label || handpan.scaleLabel || 'Scale'; const full = s?.label || handpan.scaleLabel || short; const root = handpan.rootLabel || ''; if (root && short.startsWith(root + ' ')) short = short.slice(root.length).trim(); toggle.textContent = short + ' \u25be'; toggle.title = full; const rootLabel = document.getElementById('rootLabel'); if (rootLabel && root) rootLabel.textContent = root; }
+  function updateLabel() {
+    const handpan = getHandpan(); if (!handpan) return;
+    const s = HANDPAN_SCALES[handpan.scaleIndex];
+    let short = s?.short || s?.label || handpan.scaleLabel || 'Scale';
+    const full = s?.label || handpan.scaleLabel || short;
+    const root = handpan.rootLabel || '';
+    if (root && short.startsWith(root + ' ')) short = short.slice(root.length).trim();
+    toggle.textContent = short + ' \u25be';
+    toggle.title = full;
+    const rootLabel = document.getElementById('rootLabel');
+    if (rootLabel && root) rootLabel.textContent = root;
+  }
   function render() {
-    const handpan = getHandpan(); if (!handpan) return; menu.replaceChildren();
-    const results = document.createElement('div'); results.className = 'picker-results scale-menu-results'; menu.appendChild(results);
-    let lastTuning = null; let section = null;
-    HANDPAN_SCALES.forEach((scale, index) => {
-      const tuning = scale.tuning || '12-TET';
-      if (tuning !== lastTuning) { lastTuning = tuning; section = document.createElement('section'); section.className = 'picker-group scale-picker-group'; const head = document.createElement('div'); head.className = 'scale-menu-group'; head.textContent = tuning; section.appendChild(head); results.appendChild(section); }
-      const button = document.createElement('button'); button.type = 'button'; button.className = 'scale-menu-item pionier-menu-option' + (index === handpan.scaleIndex ? ' is-active' : ''); button.setAttribute('role', 'menuitem'); button.dataset.searchText = [scale.label, scale.short, tuning, scale.root, scale.id].filter(Boolean).join(' ').toLowerCase();
-      const name = document.createElement('span'); name.textContent = scale.label; button.appendChild(name); if (tuning !== '12-TET') { const sub = document.createElement('span'); sub.className = 'scale-item-tuning'; sub.textContent = tuning; button.appendChild(sub); }
-      button.addEventListener('click', (e) => { e.stopPropagation(); handpan.setScaleIndex(index); onScaleChange?.(); render(); updateLabel(); if (window.PionierOverlay) window.PionierOverlay.closePickers(); else { menu.hidden = true; toggle.setAttribute('aria-expanded', 'false'); } toggle.focus?.(); });
-      try { window.PionierFavorites?.decorateScaleItem?.(button, scale, index); } catch (_) {}
-      section.appendChild(button);
-    });
-
+    const handpan = getHandpan(); if (!handpan) return;
+    menu.replaceChildren();
+    const results = document.createElement('div');
+    results.className = 'picker-results scale-menu-results';
+    menu.appendChild(results);
+    // Group scales by family, in the defined family order, with subtle category headings.
+    for (const family of SCALE_FAMILIES) {
+      const members = HANDPAN_SCALES.filter((s) => s.family === family);
+      if (!members.length) continue;
+      const section = document.createElement('section');
+      section.className = 'picker-group scale-picker-group';
+      const head = document.createElement('div');
+      head.className = 'scale-menu-group';
+      head.textContent = family;
+      section.appendChild(head);
+      results.appendChild(section);
+      members.forEach((scale, index) => {
+        const globalIndex = HANDPAN_SCALES.indexOf(scale);
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'scale-menu-item pionier-menu-option' + (globalIndex === handpan.scaleIndex ? ' is-active' : '');
+        button.setAttribute('role', 'menuitem');
+        button.dataset.searchText = [scale.label, scale.short, scale.family, scale.mood, scale.id].filter(Boolean).join(' ').toLowerCase();
+        const name = document.createElement('span');
+        name.textContent = scale.label;
+        button.appendChild(name);
+        const sub = document.createElement('span');
+        sub.className = 'scale-item-tuning';
+        sub.textContent = scale.mood;
+        button.appendChild(sub);
+        button.addEventListener('click', (e) => { e.stopPropagation(); handpan.setScaleIndex(globalIndex); onScaleChange?.(); render(); updateLabel(); if (window.PionierOverlay) window.PionierOverlay.closePickers(); else { menu.hidden = true; toggle.setAttribute('aria-expanded', 'false'); } toggle.focus?.(); });
+        try { window.PionierFavorites?.decorateScaleItem?.(button, scale, globalIndex); } catch (_) {}
+        section.appendChild(button);
+      });
+    }
   }
   function stepScale(delta) {
     const handpan = getHandpan();

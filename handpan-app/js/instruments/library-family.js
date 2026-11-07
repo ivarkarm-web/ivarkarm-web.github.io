@@ -6,6 +6,7 @@
  */
 import { Instrument } from '../instrument.js';
 import { SoundLibrary, listVoices } from '../sound/library.js?v=6';
+import { instrumentMeta } from './instrument-meta.js';
 
 const MAX_PADS = 14;
 const PITCH_BEND_RANGE = 2;
@@ -42,12 +43,13 @@ export class LibraryInstrument extends Instrument {
       id: voice.id,
       name: voice.name,
       description: voice.desc,
-      category: voice.family,
+      category: (instrumentMeta(voice.id)?.family) || voice.family,
       engineKind: 'procedural',
       polyphony: MAX_PADS,
       compatibleFx: ['compressor', 'delay', 'reverb', 'warmth', 'air', 'chorus', 'shimmer', 'lowpass']
     });
     this.voice = voice;
+    this.meta = instrumentMeta(voice.id) || null;
     this.held = HELD_VOICES.has(voice.id);
     this.pitches = [];
     this.pitchBendRange = PITCH_BEND_RANGE;

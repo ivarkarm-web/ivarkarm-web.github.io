@@ -6,7 +6,7 @@
 import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js?v=2';
 import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
-import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js?v=13';
+import { HandpanInstrument, HANDPAN_SCALES, randomScaleIndex } from './js/instruments/handpan.js?v=13';
 import { createLibraryInstruments } from './js/instruments/library-family.js?v=3';
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
@@ -438,13 +438,22 @@ function renderInstrumentMenu() {
   menu.appendChild(results);
   const seen = new Set();
   const groups = new Map();
+  const INSTRUMENT_FAMILY_LABELS = {
+    'HANDPAN & TUNED PERCUSSION': 'HANDPAN & TUNED PERCUSSION',
+    PERCUSSION: 'PERCUSSION',
+    WIND: 'WIND',
+    STRINGS: 'STRINGS',
+    'DRONES & ATMOSPHERIC': 'DRONES & ATMOSPHERIC',
+    'ELECTRONIC & SYNTH': 'ELECTRONIC & SYNTH',
+    library: 'Library',
+    arp: 'Arps'
+  };
   function instrumentGroupId(item) {
     const c = (item.category || item.engineKind || 'other').toString().toLowerCase();
-    if (c.includes('hand') || item.id === 'handpan') return 'handpan';
     if (c.includes('arp')) return 'arp';
-    return 'library';
+    return item.category || 'library';
   }
-  const labels = { handpan: 'Handpan', library: 'Library', arp: 'Arps' };
+  const groupLabel = (gid) => INSTRUMENT_FAMILY_LABELS[gid] || gid;
   for (const item of InstrumentRegistry.list()) {
     if (!item || !item.id || seen.has(item.id)) continue;
     seen.add(item.id);
@@ -457,7 +466,7 @@ function renderInstrumentMenu() {
     section.className = 'instrument-menu-section';
     const h = document.createElement('div');
     h.className = 'instrument-menu-group';
-    h.textContent = labels[gid] || gid;
+    h.textContent = groupLabel(gid);
     section.appendChild(h);
     for (const item of items) {
       const btn = document.createElement('button');
@@ -599,17 +608,21 @@ window.PionierCore = {
     const voiceEl = document.getElementById('instrumentDropdownToggle');
     const inst = activeInstrument();
     if (voiceEl && inst) voiceEl.textContent = (inst.name || inst.id) + ' \u25be';
-    const scales = (typeof HANDPAN_SCALES !== 'undefined' && HANDPAN_SCALES) || window.HANDPAN_SCALES || [];
-    if (scales.length > 1) {
-      let next = Math.floor(Math.random() * scales.length);
-      const curIdx = typeof handpan.scaleIndex === 'number' ? handpan.scaleIndex : -1;
-      if (next === curIdx) next = (next + 1) % scales.length;
-      handpan.setScaleIndex(next);
-      refreshPitch();
-      const label = document.getElementById('scaleLabel');
-      const scale = scales[next];
-      if (label && scale) label.textContent = (scale.short || scale.label || 'Scale') + ' \u25be';
+    // Scale randomisation: only valid, non-experimental presets by default.
+    let next = randomScaleIndex({ excludeExperimental: true });
+    let tries = 0;
+    while (
+      typeof handpan.scaleIndex === 'number' && next === handpan.scaleIndex &&
+      tries < 5 && HANDPAN_SCALES.length > 1
+    ) {
+      next = randomScaleIndex({ excludeExperimental: true });
+      tries++;
     }
+    handpan.setScaleIndex(next);
+    refreshPitch();
+    const scale = HANDPAN_SCALES[handpan.scaleIndex];
+    const label = document.getElementById('scaleLabel');
+    if (label && scale) label.textContent = (scale.short || scale.label || 'Scale') + ' \u25be';
     // The die is the sole user-facing way to choose a new 8–13-note layout.
     handpan.noteCount = 8 + Math.floor(Math.random() * 6);
     handpan.rebuildNotes();
