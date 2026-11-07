@@ -110,11 +110,16 @@
     });
     appendIfNeeded(toolbar, recordCluster);
 
-    var soundscapes = document.getElementById('openSoundscapes');
+    var library = document.getElementById('openLibrary');
     var tonepad = document.getElementById('tonepadToggle');
     var fx = document.getElementById('fxPanelOpen');
     var customize = document.getElementById('settingsOpenBtn');
-    [soundscapes, tonepad, fx, customize].forEach(function (el) { appendIfNeeded(actionGroup, el); });
+    /* Keep My Library reachable in the safe-area corner on every layout. */
+    if (library) {
+      library.classList.add('library-top-btn');
+      if (library.parentElement !== document.body) document.body.appendChild(library);
+    }
+    [tonepad, fx, customize].forEach(function (el) { appendIfNeeded(actionGroup, el); });
     appendIfNeeded(actionGroup, document.getElementById('looperExportBtn'));
     appendIfNeeded(actionGroup, document.getElementById('looperSaveBtn'));
 

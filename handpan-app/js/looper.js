@@ -61,6 +61,7 @@ export function mountLooper({ root } = {}) {
     layersEl = document.createElement('div');
     layersEl.id = 'looperLayers';
     layersEl.className = 'looper-layers';
+    layersEl.setAttribute('role', 'group');
     layersEl.setAttribute('aria-label', 'Loop layers');
     rail.appendChild(layersEl);
   }
@@ -153,6 +154,10 @@ export function mountLooper({ root } = {}) {
   exportBtn.disabled = true;
   rail.appendChild(exportBtn);
   exportBtn.addEventListener('click', exportWav);
+  const saveBtn = ensureTimingButton('looperSaveBtn', 'looper-save-btn', 'Save composition to My Library', '<span class="looper-timing-main">Save</span>');
+  saveBtn.disabled = true;
+  rail.appendChild(saveBtn);
+  saveBtn.addEventListener('click', () => window.PionierLibrary?.save?.(createLibrarySnapshot()));
   let recording = false;
   let recordStartGeneration = 0;
   let recChunks = null;
@@ -266,10 +271,19 @@ export function mountLooper({ root } = {}) {
       })().catch((err) => {
         tapPromise = null;
         console.error('[looper] AudioWorklet recorder failed to initialize', err);
+        // Ensure recChunks is cleared on initialization failure
+        recChunks = null;
         throw err;
       });
     }
-    await tapPromise;
+    const initializing = tapPromise;
+    try {
+      await initializing;
+    } finally {
+      // Initialization has settled; release the in-flight guard so later takes can
+      // start. The recorder itself is kept (processor/ tapSource) and reused.
+      if (tapPromise === initializing) tapPromise = null;
+    }
     return ctx;
   }
 
@@ -329,6 +343,26 @@ export function mountLooper({ root } = {}) {
 
   function refreshAllGains() {
     for (const layer of layers) applyLayerGain(layer);
+  }
+
+  function createLibrarySnapshot() {
+    const app = window.PionierAppState?.get?.() || {};
+    const ctx = getAudioContext();
+    const savedLayers = layers.filter(layer => layer?.buffer).map(layer => ({
+      sampleRate: layer.buffer.sampleRate || ctx?.sampleRate || 44100,
+      channels: Array.from({ length: layer.buffer.numberOfChannels || 1 }, (_, channel) => layer.buffer.getChannelData(channel).slice()),
+      offset: Number(layer.offset) || 0, level: Number.isFinite(layer.level) ? layer.level : DEFAULT_LEVEL,
+      pan: Number(layer.pan) || 0, muted: !!layer.muted, solo: !!layer.solo,
+      delayAmount: Number(layer.delayAmount) || 0, cutoff: Number(layer.cutoff) || 20000,
+      quantize: layer.quantize || 'off', duration: layer.buffer.duration
+    }));
+    const duration = savedLayers.length ? Math.max(...savedLayers.map(layer => layer.offset + layer.duration)) : 0;
+    return {
+      duration, sampleRate: savedLayers[0]?.sampleRate || ctx?.sampleRate || 44100,
+      settings: { instrumentId: app.instrumentId || 'handpan', scaleIndex: app.scaleIndex ?? 0,
+        rootIndex: app.rootIndex ?? 0, noteCount: app.noteCount ?? 9, fx: app.fx || null },
+      timing: { bpm, metronomeOn, countInEnabled, countInBars, beatsPerBar, clickType, syncMode: syncMode() }, layers: savedLayers
+    };
   }
 
   function exportWav() {
@@ -407,8 +441,12 @@ export function mountLooper({ root } = {}) {
   function setBtnState() {
     const hasLayers = layers.length > 0;
     exportBtn.hidden = !hasLayers;
+    saveBtn.hidden = !hasLayers;
     exportBtn.disabled = !hasLayers || recording || pendingLoopStop || countInPending;
+    saveBtn.disabled = !hasLayers || recording || pendingLoopStop || countInPending;
     exportBtn.setAttribute('aria-disabled', String(exportBtn.disabled));
+    saveBtn.setAttribute('aria-disabled', String(saveBtn.disabled));
+    saveBtn.classList.toggle('is-available', hasLayers && !saveBtn.disabled);
     btn.disabled = !recording && !pendingLoopStop && !countInPending && layers.length >= MAX_LAYERS;
     btn.classList.toggle('is-recording', recording);
     btn.classList.toggle('has-layers', hasLayers);
@@ -1048,11 +1086,28 @@ export function mountLooper({ root } = {}) {
 
   async function beginRecording(generation = recordStartGeneration) {
     if (layers.length >= MAX_LAYERS) return;
+    // Guard against concurrent recording attempts from rapid button presses
+    if (recording || recChunks !== null) {
+      console.warn('[looper] Recording already in progress, ignoring duplicate start');
+      return;
+    }
     const ctx = await ensureTap();
     if (!ctx || generation !== recordStartGeneration) return;
-    resumeAudio();
+    await resumeAudio();
+    // Verify context is actually running before recording
+    if (getAudioContext()?.state !== 'running') {
+      console.error('[looper] Audio context failed to resume, cannot start recording');
+      recording = false;
+      countInPending = false;
+      if (countInTimer) clearTimeout(countInTimer);
+      countInTimer = null;
+      setBtnState();
+      reportRecorderError();
+      return;
+    }
     try { window.PionierCore?.ensureAudio?.(); } catch (_) {}
     ensureTap();
+    // Initialize chunk array AFTER all async checks pass
     recChunks = [];
     recording = true;
     pendingLoopStop = false;
@@ -1111,6 +1166,11 @@ export function mountLooper({ root } = {}) {
 
   async function startRecord() {
     if (layers.length >= MAX_LAYERS || recording || pendingLoopStop || countInPending) return;
+    // Guard against concurrent initialization from rapid button presses
+    if (tapPromise) {
+      console.warn('[looper] Recorder initialization already in progress, ignoring duplicate start');
+      return;
+    }
     const generation = ++recordStartGeneration;
     try {
       const ctx = await ensureTap();
@@ -1320,18 +1380,22 @@ export function mountLooper({ root } = {}) {
       await new Promise((resolve) => {
         recorderFlushResolve = resolve;
         processor.port.postMessage({ type: 'flush' });
-        setTimeout(() => { if (recorderFlushResolve === resolve) recorderFlushResolve = null; resolve(); }, 120);
+        // Increased timeout from 120ms to 500ms to ensure all audio chunks are flushed
+        // 120ms was too short and could cause incomplete recordings on slower devices
+        setTimeout(() => { if (recorderFlushResolve === resolve) recorderFlushResolve = null; resolve(); }, 500);
       });
     }
     if (pendingLoopStopTimer) {
       clearTimeout(pendingLoopStopTimer);
       pendingLoopStopTimer = null;
     }
-    recording = false;
-    pendingLoopStop = false;
+    // Capture chunks BEFORE clearing recording state to prevent race conditions
     const ctx = getAudioContext();
     const master = getAudioMaster();
     const chunks = recChunks;
+    // Clear recording state AFTER capturing chunks
+    recording = false;
+    pendingLoopStop = false;
     recChunks = null;
     setBtnState();
     if (!ctx || !master || !chunks?.length) return;
@@ -1352,23 +1416,16 @@ export function mountLooper({ root } = {}) {
     }
 
     const mode = syncMode();
-    let startOff = 0;
+    const hadLayers = layers.length > 0;
     const rawDur = buffer.duration;
 
-    if (mode === 'loop' && layers.length > 0) {
+    if (mode === 'loop' && hadLayers) {
       const target = snapToLoopMultiple(rawDur);
       buffer = trimOrPadBuffer(ctx, buffer, target);
-      startOff = cyclePhase(ctx.currentTime);
-    } else if (mode === 'beat' && layers.length > 0) {
+    } else if (mode === 'beat' && hadLayers) {
       const target = snapToBeats(rawDur);
       buffer = trimOrPadBuffer(ctx, buffer, target);
-      const beat = beatDuration();
-      const ph = cyclePhase(ctx.currentTime);
-      if (beat > 0) {
-        startOff = Math.round(ph / beat) * beat;
-        startOff = startOff % (cycleDuration() || target || 1);
-      }
-    } else if (mode === 'serial' && layers.length > 0) {
+    } else if (mode === 'serial' && hadLayers) {
       layers.forEach((l, i) => {
         if (!l.paused) pauseLayer(i);
       });
@@ -1404,6 +1461,22 @@ export function mountLooper({ root } = {}) {
     };
     layers.push(layer);
     applyLayerGain(layer);
+
+    // Sample the master phase as late as possible. Buffer assembly and trimming
+    // can take tens of milliseconds on slower devices; sampling before that work
+    // left overdubs progressively out of phase with the master layer.
+    let startOff = 0;
+    if (hadLayers && mode === 'loop') {
+      startOff = cyclePhase(ctx.currentTime);
+    } else if (hadLayers && mode === 'beat') {
+      const beat = beatDuration();
+      const ph = cyclePhase(ctx.currentTime);
+      if (beat > 0) {
+        startOff = Math.round(ph / beat) * beat;
+        startOff = startOff % (cycleDuration() || buffer.duration || 1);
+      }
+    }
+
     startLayerSource(layer, startOff);
     renderCircles();
     setBtnState();
@@ -1423,6 +1496,15 @@ export function mountLooper({ root } = {}) {
     closeSheet();
     for (const layer of layers) disconnectLayer(layer);
     layers.length = 0;
+    // Disconnect and cleanup AudioWorklet recorder to prevent CPU waste
+    try { if (processor?.port) processor.port.onmessage = null; } catch (_) {}
+    try { processor?.disconnect(); } catch (_) {}
+    try { silent?.disconnect(); } catch (_) {}
+    try { tapSource?.disconnect(processor); } catch (_) {}
+    processor = null;
+    silent = null;
+    tapSource = null;
+    tapPromise = null;
     renderCircles();
     setBtnState();
   }
