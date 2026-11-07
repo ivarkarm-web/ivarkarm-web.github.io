@@ -11,7 +11,7 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.
  */
-const CACHE_VERSION = 'pionier-v204';
+const CACHE_VERSION = 'pionier-v205';
 
 const SHELL = [
   './',
@@ -70,12 +70,22 @@ const SHELL = [
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_VERSION);
+    const failed = [];
     await Promise.all(SHELL.map(async (url) => {
       try {
         const res = await fetch(url, { cache: 'no-cache' });
-        if (res && res.ok) await cache.put(url, res);
-      } catch (_) {}
+        if (res && res.ok) {
+          await cache.put(url, res);
+        } else {
+          failed.push(url);
+        }
+      } catch (_) {
+        failed.push(url);
+      }
     }));
+    if (failed.length > 0) {
+      throw new Error('SW install failed: ' + failed.join(', '));
+    }
     await self.skipWaiting();
   })());
 });
