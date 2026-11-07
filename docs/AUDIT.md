@@ -8,7 +8,7 @@ Live route: `/handpan-app/`. Static HTML/CSS/ES modules; CI optimizes CSS before
 
 ## App version
 
-`handpan-app/APP_VERSION` = **200** (see also `VERSION.txt`).
+`handpan-app/APP_VERSION` = **205** (see also `VERSION.txt`).
 
 ## Measured CSS (source, pre-optimizer)
 

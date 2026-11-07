@@ -2,7 +2,7 @@
 
 **Updated:** 2026-10-26  
 **Branch:** `main`  
-**App version:** 170 (`handpan-app/APP_VERSION`)
+**App version:** 205 (`handpan-app/APP_VERSION`)
 
 ## Current focus (2026-10-26)
 

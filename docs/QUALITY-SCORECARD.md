@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-10-26  
 **Scope:** `handpan-app/` and its test/CI surface.  
-**APP_VERSION / CACHE:** `170` / `pionier-v170`
+**APP_VERSION / CACHE:** `205` / `pionier-v205`
 
 This scorecard is conservative. CI evidence is not a substitute for real-device iOS sign-off or sample licensing.
 
@@ -21,7 +21,7 @@ This scorecard is conservative. CI evidence is not a substitute for real-device 
 
 ## Owner inputs still needed for a locked 8
 
-1. Sign `handpan-app/IOS-SAFARI-CHECKLIST.md` on a real iPhone for APP_VERSION **170**.
+1. Sign `handpan-app/IOS-SAFARI-CHECKLIST.md` on a real iPhone for APP_VERSION **205**.
 2. Fill one Android Chrome row in `docs/DEVICE-CHECKLIST.md`.
 3. Offline reload proof after SW install on phone.
 4. Sample rights for commercial claims beyond procedural fallback (see `docs/AUDIO-LICENSES.md`).
