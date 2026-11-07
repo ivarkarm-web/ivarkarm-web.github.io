@@ -12,11 +12,49 @@
   const DEFAULTS = {
     lightMode: null,
     ambient: 'none',
+    natureSound: 'off',
+    natureVolume: 0.22,
     transparency: 1,
     touchFeedback: false,
     highContrast: false,
     led: { r: 110, g: 200, b: 255, strength: 0.35 },
   };
+
+  const NATURE_ITEMS = [
+    { id: 'off', label: 'Off' },
+    { id: 'rain', label: 'Soft rain' },
+    { id: 'storm', label: 'Thunderstorm' },
+    { id: 'forest', label: 'Forest' },
+    { id: 'birds', label: 'Birds' },
+    { id: 'wind', label: 'Wind' },
+    { id: 'water', label: 'Water' },
+  ];
+
+  function natureApi() {
+    return window.PionierAmbientBeds || null;
+  }
+
+  function applyNatureSound(state) {
+    const api = natureApi();
+    if (!api) return;
+    const mode = state.natureSound || 'off';
+    if (mode === 'off') api.stop();
+    else api.start(mode, state.natureVolume);
+  }
+
+  // Audio cannot start before a user gesture. If the owner left a bed
+  // selected, resume it on the first interaction once the app is ready.
+  function armNatureResume(state) {
+    if (!state.natureSound || state.natureSound === 'off') return;
+    const resume = () => {
+      if (window.PionierBootState && window.PionierBootState !== 'ready') {
+        setTimeout(resume, 250);
+        return;
+      }
+      applyNatureSound(state);
+    };
+    document.addEventListener('pointerdown', resume, { once: true });
+  }
 
   function resolveLightMode(state) {
     if (state && (state.lightMode === true || state.lightMode === false)) return !!state.lightMode;
@@ -272,6 +310,38 @@
       onPick: (id) => { state.ambient = id; save(state); apply(state); },
     });
 
+    const natureSec = document.createElement('section');
+    natureSec.className = 'settings-section';
+    natureSec.innerHTML =
+      '<div class="settings-section-label">Nature ambience</div>' +
+      '<p class="settings-row-hint">Procedural sound beds, generated on this device.</p>';
+    body.appendChild(natureSec);
+    buildDropdown(natureSec, {
+      id: 'settingNatureSound',
+      label: 'Sound bed',
+      items: NATURE_ITEMS,
+      activeId: state.natureSound || 'off',
+      onPick: (id) => {
+        state.natureSound = id;
+        save(state);
+        applyNatureSound(state);
+      },
+    });
+    const natureVolRow = document.createElement('div');
+    natureVolRow.className = 'settings-row settings-slider-row';
+    natureVolRow.innerHTML =
+      '<input type="range" id="settingNatureVolume" min="0" max="100" value="' + Math.round((state.natureVolume ?? 0.22) * 100) + '" aria-label="Nature ambience volume" />' +
+      '<span class="settings-rgb-val" id="settingNatureVolumeVal">' + Math.round((state.natureVolume ?? 0.22) * 100) + '%</span>';
+    natureSec.appendChild(natureVolRow);
+    const natureVol = natureVolRow.querySelector('#settingNatureVolume');
+    const natureVolVal = natureVolRow.querySelector('#settingNatureVolumeVal');
+    natureVol.addEventListener('input', () => {
+      state.natureVolume = Number(natureVol.value) / 100;
+      natureVolVal.textContent = natureVol.value + '%';
+      save(state);
+      natureApi()?.setLevel(state.natureVolume);
+    });
+
     const light = document.getElementById('settingLightMode');
     if (light) {
       light.checked = resolveLightMode(state);
@@ -322,8 +392,6 @@
       document.getElementById('fxPanelOpen')?.setAttribute('aria-expanded', 'false');
       document.body.classList.remove('is-fx-open');
     }
-    document.getElementById('soundscapesPanel')?.setAttribute('hidden', '');
-    document.body.classList.remove('soundscapes-active');
     buildBody(state);
     els.sheet.hidden = false;
     els.sheet.removeAttribute('hidden');
@@ -365,6 +433,7 @@
   function boot() {
     const state = load();
     apply(state);
+    armNatureResume(state);
     const els = ensureDom();
     wire(state, els);
   }

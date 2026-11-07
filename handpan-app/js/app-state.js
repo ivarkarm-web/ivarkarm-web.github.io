@@ -41,6 +41,10 @@ export function loadAppState() {
         ambient: { ...defaultState().ambient, ...(data.ambient || {}) },
         loop: { ...defaultState().loop, ...(data.loop || {}) }
       };
+      if (['eamara', 'e-amara', 'amara'].includes(String(state.instrumentId).toLowerCase())) {
+        state.instrumentId = 'handpan';
+        state.scaleIndex = defaultState().scaleIndex;
+      }
     }
   } catch {
     /* storage blocked — keep defaults */

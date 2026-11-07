@@ -3,7 +3,7 @@
  *
  * Important: do NOT load the legacy layout-boot from an old CDN commit.
  * That script hides .topbar, moves the mobile drawer into a fixed top dock,
- * and pins Soundscapes / FX / Customize to the top center. Those actions
+ * and pins library / FX / Customize actions to their intended positions. Those actions
  * directly conflict with pionier-control-layout.js and the requested layout.
  *
  * This file only maintains pan sizing and the record-button chrome. The

@@ -1,7 +1,7 @@
 {
   "name": "Pionier Synth \u2014 Play, Explore, Create",
   "short_name": "Pionier Synth",
-  "description": "A touch-responsive musical instrument for resonant sounds, effects, loops and soundscapes.",
+  "description": "A touch-responsive musical instrument for resonant sounds, effects, loops and a local composition library.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#050505",
