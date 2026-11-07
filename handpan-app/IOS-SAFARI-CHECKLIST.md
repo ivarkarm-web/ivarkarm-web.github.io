@@ -28,12 +28,13 @@ Run on a real iPhone (or iPad) after each release that touches audio, SW, or the
 ## Offline / PWA
 
 - [ ] After one online visit, enable Airplane Mode → reload — shell + instrument still load.
-- [ ] Soundscapes show a clear network error offline (expected; archive.org tracks need network).
+- [ ] My Library reports available storage and clearly explains that browser data may be cleared.
+- [ ] Save a loop, reload, play it, and export a WAV backup.
 - [ ] Clear website data and re-open — app recovers to a playable state online.
 
 ## Accessibility smoke
 
-- [ ] VoiceOver: Enter, scale pill, instrument name, soundscapes, looper announce sensible labels.
+- [ ] VoiceOver: Enter, scale pill, instrument name, My Library and looper announce sensible labels.
 - [ ] External keyboard: Tab to scale control, open with Enter/Space, Escape closes and returns focus.
 
 ## Quick Android Chrome pass
@@ -44,7 +45,7 @@ Run on a real Android phone using Chrome against the same deployed `APP_VERSION`
 - [ ] Play several pads rapidly and play a multi-finger chord; no stuck or prematurely muted notes.
 - [ ] Open and close instrument and scale selectors repeatedly; they remain visible and usable.
 - [ ] Record, stop, play and clear a loop; toolbar remains aligned and controls stay tappable.
-- [ ] Open and close FX and Backing Tracks; overlays do not cover or disable the main controls unexpectedly.
+- [ ] Open and close FX and My Library; overlays do not cover or disable the main controls unexpectedly.
 - [ ] Rotate the device and return to portrait; controls and pan remain usable.
 - [ ] Reload once and confirm the handpan loads without a blank or stuck welcome screen.
 

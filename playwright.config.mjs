@@ -6,11 +6,18 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './scripts/app-tests',
-  timeout: 20000,
+  // The suite boots a large static app and several Web Audio flows. On older
+  // local hardware 20s was routinely exceeded during page boot and teardown,
+  // producing environment timeouts rather than product failures. Assertions
+  // below are unchanged; individual long flows still set their own budgets.
+  timeout: 60000,
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 2 : undefined,
+  // Run one browser at a time locally. Parallel Web Audio specs plus failure
+  // video encoding saturated older Intel Macs and caused boot timeouts; CI
+  // still uses two workers on dedicated hardware.
+  workers: process.env.CI ? 2 : 1,
   reporter: process.env.CI ? [['line'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL: 'http://127.0.0.1:4173',
@@ -20,7 +27,12 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
   webServer: {
-    command: 'python3 -m http.server 4173 --bind 127.0.0.1 --directory .',
+    // Use a threaded HTTP server instead of the default single-threaded
+    // python3 -m http.server. When Playwright fetches ~50 ES modules
+    // concurrently across multiple browser contexts the single thread
+    // serialises all requests and causes startup timeouts. The threaded
+    // variant handles each connection in its own thread.
+    command: 'python3 scripts/serve-threaded.py 4173 --bind 127.0.0.1 --directory .',
     url: 'http://127.0.0.1:4173/handpan-app/index.html',
     reuseExistingServer: !process.env.CI,
     timeout: 15000,

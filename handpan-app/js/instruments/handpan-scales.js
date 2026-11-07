@@ -30,15 +30,6 @@ export const HANDPAN_SCALES = [
     rootPc: 0,
   },
   {
-    id: 'eamara',
-    label: 'E Amara',
-    short: 'E Amara',
-    tuning: '12-TET',
-    intervals: [0, 2, 9, 12, 14, 16, 17, 19, 21, 24, 28, 29, 31],
-    rootMidi: 50,
-    rootPc: 2,
-  },
-  {
     id: 'elasirena',
     label: 'Ela Sirena',
     short: 'Ela Sirena',

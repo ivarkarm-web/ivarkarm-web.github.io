@@ -33,7 +33,9 @@ jobs:
         run: npm run check:handpan-cache
 
       - name: Purge and minify Pionier CSS
-        run: npm run optimize:handpan-css
+        # CI intentionally optimizes the ephemeral checkout so browser tests
+        # exercise the exact shipping CSS payload.
+        run: node scripts/optimize-handpan-css.mjs --allow-source
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
       - name: Smoke test

@@ -40,7 +40,9 @@ jobs:
         run: npm run check:handpan-cache
 
       - name: Purge and minify Pionier CSS
-        run: npm run optimize:handpan-css
+        # CI intentionally optimizes the ephemeral checkout so browser tests and
+        # the deployed artifact exercise the exact shipping CSS payload.
+        run: node scripts/optimize-handpan-css.mjs --allow-source
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
@@ -93,7 +95,8 @@ jobs:
         run: npm install --no-audit --no-fund
 
       - name: Optimize Pionier CSS for deployment
-        run: npm run optimize:handpan-css
+        # Deploy uploads the repository root; optimize this ephemeral checkout.
+        run: node scripts/optimize-handpan-css.mjs --allow-source
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

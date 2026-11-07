@@ -6,12 +6,12 @@
 import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js?v=2';
 import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
-import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js?v=12';
+import { HandpanInstrument, HANDPAN_SCALES } from './js/instruments/handpan.js?v=13';
 import { createLibraryInstruments } from './js/instruments/library-family.js?v=3';
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
-import { createSurface } from './js/pionier-surface.js?v=146';
+import { createSurface } from './js/pionier-surface.js?v=147';
 
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f'];
 const PITCH_BEND_PIXELS = 90;
@@ -25,6 +25,10 @@ let storageAvailable = true;
 function readSavedInstrumentId() {
   try {
     const saved = localStorage.getItem(ACTIVE_INSTRUMENT_STORAGE_KEY);
+    if (saved === 'eamara' || saved === 'e-amara' || saved === 'amara') {
+      persistActiveInstrumentId('handpan');
+      return 'handpan';
+    }
     return saved && InstrumentRegistry.get(saved) ? saved : 'handpan';
   } catch (_) {
     storageAvailable = false;

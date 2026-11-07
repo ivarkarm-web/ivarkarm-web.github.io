@@ -17,7 +17,7 @@ Hygiene and correctness pass on `main`:
 
 ## Release gates still open
 
-- Owner pass on real phone hardware (picker open, pan placement, Loop Studio, root/note-count, Soundscapes return).
+- Owner pass on real phone hardware (picker open, pan placement, Loop Studio, root/note-count, My Library save/reload/WAV export).
 - Confirm Pages deploy workflow green after this push.
 - CSS shipping budget remains tight after PurgeCSS (~250 KB ceiling); any new CSS needs a budget check.
 - Broad reduction of thousands of `!important` rules remains technical debt.

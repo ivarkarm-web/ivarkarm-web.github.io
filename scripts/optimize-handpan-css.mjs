@@ -19,6 +19,21 @@ if (targetIndex >= 0 && !process.argv[targetIndex + 1]) {
 const app = targetIndex >= 0
   ? path.resolve(process.cwd(), process.argv[targetIndex + 1])
   : path.join(root, 'handpan-app');
+
+// Safety guard: refuse to overwrite source CSS files in the git-tracked source tree.
+// The optimizer is designed to run against a dist/ copy. Explicitly pass --allow-source
+// only when you understand the source files will be permanently altered.
+const sourceRoot = path.resolve(root, 'handpan-app');
+const allowSource = process.argv.includes('--allow-source');
+const appIsSourceTree = path.resolve(app) === sourceRoot || path.resolve(app).startsWith(sourceRoot + path.sep);
+if (appIsSourceTree && !allowSource) {
+  throw new Error(
+    'CSS optimizer safety: refusing to overwrite git-tracked source CSS files in ' +
+    path.relative(root, app) + '.\n' +
+    'Run against a build artifact (dist/) via --app-dir, or pass --allow-source to override this guard.\n' +
+    'Example: node scripts/optimize-handpan-css.mjs --app-dir dist/handpan-app'
+  );
+}
 const appHtml = path.join(app, 'index.html');
 if (!fs.existsSync(appHtml)) throw new Error('Pionier app entry not found: ' + appHtml);
 const html = fs.readFileSync(appHtml, 'utf8');

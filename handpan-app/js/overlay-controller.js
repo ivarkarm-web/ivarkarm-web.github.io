@@ -1,6 +1,6 @@
 /**
  * overlay-controller.js — one open overlay at a time.
- * Owns: instrument menu, scale menu, FX panel, Settings sheet, Soundscapes.
+ * Owns: instrument menu, scale menu, FX panel and Settings sheet.
  * Instrument and scale share one animated glass scroll-menu shell.
  */
 (function overlayController() {
@@ -99,22 +99,10 @@
     document.getElementById('settingsOpenBtn')?.setAttribute('aria-expanded', 'false');
   }
 
-  function closeSoundscapes() {
-    const panel = document.getElementById('soundscapesPanel') || document.getElementById('soundscapesPage');
-    if (panel) {
-      panel.hidden = true;
-      panel.classList.remove('is-active', 'is-open');
-      panel.setAttribute('aria-hidden', 'true');
-    }
-    document.body.classList.remove('soundscapes-active');
-    document.getElementById('app')?.classList.remove('soundscapes-away');
-  }
-
   function closeAll(except) {
     if (except !== 'pickers') closePickers();
     if (except !== 'fx') closeFx();
     if (except !== 'settings') closeSettings();
-    if (except !== 'soundscapes') closeSoundscapes();
   }
 
   /**
@@ -212,7 +200,6 @@
     closeAll('pickers');
     closeFx();
     closeSettings();
-    closeSoundscapes();
     PICKER_IDS.forEach((id) => {
       if (id === menuId) return;
       const m = document.getElementById(id);
@@ -296,7 +283,6 @@
     closePickers,
     closeFx,
     closeSettings,
-    closeSoundscapes,
     openPicker,
     togglePicker,
     openFx,
@@ -357,13 +343,6 @@
         if (fx && !fx.hidden) {
           e.preventDefault();
           closeFx();
-          return;
-        }
-        const ss = document.getElementById('soundscapesPanel') || document.getElementById('soundscapesPage');
-        if (ss && !ss.hidden && ss.classList.contains('is-active')) {
-          e.preventDefault();
-          closeSoundscapes();
-          try { document.getElementById('openSoundscapes')?.focus?.(); } catch (_) {}
           return;
         }
         closeAll();
@@ -430,12 +409,6 @@
         bd.hidden = true;
         bd.setAttribute('hidden', '');
       }
-    }
-    const ss = document.getElementById('soundscapesPanel') || document.getElementById('soundscapesPage');
-    const ssOpen = ss && !ss.hidden && (ss.classList.contains('is-active') || ss.classList.contains('is-open'));
-    if (!ssOpen) {
-      document.body.classList.remove('soundscapes-active');
-      document.getElementById('app')?.classList.remove('soundscapes-away');
     }
   }
 

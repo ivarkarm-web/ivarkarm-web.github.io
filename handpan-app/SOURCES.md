@@ -1,24 +1,19 @@
 # Pionier — sources & licensing
 
-## Owner recordings (Bedroom Sessions)
+## User recordings
 
-Eight tracks mirrored from portfolio `js/music-data.js`, streamed from Internet Archive:
-
-- Item: https://archive.org/details/bedroom-sessions-03.10.2026-22.29
-- Prefer VBR MP3 derivatives; WAV fallback in the player
-- CORS: `Access-Control-Allow-Origin: *`; Range requests supported
-- Rights: owner-recorded by Ivar Karm for this project
+The looper can save compositions to browser-local IndexedDB. Recordings stay on the device unless the user explicitly exports a WAV file. The app does not fetch or upload recordings.
 
 ## Note samples
 
-- E Amara (and other scales when present) under `sounds/notes/` — owner recordings or licensed assets only
-- Manifest: `sounds/notes/manifest.json`
-- Playback prefers WebM/Opus → M4A/AAC → WAV
+- None are shipped. Handpan and library voices are synthesized locally at runtime.
+- The legacy `sounds/manifest.json` is documentation only; `sounds/notes/` is intentionally absent.
 
 ## Generated / removed
 
 - **No** third-party sample packs ship without an entry here
-- **No** generated ambient beds (rain/storm/forest/wind/water) — removed by product decision
+- **Nature ambience** is generated procedurally (filtered noise and scheduled chirps/thunder); no audio files are fetched
+- **Bedroom Sessions** streamed recordings are not part of the app; they remain on the artist portfolio site
 - **No** user-upload paths
 
 ## Fonts

@@ -8,7 +8,7 @@ Live route: `/handpan-app/`. Static HTML/CSS/ES modules; CI optimizes CSS before
 
 ## App version
 
-`handpan-app/APP_VERSION` = **170** (see also `VERSION.txt`).
+`handpan-app/APP_VERSION` = **200** (see also `VERSION.txt`).
 
 ## Measured CSS (source, pre-optimizer)
 
@@ -17,7 +17,8 @@ Live route: `/handpan-app/`. Static HTML/CSS/ES modules; CI optimizes CSS before
 | `pionier-base.css` | Base / tokens | ~173 KB raw; largest single file |
 | `pionier-controls.css` | Controls / FX | |
 | `css-parts/layout-*.css` | Dock / looper / themes | Linked in parallel from `index.html` |
-| `css-parts/ambient-*.css` | Soundscapes UI | Linked in parallel from `index.html` |
+| `css-parts/ambient-*.css` | Ambient FX | Linked in parallel from `index.html` |
+| `library.css`, `js/library*.js` | Local IndexedDB composition library and WAV export |
 
 **Shipping size is the PurgeCSS + esbuild output in CI**, gated strictly under **250,000 bytes**. Sequential `@import` previously hid layout/ambient rules from PurgeCSS and inflated first-paint waterfalls; that chain is removed.
 

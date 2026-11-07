@@ -42,8 +42,6 @@ read('handpan-app/js/instruments/handpan.js');
 read('handpan-app/js/instruments/library-family.js');
 for (const f of ['dsp', 'voices', 'library', 'space']) read(`handpan-app/js/sound/${f}.js`);
 read('handpan-app/js/pionier-surface.js');
-const soundscapes = read('handpan-app/js/soundscapes.js');
-read('handpan-app/js/mandala-canvas.js');
 const handpanSource = read('handpan-app/js/instruments/handpan.js');
 const notesDir = path.join(root, 'handpan-app/sounds/notes');
 const noteSampleBank = path.join(root, 'handpan-app/js/note-sample-bank.js');
@@ -90,18 +88,12 @@ else fail('Scale/instrument picker wiring is incomplete');
 if (/pionier-controls\.css\?v=\d+/.test(appHtml) && /pionier-app\.js\?v=\d+/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) ok('Picker assets use versioned cache stamps');
 else fail('Picker asset cache versions are stale');
 
-if (
-  (appHtml.includes('id="soundscapesPanel"') || appHtml.includes('id="soundscapesPage"')) &&
-  appHtml.includes('id="soundscapeAudio"') &&
-  (appHtml.includes('id="soundscapePlay"') || appHtml.includes('id="mandalaPlay"') || appHtml.includes('id="openSoundscapes"'))
-) ok('Soundscapes player markup is present');
-else fail('Soundscapes player markup is missing');
-
-const mandala = read('handpan-app/js/mandala-canvas.js');
-if (/BEDROOM_SESSIONS/.test(soundscapes) && /pointerdown/.test(soundscapes) && /mediaSession/.test(soundscapes)) ok('Soundscapes Bedroom Sessions player is present');
-else fail('Soundscapes Bedroom Sessions player is missing');
-if (/createMandalaRenderer/.test(mandala)) ok('Mandala renderer module is present');
-else fail('Mandala renderer module is missing');
+if (appHtml.includes('id="openLibrary"') && appHtml.includes('id="libraryPanel"') && appHtml.includes('id="libraryList"')) ok('My Library shell is present');
+else fail('My Library shell is missing');
+if (/objectStore\(STORE/.test(read('handpan-app/js/library-store.js')) && /indexedDB/.test(read('handpan-app/js/library-store.js'))) ok('My Library uses IndexedDB for composition data');
+else fail('My Library IndexedDB store is missing');
+if (!/soundscape|Soundscapes|openSoundscapes/.test(appHtml + shell + serviceWorker)) ok('Soundscapes player is removed from the app shell and offline cache');
+else fail('Soundscapes references remain in the app shell');
 
 if (appHtml.includes('name="description"')) ok('Pionier description metadata is present');
 else fail('Pionier description metadata is missing');
@@ -140,8 +132,6 @@ if (!/repository-loop-save/.test(serviceWorker) && !/community-api/.test(service
 else fail('Service worker still references community upload modules');
 if (!appHtml.includes('soundscapeCommunityTab') && !appHtml.includes('User-Created')) ok('Community User-Created UI is absent from index');
 else fail('Community User-Created UI still present in index');
-if (!/fetchCommunitySongs/.test(soundscapes) && !/repository-loop-save/.test(soundscapes)) ok('Soundscapes module is owner Bedroom Sessions only');
-else fail('Soundscapes still imports community song APIs');
 if (fs.existsSync(path.join(root, 'handpan-app/js/app-state.js'))) ok('Unified app-state module is present');
 else fail('app-state.js missing');
 if (/getAmbientBus/.test(coreSrc) && /instrumentBus/.test(coreSrc)) ok('Core exposes separated instrument and ambient buses');

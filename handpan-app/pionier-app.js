@@ -1,6 +1,8 @@
 /**
  * Pionier app shell: load the vendored local core and optional UI modules.
  */
+import { startAmbient, setAmbientLevel, stopAmbient, getAmbientMode } from './js/generative-ambient.js?v=2';
+
 const BASE = new URL('.', import.meta.url).href;
 const statusEl = document.getElementById('appStatus');
 const statusMessage = document.getElementById('appStatusMessage');
@@ -8,6 +10,7 @@ const statusRetry = document.getElementById('appStatusRetry');
 
 function setBootStatus(state, message = '', retry = false) {
   window.PionierBootState = state;
+  document.documentElement.classList.toggle('pionier-boot-failed', state === 'failed');
   if (!statusEl) return;
   statusEl.dataset.state = state;
   statusEl.hidden = state === 'ready';
@@ -34,6 +37,16 @@ function unlockAudioFromGesture() {
   try { window.PionierCore?.ensureAudio?.(); } catch (_) {}
 }
 
+// Procedural nature beds (rain, storm, forest, birds, wind, water) share the
+// app's single AudioContext and master bus. Exposed for the classic settings
+// panel, which cannot import ES modules directly.
+window.PionierAmbientBeds = {
+  start: startAmbient,
+  setLevel: setAmbientLevel,
+  stop: stopAmbient,
+  getMode: getAmbientMode,
+};
+
 let HANDPAN_SCALES = [];
 let deferredStarted = false;
 
@@ -55,13 +68,55 @@ async function loadLooper() {
   }
 }
 
-async function loadFxEditor() {
-  try {
-    await import(new URL('./js/fx-editor.js?v=9', BASE).href);
-  } catch (e) {
-    console.warn('[boot] fx-editor', e);
+let fxEditorReady = false;
+let fxEditorLoadPromise = null;
+let pendingFxEditorId = null;
+
+function loadFxEditor() {
+  if (!fxEditorLoadPromise) {
+    fxEditorLoadPromise = import(new URL('./js/fx-editor.js?v=9', BASE).href)
+      .then(() => {
+        fxEditorReady = true;
+        if (pendingFxEditorId != null) {
+          const id = pendingFxEditorId;
+          pendingFxEditorId = null;
+          window.dispatchEvent(new CustomEvent('pionier:fx-editor-open', { detail: { id } }));
+        }
+      })
+      .catch((e) => {
+        console.warn('[boot] fx-editor', e);
+      });
   }
+  return fxEditorLoadPromise;
 }
+
+function primeFxEditorLoader(target) {
+  if (fxEditorReady) return;
+  const trigger = target?.closest?.('#fxPanelOpen, .fx-settings-shortcut[data-fx-editor-open]');
+  if (!trigger) return;
+  const id = trigger.dataset?.fxEditorOpen;
+  if (id) pendingFxEditorId = id;
+  loadFxEditor();
+}
+
+// The FX editor module is deferred. Start loading it as soon as the user reaches
+// for the FX panel or one of its settings shortcuts, and replay one tap that
+// happened before the module (and its listeners) finished loading.
+document.addEventListener('pointerdown', (e) => primeFxEditorLoader(e.target), true);
+document.addEventListener('click', (e) => {
+  if (fxEditorReady) return;
+  const shortcut = e.target?.closest?.('.fx-settings-shortcut[data-fx-editor-open]');
+  if (!shortcut) return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  pendingFxEditorId = shortcut.dataset.fxEditorOpen || pendingFxEditorId;
+  loadFxEditor();
+}, true);
+window.addEventListener('pionier:fx-editor-open', (e) => {
+  if (fxEditorReady) return;
+  pendingFxEditorId = e.detail?.id ?? pendingFxEditorId;
+  loadFxEditor();
+}, true);
 
 async function loadArps() {
   try {
@@ -80,18 +135,17 @@ async function loadNotePlus() {
   }
 }
 
-async function loadSoundscapes() {
+async function loadLibrary() {
   try {
-    await import(new URL('./js/soundscapes.js?v=12', BASE).href);
+    await import(new URL('./js/library.js?v=1', BASE).href);
   } catch (e) {
-    console.warn('[boot] soundscapes', e);
-    setBootStatus('degraded', 'Soundscapes failed to load. The instrument remains available; reload to retry.', true);
+    console.warn('[boot] library', e);
   }
 }
 
 async function loadAmbientSequencer() {
   try {
-    const { mountTonepad } = await import(new URL('./js/tonepad.js?v=51', BASE).href);
+    const { mountTonepad } = await import(new URL('./js/tonepad.js?v=52', BASE).href);
     if (typeof mountTonepad === 'function') await mountTonepad();
   } catch (e) {
     console.warn('[boot] tonepad', e);
@@ -103,13 +157,12 @@ function scheduleDeferredFeatures() {
   deferredStarted = true;
   const run = () => {
     loadMasterClock().then(() => {
-      loadLooper();
       loadAmbientSequencer();
     });
     loadFxEditor();
     loadArps();
     loadNotePlus();
-    loadSoundscapes();
+    loadLibrary();
   };
   if ('requestIdleCallback' in window) {
     requestIdleCallback(run, { timeout: 2500 });
@@ -129,11 +182,17 @@ async function boot() {
   }
 
   try {
-    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=12', BASE).href));
+    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=13', BASE).href));
     window.HANDPAN_SCALES = HANDPAN_SCALES;
   } catch (e) {
     console.warn('[boot] handpan scales', e);
   }
+
+  // The looper is optional. Let the core reach ready even if its module load
+  // stalls, and arrange the dock as soon as the looper finishes mounting.
+  loadLooper().then(() => {
+    try { window.__pionierArrangeLayout?.(); } catch (_) {}
+  });
 
   try {
     const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=15', BASE).href);
@@ -167,7 +226,14 @@ async function boot() {
   });
 
   scheduleDeferredFeatures();
-  setBootStatus('ready');
+  const health = window.PionierCore?.health?.();
+  if (health?.audioAvailable === false) {
+    setBootStatus('degraded', 'Audio output is unavailable. You can still explore the app; reload to retry audio.', true);
+  } else if (health?.storageAvailable === false) {
+    setBootStatus('degraded', 'Saved settings are unavailable because browser storage is blocked. Handpan remains available.', true);
+  } else {
+    setBootStatus('ready');
+  }
   return true;
 }
 

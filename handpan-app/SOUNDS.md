@@ -5,10 +5,10 @@ Pionier uses procedural synthesis for every playable instrument voice. The handp
 ## Shipped audio
 
 - **Instrument voices:** synthesized locally through the Web Audio API
-- **Bedroom Sessions:** the owner's recorded soundscapes, streamed from the archive.org collection; these are the only musical recordings used by the app
-- **Looper:** captures the app's live output in the browser and exports user-created loops
+- **Looper:** captures the app's pre-FX stereo output in browser memory; saved compositions persist locally in IndexedDB and can be exported as WAV backups
+- **Nature ambience:** procedural Rain, Thunderstorm, Forest, Birds, Wind and Water beds generated with filtered noise and scheduled chirps/thunder; no audio files are fetched
 
-No handpan note samples, sample manifests, chopped note packs, or third-party instrument recordings are bundled or requested at runtime.
+No handpan note samples, sample manifests, chopped note packs, or third-party instrument recordings are bundled or requested at runtime. User recordings never leave the device.
 
 ## Audio changes
 

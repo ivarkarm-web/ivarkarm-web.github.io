@@ -5,7 +5,7 @@ Complete before claiming a production deploy or score ≥ 8 on production readin
 ## Scope lock
 - [ ] No Learn mode / lessons UI or modules in the active shell
 - [ ] No community uploads / User-Created / Cloudflare song worker
-- [ ] Soundscapes = owner Bedroom Sessions only
+- [ ] My Library stores recordings locally and exports WAV backups; no account or upload path
 - [ ] README “What it is / is not” matches the live app
 
 ## Assets & rights
@@ -46,5 +46,5 @@ Complete before claiming a production deploy or score ≥ 8 on production readin
 
 ## Deploy
 - [ ] Push to `main` → GitHub Actions green
-- [ ] Live URL smoke: open app, strike pads, change scale/root, open Soundscapes, record a loop layer
+- [ ] Live URL smoke: open app, strike pads, change scale/root, record and save a loop, reload and export its WAV
 - [ ] Scorecard updated only with **linked evidence**

@@ -11,8 +11,9 @@ Live: https://ivarkarm-web.github.io/handpan-app/
 - Fully synthesized handpan and library/ambient voices
 - Instrument voices (handpan + library / ambient synths)
 - Seven-layer looper synchronized to its first recorded layer
-- **Bedroom Sessions** soundscapes — the owner’s eight archive.org recordings only
-- Skins and mandalas
+- **My Library** — local IndexedDB recordings from the looper, with playback, rename, delete and WAV export
+- **Nature ambience** — procedural Rain, Thunderstorm, Forest, Birds, Wind and Water beds (Settings)
+- Skins
 
 ## Quality / release checks
 
@@ -25,7 +26,7 @@ Live: https://ivarkarm-web.github.io/handpan-app/
 - No Learn mode / lessons
 - No user uploads
 - No third-party platform embeds
-- No generated ambient beds (rain/storm/etc.)
+- No streamed/recorded backing tracks in the app (Bedroom Sessions remains on the artist portfolio site)
 
 ## Play
 
@@ -34,7 +35,7 @@ Live: https://ivarkarm-web.github.io/handpan-app/
 | Touch / mouse | Strike pads; multi-touch chords |
 | Keys `Q W E R T Y U I O P A S D` | Pads 0–12 (hold to sustain) |
 | Bottom dock | Instrument, scale, base note; dice randomizes the note count (8–13) |
-| ♫ | Bedroom Sessions player |
+| ▤ | My Library |
 
 Audio unlocks on the first gesture (required by browsers, including iOS Safari).
 

@@ -3,7 +3,7 @@
  * Phase 1: note count is fixed by each scale's intervals (not user +/-).
  */
 import { Instrument } from '../instrument.js';
-import { getSoundLibrary } from './library-family.js?v=1';
+import { getSoundLibrary } from './library-family.js?v=3';
 import { HANDPAN_SCALES, scaleToCents } from './handpan-scales.js?v=6';
 import { MIN_NOTES, MAX_NOTES, ringAngles } from '../pad-layout.js?v=3';
 

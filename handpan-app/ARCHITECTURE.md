@@ -16,12 +16,12 @@ Pointer / Touch / Keyboard
 
 | File | Role |
 |------|------|
-| `index.html` | Shell, chrome, Soundscapes panel |
+| `index.html` | Shell, chrome, My Library panel |
 | `pionier-app.js` | Boot, optional modules, scale selector |
 | `pionier-core.js` / `pionier-core-base.js` | Audio, surface, instruments, input |
 | `js/layout-boot.js` | Viewport chrome, pan centering, bottom bar stack |
-| `js/overlay-controller.js` | One open overlay at a time (menus, FX, settings, soundscapes) |
-| `js/soundscapes.js` | Bedroom Sessions player only |
+| `js/overlay-controller.js` | One open overlay at a time (menus, FX, settings) |
+| `js/library.js` / `js/library-store.js` | Local composition library UI, IndexedDB storage and WAV export |
 | `sw.js` | Network-first HTML; cache-first assets (`CACHE_VERSION`) |
 
 ## Stylesheets (linked from `index.html`)
@@ -31,11 +31,11 @@ Pointer / Touch / Keyboard
 | `pionier-base.css` | Tokens, base chrome, stage, welcome (~173 KB raw) |
 | `pionier-controls.css` | Controls, steppers, FX panel |
 | `css-parts/layout-*.css` | Dock, looper toolbar, pickers, themes (linked in parallel) |
-| `css-parts/ambient-*.css` | Soundscapes / ambient UI (linked in parallel) |
+| `library.css` | Local recording library presentation |
 
 **No sequential `@import` chain.** Layout and ambient rules ship as individual `<link>` tags under `css-parts/` so the browser can fetch them in parallel, PurgeCSS/esbuild sees every rule, and a truncated single part cannot silently drop the whole toolbar. The former `pionier-layout.css` / `pionier-ambient.css` shells are deprecated stubs.
 
-CI runs `npm run optimize:handpan-css` (PurgeCSS + esbuild minify) before tests and Pages deploy. Budget: **strictly under 250,000 bytes** total for linked stylesheets after optimization. Raw source is larger; do not treat raw size as the shipping budget.
+CI runs `node scripts/optimize-handpan-css.mjs --allow-source` (PurgeCSS + esbuild minify) on the ephemeral checkout before tests and Pages deploy. Budget: **strictly under 250,000 bytes** total for linked stylesheets after optimization. Raw source is larger; do not treat raw size as the shipping budget.
 
 The cascade still relies on many `!important` declarations (legacy mobile overrides). Prefer tokens and lower-specificity rules for new work; do not add new `!important` without a documented override reason.
 
@@ -49,16 +49,16 @@ Menus portal to `document.body` and use bottom sheets on narrow/touch viewports.
 
 ## Instruments
 
-- **Handpan** — default; scales + pad layout owner; recorded samples when present  
-- **Library voices** — Koto, Harp, Kalimba, etc. (inherit current scale/layout)  
-- **Synth / ambient family** — additional registered voices  
+- **Handpan** — default; procedural voices driven by scale + pad layout  
+- **Library voices** — Koto, Harp, Kalimba, etc. (procedural, inherit current scale/layout)  
+- **Synth / ambient family** — additional registered procedural voices  
 
 ## State and buses
 
 - `js/app-state.js` — instrument / scale / root / noteCount / ambient / loop (persist + subscribe)
 - `instrumentBus` → FxChain → master (looper records pre-FX via `getInstrumentBus`)
-- `ambientBus` → master only (`getAmbientBus`); Bedroom Sessions stay off the instrument FX path
-- Instrument `engineKind`: `sample` (handpan) vs `procedural` (library family)
+- `ambientBus` → master only (`getAmbientBus`); the looper records from the instrument bus
+- Instrument `engineKind`: procedural for every shipped voice; no note-sample bank
 
 ## Looper capture
 

@@ -7,7 +7,7 @@ Last updated: 2026-10-18. This roadmap reflects the requested Oval-inspired inte
 - Reproduce and fix skin-customization state breaking pad play/add-note.
 - Fix instrument and scale dropdown visibility, outside-tap close, focus/stacking, iOS Safari and Android Chrome behavior.
 - Verify root, octave, tuning and +/- note-count controls update both pitch and labels immediately.
-- Fix clipped loop button and Soundscapes loop-menu state.
+- Fix clipped loop button and looper menu state.
 - Add regression tests for skin changes, repeated pad strikes, multitouch pointer-up, menu state and all pitch/layout controls.
 - Capture baseline screenshots at 390×844 and tablet/desktop before visual cleanup.
 
@@ -39,9 +39,10 @@ Exit gate: no regression in tap/hold/slide/bend, multitouch, keyboard input or p
 - Trim with short automatic fades and export mix as WAV.
 - Add automated tests for record/overdub, pause/resume, mute/solo, trim/export and long-duration drift. Prefer AudioWorklet where practical; avoid a build tool requirement.
 
-## P4 — Soundscapes and cleanup
+## P4 — Local composition library and cleanup
 
-- Soundscapes contains only Ivar's Bedroom Sessions tracks from the portfolio player.
+- Add a private local library for looper recordings with IndexedDB persistence and explicit WAV backup export.
+- Do not add accounts, uploads, cloud storage or remote recording transfer.
 - Remove generated ambience, third-party platform connections, Learn Mode UI/runtime/styles/menu references and bird/kitchen voices.
 - Keep audio playback persistent and prevent loop/effect overlays from leaking across page transitions.
 - Audit service worker caching, lazy loading and offline startup/error states.
