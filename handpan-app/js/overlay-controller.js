@@ -147,7 +147,7 @@
     const rect = toggle.getBoundingClientRect();
     const gap = 8;
     const vw = document.documentElement.clientWidth;
-    const vh = window.visualViewport?.height || window.innerHeight;
+    const vh = window.innerHeight;
     const width = Math.min(280, vw - 24);
     const left = Math.max(12, Math.min(rect.left + rect.width / 2 - width / 2, vw - width - 12));
     const maxHeight = Math.max(160, Math.min(420, rect.top - 20, vh - 32));

@@ -1,4 +1,4 @@
-pionier-v204
+pionier-v205
 2026-11-07
 shell: 51 entries (synced from index.html + pionier-app.js)
 run: npm run sync:handpan after changing ?v= stamps or APP_VERSION

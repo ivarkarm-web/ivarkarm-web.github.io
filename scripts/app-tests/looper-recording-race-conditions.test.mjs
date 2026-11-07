@@ -171,3 +171,41 @@ test('verify AudioContext state verification before recording', () => {
     'Should call reportRecorderError() on context failure'
   );
 });
+
+test('verify interruption handler stops recording on context interrupted', () => {
+  const looperSource = readFileSync(join(__dirname, '../../handpan-app/js/looper.js'), 'utf-8');
+
+  assert.ok(
+    looperSource.includes('function handleContextStateChange() {'),
+    'handleContextStateChange() must exist'
+  );
+  assert.ok(
+    looperSource.includes("ctx.state === 'interrupted' && recording"),
+    'Handler must check for interrupted state during recording'
+  );
+  assert.ok(
+    looperSource.includes('if (pendingLoopStopTimer) {'),
+    'Handler must clear pendingLoopStopTimer'
+  );
+  assert.ok(
+    looperSource.includes('pendingLoopStop = false;'),
+    'Handler must clear pendingLoopStop'
+  );
+  assert.ok(
+    looperSource.includes('void finishRecord();'),
+    'Handler must save partial take via finishRecord()'
+  );
+});
+
+test('verify interruption listener is added on mount and removed on clear', () => {
+  const looperSource = readFileSync(join(__dirname, '../../handpan-app/js/looper.js'), 'utf-8');
+
+  assert.ok(
+    looperSource.includes("ctx.addEventListener('statechange', handleContextStateChange)"),
+    'Mount must register context statechange listener'
+  );
+  assert.ok(
+    looperSource.includes("stopCtx.removeEventListener('statechange', handleContextStateChange)"),
+    'clearAll() must remove context statechange listener'
+  );
+});

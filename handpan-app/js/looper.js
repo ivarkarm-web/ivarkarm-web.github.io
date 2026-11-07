@@ -299,6 +299,21 @@ export function mountLooper({ root } = {}) {
     if (retry) retry.hidden = false;
   }
 
+  function handleContextStateChange() {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    if (ctx.state === 'interrupted' && recording) {
+      // Phone call / system interruption: stop recording cleanly so we
+      // don't capture silence into the buffer. Preserve any partial take.
+      if (pendingLoopStopTimer) {
+        clearTimeout(pendingLoopStopTimer);
+        pendingLoopStopTimer = null;
+      }
+      pendingLoopStop = false;
+      void finishRecord();
+    }
+  }
+
   function cycleDuration() {
     if (!layers.length || !layers[0].buffer) return 0;
     return layers[0].buffer.duration || 0;
@@ -1505,6 +1520,10 @@ export function mountLooper({ root } = {}) {
     silent = null;
     tapSource = null;
     tapPromise = null;
+    const stopCtx = getAudioContext();
+    if (stopCtx) {
+      stopCtx.removeEventListener('statechange', handleContextStateChange);
+    }
     renderCircles();
     setBtnState();
   }
@@ -1580,6 +1599,10 @@ export function mountLooper({ root } = {}) {
 
   setBtnState();
   renderCircles();
+  const ctx = getAudioContext();
+  if (ctx) {
+    ctx.addEventListener('statechange', handleContextStateChange);
+  }
   const api = { clearAll, layers, openTrackPanel, closeTrackPanel, setBpm, setMetronome, getTimingState: () => ({ bpm, metronomeOn, countInEnabled, countInBars, beatsPerBar, clickType }), refresh: () => { renderCircles(); setBtnState(); }, getTransportState: () => { const masterLayer = layers[0]; const ctx = getAudioContext(); const duration = cycleDuration(); const phase = cyclePhase(ctx?.currentTime); const paused = !masterLayer || !masterLayer.buffer || !!masterLayer.paused; const cycle = (!paused && ctx && duration > 0) ? Math.max(0, Math.floor((ctx.currentTime - (masterLayer.startedAt || ctx.currentTime)) / duration)) : 0; return { hasMaster: !!(masterLayer?.buffer && duration > 0), duration, phase, paused, cycle, bpm, currentTime: ctx?.currentTime || 0 }; }, getState: () => ({ maxLayers: MAX_LAYERS, layerCount: layers.length, recording, pendingLoopStop }) };
   // Keep a stable debug/test handle so browser checks and support diagnostics can
   // inspect the mounted loop engine without reaching into module internals.

@@ -11,7 +11,7 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.
  */
-const CACHE_VERSION = 'pionier-v204';
+const CACHE_VERSION = 'pionier-v205';
 
 const SHELL = [
   './',
@@ -40,7 +40,7 @@ const SHELL = [
   './js/looper.js?v=240',
   './js/master-clock.js?v=1',
   './js/note-plus.js?v=3',
-  './js/overlay-controller.js?v=23',
+  './js/overlay-controller.js?v=24',
   './js/pad-layout.js?v=3',
   './js/pionier-surface.js?v=147',
   './js/portrait-lock.js?v=2',
@@ -56,9 +56,9 @@ const SHELL = [
   './og-pionier-synth.svg',
   './pionier-ambient.css?v=8',
   './pionier-app.js?v=296',
-  './pionier-base.css?v=5',
+  './pionier-base.css?v=6',
   './pionier-control-layout.js?v=24',
-  './pionier-controls.css?v=5',
+  './pionier-controls.css?v=6',
   './pionier-core-base.js?v=2',
   './pionier-core.js?v=82',
   './pionier-layout.css?v=4',
@@ -70,12 +70,22 @@ const SHELL = [
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_VERSION);
+    const failed = [];
     await Promise.all(SHELL.map(async (url) => {
       try {
         const res = await fetch(url, { cache: 'no-cache' });
-        if (res && res.ok) await cache.put(url, res);
-      } catch (_) {}
+        if (res && res.ok) {
+          await cache.put(url, res);
+        } else {
+          failed.push(url);
+        }
+      } catch (_) {
+        failed.push(url);
+      }
     }));
+    if (failed.length > 0) {
+      throw new Error('SW install failed: ' + failed.join(', '));
+    }
     await self.skipWaiting();
   })());
 });

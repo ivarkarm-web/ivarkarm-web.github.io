@@ -214,6 +214,19 @@ for (const rel of jsFiles) {
   else fail('JS syntax: ' + rel + (result.stderr ? ' — ' + result.stderr.trim().split('\n')[0] : ''));
 }
 
+// Version drift guard: QUALITY-BASELINE.md cache version must match APP_VERSION.
+{
+  const appVersion = read('handpan-app/APP_VERSION').trim();
+  const baseline = read('handpan-app/QUALITY-BASELINE.md');
+  if (appVersion && baseline.includes('pionier-v' + appVersion)) {
+    ok('QUALITY-BASELINE.md cache version matches APP_VERSION (' + appVersion + ')');
+  } else if (!appVersion) {
+    fail('handpan-app/APP_VERSION is empty');
+  } else {
+    fail('QUALITY-BASELINE.md cache version drift: expected pionier-v' + appVersion);
+  }
+}
+
 console.log('');
 if (errors.length) {
   console.error('FAILED · ' + errors.length + ' error(s), ' + checked.length + ' check(s) passed');
