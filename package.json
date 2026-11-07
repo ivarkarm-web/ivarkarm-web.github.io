@@ -19,6 +19,7 @@
     "check:app": "npm run check:handpan-cache && npm run test && npm run test:app && npm run lighthouse:app && npx playwright test",
     "sync:handpan": "node scripts/sync-handpan-cache.mjs",
     "check:handpan-cache": "node scripts/sync-handpan-cache.mjs --check",
+    "check:handpan-assets": "node scripts/check-dynamic-assets.mjs",
     "lighthouse:app": "node scripts/lighthouse-handpan.mjs",
     "check:release": "npm run check:app && node -e \"console.log('Remember: fill IOS-SAFARI-CHECKLIST.md before claiming production readiness 8/10')\"",
     "optimize:handpan-css": "node scripts/optimize-handpan-css.mjs"
