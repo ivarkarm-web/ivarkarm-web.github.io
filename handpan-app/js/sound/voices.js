@@ -782,6 +782,69 @@ export const VOICES = [
       click(y, sr, rnd, 6, clamp(f * 0.45, 35, 130), 0.8, 0.24 * vel);
       return biquad(y, 'lp', 900 + 1800 * vel, 0.8, sr);
     }
+  },
+  /* BATCH C: winds */
+  {
+    id: 'dizi', name: 'Dizi', family: 'traditional',
+    desc: 'Bright bamboo flute with a buzzing membrane and an airy attack.',
+    sr: 32000, tail: 4.8, fade: [0.1, 0.9], trim: 0, send: { rev: 0.45, dly: 0.2 }, pan: -0.04,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 4.8), y = new Float32Array(n);
+      const b = 0.4 + 0.6 * vel;
+      const nz = biquad(whiteNoise(n, rnd), 'bp', clamp(f * 3, 400, 5500), 0.6, sr);
+      const fl = biquad(whiteNoise(n, rnd), 'lp', 6, 0.7, sr);
+      let flMax = 1e-6;
+      for (let i = 0; i < n; i++) flMax = Math.max(flMax, Math.abs(fl[i]));
+      const tube = delayLoop(n, sr, f, { mult: 2, sign: -1, s: 0.34, t60: 1.3, input: nz });
+      let r = 0;
+      for (let i = 0; i < n; i++) r += tube[i] * tube[i];
+      r = Math.sqrt(r / n) || 1e-6;
+      const w = TAU * f / sr;
+      const mem = biquad(whiteNoise(n, rnd), 'bp', clamp(f * 5, 1500, 7000), 3.5, sr);
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        const breath = Math.sin(w * i * (1 + 0.005 * Math.sin(TAU * 4.6 * t) * Math.min(1, t / 1.0))) * Math.min(1, t / 0.35);
+        tube[i] = tube[i] * Math.min(1, t / 0.3) * (1 + 0.004 * Math.sin(TAU * 5 * t) * Math.min(1, t / 0.9))
+          + r * 0.75 * breath + mem[i] * 0.04 * b * Math.exp(-t / 1.5);
+      }
+      return biquad(tube, 'lp', 2200 + 4200 * vel, 0.6, sr);
+    }
+  },
+  {
+    id: 'xun', name: 'Xun', family: 'traditional',
+    desc: 'Round hollow clay-vessel flute — pure, dark, soft chiff.',
+    sr: 32000, tail: 3.2, fade: [0.04, 0.7], trim: 0, send: { rev: 0.5, dly: 0.16 }, pan: -0.03,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 3.2), y = new Float32Array(n);
+      const b = 0.4 + 0.6 * vel;
+      addModes(y, sr, [[f, 1.0, 2.8], [f * 2.01, 0.1 * b, 1.2], [f * 3.0, 0.04 * b, 0.5]], 0.05);
+      const nz = biquad(whiteNoise(n, rnd), 'bp', clamp(f * 2.5, 300, 3500), 1.0, sr);
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        y[i] = (y[i] + nz[i] * 0.05 * vel) * Math.min(1, t / 0.06) * Math.exp(-t / 0.9);
+      }
+      return biquad(biquad(y, 'hp', 60 + 30 * vel, 0.7, sr), 'lp', 1400 + 2000 * vel, 0.7, sr);
+    }
+  },
+  {
+    id: 'bone_flute', name: 'Vulture Bone Flute', family: 'traditional',
+    desc: 'Raw, airy primitive flute — breathy with a soft, uneven attack.',
+    sr: 24000, tail: 4.2, fade: [0.15, 1.0], trim: 0, send: { rev: 0.52, dly: 0.18 }, pan: -0.06,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 4.2);
+      const b = 0.35 + 0.65 * vel;
+      const nz = biquad(whiteNoise(n, rnd), 'bp', clamp(f * 3.5, 500, 6000), 0.7, sr);
+      const tube = delayLoop(n, sr, f, { mult: 2, sign: -1, s: 0.3, t60: 1.1, input: nz });
+      let r = 0;
+      for (let i = 0; i < n; i++) r += tube[i] * tube[i];
+      r = Math.sqrt(r / n) || 1e-6;
+      const w = TAU * f / sr;
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        tube[i] = (tube[i] * Math.min(1, t / 0.5) + r * 0.6 * Math.sin(w * i)) * (0.55 + 0.45 * Math.min(1, t / 0.4)) + nz[i] * 0.06 * b * Math.exp(-t / 0.5);
+      }
+      return biquad(tube, 'lp', 1600 + 3000 * vel, 0.6, sr);
+    }
   }
 ];
 
