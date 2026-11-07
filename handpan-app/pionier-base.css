@@ -4625,3 +4625,112 @@ html.theme-light .instrument-menu.picker-popover:not([hidden]), html.theme-light
   .instrument-menu.picker-popover.looper-bubble-menu.is-open {animation:none!important}
 }
 
+/* ===== v204 additions (preserved from the v204 source before the accidental purge) ===== */
+/* Keep the pan surface interactive when overlays toggle pointer-events. */
+body #pan {
+  pointer-events: auto !important;
+  visibility: visible !important;
+}
+
+/* Keep the boot-failure status above every overlay. */
+html.pionier-boot-failed #appStatus {
+  z-index: 2147483001;
+}
+
+/* My Library button in the top bar. */
+.topbar .library-open-btn {
+  flex: none;
+  width: 36px;
+  height: 36px;
+}
+
+/* restored from HEAD: fx panel + looper state */
+.fx-panel {
+  position: fixed;
+  left: 50%;
+  top: max(56px, env(safe-area-inset-top, 0px) + 48px);
+  transform: translateX(-50%);
+  width: min(96vw, 440px);
+  max-height: min(50dvh, 420px);
+  overflow: auto;
+  z-index: 4200;
+  background: var(--pionier-panel, rgba(12,12,14,.96));
+  border: 1px solid var(--pionier-line, rgba(230,224,210,.14));
+  border-radius: var(--pionier-radius-lg, 16px);
+  padding: 12px 14px 16px;
+  box-shadow: 0 16px 48px rgba(0,0,0,.5);
+}
+
+.fx-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.fx-panel-header h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--pionier-fg, #e6e0d2);
+}
+
+.fx-panel-body.knobs-panel,
+.fx-panel .knobs-panel {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px 8px;
+  justify-items: center;
+}
+
+.fx-panel {
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  width: min(96vw, 440px);
+  max-width: calc(100vw - 24px);
+  transform: none;
+}
+
+.looper-btn.is-recording .looper-btn-ring {
+  animation: looper-pulse-rec 1s ease-in-out infinite;
+  border-color: #ff3b3b;
+  box-shadow: 0 0 0 3px rgba(224, 54, 54, 0.22), 0 6px 20px rgba(0, 0, 0, 0.35);
+
+.looper-btn.is-recording .looper-btn-core {
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 3px;
+  background: #e03636;
+  box-shadow: 0 0 14px rgba(224, 54, 54, 0.55);
+}
+
+.looper-btn.is-recording::after,
+.looper-btn.is-pending-stop::after {
+  content: attr(data-recording-layer);
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgba(19, 19, 22, 0.85);
+  border-radius: 50%;
+  background: #f4cf69;
+  color: #161518;
+  font: 700 9px/1 Inter, system-ui, sans-serif;
+  pointer-events: none;
+
+.looper-btn.is-pending-stop .looper-btn-ring {
+  border-color: #f4cf69;
+  animation: looper-pulse-rec 0.7s ease-in-out infinite;
+  box-shadow: 0 0 0 3px rgba(212, 176, 74, 0.25), 0 6px 20px rgba(0, 0, 0, 0.35);
+
+.looper-btn.is-pending-stop .looper-btn-core {
+  background: #d4b04a;
+  border-radius: 3px;
+
+
