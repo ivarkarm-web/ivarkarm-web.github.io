@@ -103,8 +103,7 @@
   #appStatus,
   #fxPanel,
   #fxEditor,
-  #fxEditorBackdrop,
-  #soundscapesPanel {
+  #fxEditorBackdrop {
     visibility: hidden !important;
     pointer-events: none !important;
   }

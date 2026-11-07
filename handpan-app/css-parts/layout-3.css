@@ -53,7 +53,6 @@ html.theme-light #pionierBottomDock #pionierLooperActions > button,
 html.theme-light #pionierBottomDock #looperClearBtn,
 html.theme-light #pionierBottomDock .looper-clear-btn,
 html.theme-light #pionierBottomDock .looper-timing-btn,
-html.theme-light #pionierBottomDock #openSoundscapes,
 html.theme-light #pionierBottomDock #fxPanelOpen,
 html.theme-light #pionierBottomDock #settingsOpenBtn,
 html.theme-light #pionierBottomDock #looperRootMenuBtn {
@@ -67,10 +66,6 @@ html.theme-light #pionierBottomDock .looper-timing-btn.is-active {
   border-color: rgba(145, 106, 32, 0.55) !important;
   color: #805d18 !important;
   background: rgba(212, 176, 74, 0.16) !important;
-}
-
-html.theme-light #pionierBottomDock #openSoundscapes {
-  color: rgba(150, 110, 20, 0.95) !important;
 }
 
 html.theme-light #pionierBottomDock .looper-circle {

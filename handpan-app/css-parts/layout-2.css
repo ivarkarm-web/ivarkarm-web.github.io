@@ -4,63 +4,6 @@
  * Light-mode overlays for panels that stay dark without explicit theme rules.
  */
 
-html.theme-light #soundscapesPanel {
-  background:
-    linear-gradient(180deg, rgba(255, 252, 245, 0.98), rgba(242, 236, 224, 0.98)) !important;
-  color: #1a1a1c !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-}
-html.theme-light #soundscapesPanel .soundscapes-return-btn {
-  color: rgba(28, 28, 32, 0.75) !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
-  background: rgba(0, 0, 0, 0.03) !important;
-}
-html.theme-light #soundscapesPanel .soundscapes-return-btn:hover {
-  color: #8d6b1c !important;
-  border-color: rgba(157, 120, 32, 0.4) !important;
-  background: rgba(212, 176, 74, 0.12) !important;
-}
-html.theme-light #soundscapesPanel .soundscape-tab {
-  color: rgba(28, 28, 32, 0.42) !important;
-}
-html.theme-light #soundscapesPanel .soundscape-tab.is-active {
-  color: #8d6b1c !important;
-}
-html.theme-light #soundscapesPanel .soundscape-tab.is-active:after {
-  background: #b8952e !important;
-}
-html.theme-light #soundscapesPanel .soundscape-title {
-  color: rgba(28, 28, 32, 0.92) !important;
-}
-html.theme-light #soundscapesPanel .soundscape-transport-btn,
-html.theme-light #soundscapesPanel .soundscape-play {
-  color: rgba(28, 28, 32, 0.8) !important;
-  border-color: rgba(0, 0, 0, 0.12) !important;
-  background: rgba(0, 0, 0, 0.03) !important;
-}
-html.theme-light #soundscapesPanel .soundscape-transport-btn:hover,
-html.theme-light #soundscapesPanel .soundscape-play:hover {
-  border-color: rgba(157, 120, 32, 0.45) !important;
-  color: #8d6b1c !important;
-}
-html.theme-light #soundscapesPanel .soundscape-queue {
-  border-color: rgba(0, 0, 0, 0.08) !important;
-}
-html.theme-light #soundscapesPanel .soundscape-queue-item {
-  color: rgba(28, 28, 32, 0.88) !important;
-  border-color: rgba(0, 0, 0, 0.06) !important;
-}
-html.theme-light #soundscapesPanel .sq-dur {
-  color: rgba(28, 28, 32, 0.4) !important;
-}
-html.theme-light #soundscapesPanel .soundscape-community-empty {
-  color: rgba(28, 28, 32, 0.45) !important;
-}
-html.theme-light #soundscapesPanel .soundscape-seek-row input,
-html.theme-light #soundscapesPanel .soundscape-vol-row input {
-  accent-color: #b8952e !important;
-}
-
 /* FX side-panel knob labels */
 html.theme-light .fx-panel,
 html.theme-light .sidebar.right.knobs-panel {
