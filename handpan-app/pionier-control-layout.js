@@ -114,10 +114,10 @@
     var tonepad = document.getElementById('tonepadToggle');
     var fx = document.getElementById('fxPanelOpen');
     var customize = document.getElementById('settingsOpenBtn');
-    /* Keep My Library reachable in the safe-area corner on every layout. */
+    /* Keep My Library in the centred top navigation group. */
     if (library) {
-      library.classList.add('library-top-btn');
-      if (library.parentElement !== document.body) document.body.appendChild(library);
+      var navGroup = document.getElementById('topNavGroup');
+      if (navGroup && library.parentElement !== navGroup) navGroup.appendChild(library);
     }
     [tonepad, fx, customize].forEach(function (el) { appendIfNeeded(actionGroup, el); });
     appendIfNeeded(actionGroup, document.getElementById('looperExportBtn'));

@@ -49,6 +49,16 @@ export default defineConfig({
       testIgnore: /phase5-sw\.spec\.mjs/,
     },
     {
+      name: 'mobile-320x568',
+      use: { ...devices['Desktop Chrome'], viewport: { width: 320, height: 568 }, isMobile: true, hasTouch: true },
+      testIgnore: /phase5-sw\.spec\.mjs/,
+    },
+    {
+      name: 'mobile-430x932',
+      use: { ...devices['Desktop Chrome'], viewport: { width: 430, height: 932 }, isMobile: true, hasTouch: true },
+      testIgnore: /phase5-sw\.spec\.mjs/,
+    },
+    {
       name: 'desktop-1280x800',
       use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
       testIgnore: /phase5-sw\.spec\.mjs/,

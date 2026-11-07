@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <link rel="stylesheet" href="./pionier-base.css?v=6" />
+  <link rel="stylesheet" href="./pionier-base.css?v=9" />
   <link rel="stylesheet" href="./pionier-controls.css?v=6" />
   <link rel="stylesheet" href="./library.css?v=1" />
   <link rel="stylesheet" href="./pionier-layout.css?v=4" />
@@ -81,7 +81,6 @@
           <button type="button" class="icon-btn" id="voicePrev" aria-label="Previous voice">‹</button>
           <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Handpan ▾</button>
           <button type="button" class="icon-btn" id="voiceNext" aria-label="Next voice">›</button>
-          <button type="button" class="icon-btn library-open-btn" id="openLibrary" aria-label="Open My Library" title="My Library">▤</button>
           <button type="button" class="icon-btn" id="tonepadToggle" aria-label="Sequencer" title="Sequencer" aria-pressed="false">▦</button>
           <button type="button" class="icon-btn" id="fxPanelOpen" aria-label="Open effects" title="Effects" aria-expanded="false" aria-controls="fxPanel">✦</button>
           <button type="button" class="randomize-setup-btn" id="randomizeSetup" aria-label="Randomize" title="Surprise me">🎲</button>
@@ -137,6 +136,11 @@
       <canvas id="pan" width="680" height="680" role="img" aria-label="Handpan instrument"></canvas>
     </main>
   </div>
+  <div class="top-nav-group" id="topNavGroup" aria-label="Pionier controls">
+    <button type="button" class="top-nav-btn library-open-btn" id="openLibrary" aria-label="Open My Library" title="My Library">▤</button>
+    <button type="button" class="top-nav-btn favorites-open-btn" id="favoritesOpenBtn" aria-label="Open Favourites" title="Favourites" aria-expanded="false">♡</button>
+    <button type="button" class="top-nav-btn about-open-btn" id="aboutBtn" aria-label="About Pionier" title="About">?</button>
+  </div>
   <section id="libraryPanel" class="library-panel" role="dialog" aria-modal="true" aria-labelledby="libraryTitle" aria-hidden="true" hidden>
     <header class="library-header"><div><p class="library-eyebrow">PIONIER · LOCAL RECORDINGS</p><h2 id="libraryTitle">My Library</h2></div><button type="button" id="closeLibrary" aria-label="Close My Library">×</button></header>
     <p class="library-intro">Your compositions, kept on this device.</p>
@@ -181,6 +185,7 @@
   <script src="./looper-circle-progress.js?v=2"></script>
   <script src="./js/settings-panel.js?v=35"></script>
   <script src="./js/favorites.js?v=1"></script>
+  <script src="./js/about-window.js?v=1"></script>
   <script src="./js/ambient-fx.js?v=12"></script>
   <script src="./js/skin-mandala.js?v=6"></script>
   <script type="module" src="./pionier-app.js?v=296"></script>

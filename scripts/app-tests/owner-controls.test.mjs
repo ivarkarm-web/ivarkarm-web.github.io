@@ -79,7 +79,8 @@ test('overlay controller owns pickers and control layout positions the looper to
   const controlLayout = read('handpan-app/pionier-control-layout.js');
   assert.match(controlLayout, /appendIfNeeded\(toolbar, loopControls\)/);
   assert.match(controlLayout, /appendIfNeeded\(toolbar, actionGroup\)/);
-  assert.match(controlLayout, /document\.body\.appendChild\(library\)/);
+  assert.match(controlLayout, /getElementById\('topNavGroup'\)/);
+  assert.match(controlLayout, /appendChild\(library\)/);
   assert.match(controlLayout, /\[tonepad, fx, customize\]\.forEach/);
   assert.match(read('handpan-app/library.css'), /\.library-open-btn[\s\S]*?safe-area-inset-left/);
 });
