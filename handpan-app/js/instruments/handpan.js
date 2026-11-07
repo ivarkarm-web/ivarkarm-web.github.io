@@ -4,10 +4,10 @@
  */
 import { Instrument } from '../instrument.js';
 import { getSoundLibrary } from './library-family.js?v=3';
-import { HANDPAN_SCALES, scaleToCents } from './handpan-scales.js?v=6';
+import { HANDPAN_SCALES, scaleToCents, randomScaleIndex } from './handpan-scales.js?v=7';
 import { MIN_NOTES, MAX_NOTES, ringAngles } from '../pad-layout.js?v=3';
 
-export { HANDPAN_SCALES, MIN_NOTES, MAX_NOTES };
+export { HANDPAN_SCALES, MIN_NOTES, MAX_NOTES, randomScaleIndex };
 
 const NOTE_NAMES = ['C', 'C\u266F', 'D', 'D\u266F', 'E', 'F', 'F\u266F', 'G', 'G\u266F', 'A', 'A\u266F', 'B'];
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f'];
@@ -69,7 +69,7 @@ export class HandpanInstrument extends Instrument {
       id: 'handpan',
       name: 'Handpan',
       description: 'Radial steel handpan with scale-fixed tonefields, aftertouch and MPE pitch bend.',
-      category: 'handpan',
+      category: 'HANDPAN & TUNED PERCUSSION',
       engineKind: 'procedural',
       polyphony: MAX_NOTES,
       compatibleFx: ['compressor', 'delay', 'reverb', 'warmth', 'air', 'chorus', 'shimmer']
