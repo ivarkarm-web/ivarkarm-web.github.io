@@ -7,7 +7,7 @@ Drop this folder in as `handpan-app/js/sound/`. Open `preview.html` (on GitHub P
 | File | Role |
 |------|------|
 | `dsp.js` | Pure DSP: modal synth, tuned delay loop (plucks, blown tubes), filters, crush, reverb IR |
-| `voices.js` | 11 voices: handpan, koto, harp, kalimba, singing bowl, breath flute, tine piano, music box, choir, open-fifth drone, grain cloud |
+| `voices.js` | 51 voices total: handpan plus 50 library voices (traditional, hybrid, experimental), including the v207 additions guqin, begena, valiha, krar, bolon, donso_ngoni, balafon, amadinda, glockenspiel, kulintang, slit_drum, tube_drum, dizi, xun and bone_flute |
 | `library.js` | `renderNote()` (pure) + `SoundLibrary` (cache, velocity layers, playback) |
 | `space.js` | One shared reverb + ping-pong delay that every voice sends into |
 | `render-voices.mjs` | `node render-voices.mjs out/` → WAVs + audit table (tuning, loudness, NaN) |
@@ -23,7 +23,7 @@ Drop this folder in as `handpan-app/js/sound/`. Open `preview.html` (on GitHub P
 - `js/instruments/library-family.js` creates one `LibraryInstrument` per voice and owns the shared `SoundLibrary` (`getSoundLibrary(ctx, bus)`).
 - `js/instruments/handpan.js` plays the `handpan` voice through the same library. Its scale, root, octave and note-count logic only produce frequencies.
 - `pionier-core.js` registers the handpan plus `createLibraryInstruments()`.
-- Pressure maps to live level, vertical drag to pitch bend (±2 semitones), pad position to stereo pan. Bowl, breath, choir, drone and cloud sustain while the finger is down and fade on release.
+- Pressure maps to live level, vertical drag to pitch bend (±2 semitones), pad position to stereo pan. Bowl, breath, choir, drone and cloud — plus dizi, xun and bone_flute — sustain while the finger is down and fade on release.
 - Moving between pads re-strikes instead of sliding, since notes are pre-rendered.
 
 Removed: `voice-presets.js`, `instruments/tonal-family.js`, the oscillator synth fallback, per-scale sample loading for the synthesised scales, and the chopped per-scale WAVs under `sounds/notes/`.

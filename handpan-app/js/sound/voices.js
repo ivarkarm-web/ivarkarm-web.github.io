@@ -615,6 +615,236 @@ export const VOICES = [
         y[i] += nz[i] * (0.2 * vel) * Math.exp(-i / (sr * 0.02));
       return biquad(y, 'lp', (bayan ? 600 : 2800) + 3000 * vel, 0.7, sr);
     }
+  },
+  /* BATCH A: strings */
+  {
+    id: 'guqin', name: 'Guqin', family: 'traditional',
+    desc: 'Slow deep pluck with a soft attack, long decay and a subtle pitch glide.',
+    sr: 44100, tail: 5.5, fade: [0.06, 1.4], trim: 0, send: { rev: 0.35, dly: 0.14 }, pan: -0.08,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 5.5), y = new Float32Array(n);
+      const b = 0.35 + 0.65 * vel;
+      const atkN = Math.round(sr * 0.5);
+      let phase = 0;
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        const glide = 1 + 0.007 * Math.sin(TAU * 2.2 * t) * Math.min(1, t / 0.7);
+        const env = Math.exp(-t / 4.2) * (i < atkN ? 0.5 - 0.5 * Math.cos(Math.PI * i / atkN) : 1);
+        phase += TAU * f * glide / sr;
+        y[i] += Math.sin(phase) * env;
+      }
+      addModes(y, sr, [[f * 1.5, 0.45 * b, 3.0], [f * 2.0, 0.22 * b, 2.0], [f * 3.0, 0.09 * b, 1.0]], 0.05);
+      click(y, sr, rnd, 10, clamp(f * 0.6, 50, 260), 1.0, 0.09 * vel);
+      return biquad(y, 'lp', 1400 + 2600 * vel, 0.65, sr);
+    }
+  },
+  {
+    id: 'begena', name: 'Begena', family: 'traditional',
+    desc: 'Low buzzing lyre — meditative pluck with a sympathetic buzz and beating drone.',
+    sr: 32000, tail: 6.5, fade: [0.001, 0.5], trim: 0, send: { rev: 0.45, dly: 0.1 }, pan: 0,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 6.5), y = new Float32Array(n);
+      const b = 0.35 + 0.65 * vel;
+      const y2 = pluck(f, vel, sr, rnd, { bright: 0.25 + 0.25 * vel, pos: 0.14, t60: 4.6, s: 0.5, len: 6.5 });
+      for (let i = 0; i < n; i++) y[i] = y2[i];
+      const buzz = clamp(f * 0.5, 35, 140);
+      let pb = 0;
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        pb += TAU * buzz / sr;
+        y[i] += 0.1 * b * Math.sin(pb) * (0.7 + 0.3 * Math.sin(TAU * 6.5 * t)) * Math.exp(-t / 2.5);
+      }
+      return biquad(y, 'lp', 1100 + 1800 * vel, 0.7, sr);
+    }
+  },
+  {
+    id: 'valiha', name: 'Valiha', family: 'traditional',
+    desc: 'Bright bamboo-tube zither — ringing plucks with short, bright harmonics.',
+    sr: 44100, tail: 2.8, fade: [0.001, 0.25], trim: 0, send: { rev: 0.25, dly: 0.22 }, pan: 0.12,
+    render({ f, vel, sr, rnd }) {
+      const y = pluck(f, vel, sr, rnd, { bright: 0.6 + 0.35 * vel, pos: 0.06, t60: 1.9, s: 0.44, len: 2.8 });
+      const spark = new Float32Array(y.length);
+      addModes(spark, sr, [[f * 2.02, 0.25 * vel, 0.9], [f * 3.03, 0.14 * vel, 0.5], [f * 4.05, 0.07 * vel, 0.25]], 0.001);
+      for (let i = 0; i < y.length; i++) y[i] += spark[i];
+      click(y, sr, rnd, 2, 5000 + 2000 * vel, 2.0, 0.14 * vel);
+      return biquad(y, 'lp', 3500 + 5500 * vel, 0.6, sr);
+    }
+  },
+  {
+    id: 'krar', name: 'Krar', family: 'traditional',
+    desc: 'Twangy nasal bowl lyre with a sharp, mid-focused attack.',
+    sr: 44100, tail: 3.0, fade: [0.001, 0.3], trim: 0, send: { rev: 0.28, dly: 0.16 }, pan: -0.06,
+    render({ f, vel, sr, rnd }) {
+      const y = pluck(f, vel, sr, rnd, { bright: 0.5 + 0.3 * vel, pos: 0.18, t60: 2.4, s: 0.5, len: 3.0 });
+      click(y, sr, rnd, 5, clamp(f * 2.2, 900, 4200), 1.4, 0.16 * vel);
+      return biquad(y, 'lp', 1600 + 3200 * vel, 0.7, sr);
+    }
+  },
+  {
+    id: 'bolon', name: 'Bolon', family: 'traditional',
+    desc: 'Deep calabash harp — thumping low plucks with a resonant wooden body and short sustain.',
+    sr: 44100, tail: 2.5, fade: [0.001, 0.26], trim: 0, send: { rev: 0.32, dly: 0.1 }, pan: -0.05,
+    render({ f, vel, sr, rnd }) {
+      const y = pluck(f, vel, sr, rnd, { bright: 0.2 + 0.2 * vel, pos: 0.3, t60: 1.5, s: 0.55, len: 2.5 });
+      click(y, sr, rnd, 7, clamp(f * 0.55, 45, 170), 0.8, 0.22 * vel);
+      return biquad(y, 'lp', 1100 + 2200 * vel, 0.75, sr);
+    }
+  },
+  {
+    id: 'donso_ngoni', name: 'Donso Ngoni', family: 'traditional',
+    desc: "Hunter's harp with a rattling, buzzing bridge and a bright metallic body.",
+    sr: 44100, tail: 3.4, fade: [0.001, 0.3], trim: 0, send: { rev: 0.3, dly: 0.18 }, pan: 0.05,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 3.4), y = new Float32Array(n);
+      const b = 0.4 + 0.6 * vel;
+      const y2 = pluck(f, vel, sr, rnd, { bright: 0.55 + 0.3 * vel, pos: 0.12, t60: 2.8, s: 0.48, len: 3.4 });
+      for (let i = 0; i < n; i++) y[i] = y2[i];
+      const nz = biquad(whiteNoise(Math.min(n, frames(sr, 0.2)), rnd), 'bp', clamp(f * 3, 900, 5000), 2.5, sr);
+      for (let i = 0; i < nz.length; i++) y[i] += nz[i] * 0.16 * b * Math.exp(-i / (sr * 0.05));
+      click(y, sr, rnd, 3, 3000 + 1500 * vel, 1.3, 0.15 * vel);
+      return biquad(y, 'lp', 2400 + 4800 * vel, 0.6, sr);
+    }
+  },
+  /* BATCH B: mallets and percussion */
+  {
+    id: 'balafon', name: 'Balafon', family: 'traditional',
+    desc: 'Wooden bar xylophone with a buzzing gourd-membrane layer.',
+    sr: 44100, tail: 2.7, fade: [0.001, 0.25], trim: 0, send: { rev: 0.28, dly: 0.14 }, pan: 0.07,
+    render({ f, vel, sr, rnd }) {
+      const y = new Float32Array(frames(sr, 2.7));
+      const b = 0.4 + 0.6 * vel;
+      addModes(y, sr, [[f, 1.0, 1.8], [f * 3.9, 0.3 * b, 0.6], [f * 9.0, 0.1 * b, 0.2], [f * 2.0, 0.08 * b, 0.9]], 0.001);
+      click(y, sr, rnd, 4, 1600 + 700 * vel, 1.1, 0.18 * vel);
+      const nz = biquad(whiteNoise(Math.min(y.length, frames(sr, 0.18)), rnd), 'bp', clamp(f * 4, 1200, 5500), 2.5, sr);
+      for (let i = 0; i < nz.length; i++) y[i] += nz[i] * 0.11 * vel * Math.exp(-i / (sr * 0.06));
+      return biquad(y, 'lp', 2500 + 4500 * vel, 0.65, sr);
+    }
+  },
+  {
+    id: 'amadinda', name: 'Amadinda', family: 'traditional',
+    desc: 'Dry hollow-log xylophone — short, woody, low resonance.',
+    sr: 44100, tail: 2.0, fade: [0.001, 0.22], trim: 0, send: { rev: 0.18, dly: 0.08 }, pan: 0,
+    render({ f, vel, sr, rnd }) {
+      const y = new Float32Array(frames(sr, 2.0));
+      const b = 0.4 + 0.6 * vel;
+      addModes(y, sr, [[f, 1.0, 1.2], [f * 1.52, 0.35 * b, 0.5], [f * 2.02, 0.18 * b, 0.35], [f * 3.1, 0.07 * b, 0.18]], 0.0005);
+      click(y, sr, rnd, 3, clamp(f * 1.1, 150, 800), 0.9, 0.2 * vel);
+      return biquad(y, 'lp', 1800 + 3000 * vel, 0.75, sr);
+    }
+  },
+  {
+    id: 'glockenspiel', name: 'Glockenspiel', family: 'traditional',
+    desc: 'Bright metal bars with a short, clear chime.',
+    sr: 44100, tail: 2.2, fade: [0.0005, 0.18], trim: 0, send: { rev: 0.35, dly: 0.25 }, pan: 0.1,
+    render({ f, vel, sr, rnd }) {
+      const y = new Float32Array(frames(sr, 2.2));
+      const b = 0.45 + 0.55 * vel;
+      addModes(y, sr, [[f, 1.0, 1.4], [f * 2.01, 0.5 * b, 0.7], [f * 3.02, 0.25 * b, 0.4], [f * 4.05, 0.1 * b, 0.22]], 0.0003);
+      click(y, sr, rnd, 2, 6500 + 2000 * vel, 2.4, 0.18 * vel);
+      return biquad(y, 'lp', 5000 + 7000 * vel, 0.55, sr);
+    }
+  },
+  {
+    id: 'kulintang', name: 'Kulintang', family: 'traditional',
+    desc: 'Small bossed gongs — a bright fundamental with a shimmering, long decay.',
+    sr: 44100, tail: 4.8, fade: [0.002, 0.9], trim: 0, send: { rev: 0.5, dly: 0.22 }, pan: 0.06,
+    render({ f, vel, sr, rnd }) {
+      const y = new Float32Array(frames(sr, 4.8));
+      const b = 0.4 + 0.6 * vel;
+      addModes(y, sr, [[f, 1.0, 4.0], [f * 1.8, 0.45 * b, 2.6], [f * 2.9, 0.22 * b, 1.5], [f * 4.2, 0.1 * b, 0.8], [f * 1.02, 0.25, 3.4]], 0.002);
+      click(y, sr, rnd, 3, 2400 + 1200 * vel, 1.4, 0.2 * vel);
+      return biquad(y, 'lp', 3000 + 5000 * vel, 0.55, sr);
+    }
+  },
+  {
+    id: 'slit_drum', name: 'Slit Drum', family: 'traditional',
+    desc: 'Hollow wood slit drum: a low thunk with a pitched knock.',
+    sr: 44100, tail: 2.3, fade: [0.001, 0.22], trim: 0, send: { rev: 0.25, dly: 0.12 }, pan: 0,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 2.3), y = new Float32Array(n);
+      const b = 0.4 + 0.6 * vel;
+      const thunk = clamp(f * 0.5, 40, 160);
+      addModes(y, sr, [[thunk, 1.0, 1.1], [f, 0.65 * b, 0.9], [f * 1.5, 0.25 * b, 0.45]], 0.001);
+      const nz = biquad(whiteNoise(Math.min(n, frames(sr, 0.07)), rnd), 'bp', 250 + 500 * vel, 0.9, sr);
+      for (let i = 0; i < nz.length; i++) y[i] += nz[i] * 0.3 * vel * Math.exp(-i / (sr * 0.018));
+      click(y, sr, rnd, 4, f, 1.1, 0.18 * vel);
+      return biquad(y, 'lp', 1400 + 2600 * vel, 0.75, sr);
+    }
+  },
+  {
+    id: 'tube_drum', name: 'Tube Drums', family: 'traditional',
+    desc: 'Low hollow struck-tube tones with odd partials and a dark body.',
+    sr: 44100, tail: 2.9, fade: [0.001, 0.28], trim: 0, send: { rev: 0.32, dly: 0.1 }, pan: -0.03,
+    render({ f, vel, sr, rnd }) {
+      const y = new Float32Array(frames(sr, 2.9));
+      const b = 0.4 + 0.6 * vel;
+      addModes(y, sr, [[f, 1.0, 1.9], [f * 2.95, 0.35 * b, 0.7], [f * 4.95, 0.15 * b, 0.35]], 0.002);
+      click(y, sr, rnd, 6, clamp(f * 0.45, 35, 130), 0.8, 0.24 * vel);
+      return biquad(y, 'lp', 900 + 1800 * vel, 0.8, sr);
+    }
+  },
+  /* BATCH C: winds */
+  {
+    id: 'dizi', name: 'Dizi', family: 'traditional',
+    desc: 'Bright bamboo flute with a buzzing membrane and an airy attack.',
+    sr: 32000, tail: 4.8, fade: [0.1, 0.9], trim: 0, send: { rev: 0.45, dly: 0.2 }, pan: -0.04,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 4.8), y = new Float32Array(n);
+      const b = 0.4 + 0.6 * vel;
+      const nz = biquad(whiteNoise(n, rnd), 'bp', clamp(f * 3, 400, 5500), 0.6, sr);
+      const fl = biquad(whiteNoise(n, rnd), 'lp', 6, 0.7, sr);
+      let flMax = 1e-6;
+      for (let i = 0; i < n; i++) flMax = Math.max(flMax, Math.abs(fl[i]));
+      const tube = delayLoop(n, sr, f, { mult: 2, sign: -1, s: 0.34, t60: 1.3, input: nz });
+      let r = 0;
+      for (let i = 0; i < n; i++) r += tube[i] * tube[i];
+      r = Math.sqrt(r / n) || 1e-6;
+      const w = TAU * f / sr;
+      const mem = biquad(whiteNoise(n, rnd), 'bp', clamp(f * 5, 1500, 7000), 3.5, sr);
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        const breath = Math.sin(w * i * (1 + 0.005 * Math.sin(TAU * 4.6 * t) * Math.min(1, t / 1.0))) * Math.min(1, t / 0.35);
+        tube[i] = tube[i] * Math.min(1, t / 0.3) * (1 + 0.004 * Math.sin(TAU * 5 * t) * Math.min(1, t / 0.9))
+          + r * 0.75 * breath + mem[i] * 0.04 * b * Math.exp(-t / 1.5);
+      }
+      return biquad(tube, 'lp', 2200 + 4200 * vel, 0.6, sr);
+    }
+  },
+  {
+    id: 'xun', name: 'Xun', family: 'traditional',
+    desc: 'Round hollow clay-vessel flute — pure, dark, soft chiff.',
+    sr: 32000, tail: 3.2, fade: [0.04, 0.7], trim: 0, send: { rev: 0.5, dly: 0.16 }, pan: -0.03,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 3.2), y = new Float32Array(n);
+      const b = 0.4 + 0.6 * vel;
+      addModes(y, sr, [[f, 1.0, 2.8], [f * 2.01, 0.1 * b, 1.2], [f * 3.0, 0.04 * b, 0.5]], 0.05);
+      const nz = biquad(whiteNoise(n, rnd), 'bp', clamp(f * 2.5, 300, 3500), 1.0, sr);
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        y[i] = (y[i] + nz[i] * 0.05 * vel) * Math.min(1, t / 0.06) * Math.exp(-t / 0.9);
+      }
+      return biquad(biquad(y, 'hp', 60 + 30 * vel, 0.7, sr), 'lp', 1400 + 2000 * vel, 0.7, sr);
+    }
+  },
+  {
+    id: 'bone_flute', name: 'Vulture Bone Flute', family: 'traditional',
+    desc: 'Raw, airy primitive flute — breathy with a soft, uneven attack.',
+    sr: 24000, tail: 4.2, fade: [0.15, 1.0], trim: 0, send: { rev: 0.52, dly: 0.18 }, pan: -0.06,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 4.2);
+      const b = 0.35 + 0.65 * vel;
+      const nz = biquad(whiteNoise(n, rnd), 'bp', clamp(f * 3.5, 500, 6000), 0.7, sr);
+      const tube = delayLoop(n, sr, f, { mult: 2, sign: -1, s: 0.3, t60: 1.1, input: nz });
+      let r = 0;
+      for (let i = 0; i < n; i++) r += tube[i] * tube[i];
+      r = Math.sqrt(r / n) || 1e-6;
+      const w = TAU * f / sr;
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        tube[i] = (tube[i] * Math.min(1, t / 0.5) + r * 0.6 * Math.sin(w * i)) * (0.55 + 0.45 * Math.min(1, t / 0.4)) + nz[i] * 0.06 * b * Math.exp(-t / 0.5);
+      }
+      return biquad(tube, 'lp', 1600 + 3000 * vel, 0.6, sr);
+    }
   }
 ];
 

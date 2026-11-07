@@ -5,7 +5,7 @@
  * All library voices inherit the active handpan scale via setMusicalContext().
  */
 import { Instrument } from '../instrument.js';
-import { SoundLibrary, listVoices } from '../sound/library.js?v=3';
+import { SoundLibrary, listVoices } from '../sound/library.js?v=6';
 
 const MAX_PADS = 14;
 const PITCH_BEND_RANGE = 2;
@@ -17,7 +17,8 @@ const HELD_VOICES = new Set([
   'bowl', 'tibetan', 'breath', 'choir', 'drone', 'cloud',
   'mist_drone', 'aether', 'aurora', 'celestial_bow', 'sub_hum',
   'ambient_cello', 'sitar_air', 'silk_violin',
-  'shakuhachi', 'duduk', 'native_flute'
+  'shakuhachi', 'duduk', 'native_flute',
+  'dizi', 'xun', 'bone_flute'
 ]);
 
 let shared = null;
