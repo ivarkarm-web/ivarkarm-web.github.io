@@ -5,7 +5,7 @@
  * All library voices inherit the active handpan scale via setMusicalContext().
  */
 import { Instrument } from '../instrument.js';
-import { SoundLibrary, listVoices } from '../sound/library.js?v=4';
+import { SoundLibrary, listVoices } from '../sound/library.js?v=5';
 
 const MAX_PADS = 14;
 const PITCH_BEND_RANGE = 2;

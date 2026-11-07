@@ -704,6 +704,84 @@ export const VOICES = [
       click(y, sr, rnd, 3, 3000 + 1500 * vel, 1.3, 0.15 * vel);
       return biquad(y, 'lp', 2400 + 4800 * vel, 0.6, sr);
     }
+  },
+  /* BATCH B: mallets and percussion */
+  {
+    id: 'balafon', name: 'Balafon', family: 'traditional',
+    desc: 'Wooden bar xylophone with a buzzing gourd-membrane layer.',
+    sr: 44100, tail: 2.7, fade: [0.001, 0.25], trim: 0, send: { rev: 0.28, dly: 0.14 }, pan: 0.07,
+    render({ f, vel, sr, rnd }) {
+      const y = new Float32Array(frames(sr, 2.7));
+      const b = 0.4 + 0.6 * vel;
+      addModes(y, sr, [[f, 1.0, 1.8], [f * 3.9, 0.3 * b, 0.6], [f * 9.0, 0.1 * b, 0.2], [f * 2.0, 0.08 * b, 0.9]], 0.001);
+      click(y, sr, rnd, 4, 1600 + 700 * vel, 1.1, 0.18 * vel);
+      const nz = biquad(whiteNoise(Math.min(y.length, frames(sr, 0.18)), rnd), 'bp', clamp(f * 4, 1200, 5500), 2.5, sr);
+      for (let i = 0; i < nz.length; i++) y[i] += nz[i] * 0.11 * vel * Math.exp(-i / (sr * 0.06));
+      return biquad(y, 'lp', 2500 + 4500 * vel, 0.65, sr);
+    }
+  },
+  {
+    id: 'amadinda', name: 'Amadinda', family: 'traditional',
+    desc: 'Dry hollow-log xylophone — short, woody, low resonance.',
+    sr: 44100, tail: 2.0, fade: [0.001, 0.22], trim: 0, send: { rev: 0.18, dly: 0.08 }, pan: 0,
+    render({ f, vel, sr, rnd }) {
+      const y = new Float32Array(frames(sr, 2.0));
+      const b = 0.4 + 0.6 * vel;
+      addModes(y, sr, [[f, 1.0, 1.2], [f * 1.52, 0.35 * b, 0.5], [f * 2.02, 0.18 * b, 0.35], [f * 3.1, 0.07 * b, 0.18]], 0.0005);
+      click(y, sr, rnd, 3, clamp(f * 1.1, 150, 800), 0.9, 0.2 * vel);
+      return biquad(y, 'lp', 1800 + 3000 * vel, 0.75, sr);
+    }
+  },
+  {
+    id: 'glockenspiel', name: 'Glockenspiel', family: 'traditional',
+    desc: 'Bright metal bars with a short, clear chime.',
+    sr: 44100, tail: 2.2, fade: [0.0005, 0.18], trim: 0, send: { rev: 0.35, dly: 0.25 }, pan: 0.1,
+    render({ f, vel, sr, rnd }) {
+      const y = new Float32Array(frames(sr, 2.2));
+      const b = 0.45 + 0.55 * vel;
+      addModes(y, sr, [[f, 1.0, 1.4], [f * 2.01, 0.5 * b, 0.7], [f * 3.02, 0.25 * b, 0.4], [f * 4.05, 0.1 * b, 0.22]], 0.0003);
+      click(y, sr, rnd, 2, 6500 + 2000 * vel, 2.4, 0.18 * vel);
+      return biquad(y, 'lp', 5000 + 7000 * vel, 0.55, sr);
+    }
+  },
+  {
+    id: 'kulintang', name: 'Kulintang', family: 'traditional',
+    desc: 'Small bossed gongs — a bright fundamental with a shimmering, long decay.',
+    sr: 44100, tail: 4.8, fade: [0.002, 0.9], trim: 0, send: { rev: 0.5, dly: 0.22 }, pan: 0.06,
+    render({ f, vel, sr, rnd }) {
+      const y = new Float32Array(frames(sr, 4.8));
+      const b = 0.4 + 0.6 * vel;
+      addModes(y, sr, [[f, 1.0, 4.0], [f * 1.8, 0.45 * b, 2.6], [f * 2.9, 0.22 * b, 1.5], [f * 4.2, 0.1 * b, 0.8], [f * 1.02, 0.25, 3.4]], 0.002);
+      click(y, sr, rnd, 3, 2400 + 1200 * vel, 1.4, 0.2 * vel);
+      return biquad(y, 'lp', 3000 + 5000 * vel, 0.55, sr);
+    }
+  },
+  {
+    id: 'slit_drum', name: 'Slit Drum', family: 'traditional',
+    desc: 'Hollow wood slit drum: a low thunk with a pitched knock.',
+    sr: 44100, tail: 2.3, fade: [0.001, 0.22], trim: 0, send: { rev: 0.25, dly: 0.12 }, pan: 0,
+    render({ f, vel, sr, rnd }) {
+      const n = frames(sr, 2.3), y = new Float32Array(n);
+      const b = 0.4 + 0.6 * vel;
+      const thunk = clamp(f * 0.5, 40, 160);
+      addModes(y, sr, [[thunk, 1.0, 1.1], [f, 0.65 * b, 0.9], [f * 1.5, 0.25 * b, 0.45]], 0.001);
+      const nz = biquad(whiteNoise(Math.min(n, frames(sr, 0.07)), rnd), 'bp', 250 + 500 * vel, 0.9, sr);
+      for (let i = 0; i < nz.length; i++) y[i] += nz[i] * 0.3 * vel * Math.exp(-i / (sr * 0.018));
+      click(y, sr, rnd, 4, f, 1.1, 0.18 * vel);
+      return biquad(y, 'lp', 1400 + 2600 * vel, 0.75, sr);
+    }
+  },
+  {
+    id: 'tube_drum', name: 'Tube Drums', family: 'traditional',
+    desc: 'Low hollow struck-tube tones with odd partials and a dark body.',
+    sr: 44100, tail: 2.9, fade: [0.001, 0.28], trim: 0, send: { rev: 0.32, dly: 0.1 }, pan: -0.03,
+    render({ f, vel, sr, rnd }) {
+      const y = new Float32Array(frames(sr, 2.9));
+      const b = 0.4 + 0.6 * vel;
+      addModes(y, sr, [[f, 1.0, 1.9], [f * 2.95, 0.35 * b, 0.7], [f * 4.95, 0.15 * b, 0.35]], 0.002);
+      click(y, sr, rnd, 6, clamp(f * 0.45, 35, 130), 0.8, 0.24 * vel);
+      return biquad(y, 'lp', 900 + 1800 * vel, 0.8, sr);
+    }
   }
 ];
 
