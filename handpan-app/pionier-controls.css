@@ -1204,7 +1204,7 @@ button:disabled {
 }
 /* Small transport/step controls stay compact and read as one control family. */
 .icon-btn, .stage-scale-step, .stage-instrument-nav .icon-btn,
-.stage-instrument-nav .soundscapes-open-btn, .stage-scale-row .stage-scale-step,
+.stage-scale-row .stage-scale-step,
 #pionierTopDock #looperBtn, #pionierTopDock #looperSyncBtn,
 #pionierTopDock #looperClearBtn {
   border-radius: 12px !important;
@@ -1389,15 +1389,7 @@ html body #stageScaleBar #stageScaleRow #scaleNext {
   transform: none !important;
 }
 
-html body #stageScaleBar .stage-instrument-nav #openSoundscapes {
-  flex: 0 0 34px !important;
-  width: 34px !important;
-  min-width: 34px !important;
-  max-width: 34px !important;
-  height: 34px !important;
-  min-height: 34px !important;
-  padding: 0 !important;
-}
+
 
 html body #stageScaleBar .stage-control-scale,
 html body #stageScaleBar .stage-control-scale .scale-stepper {
@@ -1621,8 +1613,7 @@ html body #stageScaleBar #instrumentDropdownToggle {
 
 html body #stageScaleBar #stageInstrumentRow .icon-btn,
 html body #stageScaleBar #stageScaleRow #scalePrev,
-html body #stageScaleBar #stageScaleRow #scaleNext,
-html body #stageScaleBar #stageInstrumentRow #openSoundscapes {
+html body #stageScaleBar #stageScaleRow #scaleNext {
   box-sizing: border-box !important;
   flex: 0 0 34px !important;
   width: 34px !important;
@@ -2106,7 +2097,6 @@ html.theme-light .fx-knob-label-row .knob-label {
 .icon-btn:focus-visible,
 .instrument-name:focus-visible,
 #instrumentDropdownToggle:focus-visible,
-.soundscapes-open-btn:focus-visible,
 .randomize-setup-btn:focus-visible,
 .settings-open-btn:focus-visible,
 .fx-panel-open:focus-visible,
@@ -2141,17 +2131,7 @@ html.theme-light .fx-knob-label-row .knob-label {
   outline-offset: var(--pionier-focus-offset);
 }
 
-/* —— Soundscapes panel —— */
-.soundscape-play:focus-visible,
-.soundscape-transport-btn:focus-visible,
-.soundscape-queue-item:focus-visible,
-.soundscapes-return-btn:focus-visible,
-.soundscape-tab:focus-visible,
-#soundscapeSeek:focus-visible,
-#soundscapeVolume:focus-visible {
-  outline: var(--pionier-focus-ring);
-  outline-offset: var(--pionier-focus-offset);
-}
+
 
 /* —— FX panel + editor —— */
 .fx-panel .icon-btn:focus-visible,
@@ -2235,9 +2215,6 @@ html.high-contrast .settings-dd-value,
 html.high-contrast .settings-dd-item,
 html.high-contrast .knob-label,
 html.high-contrast .knob-val,
-html.high-contrast .soundscape-title,
-html.high-contrast .soundscape-note,
-html.high-contrast .soundscape-status,
 html.high-contrast .welcome-headline,
 html.high-contrast .welcome-deck,
 html.high-contrast .welcome-brand,
@@ -2261,14 +2238,11 @@ html.high-contrast .step,
 html.high-contrast .looper-btn,
 html.high-contrast .looper-clear-btn,
 html.high-contrast .randomize-setup-btn,
-html.high-contrast .soundscapes-open-btn,
 html.high-contrast .settings-open-btn,
 html.high-contrast .fx-panel-open,
 html.high-contrast #fxPanelOpen,
 html.high-contrast .settings-dd-toggle,
 html.high-contrast .settings-sheet-close,
-html.high-contrast .soundscape-play,
-html.high-contrast .soundscape-transport-btn,
 html.high-contrast .scale-dropdown-toggle {
   border-color: var(--hc-border) !important;
   color: var(--hc-fg) !important;
@@ -2301,7 +2275,6 @@ html.high-contrast .settings-sheet,
 html.high-contrast .settings-dd-menu,
 html.high-contrast .fx-panel,
 html.high-contrast .fx-editor,
-html.high-contrast .soundscapes-panel,
 html.high-contrast .mobile-control-drawer {
   background: var(--hc-bg) !important;
   border-color: var(--hc-border) !important;
