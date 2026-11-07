@@ -1,15 +1,65 @@
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs/promises';
 
-test.beforeEach(async ({ page }) => {
-  await page.goto('/handpan-app/index.html', { waitUntil: 'domcontentloaded' });
-  // The welcome screen intentionally covers the play surface until the user enters.
-  const enter = page.locator('#enterPionier');
-  if (await enter.isVisible().catch(() => false)) {
-    await enter.click();
-    await expect(enter).toBeHidden({ timeout: 8000 });
+test.beforeEach(async ({ page }, testInfo) => {
+  if (testInfo.title === 'required core boot failure shows recovery UI and retry reloads successfully') {
+    // The test installs its outage route before its first navigation.
+    return;
   }
-  await expect.poll(() => page.evaluate(() => window.PionierBootState), { timeout: 15000 }).toBe('ready');
+  const timings = {};
+  const browserErrors = [];
+  let enterExists = null;
+  let enterVisible = null;
+  let step = 'page.goto';
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  const timed = async (name, action) => {
+    const startedAt = performance.now();
+    try {
+      return await action();
+    } finally {
+      timings[name] = Math.round(performance.now() - startedAt);
+    }
+  };
+  try {
+    await timed('page.goto', () => page.goto('/handpan-app/index.html', { waitUntil: 'domcontentloaded' }));
+    // The welcome screen intentionally covers the play surface until the user enters.
+    step = 'locating #enterPionier';
+    const enter = await timed('locating #enterPionier', () => page.locator('#enterPionier'));
+    step = 'waiting for #enterPionier visibility';
+    enterExists = await timed('checking #enterPionier exists', async () => (await enter.count()) > 0);
+    enterVisible = await timed('waiting for #enterPionier visibility', () => enter.isVisible().catch(() => false));
+    if (enterVisible) {
+      step = 'clicking #enterPionier';
+      await timed('clicking #enterPionier', () => enter.click());
+      await expect(enter).toBeHidden({ timeout: 8000 });
+    }
+    step = 'waiting for initial boot state';
+    await timed('waiting for initial boot state', () => expect.poll(() => page.evaluate(() => window.PionierBootState), { timeout: 15000 }).toBe('ready'));
+    console.info('[handpan beforeEach timings]', JSON.stringify({ elapsedMs: timings, enterExists, enterVisible }));
+  } catch (error) {
+    const diagnosticState = await page.evaluate(() => ({
+      bootState: window.PionierBootState ?? null,
+      appStatus: document.querySelector('#appStatus')?.textContent?.trim() ?? null,
+      enterExists: !!document.querySelector('#enterPionier'),
+      enterVisible: (() => {
+        const element = document.querySelector('#enterPionier');
+        return !!element && !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
+      })(),
+    })).catch((evaluationError) => ({ pageEvaluationError: evaluationError.message }));
+    console.error('[handpan beforeEach diagnostics]', JSON.stringify({
+      failedStep: step,
+      elapsedMs: timings,
+      enterExists,
+      enterVisible,
+      bootState: diagnosticState,
+      browserErrors,
+      error: error.message,
+    }, null, 2));
+    throw error;
+  }
   await expect(page.locator('#pan')).toBeVisible();
   await expect(page.locator('#instrumentDropdownToggle')).toBeVisible();
   await expect.poll(() => page.evaluate(() => {
@@ -20,22 +70,205 @@ test.beforeEach(async ({ page }) => {
 
 
 
-test('required core boot failure shows recovery UI and retry reloads successfully', async ({ page }) => {
-  let failOnce = true;
-  await page.route(/pionier-core\.js\?v=\d+/, async (route) => {
-    if (failOnce) {
-      failOnce = false;
-      await route.fulfill({ status: 503, contentType: 'text/javascript', body: '/* simulated temporary outage */' });
-    } else {
-      await route.continue();
+test('required core boot failure shows recovery UI and retry reloads successfully', async ({ page }, testInfo) => {
+  test.setTimeout(120000);
+  const runId = `${testInfo.workerIndex}-${testInfo.retry}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  let coreRequests = 0;
+  const coreSequence = [];
+  const coreResponses = [];
+  const recoveryCoreRequests = [];
+  const handpanRequests = [];
+  const handpanSequence = [];
+  const browserErrors = [];
+  const bootStageMessages = [];
+  const pageErrors = [];
+  const recoveryTrace = [];
+  page.on('response', (response) => {
+    if (new URL(response.url()).pathname.endsWith('/pionier-core.js')) {
+      coreResponses.push({ request: response.request(), status: response.status() });
+      coreSequence.push({ runId, type: 'response', url: response.url(), status: response.status() });
+    }
+    if (response.url().includes('handpan.js')) {
+      const entry = handpanRequests.find((item) => item.request === response.request());
+      if (entry) entry.responseStatus = response.status();
+      else handpanRequests.push({ runId, type: 'response-without-request', url: response.url(), responseStatus: response.status() });
+      handpanSequence.push({ runId, type: 'response', url: response.url(), status: response.status() });
     }
   });
-  await page.reload();
-  await expect(page.locator('#appStatus')).toBeVisible();
-  await expect(page.locator('#appStatusMessage')).toContainText('could not start');
-  await page.locator('#appStatusRetry').click();
-  await expect.poll(() => page.evaluate(() => !!window.PionierCore)).toBe(true);
-  await expect(page.locator('#appStatus')).toBeHidden();
+  page.on('request', (request) => {
+    if (request.url().includes('handpan.js')) {
+      handpanRequests.push({ request, runId, url: request.url(), startedAt: new Date().toISOString(), responseStatus: null, failure: null, finished: false });
+      handpanSequence.push({ runId, type: 'request', url: request.url() });
+    }
+  });
+  page.on('requestfailed', (request) => {
+    const entry = handpanRequests.find((item) => item.request === request);
+    if (entry) entry.failure = request.failure()?.errorText || 'unknown failure';
+    if (request.url().includes('handpan.js')) handpanSequence.push({ runId, type: 'requestfailed', url: request.url(), failure: request.failure()?.errorText || 'unknown failure' });
+  });
+  page.on('requestfinished', (request) => {
+    const entry = handpanRequests.find((item) => item.request === request);
+    if (entry) entry.finished = true;
+    if (request.url().includes('handpan.js')) handpanSequence.push({ runId, type: 'requestfinished', url: request.url() });
+  });
+  page.on('console', (message) => {
+    if (message.text().includes('[boot:')) bootStageMessages.push({ runId, message: message.text() });
+    if (message.type() === 'error') browserErrors.push({ runId, message: message.text() });
+  });
+  page.on('pageerror', (error) => pageErrors.push({ runId, message: error.message }));
+  page.on('request', (request) => {
+    if (new URL(request.url()).pathname.endsWith('/pionier-core.js')) {
+      coreRequests++;
+      coreSequence.push({ runId, type: 'request', url: request.url() });
+    }
+  });
+  await page.route('**/pionier-app.js*', async (route) => {
+    const response = await route.fetch();
+    const source = await response.text();
+    const originalImport = "await import(new URL('./pionier-core.js?v=82', BASE).href);";
+    if (!source.includes(originalImport)) {
+      throw new Error('Could not instrument the required pionier-core.js dynamic import.');
+    }
+    const instrumentedSource = source
+      .replace("function setBootStatus(state, message = '', retry = false) {", "function setBootStatus(state, message = '', retry = false) { window.__recoveryTrace?.push(['state', state]);")
+      .replace("statusRetry?.addEventListener('click', () => window.location.reload());", "statusRetry?.addEventListener('click', () => { window.__recoveryTrace?.push(['retry-handler', 'reload']); window.location.reload(); });")
+      .replace("    const { mountLooper } = await import(new URL('./js/looper.js?v=240', BASE).href);\n    if (typeof mountLooper === 'function') mountLooper();", "    console.info('[boot:stage] enter import looper');\n    const { mountLooper } = await import(new URL('./js/looper.js?v=240', BASE).href);\n    console.info('[boot:stage] complete import looper');\n    if (typeof mountLooper === 'function') { console.info('[boot:stage] enter mount looper'); try { mountLooper(); console.info('[boot:stage] complete mount looper'); } catch (error) { console.error('[boot:stage] reject mount looper', error); throw error; } }")
+      .replace("  } catch (e) {\n    console.warn('[boot] looper', e);", "  } catch (e) {\n    console.error('[boot:stage] reject load looper or import looper', e);\n    console.warn('[boot] looper', e);")
+      .replace("async function boot() {", `async function boot() {
+    window.__recoveryTrace?.push(['boot-invoked']);
+    const __stage = async (name, operation) => {
+      console.info('[boot:stage] enter ' + name);
+      try { const result = await operation(); console.info('[boot:stage] complete ' + name); return result; }
+      catch (error) { console.error('[boot:stage] reject ' + name, error); throw error; }
+    };
+    const __syncStage = (name, operation) => {
+      console.info('[boot:stage] enter ' + name);
+      try { const result = operation(); console.info('[boot:stage] complete ' + name); return result; }
+      catch (error) { console.error('[boot:stage] reject ' + name, error); throw error; }
+    };`)
+      .replace("  setBootStatus('loading', 'Starting Pionier…');", "  __syncStage('set loading status', () => setBootStatus('loading', 'Starting Pionier…'));" )
+      .replace("    await import(new URL('./pionier-core.js?v=82', BASE).href);", "    await __stage('import core', () => import(new URL('./pionier-core.js?v=82', BASE).href));")
+      .replace("    ({ HANDPAN_SCALES } = await import(new URL('./js/instruments/handpan.js?v=13', BASE).href));\n    window.HANDPAN_SCALES = HANDPAN_SCALES;", "    ({ HANDPAN_SCALES } = await __stage('import handpan scales', () => import(new URL('./js/instruments/handpan.js?v=13', BASE).href)));\n    __syncStage('publish handpan scales', () => { window.HANDPAN_SCALES = HANDPAN_SCALES; });")
+      .replace("  loadLooper().then(() => {\n    try { window.__pionierArrangeLayout?.(); } catch (_) {}\n  });", "  __stage('load looper (including module import and mount)', () => loadLooper()).then(() => {\n    __syncStage('arrange layout', () => { try { window.__pionierArrangeLayout?.(); } catch (_) {} });\n  });")
+      .replace("    const { mountScaleSelector } = await import(new URL('./js/scale-selector.js?v=15', BASE).href);\n    mountScaleSelector({", "    const { mountScaleSelector } = await __stage('import scale selector', () => import(new URL('./js/scale-selector.js?v=15', BASE).href));\n    __syncStage('mount scale selector', () => mountScaleSelector({")
+      .replace("    });\n  } catch (err) {\n    console.warn('[scale-selector] mount failed', err);", "    }));\n  } catch (err) {\n    console.warn('[scale-selector] mount failed', err);")
+      .replace("  document.getElementById('randomizeSetup')?.addEventListener('click', async () => {", "  __syncStage('register randomize setup handler', () => document.getElementById('randomizeSetup')?.addEventListener('click', async () => {")
+      .replace("    }\n  });\n\n  scheduleDeferredFeatures();", "    }\n  }));\n\n  __syncStage('schedule deferred features', () => scheduleDeferredFeatures());")
+      // Boot status now branches on core health (audio/storage availability)
+      // before reaching the ready state, so instrument inside that branch.
+      .replace("    setBootStatus('ready');", "    __syncStage('set ready status', () => setBootStatus('ready'));");
+    for (const marker of ["console.info('[boot:stage] enter import looper')", "__stage('import core'", "__stage('import handpan scales'", "__stage('import scale selector'", "__syncStage('set ready status'"]) {
+      if (!instrumentedSource.includes(marker)) throw new Error(`Could not install startup diagnostic: ${marker}`);
+    }
+    if (!instrumentedSource.includes("window.__recoveryTrace?.push(['boot-invoked'])")) {
+      throw new Error('Could not instrument the bootstrap invocation.');
+    }
+    await route.fulfill({ response, body: instrumentedSource });
+  });
+  await page.route('**/pionier-core.js*', async (route) => {
+    if (coreRequests === 1) {
+      recoveryCoreRequests[0] = route.request();
+      await route.fulfill({
+        status: 503,
+        contentType: 'text/javascript',
+        headers: { 'cache-control': 'no-store' },
+        body: '/* simulated temporary outage */',
+      });
+      return;
+    }
+    if (coreRequests === 2) recoveryCoreRequests[1] = route.request();
+    await route.continue();
+  });
+  const diagnostics = async () => ({
+    runId,
+    coreRequests,
+    coreResponses: coreResponses.map(({ status }) => ({ runId, status })),
+    coreSequence,
+    handpanSequence,
+    handpanRequests: handpanRequests.map(({ runId: entryRunId, url, startedAt, responseStatus, failure, finished }) => ({ runId: entryRunId, url, startedAt, responseStatus, failure, finished })),
+    browserErrors,
+    bootStageMessages,
+    pageErrors,
+    recoveryTrace,
+    afterRetry: await page.evaluate(() => ({
+      recoveryTrace: window.__recoveryTrace || [],
+      staticHandpanUrl: new URL('./js/instruments/handpan.js?v=13', new URL('./pionier-core-base.js', location.href)).href,
+      pionierCore: window.PionierCore ? { present: true, type: typeof window.PionierCore, keys: Object.keys(window.PionierCore) } : window.PionierCore ?? null,
+      bootState: window.PionierBootState ?? null,
+      visibility: document.visibilityState,
+    })).catch((error) => ({ pageEvaluationError: error.message })),
+  });
+  try {
+    await page.addInitScript((id) => {
+      window.__recoveryRunId = id;
+      window.__recoveryTrace = [[id, 'attempt-start']];
+      for (const method of ['debug', 'info', 'log', 'warn', 'error']) {
+        const original = console[method].bind(console);
+        console[method] = (...args) => original(`[runId=${id}]`, ...args);
+      }
+    }, runId);
+    // Use domcontentloaded: the recovery assertions poll for the failed boot
+    // state, and waiting for `load` can hang when a script request is being
+    // intercepted/stubbed by page.route().
+    await page.goto('/handpan-app/index.html', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#appStatus')).toBeVisible();
+    await expect(page.locator('#appStatusMessage')).toHaveText('Core failed to load. Check your connection and retry.');
+    await expect(page.locator('#pionierWelcome')).toBeVisible();
+    await expect(page.locator('html')).toHaveClass(/pionier-boot-failed/);
+    const recoveryStack = await page.evaluate(() => ({
+      status: Number.parseInt(getComputedStyle(document.querySelector('#appStatus')).zIndex, 10),
+      welcome: Number.parseInt(getComputedStyle(document.querySelector('#pionierWelcome')).zIndex, 10),
+      retryReceivesPointer: (() => {
+        const button = document.querySelector('#appStatusRetry');
+        const rect = button.getBoundingClientRect();
+        const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        return !!hit && button.contains(hit);
+      })()
+    }));
+    expect(recoveryStack.status).toBeGreaterThan(recoveryStack.welcome);
+    expect(recoveryStack.retryReceivesPointer).toBe(true);
+    const stateBeforeRetry = await page.evaluate(() => ({
+      bootState: window.PionierBootState ?? null,
+      corePresent: !!window.PionierCore,
+      handpanImportCount: performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/js/instruments/handpan.js')).length,
+      trace: window.__recoveryTrace || [],
+    }));
+    recoveryTrace.push(...stateBeforeRetry.trace.map((event) => [runId, ...event]));
+    expect(stateBeforeRetry.bootState).toBe('failed');
+    expect(stateBeforeRetry.corePresent).toBe(false);
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
+      page.locator('#appStatusRetry').click(),
+    ]);
+    await expect.poll(() => coreRequests).toBeGreaterThanOrEqual(2);
+    // A cold reload must re-fetch and evaluate the whole core module graph.
+    // On slower hardware this can exceed Playwright's default 5s poll budget.
+    await expect.poll(() => page.evaluate(() => !!window.PionierCore), { timeout: 20000 }).toBe(true);
+    await expect.poll(() => page.evaluate(() => window.PionierBootState), { timeout: 20000 }).toBe('ready');
+    recoveryTrace.push(...(await page.evaluate(() => window.__recoveryTrace || [])).map((event) => [runId, ...event]));
+    await expect(page.locator('#appStatus')).toBeHidden();
+    expect(recoveryCoreRequests).toHaveLength(2);
+    expect(recoveryCoreRequests.map((request) => coreResponses.find((response) => response.request === request)?.status)).toEqual([503, 200]);
+    expect(browserErrors.some(({ message }) => message.includes('[boot] core'))).toBe(true);
+    const importBase = await page.evaluate(() => new URL('./pionier-core-base.js', location.href).href);
+    const handpanV13Url = new URL('./js/instruments/handpan.js?v=13', importBase).href;
+    // The response listener may see a late initial-load response after beforeEach
+    // has navigated, even though its request event predates these listeners. Keep
+    // that response in diagnostics, but assert against the correlated retry request.
+    const requestFor = (url) => handpanRequests.filter((entry) => entry.request && entry.url === url);
+    expect(requestFor(handpanV13Url)).toHaveLength(1);
+    const [handpanRequest] = requestFor(handpanV13Url);
+    expect(handpanRequest.responseStatus).toBe(200);
+    expect(handpanRequest.failure).toBeNull();
+    expect(handpanRequest.finished).toBe(true);
+  } catch (error) {
+    const details = await diagnostics();
+    const finalState = await page.evaluate(() => ({ bootState: window.PionierBootState ?? null, coreExists: !!window.PionierCore })).catch((evaluationError) => ({ evaluationError: evaluationError.message }));
+    details.timeoutOrFailure = { runId, message: error.message, bootStageSequence: bootStageMessages, retryCount: Math.max(0, coreRequests - 1), pionierBootState: finalState.bootState ?? null, pionierCoreExists: finalState.coreExists ?? false };
+    const diagnosticText = `Core boot recovery diagnostics [runId=${runId}]: ${JSON.stringify(details, null, 2)}`;
+    await testInfo.attach(`recovery-diagnostics-${runId}`, { body: diagnosticText, contentType: 'text/plain' });
+    throw new Error(`${error.message}\n${diagnosticText}`, { cause: error });
+  }
 });
 
 test('audio context unavailability is visible while the app shell remains present', async ({ page }) => {
@@ -44,8 +277,10 @@ test('audio context unavailability is visible while the app shell remains presen
     Object.defineProperty(window, 'webkitAudioContext', { configurable: true, value: undefined });
   });
   await page.reload();
+  const enter = page.locator('#enterPionier');
+  if (await enter.isVisible().catch(() => false)) await enter.click();
   await expect(page.locator('#appStatus')).toBeVisible();
-  await expect(page.locator('#appStatusMessage')).toContainText('audio output');
+  await expect(page.locator('#appStatusMessage')).toContainText(/audio output is unavailable/i);
   await expect.poll(() => page.evaluate(() => window.PionierCore?.health?.().audioAvailable)).toBe(false);
   await expect(page.locator('#pan')).toBeVisible();
 });
@@ -55,31 +290,14 @@ test('blocked storage is reported as degraded without breaking Handpan', async (
     Object.defineProperty(window, 'localStorage', { configurable: true, get() { throw new Error('storage blocked by test'); } });
   });
   await page.reload();
+  const enter = page.locator('#enterPionier');
+  if (await enter.isVisible().catch(() => false)) await enter.click();
   await expect(page.locator('#appStatus')).toBeVisible();
-  await expect(page.locator('#appStatusMessage')).toContainText('saved settings');
+  await expect(page.locator('#appStatusMessage')).toContainText(/saved settings are unavailable/i);
   await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('handpan');
   await expect.poll(() => page.evaluate(() => window.PionierCore?.health?.().storageAvailable)).toBe(false);
 });
 
-test('optional soundscapes module failure leaves core playable and reports degraded state', async ({ page }) => {
-  let failOnce = true;
-  let intercepted = false;
-  // Match the module path independent of its cache-busting query string.
-  await page.route('**/js/soundscapes.js*', async (route) => {
-    if (failOnce) {
-      failOnce = false;
-      intercepted = true;
-      await route.fulfill({ status: 503, contentType: 'text/javascript', body: '/* simulated optional module outage */' });
-    } else {
-      await route.continue();
-    }
-  });
-  await page.reload();
-  await expect.poll(() => intercepted).toBe(true);
-  await expect(page.locator('#appStatus')).toBeVisible();
-  await expect(page.locator('#appStatusMessage')).toContainText('Soundscapes');
-  await expect.poll(() => page.evaluate(() => !!window.PionierCore?.activeInstrument?.())).toBe(true);
-});
 test('viewport keeps browser zoom available while the instrument canvas owns gestures', async ({ page }) => {
   const viewport = await page.locator('meta[name="viewport"]').getAttribute('content');
   expect(viewport).toContain('width=device-width');
@@ -172,48 +390,8 @@ test('multitouch on one pad does not damp the note until the last pointer releas
   expect(result.off).toBe(1);
 });
 
-test('E Amara uses the owner sample bank and never substitutes synth when samples are missing', async ({ page }) => {
-  const setup = await page.evaluate(async () => {
-    const instrument = window.PionierCore?.handpan;
-    const { HANDPAN_SCALES } = await import('/handpan-app/js/instruments/handpan.js');
-    const eamaraIndex = HANDPAN_SCALES.findIndex((scale) => scale.id === 'eamara');
-    if (!instrument || eamaraIndex < 0) return { ok: false, reason: 'E Amara scale or handpan missing' };
-    instrument.setScaleIndex(eamaraIndex);
-    window.PionierCore.refreshPitch();
-    if (!instrument.sampleBank) return { ok: false, reason: 'owner sample bank did not initialize' };
-    await instrument.sampleBank.load();
-    return { ok: true };
-  });
-  expect(setup.ok, setup.reason).toBe(true);
-  await expect.poll(() => page.evaluate(() => !!window.PionierCore?.handpan?.sampleBank?.ready), { timeout: 15000 }).toBe(true);
-
-  const result = await page.evaluate(() => {
-    const instrument = window.PionierCore.handpan;
-    const firstZone = instrument.getZones?.()?.[0];
-    instrument.noteOn({ velocity: 0.8, pointerId: 9281 }, {
-      index: firstZone?.index ?? 0, radial: 0.35, angleRad: 0, nx: 0.5, ny: 0.5
-    });
-    const voice = instrument.activeVoices.values().next().value;
-    const data = {
-      sampleCount: instrument.sampleBank.byMidi.size,
-      sampleReady: instrument.sampleBank.ready,
-      voiceKind: voice?.kind,
-      voiceCount: instrument.activeVoices.size,
-      activeScale: instrument.sampleBank.activeScaleId
-    };
-    instrument.dampAll();
-    return data;
-  });
-  expect(result.activeScale).toBe('eamara');
-  expect(result.sampleReady).toBe(true);
-  expect(result.sampleCount).toBeGreaterThanOrEqual(9);
-  expect(result.voiceKind).toBe('sample');
-  expect(result.voiceCount).toBeGreaterThan(0);
-});
-
-
-test('stale saved instrument selection safely falls back to Handpan', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('pionier.activeInstrument', 'legacy-removed-instrument'));
+test('removed E Amara preference safely falls back to Handpan', async ({ page }) => {
+  await page.evaluate(() => localStorage.setItem('pionier.activeInstrument', 'eamara'));
   await page.reload();
   await expect(page.locator('#pan')).toBeVisible();
   await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('handpan');
@@ -221,12 +399,13 @@ test('stale saved instrument selection safely falls back to Handpan', async ({ p
 });
 
 test('boots the local core without runtime source-fetch errors', async ({ page }, testInfo) => {
+  await expect(page.locator('#app')).toBeVisible();
   await expect(page.locator('#instrumentMenu')).toBeAttached();
   await expect(page.locator('#mobileControlDrawer')).toBeAttached();
   if (testInfo.project.name.startsWith('mobile')) {
-    await expect(page.locator('#mobileControlPanel')).toBeVisible();
+    await expect(page.locator('#mobileControlDrawer')).not.toHaveClass(/\bis-open\b/);
   } else {
-    await expect(page.locator('#leftSidebar')).toBeVisible();
+    await expect(page.locator('#scaleLabel')).toBeVisible();
   }
   await expect(page.locator('#knobMaster')).toBeAttached();
   const boot = await page.evaluate(() => ({
@@ -249,7 +428,7 @@ for (const [instrumentName, instrumentId] of [
     const menu = page.locator('#instrumentMenu');
     await trigger.click();
     await expect(menu).toBeVisible();
-    await menu.getByRole('menuitem', { name: instrumentName, exact: true }).click();
+    await menu.getByRole('menuitem', { name: new RegExp(`^${instrumentName}(?: Add to favorites)?$`, 'i') }).click();
     await expect(trigger).toContainText(instrumentName);
     await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe(instrumentId);
     await expect.poll(() => page.evaluate(() => !!window.PionierCore?.activeInstrument?.()?.ready)).toBe(true);
@@ -308,11 +487,11 @@ test('Handpan can be reselected after switching to another instrument', async ({
   const trigger = page.locator('#instrumentDropdownToggle');
   const menu = page.locator('#instrumentMenu');
   await trigger.click();
-  await menu.getByRole('menuitem', { name: 'Kalimba', exact: true }).click();
+  await menu.getByRole('menuitem', { name: /^Kalimba(?: Add to favorites)?$/i }).click();
   await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('kalimba');
   await trigger.click();
   await expect(menu).toBeVisible();
-  await menu.getByRole('menuitem', { name: 'Handpan', exact: true }).click();
+  await menu.getByRole('menuitem', { name: /^Handpan(?: Add to favorites)?$/i }).click();
   await expect(trigger).toContainText('Handpan');
   await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('handpan');
   await expect.poll(() => page.evaluate(() => !!window.PionierCore?.activeInstrument?.()?.ready)).toBe(true);
@@ -341,6 +520,7 @@ test('lowercase s shortcuts open the correct advanced editor for all four effect
     await expect(page.locator('#fxEditorTitle')).toHaveText(title);
     await expect(page.locator('#fxEditorCurve')).toBeVisible();
     await page.locator('#fxEditorClose').click();
+    await expect(page.locator('#fxEditor')).toBeHidden();
   }
 });
 
@@ -427,39 +607,6 @@ test('mobile scale controls remain visible without a hidden drawer toggle', asyn
   await expect(page.locator('#noteCountNext')).toBeHidden();
   await expect(page.locator('#mobileControlsToggle')).toBeHidden();
 });
-
-test('Soundscapes opens from the dock and returns to the instrument', async ({ page }) => {
-  await page.locator('#openSoundscapes').click();
-  const panel = page.locator('#soundscapesPanel');
-  await expect(panel).toBeVisible();
-  await expect(page.locator('#soundscapeAudio')).toBeAttached();
-  await expect(page.locator('#soundscapeQueue .soundscape-queue-item')).toHaveCount(8);
-  await page.locator('#closeSoundscapes').click();
-  await expect(panel).toBeHidden();
-  await expect(page.locator('#pan')).toBeVisible();
-});
-
-test('Soundscapes track controls update the selected Bedroom Sessions track', async ({ page }) => {
-  await page.locator('#openSoundscapes').click();
-  await expect(page.locator('#soundscapesPanel')).toBeVisible();
-  await expect(page.locator('#soundscapeTitle')).toContainText('Improvisation 1');
-  await page.locator('#soundscapeNext').click();
-  await expect(page.locator('#soundscapeTitle')).toContainText('Improvisation 2');
-  await page.locator('#soundscapePrev').click();
-  await expect(page.locator('#soundscapeTitle')).toContainText('Improvisation 1');
-  await page.locator('#closeSoundscapes').click();
-});
-
-test('Soundscapes exposes the eight owner recordings without generated ambience beds', async ({ page }) => {
-  await page.locator('#openSoundscapes').click();
-  await expect(page.locator('#soundscapesPanel')).toBeVisible();
-  await expect(page.locator('#soundscapeQueue .soundscape-queue-item')).toHaveCount(8);
-  const legacyAmbientPlayer = await page.evaluate(() => !!window.PionierBackdropPlayer);
-  expect(legacyAmbientPlayer).toBe(false);
-  await expect(page.locator('#ambientFxCanvas')).toHaveAttribute('aria-hidden', 'true');
-  await page.locator('#closeSoundscapes').click();
-});
-
 
 test('note count starts at eight; randomizer chooses 8–13 and scale/instrument changes preserve it', async ({ page }) => {
   const result = await page.evaluate(async () => {
@@ -573,6 +720,7 @@ test('Loop Studio exports a valid WAV mix after a track exists', async ({ page }
 
 
 test('Loop Studio records and overdubs a second independent track', async ({ page }) => {
+  test.setTimeout(120000);
   await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
   const record = page.locator('#looperBtn');
   const strike = () => page.evaluate(async () => {
@@ -609,8 +757,46 @@ test('Loop Studio records and overdubs a second independent track', async ({ pag
   expect(layers.every(layer => layer.peak > 0.01)).toBe(true);
 });
 
+test('Loop Studio records three consecutive takes without clearing', async ({ page }) => {
+  test.setTimeout(300000);
+  await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
+  const record = page.locator('#looperBtn');
+  const strike = () => page.evaluate(async () => {
+    const core = window.PionierCore;
+    const instrument = core.handpan;
+    const field = core.surface.fields[0];
+    instrument.noteOn({ velocity: 0.9, pressure: 0.9 }, { ...field, index: field.index ?? 0 });
+    await new Promise(resolve => setTimeout(resolve, 90));
+    instrument.dampAll();
+  });
+
+  for (let take = 1; take <= 3; take++) {
+    await record.click();
+    await page.waitForFunction(() => window.PionierLooper.getState().recording);
+    await strike();
+    // Let the first take define a master longer than one cycle, then keep later
+    // takes short so the loop-boundary stop does not dominate the test runtime.
+    await page.waitForTimeout(take === 1 ? 260 : 90);
+    await record.click();
+    await expect.poll(
+      () => page.evaluate(() => window.PionierLooper.getState().layerCount),
+      { timeout: 45000 }
+    ).toBe(take);
+  }
+
+  const layers = await page.evaluate(() => window.PionierLooper.layers.map(layer => {
+    const data = layer.buffer.getChannelData(0);
+    let peak = 0;
+    for (let i = 0; i < data.length; i++) peak = Math.max(peak, Math.abs(data[i]));
+    return { duration: layer.buffer.duration, peak };
+  }));
+  expect(layers).toHaveLength(3);
+  expect(layers.every(layer => Number.isFinite(layer.duration) && layer.duration > 0)).toBe(true);
+  expect(layers.every(layer => layer.peak > 0.01)).toBe(true);
+});
+
 test('Loop Studio records seven synchronized layers, blocks an eighth, and preserves master controls', async ({ page }) => {
-  test.setTimeout(60000);
+  test.setTimeout(150000);
   await expect.poll(() => page.evaluate(() => !!window.PionierLooper)).toBe(true);
   const record = page.locator('#looperBtn');
   const strike = (holdMs = 70) => page.evaluate(async (duration) => {
@@ -633,7 +819,10 @@ test('Loop Studio records seven synchronized layers, blocks an eighth, and prese
     if (target === 1) await page.waitForTimeout(240);
     else await page.waitForTimeout(35);
     await record.click();
-    await expect.poll(() => page.evaluate(() => window.PionierLooper.getState().layerCount), { timeout: 5000 }).toBe(target);
+    // In loop-sync mode a stop request is deferred to the next master-cycle
+    // boundary, so finalization can take up to one full cycle (~4.1s at 90 BPM)
+    // plus the 500ms worklet flush.
+    await expect.poll(() => page.evaluate(() => window.PionierLooper.getState().layerCount), { timeout: 12000 }).toBe(target);
   }
 
   const beforeEditing = await page.evaluate(() => {
@@ -783,10 +972,12 @@ test('Loop Studio keeps a second layer when the recorder flushes one valid chunk
   await page.waitForFunction(() => window.PionierLooper.getState().recording, null, { polling: 'raf' });
   await strike(240);
   await pressRecord();
+  // Stop is deferred to the next master-cycle boundary (up to ~4.1s at 90 BPM)
+  // and then waits for the worklet flush, so 2s was too tight.
   await expect.poll(() => page.evaluate(() => {
     const state = window.PionierLooper.getState();
     return !state.recording && !state.pendingLoopStop;
-  }), { timeout: 2000 }).toBe(true);
+  }), { timeout: 12000 }).toBe(true);
 
   const result = await page.evaluate(() => {
     const layer = window.PionierLooper.layers[1];

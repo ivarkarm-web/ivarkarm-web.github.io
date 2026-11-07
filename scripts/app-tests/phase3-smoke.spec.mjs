@@ -28,21 +28,3 @@ test('phase3: Enter, pan ready, scale menu Escape restores focus', async ({ page
   // Focus should return to the scale control after Escape.
   await expect.poll(async () => page.evaluate(() => document.activeElement?.id === 'scaleLabel')).toBe(true);
 });
-
-test('phase3: instrument remains after soundscapes network failure message path', async ({ page }) => {
-  await page.goto('/handpan-app/');
-  await enterIfNeeded(page);
-  await expect.poll(() => page.evaluate(() => !!window.PionierCore)).toBe(true);
-
-  // Block archive.org so player shows a clear network status when opened + play attempted.
-  await page.route('**archive.org/**', (route) => route.abort());
-  await page.locator('#openSoundscapes').click();
-  await expect(page.locator('#soundscapesPanel')).toBeVisible();
-  await page.locator('#soundscapePlay').click();
-  await expect.poll(async () => {
-    const t = await page.locator('#soundscapeStatus').textContent();
-    return /network|connection|Could not load|Needs network/i.test(t || '');
-  }, { timeout: 8000 }).toBe(true);
-  await page.keyboard.press('Escape');
-  await expect(page.locator('#pan')).toBeVisible();
-});

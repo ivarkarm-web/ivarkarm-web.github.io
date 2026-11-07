@@ -53,8 +53,9 @@ test('phase12: rejected AudioWorklet recorder does not falsely enter recording s
 
 test('phase12: clearing during recorder setup cancels the pending start', async ({ page }) => {
   // This case holds AudioWorklet initialization open while the UI boots and the
-  // clear action is exercised; allow for startup contention with parallel workers.
-  test.setTimeout(30000);
+  // clear action is exercised. Boot alone can take ~20s on slower local hardware,
+  // so keep a full budget for boot plus the interaction.
+  test.setTimeout(60000);
 
   await page.addInitScript(() => {
     const proto = window.AudioWorklet?.prototype;

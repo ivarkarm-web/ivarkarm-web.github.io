@@ -13,7 +13,7 @@ function readCoreSource() {
 
 test('Pionier entry surface matches the deployed instrument UI', () => {
   const html = read('handpan-app/index.html');
-  // Current local shell: instrument surface + soundscapes panel (not the retired full knob shell).
+  // Current local shell: instrument surface + local composition library.
   for (const id of [
     'app',
     'pan',
@@ -22,9 +22,9 @@ test('Pionier entry surface matches the deployed instrument UI', () => {
     'mobileControlDrawer',
     'mobileControlsToggle',
     'mobileControlPanel',
-    'openSoundscapes',
-    'soundscapesPanel',
-    'soundscapeAudio',
+    'openLibrary',
+    'libraryPanel',
+    'libraryList',
     'scaleLabel',
     'scaleMenu',
     'looperRail',
@@ -63,8 +63,11 @@ test('boot chain is local and does not fetch or rewrite executable source at run
   assert.ok(fs.existsSync(path.join(app, 'js/audio-core.js')));
   assert.ok(fs.existsSync(path.join(app, 'js/pionier-surface.js')));
   assert.ok(fs.existsSync(path.join(app, 'js/instruments/handpan.js')));
-  assert.ok(fs.existsSync(path.join(app, 'js/soundscapes.js')));
-  assert.match(read('handpan-app/pionier-app.js'), /js\/soundscapes\.js/);
+  assert.ok(fs.existsSync(path.join(app, 'js/library.js')));
+  assert.ok(fs.existsSync(path.join(app, 'js/library-store.js')));
+  assert.match(read('handpan-app/pionier-app.js'), /js\/library\.js/);
+  assert.doesNotMatch(read('handpan-app/index.html'), /soundscapesPanel|soundscapeAudio|openSoundscapes/);
+  assert.match(read('handpan-app/js/looper.js'), /window\.PionierLibrary\?\.save\?\.\(createLibrarySnapshot\(\)\)/);
 });
 
 test('the app exposes instrument switching, audio controls and mobile drawer hooks', () => {

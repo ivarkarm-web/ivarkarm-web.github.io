@@ -4,6 +4,10 @@
  */
 import { test, expect } from '@playwright/test';
 
+// Cold boot of the full module graph can exceed the global 60s budget on older
+// hardware; these assertions are interaction checks, not timing checks.
+test.describe.configure({ timeout: 90000 });
+
 async function enterIfNeeded(page) {
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) {
@@ -14,6 +18,8 @@ async function enterIfNeeded(page) {
 
 test('phase8: Enter → dock, scale, instrument, root, looper visible', async ({ page }) => {
   await page.goto('/handpan-app/');
+  await expect.poll(() => page.evaluate(() => window.PionierBootState === 'ready'), { timeout: 15000 }).toBe(true);
+  await expect(page.locator('#pionierBottomDock')).toBeAttached();
   await enterIfNeeded(page);
   await expect.poll(() => page.evaluate(() => !!window.PionierCore), { timeout: 15000 }).toBe(true);
   await expect(page.locator('#pan')).toBeVisible();
@@ -37,6 +43,13 @@ test('phase8: Enter → dock, scale, instrument, root, looper visible', async ({
   const box = await looperBtn.boundingBox();
   expect(box, 'looper record target').toBeTruthy();
   expect(Math.min(box.width, box.height)).toBeGreaterThanOrEqual(40);
+});
+
+test('phase8: no automatic instrument, scale, or looper coach marks appear', async ({ page }) => {
+  await page.goto('/handpan-app/');
+  await enterIfNeeded(page);
+  await page.waitForTimeout(1400);
+  await expect(page.locator('.pionier-coach')).toHaveCount(0);
 });
 
 test('phase8: critical scripts listed in index resolve on disk path', async ({ page }) => {
@@ -75,7 +88,7 @@ test('phase8: selectors and right-side looper actions remain mounted after defer
   await expect(dock).toBeVisible();
   await expect(toolbar).toBeVisible();
 
-  for (const id of ['openSoundscapes', 'fxPanelOpen', 'settingsOpenBtn']) {
+  for (const id of ['tonepadToggle', 'fxPanelOpen', 'settingsOpenBtn']) {
     const control = page.locator('#' + id);
     await expect(control, '#' + id + ' should remain visible after deferred boot').toBeVisible();
     await expect.poll(() => control.evaluate((el) => el.parentElement?.id)).toBe('pionierLooperActions');
@@ -87,5 +100,18 @@ test('phase8: selectors and right-side looper actions remain mounted after defer
     expect(box.x + box.width).toBeLessThanOrEqual(viewport.width + 1);
     expect(box.y + box.height).toBeLessThanOrEqual(viewport.height + 1);
   }
+
+  const library = page.locator('#openLibrary');
+  await expect(library).toBeVisible();
+  await expect.poll(() => library.evaluate((el) => el.parentElement?.tagName)).toBe('BODY');
+  const libraryBox = await library.boundingBox();
+  expect(libraryBox).toBeTruthy();
+  expect(libraryBox.x).toBeGreaterThanOrEqual(0);
+  expect(libraryBox.y).toBeGreaterThanOrEqual(0);
+  expect(libraryBox.x).toBeLessThan(24);
+  expect(libraryBox.y).toBeLessThan(24);
+  await library.click();
+  await expect(page.locator('#libraryPanel')).toBeVisible();
+  await page.locator('#closeLibrary').click();
 });
 

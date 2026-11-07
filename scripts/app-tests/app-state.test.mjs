@@ -42,6 +42,14 @@ test('app-state persists and reloads', () => {
   assert.equal(loaded.rootIndex, 5);
 });
 
+test('legacy E Amara preference safely loads as Handpan', () => {
+  resetAppState();
+  localStorage.setItem('pionier.appState.v1', JSON.stringify({ instrumentId: 'e-amara', scaleIndex: 3 }));
+  const loaded = loadAppState();
+  assert.equal(loaded.instrumentId, 'handpan');
+  assert.equal(loaded.scaleIndex, 0);
+});
+
 test('app-state subscribers fire on patch', () => {
   resetAppState();
   let calls = 0;
