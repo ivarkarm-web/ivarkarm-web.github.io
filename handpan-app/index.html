@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <link rel="stylesheet" href="./pionier-base.css?v=4" />
-  <link rel="stylesheet" href="./pionier-controls.css?v=3" />
-  <link rel="stylesheet" href="./pionier-layout.css?v=3" />
+  <link rel="stylesheet" href="./pionier-base.css?v=5" />
+  <link rel="stylesheet" href="./pionier-controls.css?v=5" />
+  <link rel="stylesheet" href="./library.css?v=1" />
+  <link rel="stylesheet" href="./pionier-layout.css?v=4" />
   <link rel="stylesheet" href="./pionier-ambient.css?v=8" />
   <link rel="stylesheet" href="./css-parts/sequence-carousel.css?v=9" />
   <title>Pionier Synth — Play, Explore, Create</title>
-  <meta name="description" content="Pionier Synth is a touch-responsive musical instrument for exploring resonant handpan sounds, world instruments, expressive effects, looping and soundscapes. Start with 8 notes and shape your own sound." />
+  <meta name="description" content="Pionier Synth is a touch-responsive musical instrument for exploring resonant handpan sounds, world instruments, expressive effects and looping." />
   <meta name="theme-color" content="#070708" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Pionier Audio" />
   <meta property="og:title" content="Pionier Audio — Handpan" />
-  <meta property="og:description" content="A minimal, touch-responsive virtual handpan. Explore resonant sounds, scales, loops and soundscapes." />
+  <meta property="og:description" content="A minimal, touch-responsive virtual handpan. Explore resonant sounds, scales and loops." />
   <meta property="og:image" content="https://ivarkarm-web.github.io/handpan-app/og-pionier-audio.svg" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -80,7 +81,7 @@
           <button type="button" class="icon-btn" id="voicePrev" aria-label="Previous voice">‹</button>
           <button type="button" class="instrument-name" id="instrumentDropdownToggle" aria-haspopup="true" aria-expanded="false" aria-controls="instrumentMenu">Handpan ▾</button>
           <button type="button" class="icon-btn" id="voiceNext" aria-label="Next voice">›</button>
-          <button type="button" class="icon-btn soundscapes-open-btn" id="openSoundscapes" aria-label="Open Soundscapes" title="Soundscapes">♫</button>
+          <button type="button" class="icon-btn library-open-btn" id="openLibrary" aria-label="Open My Library" title="My Library">▤</button>
           <button type="button" class="icon-btn" id="tonepadToggle" aria-label="Sequencer" title="Sequencer" aria-pressed="false">▦</button>
           <button type="button" class="icon-btn" id="fxPanelOpen" aria-label="Open effects" title="Effects" aria-expanded="false" aria-controls="fxPanel">✦</button>
           <button type="button" class="randomize-setup-btn" id="randomizeSetup" aria-label="Randomize" title="Surprise me">🎲</button>
@@ -130,39 +131,18 @@
       <div id="looperRecordCluster" class="looper-record-cluster">
         <button type="button" id="looperBtn" class="looper-btn looper-record" aria-label="Record loop" title="Record loop"><span class="looper-btn-ring" aria-hidden="true"></span><span class="looper-btn-core" aria-hidden="true"></span></button>
       </div>
-      <div id="looperLayers" class="looper-layers" aria-label="Loop layers"></div>
+      <div id="looperLayers" class="looper-layers" role="group" aria-label="Loop layers"></div>
     </div>
     <main class="stage" id="stage">
       <canvas id="pan" width="680" height="680" role="img" aria-label="Handpan instrument"></canvas>
     </main>
   </div>
-  <section id="soundscapesPanel" class="soundscapes-panel" hidden aria-label="Backing Tracks">
-    <header class="soundscapes-header">
-      <h2>Soundscapes</h2>
-      <button type="button" id="closeSoundscapes" class="soundscapes-return-btn" aria-label="Close Soundscapes">×</button>
-    </header>
-    <div class="soundscapes-body">
-      <section class="soundscape-now" aria-live="polite">
-        <p id="soundscapeTitle" class="soundscape-title"></p>
-        <p id="soundscapeNote" class="soundscape-note"></p>
-        <p id="soundscapeStatus" class="soundscape-status" role="status"></p>
-      </section>
-      <div class="soundscape-transport" aria-label="Playback controls">
-        <button type="button" id="soundscapePrev" class="soundscape-transport-btn" aria-label="Previous track">‹</button>
-        <button type="button" id="soundscapePlay" class="soundscape-play" aria-label="Play">▶</button>
-        <button type="button" id="soundscapeNext" class="soundscape-transport-btn" aria-label="Next track">›</button>
-        <button type="button" id="soundscapeRepeat" class="soundscape-transport-btn" aria-label="Repeat" aria-pressed="false">↻</button>
-      </div>
-      <div class="soundscape-seek-row">
-        <span id="soundscapeTime">0:00</span>
-        <input id="soundscapeSeek" type="range" min="0" max="1000" value="0" aria-label="Track position">
-        <span id="soundscapeTimeTotal">0:00</span>
-      </div>
-      <label class="soundscape-vol-row">Volume
-        <input id="soundscapeVolume" type="range" min="0" max="1" step="0.01" value="0.85" aria-label="Volume">
-      </label>
-      <div id="soundscapeQueue" class="soundscape-queue" role="list" aria-label="Bedroom Sessions"></div>
-    </div>
+  <section id="libraryPanel" class="library-panel" role="dialog" aria-modal="true" aria-labelledby="libraryTitle" aria-hidden="true" hidden>
+    <header class="library-header"><div><p class="library-eyebrow">PIONIER · LOCAL RECORDINGS</p><h2 id="libraryTitle">My Library</h2></div><button type="button" id="closeLibrary" aria-label="Close My Library">×</button></header>
+    <p class="library-intro">Your compositions, kept on this device.</p>
+    <div id="libraryList" class="library-list" aria-live="polite"></div>
+    <p id="libraryStatus" class="library-status" role="status"></p>
+    <footer class="library-footer"><span id="libraryUsage">Checking browser storage…</span><p>Browser recordings can be erased when site data is cleared or browser storage is reclaimed. Export WAV copies to keep permanent backups outside this browser.</p></footer>
   </section>
   <div id="fxPanel" class="fx-panel" hidden>
     <header class="fx-panel-header">
@@ -192,20 +172,18 @@
     <div id="fxEditorKnobs" class="fx-editor-knobs" aria-label="Effect parameters"></div>
     <footer class="fx-editor-footer"><span id="fxEditorStatus" role="status">Changes apply live</span><button type="button" id="fxEditorReset" class="fx-editor-reset">Reset effect</button></footer>
   </section>
-  <audio id="soundscapeAudio" preload="metadata" playsinline></audio>
   <script src="./js/skin-palette.js?v=3"></script>
   <script src="./js/customization-catalog.js?v=7"></script>
   <script src="./js/overlay-controller.js?v=23"></script>
   <script src="./js/layout-boot.js?v=70"></script>
-  <script src="./pionier-control-layout.js?v=23"></script>
+  <script src="./pionier-control-layout.js?v=24"></script>
   <script src="./looper-side-menus.js?v=10"></script>
   <script src="./looper-circle-progress.js?v=2"></script>
-  <script src="./js/settings-panel.js?v=34"></script>
-  <script src="./js/coach-marks.js?v=1"></script>
+  <script src="./js/settings-panel.js?v=35"></script>
   <script src="./js/favorites.js?v=1"></script>
   <script src="./js/ambient-fx.js?v=12"></script>
   <script src="./js/skin-mandala.js?v=6"></script>
-  <script type="module" src="./pionier-app.js?v=294"></script>
+  <script type="module" src="./pionier-app.js?v=296"></script>
   <script src="./welcome-screen.js?v=9"></script>
   <script src="./js/portrait-lock.js?v=2"></script>
   <script src="./registerSW.js?v=2"></script>
