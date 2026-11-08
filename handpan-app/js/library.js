@@ -6,8 +6,8 @@ import {
   deleteComposition,
   createWav,
   formatDuration,
-} from './library-store.js?v=1';
-import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
+} from './library-store.js';
+import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js';
 
 const panel = document.getElementById('libraryPanel');
 const list = document.getElementById('libraryList');

@@ -1,5 +1,5 @@
 /** Searchable scale picker. Overlay ownership remains in overlay-controller.js. */
-import { HANDPAN_SCALES, SCALE_FAMILIES } from './instruments/handpan-scales.js?v=7';
+import { HANDPAN_SCALES, SCALE_FAMILIES } from './instruments/handpan-scales.js';
 
 export function mountScaleSelector({ getHandpan, onScaleChange }) {
   const menu = document.getElementById('scaleMenu');

@@ -3,18 +3,14 @@
  * Local vendored core (no remote fetch / string-patch boot).
  * Looper v2: exposes getInstrumentBus for pre-FX recording
  */
-import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js?v=2';
+import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js';
 import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
-import {
-  HandpanInstrument,
-  HANDPAN_SCALES,
-  randomScaleIndex,
-} from './js/instruments/handpan.js?v=13';
-import { createLibraryInstruments } from './js/instruments/library-family.js?v=3';
+import { HandpanInstrument, HANDPAN_SCALES, randomScaleIndex } from './js/instruments/handpan.js';
+import { createLibraryInstruments } from './js/instruments/library-family.js';
 import { FxChain } from './js/fx.js';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
-import { createSurface } from './js/pionier-surface.js?v=147';
+import { createSurface } from './js/pionier-surface.js';
 
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f'];
 const PITCH_BEND_PIXELS = 90;
@@ -666,7 +662,7 @@ window.addEventListener('blur', () => {
 
 async function loadArpsSafe() {
   try {
-    const mod = await import(new URL('./js/instruments/arp-family.js?v=3', import.meta.url).href);
+    const mod = await import('./js/instruments/arp-family.js');
     const create = mod.createArpInstruments;
     if (typeof create !== 'function') {
       return;

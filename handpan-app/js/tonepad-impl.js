@@ -1,7 +1,7 @@
 /**
  * TonePad v51 — infinity carousel + Clear + per-layer sound modules (9 instruments).
  */
-import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
+import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js';
 
 const COLS = 16;
 const ROWS = 8;

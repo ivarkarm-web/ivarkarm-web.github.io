@@ -3,9 +3,9 @@
  * Phase 1: note count is fixed by each scale's intervals (not user +/-).
  */
 import { Instrument } from '../instrument.js';
-import { getSoundLibrary } from './library-family.js?v=3';
-import { HANDPAN_SCALES, scaleToCents, randomScaleIndex } from './handpan-scales.js?v=7';
-import { MIN_NOTES, MAX_NOTES, ringAngles } from '../pad-layout.js?v=3';
+import { getSoundLibrary } from './library-family.js';
+import { HANDPAN_SCALES, scaleToCents, randomScaleIndex } from './handpan-scales.js';
+import { MIN_NOTES, MAX_NOTES, ringAngles } from '../pad-layout.js';
 
 export { HANDPAN_SCALES, MIN_NOTES, MAX_NOTES, randomScaleIndex };
 

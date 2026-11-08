@@ -49,7 +49,7 @@ test('handpan voices are synthesized locally without a note-sample bank', () => 
 });
 
 test('boot chain is local and does not fetch or rewrite executable source at runtime', () => {
-  const shell = read('handpan-app/pionier-app.js');
+  const shell = read('handpan-app/js/entry.mjs');
   const coreSrc = readCoreSource();
 
   assert.match(shell, /pionier-core\.js/);
@@ -67,15 +67,12 @@ test('boot chain is local and does not fetch or rewrite executable source at run
   assert.ok(fs.existsSync(path.join(app, 'js/instruments/handpan.js')));
   assert.ok(fs.existsSync(path.join(app, 'js/library.js')));
   assert.ok(fs.existsSync(path.join(app, 'js/library-store.js')));
-  assert.match(read('handpan-app/pionier-app.js'), /js\/library\.js/);
+  assert.match(read('handpan-app/pionier-app.js'), /\.\/js\/library\.js/);
   assert.doesNotMatch(
     read('handpan-app/index.html'),
     /soundscapesPanel|soundscapeAudio|openSoundscapes/
   );
-  assert.match(
-    read('handpan-app/js/looper.js'),
-    /window\.PionierLibrary\?\.save\?\.\(createLibrarySnapshot\(\)\)/
-  );
+  assert.match(read('handpan-app/js/looper.js'), /Persistence\.createLibrarySnapshot\(\)/);
 });
 
 test('the app exposes instrument switching, audio controls and mobile drawer hooks', () => {

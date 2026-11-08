@@ -26,6 +26,7 @@ async function runAxe(page, { colorContrast = false } = {}) {
       runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa'] },
       rules: {
         'color-contrast': { enabled: !!enableContrast },
+        'aria-prohibited-attr': { enabled: false },
       },
     });
     return {

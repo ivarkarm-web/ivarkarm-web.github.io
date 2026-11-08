@@ -1,9 +1,9 @@
 /**
  * pionier-core — local core (pionier-core-base.js) + FX knob drag installed after boot.
- * Everything imports ./js/audio-core.js?v=2, so core, looper and FX share ONE AudioContext.
+ * Everything imports ./js/audio-core.js, so core, looper and FX share ONE AudioContext.
  * No remote code: do not re-introduce CDN imports (guarded by tests).
  */
-import * as Base from './pionier-core-base.js?v=2';
+import * as Base from './pionier-core-base.js';
 
 const core = Base && Base.default ? Base.default : Base;
 window.PionierCore = core;

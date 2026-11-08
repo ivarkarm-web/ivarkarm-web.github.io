@@ -3,7 +3,7 @@
  * AudioContext time is the source of truth. When a looper master exists, phase is
  * derived from it; otherwise an internal BPM cycle runs (1 bar = 16 sixteenths).
  */
-import { getAudioContext, resumeAudio } from './audio-core.js?v=2';
+import { getAudioContext, resumeAudio } from './audio-core.js';
 import {
   DEFAULT_BPM,
   BEATS_PER_BAR,

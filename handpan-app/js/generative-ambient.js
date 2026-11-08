@@ -2,7 +2,7 @@
  * generative-ambient.js — Web Audio ambient beds (rain/storm/forest/wind).
  * No external files required. Routes through a dedicated bus into the master.
  */
-import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
+import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js';
 
 let natureBus = null;
 let natureGain = 0.22;

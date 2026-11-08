@@ -1,16 +1,15 @@
 /* Editorial welcome, staged tonefield reveal, and one-time headphone note. */
-(() => {
-  const root = document.documentElement;
-  const welcome = document.getElementById('pionierWelcome');
-  const enter = document.getElementById('enterPionier');
-  const hint = document.getElementById('headphonesHint');
-  if (!welcome || !enter) {
-    return;
-  }
+const root = document.documentElement;
+const welcome = document.getElementById('pionierWelcome');
+const enter = document.getElementById('enterPionier');
+const hint = document.getElementById('headphonesHint');
 
+export let PionierWelcomeState = window.PionierWelcomeState || { hideTonefields: true };
+window.PionierWelcomeState = PionierWelcomeState;
+PionierWelcomeState.hideTonefields = true;
+
+if (welcome && enter) {
   root.classList.add('pionier-welcome-active');
-  window.PionierWelcomeState = window.PionierWelcomeState || { hideTonefields: true };
-  window.PionierWelcomeState.hideTonefields = true;
   let entered = false;
 
   function unlockAudio() {
@@ -111,4 +110,4 @@
       }
     }, 1080);
   });
-})();
+}

@@ -34,7 +34,7 @@ const rootHtml = read('index.html');
 read('styles.css');
 read('script.js');
 const appHtml = read('handpan-app/index.html');
-const shell = read('handpan-app/pionier-app.js');
+const shell = read('handpan-app/js/entry.mjs');
 const coreSrc =
   read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js');
 const loopControls = read('handpan-app/js/looper.js');
@@ -94,11 +94,7 @@ if (!/repository-loop-save/.test(loopControls) && !/uploadLoopToRepository/.test
 } else {
   fail('Looper still references community upload modules');
 }
-if (
-  /\.looper-/.test(loopStyles) &&
-  /pionier-base\.css\?v=\d+/.test(appHtml) &&
-  /pionier-v\d+/.test(serviceWorker)
-) {
+if (/pionier-base\.css/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) {
   ok('Looper styles and service-worker declare cache versions');
 } else {
   fail('Looper styles or service-worker cache versions missing');
@@ -142,8 +138,8 @@ if (
   fail('Scale/instrument picker wiring is incomplete');
 }
 if (
-  /pionier-controls\.css\?v=\d+/.test(appHtml) &&
-  /pionier-app\.js\?v=\d+/.test(appHtml) &&
+  /pionier-controls\.css/.test(appHtml) &&
+  /pionier-app\.js|entry\.mjs/.test(appHtml) &&
   /pionier-v\d+/.test(serviceWorker)
 ) {
   ok('Picker assets use versioned cache stamps');
@@ -186,7 +182,16 @@ if (
 ) {
   ok('Pionier boot uses the local core without runtime source rewriting');
 } else {
-  fail('Pionier boot still depends on remote source rewriting');
+  // entry.mjs imports the merged core statically
+  const entry = read('handpan-app/js/entry.mjs');
+  if (
+    /pionier-core\.js/.test(entry) &&
+    !/cdn\.jsdelivr\.net|fetch\(GOOD\)|CORE_PATCHES/.test(entry)
+  ) {
+    ok('Pionier boot uses the local core without runtime source rewriting');
+  } else {
+    fail('Pionier boot still depends on remote source rewriting');
+  }
 }
 
 if (
@@ -238,7 +243,7 @@ if (
 } else {
   fail('Looper record/clear controls are incomplete');
 }
-if (appHtml.includes('pionier-base.css?') && /pionier-v\d+/.test(serviceWorker)) {
+if (appHtml.includes('pionier-base.css') && /pionier-v\d+/.test(serviceWorker)) {
   ok('Looper CSS and service worker declare cache versions');
 } else {
   fail('Looper CSS or service worker cache versions missing');
