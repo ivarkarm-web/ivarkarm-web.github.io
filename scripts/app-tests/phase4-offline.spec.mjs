@@ -17,7 +17,9 @@ test('phase4: index does not depend on Google Fonts CDN', async ({ page }) => {
 test('phase4: critical offline shell assets are referenced by the app', async ({ page }) => {
   await page.goto('/handpan-app/');
   const enter = page.locator('#enterPionier');
-  if (await enter.isVisible().catch(() => false)) await enter.click();
+  if (await enter.isVisible().catch(() => false)) {
+    await enter.click();
+  }
   await expect.poll(() => page.evaluate(() => !!window.PionierCore)).toBe(true);
   await expect(page.locator('#pan')).toBeVisible();
   const health = await page.evaluate(() => window.PionierCore?.health?.() || null);

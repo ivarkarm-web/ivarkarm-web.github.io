@@ -12,7 +12,9 @@ globalThis.self = globalThis;
 
 let installHandler = null;
 let skipWaitingCalled = false;
-self.skipWaiting = () => { skipWaitingCalled = true; };
+self.skipWaiting = () => {
+  skipWaitingCalled = true;
+};
 
 self.caches = {
   open: async () => ({
@@ -21,7 +23,9 @@ self.caches = {
 };
 
 self.addEventListener = (type, handler) => {
-  if (type === 'install') installHandler = handler;
+  if (type === 'install') {
+    installHandler = handler;
+  }
 };
 
 // Import sw.js — top-level code registers the install handler with our mocks

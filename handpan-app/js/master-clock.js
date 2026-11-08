@@ -8,7 +8,7 @@ import {
   DEFAULT_BPM,
   BEATS_PER_BAR,
   clampBpm,
-  beatDuration as beatDurFromBpm
+  beatDuration as beatDurFromBpm,
 } from './loop-core.js';
 
 const STORAGE_KEY = 'pionier.masterClock.v1';
@@ -17,18 +17,23 @@ const PPQ = 4; // steps per beat → 16th notes
 function loadSaved() {
   try {
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-    if (raw && typeof raw === 'object') return raw;
+    if (raw && typeof raw === 'object') {
+      return raw;
+    }
   } catch (_) {}
   return null;
 }
 
 function save(state) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      bpm: state.bpm,
-      bars: state.bars,
-      preferLooper: state.preferLooper
-    }));
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        bpm: state.bpm,
+        bars: state.bars,
+        preferLooper: state.preferLooper,
+      })
+    );
   } catch (_) {}
 }
 
@@ -65,10 +70,14 @@ export function createMasterClock(opts = {}) {
   }
 
   function looperState() {
-    if (!preferLooper || typeof opts.getLooperTransport !== 'function') return null;
+    if (!preferLooper || typeof opts.getLooperTransport !== 'function') {
+      return null;
+    }
     try {
       const t = opts.getLooperTransport();
-      if (t && t.hasMaster && Number(t.duration) > 0) return t;
+      if (t && t.hasMaster && Number(t.duration) > 0) {
+        return t;
+      }
     } catch (_) {}
     return null;
   }
@@ -82,7 +91,7 @@ export function createMasterClock(opts = {}) {
 
     if (loop && !loop.paused) {
       const duration = Number(loop.duration);
-      const phase = ((Number(loop.phase) || 0) % duration + duration) % duration;
+      const phase = (((Number(loop.phase) || 0) % duration) + duration) % duration;
       return {
         hasMaster: true,
         duration,
@@ -93,7 +102,7 @@ export function createMasterClock(opts = {}) {
         currentTime: now,
         source: 'looper',
         stepDuration: stepDurationSec(),
-        playing: true
+        playing: true,
       };
     }
 
@@ -109,7 +118,7 @@ export function createMasterClock(opts = {}) {
         currentTime: now,
         source: 'internal',
         stepDuration: stepDurationSec(),
-        playing: false
+        playing: false,
       };
     }
 
@@ -126,23 +135,29 @@ export function createMasterClock(opts = {}) {
       currentTime: now,
       source: 'internal',
       stepDuration: stepDurationSec(),
-      playing: true
+      playing: true,
     };
   }
 
   function emit() {
     const state = getTransportState();
     listeners.forEach((fn) => {
-      try { fn(state); } catch (_) {}
+      try {
+        fn(state);
+      } catch (_) {}
     });
     return state;
   }
 
   function start({ reset = false } = {}) {
     const ctx = getAudioContext();
-    if (!ctx) return false;
+    if (!ctx) {
+      return false;
+    }
     resumeAudio();
-    if (reset) phaseAtPause = 0;
+    if (reset) {
+      phaseAtPause = 0;
+    }
     origin = ctx.currentTime;
     playing = true;
     emit();
@@ -150,9 +165,13 @@ export function createMasterClock(opts = {}) {
   }
 
   function pause() {
-    if (!playing) return;
+    if (!playing) {
+      return;
+    }
     const state = getTransportState();
-    if (state.source === 'internal') phaseAtPause = state.phase;
+    if (state.source === 'internal') {
+      phaseAtPause = state.phase;
+    }
     playing = false;
     emit();
   }
@@ -210,7 +229,7 @@ export function createMasterClock(opts = {}) {
       ...getTransportState(),
       preferLooper,
       bars,
-      ppq: PPQ
+      ppq: PPQ,
     };
   }
 
@@ -227,7 +246,7 @@ export function createMasterClock(opts = {}) {
     subscribe,
     beatDurationSec,
     stepDurationSec,
-    cycleDurationSec
+    cycleDurationSec,
   };
 }
 
@@ -242,7 +261,7 @@ export function getMasterClock() {
         } catch (_) {
           return null;
         }
-      }
+      },
     });
     try {
       window.PionierClock = singleton;

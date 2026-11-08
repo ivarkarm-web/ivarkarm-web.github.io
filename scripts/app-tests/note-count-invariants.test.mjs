@@ -12,7 +12,7 @@ test('handpan starts with eight notes and preserves randomized count across tuni
   assert.equal(handpan.noteCount, 11);
   assert.equal(handpan.getNotes().length, 11);
 
-  handpan.setScaleIndex((handpan.scaleIndex + 1));
+  handpan.setScaleIndex(handpan.scaleIndex + 1);
   assert.equal(handpan.noteCount, 11);
   assert.equal(handpan.getNotes().length, 11);
 
@@ -29,7 +29,6 @@ test('randomizer note count setter clamps to the 8–13 range', () => {
   assert.equal(handpan.noteCount, 13);
 });
 
-
 test('every available handpan scale produces procedural note frequencies', () => {
   const handpan = new HandpanInstrument();
   assert.equal(handpan.engineKind, 'procedural');
@@ -37,8 +36,19 @@ test('every available handpan scale produces procedural note frequencies', () =>
     handpan.setScaleIndex(index);
     const notes = handpan.getNotes();
     assert.equal(notes.length, handpan.noteCount, HANDPAN_SCALES[index].id);
-    assert.ok(notes.every((note) => Number.isFinite(note.freq) && note.freq > 0), HANDPAN_SCALES[index].id);
+    assert.ok(
+      notes.every((note) => Number.isFinite(note.freq) && note.freq > 0),
+      HANDPAN_SCALES[index].id
+    );
   }
-  assert.ok(HANDPAN_SCALES.some((scale) => scale.id === 'eamara'), 'E Amara is available in the scale library');
-  assert.ok(HANDPAN_SCALES.every((scale) => Number.isFinite(scale.rootMidi) && Number.isFinite(scale.rootPc)), 'every scale has a valid root');
+  assert.ok(
+    HANDPAN_SCALES.some((scale) => scale.id === 'eamara'),
+    'E Amara is available in the scale library'
+  );
+  assert.ok(
+    HANDPAN_SCALES.every(
+      (scale) => Number.isFinite(scale.rootMidi) && Number.isFinite(scale.rootPc)
+    ),
+    'every scale has a valid root'
+  );
 });

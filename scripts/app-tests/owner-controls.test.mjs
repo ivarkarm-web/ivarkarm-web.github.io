@@ -15,13 +15,18 @@ const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
 function readLayoutCss() {
   const partsDir = path.join(root, 'handpan-app/css-parts');
   const partFiles = fs.existsSync(partsDir)
-    ? fs.readdirSync(partsDir).filter((n) => n.startsWith('layout-') && n.endsWith('.css')).sort()
+    ? fs
+        .readdirSync(partsDir)
+        .filter((n) => n.startsWith('layout-') && n.endsWith('.css'))
+        .sort()
     : [];
   if (partFiles.length) {
     return partFiles.map((n) => fs.readFileSync(path.join(partsDir, n), 'utf8')).join('\n');
   }
   const shell = path.join(root, 'handpan-app/pionier-layout.css');
-  if (!fs.existsSync(shell)) return '';
+  if (!fs.existsSync(shell)) {
+    return '';
+  }
   let text = fs.readFileSync(shell, 'utf8');
   text = text.replace(/@import\s+url\(['"]?(\.\/[^'")]+)['"]?\)\s*;?/g, (_, ref) => {
     const target = path.resolve(path.dirname(shell), ref);
@@ -34,12 +39,24 @@ test('legacy root/note-count steppers are retired: markup exists, guards hide th
   const html = read('handpan-app/index.html');
   const guard = read('handpan-app/phase1-note-count-guard.js');
   const menus = read('handpan-app/looper-side-menus.js');
-  const core = (read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js'));
-  for (const id of ['rootPrev', 'rootNext', 'noteCountPrev', 'noteCountNext', 'rootLabel', 'noteCountLabel']) {
+  const core =
+    read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js');
+  for (const id of [
+    'rootPrev',
+    'rootNext',
+    'noteCountPrev',
+    'noteCountNext',
+    'rootLabel',
+    'noteCountLabel',
+  ]) {
     assert.match(html, new RegExp(`id="${id}"`), `missing #${id} in HTML`);
   }
   for (const m of ['addNote', 'removeNote', 'setNoteCount']) {
-    assert.match(guard, new RegExp(`c\\.${m} = function \\(\\) \\{ return false; \\}`), `guard must neutralise core.${m}`);
+    assert.match(
+      guard,
+      new RegExp(`c\\.${m} = function \\(\\) \\{ return false; \\}`),
+      `guard must neutralise core.${m}`
+    );
   }
   for (const id of ['noteCountPrev', 'noteCountNext', 'noteCountLabel']) {
     assert.match(guard, new RegExp(`'${id}'`), `guard must hide #${id}`);
@@ -54,7 +71,8 @@ test('legacy root/note-count steppers are retired: markup exists, guards hide th
 });
 
 test('manual note-count mutators are disabled while the handpan supports 8–13 randomizer notes', () => {
-  const core = (read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js'));
+  const core =
+    read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js');
   const handpan = read('handpan-app/js/instruments/handpan.js');
   assert.match(core, /addNote\(\)\s*\{\s*return false/);
   assert.match(core, /removeNote\(\)\s*\{\s*return false/);
@@ -89,9 +107,19 @@ test('consolidated layout CSS owns the relative looper toolbar and fixed-size co
   const css = readLayoutCss();
   assert.ok(css.length > 1000, 'layout CSS (including parts) should be substantial');
   const toolbarRules = [...css.matchAll(/#pionierLooperToolbar\s*\{([^}]*)\}/g)].map((m) => m[1]);
-  assert.ok(toolbarRules.some((rule) => /position:\s*relative/.test(rule)), 'toolbar must have a relative-position rule');
-  assert.match(css, /#pionierLooperControls\s*,\s*#pionierLooperActions\s*\{[^}]*display:\s*flex/s, 'looper controls must use flex layout');
-  const propTop = css.split('/*').map((part) => part.split('*/').slice(-1)[0]).join('');
+  assert.ok(
+    toolbarRules.some((rule) => /position:\s*relative/.test(rule)),
+    'toolbar must have a relative-position rule'
+  );
+  assert.match(
+    css,
+    /#pionierLooperControls\s*,\s*#pionierLooperActions\s*\{[^}]*display:\s*flex/s,
+    'looper controls must use flex layout'
+  );
+  const propTop = css
+    .split('/*')
+    .map((part) => part.split('*/').slice(-1)[0])
+    .join('');
   assert.doesNotMatch(propTop, /top:\s*25%/);
 });
 
@@ -105,7 +133,8 @@ test('no exclusivity-fix or chrome-fix patch files remain', () => {
 
 test('scale picker and labels are wired through the scale selector and core label updates', () => {
   const html = read('handpan-app/index.html');
-  const core = (read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js'));
+  const core =
+    read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js');
   const selector = read('handpan-app/js/scale-selector.js');
   for (const id of ['scaleLabel', 'rootLabel', 'noteCountLabel']) {
     assert.match(html, new RegExp(`id="${id}"`), `missing #${id}`);
@@ -129,15 +158,25 @@ test('Learn system is retired; dice randomizer replaces the entry point; skin pa
   for (const rel of [
     'handpan-app/js/learn-mode.js',
     'handpan-app/learn-mode.css',
-    'handpan-app/learn-lessons.json'
-  ]) assert.equal(fs.existsSync(path.join(root, rel)), false, rel + ' should be removed');
+    'handpan-app/learn-lessons.json',
+  ]) {
+    assert.equal(fs.existsSync(path.join(root, rel)), false, rel + ' should be removed');
+  }
   const html = read('handpan-app/index.html');
   const shell = read('handpan-app/pionier-app.js');
   assert.match(html, /id="randomizeSetup"/);
   assert.doesNotMatch(html, /id="learnPanel"|id="openLearn"/);
   assert.doesNotMatch(shell, /learn-mode\.js/);
-  assert.equal(fs.existsSync(path.join(root, 'handpan-app/js/skin-palette.js')), true, 'skin-palette.js should remain');
-  assert.equal(fs.existsSync(path.join(root, 'handpan-app/js/ambient-fx.js')), true, 'ambient-fx.js should remain');
+  assert.equal(
+    fs.existsSync(path.join(root, 'handpan-app/js/skin-palette.js')),
+    true,
+    'skin-palette.js should remain'
+  );
+  assert.equal(
+    fs.existsSync(path.join(root, 'handpan-app/js/ambient-fx.js')),
+    true,
+    'ambient-fx.js should remain'
+  );
 });
 
 test('portrait lock does not request deleted CSS patches and all linked stylesheets exist', () => {
@@ -146,5 +185,11 @@ test('portrait lock does not request deleted CSS patches and all linked styleshe
   const html = read('handpan-app/index.html');
   const refs = [...html.matchAll(/href=["']\.\/([^"'?]+\.css)(?:\?[^"']*)?["']/g)].map((m) => m[1]);
   assert.ok(refs.length >= 4, 'expected the four primary Pionier stylesheets');
-  for (const ref of refs) assert.equal(fs.existsSync(path.join(root, 'handpan-app', ref)), true, 'missing linked stylesheet: ' + ref);
+  for (const ref of refs) {
+    assert.equal(
+      fs.existsSync(path.join(root, 'handpan-app', ref)),
+      true,
+      'missing linked stylesheet: ' + ref
+    );
+  }
 });

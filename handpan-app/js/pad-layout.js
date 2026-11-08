@@ -15,7 +15,9 @@ export function ringSlotOrder(ringCount) {
   const order = [0];
   for (let k = 1; order.length < ringCount; k++) {
     order.push(k);
-    if (order.length < ringCount) order.push(ringCount - k);
+    if (order.length < ringCount) {
+      order.push(ringCount - k);
+    }
   }
   return order;
 }

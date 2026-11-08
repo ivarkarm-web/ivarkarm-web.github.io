@@ -18,9 +18,8 @@ import { fileURLToPath } from 'url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outArg = process.argv.indexOf('--out');
-const OUT = outArg >= 0
-  ? join(ROOT, process.argv[outArg + 1])
-  : join(ROOT, 'handpan-app/sounds/notes');
+const OUT =
+  outArg >= 0 ? join(ROOT, process.argv[outArg + 1]) : join(ROOT, 'handpan-app/sounds/notes');
 
 const BASE = 'https://www.haganenote.com/vst/';
 const FILES = [
@@ -54,7 +53,7 @@ const FILES = [
   ['Eb5.mp3', 'Eb5.mp3', 75, 'E♭5'],
   ['E5.mp3', 'E5.mp3', 76, 'E5'],
   ['F5.mp3', 'F5.mp3', 77, 'F5'],
-  ['Fdiesis5.mp3', 'Fs5.mp3', 78, 'F♯5']
+  ['Fdiesis5.mp3', 'Fs5.mp3', 78, 'F♯5'],
 ];
 
 mkdirSync(OUT, { recursive: true });
@@ -81,7 +80,7 @@ for (const [remote, local, midi, pitch] of FILES) {
     midi,
     pitch,
     type: 'one-shot',
-    source: 'haganenote/virtual-handpan → ' + url
+    source: 'haganenote/virtual-handpan → ' + url,
   });
 }
 
@@ -91,7 +90,7 @@ writeFileSync(
   JSON.stringify(
     {
       description: 'Dry one-shot handpan note hits (not loops), mapped by MIDI.',
-      samples
+      samples,
     },
     null,
     2

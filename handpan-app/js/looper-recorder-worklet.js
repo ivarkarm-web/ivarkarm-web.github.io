@@ -14,7 +14,9 @@ class PionierLooperRecorder extends AudioWorkletProcessor {
     };
   }
   flushPartial() {
-    if (!this.offset) return;
+    if (!this.offset) {
+      return;
+    }
     const left = this.left.slice(0, this.offset);
     const right = this.right.slice(0, this.offset);
     this.port.postMessage({ left, right }, [left.buffer, right.buffer]);
@@ -25,8 +27,14 @@ class PionierLooperRecorder extends AudioWorkletProcessor {
   process(inputs, outputs) {
     const input = inputs[0];
     const output = outputs[0];
-    if (output) for (const channel of output) channel.fill(0);
-    if (!input || !input.length || !input[0]) return true;
+    if (output) {
+      for (const channel of output) {
+        channel.fill(0);
+      }
+    }
+    if (!input || !input.length || !input[0]) {
+      return true;
+    }
     const left = input[0];
     const right = input.length > 1 ? input[1] : left;
     let sourceOffset = 0;
@@ -37,7 +45,8 @@ class PionierLooperRecorder extends AudioWorkletProcessor {
       this.offset += count;
       sourceOffset += count;
       if (this.offset === this.chunkSize) {
-        const l = this.left, r = this.right;
+        const l = this.left,
+          r = this.right;
         this.port.postMessage({ left: l, right: r }, [l.buffer, r.buffer]);
         this.left = new Float32Array(this.chunkSize);
         this.right = new Float32Array(this.chunkSize);

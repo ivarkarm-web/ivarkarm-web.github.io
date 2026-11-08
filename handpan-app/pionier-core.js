@@ -5,7 +5,7 @@
  */
 import * as Base from './pionier-core-base.js?v=2';
 
-const core = (Base && Base.default) ? Base.default : Base;
+const core = Base && Base.default ? Base.default : Base;
 window.PionierCore = core;
 
 const KNOB_MAP = [
@@ -16,14 +16,18 @@ const KNOB_MAP = [
   { knobId: 'knobBass', valId: 'valBass', tone: 'bass', def: 0.5, size: 72 },
   { knobId: 'knobLow', valId: 'valLow', tone: 'low', def: 0.5, size: 72 },
   { knobId: 'knobMid', valId: 'valMid', tone: 'mid', def: 0.5, size: 72 },
-  { knobId: 'knobMaster', valId: 'valMaster', tone: 'master', def: 0.82, size: 72 }
+  { knobId: 'knobMaster', valId: 'valMaster', tone: 'master', def: 0.82, size: 72 },
 ];
 
 const values = Object.create(null);
-KNOB_MAP.forEach((m) => { values[m.tone || m.fxId] = m.def; });
+KNOB_MAP.forEach((m) => {
+  values[m.tone || m.fxId] = m.def;
+});
 
 function paintKnob(canvasEl, value01, size = 88) {
-  if (!canvasEl) return;
+  if (!canvasEl) {
+    return;
+  }
   const ctx = canvasEl.getContext('2d');
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   if (canvasEl.width !== size * dpr) {
@@ -34,7 +38,9 @@ function paintKnob(canvasEl, value01, size = 88) {
   }
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, size, size);
-  const cx = size / 2, cy = size / 2, r = size * 0.36;
+  const cx = size / 2,
+    cy = size / 2,
+    r = size * 0.36;
   const start = -Math.PI * 0.75;
   const end = Math.PI * 0.75;
   const angle = start + (end - start) * Math.max(0, Math.min(1, value01));
@@ -60,7 +66,9 @@ function apply(m, v01) {
   const key = m.tone || m.fxId;
   values[key] = v;
   try {
-    if (m.tone === 'master') window.HandpanAudio?.setMasterGain?.(v);
+    if (m.tone === 'master') {
+      window.HandpanAudio?.setMasterGain?.(v);
+    }
     core.ensureAudio?.();
     if (typeof core.setFxTone === 'function' && m.tone) {
       core.setFxTone(m.tone, v);
@@ -68,7 +76,13 @@ function apply(m, v01) {
       const mod = core.getFxModule(m.fxId);
       const ctx = core.getAudioContext?.();
       if (mod?.setValue) {
-        try { mod.setValue(v, ctx); } catch (_) { try { mod.setValue(v); } catch (__) {} }
+        try {
+          mod.setValue(v, ctx);
+        } catch (_) {
+          try {
+            mod.setValue(v);
+          } catch (__) {}
+        }
       }
     } else if (m.tone && typeof core.setFxTone === 'function') {
       core.setFxTone(m.tone, v);
@@ -80,40 +94,61 @@ function apply(m, v01) {
 function paintAll() {
   for (const m of KNOB_MAP) {
     const el = document.getElementById(m.knobId);
-    if (!el) continue;
+    if (!el) {
+      continue;
+    }
     const canvas = el.querySelector('.knob-canvas');
     const v = values[m.tone || m.fxId];
     paintKnob(canvas, v, m.size);
     const valEl = document.getElementById(m.valId);
-    if (valEl) valEl.textContent = Math.round(v * 100) + '%';
+    if (valEl) {
+      valEl.textContent = Math.round(v * 100) + '%';
+    }
   }
 }
 
 function wireAll() {
   for (const m of KNOB_MAP) {
     const el = document.getElementById(m.knobId);
-    if (!el || el.dataset.coreKnobWired === '1') continue;
+    if (!el || el.dataset.coreKnobWired === '1') {
+      continue;
+    }
     el.dataset.coreKnobWired = '1';
     el.style.touchAction = 'none';
     el.style.cursor = 'ns-resize';
     const canvas = el.querySelector('.knob-canvas') || el;
     canvas.style.touchAction = 'none';
-    let dragging = false, startY = 0, startVal = 0;
+    let dragging = false,
+      startY = 0,
+      startVal = 0;
     el.addEventListener('pointerdown', (e) => {
-      e.preventDefault(); e.stopPropagation();
-      try { core.ensureAudio?.(); } catch (_) {}
-      dragging = true; startY = e.clientY; startVal = values[m.tone || m.fxId];
-      try { el.setPointerCapture?.(e.pointerId); } catch (_) {}
+      e.preventDefault();
+      e.stopPropagation();
+      try {
+        core.ensureAudio?.();
+      } catch (_) {}
+      dragging = true;
+      startY = e.clientY;
+      startVal = values[m.tone || m.fxId];
+      try {
+        el.setPointerCapture?.(e.pointerId);
+      } catch (_) {}
     });
     el.addEventListener('pointermove', (e) => {
-      if (!dragging) return;
+      if (!dragging) {
+        return;
+      }
       e.preventDefault();
       const next = apply(m, startVal + (startY - e.clientY) / 120);
       paintKnob(canvas, next, m.size);
       const valEl = document.getElementById(m.valId);
-      if (valEl) valEl.textContent = Math.round(next * 100) + '%';
+      if (valEl) {
+        valEl.textContent = Math.round(next * 100) + '%';
+      }
     });
-    const up = () => { dragging = false; };
+    const up = () => {
+      dragging = false;
+    };
     el.addEventListener('pointerup', up);
     el.addEventListener('pointercancel', up);
     el.addEventListener('lostpointercapture', up);
@@ -124,24 +159,36 @@ function wireAll() {
 if (core && typeof core.setFxTone !== 'function') {
   core.setFxTone = function (key, v) {
     const m = KNOB_MAP.find((k) => k.tone === key || k.fxId === key);
-    if (m) apply(m, v);
+    if (m) {
+      apply(m, v);
+    }
   };
 }
 
 const origPaint = core.paintFxKnobs;
 core.paintFxKnobs = function () {
-  try { if (typeof origPaint === 'function') origPaint.apply(this, arguments); } catch (_) {}
-  try { core.ensureAudio?.(); } catch (_) {}
+  try {
+    if (typeof origPaint === 'function') {
+      origPaint.apply(this, arguments);
+    }
+  } catch (_) {}
+  try {
+    core.ensureAudio?.();
+  } catch (_) {}
   wireAll();
 };
 
 wireAll();
-document.addEventListener('click', (e) => {
-  if (e.target?.closest?.('#fxPanelOpen, button.fx-panel-open, #fxPanel, .fx-panel')) {
-    setTimeout(wireAll, 40);
-    setTimeout(wireAll, 200);
-  }
-}, true);
+document.addEventListener(
+  'click',
+  (e) => {
+    if (e.target?.closest?.('#fxPanelOpen, button.fx-panel-open, #fxPanel, .fx-panel')) {
+      setTimeout(wireAll, 40);
+      setTimeout(wireAll, 200);
+    }
+  },
+  true
+);
 setInterval(wireAll, 2500);
 
 export default core;

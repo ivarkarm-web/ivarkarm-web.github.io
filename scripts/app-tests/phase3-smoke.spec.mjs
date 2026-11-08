@@ -8,7 +8,9 @@ async function enterIfNeeded(page) {
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) {
     await enter.click();
-    await expect(enter).toBeHidden({ timeout: 5000 }).catch(() => {});
+    await expect(enter)
+      .toBeHidden({ timeout: 5000 })
+      .catch(() => {});
   }
 }
 
@@ -26,5 +28,7 @@ test('phase3: Enter, pan ready, scale menu Escape restores focus', async ({ page
   await page.keyboard.press('Escape');
   await expect(menu).toBeHidden();
   // Focus should return to the scale control after Escape.
-  await expect.poll(async () => page.evaluate(() => document.activeElement?.id === 'scaleLabel')).toBe(true);
+  await expect
+    .poll(async () => page.evaluate(() => document.activeElement?.id === 'scaleLabel'))
+    .toBe(true);
 });

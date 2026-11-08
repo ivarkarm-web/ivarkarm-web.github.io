@@ -2,12 +2,22 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 class FakeParam {
-  constructor(value = 0) { this.value = value; }
+  constructor(value = 0) {
+    this.value = value;
+  }
 }
 class FakeNode {
-  constructor() { this.connections = []; this.gain = new FakeParam(1); }
-  connect(target) { this.connections.push(target); return target; }
-  disconnect() { this.connections = []; }
+  constructor() {
+    this.connections = [];
+    this.gain = new FakeParam(1);
+  }
+  connect(target) {
+    this.connections.push(target);
+    return target;
+  }
+  disconnect() {
+    this.connections = [];
+  }
 }
 class FakeCompressor extends FakeNode {
   constructor() {
@@ -27,13 +37,34 @@ class FakeContext {
     this.created = [];
     this.eventListeners = {};
   }
-  get state() { return this._state; }
-  set state(value) { this._state = value; }
-  createGain() { const n = new FakeNode(); this.created.push(n); return n; }
-  createDynamicsCompressor() { const n = new FakeCompressor(); this.created.push(n); return n; }
-  resume() { this.state = 'running'; return Promise.resolve(); }
-  suspend() { this.state = 'suspended'; return Promise.resolve(); }
-  close() { this.state = 'closed'; return Promise.resolve(); }
+  get state() {
+    return this._state;
+  }
+  set state(value) {
+    this._state = value;
+  }
+  createGain() {
+    const n = new FakeNode();
+    this.created.push(n);
+    return n;
+  }
+  createDynamicsCompressor() {
+    const n = new FakeCompressor();
+    this.created.push(n);
+    return n;
+  }
+  resume() {
+    this.state = 'running';
+    return Promise.resolve();
+  }
+  suspend() {
+    this.state = 'suspended';
+    return Promise.resolve();
+  }
+  close() {
+    this.state = 'closed';
+    return Promise.resolve();
+  }
   addEventListener(event, handler) {
     this.eventListeners[event] = this.eventListeners[event] || [];
     this.eventListeners[event].push(handler);
@@ -44,7 +75,14 @@ globalThis.AudioContext = FakeContext;
 globalThis.window = globalThis;
 
 const {
-  getAudioContext, getAudioMaster, createBus, resumeAudio, suspendAudio, closeAudio, audioState, audioHealth
+  getAudioContext,
+  getAudioMaster,
+  createBus,
+  resumeAudio,
+  suspendAudio,
+  closeAudio,
+  audioState,
+  audioHealth,
 } = await import('../../handpan-app/js/audio-core.js');
 
 test('shared audio core creates one reusable AudioContext', async () => {

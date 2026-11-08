@@ -31,7 +31,9 @@ try {
   if (shellMatch) {
     const re = /['"]([^'"]+)['"]/g;
     let m;
-    while ((m = re.exec(shellMatch[1]))) shellEntries.push(m[1]);
+    while ((m = re.exec(shellMatch[1]))) {
+      shellEntries.push(m[1]);
+    }
   }
 } catch (e) {
   // sw.js may not exist yet; treat as empty shell
@@ -44,8 +46,11 @@ const jsFiles = [];
 function collectJs(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) collectJs(full);
-    else if (entry.name.endsWith('.js')) jsFiles.push(full);
+    if (entry.isDirectory()) {
+      collectJs(full);
+    } else if (entry.name.endsWith('.js')) {
+      jsFiles.push(full);
+    }
   }
 }
 collectJs(appDir);
@@ -71,7 +76,9 @@ function checkResolved(resolvedPath, sourceFile, line) {
   const filePath = normalized.split('?')[0];
   const fullPath = path.join(appDir, filePath.slice(2)); // remove './'
 
-  if (checked.has(normalized)) return;
+  if (checked.has(normalized)) {
+    return;
+  }
   checked.add(normalized);
 
   // 1. Does the file exist?
@@ -125,7 +132,11 @@ for (const jsFile of jsFiles) {
 
 // ---------- 3. Report ----------
 if (problems.length === 0) {
-  console.log('OK · all dynamic assets exist and are in SW SHELL · checked', checked.size, 'assets');
+  console.log(
+    'OK · all dynamic assets exist and are in SW SHELL · checked',
+    checked.size,
+    'assets'
+  );
   process.exit(0);
 }
 

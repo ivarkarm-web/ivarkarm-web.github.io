@@ -7,8 +7,16 @@
   function isPhoneLandscape() {
     try {
       if (window.matchMedia) {
-        if (window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches) return true;
-        if (window.matchMedia('(orientation: landscape) and (max-height: 600px) and (max-width: 920px)').matches) return true;
+        if (window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches) {
+          return true;
+        }
+        if (
+          window.matchMedia(
+            '(orientation: landscape) and (max-height: 600px) and (max-width: 920px)'
+          ).matches
+        ) {
+          return true;
+        }
       }
     } catch (_) {}
     return window.innerWidth > window.innerHeight && window.innerHeight <= 500;
@@ -19,7 +27,9 @@
   function apply() {
     const on = isPhoneLandscape();
     if (on === last) {
-      if (on) kickResize();
+      if (on) {
+        kickResize();
+      }
       return;
     }
     last = on;
@@ -37,13 +47,18 @@
       } catch (_) {}
       setTimeout(() => {
         try {
-          if (typeof window.__pionierRelayoutPortrait === 'function') window.__pionierRelayoutPortrait();
-          else if (typeof window.__pionierCenterPan === 'function') window.__pionierCenterPan();
+          if (typeof window.__pionierRelayoutPortrait === 'function') {
+            window.__pionierRelayoutPortrait();
+          } else if (typeof window.__pionierCenterPan === 'function') {
+            window.__pionierCenterPan();
+          }
         } catch (_) {}
       }, 120);
       setTimeout(() => {
         try {
-          if (typeof window.__pionierCenterPan === 'function') window.__pionierCenterPan();
+          if (typeof window.__pionierCenterPan === 'function') {
+            window.__pionierCenterPan();
+          }
         } catch (_) {}
       }, 400);
     }
@@ -53,7 +68,9 @@
 
   function kickResize() {
     document.documentElement.style.setProperty('--viewport-h', window.innerHeight + 'px');
-    try { window.dispatchEvent(new Event('resize')); } catch (_) {}
+    try {
+      window.dispatchEvent(new Event('resize'));
+    } catch (_) {}
   }
 
   function schedule() {

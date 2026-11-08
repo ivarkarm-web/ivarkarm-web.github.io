@@ -14,7 +14,10 @@ export function clampBpm(value) {
 }
 
 export function clampBars(value) {
-  return Math.max(MIN_BARS, Math.min(MAX_BARS, Number.isFinite(+value) ? Math.round(+value) : DEFAULT_BARS));
+  return Math.max(
+    MIN_BARS,
+    Math.min(MAX_BARS, Number.isFinite(+value) ? Math.round(+value) : DEFAULT_BARS)
+  );
 }
 
 export function beatDuration(bpm) {
@@ -39,7 +42,7 @@ export function quantizeEvent(event, duration, bpm = DEFAULT_BPM) {
   return {
     t: Math.min(quantizeTime(event.t, bpm), Math.max(0, safeDuration - 0.001)),
     n: Number(event.n),
-    v: Math.max(0, Math.min(1, Number.isFinite(+event.v) ? +event.v : 0.8))
+    v: Math.max(0, Math.min(1, Number.isFinite(+event.v) ? +event.v : 0.8)),
   };
 }
 
@@ -50,17 +53,21 @@ export function normalizeLayer(events, duration, bpm = DEFAULT_BPM) {
 }
 
 export function phaseAt(elapsed, duration) {
-  if (!(duration > 0)) return 0;
+  if (!(duration > 0)) {
+    return 0;
+  }
   return ((elapsed % duration) + duration) % duration;
 }
 
 export function eventsBetween(events, last, current, duration) {
-  if (!events.length || !(duration > 0) || last === current) return [];
+  if (!events.length || !(duration > 0) || last === current) {
+    return [];
+  }
   const wrapped = current < last;
   return events
-    .filter((event) => wrapped
-      ? event.t >= last || event.t < current
-      : event.t >= last && event.t < current)
+    .filter((event) =>
+      wrapped ? event.t >= last || event.t < current : event.t >= last && event.t < current
+    )
     .sort((a, b) => {
       const aOffset = a.t >= last ? a.t - last : duration - last + a.t;
       const bOffset = b.t >= last ? b.t - last : duration - last + b.t;

@@ -41,7 +41,9 @@
 
   function setOffline(offline) {
     const pill = el('pionierNetPill');
-    if (!pill) return;
+    if (!pill) {
+      return;
+    }
     pill.hidden = !offline;
     pill.dataset.state = offline ? 'offline' : 'online';
   }
@@ -49,7 +51,9 @@
   function showUpdateToast(reg) {
     const toast = el('pionierUpdateToast');
     const btn = el('pionierUpdateReload');
-    if (!toast || !btn) return;
+    if (!toast || !btn) {
+      return;
+    }
     toast.hidden = false;
     btn.disabled = false;
     btn.textContent = 'Reload';
@@ -74,11 +78,15 @@
   }
 
   function wireServiceWorker() {
-    if (!('serviceWorker' in navigator)) return;
+    if (!('serviceWorker' in navigator)) {
+      return;
+    }
 
     let refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (refreshing) return;
+      if (refreshing) {
+        return;
+      }
       if (document.documentElement.dataset.pionierSwReload === '1') {
         refreshing = true;
         window.location.reload();
@@ -97,7 +105,9 @@
 
           reg.addEventListener('updatefound', () => {
             const w = reg.installing;
-            if (!w) return;
+            if (!w) {
+              return;
+            }
             w.addEventListener('statechange', () => {
               if (w.state === 'installed' && navigator.serviceWorker.controller) {
                 showUpdateToast(reg);

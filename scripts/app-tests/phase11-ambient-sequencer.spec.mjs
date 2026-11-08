@@ -4,11 +4,15 @@ async function enterIfNeeded(page) {
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) {
     await enter.click();
-    await expect(enter).toBeHidden({ timeout: 8000 }).catch(() => {});
+    await expect(enter)
+      .toBeHidden({ timeout: 8000 })
+      .catch(() => {});
   }
 }
 
-test('phase11: original TonePad canvas sequencer is present and grid sequencer is absent', async ({ page }) => {
+test('phase11: original TonePad canvas sequencer is present and grid sequencer is absent', async ({
+  page,
+}) => {
   await page.goto('/handpan-app/');
   await enterIfNeeded(page);
   await expect.poll(() => page.evaluate(() => !!window.PionierCore), { timeout: 15000 }).toBe(true);

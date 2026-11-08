@@ -32,21 +32,38 @@ for (const [name, max] of Object.entries(budgets)) {
   const n = size(p);
   const ok = n <= max;
   console.log((ok ? 'OK' : 'FAIL') + '  ' + name + '  ' + n + ' / ' + max + ' bytes');
-  if (!ok) failed = true;
+  if (!ok) {
+    failed = true;
+  }
 }
 
 const index = fs.readFileSync(path.join(app, 'index.html'), 'utf8');
-const cssRefs = [...index.matchAll(/href=["'](\.\/[^"']+\.css[^"']*)["']/g)].map((m) => m[1].split('?')[0]);
+const cssRefs = [...index.matchAll(/href=["'](\.\/[^"']+\.css[^"']*)["']/g)].map(
+  (m) => m[1].split('?')[0]
+);
 let cssSum = 0;
 for (const rel of cssRefs) {
   const p = path.join(app, rel.replace(/^\.\//, ''));
-  if (fs.existsSync(p)) cssSum += size(p);
+  if (fs.existsSync(p)) {
+    cssSum += size(p);
+  }
 }
 // Match the documented decimal-kilobyte target: strictly under 250,000 bytes.
 const cssBudget = 250_000;
 const cssOk = cssSum < cssBudget;
-console.log((cssOk ? 'OK' : 'FAIL') + '  critical CSS sum  ' + cssSum + ' / ' + cssBudget + ' bytes (' + cssRefs.length + ' files)');
-if (!cssOk) failed = true;
+console.log(
+  (cssOk ? 'OK' : 'FAIL') +
+    '  critical CSS sum  ' +
+    cssSum +
+    ' / ' +
+    cssBudget +
+    ' bytes (' +
+    cssRefs.length +
+    ' files)'
+);
+if (!cssOk) {
+  failed = true;
+}
 
 console.log('File budgets are the CI performance gate (optional local Lighthouse CLI).');
 

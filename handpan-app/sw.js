@@ -55,57 +55,67 @@ const SHELL = [
   './looper-circle-progress.js?v=2',
   './looper-side-menus.js?v=10',
   './og-pionier-synth.svg',
-  './pionier-ambient.css?v=8',
   './pionier-app.js?v=296',
   './pionier-base.css?v=9',
   './pionier-control-layout.js?v=24',
   './pionier-controls.css?v=6',
   './pionier-core-base.js?v=2',
   './pionier-core.js?v=82',
-  './pionier-layout.css?v=4',
   './registerSW.js',
   './registerSW.js?v=2',
   './welcome-screen.js?v=9',
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil((async () => {
-    const cache = await caches.open(CACHE_VERSION);
-    const failed = [];
-    await Promise.all(SHELL.map(async (url) => {
-      try {
-        const res = await fetch(url, { cache: 'no-cache' });
-        if (res && res.ok) {
-          await cache.put(url, res);
-        } else {
-          failed.push(url);
-        }
-      } catch (_) {
-        failed.push(url);
+  event.waitUntil(
+    (async () => {
+      const cache = await caches.open(CACHE_VERSION);
+      const failed = [];
+      await Promise.all(
+        SHELL.map(async (url) => {
+          try {
+            const res = await fetch(url, { cache: 'no-cache' });
+            if (res && res.ok) {
+              await cache.put(url, res);
+            } else {
+              failed.push(url);
+            }
+          } catch (_) {
+            failed.push(url);
+          }
+        })
+      );
+      if (failed.length > 0) {
+        throw new Error('SW install failed: ' + failed.join(', '));
       }
-    }));
-    if (failed.length > 0) {
-      throw new Error('SW install failed: ' + failed.join(', '));
-    }
-    await self.skipWaiting();
-  })());
+      await self.skipWaiting();
+    })()
+  );
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil((async () => {
-    const keys = await caches.keys();
-    await Promise.all(keys.filter((k) => k !== CACHE_VERSION).map((k) => caches.delete(k)));
-    await self.clients.claim();
-  })());
+  event.waitUntil(
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(keys.filter((k) => k !== CACHE_VERSION).map((k) => caches.delete(k)));
+      await self.clients.claim();
+    })()
+  );
 });
 
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 function isDocumentRequest(req, url) {
-  if (req.mode === 'navigate') return true;
-  if (req.destination === 'document') return true;
+  if (req.mode === 'navigate') {
+    return true;
+  }
+  if (req.destination === 'document') {
+    return true;
+  }
   const path = url.pathname;
   return path.endsWith('.html') || path.endsWith('/') || path.endsWith('/handpan-app');
 }
@@ -116,9 +126,13 @@ function isVersionedAsset(url) {
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
-  if (req.method !== 'GET') return;
+  if (req.method !== 'GET') {
+    return;
+  }
   const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return;
+  if (url.origin !== self.location.origin) {
+    return;
+  }
 
   if (isDocumentRequest(req, url)) {
     event.respondWith(
@@ -126,7 +140,10 @@ self.addEventListener('fetch', (event) => {
         .then((res) => {
           if (res && res.ok) {
             const copy = res.clone();
-            caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});
+            caches
+              .open(CACHE_VERSION)
+              .then((c) => c.put(req, copy))
+              .catch(() => {});
           }
           return res;
         })
@@ -141,7 +158,10 @@ self.addEventListener('fetch', (event) => {
         .then((res) => {
           if (res && res.ok) {
             const copy = res.clone();
-            caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});
+            caches
+              .open(CACHE_VERSION)
+              .then((c) => c.put(req, copy))
+              .catch(() => {});
           }
           return res;
         })
@@ -152,11 +172,16 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(
     caches.match(req).then((cached) => {
-      if (cached) return cached;
+      if (cached) {
+        return cached;
+      }
       return fetch(req).then((res) => {
         if (res && res.status === 200 && res.type !== 'opaque') {
           const copy = res.clone();
-          caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});
+          caches
+            .open(CACHE_VERSION)
+            .then((c) => c.put(req, copy))
+            .catch(() => {});
         }
         return res;
       });

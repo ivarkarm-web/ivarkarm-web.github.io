@@ -6,7 +6,11 @@
   const STORAGE_KEY = 'pionier.settings.v2';
 
   function systemPrefersLight() {
-    try { return window.matchMedia('(prefers-color-scheme: light)').matches; } catch (_) { return false; }
+    try {
+      return window.matchMedia('(prefers-color-scheme: light)').matches;
+    } catch (_) {
+      return false;
+    }
   }
 
   const DEFAULTS = {
@@ -36,16 +40,23 @@
 
   function applyNatureSound(state) {
     const api = natureApi();
-    if (!api) return;
+    if (!api) {
+      return;
+    }
     const mode = state.natureSound || 'off';
-    if (mode === 'off') api.stop();
-    else api.start(mode, state.natureVolume);
+    if (mode === 'off') {
+      api.stop();
+    } else {
+      api.start(mode, state.natureVolume);
+    }
   }
 
   // Audio cannot start before a user gesture. If the owner left a bed
   // selected, resume it on the first interaction once the app is ready.
   function armNatureResume(state) {
-    if (!state.natureSound || state.natureSound === 'off') return;
+    if (!state.natureSound || state.natureSound === 'off') {
+      return;
+    }
     const resume = () => {
       if (window.PionierBootState && window.PionierBootState !== 'ready') {
         setTimeout(resume, 250);
@@ -57,7 +68,9 @@
   }
 
   function resolveLightMode(state) {
-    if (state && (state.lightMode === true || state.lightMode === false)) return !!state.lightMode;
+    if (state && (state.lightMode === true || state.lightMode === false)) {
+      return !!state.lightMode;
+    }
     return systemPrefersLight();
   }
 
@@ -69,16 +82,18 @@
   function load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('pionier.settings.v1');
-      if (!raw) return { ...DEFAULTS, led: { ...DEFAULTS.led }, lightMode: null };
+      if (!raw) {
+        return { ...DEFAULTS, led: { ...DEFAULTS.led }, lightMode: null };
+      }
       const parsed = JSON.parse(raw);
       const { skin: _s, mandala: _m, auraStyle: _a, tonefield: _t, ...rest } = parsed;
-      const lightMode = (rest.lightMode === true || rest.lightMode === false) ? rest.lightMode : null;
+      const lightMode = rest.lightMode === true || rest.lightMode === false ? rest.lightMode : null;
       return {
         ...DEFAULTS,
         ...rest,
         lightMode,
         led: { ...DEFAULTS.led, ...(parsed.led || {}) },
-        transparency: parsed.transparency != null ? Number(parsed.transparency) : 1,
+        transparency: parsed.transparency !== null ? Number(parsed.transparency) : 1,
         highContrast: rest.highContrast === true,
       };
     } catch {
@@ -87,7 +102,9 @@
   }
 
   function save(state) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (_) {}
   }
 
   function apply(state) {
@@ -99,11 +116,19 @@
     document.body.classList.toggle('high-contrast', state.highContrast === true);
     document.documentElement.dataset.ambient = state.ambient || 'none';
     const led = state.led || DEFAULTS.led;
-    document.documentElement.style.setProperty('--led-color', 'rgb(' + led.r + ',' + led.g + ',' + led.b + ')');
+    document.documentElement.style.setProperty(
+      '--led-color',
+      'rgb(' + led.r + ',' + led.g + ',' + led.b + ')'
+    );
     document.documentElement.style.setProperty('--led-strength', String(led.strength));
     document.documentElement.style.setProperty('--handpan-alpha', String(state.transparency));
     window.PionierSettings = {
-      get: () => ({ ...state, lightMode: resolveLightMode(state), led: { ...led }, highContrast: state.highContrast === true }),
+      get: () => ({
+        ...state,
+        lightMode: resolveLightMode(state),
+        led: { ...led },
+        highContrast: state.highContrast === true,
+      }),
       ambient: state.ambient,
       transparency: state.transparency,
       mandala: false,
@@ -116,8 +141,12 @@
       led: { ...led },
     };
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', light ? '#e8e6e1' : '#070708');
-    window.dispatchEvent(new CustomEvent('pionier:settings', { detail: { ...state, led: { ...led } } }));
+    if (meta) {
+      meta.setAttribute('content', light ? '#e8e6e1' : '#070708');
+    }
+    window.dispatchEvent(
+      new CustomEvent('pionier:settings', { detail: { ...state, led: { ...led } } })
+    );
   }
 
   function isLightTheme() {
@@ -133,31 +162,53 @@
   let openToggleEl = null;
 
   function closeMenus() {
-    if (openMenuEl) { openMenuEl.hidden = true; openMenuEl.classList.remove('is-open'); openMenuEl = null; }
-    if (openToggleEl) { openToggleEl.setAttribute('aria-expanded', 'false'); openToggleEl = null; }
+    if (openMenuEl) {
+      openMenuEl.hidden = true;
+      openMenuEl.classList.remove('is-open');
+      openMenuEl = null;
+    }
+    if (openToggleEl) {
+      openToggleEl.setAttribute('aria-expanded', 'false');
+      openToggleEl = null;
+    }
   }
 
   function positionMenu(menu, toggle) {
     const rect = toggle.getBoundingClientRect();
     const width = Math.max(rect.width, Math.min(320, window.innerWidth - 24));
     let left = rect.left;
-    if (left + width > window.innerWidth - 12) left = window.innerWidth - 12 - width;
-    if (left < 12) left = 12;
+    if (left + width > window.innerWidth - 12) {
+      left = window.innerWidth - 12 - width;
+    }
+    if (left < 12) {
+      left = 12;
+    }
     const spaceBelow = Math.max(80, window.innerHeight - rect.bottom - 16);
     const spaceAbove = Math.max(80, rect.top - 16);
     const preferBelow = spaceBelow >= 140 || spaceBelow >= spaceAbove;
     const maxH = Math.min(window.innerHeight * 0.55, 360, preferBelow ? spaceBelow : spaceAbove);
-    let top = preferBelow ? (rect.bottom + 6) : (rect.top - 6 - maxH);
-    if (top < 8) top = 8;
+    let top = preferBelow ? rect.bottom + 6 : rect.top - 6 - maxH;
+    if (top < 8) {
+      top = 8;
+    }
     const light = isLightTheme();
     const surface = light ? '#fcfbf8' : '#17171a';
     const text = light ? '#24221e' : '#e6e0d2';
     const border = light ? 'rgba(46,40,28,0.085)' : 'rgba(230,224,210,0.09)';
     menu.style.cssText = [
-      'position:fixed', 'z-index:99999', 'left:' + left + 'px', 'top:' + top + 'px',
-      'width:' + width + 'px', 'max-height:' + maxH + 'px', 'display:block',
-      'background:' + surface, 'color:' + text, 'border:1px solid ' + border,
-      'border-radius:16px', 'padding:8px', 'overflow-y:auto',
+      'position:fixed',
+      'z-index:99999',
+      'left:' + left + 'px',
+      'top:' + top + 'px',
+      'width:' + width + 'px',
+      'max-height:' + maxH + 'px',
+      'display:block',
+      'background:' + surface,
+      'color:' + text,
+      'border:1px solid ' + border,
+      'border-radius:16px',
+      'padding:8px',
+      'overflow-y:auto',
     ].join(';');
   }
 
@@ -165,9 +216,17 @@
     const row = document.createElement('div');
     row.className = 'settings-dd';
     row.innerHTML =
-      '<div class="settings-dd-label">' + label + '</div>' +
-      '<button type="button" class="settings-dd-toggle" id="' + id + 'Toggle" aria-haspopup="listbox" aria-expanded="false">' +
-      '<span class="settings-dd-value" id="' + id + 'Value">' + labelFor(items, activeId) + '</span>' +
+      '<div class="settings-dd-label">' +
+      label +
+      '</div>' +
+      '<button type="button" class="settings-dd-toggle" id="' +
+      id +
+      'Toggle" aria-haspopup="listbox" aria-expanded="false">' +
+      '<span class="settings-dd-value" id="' +
+      id +
+      'Value">' +
+      labelFor(items, activeId) +
+      '</span>' +
       '<span class="settings-dd-chevron" aria-hidden="true">\u25BE</span></button>';
     sectionEl.appendChild(row);
     let menu = document.getElementById(id + 'Menu');
@@ -198,7 +257,8 @@
         b.setAttribute('role', 'option');
         b.textContent = item.label;
         b.addEventListener('click', (e) => {
-          e.preventDefault(); e.stopPropagation();
+          e.preventDefault();
+          e.stopPropagation();
           activeId = item.id;
           valueEl.textContent = item.label;
           onPick(item.id);
@@ -208,10 +268,13 @@
       });
     }
     toggle.addEventListener('click', (e) => {
-      e.preventDefault(); e.stopPropagation();
+      e.preventDefault();
+      e.stopPropagation();
       const wasOpen = openMenuEl === menu && !menu.hidden;
       closeMenus();
-      if (wasOpen) return;
+      if (wasOpen) {
+        return;
+      }
       renderMenu();
       menu.hidden = false;
       menu.removeAttribute('hidden');
@@ -233,7 +296,8 @@
       btn.setAttribute('aria-label', 'Open settings');
       btn.setAttribute('aria-expanded', 'false');
       btn.setAttribute('aria-controls', 'settingsSheet');
-      btn.innerHTML = '<svg class="settings-orbit-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"></circle><circle cx="12" cy="12" r="2.3"></circle></svg>';
+      btn.innerHTML =
+        '<svg class="settings-orbit-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"></circle><circle cx="12" cy="12" r="2.3"></circle></svg>';
       document.body.appendChild(btn);
     }
     const bottomBtn = document.getElementById('btnSettings');
@@ -266,7 +330,9 @@
 
   function buildBody(state) {
     const body = document.getElementById('settingsSheetBody');
-    if (!body) return;
+    if (!body) {
+      return;
+    }
     body.innerHTML = '';
     const cat = catalog();
 
@@ -293,8 +359,12 @@
     trSec.innerHTML =
       '<div class="settings-section-label">Handpan transparency</div>' +
       '<div class="settings-row settings-slider-row">' +
-      '  <input type="range" id="settingTransparency" min="35" max="100" value="' + Math.round(state.transparency * 100) + '" />' +
-      '  <span class="settings-rgb-val" id="settingTransparencyVal">' + Math.round(state.transparency * 100) + '%</span>' +
+      '  <input type="range" id="settingTransparency" min="35" max="100" value="' +
+      Math.round(state.transparency * 100) +
+      '" />' +
+      '  <span class="settings-rgb-val" id="settingTransparencyVal">' +
+      Math.round(state.transparency * 100) +
+      '%</span>' +
       '</div>';
     body.appendChild(trSec);
 
@@ -307,7 +377,11 @@
       label: 'Ambient',
       items: cat.AMBIENTS,
       activeId: state.ambient,
-      onPick: (id) => { state.ambient = id; save(state); apply(state); },
+      onPick: (id) => {
+        state.ambient = id;
+        save(state);
+        apply(state);
+      },
     });
 
     const natureSec = document.createElement('section');
@@ -330,8 +404,12 @@
     const natureVolRow = document.createElement('div');
     natureVolRow.className = 'settings-row settings-slider-row';
     natureVolRow.innerHTML =
-      '<input type="range" id="settingNatureVolume" min="0" max="100" value="' + Math.round((state.natureVolume ?? 0.22) * 100) + '" aria-label="Nature ambience volume" />' +
-      '<span class="settings-rgb-val" id="settingNatureVolumeVal">' + Math.round((state.natureVolume ?? 0.22) * 100) + '%</span>';
+      '<input type="range" id="settingNatureVolume" min="0" max="100" value="' +
+      Math.round((state.natureVolume ?? 0.22) * 100) +
+      '" aria-label="Nature ambience volume" />' +
+      '<span class="settings-rgb-val" id="settingNatureVolumeVal">' +
+      Math.round((state.natureVolume ?? 0.22) * 100) +
+      '%</span>';
     natureSec.appendChild(natureVolRow);
     const natureVol = natureVolRow.querySelector('#settingNatureVolume');
     const natureVolVal = natureVolRow.querySelector('#settingNatureVolumeVal');
@@ -345,14 +423,19 @@
     const light = document.getElementById('settingLightMode');
     if (light) {
       light.checked = resolveLightMode(state);
-      light.addEventListener('change', () => { state.lightMode = light.checked; save(state); apply(state); });
+      light.addEventListener('change', () => {
+        state.lightMode = light.checked;
+        save(state);
+        apply(state);
+      });
     }
     const touchFeedback = document.getElementById('settingTouchFeedback');
     if (touchFeedback) {
       touchFeedback.checked = state.touchFeedback === true;
       touchFeedback.addEventListener('change', () => {
         state.touchFeedback = touchFeedback.checked;
-        save(state); apply(state);
+        save(state);
+        apply(state);
       });
     }
     const highContrast = document.getElementById('settingHighContrast');
@@ -360,13 +443,16 @@
       highContrast.checked = state.highContrast === true;
       highContrast.addEventListener('change', () => {
         state.highContrast = highContrast.checked;
-        save(state); apply(state);
+        save(state);
+        apply(state);
       });
     }
     const tr = document.getElementById('settingTransparency');
     const trVal = document.getElementById('settingTransparencyVal');
     function syncRangeFill(el) {
-      if (!el) return;
+      if (!el) {
+        return;
+      }
       const min = Number(el.min) || 0;
       const max = Number(el.max) || 100;
       const val = Number(el.value);
@@ -377,10 +463,15 @@
       syncRangeFill(tr);
       tr.addEventListener('input', () => {
         state.transparency = Number(tr.value) / 100;
-        if (trVal) trVal.textContent = tr.value + '%';
+        if (trVal) {
+          trVal.textContent = tr.value + '%';
+        }
         syncRangeFill(tr);
-        save(state); apply(state);
-        try { window.PionierCore?.draw?.(); } catch (_) {}
+        save(state);
+        apply(state);
+        try {
+          window.PionierCore?.draw?.();
+        } catch (_) {}
       });
     }
   }
@@ -414,20 +505,42 @@
   }
 
   function wire(state, els) {
-    if (els.btn.dataset.settingsWired === '1') return;
+    if (els.btn.dataset.settingsWired === '1') {
+      return;
+    }
     els.btn.dataset.settingsWired = '1';
     const open = () => openSheet(els, state);
-    els.btn.addEventListener('click', (e) => { e.preventDefault(); open(); });
-    if (els.bottomBtn) els.bottomBtn.addEventListener('click', (e) => { e.preventDefault(); open(); });
+    els.btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      open();
+    });
+    if (els.bottomBtn) {
+      els.bottomBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        open();
+      });
+    }
     document.getElementById('settingsSheetClose')?.addEventListener('click', () => closeSheet(els));
     els.backdrop.addEventListener('click', () => closeSheet(els));
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheet(els); });
-    document.addEventListener('pointerdown', (e) => {
-      if (!openMenuEl) return;
-      const t = e.target;
-      if (t && (openMenuEl.contains(t) || (openToggleEl && openToggleEl.contains(t)))) return;
-      closeMenus();
-    }, true);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeSheet(els);
+      }
+    });
+    document.addEventListener(
+      'pointerdown',
+      (e) => {
+        if (!openMenuEl) {
+          return;
+        }
+        const t = e.target;
+        if (t && (openMenuEl.contains(t) || (openToggleEl && openToggleEl.contains(t)))) {
+          return;
+        }
+        closeMenus();
+      },
+      true
+    );
   }
 
   function boot() {
@@ -438,7 +551,10 @@
     wire(state, els);
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
   setTimeout(boot, 300);
 })();

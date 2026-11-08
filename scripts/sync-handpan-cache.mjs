@@ -62,7 +62,9 @@ function extractVersionedRefs(source) {
   const found = new Set();
   const re = /(?:href|src)=["'](\.\/[^"']+\?v=\d+)["']/g;
   let m;
-  while ((m = re.exec(source))) found.add(m[1]);
+  while ((m = re.exec(source))) {
+    found.add(m[1]);
+  }
   return found;
 }
 
@@ -87,17 +89,27 @@ function extractDynamicImports(source) {
 
 function normalizeShellEntry(entry) {
   let e = entry.trim();
-  if (!e.startsWith('./') && e !== './') e = './' + e.replace(/^\//, '');
+  if (!e.startsWith('./') && e !== './') {
+    e = './' + e.replace(/^\//, '');
+  }
   return e;
 }
 
 function buildShell(indexHtml, appJs, coreJs) {
   const shell = new Set();
-  for (const e of EXTRA_SHELL) shell.add(normalizeShellEntry(e));
-  for (const e of extractVersionedRefs(indexHtml)) shell.add(normalizeShellEntry(e));
-  for (const e of extractDynamicImports(appJs)) shell.add(normalizeShellEntry(e));
+  for (const e of EXTRA_SHELL) {
+    shell.add(normalizeShellEntry(e));
+  }
+  for (const e of extractVersionedRefs(indexHtml)) {
+    shell.add(normalizeShellEntry(e));
+  }
+  for (const e of extractDynamicImports(appJs)) {
+    shell.add(normalizeShellEntry(e));
+  }
   if (coreJs) {
-    for (const e of extractDynamicImports(coreJs)) shell.add(normalizeShellEntry(e));
+    for (const e of extractDynamicImports(coreJs)) {
+      shell.add(normalizeShellEntry(e));
+    }
   }
   const priority = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
   const rest = [...shell].filter((e) => !priority.includes(e)).sort();
@@ -128,12 +140,16 @@ function renderSw(cacheVersion, shell) {
   p(' *  - Versioned shell assets (?v=): network-first when online, cache fallback');
   p(' *  - Other same-origin GET: cache-first, then network');
   p(' *  - On activate: drop all caches except current CACHE_VERSION');
-  p(' * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.');
+  p(
+    ' * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.'
+  );
   p(' */');
   p("const CACHE_VERSION = '" + cacheVersion + "';");
   p('');
   p('const SHELL = [');
-  for (const e of shell) p("  '" + e + "',");
+  for (const e of shell) {
+    p("  '" + e + "',");
+  }
   p('];');
   p('');
   p("self.addEventListener('install', (event) => {");
@@ -203,7 +219,9 @@ function renderSw(cacheVersion, shell) {
   p('    return;');
   p('  }');
   p('');
-  p("  if (isVersionedAsset(url) && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {");
+  p(
+    "  if (isVersionedAsset(url) && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {"
+  );
   p('    event.respondWith(');
   p('      fetch(req)');
   p('        .then((res) => {');
@@ -242,11 +260,15 @@ function extractCacheVersion(swSource) {
 
 function extractShell(swSource) {
   const m = swSource.match(/const SHELL\s*=\s*\[([\s\S]*?)\];/);
-  if (!m) return null;
+  if (!m) {
+    return null;
+  }
   const entries = [];
   const re = /['"]([^'"]+)['"]/g;
   let x;
-  while ((x = re.exec(m[1]))) entries.push(x[1]);
+  while ((x = re.exec(m[1]))) {
+    entries.push(x[1]);
+  }
   return entries;
 }
 
@@ -272,8 +294,16 @@ function main() {
       console.error('SHELL list mismatch between sw.js and index/app imports.');
       const curSet = new Set(curShell || []);
       const nextSet = new Set(shell);
-      for (const e of shell) if (!curSet.has(e)) console.error('  missing in sw:', e);
-      for (const e of curShell || []) if (!nextSet.has(e)) console.error('  extra in sw:', e);
+      for (const e of shell) {
+        if (!curSet.has(e)) {
+          console.error('  missing in sw:', e);
+        }
+      }
+      for (const e of curShell || []) {
+        if (!nextSet.has(e)) {
+          console.error('  extra in sw:', e);
+        }
+      }
       ok = false;
     }
     if (!ok) {

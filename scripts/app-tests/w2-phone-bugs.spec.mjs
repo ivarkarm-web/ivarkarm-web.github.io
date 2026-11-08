@@ -7,15 +7,23 @@ test.beforeEach(async ({ page }) => {
     await enter.click();
     await expect(enter).toBeHidden({ timeout: 8000 });
   }
-  await expect.poll(() => page.evaluate(() => window.PionierBootState), { timeout: 15000 }).toBe('ready');
+  await expect
+    .poll(() => page.evaluate(() => window.PionierBootState), { timeout: 15000 })
+    .toBe('ready');
   await expect(page.locator('#pan')).toBeVisible();
-  await expect.poll(() => page.evaluate(() => {
-    const active = window.PionierCore?.activeInstrument?.();
-    return !!active?.audioCtx && !!active?.bus && !!window.PionierCore?.surface?.fields?.length;
-  })).toBe(true);
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const active = window.PionierCore?.activeInstrument?.();
+        return !!active?.audioCtx && !!active?.bus && !!window.PionierCore?.surface?.fields?.length;
+      })
+    )
+    .toBe(true);
 });
 
-test('randomizer is the only way to choose note count and scale/instrument changes preserve it', async ({ page }) => {
+test('randomizer is the only way to choose note count and scale/instrument changes preserve it', async ({
+  page,
+}) => {
   const result = await page.evaluate(async () => {
     const core = window.PionierCore;
     const h = core.handpan;
@@ -28,12 +36,21 @@ test('randomizer is the only way to choose note count and scale/instrument chang
     const afterScale = h.noteCount;
     await core.setInstrument('handpan');
     return {
-      initial, random, afterScale, afterInstrument: h.noteCount,
-      manualControlsHidden: ['notePlusWrap','notePlus','noteMinus','noteCountPrev','noteCountNext','noteCountLabel']
-        .every((id) => {
-          const el = document.getElementById(id);
-          return !el || el.hidden || getComputedStyle(el).display === 'none';
-        })
+      initial,
+      random,
+      afterScale,
+      afterInstrument: h.noteCount,
+      manualControlsHidden: [
+        'notePlusWrap',
+        'notePlus',
+        'noteMinus',
+        'noteCountPrev',
+        'noteCountNext',
+        'noteCountLabel',
+      ].every((id) => {
+        const el = document.getElementById(id);
+        return !el || el.hidden || getComputedStyle(el).display === 'none';
+      }),
     };
   });
   expect(result.initial).toBe(8);
@@ -56,7 +73,9 @@ test('changing handpan skin leaves the pan hittable', async ({ page }) => {
       state.skin = next;
       localStorage.setItem('pionier.settings', JSON.stringify(state));
     } catch (_) {}
-    try { window.PionierCore?.refreshPitch?.(); } catch (_) {}
+    try {
+      window.PionierCore?.refreshPitch?.();
+    } catch (_) {}
     return { before, next, skin: root.dataset.skin };
   });
   expect(applied.skin).toBe(applied.next);

@@ -12,7 +12,9 @@
  */
 (function stableLayoutBoot() {
   'use strict';
-  if (window.__pionierStableLayoutBootV1) return;
+  if (window.__pionierStableLayoutBootV1) {
+    return;
+  }
   window.__pionierStableLayoutBootV1 = true;
   var layoutObserver = null;
   var dockResizeObserver = null;
@@ -21,13 +23,20 @@
   function scheduleCenterPan() {
     var currentDock = document.getElementById('pionierBottomDock');
     if (currentDock && currentDock !== observedDock && 'ResizeObserver' in window) {
-      if (!dockResizeObserver) dockResizeObserver = new ResizeObserver(scheduleCenterPan);
+      if (!dockResizeObserver) {
+        dockResizeObserver = new ResizeObserver(scheduleCenterPan);
+      }
       observedDock = currentDock;
       dockResizeObserver.observe(currentDock);
     }
-    if (resizeScheduled) return;
+    if (resizeScheduled) {
+      return;
+    }
     resizeScheduled = true;
-    requestAnimationFrame(function () { resizeScheduled = false; centerPan(); });
+    requestAnimationFrame(function () {
+      resizeScheduled = false;
+      centerPan();
+    });
   }
 
   function centerPan() {
@@ -54,7 +63,7 @@
 
     var pan = document.getElementById('pan');
     if (pan) {
-      ['position','left','right','top','bottom','margin','z-index'].forEach(function (prop) {
+      ['position', 'left', 'right', 'top', 'bottom', 'margin', 'z-index'].forEach(function (prop) {
         pan.style.removeProperty(prop);
       });
     }
@@ -63,10 +72,13 @@
 
   function ensureLooperChrome() {
     var btn = document.getElementById('looperBtn');
-    if (!btn) return;
+    if (!btn) {
+      return;
+    }
     if (!btn.querySelector('.looper-btn-core')) {
       btn.className = 'looper-btn looper-record';
-      btn.innerHTML = '<span class="looper-btn-ring" aria-hidden="true"></span><span class="looper-btn-core" aria-hidden="true"></span>';
+      btn.innerHTML =
+        '<span class="looper-btn-ring" aria-hidden="true"></span><span class="looper-btn-core" aria-hidden="true"></span>';
     }
     btn.style.setProperty('width', '52px', 'important');
     btn.style.setProperty('height', '52px', 'important');
@@ -83,10 +95,15 @@
       layoutObserver.observe(document.body, { childList: true, subtree: true });
     }
     var dock = document.getElementById('pionierBottomDock');
-    if (dock) scheduleCenterPan();
+    if (dock) {
+      scheduleCenterPan();
+    }
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
-  else boot();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot, { once: true });
+  } else {
+    boot();
+  }
   window.addEventListener('resize', centerPan, { passive: true });
   window.addEventListener('orientationchange', function () {
     setTimeout(centerPan, 100);

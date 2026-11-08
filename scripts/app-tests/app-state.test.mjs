@@ -5,18 +5,17 @@ import assert from 'node:assert/strict';
 const store = new Map();
 globalThis.localStorage = {
   getItem: (k) => (store.has(k) ? store.get(k) : null),
-  setItem: (k, v) => { store.set(k, String(v)); },
-  removeItem: (k) => { store.delete(k); }
+  setItem: (k, v) => {
+    store.set(k, String(v));
+  },
+  removeItem: (k) => {
+    store.delete(k);
+  },
 };
 globalThis.window = globalThis;
 
-const {
-  loadAppState,
-  getAppState,
-  patchAppState,
-  resetAppState,
-  subscribeAppState
-} = await import('../../handpan-app/js/app-state.js');
+const { loadAppState, getAppState, patchAppState, resetAppState, subscribeAppState } =
+  await import('../../handpan-app/js/app-state.js');
 
 test('app-state defaults and patch round-trip', () => {
   resetAppState();
@@ -44,7 +43,10 @@ test('app-state persists and reloads', () => {
 
 test('legacy E Amara preference safely loads as Handpan', () => {
   resetAppState();
-  localStorage.setItem('pionier.appState.v1', JSON.stringify({ instrumentId: 'e-amara', scaleIndex: 3 }));
+  localStorage.setItem(
+    'pionier.appState.v1',
+    JSON.stringify({ instrumentId: 'e-amara', scaleIndex: 3 })
+  );
   const loaded = loadAppState();
   assert.equal(loaded.instrumentId, 'handpan');
   assert.equal(loaded.scaleIndex, 0);
@@ -54,7 +56,10 @@ test('app-state subscribers fire on patch', () => {
   resetAppState();
   let calls = 0;
   let last = null;
-  const unsub = subscribeAppState((s) => { calls++; last = s; });
+  const unsub = subscribeAppState((s) => {
+    calls++;
+    last = s;
+  });
   patchAppState({ scaleIndex: 3 });
   assert.equal(calls, 1);
   assert.equal(last.scaleIndex, 3);

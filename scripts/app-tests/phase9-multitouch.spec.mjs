@@ -8,12 +8,17 @@ async function enterIfNeeded(page) {
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) {
     await enter.click();
-    await expect(enter).toBeHidden({ timeout: 8000 }).catch(() => {});
+    await expect(enter)
+      .toBeHidden({ timeout: 8000 })
+      .catch(() => {});
   }
 }
 
 test('phase9: five concurrent pointers on pan then full release', async ({ page }, testInfo) => {
-  test.skip(!testInfo.project.name.startsWith('mobile'), 'multi-touch stress runs on mobile projects');
+  test.skip(
+    !testInfo.project.name.startsWith('mobile'),
+    'multi-touch stress runs on mobile projects'
+  );
   await page.goto('/handpan-app/');
   await enterIfNeeded(page);
   await expect.poll(() => page.evaluate(() => !!window.PionierCore)).toBe(true);
@@ -22,7 +27,9 @@ test('phase9: five concurrent pointers on pan then full release', async ({ page 
 
   const ok = await page.evaluate(async () => {
     const el = document.getElementById('pan');
-    if (!el) return { ok: false, reason: 'no pan' };
+    if (!el) {
+      return { ok: false, reason: 'no pan' };
+    }
     const r = el.getBoundingClientRect();
     const cx = r.left + r.width / 2;
     const cy = r.top + r.height / 2;

@@ -13,14 +13,15 @@ async function enterIfNeeded(page) {
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) {
     await enter.click();
-    await expect(enter).toBeHidden({ timeout: 5000 }).catch(() => {});
+    await expect(enter)
+      .toBeHidden({ timeout: 5000 })
+      .catch(() => {});
   }
 }
 
 async function runAxe(page, { colorContrast = false } = {}) {
   await page.addScriptTag({ url: AXE_CDN });
   return page.evaluate(async (enableContrast) => {
-    // eslint-disable-next-line no-undef
     const results = await axe.run(document, {
       runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa'] },
       rules: {
@@ -40,18 +41,16 @@ async function runAxe(page, { colorContrast = false } = {}) {
 }
 
 function assertNoSerious(results, label) {
-  const bad = results.violations.filter(
-    (v) => v.impact === 'critical' || v.impact === 'serious'
-  );
+  const bad = results.violations.filter((v) => v.impact === 'critical' || v.impact === 'serious');
   if (bad.length) {
-    const detail = bad
-      .map((v) => `${v.impact} ${v.id}: ${v.help} (${v.nodes} nodes)`)
-      .join('\n');
+    const detail = bad.map((v) => `${v.impact} ${v.id}: ${v.help} (${v.nodes} nodes)`).join('\n');
     throw new Error(`axe serious/critical violations (${label}):\n${detail}`);
   }
 }
 
-test('phase6: axe scan welcome surface has no critical/serious WCAG A/AA issues', async ({ page }) => {
+test('phase6: axe scan welcome surface has no critical/serious WCAG A/AA issues', async ({
+  page,
+}) => {
   await page.goto('/handpan-app/', { waitUntil: 'domcontentloaded' });
   const results = await runAxe(page, { colorContrast: false });
   assertNoSerious(results, 'welcome');
@@ -75,7 +74,9 @@ test('phase6: axe scan scale menu open', async ({ page }) => {
   assertNoSerious(results, 'scale-menu');
 });
 
-test('phase6: high-contrast mode enables color-contrast and stays clean on instrument', async ({ page }) => {
+test('phase6: high-contrast mode enables color-contrast and stays clean on instrument', async ({
+  page,
+}) => {
   await page.goto('/handpan-app/', { waitUntil: 'domcontentloaded' });
   await enterIfNeeded(page);
   await expect.poll(() => page.evaluate(() => !!window.PionierCore)).toBe(true);

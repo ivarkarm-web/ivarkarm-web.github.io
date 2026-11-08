@@ -2,22 +2,35 @@
 import { HANDPAN_SCALES, SCALE_FAMILIES } from './instruments/handpan-scales.js?v=7';
 
 export function mountScaleSelector({ getHandpan, onScaleChange }) {
-  const menu = document.getElementById('scaleMenu'); const toggle = document.getElementById('scaleLabel');
-  if (!menu || !toggle) return { render() {}, updateLabel() {} };
+  const menu = document.getElementById('scaleMenu');
+  const toggle = document.getElementById('scaleLabel');
+  if (!menu || !toggle) {
+    return { render() {}, updateLabel() {} };
+  }
   function updateLabel() {
-    const handpan = getHandpan(); if (!handpan) return;
+    const handpan = getHandpan();
+    if (!handpan) {
+      return;
+    }
     const s = HANDPAN_SCALES[handpan.scaleIndex];
     let short = s?.short || s?.label || handpan.scaleLabel || 'Scale';
     const full = s?.label || handpan.scaleLabel || short;
     const root = handpan.rootLabel || '';
-    if (root && short.startsWith(root + ' ')) short = short.slice(root.length).trim();
+    if (root && short.startsWith(root + ' ')) {
+      short = short.slice(root.length).trim();
+    }
     toggle.textContent = short + ' \u25be';
     toggle.title = full;
     const rootLabel = document.getElementById('rootLabel');
-    if (rootLabel && root) rootLabel.textContent = root;
+    if (rootLabel && root) {
+      rootLabel.textContent = root;
+    }
   }
   function render() {
-    const handpan = getHandpan(); if (!handpan) return;
+    const handpan = getHandpan();
+    if (!handpan) {
+      return;
+    }
     menu.replaceChildren();
     const results = document.createElement('div');
     results.className = 'picker-results scale-menu-results';
@@ -25,7 +38,9 @@ export function mountScaleSelector({ getHandpan, onScaleChange }) {
     // Group scales by family, in the defined family order, with subtle category headings.
     for (const family of SCALE_FAMILIES) {
       const members = HANDPAN_SCALES.filter((s) => s.family === family);
-      if (!members.length) continue;
+      if (!members.length) {
+        continue;
+      }
       const section = document.createElement('section');
       section.className = 'picker-group scale-picker-group';
       const head = document.createElement('div');
@@ -37,9 +52,14 @@ export function mountScaleSelector({ getHandpan, onScaleChange }) {
         const globalIndex = HANDPAN_SCALES.indexOf(scale);
         const button = document.createElement('button');
         button.type = 'button';
-        button.className = 'scale-menu-item pionier-menu-option' + (globalIndex === handpan.scaleIndex ? ' is-active' : '');
+        button.className =
+          'scale-menu-item pionier-menu-option' +
+          (globalIndex === handpan.scaleIndex ? ' is-active' : '');
         button.setAttribute('role', 'menuitem');
-        button.dataset.searchText = [scale.label, scale.short, scale.family, scale.mood, scale.id].filter(Boolean).join(' ').toLowerCase();
+        button.dataset.searchText = [scale.label, scale.short, scale.family, scale.mood, scale.id]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
         const name = document.createElement('span');
         name.textContent = scale.label;
         button.appendChild(name);
@@ -47,15 +67,32 @@ export function mountScaleSelector({ getHandpan, onScaleChange }) {
         sub.className = 'scale-item-tuning';
         sub.textContent = scale.mood;
         button.appendChild(sub);
-        button.addEventListener('click', (e) => { e.stopPropagation(); handpan.setScaleIndex(globalIndex); onScaleChange?.(); render(); updateLabel(); if (window.PionierOverlay) window.PionierOverlay.closePickers(); else { menu.hidden = true; toggle.setAttribute('aria-expanded', 'false'); } toggle.focus?.(); });
-        try { window.PionierFavorites?.decorateScaleItem?.(button, scale, globalIndex); } catch (_) {}
+        button.addEventListener('click', (e) => {
+          e.stopPropagation();
+          handpan.setScaleIndex(globalIndex);
+          onScaleChange?.();
+          render();
+          updateLabel();
+          if (window.PionierOverlay) {
+            window.PionierOverlay.closePickers();
+          } else {
+            menu.hidden = true;
+            toggle.setAttribute('aria-expanded', 'false');
+          }
+          toggle.focus?.();
+        });
+        try {
+          window.PionierFavorites?.decorateScaleItem?.(button, scale, globalIndex);
+        } catch (_) {}
         section.appendChild(button);
       });
     }
   }
   function stepScale(delta) {
     const handpan = getHandpan();
-    if (!handpan || !HANDPAN_SCALES.length) return;
+    if (!handpan || !HANDPAN_SCALES.length) {
+      return;
+    }
     handpan.setScaleIndex(handpan.scaleIndex + delta);
     onScaleChange?.();
     render();
@@ -63,6 +100,17 @@ export function mountScaleSelector({ getHandpan, onScaleChange }) {
   }
   document.getElementById('scalePrev')?.addEventListener('click', () => stepScale(-1));
   document.getElementById('scaleNext')?.addEventListener('click', () => stepScale(1));
-  const mo = new MutationObserver(() => { if (!menu.hidden) render(); }); mo.observe(menu, { attributes: true, attributeFilter: ['hidden'] });
-  document.addEventListener('pionier:picker-open', (e) => { if (e.detail?.id === 'scaleMenu') render(); }); updateLabel(); return { render, updateLabel };
+  const mo = new MutationObserver(() => {
+    if (!menu.hidden) {
+      render();
+    }
+  });
+  mo.observe(menu, { attributes: true, attributeFilter: ['hidden'] });
+  document.addEventListener('pionier:picker-open', (e) => {
+    if (e.detail?.id === 'scaleMenu') {
+      render();
+    }
+  });
+  updateLabel();
+  return { render, updateLabel };
 }

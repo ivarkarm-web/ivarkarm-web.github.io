@@ -16,20 +16,27 @@ const velCurve = (v) => 0.16 + 0.84 * Math.pow(clamp(v, 0, 1), 1.35);
 
 /** Low notes feel quieter at equal RMS; lift them gently. */
 export function pitchLoudnessTrimDb(f) {
-  if (f >= 220) return 0;
+  if (f >= 220) {
+    return 0;
+  }
   return clamp(-4.5 * Math.log2(f / 220), 0, 4.5);
 }
 
 function hash(str, n) {
   let h = 2166136261 ^ n;
-  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
   return h >>> 0;
 }
 
 const layerOf = (vel) => {
   let best = 0;
   for (let i = 1; i < VEL_LAYERS.length; i++) {
-    if (Math.abs(VEL_LAYERS[i] - vel) < Math.abs(VEL_LAYERS[best] - vel)) best = i;
+    if (Math.abs(VEL_LAYERS[i] - vel) < Math.abs(VEL_LAYERS[best] - vel)) {
+      best = i;
+    }
   }
   return best;
 };
@@ -40,7 +47,9 @@ const layerOf = (vel) => {
  */
 export function renderNote(voiceId, f, vel = 0.7) {
   const voice = VOICE_MAP.get(voiceId);
-  if (!voice) throw new Error('Unknown voice: ' + voiceId);
+  if (!voice) {
+    throw new Error('Unknown voice: ' + voiceId);
+  }
   f = clamp(f, 30, 6000);
   const layer = layerOf(vel);
   const rnd = makeRng(hash(voiceId, Math.round(f * 16) * 4 + layer));
@@ -52,7 +61,9 @@ export function renderNote(voiceId, f, vel = 0.7) {
   // Measure over the loudest 1.5 s window so slow-attack pads are judged fairly.
   let rms = 0;
   const hop = Math.round(voice.sr * 0.25);
-  for (let a = 0; a + hop < data.length; a += hop) rms = Math.max(rms, rmsRange(data, a, a + win));
+  for (let a = 0; a + hop < data.length; a += hop) {
+    rms = Math.max(rms, rmsRange(data, a, a + win));
+  }
   const target = dbToGain(TARGET_RMS_DB + (voice.trim || 0) + pitchLoudnessTrimDb(f));
   const scale = target / Math.max(rms, 1e-9);
   // Equalise on RMS, then tame sharp transients (plucks) with a soft limiter so
@@ -60,7 +71,10 @@ export function renderNote(voiceId, f, vel = 0.7) {
   const C = PEAK_CEILING;
   for (let i = 0; i < data.length; i++) {
     const v = data[i] * scale;
-    data[i] = Math.abs(v) < C * 0.5 ? v : Math.sign(v) * (C * 0.5 + (C * 0.5) * Math.tanh((Math.abs(v) - C * 0.5) / (C * 0.5)));
+    data[i] =
+      Math.abs(v) < C * 0.5
+        ? v
+        : Math.sign(v) * (C * 0.5 + C * 0.5 * Math.tanh((Math.abs(v) - C * 0.5) / (C * 0.5)));
   }
   return { data, sr: voice.sr, voice };
 }
@@ -90,14 +104,22 @@ export class SoundLibrary {
     this.live = new Set();
   }
 
-  static voices() { return listVoices(); }
+  static voices() {
+    return listVoices();
+  }
 
-  _key(id, f, vel) { return id + '|' + Math.round(f * 8) / 8 + '|' + layerOf(vel); }
+  _key(id, f, vel) {
+    return id + '|' + Math.round(f * 8) / 8 + '|' + layerOf(vel);
+  }
 
   getBuffer(id, f, vel = 0.7) {
     const key = this._key(id, f, vel);
     const hit = this.cache.get(key);
-    if (hit) { this.cache.delete(key); this.cache.set(key, hit); return hit; }
+    if (hit) {
+      this.cache.delete(key);
+      this.cache.set(key, hit);
+      return hit;
+    }
     const { data, sr } = renderNote(id, f, vel);
     const buf = this.ctx.createBuffer(1, data.length, sr);
     buf.copyToChannel(data, 0);
@@ -114,10 +136,18 @@ export class SoundLibrary {
   /** Render notes ahead of time without freezing the UI (yields between notes). Return false from onProgress to cancel. */
   async prewarm(ids, freqs, vels = [0.65], onProgress) {
     const jobs = [];
-    for (const id of ids) for (const f of freqs) for (const v of vels) jobs.push([id, f, v]);
+    for (const id of ids) {
+      for (const f of freqs) {
+        for (const v of vels) {
+          jobs.push([id, f, v]);
+        }
+      }
+    }
     for (let i = 0; i < jobs.length; i++) {
       this.getBuffer(...jobs[i]);
-      if (onProgress && onProgress((i + 1) / jobs.length, jobs[i][0]) === false) break;
+      if (onProgress && onProgress((i + 1) / jobs.length, jobs[i][0]) === false) {
+        break;
+      }
       await new Promise((r) => setTimeout(r, 0));
     }
   }
@@ -128,7 +158,9 @@ export class SoundLibrary {
    */
   play(id, f, opts = {}) {
     const voice = VOICE_MAP.get(id);
-    if (!voice) return null;
+    if (!voice) {
+      return null;
+    }
     const vel = clamp(opts.vel ?? 0.7, 0, 1);
     const ctx = this.ctx;
     const when = Math.max(opts.when ?? 0, ctx.currentTime);
@@ -152,42 +184,88 @@ export class SoundLibrary {
     tail.connect(this.dry);
     const send = { ...voice.send, ...(opts.send || {}) };
     const sends = [];
-    if (send.rev > 0) { const s = ctx.createGain(); s.gain.value = send.rev; tail.connect(s); s.connect(this.space.reverbIn); sends.push(s); }
-    if (send.dly > 0) { const s = ctx.createGain(); s.gain.value = send.dly; tail.connect(s); s.connect(this.space.delayIn); sends.push(s); }
+    if (send.rev > 0) {
+      const s = ctx.createGain();
+      s.gain.value = send.rev;
+      tail.connect(s);
+      s.connect(this.space.reverbIn);
+      sends.push(s);
+    }
+    if (send.dly > 0) {
+      const s = ctx.createGain();
+      s.gain.value = send.dly;
+      tail.connect(s);
+      s.connect(this.space.delayIn);
+      sends.push(s);
+    }
 
     const handle = {
       /** Pitch offset in cents (pitch bend / glide). tc = smoothing time constant. */
       detune: (cents, tc = 0.05) => {
         const t = ctx.currentTime;
-        try { src.detune.cancelScheduledValues(t); src.detune.setTargetAtTime(cents, t, Math.max(0.005, tc)); }
-        catch { try { src.detune.value = cents; } catch { /* noop */ } }
+        try {
+          src.detune.cancelScheduledValues(t);
+          src.detune.setTargetAtTime(cents, t, Math.max(0.005, tc));
+        } catch {
+          try {
+            src.detune.value = cents;
+          } catch {
+            /* noop */
+          }
+        }
       },
       /** Live level multiplier (aftertouch / pressure). */
       level: (mult, tc = 0.06) => {
         const t = ctx.currentTime;
-        try { lvl.gain.cancelScheduledValues(t); lvl.gain.setTargetAtTime(mult, t, Math.max(0.005, tc)); }
-        catch { /* noop */ }
+        try {
+          lvl.gain.cancelScheduledValues(t);
+          lvl.gain.setTargetAtTime(mult, t, Math.max(0.005, tc));
+        } catch {
+          /* noop */
+        }
       },
       stop: (release = 0.3) => {
         const t = Math.max(ctx.currentTime, when);
         g.gain.cancelScheduledValues(t);
         g.gain.setValueAtTime(g.gain.value, t);
         g.gain.linearRampToValueAtTime(0, t + release);
-        try { src.stop(t + release + 0.02); } catch { /* already stopped */ }
-      }
+        try {
+          src.stop(t + release + 0.02);
+        } catch {
+          /* already stopped */
+        }
+      },
     };
     this.live.add(handle);
     src.onended = () => {
       this.live.delete(handle);
-      try { src.disconnect(); g.disconnect(); lvl.disconnect(); tail.disconnect(); sends.forEach((s) => s.disconnect()); } catch { /* noop */ }
+      try {
+        src.disconnect();
+        g.disconnect();
+        lvl.disconnect();
+        tail.disconnect();
+        sends.forEach((s) => s.disconnect());
+      } catch {
+        /* noop */
+      }
     };
     src.start(when);
     return handle;
   }
 
-  stopAll(release = 0.15) { for (const h of [...this.live]) h.stop(release); }
+  stopAll(release = 0.15) {
+    for (const h of [...this.live]) {
+      h.stop(release);
+    }
+  }
 
-  setSpace(o) { this.space.set(o); }
+  setSpace(o) {
+    this.space.set(o);
+  }
 
-  dispose() { this.stopAll(0.02); this.cache.clear(); this.bytes = 0; }
+  dispose() {
+    this.stopAll(0.02);
+    this.cache.clear();
+    this.bytes = 0;
+  }
 }

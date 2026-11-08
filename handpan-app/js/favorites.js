@@ -10,7 +10,9 @@
   function load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return { scales: [], instruments: [] };
+      if (!raw) {
+        return { scales: [], instruments: [] };
+      }
       const p = JSON.parse(raw);
       return {
         scales: Array.isArray(p.scales) ? p.scales : [],
@@ -22,7 +24,9 @@
   }
 
   function save(state) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (_) {}
   }
 
   let state = load();
@@ -35,20 +39,30 @@
   }
 
   function toggleScale(entry) {
-    if (!entry || !entry.id) return false;
+    if (!entry || !entry.id) {
+      return false;
+    }
     const i = state.scales.findIndex((x) => x.id === entry.id);
-    if (i >= 0) state.scales.splice(i, 1);
-    else state.scales.unshift({ id: entry.id, label: entry.label || entry.id, index: entry.index });
+    if (i >= 0) {
+      state.scales.splice(i, 1);
+    } else {
+      state.scales.unshift({ id: entry.id, label: entry.label || entry.id, index: entry.index });
+    }
     save(state);
     refreshUI();
     return isScaleFav(entry.id);
   }
 
   function toggleInstrument(entry) {
-    if (!entry || !entry.id) return false;
+    if (!entry || !entry.id) {
+      return false;
+    }
     const i = state.instruments.findIndex((x) => x.id === entry.id);
-    if (i >= 0) state.instruments.splice(i, 1);
-    else state.instruments.unshift({ id: entry.id, name: entry.name || entry.id });
+    if (i >= 0) {
+      state.instruments.splice(i, 1);
+    } else {
+      state.instruments.unshift({ id: entry.id, name: entry.name || entry.id });
+    }
     save(state);
     refreshUI();
     return isInstrumentFav(entry.id);
@@ -70,32 +84,48 @@
   }
 
   function decorateScaleItem(button, scale, index) {
-    if (!button || !scale) return;
+    if (!button || !scale) {
+      return;
+    }
     const existing = button.querySelector('.fav-heart-btn');
-    if (existing) existing.remove();
-    const id = scale.id || ('scale-' + index);
+    if (existing) {
+      existing.remove();
+    }
+    const id = scale.id || 'scale-' + index;
     const active = isScaleFav(id);
-    const heart = makeHeartBtn(active, active ? 'Remove from favorites' : 'Add to favorites', () => {
-      const now = toggleScale({ id, label: scale.label || scale.short || id, index });
-      heart.classList.toggle('is-fav', now);
-      heart.setAttribute('aria-pressed', now ? 'true' : 'false');
-      heart.textContent = now ? HEART : HEART_OUTLINE;
-    });
+    const heart = makeHeartBtn(
+      active,
+      active ? 'Remove from favorites' : 'Add to favorites',
+      () => {
+        const now = toggleScale({ id, label: scale.label || scale.short || id, index });
+        heart.classList.toggle('is-fav', now);
+        heart.setAttribute('aria-pressed', now ? 'true' : 'false');
+        heart.textContent = now ? HEART : HEART_OUTLINE;
+      }
+    );
     button.classList.add('fav-row');
     button.appendChild(heart);
   }
 
   function decorateInstrumentItem(button, item) {
-    if (!button || !item || !item.id) return;
+    if (!button || !item || !item.id) {
+      return;
+    }
     const existing = button.querySelector('.fav-heart-btn');
-    if (existing) existing.remove();
+    if (existing) {
+      existing.remove();
+    }
     const active = isInstrumentFav(item.id);
-    const heart = makeHeartBtn(active, active ? 'Remove from favorites' : 'Add to favorites', () => {
-      const now = toggleInstrument({ id: item.id, name: item.name || item.id });
-      heart.classList.toggle('is-fav', now);
-      heart.setAttribute('aria-pressed', now ? 'true' : 'false');
-      heart.textContent = now ? HEART : HEART_OUTLINE;
-    });
+    const heart = makeHeartBtn(
+      active,
+      active ? 'Remove from favorites' : 'Add to favorites',
+      () => {
+        const now = toggleInstrument({ id: item.id, name: item.name || item.id });
+        heart.classList.toggle('is-fav', now);
+        heart.setAttribute('aria-pressed', now ? 'true' : 'false');
+        heart.textContent = now ? HEART : HEART_OUTLINE;
+      }
+    );
     button.classList.add('fav-row');
     button.appendChild(heart);
   }
@@ -142,7 +172,9 @@
 
   function buildBody() {
     const body = document.getElementById('favoritesSheetBody');
-    if (!body) return;
+    if (!body) {
+      return;
+    }
     body.innerHTML = '';
 
     const instSec = document.createElement('section');
@@ -196,8 +228,11 @@
         pick.addEventListener('click', () => {
           const core = window.PionierCore;
           const scales = window.HANDPAN_SCALES || [];
-          let idx = typeof item.index === 'number' ? item.index : scales.findIndex((s) => s.id === item.id);
-          if (idx < 0) idx = scales.findIndex((s) => (s.label || s.short) === item.label);
+          let idx =
+            typeof item.index === 'number' ? item.index : scales.findIndex((s) => s.id === item.id);
+          if (idx < 0) {
+            idx = scales.findIndex((s) => (s.label || s.short) === item.label);
+          }
           if (idx >= 0 && typeof core?.setScaleIndex === 'function') {
             core.setScaleIndex(idx);
             core.draw?.();
@@ -239,20 +274,27 @@
   }
 
   function refreshUI() {
-    if (open) buildBody();
+    if (open) {
+      buildBody();
+    }
   }
 
   function boot() {
     const els = ensureDom();
     els.btn.addEventListener('click', (e) => {
       e.preventDefault();
-      if (open) closeSheet();
-      else openSheet();
+      if (open) {
+        closeSheet();
+      } else {
+        openSheet();
+      }
     });
     els.backdrop.addEventListener('click', closeSheet);
     document.getElementById('favoritesSheetClose')?.addEventListener('click', closeSheet);
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && open) closeSheet();
+      if (e.key === 'Escape' && open) {
+        closeSheet();
+      }
     });
   }
 
@@ -266,6 +308,9 @@
     getState: () => ({ scales: state.scales.slice(), instruments: state.instruments.slice() }),
   };
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
 })();

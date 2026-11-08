@@ -12,14 +12,21 @@
   };
 
   function isLightTheme() {
-    if (document.documentElement.classList.contains('theme-light') ||
-        document.body.classList.contains('theme-light') ||
-        document.documentElement.dataset.theme === 'light' ||
-        document.body.dataset.theme === 'light' ||
-        window.PionierSettings?.lightMode === true) return true;
+    if (
+      document.documentElement.classList.contains('theme-light') ||
+      document.body.classList.contains('theme-light') ||
+      document.documentElement.dataset.theme === 'light' ||
+      document.body.dataset.theme === 'light' ||
+      window.PionierSettings?.lightMode === true
+    ) {
+      return true;
+    }
     try {
-      const raw = localStorage.getItem('pionier.settings.v2') || localStorage.getItem('pionier.settings.v1');
-      if (raw && JSON.parse(raw).lightMode === true) return true;
+      const raw =
+        localStorage.getItem('pionier.settings.v2') || localStorage.getItem('pionier.settings.v1');
+      if (raw && JSON.parse(raw).lightMode === true) {
+        return true;
+      }
     } catch (_) {}
     return false;
   }
@@ -40,11 +47,25 @@
   }
 
   function clearInlineLayout(el) {
-    if (!el || !el.style) return;
+    if (!el || !el.style) {
+      return;
+    }
     [
-      'position', 'left', 'right', 'top', 'bottom', 'width', 'max-width',
-      'max-height', 'transform', 'display', 'visibility', 'opacity',
-      'pointer-events', 'z-index', 'border-radius',
+      'position',
+      'left',
+      'right',
+      'top',
+      'bottom',
+      'width',
+      'max-width',
+      'max-height',
+      'transform',
+      'display',
+      'visibility',
+      'opacity',
+      'pointer-events',
+      'z-index',
+      'border-radius',
     ].forEach((p) => el.style.removeProperty(p));
   }
 
@@ -52,24 +73,36 @@
     let restoreToggleId = null;
     PICKER_IDS.forEach((id) => {
       const m = document.getElementById(id);
-      if (!m) return;
-      if (!m.hidden && TOGGLE_FOR[id]) restoreToggleId = TOGGLE_FOR[id];
+      if (!m) {
+        return;
+      }
+      if (!m.hidden && TOGGLE_FOR[id]) {
+        restoreToggleId = TOGGLE_FOR[id];
+      }
       m.hidden = true;
       m.setAttribute('hidden', '');
       m.classList.remove('is-open', 'picker-sheet', 'picker-popover');
       clearInlineLayout(m);
       m.style.setProperty('display', 'none', 'important');
       const tid = TOGGLE_FOR[id];
-      if (tid) document.getElementById(tid)?.setAttribute('aria-expanded', 'false');
+      if (tid) {
+        document.getElementById(tid)?.setAttribute('aria-expanded', 'false');
+      }
     });
     const bd = document.getElementById('pickerBackdrop');
-    if (bd) { bd.hidden = true; bd.setAttribute('hidden', ''); bd.style.removeProperty('display'); }
+    if (bd) {
+      bd.hidden = true;
+      bd.setAttribute('hidden', '');
+      bd.style.removeProperty('display');
+    }
     if (pickerOutsideHandler) {
       document.removeEventListener('pointerdown', pickerOutsideHandler, true);
       pickerOutsideHandler = null;
     }
     if (restoreToggleId) {
-      try { document.getElementById(restoreToggleId)?.focus?.(); } catch (_) {}
+      try {
+        document.getElementById(restoreToggleId)?.focus?.();
+      } catch (_) {}
     }
   }
 
@@ -100,9 +133,15 @@
   }
 
   function closeAll(except) {
-    if (except !== 'pickers') closePickers();
-    if (except !== 'fx') closeFx();
-    if (except !== 'settings') closeSettings();
+    if (except !== 'pickers') {
+      closePickers();
+    }
+    if (except !== 'fx') {
+      closeFx();
+    }
+    if (except !== 'settings') {
+      closeSettings();
+    }
   }
 
   /**
@@ -111,9 +150,13 @@
    * pixel max-height and pan-y touch handling so lists scroll on Android.
    */
   function applyPickerScrollStyles(menu, maxHeightPx) {
-    if (!menu) return;
+    if (!menu) {
+      return;
+    }
     const results = menu.querySelector('.picker-results');
-    if (!results) return;
+    if (!results) {
+      return;
+    }
     const chromeReserve = 56; // close btn + padding inside the popover
     const resultsMax = Math.max(80, (maxHeightPx || 280) - chromeReserve);
     Object.assign(results.style, {
@@ -141,8 +184,12 @@
   }
 
   function placePicker(menu, toggle) {
-    if (!menu || !toggle) return;
-    if (menu.parentElement !== document.body) document.body.appendChild(menu);
+    if (!menu || !toggle) {
+      return;
+    }
+    if (menu.parentElement !== document.body) {
+      document.body.appendChild(menu);
+    }
     menu.style.removeProperty('display');
     const rect = toggle.getBoundingClientRect();
     const gap = 8;
@@ -182,12 +229,16 @@
   }
 
   function ensurePickerScrollRegion(menu) {
-    if (!menu || menu.querySelector('.picker-results')) return;
+    if (!menu || menu.querySelector('.picker-results')) {
+      return;
+    }
     const close = menu.querySelector(':scope > .picker-close');
     const results = document.createElement('div');
     results.className = 'picker-results picker-results-generated';
     Array.from(menu.children).forEach((child) => {
-      if (child === close) return;
+      if (child === close) {
+        return;
+      }
       results.appendChild(child);
     });
     menu.appendChild(results);
@@ -196,12 +247,16 @@
   function openPicker(menuId) {
     const menu = document.getElementById(menuId);
     const toggle = document.getElementById(TOGGLE_FOR[menuId]);
-    if (!menu || !toggle) return;
+    if (!menu || !toggle) {
+      return;
+    }
     closeAll('pickers');
     closeFx();
     closeSettings();
     PICKER_IDS.forEach((id) => {
-      if (id === menuId) return;
+      if (id === menuId) {
+        return;
+      }
       const m = document.getElementById(id);
       if (m) {
         m.hidden = true;
@@ -213,7 +268,9 @@
     placePicker(menu, toggle);
     toggle.setAttribute('aria-expanded', 'true');
     if (menuId === 'instrumentMenu' && typeof window.__pionierRenderInstrumentMenu === 'function') {
-      try { window.__pionierRenderInstrumentMenu(); } catch (_) {}
+      try {
+        window.__pionierRenderInstrumentMenu();
+      } catch (_) {}
     }
     document.dispatchEvent(new CustomEvent('pionier:picker-open', { detail: { id: menuId } }));
     let closeButton = menu.querySelector(':scope > .picker-close');
@@ -223,30 +280,42 @@
       closeButton.className = 'picker-close';
       closeButton.setAttribute('aria-label', 'Close selector');
       closeButton.textContent = '\u00d7';
-      closeButton.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); closePickers(); });
+      closeButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        closePickers();
+      });
       menu.prepend(closeButton);
     }
     ensurePickerScrollRegion(menu);
     const bd = ensureBackdrop();
     bd.hidden = true;
     bd.setAttribute('hidden', '');
-    if (pickerOutsideHandler) document.removeEventListener('pointerdown', pickerOutsideHandler, true);
+    if (pickerOutsideHandler) {
+      document.removeEventListener('pointerdown', pickerOutsideHandler, true);
+    }
     pickerOutsideHandler = (event) => {
       const target = event.target;
-      if (target instanceof Node && (menu.contains(target) || toggle.contains(target))) return;
+      if (target instanceof Node && (menu.contains(target) || toggle.contains(target))) {
+        return;
+      }
       closePickers();
     };
     document.addEventListener('pointerdown', pickerOutsideHandler, true);
     requestAnimationFrame(() => {
       const active = menu.querySelector('[role="menuitem"].is-active, [aria-current="true"]');
-      const first = menu.querySelector('[role="menuitem"], button.scale-menu-item, button:not(.picker-close)');
+      const first = menu.querySelector(
+        '[role="menuitem"], button.scale-menu-item, button:not(.picker-close)'
+      );
       (active || first)?.focus?.({ preventScroll: true });
     });
   }
 
   function togglePicker(menuId) {
     const menu = document.getElementById(menuId);
-    if (!menu) return;
+    if (!menu) {
+      return;
+    }
     if (!menu.hidden && menu.classList.contains('is-open')) {
       closePickers();
       document.getElementById(TOGGLE_FOR[menuId])?.focus?.();
@@ -258,14 +327,20 @@
   function openFx() {
     closeAll('fx');
     const panel = document.getElementById('fxPanel');
-    if (!panel) return;
+    if (!panel) {
+      return;
+    }
     panel.hidden = false;
     panel.removeAttribute('hidden');
     panel.style.removeProperty('display');
     document.getElementById('fxPanelOpen')?.setAttribute('aria-expanded', 'true');
     document.body.classList.add('is-fx-open');
-    try { window.PionierCore?.ensureAudio?.(); } catch (_) {}
-    try { window.PionierCore?.paintFxKnobs?.(); } catch (_) {}
+    try {
+      window.PionierCore?.ensureAudio?.();
+    } catch (_) {}
+    try {
+      window.PionierCore?.paintFxKnobs?.();
+    } catch (_) {}
   }
 
   function toggleFx() {
@@ -293,20 +368,30 @@
   function wire() {
     ensureBackdrop();
 
-    document.getElementById('instrumentDropdownToggle')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      togglePicker('instrumentMenu');
-    }, true);
-    document.getElementById('scaleLabel')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      togglePicker('scaleMenu');
-    }, true);
+    document.getElementById('instrumentDropdownToggle')?.addEventListener(
+      'click',
+      (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        togglePicker('instrumentMenu');
+      },
+      true
+    );
+    document.getElementById('scaleLabel')?.addEventListener(
+      'click',
+      (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        togglePicker('scaleMenu');
+      },
+      true
+    );
 
     document.addEventListener('click', (e) => {
       const t = e.target;
-      if (!(t instanceof Element)) return;
+      if (!(t instanceof Element)) {
+        return;
+      }
       if (t.closest('#instrumentMenu [role="menuitem"], #instrumentMenu button')) {
         setTimeout(() => {
           closePickers();
@@ -349,13 +434,19 @@
         return;
       }
 
-      if (!openId) return;
+      if (!openId) {
+        return;
+      }
       const menu = document.getElementById(openId);
-      if (!menu) return;
+      if (!menu) {
+        return;
+      }
       const items = [...menu.querySelectorAll('[role="menuitem"], button.scale-menu-item')].filter(
         (el) => el.offsetParent !== null
       );
-      if (!items.length) return;
+      if (!items.length) {
+        return;
+      }
       const idx = items.indexOf(document.activeElement);
 
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
@@ -419,6 +510,8 @@
   }
   setInterval(recoverChrome, 1500);
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) recoverChrome();
+    if (!document.hidden) {
+      recoverChrome();
+    }
   });
 })();

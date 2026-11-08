@@ -19,18 +19,40 @@ export class Instrument {
     this.activeVoices = new Map();
     this._ready = false;
   }
-  async activate(audioCtx, bus) { this.audioCtx = audioCtx; this.bus = bus; this._ready = true; }
-  deactivate() { this.dampAll(); this._ready = false; }
-  get ready() { return this._ready; }
-  getZones() { return []; }
-  setZones(fields) { this._zones = fields; }
+  async activate(audioCtx, bus) {
+    this.audioCtx = audioCtx;
+    this.bus = bus;
+    this._ready = true;
+  }
+  deactivate() {
+    this.dampAll();
+    this._ready = false;
+  }
+  get ready() {
+    return this._ready;
+  }
+  getZones() {
+    return [];
+  }
+  setZones(fields) {
+    this._zones = fields;
+  }
   noteOn(gesture, zone = null) {}
   noteOff(zoneId, gesture = null) {}
-  dampAll() { for (const [id] of this.activeVoices) this.noteOff(id); this.activeVoices.clear(); }
+  dampAll() {
+    for (const [id] of this.activeVoices) {
+      this.noteOff(id);
+    }
+    this.activeVoices.clear();
+  }
   express(gesture, zone = null) {}
-  getNotes() { return []; }
+  getNotes() {
+    return [];
+  }
   drawExtras(ctx2d, layout) {}
-  getPerformanceHints() { return { maxVoices: this.polyphony, prefersSamples: false }; }
+  getPerformanceHints() {
+    return { maxVoices: this.polyphony, prefersSamples: false };
+  }
 }
 
 const _registry = new Map();
@@ -46,7 +68,9 @@ export const InstrumentRegistry = {
     _registry.set(instrument.id, instrument);
     return instrument;
   },
-  get(id) { return _registry.get(id) || null; },
+  get(id) {
+    return _registry.get(id) || null;
+  },
   list() {
     return Array.from(_registry.values()).map((inst) => ({
       id: inst.id,
@@ -54,15 +78,21 @@ export const InstrumentRegistry = {
       description: inst.description,
       category: inst.category,
       // sample = may use owner/recorded buffers; procedural = synthesis / library render
-      engineKind: inst.engineKind || (inst.category === 'handpan' ? 'sample' : 'procedural')
+      engineKind: inst.engineKind || (inst.category === 'handpan' ? 'sample' : 'procedural'),
     }));
   },
-  get activeId() { return _activeId; },
-  get active() { return _activeId ? _registry.get(_activeId) : null; },
+  get activeId() {
+    return _activeId;
+  },
+  get active() {
+    return _activeId ? _registry.get(_activeId) : null;
+  },
   setActive(id, audioCtx, bus) {
     const activate = async () => {
       const next = _registry.get(id);
-      if (!next) throw new Error('Unknown instrument: ' + id);
+      if (!next) {
+        throw new Error('Unknown instrument: ' + id);
+      }
       const previousId = _activeId;
       const previous = previousId ? _registry.get(previousId) : null;
 
@@ -70,7 +100,9 @@ export const InstrumentRegistry = {
       // A failed activation must not leave the UI pointing at a deactivated voice.
       await next.activate(audioCtx, bus);
 
-      if (previous && previousId !== id) previous.deactivate();
+      if (previous && previousId !== id) {
+        previous.deactivate();
+      }
       _activeId = id;
       return next;
     };
@@ -83,11 +115,13 @@ export const InstrumentRegistry = {
   clear() {
     if (_activeId) {
       const prev = _registry.get(_activeId);
-      if (prev) prev.deactivate();
+      if (prev) {
+        prev.deactivate();
+      }
     }
     _registry.clear();
     _activeId = null;
-  }
+  },
 };
 
 export { Gesture };

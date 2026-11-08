@@ -12,7 +12,9 @@ let timers = [];
 
 function ensure() {
   const ctx = getAudioContext();
-  if (!ctx) return null;
+  if (!ctx) {
+    return null;
+  }
   if (!natureBus) {
     natureBus = ctx.createGain();
     natureBus.gain.value = 0;
@@ -26,8 +28,12 @@ function clear() {
   timers.forEach(clearTimeout);
   timers = [];
   for (const n of nodes) {
-    try { n.stop?.(); } catch (_) {}
-    try { n.disconnect?.(); } catch (_) {}
+    try {
+      n.stop?.();
+    } catch (_) {}
+    try {
+      n.disconnect?.();
+    } catch (_) {}
   }
   nodes = [];
 }
@@ -72,7 +78,9 @@ function noiseLayer(ctx, bus, kind, cut, q, level) {
 
 function chirp(ctx, bus) {
   const run = () => {
-    if (mode !== 'forest' && mode !== 'birds') return;
+    if (mode !== 'forest' && mode !== 'birds') {
+      return;
+    }
     const t = ctx.currentTime;
     const o = ctx.createOscillator();
     const g = ctx.createGain();
@@ -94,7 +102,9 @@ function chirp(ctx, bus) {
 
 function thunder(ctx, bus) {
   const boom = () => {
-    if (mode !== 'storm') return;
+    if (mode !== 'storm') {
+      return;
+    }
     const t = ctx.currentTime;
     const s = makeNoise(ctx, 'brown', 1.2);
     s.loop = false;
@@ -120,7 +130,9 @@ export function startAmbient(nextMode, level = natureGain) {
   mode = nextMode || 'off';
   clear();
   const ctx = ensure();
-  if (!ctx || !natureBus) return false;
+  if (!ctx || !natureBus) {
+    return false;
+  }
   resumeAudio();
   natureGain = Math.max(0, Math.min(0.6, level));
   const t = ctx.currentTime;

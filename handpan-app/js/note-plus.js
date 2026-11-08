@@ -8,7 +8,9 @@ export function mountNotePlus() {
   }
   ['notePlus', 'noteMinus', 'noteCountPrev', 'noteCountNext', 'noteCountLabel'].forEach((id) => {
     const el = document.getElementById(id);
-    if (!el) return;
+    if (!el) {
+      return;
+    }
     el.hidden = true;
     el.setAttribute('hidden', '');
     el.style.display = 'none';

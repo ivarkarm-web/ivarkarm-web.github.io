@@ -11,11 +11,20 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const errors = [];
 const checked = [];
-const fail = (message) => { errors.push(message); console.error('  ✗', message); };
-const ok = (message) => { checked.push(message); console.log('  ✓', message); };
+const fail = (message) => {
+  errors.push(message);
+  console.error('  ✗', message);
+};
+const ok = (message) => {
+  checked.push(message);
+  console.log('  ✓', message);
+};
 const read = (rel) => {
   const full = path.join(root, rel);
-  if (!fs.existsSync(full)) { fail('Missing required file: ' + rel); return ''; }
+  if (!fs.existsSync(full)) {
+    fail('Missing required file: ' + rel);
+    return '';
+  }
   return fs.readFileSync(full, 'utf8');
 };
 
@@ -26,7 +35,8 @@ read('styles.css');
 read('script.js');
 const appHtml = read('handpan-app/index.html');
 const shell = read('handpan-app/pionier-app.js');
-const coreSrc = read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js');
+const coreSrc =
+  read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js');
 const loopControls = read('handpan-app/js/looper.js');
 const loopStyles = read('handpan-app/pionier-base.css');
 read('handpan-app/pionier-controls.css');
@@ -40,30 +50,61 @@ read('handpan-app/js/gesture.js');
 read('handpan-app/js/fx.js');
 read('handpan-app/js/instruments/handpan.js');
 read('handpan-app/js/instruments/library-family.js');
-for (const f of ['dsp', 'voices', 'library', 'space']) read(`handpan-app/js/sound/${f}.js`);
+for (const f of ['dsp', 'voices', 'library', 'space']) {
+  read(`handpan-app/js/sound/${f}.js`);
+}
 read('handpan-app/js/pionier-surface.js');
 const handpanSource = read('handpan-app/js/instruments/handpan.js');
 const notesDir = path.join(root, 'handpan-app/sounds/notes');
 const noteSampleBank = path.join(root, 'handpan-app/js/note-sample-bank.js');
 if (
-  !(/NoteSampleBank|sampleBank|recordedScale/.test(handpanSource) || handpanSource.includes('sounds/notes')) &&
+  !(
+    /NoteSampleBank|sampleBank|recordedScale/.test(handpanSource) ||
+    handpanSource.includes('sounds/notes')
+  ) &&
   !fs.existsSync(noteSampleBank) &&
   !fs.existsSync(notesDir)
-) ok('Handpan is fully synthesized; no sample bank or note recordings are shipped');
-else fail('Handpan still references or ships a note sample bank');
+) {
+  ok('Handpan is fully synthesized; no sample bank or note recordings are shipped');
+} else {
+  fail('Handpan still references or ships a note sample bank');
+}
 
-if (rootHtml.includes('<title>') && rootHtml.includes('</html>')) ok('Portfolio document is present');
-else fail('Portfolio HTML document is incomplete');
+if (rootHtml.includes('<title>') && rootHtml.includes('</html>')) {
+  ok('Portfolio document is present');
+} else {
+  fail('Portfolio HTML document is incomplete');
+}
 
-if (appHtml.includes('id="pan"') && appHtml.includes('id="instrumentDropdownToggle"')) ok('Pionier has its real instrument entry surface');
-else fail('Pionier instrument entry surface is missing');
+if (appHtml.includes('id="pan"') && appHtml.includes('id="instrumentDropdownToggle"')) {
+  ok('Pionier has its real instrument entry surface');
+} else {
+  fail('Pionier instrument entry surface is missing');
+}
 
-if (/export function mountLooper/.test(loopControls) && /startRecording|recording/.test(loopControls) && /clearAll/.test(loopControls)) ok('Looper mounts with record/play/clear surface');
-else fail('Looper mount or record/clear surface is incomplete');
-if (!/repository-loop-save/.test(loopControls) && !/uploadLoopToRepository/.test(loopControls)) ok('Looper does not import community upload modules');
-else fail('Looper still references community upload modules');
-if (/\.looper-/.test(loopStyles) && /pionier-base\.css\?v=\d+/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) ok('Looper styles and service-worker declare cache versions');
-else fail('Looper styles or service-worker cache versions missing');
+if (
+  /export function mountLooper/.test(loopControls) &&
+  /startRecording|recording/.test(loopControls) &&
+  /clearAll/.test(loopControls)
+) {
+  ok('Looper mounts with record/play/clear surface');
+} else {
+  fail('Looper mount or record/clear surface is incomplete');
+}
+if (!/repository-loop-save/.test(loopControls) && !/uploadLoopToRepository/.test(loopControls)) {
+  ok('Looper does not import community upload modules');
+} else {
+  fail('Looper still references community upload modules');
+}
+if (
+  /\.looper-/.test(loopStyles) &&
+  /pionier-base\.css\?v=\d+/.test(appHtml) &&
+  /pionier-v\d+/.test(serviceWorker)
+) {
+  ok('Looper styles and service-worker declare cache versions');
+} else {
+  fail('Looper styles or service-worker cache versions missing');
+}
 
 // Offline shell: critical instrument path must be listed in SHELL for airplane-mode play.
 const shellCritical = [
@@ -74,37 +115,87 @@ const shellCritical = [
   './js/instruments/handpan.js',
 ];
 for (const asset of shellCritical) {
-  if (serviceWorker.includes(asset)) ok('SW SHELL lists offline-critical ' + asset);
-  else fail('SW SHELL missing offline-critical ' + asset);
+  if (serviceWorker.includes(asset)) {
+    ok('SW SHELL lists offline-critical ' + asset);
+  } else {
+    fail('SW SHELL missing offline-critical ' + asset);
+  }
 }
-if (fs.existsSync(path.join(root, 'handpan-app/APP_VERSION'))) ok('APP_VERSION source of truth is present');
-else fail('handpan-app/APP_VERSION missing');
-if (!appHtml.includes('fonts.googleapis.com')) ok('No Google Fonts CDN dependency in index');
-else fail('index still loads fonts.googleapis.com');
+if (fs.existsSync(path.join(root, 'handpan-app/APP_VERSION'))) {
+  ok('APP_VERSION source of truth is present');
+} else {
+  fail('handpan-app/APP_VERSION missing');
+}
+if (!appHtml.includes('fonts.googleapis.com')) {
+  ok('No Google Fonts CDN dependency in index');
+} else {
+  fail('index still loads fonts.googleapis.com');
+}
 
 const scaleSelector = read('handpan-app/js/scale-selector.js');
-if ((/Search instruments/.test(coreSrc) || /instrumentMenu/.test(appHtml) || /instrumentDropdownToggle/.test(appHtml)) && (/Search scales/.test(scaleSelector) || /scaleMenu/.test(appHtml) || /scaleLabel/.test(appHtml))) ok('Instrument and scale pickers are present');
-else fail('Scale/instrument picker wiring is incomplete');
-if (/pionier-controls\.css\?v=\d+/.test(appHtml) && /pionier-app\.js\?v=\d+/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) ok('Picker assets use versioned cache stamps');
-else fail('Picker asset cache versions are stale');
+if (
+  (/Search instruments/.test(coreSrc) ||
+    /instrumentMenu/.test(appHtml) ||
+    /instrumentDropdownToggle/.test(appHtml)) &&
+  (/Search scales/.test(scaleSelector) || /scaleMenu/.test(appHtml) || /scaleLabel/.test(appHtml))
+) {
+  ok('Instrument and scale pickers are present');
+} else {
+  fail('Scale/instrument picker wiring is incomplete');
+}
+if (
+  /pionier-controls\.css\?v=\d+/.test(appHtml) &&
+  /pionier-app\.js\?v=\d+/.test(appHtml) &&
+  /pionier-v\d+/.test(serviceWorker)
+) {
+  ok('Picker assets use versioned cache stamps');
+} else {
+  fail('Picker asset cache versions are stale');
+}
 
-if (appHtml.includes('id="openLibrary"') && appHtml.includes('id="libraryPanel"') && appHtml.includes('id="libraryList"')) ok('My Library shell is present');
-else fail('My Library shell is missing');
-if (/objectStore\(STORE/.test(read('handpan-app/js/library-store.js')) && /indexedDB/.test(read('handpan-app/js/library-store.js'))) ok('My Library uses IndexedDB for composition data');
-else fail('My Library IndexedDB store is missing');
-if (!/soundscape|Soundscapes|openSoundscapes/.test(appHtml + shell + serviceWorker)) ok('Soundscapes player is removed from the app shell and offline cache');
-else fail('Soundscapes references remain in the app shell');
+if (
+  appHtml.includes('id="openLibrary"') &&
+  appHtml.includes('id="libraryPanel"') &&
+  appHtml.includes('id="libraryList"')
+) {
+  ok('My Library shell is present');
+} else {
+  fail('My Library shell is missing');
+}
+if (
+  /objectStore\(STORE/.test(read('handpan-app/js/library-store.js')) &&
+  /indexedDB/.test(read('handpan-app/js/library-store.js'))
+) {
+  ok('My Library uses IndexedDB for composition data');
+} else {
+  fail('My Library IndexedDB store is missing');
+}
+if (!/soundscape|Soundscapes|openSoundscapes/.test(appHtml + shell + serviceWorker)) {
+  ok('Soundscapes player is removed from the app shell and offline cache');
+} else {
+  fail('Soundscapes references remain in the app shell');
+}
 
-if (appHtml.includes('name="description"')) ok('Pionier description metadata is present');
-else fail('Pionier description metadata is missing');
+if (appHtml.includes('name="description"')) {
+  ok('Pionier description metadata is present');
+} else {
+  fail('Pionier description metadata is missing');
+}
 
-if (/pionier-core\.js/.test(shell) && !/cdn\.jsdelivr\.net|fetch\(GOOD\)|CORE_PATCHES/.test(shell)) {
+if (
+  /pionier-core\.js/.test(shell) &&
+  !/cdn\.jsdelivr\.net|fetch\(GOOD\)|CORE_PATCHES/.test(shell)
+) {
   ok('Pionier boot uses the local core without runtime source rewriting');
 } else {
   fail('Pionier boot still depends on remote source rewriting');
 }
 
-if (!/cdn\.jsdelivr\.net/.test(coreSrc) && /window\.PionierCore/.test(coreSrc) && /from ['"]\.\/js\/audio-core\.js(?:\?[^'"]*)?['"]/.test(coreSrc)) {
+if (
+  !/cdn\.jsdelivr\.net/.test(coreSrc) &&
+  /window\.PionierCore/.test(coreSrc) &&
+  /from ['"]\.\/js\/audio-core\.js(?:\?[^'"]*)?['"]/.test(coreSrc)
+) {
   ok('Core is a real local ES module (no CDN, no blob loader)');
 } else {
   fail('Core is not a real local ES module or still depends on CDN');
@@ -117,71 +208,202 @@ if (/window\.PionierCore/.test(coreSrc) && /async function setInstrument/.test(c
 }
 
 const fxEditor = read('handpan-app/js/fx-editor.js');
-if (/fxEditorCurve/.test(fxEditor) && /fxEditorPresets/.test(fxEditor) && /fx-settings-shortcut/.test(appHtml)) ok('FX settings shortcuts and touch-safe curve editor wiring are present');
-else fail('FX editor shortcut, curve, or preset wiring is missing');
-if ((appHtml.match(/class="fx-settings-shortcut"/g) || []).length === 4) ok('All four effects expose an S shortcut to advanced settings');
-else fail('Expected S shortcuts for Comp, Delay, Reverb, and Filter');
-if (appHtml.includes('id="randomizeSetup"') && !appHtml.includes('id="learnPanel"') && !shell.includes('learn-mode.js') && !shell.includes('learn-mode.css')) ok('Learn system is removed and the dice randomizer replaces it');
-else fail('Learn removal or randomizer replacement is incomplete');
-if (/looperBtn|looper-btn/.test(loopControls) && /looperClearBtn|looper-clear/.test(loopControls + appHtml)) ok('Looper record and clear controls are present');
-else fail('Looper record/clear controls are incomplete');
-if (appHtml.includes('pionier-base.css?') && /pionier-v\d+/.test(serviceWorker)) ok('Looper CSS and service worker declare cache versions');
-else fail('Looper CSS or service worker cache versions missing');
+if (
+  /fxEditorCurve/.test(fxEditor) &&
+  /fxEditorPresets/.test(fxEditor) &&
+  /fx-settings-shortcut/.test(appHtml)
+) {
+  ok('FX settings shortcuts and touch-safe curve editor wiring are present');
+} else {
+  fail('FX editor shortcut, curve, or preset wiring is missing');
+}
+if ((appHtml.match(/class="fx-settings-shortcut"/g) || []).length === 4) {
+  ok('All four effects expose an S shortcut to advanced settings');
+} else {
+  fail('Expected S shortcuts for Comp, Delay, Reverb, and Filter');
+}
+if (
+  appHtml.includes('id="randomizeSetup"') &&
+  !appHtml.includes('id="learnPanel"') &&
+  !shell.includes('learn-mode.js') &&
+  !shell.includes('learn-mode.css')
+) {
+  ok('Learn system is removed and the dice randomizer replaces it');
+} else {
+  fail('Learn removal or randomizer replacement is incomplete');
+}
+if (
+  /looperBtn|looper-btn/.test(loopControls) &&
+  /looperClearBtn|looper-clear/.test(loopControls + appHtml)
+) {
+  ok('Looper record and clear controls are present');
+} else {
+  fail('Looper record/clear controls are incomplete');
+}
+if (appHtml.includes('pionier-base.css?') && /pionier-v\d+/.test(serviceWorker)) {
+  ok('Looper CSS and service worker declare cache versions');
+} else {
+  fail('Looper CSS or service worker cache versions missing');
+}
 
-if (!/repository-loop-save/.test(serviceWorker) && !/community-api/.test(serviceWorker)) ok('Service worker shell does not reference community upload modules');
-else fail('Service worker still references community upload modules');
-if (!appHtml.includes('soundscapeCommunityTab') && !appHtml.includes('User-Created')) ok('Community User-Created UI is absent from index');
-else fail('Community User-Created UI still present in index');
-if (fs.existsSync(path.join(root, 'handpan-app/js/app-state.js'))) ok('Unified app-state module is present');
-else fail('app-state.js missing');
-if (/getAmbientBus/.test(coreSrc) && /instrumentBus/.test(coreSrc)) ok('Core exposes separated instrument and ambient buses');
-else fail('Separated audio buses missing from core');
+if (!/repository-loop-save/.test(serviceWorker) && !/community-api/.test(serviceWorker)) {
+  ok('Service worker shell does not reference community upload modules');
+} else {
+  fail('Service worker still references community upload modules');
+}
+if (!appHtml.includes('soundscapeCommunityTab') && !appHtml.includes('User-Created')) {
+  ok('Community User-Created UI is absent from index');
+} else {
+  fail('Community User-Created UI still present in index');
+}
+if (fs.existsSync(path.join(root, 'handpan-app/js/app-state.js'))) {
+  ok('Unified app-state module is present');
+} else {
+  fail('app-state.js missing');
+}
+if (/getAmbientBus/.test(coreSrc) && /instrumentBus/.test(coreSrc)) {
+  ok('Core exposes separated instrument and ambient buses');
+} else {
+  fail('Separated audio buses missing from core');
+}
 
 // --- Shipped-code integrity guard: no stubs, no placeholders, no remote executable code ---
 {
   const appDirAbs = path.join(root, 'handpan-app');
-  const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => {
-    const f = path.join(d, e.name);
-    if (e.isDirectory()) return e.name === 'node_modules' || e.name === 'sounds' ? [] : walk(f);
-    return /\.(m?js)$/.test(e.name) ? [f] : [];
-  });
+  const walk = (d) =>
+    fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => {
+      const f = path.join(d, e.name);
+      if (e.isDirectory()) {
+        return e.name === 'node_modules' || e.name === 'sounds' ? [] : walk(f);
+      }
+      return /\.(m?js)$/.test(e.name) ? [f] : [];
+    });
   const bad = [];
   for (const f of walk(appDirAbs)) {
     const rel = path.relative(root, f);
     const src = fs.readFileSync(f, 'utf8');
-    if (src.length < 100) bad.push(rel + ' is only ' + src.length + ' bytes (stub?)');
-    if (/will replace|placeholder:\s*true|size probe|TODO: implement/i.test(src)) bad.push(rel + ' contains placeholder text');
-    if (/(?:from|import\s*\(?)\s*['"]https?:\/\//.test(src)) bad.push(rel + ' imports remote code');
+    if (src.length < 100) {
+      bad.push(rel + ' is only ' + src.length + ' bytes (stub?)');
+    }
+    if (/will replace|placeholder:\s*true|size probe|TODO: implement/i.test(src)) {
+      bad.push(rel + ' contains placeholder text');
+    }
+    if (/(?:from|import\s*\(?)\s*['"]https?:\/\//.test(src)) {
+      bad.push(rel + ' imports remote code');
+    }
   }
-  if (bad.length) bad.forEach((b) => fail('Integrity: ' + b));
-  else ok('Integrity: no stub, placeholder or remote-import files in handpan-app');
+  if (bad.length) {
+    bad.forEach((b) => fail('Integrity: ' + b));
+  } else {
+    ok('Integrity: no stub, placeholder or remote-import files in handpan-app');
+  }
 }
 const budget = (rel, maxKb) => {
   const full = path.join(root, rel);
-  if (!fs.existsSync(full)) { fail('Budget target missing: ' + rel); return; }
+  if (!fs.existsSync(full)) {
+    fail('Budget target missing: ' + rel);
+    return;
+  }
   const kb = fs.statSync(full).size / 1024;
-  if (kb <= maxKb) ok(rel + ' size ' + kb.toFixed(1) + ' KB ≤ ' + maxKb + ' KB');
-  else fail(rel + ' size ' + kb.toFixed(1) + ' KB exceeds budget ' + maxKb + ' KB');
+  if (kb <= maxKb) {
+    ok(rel + ' size ' + kb.toFixed(1) + ' KB ≤ ' + maxKb + ' KB');
+  } else {
+    fail(rel + ' size ' + kb.toFixed(1) + ' KB exceeds budget ' + maxKb + ' KB');
+  }
 };
 budget('handpan-app/index.html', 80);
 budget('handpan-app/pionier-core.js', 120);
 budget('handpan-app/pionier-core-base.js', 120);
 budget('handpan-app/pionier-app.js', 80);
 
-const presetCounts = ['Vocal Glue','Punchy Drums','Parallel Crush','Bass Tightener','Acoustic Strummer','Mastering Limiter','Snare Smasher','Sustain Builder','Sidechain Duck','Subtle Leveler','Slapback Echo','Dotted Eighth','Tape Saturation','Ping-Pong','Stereo Widener','Ambient Wash','Modulated Echo','Dub Echo','Quarter Note Lead','Trippy Reverse','Studio Room','Vocal Plate','Cathedral Hall','Spring Tank','Gated Snare','Shimmer Pad','Ambiance / Glue','Concert Hall','Tiled Bathroom','Deep Abyss','Telephone / Lo-Fi','Sub Bass Cut','HF Brilliance','Club Next Door','Auto-Wah / Envelope','Sweeping LFO LPF','Phaser Sweep','Vocal Formant','Crisp Vinyl','The Kill Switch'];
-if (presetCounts.every((name) => fxEditor.includes(`label:'${name}'`)) && (fxEditor.match(/label:'(?:Vocal Glue|Slapback Echo|Studio Room|Telephone \/ Lo-Fi)'/g) || []).length === 4) ok('FX editor includes all 40 named presets across four effect types');
-else fail('FX preset library is incomplete');
-if (fxEditor.includes('fx-editor-preset-select') && appHtml.includes('fx-editor-header-compact') && !appHtml.includes('RESPONSE CURVE') && !appHtml.includes('Drag the point to shape it')) ok('FX editor uses a preset dropdown and a simplified curve layout');
-else fail('FX editor dropdown or compact layout is missing');
-if (/setTargetAtTime/.test(read('handpan-app/js/fx.js')) && /settings\.threshold/.test(read('handpan-app/js/fx.js')) && /settings\.feedback/.test(read('handpan-app/js/fx.js')) && /settings\.resonance/.test(read('handpan-app/js/fx.js'))) ok('FX editor parameters are wired to the live audio modules');
-else fail('FX editor parameters are not wired to the live audio modules');
+const presetCounts = [
+  'Vocal Glue',
+  'Punchy Drums',
+  'Parallel Crush',
+  'Bass Tightener',
+  'Acoustic Strummer',
+  'Mastering Limiter',
+  'Snare Smasher',
+  'Sustain Builder',
+  'Sidechain Duck',
+  'Subtle Leveler',
+  'Slapback Echo',
+  'Dotted Eighth',
+  'Tape Saturation',
+  'Ping-Pong',
+  'Stereo Widener',
+  'Ambient Wash',
+  'Modulated Echo',
+  'Dub Echo',
+  'Quarter Note Lead',
+  'Trippy Reverse',
+  'Studio Room',
+  'Vocal Plate',
+  'Cathedral Hall',
+  'Spring Tank',
+  'Gated Snare',
+  'Shimmer Pad',
+  'Ambiance / Glue',
+  'Concert Hall',
+  'Tiled Bathroom',
+  'Deep Abyss',
+  'Telephone / Lo-Fi',
+  'Sub Bass Cut',
+  'HF Brilliance',
+  'Club Next Door',
+  'Auto-Wah / Envelope',
+  'Sweeping LFO LPF',
+  'Phaser Sweep',
+  'Vocal Formant',
+  'Crisp Vinyl',
+  'The Kill Switch',
+];
+if (
+  presetCounts.every((name) => fxEditor.includes(`label: '${name}'`)) &&
+  (fxEditor.match(/label: '(?:Vocal Glue|Slapback Echo|Studio Room|Telephone \/ Lo-Fi)'/g) || [])
+    .length === 4
+) {
+  ok('FX editor includes all 40 named presets across four effect types');
+} else {
+  fail('FX preset library is incomplete');
+}
+if (
+  fxEditor.includes('fx-editor-preset-select') &&
+  appHtml.includes('fx-editor-header-compact') &&
+  !appHtml.includes('RESPONSE CURVE') &&
+  !appHtml.includes('Drag the point to shape it')
+) {
+  ok('FX editor uses a preset dropdown and a simplified curve layout');
+} else {
+  fail('FX editor dropdown or compact layout is missing');
+}
+if (
+  /setTargetAtTime/.test(read('handpan-app/js/fx.js')) &&
+  /settings\.threshold/.test(read('handpan-app/js/fx.js')) &&
+  /settings\.feedback/.test(read('handpan-app/js/fx.js')) &&
+  /settings\.resonance/.test(read('handpan-app/js/fx.js'))
+) {
+  ok('FX editor parameters are wired to the live audio modules');
+} else {
+  fail('FX editor parameters are not wired to the live audio modules');
+}
 
 const instrumentFamilyImports = coreSrc.match(/from ['"]\.\/js\/instruments\/[^'"]+['"]/g) || [];
-if (instrumentFamilyImports.length === 2) ok('Instrument registry imports only the handpan and tonal families');
-else fail('Unexpected instrument-family imports in the core registry (got ' + instrumentFamilyImports.length + ')');
+if (instrumentFamilyImports.length === 2) {
+  ok('Instrument registry imports only the handpan and tonal families');
+} else {
+  fail(
+    'Unexpected instrument-family imports in the core registry (got ' +
+      instrumentFamilyImports.length +
+      ')'
+  );
+}
 
-if (!/ghp_[A-Za-z0-9]{20,}/.test(rootHtml + shell + coreSrc)) ok('No obvious GitHub token in entry source');
-else fail('Possible GitHub token in source');
+if (!/ghp_[A-Za-z0-9]{20,}/.test(rootHtml + shell + coreSrc)) {
+  ok('No obvious GitHub token in entry source');
+} else {
+  fail('Possible GitHub token in source');
+}
 
 const skipSyntax = (rel) => {
   const base = rel.replace(/\\/g, '/');
@@ -196,11 +418,16 @@ const skipSyntax = (rel) => {
 const jsFiles = [];
 function collectJs(dir) {
   const abs = path.join(root, dir);
-  if (!fs.existsSync(abs)) return;
+  if (!fs.existsSync(abs)) {
+    return;
+  }
   for (const entry of fs.readdirSync(abs, { withFileTypes: true })) {
     const rel = path.join(dir, entry.name);
-    if (entry.isDirectory() && !['node_modules', '.git', 'dist'].includes(entry.name)) collectJs(rel);
-    else if (entry.isFile() && entry.name.endsWith('.js')) jsFiles.push(rel);
+    if (entry.isDirectory() && !['node_modules', '.git', 'dist'].includes(entry.name)) {
+      collectJs(rel);
+    } else if (entry.isFile() && entry.name.endsWith('.js')) {
+      jsFiles.push(rel);
+    }
   }
 }
 collectJs('.');
@@ -209,9 +436,14 @@ for (const rel of jsFiles) {
     ok('JS fragment skipped (assembled at runtime): ' + rel);
     continue;
   }
-  const result = spawnSync(process.execPath, ['--check', path.join(root, rel)], { encoding: 'utf8' });
-  if (result.status === 0) ok('JS syntax: ' + rel);
-  else fail('JS syntax: ' + rel + (result.stderr ? ' — ' + result.stderr.trim().split('\n')[0] : ''));
+  const result = spawnSync(process.execPath, ['--check', path.join(root, rel)], {
+    encoding: 'utf8',
+  });
+  if (result.status === 0) {
+    ok('JS syntax: ' + rel);
+  } else {
+    fail('JS syntax: ' + rel + (result.stderr ? ' — ' + result.stderr.trim().split('\n')[0] : ''));
+  }
 }
 
 // Version drift guard: QUALITY-BASELINE.md cache version must match APP_VERSION.

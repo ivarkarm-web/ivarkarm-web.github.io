@@ -5,7 +5,9 @@
  * - If count-in is cancelled, restore levels without forcing a restart.
  */
 (function looperRestartOnRecord() {
-  if (window.__pionierLooperRestartOnRecordV2) return;
+  if (window.__pionierLooperRestartOnRecordV2) {
+    return;
+  }
   window.__pionierLooperRestartOnRecordV2 = true;
 
   var wasRecording = false;
@@ -33,27 +35,39 @@
 
   function anySolo(list) {
     for (var i = 0; i < list.length; i++) {
-      if (list[i] && list[i].solo) return true;
+      if (list[i] && list[i].solo) {
+        return true;
+      }
     }
     return false;
   }
 
   function effectiveLevel(layer, list) {
-    if (!layer) return 0;
-    if (layer.muted) return 0;
-    if (anySolo(list) && !layer.solo) return 0;
+    if (!layer) {
+      return 0;
+    }
+    if (layer.muted) {
+      return 0;
+    }
+    if (anySolo(list) && !layer.solo) {
+      return 0;
+    }
     var level = layer.level;
     return Number.isFinite(level) ? level : 1;
   }
 
   function muteAllLayers() {
     var list = layers();
-    if (!list.length) return;
+    if (!list.length) {
+      return;
+    }
     var ctx = audioCtx();
     var now = ctx ? ctx.currentTime : 0;
     list.forEach(function (layer) {
-      if (!layer || !layer.gain) return;
-      if (layer.__preMuteLevel == null) {
+      if (!layer || !layer.gain) {
+        return;
+      }
+      if (layer.__preMuteLevel === null) {
         try {
           layer.__preMuteLevel = layer.gain.gain.value;
         } catch (e) {
@@ -61,10 +75,15 @@
         }
       }
       try {
-        if (ctx) layer.gain.gain.setTargetAtTime(0, now, 0.015);
-        else layer.gain.gain.value = 0;
+        if (ctx) {
+          layer.gain.gain.setTargetAtTime(0, now, 0.015);
+        } else {
+          layer.gain.gain.value = 0;
+        }
       } catch (e2) {
-        try { layer.gain.gain.value = 0; } catch (e3) {}
+        try {
+          layer.gain.gain.value = 0;
+        } catch (e3) {}
       }
     });
     mutedForCountIn = true;
@@ -72,18 +91,27 @@
 
   function restoreAllLayersGain() {
     var list = layers();
-    if (!list.length) return;
+    if (!list.length) {
+      return;
+    }
     var ctx = audioCtx();
     var now = ctx ? ctx.currentTime : 0;
     list.forEach(function (layer) {
-      if (!layer || !layer.gain) return;
+      if (!layer || !layer.gain) {
+        return;
+      }
       var level = effectiveLevel(layer, list);
       delete layer.__preMuteLevel;
       try {
-        if (ctx) layer.gain.gain.setTargetAtTime(level, now, 0.02);
-        else layer.gain.gain.value = level;
+        if (ctx) {
+          layer.gain.gain.setTargetAtTime(level, now, 0.02);
+        } else {
+          layer.gain.gain.value = level;
+        }
       } catch (e) {
-        try { layer.gain.gain.value = level; } catch (e2) {}
+        try {
+          layer.gain.gain.value = level;
+        } catch (e2) {}
       }
     });
     mutedForCountIn = false;
@@ -91,23 +119,39 @@
 
   function restartAllLayersFromStart() {
     var list = layers();
-    if (!list.length) return;
+    if (!list.length) {
+      return;
+    }
     var ctx = audioCtx();
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
     list.forEach(function (layer) {
-      if (!layer || !layer.buffer) return;
+      if (!layer || !layer.buffer) {
+        return;
+      }
 
       layer.offset = 0;
 
-      if (layer.paused) return;
-      if (!layer.gain) return;
+      if (layer.paused) {
+        return;
+      }
+      if (!layer.gain) {
+        return;
+      }
 
       try {
         if (layer.source) {
-          try { layer.source.onended = null; } catch (e1) {}
-          try { layer.source.stop(); } catch (e2) {}
-          try { layer.source.disconnect(); } catch (e3) {}
+          try {
+            layer.source.onended = null;
+          } catch (e1) {}
+          try {
+            layer.source.stop();
+          } catch (e2) {}
+          try {
+            layer.source.disconnect();
+          } catch (e3) {}
         }
       } catch (e4) {}
 
@@ -140,12 +184,16 @@
   }
 
   function onCountInEndedWithoutRecord() {
-    if (mutedForCountIn) restoreAllLayersGain();
+    if (mutedForCountIn) {
+      restoreAllLayersGain();
+    }
   }
 
   function poll() {
     var api = window.PionierLooper;
-    if (!api || typeof api.getState !== 'function') return;
+    if (!api || typeof api.getState !== 'function') {
+      return;
+    }
 
     var state = api.getState();
     var recording = !!(state && state.recording);
@@ -174,22 +222,34 @@
     'pointerup',
     function (e) {
       var t = e.target;
-      if (!t || !t.closest) return;
+      if (!t || !t.closest) {
+        return;
+      }
       var btn = t.closest('#looperBtn, .looper-btn.looper-record');
-      if (!btn) return;
+      if (!btn) {
+        return;
+      }
 
       // Immediate: if count-in is about to run, mute ASAP
       setTimeout(function () {
-        if (isCountingIn()) muteAllLayers();
+        if (isCountingIn()) {
+          muteAllLayers();
+        }
         var api = window.PionierLooper;
         var state = api && api.getState && api.getState();
-        if (state && state.recording) onRecordStarted();
+        if (state && state.recording) {
+          onRecordStarted();
+        }
       }, 0);
       setTimeout(function () {
-        if (isCountingIn()) muteAllLayers();
+        if (isCountingIn()) {
+          muteAllLayers();
+        }
         var api = window.PionierLooper;
         var state = api && api.getState && api.getState();
-        if (state && state.recording) onRecordStarted();
+        if (state && state.recording) {
+          onRecordStarted();
+        }
       }, 40);
     },
     true

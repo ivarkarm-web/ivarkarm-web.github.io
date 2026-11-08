@@ -8,7 +8,9 @@ async function enterIfNeeded(page) {
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) {
     await enter.click();
-    await expect(enter).toBeHidden({ timeout: 5000 }).catch(() => {});
+    await expect(enter)
+      .toBeHidden({ timeout: 5000 })
+      .catch(() => {});
   }
 }
 
@@ -31,7 +33,9 @@ test('phase5: document language and primary controls have accessible names', asy
   await expect(page.locator('#looperBtn')).toHaveAttribute('aria-label', /.+/);
 });
 
-test('phase5: bundled focus-visible rules are loaded and scale toggle is keyboard operable', async ({ page }) => {
+test('phase5: bundled focus-visible rules are loaded and scale toggle is keyboard operable', async ({
+  page,
+}) => {
   await page.goto('/handpan-app/');
   await enterIfNeeded(page);
 
@@ -39,9 +43,14 @@ test('phase5: bundled focus-visible rules are loaded and scale toggle is keyboar
     [...document.styleSheets].some((sheet) => {
       try {
         const isAppStylesheet = (sheet.href || '').includes('pionier-controls.css');
-        return isAppStylesheet && [...sheet.cssRules].some((rule) =>
-          rule.selectorText?.includes(':focus-visible') &&
-          (rule.selectorText.includes('#scaleLabel') || rule.selectorText.includes('.scale-dropdown-toggle'))
+        return (
+          isAppStylesheet &&
+          [...sheet.cssRules].some(
+            (rule) =>
+              rule.selectorText?.includes(':focus-visible') &&
+              (rule.selectorText.includes('#scaleLabel') ||
+                rule.selectorText.includes('.scale-dropdown-toggle'))
+          )
         );
       } catch (_) {
         return false;
@@ -59,10 +68,14 @@ test('phase5: bundled focus-visible rules are loaded and scale toggle is keyboar
   await expect(page.locator('#scaleMenu')).toBeHidden();
 });
 
-test('phase5: sequencer controls leave the tab order while the panel is closed', async ({ page }) => {
+test('phase5: sequencer controls leave the tab order while the panel is closed', async ({
+  page,
+}) => {
   await page.goto('/handpan-app/');
   await enterIfNeeded(page);
-  await expect.poll(() => page.evaluate(() => !!window.PionierTonepad), { timeout: 30000 }).toBe(true);
+  await expect
+    .poll(() => page.evaluate(() => !!window.PionierTonepad), { timeout: 30000 })
+    .toBe(true);
 
   const toggle = page.locator('#tonepadToggle');
   const layer = page.locator('#tonepadLayer');
@@ -73,11 +86,13 @@ test('phase5: sequencer controls leave the tab order while the panel is closed',
   expect(await layer.evaluate((el) => el.inert)).toBe(true);
 
   // A closed panel must not accept focus.
-  expect(await page.evaluate(() => {
-    const target = document.querySelector('#tonepadLayer [data-play]');
-    target?.focus();
-    return document.activeElement?.hasAttribute('data-play') ?? false;
-  })).toBe(false);
+  expect(
+    await page.evaluate(() => {
+      const target = document.querySelector('#tonepadLayer [data-play]');
+      target?.focus();
+      return document.activeElement?.hasAttribute('data-play') ?? false;
+    })
+  ).toBe(false);
 
   await toggle.click();
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
@@ -101,7 +116,9 @@ test('phase5: loop layer strip is a named group', async ({ page }) => {
   await expect(page.locator('#looperLayers')).toHaveAttribute('aria-label', /loop layers/i);
 });
 
-test('phase5: status region uses polite live region while booting or degraded', async ({ page }) => {
+test('phase5: status region uses polite live region while booting or degraded', async ({
+  page,
+}) => {
   await page.goto('/handpan-app/');
   const status = page.locator('#appStatus');
   await expect(status).toHaveAttribute('aria-live', /polite|assertive/i);
