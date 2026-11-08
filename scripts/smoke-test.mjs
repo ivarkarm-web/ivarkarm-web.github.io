@@ -40,8 +40,6 @@ const coreSrc =
 const loopControls = read('handpan-app/js/looper.js');
 const loopStyles = read('handpan-app/pionier-base.css');
 read('handpan-app/pionier-controls.css');
-read('handpan-app/pionier-layout.css');
-read('handpan-app/pionier-ambient.css');
 const serviceWorker = read('handpan-app/sw.js');
 read('handpan-app/pionier-base.css');
 read('handpan-app/js/audio-core.js');
