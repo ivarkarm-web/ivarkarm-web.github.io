@@ -1,15 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  DEFAULT_BPM,
-  DEFAULT_BARS,
-  beatDuration,
-  loopDuration,
-  countInDuration,
-  quantizeTime,
-  normalizeLayer,
-  phaseAt,
-  eventsBetween,
+  DEFAULT_BPM, DEFAULT_BARS, beatDuration, loopDuration, countInDuration,
+  quantizeTime, normalizeLayer, phaseAt, eventsBetween
 } from '../../handpan-app/js/loop-core.js';
 
 test('default loop is four bars at 80 BPM with a one-bar count-in', () => {
@@ -27,45 +20,27 @@ test('quantiser snaps to sixteenth notes', () => {
 });
 
 test('layer normalisation clamps, quantises and sorts events', () => {
-  const layer = normalizeLayer(
-    [
-      { t: 1.02, n: 3, v: 2 },
-      { t: -0.1, n: 1, v: 0.5 },
-      { t: 4, n: 2, v: 0.7 },
-    ],
-    3,
-    80
-  );
-  assert.deepEqual(
-    layer.map((e) => [e.t, e.n, e.v]),
-    [
-      [0, 1, 0.5],
-      [0.9375, 3, 1],
-      [2.999, 2, 0.7],
-    ]
-  );
+  const layer = normalizeLayer([
+    { t: 1.02, n: 3, v: 2 },
+    { t: -0.1, n: 1, v: 0.5 },
+    { t: 4, n: 2, v: 0.7 }
+  ], 3, 80);
+  assert.deepEqual(layer.map((e) => [e.t, e.n, e.v]), [
+    [0, 1, 0.5],
+    [0.9375, 3, 1],
+    [2.999, 2, 0.7]
+  ]);
 });
 
 test('phase wraps and event scheduler handles loop boundaries in playback order', () => {
   assert.ok(Math.abs(phaseAt(12.2, 12) - 0.2) < 1e-9);
-  const events = [
-    { t: 0.1, n: 1 },
-    { t: 2, n: 2 },
-    { t: 11.8, n: 3 },
-  ];
-  assert.deepEqual(
-    eventsBetween(events, 11.5, 0.2, 12).map((e) => e.n),
-    [3, 1]
-  );
-  assert.deepEqual(
-    eventsBetween(events, 1, 0.5, 12).map((e) => e.n),
-    [2, 3, 1]
-  );
+  const events = [{ t: 0.1, n: 1 }, { t: 2, n: 2 }, { t: 11.8, n: 3 }];
+  assert.deepEqual(eventsBetween(events, 11.5, 0.2, 12).map((e) => e.n), [3, 1]);
+  assert.deepEqual(eventsBetween(events, 1, 0.5, 12).map((e) => e.n), [2, 3, 1]);
 });
 
 test('clampBpm and quantizeTime stay in documented ranges', async () => {
-  const { clampBpm, quantizeTime, MIN_BPM, MAX_BPM, DEFAULT_BPM } =
-    await import('../../handpan-app/js/loop-core.js');
+  const { clampBpm, quantizeTime, MIN_BPM, MAX_BPM, DEFAULT_BPM } = await import('../../handpan-app/js/loop-core.js');
   assert.equal(clampBpm(10), MIN_BPM);
   assert.equal(clampBpm(999), MAX_BPM);
   assert.equal(clampBpm(DEFAULT_BPM), DEFAULT_BPM);

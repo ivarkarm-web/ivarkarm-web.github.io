@@ -6,11 +6,9 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const app = path.join(root, 'handpan-app');
-function read(rel) {
-  return fs.readFileSync(path.join(root, rel), 'utf8');
-}
+function read(rel) { return fs.readFileSync(path.join(root, rel), 'utf8'); }
 function readCoreSource() {
-  return read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js');
+  return (read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js'));
 }
 
 test('Pionier entry surface matches the deployed instrument UI', () => {
@@ -49,7 +47,7 @@ test('handpan voices are synthesized locally without a note-sample bank', () => 
 });
 
 test('boot chain is local and does not fetch or rewrite executable source at runtime', () => {
-  const shell = read('handpan-app/js/entry.mjs');
+  const shell = read('handpan-app/pionier-app.js');
   const coreSrc = readCoreSource();
 
   assert.match(shell, /pionier-core\.js/);
@@ -67,12 +65,9 @@ test('boot chain is local and does not fetch or rewrite executable source at run
   assert.ok(fs.existsSync(path.join(app, 'js/instruments/handpan.js')));
   assert.ok(fs.existsSync(path.join(app, 'js/library.js')));
   assert.ok(fs.existsSync(path.join(app, 'js/library-store.js')));
-  assert.match(read('handpan-app/pionier-app.js'), /\.\/js\/library\.js/);
-  assert.doesNotMatch(
-    read('handpan-app/index.html'),
-    /soundscapesPanel|soundscapeAudio|openSoundscapes/
-  );
-  assert.match(read('handpan-app/js/looper.js'), /Persistence\.createLibrarySnapshot\(\)/);
+  assert.match(read('handpan-app/pionier-app.js'), /js\/library\.js/);
+  assert.doesNotMatch(read('handpan-app/index.html'), /soundscapesPanel|soundscapeAudio|openSoundscapes/);
+  assert.match(read('handpan-app/js/looper.js'), /window\.PionierLibrary\?\.save\?\.\(createLibrarySnapshot\(\)\)/);
 });
 
 test('the app exposes instrument switching, audio controls and mobile drawer hooks', () => {

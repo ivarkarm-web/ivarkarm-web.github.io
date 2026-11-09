@@ -9,22 +9,12 @@ const VOICES = {
   warm: [1, 1.01, 2.01],
   bell: [1, 2.02, 4.01],
   soft: [1, 1.005, 2.005],
-  deep: [0.5, 1, 2],
+  deep: [0.5, 1, 2]
 };
 const NOTES = [
-  ['D3', 146.832],
-  ['A3', 220],
-  ['Bb3', 233.082],
-  ['C4', 261.626],
-  ['D4', 293.665],
-  ['E4', 329.628],
-  ['F4', 349.228],
-  ['G4', 391.995],
-  ['A4', 440],
-  ['B4', 493.883],
-  ['C5', 523.251],
-  ['D5', 587.33],
-  ['E5', 659.255],
+  ['D3',146.832],['A3',220],['Bb3',233.082],['C4',261.626],['D4',293.665],
+  ['E4',329.628],['F4',349.228],['G4',391.995],['A4',440],['B4',493.883],
+  ['C5',523.251],['D5',587.33],['E5',659.255]
 ];
 
 function writeWav(file, voicePartials, frequency) {
@@ -59,10 +49,7 @@ function writeWav(file, voicePartials, frequency) {
 }
 
 fs.mkdirSync(OUT, { recursive: true });
-fs.writeFileSync(
-  path.join(OUT, 'FIXTURE-ONLY.txt'),
-  'Synthetic test fixtures. Never ship these as production recordings.\n'
-);
+fs.writeFileSync(path.join(OUT, 'FIXTURE-ONLY.txt'), 'Synthetic test fixtures. Never ship these as production recordings.\n');
 
 for (const [voice, partials] of Object.entries(VOICES)) {
   const dir = path.join(OUT, voice);

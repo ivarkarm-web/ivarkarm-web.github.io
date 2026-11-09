@@ -13,14 +13,10 @@ import path from 'node:path';
 test('measure peak RMS and decay for every instrument', async ({ page }, testInfo) => {
   test.setTimeout(120000);
   await page.goto('/handpan-app/index.html');
-  await expect
-    .poll(() =>
-      page.evaluate(() => {
-        const active = window.PionierCore?.activeInstrument?.();
-        return !!active?.audioCtx && !!active?.bus;
-      })
-    )
-    .toBe(true);
+  await expect.poll(() => page.evaluate(() => {
+    const active = window.PionierCore?.activeInstrument?.();
+    return !!active?.audioCtx && !!active?.bus;
+  })).toBe(true);
 
   const table = await page.evaluate(async () => {
     const { InstrumentRegistry } = await import('/handpan-app/js/instrument.js');
@@ -36,26 +32,18 @@ test('measure peak RMS and decay for every instrument', async ({ page }, testInf
       for (let i = 0; i < channelData.length; i++) {
         const v = channelData[i];
         const a = Math.abs(v);
-        if (a > peak) {
-          peak = a;
-        }
+        if (a > peak) peak = a;
         sumSq += v * v;
       }
       const rms = Math.sqrt(sumSq / channelData.length);
       let peakIdx = 0;
       for (let i = 0; i < channelData.length; i++) {
-        if (Math.abs(channelData[i]) === peak) {
-          peakIdx = i;
-          break;
-        }
+        if (Math.abs(channelData[i]) === peak) { peakIdx = i; break; }
       }
       const threshold = peak * Math.pow(10, -20 / 20);
       let decayIdx = channelData.length - 1;
       for (let i = peakIdx; i < channelData.length; i++) {
-        if (Math.abs(channelData[i]) <= threshold) {
-          decayIdx = i;
-          break;
-        }
+        if (Math.abs(channelData[i]) <= threshold) { decayIdx = i; break; }
       }
       const decayMs = ((decayIdx - peakIdx) / sr) * 1000;
       return {
@@ -63,7 +51,7 @@ test('measure peak RMS and decay for every instrument', async ({ page }, testInf
         rms: Number(rms.toFixed(5)),
         decayMs: Number(decayMs.toFixed(1)),
         peakDb: peak > 0 ? Number((20 * Math.log10(peak)).toFixed(2)) : -Infinity,
-        rmsDb: rms > 0 ? Number((20 * Math.log10(rms)).toFixed(2)) : -Infinity,
+        rmsDb: rms > 0 ? Number((20 * Math.log10(rms)).toFixed(2)) : -Infinity
       };
     }
 
@@ -97,14 +85,11 @@ test('measure peak RMS and decay for every instrument', async ({ page }, testInf
           name: item.name,
           ...m,
           samples: data.length,
-          sampleRate,
+          sampleRate
         });
       } catch (err) {
-        try {
-          instrument.dampAll?.();
-          instrument.deactivate?.();
-        } catch (_) {}
-        rows.push({ id: item.id, name: item.name, error: String((err && err.message) || err) });
+        try { instrument.dampAll?.(); instrument.deactivate?.(); } catch (_) {}
+        rows.push({ id: item.id, name: item.name, error: String(err && err.message || err) });
       }
     }
     return rows;
@@ -115,10 +100,7 @@ test('measure peak RMS and decay for every instrument', async ({ page }, testInf
   const outDir = path.join('test-results', 'instrument-levels');
   fs.mkdirSync(outDir, { recursive: true });
   const jsonPath = path.join(outDir, 'levels.json');
-  fs.writeFileSync(
-    jsonPath,
-    JSON.stringify({ measuredAt: new Date().toISOString(), rows: table }, null, 2)
-  );
+  fs.writeFileSync(jsonPath, JSON.stringify({ measuredAt: new Date().toISOString(), rows: table }, null, 2));
 
   const header = ['id', 'name', 'peak', 'rms', 'peakDb', 'rmsDb', 'decayMs', 'error'];
   const lines = [header.join('\t')];

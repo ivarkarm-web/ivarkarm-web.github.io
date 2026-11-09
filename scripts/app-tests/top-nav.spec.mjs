@@ -26,14 +26,10 @@ async function enterPionier(page) {
   });
   // The welcome gate covers #app during a ~1s exit transition; wait until it
   // is fully hidden before interacting with the top navigation controls.
-  await page.waitForFunction(
-    () => {
-      const w = document.getElementById('pionierWelcome');
-      return !w || w.hidden;
-    },
-    null,
-    { timeout: 15000 }
-  );
+  await page.waitForFunction(() => {
+    const w = document.getElementById('pionierWelcome');
+    return !w || w.hidden;
+  }, null, { timeout: 15000 });
 }
 
 test('top navigation group is centred with three non-overlapping buttons', async ({ page }) => {
@@ -43,9 +39,7 @@ test('top navigation group is centred with three non-overlapping buttons', async
   await expect(group).toBeVisible();
 
   const buttons = [LIB_BTN, FAV_BTN, ABOUT_BTN].map((sel) => page.locator(sel));
-  for (const b of buttons) {
-    await expect(b).toBeVisible();
-  }
+  for (const b of buttons) await expect(b).toBeVisible();
 
   const rects = await page.evaluate(() => {
     const vpW = window.innerWidth;
@@ -58,15 +52,15 @@ test('top navigation group is centred with three non-overlapping buttons', async
     const lib = get('#openLibrary');
     const fav = get('#favoritesOpenBtn');
     const abt = get('#aboutBtn');
-    const overlaps = (a, b) =>
-      !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top);
+    const overlaps = (a, b) => !(
+      a.right <= b.left || b.right <= a.left ||
+      a.bottom <= b.top || b.bottom <= a.top
+    );
     return {
       vpW,
       groupCenter: gr.left + gr.width / 2,
       vpCenter: vpW / 2,
-      lib,
-      fav,
-      abt,
+      lib, fav, abt,
       libFavOverlap: overlaps(lib, fav),
       favAbtOverlap: overlaps(fav, abt),
       libAbtOverlap: overlaps(lib, abt),

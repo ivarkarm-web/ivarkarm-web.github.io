@@ -2,86 +2,35 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 class Param {
-  constructor(value = 0) {
-    this.value = value;
-  }
-  setTargetAtTime(value) {
-    this.value = value;
-  }
+  constructor(value = 0) { this.value = value; }
+  setTargetAtTime(value) { this.value = value; }
 }
 class Node {
   constructor(context, kind) {
-    this.context = context;
-    this.kind = kind;
-    this.connections = [];
-    this.gain = new Param(1);
-    this.frequency = new Param();
-    this.Q = new Param();
-    this.delayTime = new Param();
-    this.pan = new Param();
+    this.context = context; this.kind = kind; this.connections = [];
+    this.gain = new Param(1); this.frequency = new Param(); this.Q = new Param();
+    this.delayTime = new Param(); this.pan = new Param();
   }
-  connect(node) {
-    this.connections.push(node);
-    return node;
-  }
-  disconnect(node) {
-    this.connections = node ? this.connections.filter((target) => target !== node) : [];
-  }
+  connect(node) { this.connections.push(node); return node; }
+  disconnect(node) { this.connections = node ? this.connections.filter((target) => target !== node) : []; }
   start() {}
   stop() {}
 }
 class FakeContext {
-  constructor() {
-    FakeContext.created += 1;
-    this.state = 'running';
-    this.currentTime = 0;
-    this.destination = new Node(this, 'destination');
-    this.nodes = [];
-    this.listeners = {};
-    this.resumeCalls = 0;
-  }
-  make(kind) {
-    const node = new Node(this, kind);
-    this.nodes.push(node);
-    return node;
-  }
-  createGain() {
-    return this.make('gain');
-  }
+  constructor() { FakeContext.created += 1; this.state = 'running'; this.currentTime = 0; this.destination = new Node(this, 'destination'); this.nodes = []; this.listeners = {}; this.resumeCalls = 0; }
+  make(kind) { const node = new Node(this, kind); this.nodes.push(node); return node; }
+  createGain() { return this.make('gain'); }
   createDynamicsCompressor() {
     const node = this.make('compressor');
-    for (const [key, value] of Object.entries({
-      threshold: -24,
-      knee: 30,
-      ratio: 12,
-      attack: 0.003,
-      release: 0.25,
-    })) {
-      node[key] = new Param(value);
-    }
+    for (const [key, value] of Object.entries({ threshold: -24, knee: 30, ratio: 12, attack: 0.003, release: 0.25 })) node[key] = new Param(value);
     return node;
   }
-  createBiquadFilter() {
-    return this.make('filter');
-  }
-  createDelay() {
-    return this.make('delay');
-  }
-  createOscillator() {
-    return this.make('oscillator');
-  }
-  resume() {
-    this.resumeCalls += 1;
-    this.state = 'running';
-    return Promise.resolve();
-  }
-  close() {
-    this.state = 'closed';
-    return Promise.resolve();
-  }
-  addEventListener(name, handler) {
-    this.listeners[name] = handler;
-  }
+  createBiquadFilter() { return this.make('filter'); }
+  createDelay() { return this.make('delay'); }
+  createOscillator() { return this.make('oscillator'); }
+  resume() { this.resumeCalls += 1; this.state = 'running'; return Promise.resolve(); }
+  close() { this.state = 'closed'; return Promise.resolve(); }
+  addEventListener(name, handler) { this.listeners[name] = handler; }
 }
 FakeContext.created = 0;
 globalThis.AudioContext = FakeContext;
@@ -109,20 +58,11 @@ test('instrument FX are isolated from sequencer and looper buses on the shared m
   assert.ok(looperBus.connections.includes(master));
   assert.ok(!sequencerBus.connections.includes(fx.input));
   assert.ok(!looperBus.connections.includes(fx.input));
-  assert.ok(
-    !master.connections.includes(context.destination),
-    'only the shared compressor reaches the destination'
-  );
+  assert.ok(!master.connections.includes(context.destination), 'only the shared compressor reaches the destination');
 
   fx.setBypass('filter', true);
-  assert.ok(
-    sequencerBus.connections.includes(master),
-    'changing an instrument FX module leaves the sequencer route intact'
-  );
-  assert.ok(
-    looperBus.connections.includes(master),
-    'changing an instrument FX module leaves the looper route intact'
-  );
+  assert.ok(sequencerBus.connections.includes(master), 'changing an instrument FX module leaves the sequencer route intact');
+  assert.ok(looperBus.connections.includes(master), 'changing an instrument FX module leaves the looper route intact');
   fx.dispose();
   await core.closeAudio();
 });
@@ -137,10 +77,7 @@ test('shared master trims concurrent sources before its final compressor', async
   assert.equal(master.gain.value, 0.85);
   assert.equal(compressor.threshold.value, -12);
   assert.equal(compressor.ratio.value, 2);
-  assert.ok(
-    master.gain.value < 1,
-    'shared pre-compressor trim leaves headroom for overlapping sources'
-  );
+  assert.ok(master.gain.value < 1, 'shared pre-compressor trim leaves headroom for overlapping sources');
   await core.closeAudio();
 });
 
@@ -148,21 +85,9 @@ test('shared master gain changes are observable for direct HTML media playback',
   await core.closeAudio();
   const context = core.getAudioContext();
   const observed = [];
-  globalThis.addEventListener = (name, handler) => {
-    if (name === 'pionier-master-gain') {
-      globalThis._masterGainHandler = handler;
-    }
-  };
-  globalThis.dispatchEvent = (event) => {
-    observed.push(event.detail.gain);
-    globalThis._masterGainHandler?.(event);
-  };
-  globalThis.CustomEvent = class {
-    constructor(type, init) {
-      this.type = type;
-      this.detail = init.detail;
-    }
-  };
+  globalThis.addEventListener = (name, handler) => { if (name === 'pionier-master-gain') globalThis._masterGainHandler = handler; };
+  globalThis.dispatchEvent = (event) => { observed.push(event.detail.gain); globalThis._masterGainHandler?.(event); };
+  globalThis.CustomEvent = class { constructor(type, init) { this.type = type; this.detail = init.detail; } };
   assert.equal(core.setMasterGain(0.6), 0.6);
   assert.equal(core.getAudioMaster().gain.value, 0.6);
   assert.deepEqual(observed, [0.6]);
@@ -173,25 +98,14 @@ test('shared master gain changes are observable for direct HTML media playback',
 test('lifecycle events do not create audio or resume a context without prior playback', async () => {
   const documentListeners = {};
   const windowListeners = {};
-  globalThis.document = {
-    hidden: false,
-    addEventListener: (name, fn) => {
-      documentListeners[name] = fn;
-    },
-  };
-  globalThis.addEventListener = (name, fn) => {
-    windowListeners[name] = fn;
-  };
+  globalThis.document = { hidden: false, addEventListener: (name, fn) => { documentListeners[name] = fn; } };
+  globalThis.addEventListener = (name, fn) => { windowListeners[name] = fn; };
   const lifecycle = await import('../../handpan-app/js/audio-core.js?lifecycle-test');
   const beforeEvents = FakeContext.created;
   windowListeners.focus();
   windowListeners.pageshow();
   documentListeners.visibilitychange();
-  assert.equal(
-    FakeContext.created,
-    beforeEvents,
-    'focus and visibility do not allocate or start audio'
-  );
+  assert.equal(FakeContext.created, beforeEvents, 'focus and visibility do not allocate or start audio');
 
   const context = lifecycle.getAudioContext();
   const created = FakeContext.created;
@@ -199,16 +113,9 @@ test('lifecycle events do not create audio or resume a context without prior pla
   context.listeners.statechange();
   context.state = 'suspended';
   context.listeners.statechange();
-  assert.equal(
-    context.resumeCalls,
-    1,
-    'a context that was active before interruption resumes once'
-  );
-  assert.equal(
-    FakeContext.created,
-    created,
-    'interruption recovery reuses the existing AudioContext'
-  );
+  assert.equal(context.resumeCalls, 1, 'a context that was active before interruption resumes once');
+  assert.equal(FakeContext.created, created, 'interruption recovery reuses the existing AudioContext');
   await lifecycle.closeAudio();
   delete globalThis.document;
 });
+

@@ -1,15 +1,14 @@
 /* Editorial welcome, staged tonefield reveal, and one-time headphone note. */
-const root = document.documentElement;
-const welcome = document.getElementById('pionierWelcome');
-const enter = document.getElementById('enterPionier');
-const hint = document.getElementById('headphonesHint');
+(() => {
+  const root = document.documentElement;
+  const welcome = document.getElementById('pionierWelcome');
+  const enter = document.getElementById('enterPionier');
+  const hint = document.getElementById('headphonesHint');
+  if (!welcome || !enter) return;
 
-export let PionierWelcomeState = window.PionierWelcomeState || { hideTonefields: true };
-window.PionierWelcomeState = PionierWelcomeState;
-PionierWelcomeState.hideTonefields = true;
-
-if (welcome && enter) {
   root.classList.add('pionier-welcome-active');
+  window.PionierWelcomeState = window.PionierWelcomeState || { hideTonefields: true };
+  window.PionierWelcomeState.hideTonefields = true;
   let entered = false;
 
   function unlockAudio() {
@@ -40,21 +39,11 @@ if (welcome && enter) {
   /** Reveal tonefields + force a surface layout/draw after the welcome gate. */
   function revealInstrument() {
     window.PionierWelcomeState.hideTonefields = false;
-    try {
-      window.dispatchEvent(new CustomEvent('pionier:welcome-closed'));
-    } catch (_) {}
+    try { window.dispatchEvent(new CustomEvent('pionier:welcome-closed')); } catch (_) {}
     const paint = () => {
-      try {
-        window.PionierCore?.resize?.();
-      } catch (_) {}
-      try {
-        window.PionierCore?.draw?.();
-      } catch (_) {}
-      try {
-        if (typeof window.__pionierCenterPan === 'function') {
-          window.__pionierCenterPan();
-        }
-      } catch (_) {}
+      try { window.PionierCore?.resize?.(); } catch (_) {}
+      try { window.PionierCore?.draw?.(); } catch (_) {}
+      try { if (typeof window.__pionierCenterPan === 'function') window.__pionierCenterPan(); } catch (_) {}
     };
     // Paint immediately and again after layout settles (dock measure / CSS transitions).
     paint();
@@ -69,9 +58,7 @@ if (welcome && enter) {
 
   enter.addEventListener('pointerdown', unlockAudio, { passive: true });
   enter.addEventListener('click', () => {
-    if (entered) {
-      return;
-    }
+    if (entered) return;
     entered = true;
     enter.disabled = true;
     unlockAudio();
@@ -79,28 +66,20 @@ if (welcome && enter) {
     let showHeadphoneHint = false;
     try {
       showHeadphoneHint = localStorage.getItem('pionier-headphones-tip-seen-v1') !== '1';
-      if (showHeadphoneHint) {
-        localStorage.setItem('pionier-headphones-tip-seen-v1', '1');
-      }
+      if (showHeadphoneHint) localStorage.setItem('pionier-headphones-tip-seen-v1', '1');
     } catch (_) {
       showHeadphoneHint = true;
     }
 
-    try {
-      if (window.__pionierArrangeLayout) {
-        window.__pionierArrangeLayout();
-      }
-    } catch (_) {}
+    try { if (window.__pionierArrangeLayout) window.__pionierArrangeLayout(); } catch (_) {}
     root.classList.add('pionier-entering');
     welcome.classList.add('is-leaving');
     root.classList.remove('pionier-welcome-active');
     revealInstrument();
 
-    requestAnimationFrame(() =>
-      requestAnimationFrame(() => {
-        root.classList.remove('pionier-entering');
-      })
-    );
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      root.classList.remove('pionier-entering');
+    }));
 
     window.setTimeout(() => {
       welcome.hidden = true;
@@ -110,4 +89,4 @@ if (welcome && enter) {
       }
     }, 1080);
   });
-}
+})();

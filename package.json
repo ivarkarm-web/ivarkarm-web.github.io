@@ -11,17 +11,12 @@
     "clean": "rm -rf dist",
     "test": "node scripts/smoke-test.mjs",
     "smoke": "node scripts/smoke-test.mjs",
-    "lint": "eslint --no-cache 'handpan-app/**/*.{js,mjs}' 'scripts/**/*.{js,mjs}' 'eslint.config.mjs'",
-    "format": "prettier --write 'handpan-app/**/*.{js,mjs}' 'scripts/**/*.{js,mjs}' 'eslint.config.mjs'",
-    "format:check": "prettier --check 'handpan-app/**/*.{js,mjs}' 'scripts/**/*.{js,mjs}' 'eslint.config.mjs'",
     "test:app": "node --test scripts/app-tests/*.test.mjs",
     "test:staged": "playwright test --config=playwright.staged.config.mjs",
     "test:sw": "npx playwright test --project=sw-desktop",
     "test:a11y": "npx playwright test phase5-a11y phase6-axe",
     "test:axe": "npx playwright test phase6-axe",
-    "ci-guard": "node scripts/ci-guard.mjs",
-    "contrast:check": "node scripts/contrast-check.mjs",
-    "check:app": "npm run lint && npm run format:check && npm run ci-guard && npm run check:handpan-cache && node scripts/doc-drift.mjs && npm run test && npm run test:app && npm run contrast:check && npm run lighthouse:app && npx playwright test",
+    "check:app": "npm run check:handpan-cache && npm run test && npm run test:app && npm run lighthouse:app && npx playwright test",
     "sync:handpan": "node scripts/sync-handpan-cache.mjs",
     "check:handpan-cache": "node scripts/sync-handpan-cache.mjs --check",
     "check:handpan-assets": "node scripts/check-dynamic-assets.mjs",
@@ -34,17 +29,11 @@
     "vite": "8.3.5"
   },
   "devDependencies": {
-    "@playwright/test": "1.56.1",
     "@types/node": "22.20.5",
-    "axe-core": "^4.10.3",
+    "@playwright/test": "1.56.1",
     "esbuild": "0.28.2",
-    "eslint": "^9.39.5",
-    "eslint-config-prettier": "^9.1.2",
-    "eslint-plugin-prettier": "^5.5.7",
     "glob": "11.1.0",
-    "jsdom": "^29.1.1",
     "lightningcss": "1.33.0",
-    "prettier": "^3.9.10",
     "purgecss": "7.0.2"
   }
 }

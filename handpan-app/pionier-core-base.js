@@ -3,23 +3,22 @@
  * Local vendored core (no remote fetch / string-patch boot).
  * Looper v2: exposes getInstrumentBus for pre-FX recording
  */
-import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js';
+import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js?v=2';
 import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
-import { HandpanInstrument, HANDPAN_SCALES, randomScaleIndex } from './js/instruments/handpan.js';
-import { createLibraryInstruments } from './js/instruments/library-family.js';
+import { HandpanInstrument, HANDPAN_SCALES, randomScaleIndex } from './js/instruments/handpan.js?v=13';
+import { createLibraryInstruments } from './js/instruments/library-family.js?v=3';
 import { FxChain } from './js/fx.js';
+import { CatchMode } from './js/catch-mode.js?v=4';
 import { isDebugEnabled, mountDebugPanel } from './js/debug.js';
-import { createSurface } from './js/pionier-surface.js';
+import { createSurface } from './js/pionier-surface.js?v=147';
 
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f'];
 const PITCH_BEND_PIXELS = 90;
 
 const handpan = new HandpanInstrument();
 InstrumentRegistry.register(handpan);
-for (const instrument of createLibraryInstruments()) {
-  InstrumentRegistry.register(instrument);
-}
+for (const instrument of createLibraryInstruments()) InstrumentRegistry.register(instrument);
 
 const ACTIVE_INSTRUMENT_STORAGE_KEY = 'pionier.activeInstrument';
 let storageAvailable = true;
@@ -37,11 +36,8 @@ function readSavedInstrumentId() {
   }
 }
 function persistActiveInstrumentId(id) {
-  try {
-    localStorage.setItem(ACTIVE_INSTRUMENT_STORAGE_KEY, id);
-  } catch (_) {
-    storageAvailable = false;
-  }
+  try { localStorage.setItem(ACTIVE_INSTRUMENT_STORAGE_KEY, id); }
+  catch (_) { storageAvailable = false; }
 }
 
 const app = {
@@ -56,23 +52,19 @@ const app = {
   fps: 0,
   _fpsFrames: 0,
   _fpsLast: performance.now(),
-  reducedMotion: false,
+  reducedMotion: false
 };
 try {
   app.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 } catch (_) {}
 
 const canvas = document.getElementById('pan');
-if (!canvas) {
-  console.error('Pionier: #pan canvas missing');
-}
+if (!canvas) console.error('Pionier: #pan canvas missing');
 const surface = createSurface(canvas);
 
 function ensureAudio() {
   const ctx = getAudioContext();
-  if (!ctx) {
-    return false;
-  }
+  if (!ctx) return false;
   if (!app.instrumentBus) {
     app.instrumentBus = ctx.createGain();
     app.instrumentBus.gain.value = 1.0;
@@ -86,9 +78,7 @@ function ensureAudio() {
     app.ambientBus.gain.value = 1.0;
     app.ambientBus.name = 'ambientBus';
     const master = getAudioMaster();
-    if (master) {
-      app.ambientBus.connect(master);
-    }
+    if (master) app.ambientBus.connect(master);
   }
   if (ctx.state !== 'running') {
     try {
@@ -129,17 +119,13 @@ async function setInstrument(id) {
     updateInstrumentUI();
     return;
   }
-  if (!app.instrumentBus) {
-    ensureAudio();
-  }
+  if (!app.instrumentBus) ensureAudio();
   if (!app.instrumentBus) {
     updateInstrumentUI();
     return;
   }
 
-  if (!handpan.getNotes().length) {
-    handpan.rebuildNotes();
-  }
+  if (!handpan.getNotes().length) handpan.rebuildNotes();
   const notes = handpan.getNotes();
   if (!notes.length) {
     updateInstrumentUI();
@@ -147,18 +133,12 @@ async function setInstrument(id) {
   }
 
   const prev = InstrumentRegistry.active;
-  if (prev) {
-    try {
-      prev.dampAll();
-    } catch (_) {}
-  }
+  if (prev) { try { prev.dampAll(); } catch (_) {} }
 
   for (const item of InstrumentRegistry.list()) {
     const inst = InstrumentRegistry.get(item.id);
     if (inst && typeof inst.setMusicalContext === 'function') {
-      try {
-        inst.setMusicalContext(notes);
-      } catch (_) {}
+      try { inst.setMusicalContext(notes); } catch (_) {}
     }
   }
 
@@ -171,15 +151,9 @@ async function setInstrument(id) {
   const active = InstrumentRegistry.active;
   if (active) {
     persistActiveInstrumentId(active.id);
-    if (typeof active.setMusicalContext === 'function') {
-      active.setMusicalContext(notes);
-    }
-    if (typeof active.setZones === 'function') {
-      active.setZones(surface.fields);
-    }
-    if (!active.ready && active.audioCtx) {
-      active._ready = true;
-    }
+    if (typeof active.setMusicalContext === 'function') active.setMusicalContext(notes);
+    if (typeof active.setZones === 'function') active.setZones(surface.fields);
+    if (!active.ready && active.audioCtx) active._ready = true;
   }
 
   updateInstrumentUI();
@@ -187,21 +161,22 @@ async function setInstrument(id) {
   draw();
 }
 
+app.catchMode = new CatchMode({
+  getInstrument: () => activeInstrument(),
+  onStatus: (msg) => {
+    const el = document.getElementById('catchStatus');
+    if (el) el.textContent = msg || '';
+  },
+  onPhase: (phase) => { document.body.dataset.catchPhase = phase; }
+});
+app.catchMode.reducedMotion = app.reducedMotion;
+
 function updateLabels() {
   const scaleEl = document.getElementById('scaleLabel');
   const rootEl = document.getElementById('rootLabel');
   const noteCountEl = document.getElementById('noteCountLabel');
-  if (scaleEl && handpan.scaleLabel) {
-    const root = handpan.rootLabel || '';
-    let scaleName = handpan.scaleLabel;
-    if (root && scaleName.startsWith(root + ' ')) {
-      scaleName = scaleName.slice(root.length).trim();
-    }
-    scaleEl.textContent = scaleName + ' \u25be';
-  }
-  if (rootEl && handpan.rootLabel) {
-    rootEl.textContent = handpan.rootLabel;
-  }
+  if (scaleEl && handpan.scaleLabel) { const root = handpan.rootLabel || ''; let scaleName = handpan.scaleLabel; if (root && scaleName.startsWith(root + ' ')) scaleName = scaleName.slice(root.length).trim(); scaleEl.textContent = scaleName + ' \u25be'; }
+  if (rootEl && handpan.rootLabel) rootEl.textContent = handpan.rootLabel;
   if (noteCountEl) {
     const n = Number.isFinite(handpan.noteCount) ? handpan.noteCount : 8;
     noteCountEl.textContent = String(n);
@@ -209,17 +184,11 @@ function updateLabels() {
   const n = Number.isFinite(handpan.noteCount) ? handpan.noteCount : 9;
   const prevN = document.getElementById('noteCountPrev');
   const nextN = document.getElementById('noteCountNext');
-  if (prevN) {
-    prevN.disabled = n <= 8;
-  }
-  if (nextN) {
-    nextN.disabled = n >= 13;
-  }
+  if (prevN) prevN.disabled = n <= 8;
+  if (nextN) nextN.disabled = n >= 13;
   const voiceEl = document.getElementById('instrumentDropdownToggle');
   const inst = activeInstrument();
-  if (voiceEl) {
-    voiceEl.textContent = (inst.name || inst.id) + ' \u25be';
-  }
+  if (voiceEl) voiceEl.textContent = (inst.name || inst.id) + ' \u25be';
 }
 
 function updateInstrumentUI() {
@@ -228,17 +197,11 @@ function updateInstrumentUI() {
 }
 
 function layoutFields() {
-  if (!handpan.getNotes().length) {
-    handpan.rebuildNotes();
-  }
+  if (!handpan.getNotes().length) handpan.rebuildNotes();
   const notes = handpan.getNotes();
-  if (!notes.length) {
-    return;
-  }
+  if (!notes.length) return;
   surface.layoutHandpanFields(notes.slice(0, handpan.noteCount || 8), isFieldPlayable);
-  for (const f of surface.fields) {
-    f.zoneLabel = null;
-  }
+  for (const f of surface.fields) f.zoneLabel = null;
   handpan.setZones?.(surface.fields);
   const active = activeInstrument();
   if (active && active !== handpan && typeof active.setZones === 'function') {
@@ -247,16 +210,12 @@ function layoutFields() {
 }
 
 function draw() {
-  if (!surface || !canvas) {
-    return;
-  }
+  if (!surface || !canvas) return;
   surface.drawBody(activeInstrument(), false, null);
 }
 
 function triggerTouchFeedback(x, y, noteIndex) {
-  if (window.PionierSettings?.touchFeedback !== true) {
-    return;
-  }
+  if (window.PionierSettings?.touchFeedback !== true) return;
   surface.addRipple?.(x, y, noteIndex);
   try {
     if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
@@ -266,42 +225,28 @@ function triggerTouchFeedback(x, y, noteIndex) {
 }
 
 function resize() {
-  if (!surface) {
-    return;
-  }
+  if (!surface) return;
   surface.resize();
   layoutFields();
   draw();
 }
 
-['touchstart', 'touchmove', 'touchend'].forEach((type) => {
-  canvas?.addEventListener(
-    type,
-    (e) => {
-      e.preventDefault();
-    },
-    { passive: false }
-  );
+;['touchstart', 'touchmove', 'touchend'].forEach((type) => {
+  canvas?.addEventListener(type, (e) => { e.preventDefault(); }, { passive: false });
 });
 canvas?.addEventListener('contextmenu', (e) => e.preventDefault());
 
 canvas?.addEventListener('pointerdown', (e) => {
   e.preventDefault();
-  if (e.pointerType === 'touch') {
-    e.stopPropagation();
-  }
+  if (e.pointerType === 'touch') e.stopPropagation();
   ensureAudio();
   const { x, y } = surface.canvasCoords(e);
   const hit = surface.hitVector(x, y);
-  if (!hit) {
-    return;
-  }
-  try {
-    canvas.setPointerCapture(e.pointerId);
-  } catch (_) {}
+  if (!hit) return;
+  try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
   const inst = activeInstrument();
-  const alreadyHeld = Array.from(app.pointers.values()).some(
-    (rec) => (typeof rec === 'object' ? rec?.index : rec) === hit.index
+  const alreadyHeld = Array.from(app.pointers.values()).some((rec) =>
+    (typeof rec === 'object' ? rec?.index : rec) === hit.index
   );
   const gesture = gestureFromPointer(e, hit, app.gestureTracker.activeCount + 1, inst.lastStrikeAt);
   app.gestureTracker.down(gesture);
@@ -310,17 +255,13 @@ canvas?.addEventListener('pointerdown', (e) => {
   if (!alreadyHeld) {
     inst.noteOn(gesture, hit);
     triggerTouchFeedback(x, y, hit.index);
-    if (app.catchMode?.isActive) {
-      app.catchMode.onStrike(hit.index);
-    }
+    if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);
   }
   draw();
 });
 
 canvas?.addEventListener('pointermove', (e) => {
-  if (!app.pointers.has(e.pointerId)) {
-    return;
-  }
+  if (!app.pointers.has(e.pointerId)) return;
   e.preventDefault();
   const { x, y } = surface.canvasCoords(e);
   const hit = surface.hitVector(x, y);
@@ -333,33 +274,29 @@ canvas?.addEventListener('pointermove', (e) => {
     angle: hit?.angleRad,
     pressure: e.pressure || 0,
     force: e.force || 0,
-    activeTouches: app.gestureTracker.activeCount,
+    activeTouches: app.gestureTracker.activeCount
   });
 
   if (hit && hit.index !== prevIdx) {
     const gesture = gestureFromPointer(e, hit, app.gestureTracker.activeCount, inst.lastStrikeAt);
     gesture.velocity = Math.min(1, (gesture.velocity || 0.65) * 0.85);
     let glided = false;
-    const sharedPrev = prevIdx !== null && hasOtherPointerAt(prevIdx, e.pointerId);
+    const sharedPrev = prevIdx != null && hasOtherPointerAt(prevIdx, e.pointerId);
     const sharedTarget = hasOtherPointerAt(hit.index, e.pointerId);
     if (!glided) {
-      if (prevIdx !== null && !sharedPrev) {
-        inst.noteOff(prevIdx);
-      }
+      if (prevIdx != null && !sharedPrev) inst.noteOff(prevIdx);
       if (!sharedTarget) {
         inst.noteOn(gesture, hit);
         triggerTouchFeedback(x, y, hit.index);
       }
     }
     if (glided || !sharedTarget) {
-      if (app.catchMode?.isActive) {
-        app.catchMode.onStrike(hit.index);
-      }
+      if (app.catchMode?.isActive) app.catchMode.onStrike(hit.index);
     }
     app.pointers.set(e.pointerId, { index: hit.index, originY: y, originX: x });
     draw();
   } else if (hit && typeof inst.express === 'function' && moved) {
-    const originY = typeof rec === 'object' && rec?.originY !== null ? rec.originY : y;
+    const originY = (typeof rec === 'object' && rec?.originY != null) ? rec.originY : y;
     moved.pitchBendNorm = 0;
     moved.pitchBend = 0;
     inst.express(moved, hit);
@@ -368,9 +305,7 @@ canvas?.addEventListener('pointermove', (e) => {
 
 function hasOtherPointerAt(index, pointerId) {
   for (const [id, rec] of app.pointers) {
-    if (id !== pointerId && (typeof rec === 'object' ? rec?.index : rec) === index) {
-      return true;
-    }
+    if (id !== pointerId && (typeof rec === 'object' ? rec?.index : rec) === index) return true;
   }
   return false;
 }
@@ -379,67 +314,42 @@ function releaseAllPointers() {
   const heldIndices = new Set();
   for (const [pointerId, rec] of app.pointers) {
     const index = typeof rec === 'object' ? rec?.index : rec;
-    if (index !== null) {
-      heldIndices.add(index);
-    }
+    if (index != null) heldIndices.add(index);
     app.gestureTracker.up(pointerId);
-    try {
-      canvas?.releasePointerCapture?.(pointerId);
-    } catch (_) {}
+    try { canvas?.releasePointerCapture?.(pointerId); } catch (_) {}
   }
   app.pointers.clear();
   const inst = activeInstrument();
   if (typeof inst?.dampAll === 'function') {
-    try {
-      inst.dampAll();
-    } catch (_) {}
+    try { inst.dampAll(); } catch (_) {}
     return;
   }
   for (const index of heldIndices) {
-    try {
-      inst?.noteOff(index);
-    } catch (_) {}
+    try { inst?.noteOff(index); } catch (_) {}
   }
 }
 
 function releasePointer(e) {
   const rec = app.pointers.get(e.pointerId);
-  if (!app.pointers.has(e.pointerId)) {
-    return;
-  }
+  if (!app.pointers.has(e.pointerId)) return;
   app.pointers.delete(e.pointerId);
   app.gestureTracker.up(e.pointerId);
-  const idx = typeof rec === 'object' && rec !== null ? rec.index : rec;
-  if (idx !== null && !hasOtherPointerAt(idx, e.pointerId)) {
-    activeInstrument().noteOff(idx);
-  }
-  try {
-    canvas.releasePointerCapture?.(e.pointerId);
-  } catch (_) {}
+  const idx = (typeof rec === 'object' && rec != null) ? rec.index : rec;
+  if (idx != null && !hasOtherPointerAt(idx, e.pointerId)) activeInstrument().noteOff(idx);
+  try { canvas.releasePointerCapture?.(e.pointerId); } catch (_) {}
 }
 
 window.addEventListener('blur', releaseAllPointers);
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    releaseAllPointers();
-  }
+  if (document.hidden) releaseAllPointers();
 });
 
-canvas?.addEventListener('pointerup', (e) => {
-  e.preventDefault();
-  releasePointer(e);
-});
-canvas?.addEventListener('lostpointercapture', (e) => {
-  releasePointer(e);
-});
-canvas?.addEventListener('pointercancel', (e) => {
-  releasePointer(e);
-});
+canvas?.addEventListener('pointerup', (e) => { e.preventDefault(); releasePointer(e); });
+canvas?.addEventListener('lostpointercapture', (e) => { releasePointer(e); });
+canvas?.addEventListener('pointercancel', (e) => { releasePointer(e); });
 
 function paintKnob(canvasEl, value01, size = 88) {
-  if (!canvasEl) {
-    return;
-  }
+  if (!canvasEl) return;
   const ctx = canvasEl.getContext('2d');
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   if (canvasEl.width !== size * dpr) {
@@ -450,9 +360,7 @@ function paintKnob(canvasEl, value01, size = 88) {
   }
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, size, size);
-  const cx = size / 2,
-    cy = size / 2,
-    r = size * 0.36;
+  const cx = size / 2, cy = size / 2, r = size * 0.36;
   const start = -Math.PI * 0.75;
   const end = Math.PI * 0.75;
   const angle = start + (end - start) * Math.max(0, Math.min(1, value01));
@@ -474,9 +382,7 @@ function paintKnob(canvasEl, value01, size = 88) {
 }
 
 function paintAllKnobs() {
-  if (!app.fxChain) {
-    return;
-  }
+  if (!app.fxChain) return;
   const map = [
     { knobId: 'knobCompress', fxId: 'compressor', def: 0.4, size: 68 },
     { knobId: 'knobDelay', fxId: 'delay', def: 0.15, size: 68 },
@@ -485,29 +391,21 @@ function paintAllKnobs() {
     { knobId: 'knobBass', tone: 'bass', def: 0.5, size: 72 },
     { knobId: 'knobLow', tone: 'low', def: 0.5, size: 72 },
     { knobId: 'knobMid', tone: 'mid', def: 0.5, size: 72 },
-    { knobId: 'knobMaster', tone: 'master', def: 0.82, size: 72 },
+    { knobId: 'knobMaster', tone: 'master', def: 0.82, size: 72 }
   ];
   for (const m of map) {
     const el = document.getElementById(m.knobId);
-    if (!el) {
-      continue;
-    }
+    if (!el) continue;
     const canvasEl = el.querySelector('.knob-canvas');
     let v = m.def;
     try {
-      if (m.tone === 'bass') {
-        v = app.fxChain.bass ?? m.def;
-      } else if (m.tone === 'low') {
-        v = app.fxChain.low ?? m.def;
-      } else if (m.tone === 'mid') {
-        v = app.fxChain.mid ?? m.def;
-      } else if (m.tone === 'master') {
-        v = app.fxChain.master ?? m.def;
-      } else {
+      if (m.tone === 'bass') v = app.fxChain.bass ?? m.def;
+      else if (m.tone === 'low') v = app.fxChain.low ?? m.def;
+      else if (m.tone === 'mid') v = app.fxChain.mid ?? m.def;
+      else if (m.tone === 'master') v = app.fxChain.master ?? m.def;
+      else {
         const mod = app.fxChain.modules?.find((x) => x.id === m.fxId);
-        if (mod && Number.isFinite(mod.value)) {
-          v = mod.value;
-        }
+        if (mod && Number.isFinite(mod.value)) v = mod.value;
       }
     } catch (_) {}
     paintKnob(canvasEl, v, m.size || 88);
@@ -515,13 +413,8 @@ function paintAllKnobs() {
 }
 
 function wireKnobs() {
-  if (!app.fxChain) {
-    return;
-  }
-  if (app._knobsWired) {
-    paintAllKnobs();
-    return;
-  }
+  if (!app.fxChain) return;
+  if (app._knobsWired) { paintAllKnobs(); return; }
   app._knobsWired = true;
   paintAllKnobs();
 }
@@ -534,39 +427,33 @@ function refreshPitch() {
 }
 
 const KEY_TO_PAD = {};
-KEYS.forEach((k, i) => {
-  KEY_TO_PAD[k] = i;
-});
+KEYS.forEach((k, i) => { KEY_TO_PAD[k] = i; });
 
 function renderInstrumentMenu() {
   const menu = document.getElementById('instrumentMenu');
   if (!menu) return;
-  let select = menu.querySelector('select[data-instrument-native]');
-  if (!select) {
-    select = document.createElement('select');
-    select.dataset.instrumentNative = '1';
-    select.className = 'pionier-native-select instrument-native-select';
-    select.setAttribute('aria-label', 'Choose instrument');
-    select.style.width = '100%';
-    select.style.minHeight = '44px';
-    menu.appendChild(select);
-  }
-  menu.hidden = true;
-  select.replaceChildren();
+  menu.innerHTML = '';
+  const results = document.createElement('div');
+  results.className = 'instrument-menu-results';
+  menu.appendChild(results);
   const seen = new Set();
   const groups = new Map();
   const INSTRUMENT_FAMILY_LABELS = {
     'HANDPAN & TUNED PERCUSSION': 'HANDPAN & TUNED PERCUSSION',
-    PERCUSSION: 'PERCUSSION', WIND: 'WIND', STRINGS: 'STRINGS',
+    PERCUSSION: 'PERCUSSION',
+    WIND: 'WIND',
+    STRINGS: 'STRINGS',
     'DRONES & ATMOSPHERIC': 'DRONES & ATMOSPHERIC',
     'ELECTRONIC & SYNTH': 'ELECTRONIC & SYNTH',
-    library: 'Library', arp: 'Arps',
+    library: 'Library',
+    arp: 'Arps'
   };
   function instrumentGroupId(item) {
     const c = (item.category || item.engineKind || 'other').toString().toLowerCase();
     if (c.includes('arp')) return 'arp';
     return item.category || 'library';
   }
+  const groupLabel = (gid) => INSTRUMENT_FAMILY_LABELS[gid] || gid;
   for (const item of InstrumentRegistry.list()) {
     if (!item || !item.id || seen.has(item.id)) continue;
     seen.add(item.id);
@@ -575,147 +462,79 @@ function renderInstrumentMenu() {
     groups.get(gid).push(item);
   }
   for (const [gid, items] of groups) {
-    const og = document.createElement('optgroup');
-    og.label = INSTRUMENT_FAMILY_LABELS[gid] || gid;
+    const section = document.createElement('div');
+    section.className = 'instrument-menu-section';
+    const h = document.createElement('div');
+    h.className = 'instrument-menu-group';
+    h.textContent = groupLabel(gid);
+    section.appendChild(h);
     for (const item of items) {
-      const opt = document.createElement('option');
-      opt.value = item.id;
-      opt.textContent = item.name || item.id;
-      if (InstrumentRegistry.active?.id === item.id) opt.selected = true;
-      og.appendChild(opt);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      const active = InstrumentRegistry.active?.id === item.id;
+      btn.className = 'instrument-menu-item pionier-menu-option' + (active ? ' is-active' : '');
+      btn.setAttribute('role', 'menuitem');
+      btn.dataset.instrumentId = item.id;
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = item.name || item.id;
+      btn.appendChild(nameSpan);
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        setInstrument(item.id).catch(() => {});
+        if (window.PionierOverlay) window.PionierOverlay.closePickers();
+        else {
+          menu.hidden = true;
+          menu.setAttribute('hidden', '');
+          document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false');
+        }
+      });
+      try { window.PionierFavorites?.decorateInstrumentItem?.(btn, item); } catch (_) {}
+      section.appendChild(btn);
     }
-    select.appendChild(og);
-  }
-  if (!select._wired) {
-    select._wired = true;
-    select.addEventListener('change', () => {
-      setInstrument(select.value).catch(() => {});
-      menu.hidden = true;
-      document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false');
-      try { document.getElementById('instrumentDropdownToggle')?.focus({ preventScroll: true }); } catch (_) {}
-    });
-    select.addEventListener('blur', () => {
-      setTimeout(() => { menu.hidden = true; document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false'); }, 150);
-    });
+    results.appendChild(section);
   }
 }
 window.__pionierRenderInstrumentMenu = renderInstrumentMenu;
 document.addEventListener('pionier:picker-open', (e) => {
-  if (e.detail?.id === 'instrumentMenu') {
-    renderInstrumentMenu();
-  }
+  if (e.detail?.id === 'instrumentMenu') renderInstrumentMenu();
 });
-document.getElementById('instrumentDropdownToggle')?.addEventListener('click', (e) => {
-  e.preventDefault();
-  e.stopPropagation();
+document.getElementById('instrumentDropdownToggle')?.addEventListener('click', () => {
   renderInstrumentMenu();
-  const menu = document.getElementById('instrumentMenu');
-  const select = menu?.querySelector('select[data-instrument-native]');
-  if (menu && select) {
-    menu.hidden = false;
-    menu.style.position = 'absolute';
-    menu.style.zIndex = '60';
-    select.focus();
-    try { select.showPicker?.(); } catch (_) {}
-  }
-  document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'true');
 });
 document.getElementById('voicePrev')?.addEventListener('click', () => {
   const list = InstrumentRegistry.list();
   const cur = InstrumentRegistry.active?.id || 'handpan';
   const i = list.findIndex((x) => x.id === cur);
   const next = list[(i - 1 + list.length) % list.length];
-  if (next) {
-    setInstrument(next.id);
-  }
+  if (next) setInstrument(next.id);
 });
 document.getElementById('voiceNext')?.addEventListener('click', () => {
   const list = InstrumentRegistry.list();
   const cur = InstrumentRegistry.active?.id || 'handpan';
   const i = list.findIndex((x) => x.id === cur);
   const next = list[(i + 1) % list.length];
-  if (next) {
-    setInstrument(next.id);
-  }
+  if (next) setInstrument(next.id);
 });
 
-function padCount() {
-  return handpan.noteCount || 8;
-}
+function padCount() { return handpan.noteCount || 8; }
 window.addEventListener('blur', () => {
   for (const k of [...app.keysHeld]) {
     const pad = KEY_TO_PAD[k];
     app.keysHeld.delete(k);
-    if (pad !== null) {
-      try {
-        activeInstrument().noteOff(pad);
-      } catch (_) {}
+    if (pad != null) {
+      try { activeInstrument().noteOff(pad); } catch (_) {}
     }
   }
 });
 
-/** Keyboard play: QWERTY keys trigger pads. Focus #pan then use keys. */
-function playPadByKey(key, on) {
-  const pad = KEY_TO_PAD[key];
-  if (pad === null || pad === undefined) {
-    return;
-  }
-  const inst = activeInstrument();
-  if (!inst) {
-    return;
-  }
-  try {
-    ensureAudio();
-  } catch (_) {}
-  if (on) {
-    if (app.keysHeld.has(key)) {
-      return;
-    }
-    app.keysHeld.add(key);
-    try {
-      inst.noteOn({ velocity: 0.75 }, { index: pad, x: 0, y: 0, radial: 0, angleRad: 0 });
-    } catch (_) {}
-  } else {
-    app.keysHeld.delete(key);
-    try {
-      inst.noteOff(pad);
-    } catch (_) {}
-  }
-}
-
-const pan = document.getElementById('pan');
-if (pan) {
-  pan.addEventListener('keydown', (e) => {
-    if (e.repeat) {
-      return;
-    }
-    const key = e.key.toLowerCase();
-    if (KEYS.includes(key)) {
-      e.preventDefault();
-      playPadByKey(key, true);
-    }
-  });
-  pan.addEventListener('keyup', (e) => {
-    const key = e.key.toLowerCase();
-    if (KEYS.includes(key)) {
-      e.preventDefault();
-      playPadByKey(key, false);
-    }
-  });
-}
-
 async function loadArpsSafe() {
   try {
-    const mod = await import('./js/instruments/arp-family.js');
+    const mod = await import(new URL('./js/instruments/arp-family.js?v=3', import.meta.url).href);
     const create = mod.createArpInstruments;
-    if (typeof create !== 'function') {
-      return;
-    }
+    if (typeof create !== 'function') return;
     const arps = create() || [];
     for (const a of arps) {
-      try {
-        InstrumentRegistry.register(a);
-      } catch (_) {}
+      try { InstrumentRegistry.register(a); } catch (_) {}
     }
   } catch (e) {
     console.warn('[core] arp load', e);
@@ -723,51 +542,34 @@ async function loadArpsSafe() {
 }
 
 window.PionierCore = {
-  handpan,
-  surface,
+  handpan, surface,
   activeInstrument: () => activeInstrument(),
   listInstruments: () => InstrumentRegistry.list(),
   registerInstrument: (inst) => InstrumentRegistry.register(inst),
   setInstrument: (id) => setInstrument(id),
   ensureAudio: () => ensureAudio(),
-  paintFxKnobs: () => {
-    ensureAudio();
-    wireKnobs();
-    paintAllKnobs();
-  },
+  paintFxKnobs: () => { ensureAudio(); wireKnobs(); paintAllKnobs(); },
   getFxModule: (id) => app.fxChain?.modules?.find((m) => m.id === id) || null,
   getAudioContext: () => getAudioContext(),
   refreshFxKnobs: () => paintAllKnobs(),
   getInstrumentBus: () => {
-    if (!app.instrumentBus) {
-      ensureAudio();
-    }
+    if (!app.instrumentBus) ensureAudio();
     return app.instrumentBus;
   },
   getAmbientBus: () => {
-    if (!app.ambientBus) {
-      ensureAudio();
-    }
+    if (!app.ambientBus) ensureAudio();
     return app.ambientBus;
   },
   health: () => ({
     audioAvailable: !!getAudioContext(),
     audioState: audioState(),
     storageAvailable,
-    instrumentReady: !!InstrumentRegistry.active?.ready,
+    instrumentReady: !!InstrumentRegistry.active?.ready
   }),
-  draw() {
-    draw();
-  },
-  addNote() {
-    return false;
-  },
-  removeNote() {
-    return false;
-  },
-  setNoteCount() {
-    return false;
-  },
+  draw() { draw(); },
+  addNote() { return false; },
+  removeNote() { return false; },
+  setNoteCount() { return false; },
   setScaleIndex(i) {
     handpan.setScaleIndex(i);
     refreshPitch();
@@ -781,56 +583,37 @@ window.PionierCore = {
     });
     const base = nonArp.length ? nonArp : list;
     let pool = base.filter((item) => item.id !== currentId);
-    if (!pool.length) {
-      pool = base.slice();
-    }
+    if (!pool.length) pool = base.slice();
     let switched = false;
     for (let attempt = 0; attempt < Math.min(8, pool.length || 1) && pool.length; attempt++) {
       const idx = Math.floor(Math.random() * pool.length);
       const pick = pool.splice(idx, 1)[0];
-      if (!pick?.id) {
-        continue;
-      }
-      try {
-        await setInstrument(pick.id);
-      } catch (err) {
+      if (!pick?.id) continue;
+      try { await setInstrument(pick.id); } catch (err) {
         console.warn('[randomize] setInstrument failed', pick.id, err);
       }
       const now = InstrumentRegistry.active?.id || activeInstrument()?.id;
-      if (now && now !== currentId) {
-        switched = true;
-        break;
-      }
+      if (now && now !== currentId) { switched = true; break; }
     }
     if (!switched && list.length > 1) {
       for (let s = 0; s < list.length; s++) {
         const cur = InstrumentRegistry.active?.id || 'handpan';
         const i = list.findIndex((x) => x.id === cur);
         const next = list[(i + 1) % list.length];
-        if (!next) {
-          break;
-        }
-        try {
-          await setInstrument(next.id);
-        } catch (_) {}
-        if ((InstrumentRegistry.active?.id || '') !== currentId) {
-          break;
-        }
+        if (!next) break;
+        try { await setInstrument(next.id); } catch (_) {}
+        if ((InstrumentRegistry.active?.id || '') !== currentId) break;
       }
     }
     const voiceEl = document.getElementById('instrumentDropdownToggle');
     const inst = activeInstrument();
-    if (voiceEl && inst) {
-      voiceEl.textContent = (inst.name || inst.id) + ' \u25be';
-    }
+    if (voiceEl && inst) voiceEl.textContent = (inst.name || inst.id) + ' \u25be';
     // Scale randomisation: only valid, non-experimental presets by default.
     let next = randomScaleIndex({ excludeExperimental: true });
     let tries = 0;
     while (
-      typeof handpan.scaleIndex === 'number' &&
-      next === handpan.scaleIndex &&
-      tries < 5 &&
-      HANDPAN_SCALES.length > 1
+      typeof handpan.scaleIndex === 'number' && next === handpan.scaleIndex &&
+      tries < 5 && HANDPAN_SCALES.length > 1
     ) {
       next = randomScaleIndex({ excludeExperimental: true });
       tries++;
@@ -839,9 +622,7 @@ window.PionierCore = {
     refreshPitch();
     const scale = HANDPAN_SCALES[handpan.scaleIndex];
     const label = document.getElementById('scaleLabel');
-    if (label && scale) {
-      label.textContent = (scale.short || scale.label || 'Scale') + ' \u25be';
-    }
+    if (label && scale) label.textContent = (scale.short || scale.label || 'Scale') + ' \u25be';
     // The die is the sole user-facing way to choose a new 8–13-note layout.
     handpan.noteCount = 8 + Math.floor(Math.random() * 6);
     handpan.rebuildNotes();
@@ -853,28 +634,18 @@ window.PionierCore = {
       instrumentCount: list.length,
     };
   },
-  refreshPitch() {
-    refreshPitch();
-  },
+  refreshPitch() { refreshPitch(); },
   noteCount: () => {
-    if (Number.isFinite(handpan?.noteCount) && handpan.noteCount > 0) {
-      return handpan.noteCount;
-    }
+    if (Number.isFinite(handpan?.noteCount) && handpan.noteCount > 0) return handpan.noteCount;
     const fields = surface?.fields;
-    if (Array.isArray(fields) && fields.length) {
-      return fields.length;
-    }
+    if (Array.isArray(fields) && fields.length) return fields.length;
     return padCount();
-  },
+  }
 };
 
 window.addEventListener('pionier:settings', () => {
-  try {
-    draw();
-  } catch (_) {}
-  try {
-    resize();
-  } catch (_) {}
+  try { draw(); } catch (_) {}
+  try { resize(); } catch (_) {}
 });
 
 async function boot() {
@@ -893,26 +664,8 @@ async function boot() {
   window.addEventListener('pointerdown', unlock, true);
   window.addEventListener('touchstart', unlock, { capture: true, passive: true });
   document.addEventListener('touchstart', unlock, { capture: true, passive: true });
-  if (typeof window.PIONIER_PRODUCTION === 'undefined' || !window.PIONIER_PRODUCTION) {
-    if (typeof isDebugEnabled === 'function' && isDebugEnabled()) {
-      mountDebugPanel?.({ setInstrument });
-    }
-  }
+  if (isDebugEnabled?.()) mountDebugPanel?.({ setInstrument });
 }
-
-(function initTouchSensitivity() {
-  const key = 'pionier-touch-sensitivity';
-  const input = document.getElementById('touchSensitivity');
-  const read = () => { try { return Math.max(40, Math.min(160, +(localStorage.getItem(key) || 100))); } catch (_) { return 100; } };
-  const apply = (v) => {
-    globalThis.PionierTouchSensitivity = Math.max(0.4, Math.min(1.6, v / 100));
-    if (input) input.value = String(Math.round(v));
-    try { localStorage.setItem(key, String(Math.round(v))); } catch (_) {}
-  };
-  apply(read());
-  input?.addEventListener('input', () => apply(+input.value));
-  input?.addEventListener('change', () => apply(+input.value));
-})();
 
 await boot();
 export default window.PionierCore;

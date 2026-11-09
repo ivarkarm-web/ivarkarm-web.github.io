@@ -2,9 +2,7 @@
  * phase3-handpan-theme.js — maps CSS theme tokens → PionierSkinPalette for canvas.
  */
 (function () {
-  if (window.__pionierPhase3Theme) {
-    return;
-  }
+  if (window.__pionierPhase3Theme) return;
   window.__pionierPhase3Theme = true;
 
   function cssVar(name, fallback) {
@@ -17,20 +15,9 @@
   }
 
   function parseRgbTriplet(str, fallback) {
-    if (!str) {
-      return fallback;
-    }
-    var parts = String(str)
-      .split(',')
-      .map(function (s) {
-        return parseInt(s.trim(), 10);
-      });
-    if (
-      parts.length >= 3 &&
-      parts.every(function (n) {
-        return Number.isFinite(n);
-      })
-    ) {
+    if (!str) return fallback;
+    var parts = String(str).split(',').map(function (s) { return parseInt(s.trim(), 10); });
+    if (parts.length >= 3 && parts.every(function (n) { return Number.isFinite(n); })) {
       return [parts[0], parts[1], parts[2]];
     }
     return fallback;
@@ -57,33 +44,15 @@
       lip: lip,
       stroke: stroke,
       glow: [glow0, glow1],
-      sheen: sheen,
+      sheen: sheen
     };
 
     var map = { neutral: skin, classic: skin, light: skin };
     [
-      'bronze',
-      'steel',
-      'obsidian',
-      'copper',
-      'silver',
-      'gold',
-      'rose',
-      'jade',
-      'emerald',
-      'sand',
-      'terracotta',
-      'indigo',
-      'aurora',
-      'twilight',
-      'lavender',
-      'ink',
-      'void',
-      'pearl',
-      'opal',
-    ].forEach(function (id) {
-      map[id] = skin;
-    });
+      'bronze', 'steel', 'obsidian', 'copper', 'silver', 'gold', 'rose',
+      'jade', 'emerald', 'sand', 'terracotta', 'indigo', 'aurora',
+      'twilight', 'lavender', 'ink', 'void', 'pearl', 'opal'
+    ].forEach(function (id) { map[id] = skin; });
 
     window.PionierSkinPalette = map;
 
@@ -94,9 +63,7 @@
     }
 
     var el = document.getElementById('skinMandalaCanvas');
-    if (el) {
-      el.remove();
-    }
+    if (el) el.remove();
 
     var accent = parseRgbTriplet(cssVar('--hp-accent', '201,162,39'), [201, 162, 39]);
     try {

@@ -20,9 +20,7 @@ export class CatchMode {
   }
 
   _clearTimers() {
-    for (const t of this._timers) {
-      clearTimeout(t);
-    }
+    for (const t of this._timers) clearTimeout(t);
     this._timers = [];
   }
 
@@ -52,9 +50,7 @@ export class CatchMode {
     // Auto-advance into interactive onboarding after a brief settle
     const delay = this.reducedMotion ? 600 : 1400;
     this._later(delay, () => {
-      if (this.phase !== 'darken') {
-        return;
-      }
+      if (this.phase !== 'darken') return;
       this._setPhase('focus-knobs');
       this.onStatus('Try a knob');
     });
@@ -63,23 +59,16 @@ export class CatchMode {
   advanceFromUI() {
     const order = ['darken', 'focus-knobs', 'focus-fx', 'focus-scale', 'ready'];
     const i = order.indexOf(this.phase);
-    if (i < 0 || i >= order.length - 1) {
-      return;
-    }
+    if (i < 0 || i >= order.length - 1) return;
     const next = order[i + 1];
     this._setPhase(next);
-    if (next === 'focus-knobs') {
-      this.onStatus('Try a knob');
-    } else if (next === 'focus-fx') {
-      this.onStatus('Open FX');
-    } else if (next === 'focus-scale') {
-      this.onStatus('Change scale');
-    } else if (next === 'ready') {
+    if (next === 'focus-knobs') this.onStatus('Try a knob');
+    else if (next === 'focus-fx') this.onStatus('Open FX');
+    else if (next === 'focus-scale') this.onStatus('Change scale');
+    else if (next === 'ready') {
       this.onStatus('CATCH');
       this._later(600, () => {
-        if (this.phase === 'ready') {
-          this.startCatchSequence();
-        }
+        if (this.phase === 'ready') this.startCatchSequence();
       });
     }
   }
@@ -99,11 +88,7 @@ export class CatchMode {
     // Ascending then descending (skip top note on the way down to avoid double)
     // Kitchen/Bird: 5 zones at [0,1,3,5,7]; Handpan: full 9-note scale
     const ascending = notes.map((n) => n.index);
-    const descending = notes
-      .slice()
-      .reverse()
-      .map((n) => n.index)
-      .slice(1);
+    const descending = notes.slice().reverse().map((n) => n.index).slice(1);
     this.sequence = [...ascending, ...descending];
     this.seqIndex = 0;
     this.waves = [];
@@ -143,7 +128,7 @@ export class CatchMode {
       travelMs,
       progress: 0,
       caught: false,
-      missed: false,
+      missed: false
     });
     // Soft target cue for Kitchen/Bird (and Handpan note names when available)
     if (label && this.phase !== 'catch-intro') {
@@ -161,17 +146,15 @@ export class CatchMode {
     this.onStatus(line);
     // Hold result, then clear so the surface returns to free play
     this._later(3200, () => {
-      if (this.phase === 'complete') {
-        this.reset();
-      }
+      if (this.phase === 'complete') this.reset();
     });
   }
 
   onStrike(zoneIndex, when = performance.now()) {
-    if (!['ascending', 'descending', 'catch-intro'].includes(this.phase)) {
-      return null;
-    }
-    const active = this.waves.find((w) => !w.caught && !w.missed && w.targetIndex === zoneIndex);
+    if (!['ascending', 'descending', 'catch-intro'].includes(this.phase)) return null;
+    const active = this.waves.find(
+      (w) => !w.caught && !w.missed && w.targetIndex === zoneIndex
+    );
     if (!active) {
       this.misses += 1;
       this.onStatus('MISS');
@@ -206,9 +189,7 @@ export class CatchMode {
 
   tick(now = performance.now()) {
     for (const w of this.waves) {
-      if (w.caught || w.missed) {
-        continue;
-      }
+      if (w.caught || w.missed) continue;
       w.progress = (now - w.born) / w.travelMs;
       if (w.progress > 1.12) {
         w.missed = true;
@@ -219,7 +200,9 @@ export class CatchMode {
       }
     }
     if (this.waves.length > 12) {
-      this.waves = this.waves.filter((w) => (!w.caught && !w.missed) || now - w.born < 3000);
+      this.waves = this.waves.filter(
+        (w) => (!w.caught && !w.missed) || now - w.born < 3000
+      );
     }
   }
 

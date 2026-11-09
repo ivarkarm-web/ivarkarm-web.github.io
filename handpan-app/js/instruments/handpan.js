@@ -3,37 +3,20 @@
  * Phase 1: note count is fixed by each scale's intervals (not user +/-).
  */
 import { Instrument } from '../instrument.js';
-import { getSoundLibrary } from './library-family.js';
-import { HANDPAN_SCALES, scaleToCents, randomScaleIndex } from './handpan-scales.js';
-import { MIN_NOTES, MAX_NOTES, ringAngles } from '../pad-layout.js';
+import { getSoundLibrary } from './library-family.js?v=3';
+import { HANDPAN_SCALES, scaleToCents, randomScaleIndex } from './handpan-scales.js?v=7';
+import { MIN_NOTES, MAX_NOTES, ringAngles } from '../pad-layout.js?v=3';
 
 export { HANDPAN_SCALES, MIN_NOTES, MAX_NOTES, randomScaleIndex };
 
-const NOTE_NAMES = [
-  'C',
-  'C\u266F',
-  'D',
-  'D\u266F',
-  'E',
-  'F',
-  'F\u266F',
-  'G',
-  'G\u266F',
-  'A',
-  'A\u266F',
-  'B',
-];
+const NOTE_NAMES = ['C', 'C\u266F', 'D', 'D\u266F', 'E', 'F', 'F\u266F', 'G', 'G\u266F', 'A', 'A\u266F', 'B'];
 const KEYS = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f'];
 
 export function extendScaleCents(baseCents, count) {
   const out = baseCents.slice(0, Math.min(baseCents.length, Math.max(1, count)));
-  if (count <= out.length) {
-    return out.slice(0, Math.max(1, count));
-  }
+  if (count <= out.length) return out.slice(0, Math.max(1, count));
   const octave = 1200;
-  const classes = [
-    ...new Set(out.map((c) => Math.round((((c % octave) + octave) % octave) * 100) / 100)),
-  ].sort((a, b) => a - b);
+  const classes = [...new Set(out.map((c) => Math.round((((c % octave) + octave) % octave) * 100) / 100))].sort((a, b) => a - b);
   let top = Math.max(...out);
   while (out.length < count) {
     const floorOct = Math.floor(top / octave) * octave;
@@ -41,15 +24,10 @@ export function extendScaleCents(baseCents, count) {
     for (let oct = 0; oct < 3 && next === null; oct++) {
       for (const pc of classes) {
         const c = floorOct + oct * octave + pc;
-        if (c > top + 0.5) {
-          next = c;
-          break;
-        }
+        if (c > top + 0.5) { next = c; break; }
       }
     }
-    if (next === null) {
-      break;
-    }
+    if (next == null) break;
     out.push(next);
     top = next;
   }
@@ -64,12 +42,8 @@ const GLIDE_TIME = 0.12;
 const BEND_SMOOTH = 0.055;
 const PRESSURE_SMOOTH = 0.06;
 
-function mtof(m) {
-  return 440 * Math.pow(2, (m - 69) / 12);
-}
-function centsToFreq(rootMidi, cents) {
-  return mtof(rootMidi) * Math.pow(2, cents / 1200);
-}
+function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+function centsToFreq(rootMidi, cents) { return mtof(rootMidi) * Math.pow(2, cents / 1200); }
 function midiName(m) {
   const n = Math.round(m);
   return NOTE_NAMES[((n % 12) + 12) % 12] + (Math.floor(n / 12) - 1);
@@ -79,15 +53,11 @@ function centsName(rootMidi, cents) {
   const nearest = Math.round(totalMidi);
   const diff = Math.round((totalMidi - nearest) * 100);
   const base = NOTE_NAMES[((nearest % 12) + 12) % 12] + (Math.floor(nearest / 12) - 1);
-  if (Math.abs(diff) < 8) {
-    return base;
-  }
+  if (Math.abs(diff) < 8) return base;
   const sign = diff > 0 ? '+' : '\u2212';
   return base + sign + Math.abs(diff) + '\xA2';
 }
-function rootToMidi(rootIndex, octaveOffset) {
-  return 48 + rootIndex + octaveOffset * 12;
-}
+function rootToMidi(rootIndex, octaveOffset) { return 48 + rootIndex + octaveOffset * 12; }
 function pressureCurve(p) {
   p = Math.max(0, Math.min(1, p));
   return p * 0.35 + Math.pow(p, 1.6) * 0.65;
@@ -98,12 +68,11 @@ export class HandpanInstrument extends Instrument {
     super({
       id: 'handpan',
       name: 'Handpan',
-      description:
-        'Radial steel handpan with scale-fixed tonefields, aftertouch and MPE pitch bend.',
+      description: 'Radial steel handpan with scale-fixed tonefields, aftertouch and MPE pitch bend.',
       category: 'HANDPAN & TUNED PERCUSSION',
       engineKind: 'procedural',
       polyphony: MAX_NOTES,
-      compatibleFx: ['compressor', 'delay', 'reverb', 'warmth', 'air', 'chorus', 'shimmer'],
+      compatibleFx: ['compressor', 'delay', 'reverb', 'warmth', 'air', 'chorus', 'shimmer']
     });
     this.scaleIndex = 0;
     this.rootIndex = 2;
@@ -128,37 +97,27 @@ export class HandpanInstrument extends Instrument {
   }
 
   _prewarm() {
-    if (!this.lib || !this.ready) {
-      return;
-    }
+    if (!this.lib || !this.ready) return;
     const freqs = this.notes.map((n) => n.freq);
     this._prewarmToken = (this._prewarmToken || 0) + 1;
     const token = this._prewarmToken;
-    this.lib
-      .prewarm(['handpan'], freqs, [0.65], () => token === this._prewarmToken)
-      .catch(() => {});
+    this.lib.prewarm(['handpan'], freqs, [0.65], () => token === this._prewarmToken).catch(() => {});
   }
 
-  deactivate() {
-    super.deactivate();
-  }
+  deactivate() { super.deactivate(); }
 
   rebuildNotes() {
     const scale = HANDPAN_SCALES[this.scaleIndex] || HANDPAN_SCALES[0];
     const base = rootToMidi(this.rootIndex, this.octaveOffset);
     // Scale/root changes preserve the current count; only the randomizer changes it.
-    const count = Math.max(
-      MIN_RANDOM_NOTE_COUNT,
-      Math.min(
-        MAX_RANDOM_NOTE_COUNT,
-        Number.isFinite(this.noteCount) ? Math.round(this.noteCount) : DEFAULT_NOTE_COUNT
-      )
-    );
+    const count = Math.max(MIN_RANDOM_NOTE_COUNT, Math.min(
+      MAX_RANDOM_NOTE_COUNT,
+      Number.isFinite(this.noteCount) ? Math.round(this.noteCount) : DEFAULT_NOTE_COUNT
+    ));
     const scaleCents = extendScaleCents(scaleToCents(scale), count);
     this.noteCount = count;
     const centsList = scaleCents.slice(0, count);
-    const isMicro =
-      !!(scale.cents && scale.cents.length) || (scale.tuning && scale.tuning !== '12-TET');
+    const isMicro = !!(scale.cents && scale.cents.length) || (scale.tuning && scale.tuning !== '12-TET');
     const angles = ringAngles(Math.max(1, centsList.length - 1));
 
     this.notes = centsList.map((cents, i) => {
@@ -175,27 +134,21 @@ export class HandpanInstrument extends Instrument {
         kind: isDing ? 'ding' : 'ring',
         angle: isDing ? 0 : angles[i - 1],
         key: KEYS[i],
-        microtonal: isMicro,
+        microtonal: isMicro
       };
     });
     this._prewarm();
   }
 
-  getNotes() {
-    return this.notes.slice();
-  }
-  getZones() {
-    return this._zones || [];
-  }
+  getNotes() { return this.notes.slice(); }
+  getZones() { return this._zones || []; }
 
-  addNote() {
-    return false;
-  }
+  addNote() { return false; }
   setNoteCount(n) {
-    this.noteCount = Math.max(
-      MIN_RANDOM_NOTE_COUNT,
-      Math.min(MAX_RANDOM_NOTE_COUNT, Math.round(Number(n) || DEFAULT_NOTE_COUNT))
-    );
+    this.noteCount = Math.max(MIN_RANDOM_NOTE_COUNT, Math.min(
+      MAX_RANDOM_NOTE_COUNT,
+      Math.round(Number(n) || DEFAULT_NOTE_COUNT)
+    ));
     this.rebuildNotes();
     return this.noteCount;
   }
@@ -205,18 +158,12 @@ export class HandpanInstrument extends Instrument {
     const s = HANDPAN_SCALES[this.scaleIndex];
     if (s && typeof s.rootMidi === 'number') {
       const midi = s.rootMidi;
-      let bestPc = 0,
-        bestOct = 0,
-        bestDist = 999;
+      let bestPc = 0, bestOct = 0, bestDist = 999;
       for (let oct = -1; oct <= 1; oct++) {
         for (let pc = 0; pc < 12; pc++) {
           const m = 48 + pc + oct * 12;
           const d = Math.abs(m - midi);
-          if (d < bestDist) {
-            bestDist = d;
-            bestPc = pc;
-            bestOct = oct;
-          }
+          if (d < bestDist) { bestDist = d; bestPc = pc; bestOct = oct; }
         }
       }
       this.rootIndex = bestPc;
@@ -234,9 +181,7 @@ export class HandpanInstrument extends Instrument {
     this.octaveOffset = Math.max(-1, Math.min(1, o));
     this.rebuildNotes();
   }
-  setVoiceIndex(i) {
-    this.voiceIndex = 0;
-  }
+  setVoiceIndex(i) { this.voiceIndex = 0; }
   setPitchBendRange(semitones) {
     this.pitchBendRange = Math.max(0.25, Math.min(48, semitones));
   }
@@ -246,64 +191,40 @@ export class HandpanInstrument extends Instrument {
 
   get scaleLabel() {
     const s = HANDPAN_SCALES[this.scaleIndex];
-    if (!s) {
-      return '';
-    }
+    if (!s) return '';
     return s.tuning && s.tuning !== '12-TET' ? s.label + ' \u00B7 ' + s.tuning : s.label;
   }
-  get rootLabel() {
-    return NOTE_NAMES[this.rootIndex];
-  }
-  get voiceName() {
-    return 'Handpan';
-  }
+  get rootLabel() { return NOTE_NAMES[this.rootIndex]; }
+  get voiceName() { return 'Handpan'; }
   get isMicrotonal() {
     const s = HANDPAN_SCALES[this.scaleIndex];
     return !!(s && s.cents && s.cents.length);
   }
 
   _applyPitchBend(voice, cents, t, smooth = BEND_SMOOTH) {
-    if (!voice || voice.released) {
-      return;
-    }
-    const clamped = Math.max(
-      -this.pitchBendRange * 100,
-      Math.min(this.pitchBendRange * 100, cents)
-    );
-    if (voice.handle) {
-      voice.handle.detune(clamped, smooth);
-      return;
-    }
+    if (!voice || voice.released) return;
+    const clamped = Math.max(-this.pitchBendRange * 100, Math.min(this.pitchBendRange * 100, cents));
+    if (voice.handle) { voice.handle.detune(clamped, smooth); return; }
     if (voice.oscs) {
       for (const osc of voice.oscs) {
         try {
           osc.detune.cancelScheduledValues(t);
           osc.detune.setTargetAtTime(clamped, t, smooth);
         } catch (_) {
-          try {
-            osc.detune.value = clamped;
-          } catch (_) {}
+          try { osc.detune.value = clamped; } catch (_) {}
         }
       }
     }
   }
 
-  glideTo() {
-    return false;
-  }
+  glideTo() { return false; }
 
   noteOn(gesture, zone) {
-    if (!this.ready || !this.audioCtx || !this.bus) {
-      return;
-    }
+    if (!this.ready || !this.audioCtx || !this.bus) return;
     const idx = zone?.index ?? zone?.i;
-    if (idx === null || idx < 0 || idx >= this.noteCount) {
-      return;
-    }
+    if (idx == null || idx < 0 || idx >= this.noteCount) return;
     const note = this.notes[idx];
-    if (!note) {
-      return;
-    }
+    if (!note) return;
     const ctx = this.audioCtx;
     const t = ctx.currentTime + 0.001;
     const vel = Math.max(0.12, Math.min(1, gesture.velocity ?? 0.75));
@@ -313,11 +234,8 @@ export class HandpanInstrument extends Instrument {
     this._smoothPressure[idx] = pressure;
     const prev = this.activeVoices.get(idx);
     if (prev) {
-      if (prev.stop) {
-        prev.stop(t, 0.04);
-      } else {
-        this._releaseVoice(prev, t, 0.04);
-      }
+      if (prev.stop) prev.stop(t, 0.04);
+      else this._releaseVoice(prev, t, 0.04);
     }
     this.glow[idx] = Math.min(1, 0.55 + vel * 0.45);
     this.zoneFlash[idx] = radial;
@@ -328,84 +246,49 @@ export class HandpanInstrument extends Instrument {
   }
 
   _strikeLibrary(note, idx, vel, angleRad, pressure = 0.5) {
-    if (!this.lib) {
-      return;
-    }
+    if (!this.lib) return;
     const handle = this.lib.play('handpan', note.freq, { vel, pan: Math.sin(angleRad || 0) * 0.3 });
-    if (!handle) {
-      return;
-    }
+    if (!handle) return;
     handle.level(0.85 + pressureCurve(pressure) * 0.3, 0.01);
     const voice = {
-      idx,
-      handle,
-      kind: 'lib',
-      released: false,
-      baseFreq: note.freq,
+      idx, handle, kind: 'lib', released: false, baseFreq: note.freq,
       stop: (tt, tc) => {
-        if (voice.released) {
-          return;
-        }
+        if (voice.released) return;
         voice.released = true;
         handle.stop(Math.max(0.03, tc || 0.05));
-      },
+      }
     };
     this.activeVoices.set(idx, voice);
-    setTimeout(() => {
-      if (this.activeVoices.get(idx) === voice) {
-        this.activeVoices.delete(idx);
-      }
-    }, 6000);
+    setTimeout(() => { if (this.activeVoices.get(idx) === voice) this.activeVoices.delete(idx); }, 6000);
   }
 
   express(gesture, zone) {
-    if (!this.ready || !this.audioCtx) {
-      return;
-    }
+    if (!this.ready || !this.audioCtx) return;
     const idx = zone?.index ?? zone?.i;
-    if (idx === null || idx < 0 || idx >= this.noteCount) {
-      return;
-    }
-    if (!this.held[idx]) {
-      return;
-    }
+    if (idx == null || idx < 0 || idx >= this.noteCount) return;
+    if (!this.held[idx]) return;
     const voice = this.activeVoices.get(idx);
-    if (!voice || voice.released) {
-      return;
-    }
+    if (!voice || voice.released) return;
     const ctx = this.audioCtx;
     const t = ctx.currentTime;
-    const rawP = Math.max(
-      0,
-      Math.min(1, gesture.pressure || gesture.force || gesture.intensity || 0.5)
-    );
+    const rawP = Math.max(0, Math.min(1, gesture.pressure || gesture.force || gesture.intensity || 0.5));
     const sp = this._smoothPressure[idx] + (rawP - this._smoothPressure[idx]) * 0.22;
     this._smoothPressure[idx] = sp;
     const pc = pressureCurve(sp);
     const radial = Math.max(0, Math.min(1.2, zone.radial ?? gesture.radial ?? 0.4));
     this.glow[idx] = Math.min(1, Math.max(this.glow[idx], 0.12 + pc * 0.18));
     this.zoneFlash[idx] = radial * 0.55;
-    if (voice.handle) {
-      voice.handle.level(0.82 + pc * 0.4, PRESSURE_SMOOTH);
-    }
+    if (voice.handle) voice.handle.level(0.82 + pc * 0.4, PRESSURE_SMOOTH);
     if (voice.expressGain) {
       try {
         voice.expressGain.gain.cancelScheduledValues(t);
-        voice.expressGain.gain.setTargetAtTime(
-          (voice.baseGain ?? 1) * (0.78 + pc * 0.45),
-          t,
-          PRESSURE_SMOOTH
-        );
+        voice.expressGain.gain.setTargetAtTime((voice.baseGain ?? 1) * (0.78 + pc * 0.45), t, PRESSURE_SMOOTH);
       } catch (_) {}
     }
     if (voice.expressFilter) {
       try {
         voice.expressFilter.frequency.cancelScheduledValues(t);
-        voice.expressFilter.frequency.setTargetAtTime(
-          1500 + Math.max(0, Math.min(1, radial)) * 11500 + pc * 1800,
-          t,
-          PRESSURE_SMOOTH
-        );
+        voice.expressFilter.frequency.setTargetAtTime(1500 + Math.max(0, Math.min(1, radial)) * 11500 + pc * 1800, t, PRESSURE_SMOOTH);
         voice.expressFilter.Q.cancelScheduledValues(t);
         voice.expressFilter.Q.setTargetAtTime(0.55 + pc * 1.1, t, PRESSURE_SMOOTH);
       } catch (_) {}
@@ -423,7 +306,7 @@ export class HandpanInstrument extends Instrument {
       } catch (_) {}
     }
     let bendSemi = gesture.pitchBend;
-    if (bendSemi === null && typeof gesture.pitchBendNorm === 'number') {
+    if (bendSemi == null && typeof gesture.pitchBendNorm === 'number') {
       const n = gesture.pitchBendNorm;
       bendSemi = Math.sign(n) * Math.pow(Math.abs(n), 1.35) * this.pitchBendRange;
     }
@@ -434,9 +317,7 @@ export class HandpanInstrument extends Instrument {
   }
 
   _releaseVoice(voice, t, tc) {
-    if (!voice || voice.released) {
-      return;
-    }
+    if (!voice || voice.released) return;
     voice.released = true;
     try {
       if (voice.vibGain) {
@@ -457,12 +338,8 @@ export class HandpanInstrument extends Instrument {
     this.held[zoneId] = 0;
     this.pitchBendCents[zoneId] = 0;
     this._smoothPressure[zoneId] = 0;
-    if (this.glow[zoneId] > 0.15) {
-      this.glow[zoneId] = Math.min(this.glow[zoneId], 0.35);
-    }
-    if (this.zoneFlash[zoneId] > 0.1) {
-      this.zoneFlash[zoneId] *= 0.5;
-    }
+    if (this.glow[zoneId] > 0.15) this.glow[zoneId] = Math.min(this.glow[zoneId], 0.35);
+    if (this.zoneFlash[zoneId] > 0.1) this.zoneFlash[zoneId] *= 0.5;
   }
 
   dampAll() {
@@ -471,11 +348,8 @@ export class HandpanInstrument extends Instrument {
     this._smoothPressure.fill(0);
     const t = this.audioCtx ? this.audioCtx.currentTime : 0;
     for (const [, v] of this.activeVoices) {
-      if (v.stop) {
-        v.stop(t, 0.05);
-      } else {
-        this._releaseVoice(v, t, 0.05);
-      }
+      if (v.stop) v.stop(t, 0.05);
+      else this._releaseVoice(v, t, 0.05);
     }
     this.activeVoices.clear();
   }
@@ -484,18 +358,10 @@ export class HandpanInstrument extends Instrument {
     let any = false;
     for (let i = 0; i < MAX_NOTES; i++) {
       const decay = this.held[i] ? 0.92 : 0.82;
-      if (this.glow[i] > 0.001) {
-        this.glow[i] *= decay;
-        any = true;
-      } else {
-        this.glow[i] = 0;
-      }
-      if (this.zoneFlash[i] > 0.001) {
-        this.zoneFlash[i] *= this.held[i] ? 0.9 : 0.78;
-        any = true;
-      } else {
-        this.zoneFlash[i] = 0;
-      }
+      if (this.glow[i] > 0.001) { this.glow[i] *= decay; any = true; }
+      else this.glow[i] = 0;
+      if (this.zoneFlash[i] > 0.001) { this.zoneFlash[i] *= this.held[i] ? 0.9 : 0.78; any = true; }
+      else this.zoneFlash[i] = 0;
     }
     return any;
   }
@@ -509,7 +375,7 @@ export class HandpanInstrument extends Instrument {
       supportsGlide: true,
       supportsMicrotonal: true,
       pitchBendRange: this.pitchBendRange,
-      glideTime: this.glideTime,
+      glideTime: this.glideTime
     };
   }
 }

@@ -1,91 +1,58 @@
-/** Scale picker — native <select> (decision: native menus), behavior preserved. */
-import { HANDPAN_SCALES, SCALE_FAMILIES } from './instruments/handpan-scales.js';
+/** Searchable scale picker. Overlay ownership remains in overlay-controller.js. */
+import { HANDPAN_SCALES, SCALE_FAMILIES } from './instruments/handpan-scales.js?v=7';
 
 export function mountScaleSelector({ getHandpan, onScaleChange }) {
-  const menu = document.getElementById('scaleMenu');
-  const toggle = document.getElementById('scaleLabel');
-  if (!menu || !toggle) {
-    return { render() {}, updateLabel() {} };
-  }
-
-  let select = menu.querySelector('select[data-scale-native]');
-  if (!select) {
-    select = document.createElement('select');
-    select.dataset.scaleNative = '1';
-    select.className = 'pionier-native-select scale-native-select';
-    select.setAttribute('aria-label', 'Choose scale');
-    select.style.width = '100%';
-    select.style.minHeight = '44px';
-    menu.appendChild(select);
-  }
-  menu.hidden = true;
-
+  const menu = document.getElementById('scaleMenu'); const toggle = document.getElementById('scaleLabel');
+  if (!menu || !toggle) return { render() {}, updateLabel() {} };
   function updateLabel() {
-    const handpan = getHandpan();
-    if (!handpan) return;
+    const handpan = getHandpan(); if (!handpan) return;
     const s = HANDPAN_SCALES[handpan.scaleIndex];
     let short = s?.short || s?.label || handpan.scaleLabel || 'Scale';
     const full = s?.label || handpan.scaleLabel || short;
     const root = handpan.rootLabel || '';
     if (root && short.startsWith(root + ' ')) short = short.slice(root.length).trim();
-    toggle.textContent = short + ' ▾';
+    toggle.textContent = short + ' \u25be';
     toggle.title = full;
     const rootLabel = document.getElementById('rootLabel');
     if (rootLabel && root) rootLabel.textContent = root;
-    if (select && Number.isFinite(handpan.scaleIndex)) select.value = String(handpan.scaleIndex);
   }
-
   function render() {
-    const handpan = getHandpan();
-    if (!handpan) return;
-    select.replaceChildren();
+    const handpan = getHandpan(); if (!handpan) return;
+    menu.replaceChildren();
+    const results = document.createElement('div');
+    results.className = 'picker-results scale-menu-results';
+    menu.appendChild(results);
+    // Group scales by family, in the defined family order, with subtle category headings.
     for (const family of SCALE_FAMILIES) {
       const members = HANDPAN_SCALES.filter((s) => s.family === family);
       if (!members.length) continue;
-      const group = document.createElement('optgroup');
-      group.label = family;
-      members.forEach((scale) => {
+      const section = document.createElement('section');
+      section.className = 'picker-group scale-picker-group';
+      const head = document.createElement('div');
+      head.className = 'scale-menu-group';
+      head.textContent = family;
+      section.appendChild(head);
+      results.appendChild(section);
+      members.forEach((scale, index) => {
         const globalIndex = HANDPAN_SCALES.indexOf(scale);
-        const opt = document.createElement('option');
-        opt.value = String(globalIndex);
-        opt.textContent = scale.label + (scale.mood ? ' — ' + scale.mood : '');
-        if (globalIndex === handpan.scaleIndex) opt.selected = true;
-        group.appendChild(opt);
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'scale-menu-item pionier-menu-option' + (globalIndex === handpan.scaleIndex ? ' is-active' : '');
+        button.setAttribute('role', 'menuitem');
+        button.dataset.searchText = [scale.label, scale.short, scale.family, scale.mood, scale.id].filter(Boolean).join(' ').toLowerCase();
+        const name = document.createElement('span');
+        name.textContent = scale.label;
+        button.appendChild(name);
+        const sub = document.createElement('span');
+        sub.className = 'scale-item-tuning';
+        sub.textContent = scale.mood;
+        button.appendChild(sub);
+        button.addEventListener('click', (e) => { e.stopPropagation(); handpan.setScaleIndex(globalIndex); onScaleChange?.(); render(); updateLabel(); if (window.PionierOverlay) window.PionierOverlay.closePickers(); else { menu.hidden = true; toggle.setAttribute('aria-expanded', 'false'); } toggle.focus?.(); });
+        try { window.PionierFavorites?.decorateScaleItem?.(button, scale, globalIndex); } catch (_) {}
+        section.appendChild(button);
       });
-      select.appendChild(group);
     }
   }
-
-  function applyIndex(idx) {
-    const handpan = getHandpan();
-    if (!handpan) return;
-    handpan.setScaleIndex(idx);
-    onScaleChange?.();
-    updateLabel();
-  }
-
-  select.addEventListener('change', () => applyIndex(+select.value));
-
-  toggle.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    render();
-    // On mobile, programmatic open isn't possible; focusing + showing the select works.
-    menu.hidden = false;
-    menu.style.position = 'absolute';
-    menu.style.zIndex = '60';
-    select.focus();
-    try { select.showPicker?.(); } catch (_) {}
-  });
-
-  select.addEventListener('blur', () => {
-    setTimeout(() => { menu.hidden = true; toggle.setAttribute('aria-expanded', 'false'); }, 150);
-  });
-  select.addEventListener('change', () => {
-    menu.hidden = true;
-    toggle.setAttribute('aria-expanded', 'false');
-  });
-
   function stepScale(delta) {
     const handpan = getHandpan();
     if (!handpan || !HANDPAN_SCALES.length) return;
@@ -96,8 +63,6 @@ export function mountScaleSelector({ getHandpan, onScaleChange }) {
   }
   document.getElementById('scalePrev')?.addEventListener('click', () => stepScale(-1));
   document.getElementById('scaleNext')?.addEventListener('click', () => stepScale(1));
-
-  render();
-  updateLabel();
-  return { render, updateLabel };
+  const mo = new MutationObserver(() => { if (!menu.hidden) render(); }); mo.observe(menu, { attributes: true, attributeFilter: ['hidden'] });
+  document.addEventListener('pionier:picker-open', (e) => { if (e.detail?.id === 'scaleMenu') render(); }); updateLabel(); return { render, updateLabel };
 }

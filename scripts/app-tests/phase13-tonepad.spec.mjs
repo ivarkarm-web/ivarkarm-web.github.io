@@ -5,18 +5,12 @@ async function enterApp(page) {
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) {
     await enter.click();
-    await expect(enter)
-      .toBeHidden({ timeout: 8000 })
-      .catch(() => {});
+    await expect(enter).toBeHidden({ timeout: 8000 }).catch(() => {});
   }
-  await expect
-    .poll(() => page.evaluate(() => !!window.PionierTonepad), { timeout: 15000 })
-    .toBe(true);
+  await expect.poll(() => page.evaluate(() => !!window.PionierTonepad), { timeout: 15000 }).toBe(true);
 }
 
-test('TonePad opens, edits and persists a pattern, and switches layers and sounds', async ({
-  page,
-}) => {
+test('TonePad opens, edits and persists a pattern, and switches layers and sounds', async ({ page }) => {
   // This flow performs two app boots, reload persistence, transport and
   // audio scheduling. 45s was not enough on slower local hardware; 120s still
   // fails fast on a genuine hang while allowing slow first paint.
@@ -52,32 +46,25 @@ test('TonePad opens, edits and persists a pattern, and switches layers and sound
     const h = element.height;
     const pad = Math.max(4, Math.min(element.width, h) * 0.02);
     const gap = Math.max(1, Math.min(element.width, h) * 0.01);
-    const cell = Math.max(
-      1,
-      Math.min((element.width - pad * 2 - gap * 15) / 16, (h - pad * 2 - gap * 7) / 8)
-    );
+    const cell = Math.max(1, Math.min(
+      (element.width - pad * 2 - gap * 15) / 16,
+      (h - pad * 2 - gap * 7) / 8,
+    ));
     const gridW = cell * 16 + gap * 15;
     const gridH = cell * 8 + gap * 7;
     const x = rect.left + ((element.width - gridW) / 2 + cell / 2) / dpr;
     const y = rect.top + ((h - gridH) / 2 + cell / 2) / dpr;
-    element.dispatchEvent(
-      new PointerEvent('pointerdown', { bubbles: true, pointerId: 1, clientX: x, clientY: y })
-    );
-    element.dispatchEvent(
-      new PointerEvent('pointerup', { bubbles: true, pointerId: 1, clientX: x, clientY: y })
-    );
+    element.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerId: 1, clientX: x, clientY: y }));
+    element.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, pointerId: 1, clientX: x, clientY: y }));
   });
 
-  const pattern = await page.evaluate(() =>
-    JSON.parse(localStorage.getItem('pionier-tonepad-v36'))
-  );
+  const pattern = await page.evaluate(() => JSON.parse(localStorage.getItem('pionier-tonepad-v36')));
   expect(pattern.layers).toHaveLength(5);
   expect(pattern.layers[0].reduce((sum, cell) => sum + cell, 0)).toBe(1);
   const oscillatorsBeforeTransport = await page.evaluate(() => window.__tonepadOscillatorCount);
   await page.locator('[data-play]').click();
   await expect(page.locator('[data-play]')).toHaveText('Stop');
-  await expect
-    .poll(() => page.evaluate(() => window.__tonepadOscillatorCount), { timeout: 5000 })
+  await expect.poll(() => page.evaluate(() => window.__tonepadOscillatorCount), { timeout: 5000 })
     .toBeGreaterThan(oscillatorsBeforeTransport);
   await page.locator('.tonepad-layer-btn[data-layer="1"]').click();
   await page.locator('.tonepad-sound-btn[data-sound="kalimba"]').click();
@@ -91,9 +78,7 @@ test('TonePad opens, edits and persists a pattern, and switches layers and sound
   await expect(page.locator('.tonepad-layer-btn[data-layer="1"]')).toHaveClass(/is-active/);
   await expect(page.locator('.tonepad-sound-btn[data-sound="kalimba"]')).toHaveClass(/is-active/);
   await page.locator('[data-clear]').click();
-  const cleared = await page.evaluate(() =>
-    JSON.parse(localStorage.getItem('pionier-tonepad-v36'))
-  );
+  const cleared = await page.evaluate(() => JSON.parse(localStorage.getItem('pionier-tonepad-v36')));
   expect(cleared.layers[1].every((cell) => cell === 0)).toBe(true);
   expect(cleared.layerSounds[1]).toBe('kalimba');
 });
@@ -102,9 +87,7 @@ test('TonePad loads and remains usable when browser storage is unavailable', asy
   await page.addInitScript(() => {
     Object.defineProperty(window, 'localStorage', {
       configurable: true,
-      get() {
-        throw new DOMException('storage blocked', 'SecurityError');
-      },
+      get() { throw new DOMException('storage blocked', 'SecurityError'); },
     });
   });
   await enterApp(page);

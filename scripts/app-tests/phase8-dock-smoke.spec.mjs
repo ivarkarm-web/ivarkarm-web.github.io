@@ -12,47 +12,31 @@ async function enterIfNeeded(page) {
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) {
     await enter.click();
-    await expect(enter)
-      .toBeHidden({ timeout: 8000 })
-      .catch(() => {});
+    await expect(enter).toBeHidden({ timeout: 8000 }).catch(() => {});
   }
 }
 
 test('phase8: Enter → dock, scale, instrument, root, looper visible', async ({ page }) => {
   await page.goto('/handpan-app/');
-  await expect
-    .poll(() => page.evaluate(() => window.PionierBootState === 'ready'), { timeout: 15000 })
-    .toBe(true);
+  await expect.poll(() => page.evaluate(() => window.PionierBootState === 'ready'), { timeout: 15000 }).toBe(true);
   await expect(page.locator('#pionierBottomDock')).toBeAttached();
   await enterIfNeeded(page);
   await expect.poll(() => page.evaluate(() => !!window.PionierCore), { timeout: 15000 }).toBe(true);
   await expect(page.locator('#pan')).toBeVisible();
 
-  await expect
-    .poll(
-      async () => {
-        return page.evaluate(() => {
-          const dock = document.getElementById('pionierBottomDock');
-          if (!dock) {
-            return false;
-          }
-          const style = getComputedStyle(dock);
-          return style.display !== 'none' && style.visibility !== 'hidden';
-        });
-      },
-      { timeout: 10000 }
-    )
-    .toBe(true);
+  await expect.poll(async () => {
+    return page.evaluate(() => {
+      const dock = document.getElementById('pionierBottomDock');
+      if (!dock) return false;
+      const style = getComputedStyle(dock);
+      return style.display !== 'none' && style.visibility !== 'hidden';
+    });
+  }, { timeout: 10000 }).toBe(true);
 
   await expect(page.locator('#scaleLabel')).toBeVisible();
-  await expect
-    .poll(
-      async () => {
-        return page.evaluate(() => !!document.getElementById('looperRootMenuBtn'));
-      },
-      { timeout: 8000 }
-    )
-    .toBe(true);
+  await expect.poll(async () => {
+    return page.evaluate(() => !!document.getElementById('looperRootMenuBtn'));
+  }, { timeout: 8000 }).toBe(true);
 
   const looperBtn = page.locator('#looperBtn');
   await expect(looperBtn).toBeVisible();
@@ -72,17 +56,13 @@ test('phase8: critical scripts listed in index resolve on disk path', async ({ p
   await page.goto('/handpan-app/');
   const missing = await page.evaluate(async () => {
     const scripts = [...document.querySelectorAll('script[src]')].map((s) => s.getAttribute('src'));
-    const links = [...document.querySelectorAll('link[rel=stylesheet]')].map((l) =>
-      l.getAttribute('href')
-    );
+    const links = [...document.querySelectorAll('link[rel=stylesheet]')].map((l) => l.getAttribute('href'));
     const urls = [...scripts, ...links].filter((u) => u && u.startsWith('./'));
     const bad = [];
     for (const u of urls) {
       try {
         const r = await fetch(u, { method: 'HEAD', cache: 'no-store' });
-        if (!r.ok) {
-          bad.push(u + ' → ' + r.status);
-        }
+        if (!r.ok) bad.push(u + ' → ' + r.status);
       } catch (e) {
         bad.push(u + ' → ' + (e && e.message));
       }
@@ -92,9 +72,7 @@ test('phase8: critical scripts listed in index resolve on disk path', async ({ p
   expect(missing, missing.join('\n')).toEqual([]);
 });
 
-test('phase8: selectors and right-side looper actions remain mounted after deferred boot', async ({
-  page,
-}) => {
+test('phase8: selectors and right-side looper actions remain mounted after deferred boot', async ({ page }) => {
   await page.goto('/handpan-app/');
   await enterIfNeeded(page);
   await expect.poll(() => page.evaluate(() => !!window.PionierCore), { timeout: 15000 }).toBe(true);
@@ -113,9 +91,7 @@ test('phase8: selectors and right-side looper actions remain mounted after defer
   for (const id of ['tonepadToggle', 'fxPanelOpen', 'settingsOpenBtn']) {
     const control = page.locator('#' + id);
     await expect(control, '#' + id + ' should remain visible after deferred boot').toBeVisible();
-    await expect
-      .poll(() => control.evaluate((el) => el.parentElement?.id))
-      .toBe('pionierLooperActions');
+    await expect.poll(() => control.evaluate((el) => el.parentElement?.id)).toBe('pionierLooperActions');
     const box = await control.boundingBox();
     const viewport = page.viewportSize();
     expect(box, '#' + id + ' should have a layout box').toBeTruthy();
@@ -138,3 +114,4 @@ test('phase8: selectors and right-side looper actions remain mounted after defer
   await expect(page.locator('#libraryPanel')).toBeVisible();
   await page.locator('#closeLibrary').click();
 });
+

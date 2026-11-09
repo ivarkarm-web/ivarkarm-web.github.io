@@ -12,11 +12,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    emptyOutDir: true,
-    rollupOptions: {
-      input: {
-        app: 'handpan-app/index.html',
-      },
-    },
-  },
+    emptyOutDir: true
+  }
 });
+

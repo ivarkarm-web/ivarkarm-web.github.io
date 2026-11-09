@@ -47,18 +47,16 @@ export class LookAheadScheduler {
   }
 
   start(fromTime = null) {
-    if (this._running) {
-      return;
-    }
+    if (this._running) return;
     this._running = true;
-    this._nextNoteTime = fromTime !== null ? fromTime : this.ctx.currentTime + 0.04;
+    this._nextNoteTime = fromTime != null ? fromTime : this.ctx.currentTime + 0.04;
     this._currentStep = 0;
     this._timerId = setInterval(() => this._scheduler(), this.lookaheadMs);
   }
 
   stop() {
     this._running = false;
-    if (this._timerId !== null) {
+    if (this._timerId != null) {
       clearInterval(this._timerId);
       this._timerId = null;
     }
@@ -69,9 +67,7 @@ export class LookAheadScheduler {
   }
 
   _scheduler() {
-    if (!this._running || !this.ctx) {
-      return;
-    }
+    if (!this._running || !this.ctx) return;
     const horizon = this.ctx.currentTime + this.scheduleAhead;
     while (this._nextNoteTime < horizon) {
       const step = this._currentStep;
@@ -83,14 +79,10 @@ export class LookAheadScheduler {
         bar,
         beat,
         bpm: this.bpm,
-        beatSec: (b) => (60 / this.bpm) * b,
+        beatSec: (b) => (60 / this.bpm) * b
       };
       for (const fn of this._subscribers) {
-        try {
-          fn(ev);
-        } catch (e) {
-          console.warn('[scheduler] tick', e);
-        }
+        try { fn(ev); } catch (e) { console.warn('[scheduler] tick', e); }
       }
       // Base grid advances at 16th resolution; arps decide when to actually fire
       this._nextNoteTime += this.secondsPerStep;

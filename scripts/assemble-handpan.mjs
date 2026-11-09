@@ -20,10 +20,7 @@ const parts = files.map((f) => {
   const start = src.indexOf('`') + 1;
   const end = src.rindexOf('`');
   let raw = src.slice(start, end);
-  raw = raw
-    .replace(/\\`/g, '`')
-    .replace(/\\\$\{/g, '${')
-    .replace(/\\\\/g, '\\');
+  raw = raw.replace(/\\`/g, '`').replace(/\\\$\{/g, '${').replace(/\\\\/g, '\\');
   return raw;
 });
 

@@ -33,7 +33,7 @@ Pointer / Touch / Keyboard
 | `css-parts/layout-*.css` | Dock, looper toolbar, pickers, themes (linked in parallel) |
 | `library.css` | Local recording library presentation |
 
-**No sequential `@import` chain.** Layout and ambient rules ship as individual `<link>` tags under `css-parts/` so the browser can fetch them in parallel, PurgeCSS/esbuild sees every rule, and a truncated single part cannot silently drop the whole toolbar. The deprecated `pionier-layout.css` / `pionier-ambient.css` stubs have been removed from `index.html`.
+**No sequential `@import` chain.** Layout and ambient rules ship as individual `<link>` tags under `css-parts/` so the browser can fetch them in parallel, PurgeCSS/esbuild sees every rule, and a truncated single part cannot silently drop the whole toolbar. The former `pionier-layout.css` / `pionier-ambient.css` shells are deprecated stubs.
 
 CI runs `node scripts/optimize-handpan-css.mjs --allow-source` (PurgeCSS + esbuild minify) on the ephemeral checkout before tests and Pages deploy. Budget: **strictly under 250,000 bytes** total for linked stylesheets after optimization. Raw source is larger; do not treat raw size as the shipping budget.
 

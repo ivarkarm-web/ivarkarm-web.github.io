@@ -5,7 +5,7 @@
  * All library voices inherit the active handpan scale via setMusicalContext().
  */
 import { Instrument } from '../instrument.js';
-import { SoundLibrary, listVoices } from '../sound/library.js';
+import { SoundLibrary, listVoices } from '../sound/library.js?v=6';
 import { instrumentMeta } from './instrument-meta.js';
 
 const MAX_PADS = 14;
@@ -15,39 +15,18 @@ const PRESSURE_SMOOTH = 0.06;
 
 // Voices that keep sounding while the finger is down and fade out on release.
 const HELD_VOICES = new Set([
-  'bowl',
-  'tibetan',
-  'breath',
-  'choir',
-  'drone',
-  'cloud',
-  'mist_drone',
-  'aether',
-  'aurora',
-  'celestial_bow',
-  'sub_hum',
-  'ambient_cello',
-  'sitar_air',
-  'silk_violin',
-  'shakuhachi',
-  'duduk',
-  'native_flute',
-  'dizi',
-  'xun',
-  'bone_flute',
+  'bowl', 'tibetan', 'breath', 'choir', 'drone', 'cloud',
+  'mist_drone', 'aether', 'aurora', 'celestial_bow', 'sub_hum',
+  'ambient_cello', 'sitar_air', 'silk_violin',
+  'shakuhachi', 'duduk', 'native_flute',
+  'dizi', 'xun', 'bone_flute'
 ]);
 
 let shared = null;
 
 export function getSoundLibrary(ctx, bus) {
-  if (shared && shared.ctx === ctx && shared.bus === bus) {
-    return shared.lib;
-  }
-  if (shared) {
-    try {
-      shared.lib.dispose();
-    } catch (_) {}
-  }
+  if (shared && shared.ctx === ctx && shared.bus === bus) return shared.lib;
+  if (shared) { try { shared.lib.dispose(); } catch (_) {} }
   const lib = new SoundLibrary(ctx, bus || ctx.destination, { outGain: 0.9 });
   shared = { ctx, bus, lib };
   return lib;
@@ -64,19 +43,10 @@ export class LibraryInstrument extends Instrument {
       id: voice.id,
       name: voice.name,
       description: voice.desc,
-      category: instrumentMeta(voice.id)?.family || voice.family,
+      category: (instrumentMeta(voice.id)?.family) || voice.family,
       engineKind: 'procedural',
       polyphony: MAX_PADS,
-      compatibleFx: [
-        'compressor',
-        'delay',
-        'reverb',
-        'warmth',
-        'air',
-        'chorus',
-        'shimmer',
-        'lowpass',
-      ],
+      compatibleFx: ['compressor', 'delay', 'reverb', 'warmth', 'air', 'chorus', 'shimmer', 'lowpass']
     });
     this.voice = voice;
     this.meta = instrumentMeta(voice.id) || null;
@@ -98,66 +68,40 @@ export class LibraryInstrument extends Instrument {
   }
 
   _prewarm() {
-    if (!this.lib || !this.ready) {
-      return;
-    }
+    if (!this.lib || !this.ready) return;
     const freqs = this.pitches.filter(Boolean).map((p) => p.freq);
-    if (!freqs.length) {
-      return;
-    }
+    if (!freqs.length) return;
     this._prewarmToken = (this._prewarmToken || 0) + 1;
     const token = this._prewarmToken;
-    this.lib.prewarm([this.id], freqs, [0.65], () => token === this._prewarmToken).catch(() => {});
+    this.lib.prewarm([this.id], freqs, [0.65], () => (token === this._prewarmToken)).catch(() => {});
   }
 
   setMusicalContext(notes) {
     const list = (notes || []).slice(0, MAX_PADS);
     this.pitches = new Array(MAX_PADS).fill(null);
     list.forEach((n, i) => {
-      const idx = n.index !== null && n.index >= 0 && n.index < MAX_PADS ? n.index : i;
+      const idx = (n.index != null && n.index >= 0 && n.index < MAX_PADS) ? n.index : i;
       this.pitches[idx] = { midi: n.midi, freq: n.freq, name: n.name, kind: n.kind, index: idx };
     });
     for (let i = 0; i < MAX_PADS; i++) {
       if (!this.pitches[i]) {
         const src = list[Math.min(i, Math.max(0, list.length - 1))];
-        if (src) {
-          this.pitches[i] = {
-            midi: src.midi,
-            freq: src.freq,
-            name: src.name,
-            kind: src.kind,
-            index: i,
-          };
-        }
+        if (src) this.pitches[i] = { midi: src.midi, freq: src.freq, name: src.name, kind: src.kind, index: i };
       }
     }
-    if (this.ready) {
-      this._prewarm();
-    }
+    if (this.ready) this._prewarm();
   }
 
-  getNotes() {
-    return this.pitches.filter(Boolean).slice();
-  }
-  getZones() {
-    return this._zones || [];
-  }
+  getNotes() { return this.pitches.filter(Boolean).slice(); }
+  getZones() { return this._zones || []; }
 
   noteOn(gesture = {}, zone = {}) {
-    if (!this.audioCtx || !this.bus || !this.lib) {
-      return;
-    }
-    if (!this.ready) {
-      this._ready = true;
-    }
+    if (!this.audioCtx || !this.bus || !this.lib) return;
+    if (!this.ready) this._ready = true;
     const idx = zone.index ?? zone.idx ?? 0;
-    if (idx < 0 || idx >= MAX_PADS) {
-      return;
-    }
+    if (idx < 0 || idx >= MAX_PADS) return;
     const note = this.pitches[idx] || this.pitches.find(Boolean);
-    if (!note || !note.freq) {
-      return;
-    }
+    if (!note || !note.freq) return;
 
     const ctx = this.audioCtx;
     const t = ctx.currentTime + 0.001;
@@ -168,9 +112,7 @@ export class LibraryInstrument extends Instrument {
     this._smoothPressure[idx] = pressure;
 
     const prev = this.activeVoices.get(idx);
-    if (prev?.stop) {
-      prev.stop(t, 0.05);
-    }
+    if (prev?.stop) prev.stop(t, 0.05);
 
     this.glow[idx] = Math.min(1, 0.55 + vel * 0.45);
     this.zoneFlash[idx] = radial;
@@ -178,14 +120,10 @@ export class LibraryInstrument extends Instrument {
     this.lastStrikeAt.set(idx, performance.now());
 
     const handle = this.lib.play(this.id, note.freq, { vel, pan: Math.sin(angle) * 0.35 });
-    if (!handle) {
-      return;
-    }
+    if (!handle) return;
     const voice = { idx, handle, kind: 'lib', baseFreq: note.freq, released: false };
     voice.stop = (when, release = 0.08) => {
-      if (voice.released) {
-        return;
-      }
+      if (voice.released) return;
       voice.released = true;
       handle.stop(Math.max(0.03, release));
     };
@@ -193,32 +131,21 @@ export class LibraryInstrument extends Instrument {
   }
 
   noteMove(idx, gesture = {}, zone = {}) {
-    if (idx < 0 || idx >= MAX_PADS) {
-      return;
-    }
+    if (idx < 0 || idx >= MAX_PADS) return;
     const pressure = Math.max(0, Math.min(1, gesture.pressure || gesture.force || 0));
-    this._smoothPressure[idx] =
-      this._smoothPressure[idx] * (1 - PRESSURE_SMOOTH) + pressure * PRESSURE_SMOOTH;
+    this._smoothPressure[idx] = this._smoothPressure[idx] * (1 - PRESSURE_SMOOTH) + pressure * PRESSURE_SMOOTH;
     if (this.heldPad[idx]) {
-      this.glow[idx] = Math.min(
-        1,
-        Math.max(this.glow[idx], 0.25 + this._smoothPressure[idx] * 0.5)
-      );
+      this.glow[idx] = Math.min(1, Math.max(this.glow[idx], 0.25 + this._smoothPressure[idx] * 0.5));
     }
     const voice = this.activeVoices.get(idx);
-    if (!voice?.handle?.detune) {
-      return;
-    }
+    if (!voice?.handle?.detune) return;
     let bendSemi = gesture.pitchBend;
-    if (bendSemi === null && typeof gesture.pitchBendNorm === 'number') {
+    if (bendSemi == null && typeof gesture.pitchBendNorm === 'number') {
       const n = gesture.pitchBendNorm;
       bendSemi = Math.sign(n) * Math.pow(Math.abs(n), 1.35) * this.pitchBendRange;
     }
     if (typeof bendSemi === 'number' && Number.isFinite(bendSemi)) {
-      const cents = Math.max(
-        -this.pitchBendRange * 100,
-        Math.min(this.pitchBendRange * 100, bendSemi * 100)
-      );
+      const cents = Math.max(-this.pitchBendRange * 100, Math.min(this.pitchBendRange * 100, bendSemi * 100));
       voice.handle.detune(cents, BEND_SMOOTH);
     }
   }
@@ -226,9 +153,7 @@ export class LibraryInstrument extends Instrument {
   noteOff(idx) {
     this.heldPad[idx] = 0;
     this._smoothPressure[idx] = 0;
-    if (this.glow[idx] > 0.15) {
-      this.glow[idx] = Math.min(this.glow[idx], 0.35);
-    }
+    if (this.glow[idx] > 0.15) this.glow[idx] = Math.min(this.glow[idx], 0.35);
     // One-shot library notes ring out; bookkeeping is cleared by stop/onended or dampAll.
     // Do not hard-stop on finger-up (matches handpan natural ring-out).
   }
@@ -236,43 +161,26 @@ export class LibraryInstrument extends Instrument {
   dampAll() {
     this.heldPad.fill(0);
     const t = this.audioCtx?.currentTime ?? 0;
-    for (const voice of this.activeVoices.values()) {
-      voice.stop?.(t, 0.12);
-    }
+    for (const voice of this.activeVoices.values()) voice.stop?.(t, 0.12);
     this.activeVoices.clear();
   }
 
   tickGlow() {
     let active = false;
     for (let i = 0; i < MAX_PADS; i++) {
-      if (this.glow[i] > 0.001) {
-        this.glow[i] *= this.heldPad[i] ? 0.92 : 0.84;
-        active = true;
-      } else {
-        this.glow[i] = 0;
-      }
-      if (this.zoneFlash[i] > 0.001) {
-        this.zoneFlash[i] *= this.heldPad[i] ? 0.9 : 0.8;
-        active = true;
-      } else {
-        this.zoneFlash[i] = 0;
-      }
+      if (this.glow[i] > 0.001) { this.glow[i] *= this.heldPad[i] ? 0.92 : 0.84; active = true; }
+      else this.glow[i] = 0;
+      if (this.zoneFlash[i] > 0.001) { this.zoneFlash[i] *= this.heldPad[i] ? 0.9 : 0.8; active = true; }
+      else this.zoneFlash[i] = 0;
     }
     return active;
   }
 
   getPerformanceHints() {
-    return {
-      maxVoices: MAX_PADS,
-      prefersSamples: false,
-      supportsAftertouch: true,
-      supportsPitchBend: true,
-    };
+    return { maxVoices: MAX_PADS, prefersSamples: false, supportsAftertouch: true, supportsPitchBend: true };
   }
 }
 
 export function createLibraryInstruments() {
-  return listVoices()
-    .filter((v) => v.id !== 'handpan')
-    .map((v) => new LibraryInstrument(v));
+  return listVoices().filter((v) => v.id !== 'handpan').map((v) => new LibraryInstrument(v));
 }

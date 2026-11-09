@@ -7,18 +7,14 @@ import {
   instrumentsByFamily,
   instrumentsInFamily,
   randomInstrumentId,
-  randomInstrumentInFamily,
+  randomInstrumentInFamily
 } from '../../handpan-app/js/instruments/instrument-meta.js';
 import { VOICES, VOICE_MAP } from '../../handpan-app/js/sound/voices.js';
 
 test('instruments: metadata exists for handpan plus every library voice', () => {
   const voiceIds = VOICES.map((v) => v.id);
   const metaIds = instrumentIds();
-  assert.equal(
-    metaIds.length,
-    voiceIds.length,
-    `meta count ${metaIds.length} vs voices ${voiceIds.length}`
-  );
+  assert.equal(metaIds.length, voiceIds.length, `meta count ${metaIds.length} vs voices ${voiceIds.length}`);
   for (const id of voiceIds) {
     assert.ok(INSTRUMENT_META[id], `missing metadata for ${id}`);
     assert.ok(VOICE_MAP.get(id), `voice ${id} not in VOICE_MAP`);
@@ -38,10 +34,7 @@ test('instruments: family breakdown covers all six families with at least one in
   for (const fam of INSTRUMENT_FAMILIES) {
     const list = instrumentsInFamily(fam);
     assert.ok(list.length > 0, `family ${fam} is empty`);
-    assert.ok(
-      list.every((m) => m.family === fam),
-      `family ${fam} contains other families`
-    );
+    assert.ok(list.every((m) => m.family === fam), `family ${fam} contains other families`);
   }
   const total = [...byFam.values()].reduce((a, b) => a + b.length, 0);
   assert.equal(total, instrumentIds().length);
@@ -74,10 +67,7 @@ test('instruments: capabilities are not over-advertised', () => {
   // genuine sustained note release. One-shot voices do not.
   for (const id of instrumentIds()) {
     const m = INSTRUMENT_META[id];
-    assert.ok(
-      m.supportsNoteRelease === m.isSustained,
-      `${id}: supportsNoteRelease must match isSustained`
-    );
+    assert.ok(m.supportsNoteRelease === m.isSustained, `${id}: supportsNoteRelease must match isSustained`);
     assert.ok(!m.supportsNoteRelease || m.isSustained, `${id}: release advertised without sustain`);
   }
 });

@@ -5,44 +5,24 @@ const MASTER_DEFAULT = 0.85;
 let resumeAfterVisibility = false;
 
 function audioConstructor() {
-  return (
-    globalThis.AudioContext ||
-    globalThis.webkitAudioContext ||
-    globalThis.window?.AudioContext ||
-    globalThis.window?.webkitAudioContext
-  );
+  return globalThis.AudioContext || globalThis.webkitAudioContext || globalThis.window?.AudioContext || globalThis.window?.webkitAudioContext;
 }
 
 export function getAudioContext() {
-  if (context && context.state !== 'closed') {
-    return context;
-  }
+  if (context && context.state !== 'closed') return context;
   const AC = audioConstructor();
-  if (!AC) {
-    return null;
-  }
+  if (!AC) return null;
   try {
-    if (globalThis.navigator?.audioSession) {
-      globalThis.navigator.audioSession.type = 'playback';
-    }
+    if (globalThis.navigator?.audioSession) globalThis.navigator.audioSession.type = 'playback';
   } catch {}
-  try {
-    context = new AC({ latencyHint: 'interactive' });
-  } catch {
-    context = new AC();
-  }
+  try { context = new AC({ latencyHint: 'interactive' }); }
+  catch { context = new AC(); }
 
   try {
     context.addEventListener('statechange', () => {
       try {
-        if (context?.state === 'interrupted') {
-          resumeAfterVisibility = true;
-        } else if (
-          context?.state === 'suspended' &&
-          resumeAfterVisibility &&
-          typeof document !== 'undefined' &&
-          !document.hidden
-        ) {
+        if (context?.state === 'interrupted') resumeAfterVisibility = true;
+        else if (context?.state === 'suspended' && resumeAfterVisibility && typeof document !== 'undefined' && !document.hidden) {
           resumeExistingAudio();
           resumeAfterVisibility = false;
         }
@@ -72,28 +52,20 @@ export function getAudioMaster() {
   return master;
 }
 
-export function getMasterGain() {
-  return master?.gain?.value ?? MASTER_DEFAULT;
-}
+export function getMasterGain() { return master?.gain?.value ?? MASTER_DEFAULT; }
 
 export function setMasterGain(value) {
   getAudioContext();
-  if (!master) {
-    return MASTER_DEFAULT;
-  }
+  if (!master) return MASTER_DEFAULT;
   const gain = Math.max(0, Math.min(1, Number(value) || 0));
   master.gain.setTargetAtTime(gain, context.currentTime, 0.025);
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('pionier-master-gain', { detail: { gain } }));
-  }
+  if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('pionier-master-gain', { detail: { gain } }));
   return gain;
 }
 
 export function createBus(name, initialGain = 1) {
   const ctx = getAudioContext();
-  if (!ctx || !master) {
-    return null;
-  }
+  if (!ctx || !master) return null;
   const bus = ctx.createGain();
   bus.gain.value = initialGain;
   bus.name = name;
@@ -103,30 +75,22 @@ export function createBus(name, initialGain = 1) {
 
 export function resumeAudio() {
   const ctx = getAudioContext();
-  if (!ctx || ctx.state === 'closed' || ctx.state === 'running') {
-    return Promise.resolve(ctx);
-  }
+  if (!ctx || ctx.state === 'closed' || ctx.state === 'running') return Promise.resolve(ctx);
   return ctx.resume().catch(() => ctx);
 }
 
 function resumeExistingAudio() {
-  if (!context || context.state === 'closed' || context.state === 'running') {
-    return Promise.resolve(context);
-  }
+  if (!context || context.state === 'closed' || context.state === 'running') return Promise.resolve(context);
   return context.resume().catch(() => context);
 }
 
 export function suspendAudio() {
-  if (!context || context.state === 'closed' || context.state === 'suspended') {
-    return Promise.resolve();
-  }
+  if (!context || context.state === 'closed' || context.state === 'suspended') return Promise.resolve();
   return context.suspend().catch(() => undefined);
 }
 
 export function closeAudio() {
-  if (!context || context.state === 'closed') {
-    return Promise.resolve();
-  }
+  if (!context || context.state === 'closed') return Promise.resolve();
   const closing = context.close().catch(() => undefined);
   context = null;
   master = null;
@@ -150,30 +114,22 @@ if (typeof document !== 'undefined') {
       resumeAfterVisibility = resumeAfterVisibility || (!!context && context.state === 'running');
       clearTimeout(suspendTimer);
       suspendTimer = setTimeout(() => {
-        if (document.hidden) {
-          suspendAudio();
-        }
+        if (document.hidden) suspendAudio();
       }, 2500);
     } else {
       clearTimeout(suspendTimer);
-      if (resumeAfterVisibility) {
-        resumeExistingAudio();
-      }
+      if (resumeAfterVisibility) resumeExistingAudio();
       resumeAfterVisibility = false;
     }
   });
   window.addEventListener('pageshow', () => {
     clearTimeout(suspendTimer);
-    if (resumeAfterVisibility) {
-      resumeExistingAudio();
-    }
+    if (resumeAfterVisibility) resumeExistingAudio();
     resumeAfterVisibility = false;
   });
   window.addEventListener('focus', () => {
     clearTimeout(suspendTimer);
-    if (resumeAfterVisibility) {
-      resumeExistingAudio();
-    }
+    if (resumeAfterVisibility) resumeExistingAudio();
     resumeAfterVisibility = false;
   });
 }
@@ -183,7 +139,7 @@ export function audioHealth() {
     state: audioState(),
     available: !!audioConstructor(),
     hasContext: !!(context && context.state !== 'closed'),
-    sampleRate: context?.sampleRate ?? null,
+    sampleRate: context?.sampleRate ?? null
   };
 }
 
@@ -197,9 +153,7 @@ export const HandpanAudio = {
   suspendAudio,
   closeAudio,
   audioState,
-  audioHealth,
+  audioHealth
 };
 
-if (typeof window !== 'undefined') {
-  window.HandpanAudio = HandpanAudio;
-}
+if (typeof window !== 'undefined') window.HandpanAudio = HandpanAudio;

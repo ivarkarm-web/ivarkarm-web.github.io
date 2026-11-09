@@ -14,7 +14,7 @@ const defaultState = () => ({
   fx: null,
   ambient: { playing: false, trackIndex: 0, volume: 0.85 },
   loop: { layerCount: 0, recording: false, bpm: 90 },
-  version: 1,
+  version: 1
 });
 
 let state = defaultState();
@@ -23,9 +23,7 @@ const listeners = new Set();
 function safeParse(raw) {
   try {
     const data = JSON.parse(raw);
-    if (!data || typeof data !== 'object') {
-      return null;
-    }
+    if (!data || typeof data !== 'object') return null;
     return data;
   } catch {
     return null;
@@ -41,7 +39,7 @@ export function loadAppState() {
         ...defaultState(),
         ...data,
         ambient: { ...defaultState().ambient, ...(data.ambient || {}) },
-        loop: { ...defaultState().loop, ...(data.loop || {}) },
+        loop: { ...defaultState().loop, ...(data.loop || {}) }
       };
       if (['eamara', 'e-amara', 'amara'].includes(String(state.instrumentId).toLowerCase())) {
         state.instrumentId = 'handpan';
@@ -59,7 +57,7 @@ export function getAppState() {
     ...state,
     ambient: { ...state.ambient },
     loop: { ...state.loop },
-    fx: state.fx ? { ...state.fx } : null,
+    fx: state.fx ? { ...state.fx } : null
   };
 }
 
@@ -67,9 +65,11 @@ export function patchAppState(partial = {}) {
   const next = {
     ...state,
     ...partial,
-    ambient: partial.ambient ? { ...state.ambient, ...partial.ambient } : state.ambient,
+    ambient: partial.ambient
+      ? { ...state.ambient, ...partial.ambient }
+      : state.ambient,
     loop: partial.loop ? { ...state.loop, ...partial.loop } : state.loop,
-    fx: partial.fx !== undefined ? partial.fx : state.fx,
+    fx: partial.fx !== undefined ? partial.fx : state.fx
   };
   state = next;
   try {
@@ -82,7 +82,7 @@ export function patchAppState(partial = {}) {
         noteCount: state.noteCount,
         ambient: state.ambient,
         loop: { bpm: state.loop.bpm, layerCount: state.loop.layerCount },
-        version: state.version,
+        version: state.version
       })
     );
   } catch {
@@ -97,9 +97,7 @@ export function patchAppState(partial = {}) {
 }
 
 export function subscribeAppState(fn) {
-  if (typeof fn !== 'function') {
-    return () => {};
-  }
+  if (typeof fn !== 'function') return () => {};
   listeners.add(fn);
   return () => listeners.delete(fn);
 }
@@ -125,6 +123,6 @@ if (typeof window !== 'undefined') {
     patch: patchAppState,
     subscribe: subscribeAppState,
     load: loadAppState,
-    reset: resetAppState,
+    reset: resetAppState
   };
 }

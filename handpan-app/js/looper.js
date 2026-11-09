@@ -9,7 +9,7 @@
  * Circles: tap play/pause · double-tap opens track controls · hold asks to confirm delete
  * Clear: wipe all layers
  */
-import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js';
+import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
 import { MAX_LAYERS } from './loop-core.js';
 
 const LONG_MS = 480;
@@ -34,25 +34,6 @@ const SYNC_MODES = [
   { id: 'beat', label: 'BEAT', title: 'Beat sync — quantize to master grid' },
   { id: 'serial', label: 'SERIAL', title: 'Serial — sections play in sequence' }
 ];
-
-
-function setLooperStatus(message, { error = false } = {}) {
-  try {
-    let el = document.getElementById('looperStatus');
-    if (!el) {
-      el = document.createElement('div');
-      el.id = 'looperStatus';
-      el.className = 'looper-status visually-hidden';
-      el.setAttribute('role', 'status');
-      el.setAttribute('aria-live', 'polite');
-      el.setAttribute('aria-atomic', 'true');
-      const rail = document.getElementById('looperRail');
-      (rail || document.body).appendChild(el);
-    }
-    el.textContent = message || '';
-    if (message && error) console.warn('[looper]', message);
-  } catch (_) {}
-}
 
 export function mountLooper({ root } = {}) {
   const rail = root || document.getElementById('looperRail');
@@ -169,30 +150,10 @@ export function mountLooper({ root } = {}) {
   syncBtn.title = SYNC_MODES[0].title;
 
   const layers = [];
-  const oldExportBtn = document.getElementById('looperExportBtn');
-  if (oldExportBtn) oldExportBtn.remove();
-  const seqBtn = ensureTimingButton('looperSeqBtn', 'looper-seq-btn', 'Open sequencer', '<span class="looper-timing-main" aria-hidden="true">▦</span><span class="visually-hidden">Sequencer</span>');
-  seqBtn.type = 'button';
-  seqBtn.setAttribute('aria-pressed', 'false');
-  seqBtn.hidden = false;
-  seqBtn.disabled = false;
-  rail.appendChild(seqBtn);
-  const syncSeqActive = () => {
-    const open = document.body.classList.contains('tonepad-open') || window.PionierTonepad?.isOpen?.();
-    seqBtn.classList.toggle('is-active', !!open);
-    seqBtn.setAttribute('aria-pressed', open ? 'true' : 'false');
-  };
-  seqBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (window.PionierTonepad?.toggle) window.PionierTonepad.toggle();
-    else document.getElementById('tonepadToggle')?.click();
-    setTimeout(syncSeqActive, 0);
-  });
-  try {
-    new MutationObserver(syncSeqActive).observe(document.body, { attributes: true, attributeFilter: ['class'] });
-  } catch (_) {}
-  syncSeqActive();
+  const exportBtn = ensureTimingButton('looperExportBtn', 'looper-export-btn', 'Export loop as WAV', '<span class="looper-timing-main">WAV</span>');
+  exportBtn.disabled = true;
+  rail.appendChild(exportBtn);
+  exportBtn.addEventListener('click', exportWav);
   const saveBtn = ensureTimingButton('looperSaveBtn', 'looper-save-btn', 'Save composition to My Library', '<span class="looper-timing-main">Save</span>');
   saveBtn.disabled = true;
   rail.appendChild(saveBtn);
@@ -253,7 +214,7 @@ export function mountLooper({ root } = {}) {
     const ctx = getAudioContext();
     const bus = getRecordBus();
     if (!ctx || !bus || !ctx.audioWorklet || typeof AudioWorkletNode === 'undefined') {
-      const msg = 'Recording is unavailable in this browser.'; console.error('[looper]', msg); setLooperStatus(msg, { error: true });
+      console.error('[looper] AudioWorklet recording is unavailable in this browser/context.');
       return null;
     }
     if (processor && tapSource && tapSource !== bus) {
@@ -494,8 +455,11 @@ export function mountLooper({ root } = {}) {
 
   function setBtnState() {
     const hasLayers = layers.length > 0;
+    exportBtn.hidden = !hasLayers;
     saveBtn.hidden = !hasLayers;
+    exportBtn.disabled = !hasLayers || recording || pendingLoopStop || countInPending;
     saveBtn.disabled = !hasLayers || recording || pendingLoopStop || countInPending;
+    exportBtn.setAttribute('aria-disabled', String(exportBtn.disabled));
     saveBtn.setAttribute('aria-disabled', String(saveBtn.disabled));
     saveBtn.classList.toggle('is-available', hasLayers && !saveBtn.disabled);
     btn.disabled = !recording && !pendingLoopStop && !countInPending && layers.length >= MAX_LAYERS;
@@ -1136,7 +1100,7 @@ export function mountLooper({ root } = {}) {
 
 
   async function beginRecording(generation = recordStartGeneration) {
-    if (layers.length >= MAX_LAYERS) { setLooperStatus('Maximum layers reached.', { error: true }); return; }
+    if (layers.length >= MAX_LAYERS) return;
     // Guard against concurrent recording attempts from rapid button presses
     if (recording || recChunks !== null) {
       console.warn('[looper] Recording already in progress, ignoring duplicate start');
@@ -1452,7 +1416,7 @@ export function mountLooper({ root } = {}) {
     if (!ctx || !master || !chunks?.length) return;
     // A second start can race the async audio/worklet readiness checks. Keep
     // the shared MAX_LAYERS limit authoritative at finalization as well.
-    if (layers.length >= MAX_LAYERS) { setLooperStatus('Maximum layers reached.', { error: true }); return; }
+    if (layers.length >= MAX_LAYERS) return;
 
     let frameCount = chunks.reduce((n, c) => n + c.L.length, 0);
     if (!Number.isSafeInteger(frameCount) || frameCount <= 0) return;
