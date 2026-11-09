@@ -2,7 +2,7 @@
  * TonePad v52 — drum voices extracted to shared module (drum-quality stage 1).
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
-import { createDrumEngine, DRUM_VOICES, DRUM_KIT_LIST, DRUM_KIT_IDS, DEFAULT_DRUM_KIT, getKit } from './drum-voices.js?v=1';
+import { createDrumEngine, DRUM_VOICES, DRUM_KIT_LIST, DRUM_KIT_IDS, DEFAULT_DRUM_KIT, getKit } from './drum-voices.js?v=2';
 
 const COLS = 16;
 const ROWS = 8;
