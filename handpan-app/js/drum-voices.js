@@ -113,13 +113,16 @@ export function createDrumEngine() {
 
   function getDrumNoise(ctx) {
     if (drumNoiseBuf && drumNoiseCtx === ctx) return drumNoiseBuf;
-    // pink-ish noise via Voss-McCartney approximation (deterministic seed)
+    // pink-ish noise via Voss-McCartney approximation (deterministic for reproducible renders/tests)
     const len = Math.max(1, Math.floor(ctx.sampleRate * 1.0));
     const buf = ctx.createBuffer(1, len, ctx.sampleRate);
     const d = buf.getChannelData(0);
     let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+    // mulberry32 seeded PRNG (fixed seed) — stable buffer per context, deterministic across runs
+    let seed = 0x6d2b79f5 >>> 0;
+    const rnd = () => { seed += 0x6d2b79f5; let t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
     for (let i = 0; i < len; i++) {
-      const white = Math.random() * 2 - 1;
+      const white = rnd() * 2 - 1;
       b0 = 0.99886 * b0 + white * 0.0555179;
       b1 = 0.99332 * b1 + white * 0.0750759;
       b2 = 0.96900 * b2 + white * 0.1538520;
@@ -245,10 +248,19 @@ export function createDrumEngine() {
       g.gain.setValueAtTime(0.0001, t0);
       g.gain.exponentialRampToValueAtTime(Math.max(0.0002, pk), t0 + (p.atk || 0.002));
       g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-      osc.connect(g); addLP(ctx, g, p.lp, t0, nodes).connect(out);
+      // per-kit intrinsic body saturation (subtle) when DRIVE/kit drive is not engaged;
+      // click transient stays on a separate path to out so it remains defined.
+      // curve is cached (driveCurve); one shaper node added to `nodes` for cleanup.
+      let bodyDest = out;
+      if ((p.sat || 0) > 0 && effDrive < 0.05) {
+        const ws = ctx.createWaveShaper();
+        ws.curve = driveCurve(p.sat); ws.oversample = '2x';
+        ws.connect(out); nodes.push(ws); bodyDest = ws;
+      }
+      osc.connect(g); addLP(ctx, g, p.lp, t0, nodes).connect(bodyDest);
       nodes.push(osc, g);
       osc.start(t0); stopSrc(osc, t0 + dur + 0.02);
-      // HP click transient
+      // HP click transient (bypasses body saturation to keep transient defined)
       if ((p.click || 0) > 0) {
         const cn = ctx.createBufferSource(); cn.buffer = getDrumNoise(ctx);
         const chp = ctx.createBiquadFilter(); chp.type = 'highpass'; chp.frequency.setValueAtTime((p.clickHp || 1800) * (0.8 + vt * 0.4), t0);
@@ -258,10 +270,6 @@ export function createDrumEngine() {
         cg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.012);
         cn.connect(chp); chp.connect(cg); cg.connect(out); nodes.push(cn, chp, cg);
         cn.start(t0); stopSrc(cn, t0 + 0.03);
-      }
-      // shared soft sat already via maybeDrive(effDrive) when kit/knob adds drive
-      if ((p.sat || 0) > 0 && effDrive < 0.05) {
-        // subtle built-in sat: run body through a touch of shaping via out (kept light; main drive is effDrive)
       }
       drumTrack(nodes, osc, dur);
 

@@ -58,8 +58,9 @@ jobs:
 
       # Keep the budget audit after browser tests so a known size regression
       # cannot suppress the interaction and accessibility diagnostics.
-      - name: Lighthouse app audit
-        run: npm run lighthouse:app
+      # Measures the optimized in-place artifact (exact shipping payload for Pages).
+      - name: Production CSS gate (strict, optimized payload)
+        run: node scripts/check-handpan-production-css.mjs --app-dir handpan-app --in-place-optimized
 
       - name: Upload browser diagnostics on failure
         if: failure()

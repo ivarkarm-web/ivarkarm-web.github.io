@@ -2,7 +2,7 @@
  * TonePad v52 — drum voices extracted to shared module (drum-quality stage 1).
  */
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
-import { createDrumEngine, DRUM_VOICES, DRUM_KIT_LIST, DRUM_KIT_IDS, DEFAULT_DRUM_KIT, getKit } from './drum-voices.js?v=2';
+import { createDrumEngine, DRUM_VOICES, DRUM_KIT_LIST, DRUM_KIT_IDS, DEFAULT_DRUM_KIT, getKit } from './drum-voices.js?v=3';
 
 const COLS = 16;
 const ROWS = 8;
@@ -297,7 +297,7 @@ export async function mountTonepad() {
     }
     function trigger(row, when, vel, soundId, mode, fxLayer) {
       if (!audioCtx || !bus) return;
-      const fli = (fxLayer != null) ? fxLayer : (playing ? playLayer : activeLayer);
+      const fli = (fxLayer != null) ? fxLayer : activeLayer;
       if (mode === 'drum') { triggerDrum(row, when, vel, kitOf(fli), fli); return; }
       const mfx = melodicFx[fli] || MELO_FX_DEFAULT();
       const tmf = fxToneMul(mfx.tone), dmf = fxDecayMul(mfx.decay);
@@ -455,41 +455,38 @@ export async function mountTonepad() {
       while (anchor + lastVisStep * sd < now + 0.18) {
         lastVisStep += 1;
         const step = ((lastVisStep % COLS) + COLS) % COLS;
-        if (step === 0 && lastVisStep > 0) {
-          playLayer = nextNonEmptyLayer(playLayer);
-        }
-        playLayer = ((playLayer % LAYER_COUNT) + LAYER_COUNT) % LAYER_COUNT;
         const when = anchor + lastVisStep * sd;
-        // melodic pass (same step/clock); no drum voice cap involvement
-        const mg = layers[playLayer];
-        if (mg) {
-          for (let row = 0; row < MELO_ROWS; row++) {
-            if (!mg[idx(step, row)]) continue;
-            if (Math.random() > probability) continue;
-            const accent = (step % 4 === 0) ? 1.15 : (step % 2 === 0 ? 1.05 : 0.92);
-            const baseVel = 0.35 + velocity * 0.55;
-            const jitterV = (Math.random() - 0.5) * 2 * humanize * 0.2;
-            const jitterT = (Math.random() - 0.5) * 2 * humanize * sd * 0.35;
-            trigger(row, when + jitterT, Math.max(0.05, Math.min(1, baseVel * accent + jitterV)), layerSounds[playLayer], 'melodic', playLayer);
+        const accent = (step % 4 === 0) ? 1.15 : (step % 2 === 0 ? 1.05 : 0.92);
+        const baseVel = 0.35 + velocity * 0.55;
+        // all 5 layers play simultaneously on the same shared step/clock
+        for (let li = 0; li < LAYER_COUNT; li++) {
+          // melodic pass (same step/clock)
+          const mg = layers[li];
+          if (mg) {
+            for (let row = 0; row < MELO_ROWS; row++) {
+              if (!mg[idx(step, row)]) continue;
+              if (Math.random() > probability) continue;
+              const jitterV = (Math.random() - 0.5) * 2 * humanize * 0.2;
+              const jitterT = (Math.random() - 0.5) * 2 * humanize * sd * 0.35;
+              trigger(row, when + jitterT, Math.max(0.05, Math.min(1, baseVel * accent + jitterV)), layerSounds[li], 'melodic', li);
+            }
           }
-        }
-        // drum pass (same step/clock); swing applies only to this pass
-        const dg = drumLayers[playLayer];
-        if (dg) {
-          let drumSwingT = 0;
-          if ((step % 2) === 1) {
-            const sw = clamp01((drumFx[playLayer] && drumFx[playLayer].swing) || 0, 0);
-            if (sw > 0) drumSwingT = Math.min(sw * sd * 0.45, sd * 0.45, 0.12);
-          }
-          for (let row = 0; row < DRUM_ROWS; row++) {
-            if (!dg[idx(step, row)]) continue;
-            if (Math.random() > probability) continue;
-            const accent = (step % 4 === 0) ? 1.15 : (step % 2 === 0 ? 1.05 : 0.92);
-            const baseVel = 0.35 + velocity * 0.55;
-            const jitterV = (Math.random() - 0.5) * 2 * humanize * 0.2;
-            const jitterT = (Math.random() - 0.5) * 2 * humanize * sd * 0.35;
-            const tOff = Math.max(0, jitterT + drumSwingT);
-            trigger(row, when + (drumSwingT > 0 ? tOff : jitterT), Math.max(0.05, Math.min(1, baseVel * accent + jitterV)), kitOf(playLayer), 'drum', playLayer);
+          // drum pass (same step/clock); swing is per-layer
+          const dg = drumLayers[li];
+          if (dg) {
+            let drumSwingT = 0;
+            if ((step % 2) === 1) {
+              const sw = clamp01((drumFx[li] && drumFx[li].swing) || 0, 0);
+              if (sw > 0) drumSwingT = Math.min(sw * sd * 0.45, sd * 0.45, 0.12);
+            }
+            for (let row = 0; row < DRUM_ROWS; row++) {
+              if (!dg[idx(step, row)]) continue;
+              if (Math.random() > probability) continue;
+              const jitterV = (Math.random() - 0.5) * 2 * humanize * 0.2;
+              const jitterT = (Math.random() - 0.5) * 2 * humanize * sd * 0.35;
+              const tOff = Math.max(0, jitterT + drumSwingT);
+              trigger(row, when + (drumSwingT > 0 ? tOff : jitterT), Math.max(0.05, Math.min(1, baseVel * accent + jitterV)), kitOf(li), 'drum', li);
+            }
           }
         }
       }
@@ -513,8 +510,6 @@ export async function mountTonepad() {
       try { resumeAudio?.(); } catch (_) {}
       try { audioCtx.resume?.(); } catch (_) {}
       playing = true;
-      playLayer = layerHasNotes(activeLayer) ? activeLayer : nextNonEmptyLayer(activeLayer);
-      playLayer = ((playLayer % LAYER_COUNT) + LAYER_COUNT) % LAYER_COUNT;
       anchor = audioCtx.currentTime + 0.05;
       lastVisStep = -1;
       if (timer) { clearTimeout(timer); timer = 0; }

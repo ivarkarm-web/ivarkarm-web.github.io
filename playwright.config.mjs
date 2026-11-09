@@ -4,6 +4,8 @@ import { defineConfig, devices } from '@playwright/test';
  * Default projects block service workers so route() failure-injection tests stay reliable.
  * The `sw-desktop` project allows SW and only runs phase5-sw.spec.mjs (offline shell proof).
  */
+const serveDir = process.env.PW_SERVE_DIR || '.';
+
 export default defineConfig({
   testDir: './scripts/app-tests',
   // The suite boots a large static app and several Web Audio flows. On older
@@ -32,7 +34,9 @@ export default defineConfig({
     // concurrently across multiple browser contexts the single thread
     // serialises all requests and causes startup timeouts. The threaded
     // variant handles each connection in its own thread.
-    command: 'python3 scripts/serve-threaded.py 4173 --bind 127.0.0.1 --directory .',
+    // PW_SERVE_DIR overrides the served site root (e.g. "dist") for production-
+    // artifact verification; default "." preserves existing behavior and paths.
+    command: `python3 scripts/serve-threaded.py 4173 --bind 127.0.0.1 --directory ${serveDir}`,
     url: 'http://127.0.0.1:4173/handpan-app/index.html',
     reuseExistingServer: !process.env.CI,
     timeout: 15000,
