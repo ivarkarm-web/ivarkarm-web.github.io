@@ -705,8 +705,8 @@ export async function mountTonepad() {
       draw();
     }
 
-    const tpStyleId = 'tonepad-css-v49-icons';
-    ['tonepad-css-v45', 'tonepad-css-v46-theme', 'tonepad-css-v47-drum', 'tonepad-css-v48-layout'].forEach((id) => { const el = document.getElementById(id); if (el) el.remove(); });
+    const tpStyleId = 'tonepad-css-v50-colors';
+    ['tonepad-css-v45', 'tonepad-css-v46-theme', 'tonepad-css-v47-drum', 'tonepad-css-v48-layout', 'tonepad-css-v49-icons'].forEach((id) => { const el = document.getElementById(id); if (el) el.remove(); });
     if (!document.getElementById(tpStyleId)) {
       const style = document.createElement('style');
       style.id = tpStyleId;
@@ -720,12 +720,16 @@ export async function mountTonepad() {
         '.tonepad-select:focus-visible{outline:2px solid var(--tp-knob-accent,#e1cc8b);outline-offset:1px}',
         '.tonepad-bottom{flex:0 0 auto;display:flex;flex-direction:row;align-items:center;gap:6px;flex-wrap:wrap}',
         '.tonepad-transport{display:flex;flex-direction:row;align-items:center;gap:6px;flex-wrap:wrap;flex:1 1 auto;min-width:0}',
-        '.tonepad-knobs{display:flex;gap:6px;align-items:center;flex:0 0 auto}',
+        '.tonepad-knobs{display:flex;gap:6px;align-items:center;flex:0 0 auto;flex-wrap:wrap}',
         '.tonepad-knob{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:34px}',
         '.tonepad-knob-label{font:600 8px/1 system-ui,sans-serif;letter-spacing:.05em;color:var(--tp-knob-label,#c9b06a)}',
         '.tonepad-knob-dial{width:32px;height:32px;border-radius:8px;border:1px solid var(--tp-knob-dial-border,rgba(232,212,138,.4));background:var(--tp-knob-dial-bg,#141a14);cursor:ns-resize;touch-action:none}',
         '.tonepad-knob-dial canvas{width:100%;height:100%;display:block;pointer-events:none}',
         '.tonepad-knob-val{font:600 9px/1 system-ui,sans-serif;color:var(--tp-knob-val,#f0d99a)}',
+        '.tonepad-knob-divider{width:1px;align-self:stretch;min-height:28px;margin:2px 1px;border-radius:1px;background:var(--tp-divider,rgba(160,170,160,.28));flex:0 0 1px}',
+        '@media (max-width:370px){.tonepad-knob-divider{display:none}}',
+        '.tonepad-knobs[data-fx-mode="melodic"] .tonepad-knob[data-k^="fx"] .tonepad-knob-val{color:var(--tp-melody-fill,var(--tp-melody-accent,#7fe0e8))}',
+        '.tonepad-knobs[data-fx-mode="drum"] .tonepad-knob[data-k^="fx"] .tonepad-knob-val{color:var(--tp-drum-fill,var(--tp-drum-accent,#f2c94c))}',
         '.tonepad-layers{display:flex;gap:4px}',
         '.tonepad-layer-btn{min-width:28px;min-height:28px;height:28px;border-radius:6px;border:1px solid var(--tp-layer-btn-border,rgba(160,170,160,.35));background:var(--tp-layer-btn-bg,rgba(20,24,20,.9));color:var(--tp-layer-btn-fg,#9aab9e);font:600 11px system-ui;cursor:pointer;transition:border-color .15s,box-shadow .15s,color .15s,background .15s;touch-action:manipulation}',
         '.tonepad-layer-btn.is-active{border-color:var(--layer-accent,#e1cc8b);color:var(--layer-accent,#f0d99a);background:var(--tp-layer-btn-active-bg,rgba(40,36,20,.95));box-shadow:0 0 10px color-mix(in srgb,var(--layer-accent,#e1cc8b) 35%,transparent)}',
@@ -736,8 +740,8 @@ export async function mountTonepad() {
         '.tonepad-play{border:1px solid var(--tp-icon-play-border,rgba(120,200,140,.5));background:var(--tp-icon-play-bg,rgba(30,50,35,.9));color:var(--tp-icon-play-fg,#5fd97a);box-shadow:0 0 0 1px var(--tp-icon-play-glow,transparent)}',
         '.tonepad-play.is-running{border-color:var(--tp-icon-stop-border,rgba(255,107,102,.52));background:var(--tp-icon-stop-bg,rgba(62,26,24,.92));color:var(--tp-icon-stop-fg,#ff6b66);box-shadow:0 0 0 1px var(--tp-icon-stop-glow,transparent)}',
         '.tonepad-clear{border:1px solid var(--tp-clear-border,rgba(200,120,100,.45));background:var(--tp-clear-bg,rgba(50,24,20,.9));color:var(--tp-icon-clear-fg,#e8b0a0)}',
-        '.tonepad-mode-btn{border:1px solid var(--tp-layer-btn-border,rgba(160,170,160,.35));background:var(--tp-layer-btn-bg,rgba(20,24,20,.9));color:var(--tp-icon-mode-fg,#9aab9e)}',
-        '.tonepad-mode-btn[aria-pressed="true"]{border-color:var(--tp-icon-mode-active-border,rgba(240,217,154,.95));color:var(--tp-icon-mode-active-fg,#f0d99a);background:var(--tp-icon-mode-active-bg,rgba(48,42,16,.98));box-shadow:0 0 10px var(--tp-icon-mode-active-glow,rgba(240,217,154,.28))}',
+        '.tonepad-mode-btn{border:1px solid var(--tp-melody-border,rgba(127,224,232,.5));background:var(--tp-melody-bg,rgba(18,52,56,.92));color:var(--tp-melody-accent,#7fe0e8);box-shadow:0 0 10px var(--tp-melody-glow,rgba(127,224,232,.24))}',
+        '.tonepad-mode-btn[aria-pressed="true"]{border-color:var(--tp-drum-border,rgba(242,201,76,.52));color:var(--tp-drum-accent,#f2c94c);background:var(--tp-drum-bg,rgba(58,46,14,.92));box-shadow:0 0 10px var(--tp-drum-glow,rgba(242,201,76,.24))}',
         '.tonepad-canvas{flex:1 1 auto;width:100%;min-height:0;touch-action:none;border-radius:8px;background:var(--tp-canvas-bg,#0a0c0a)}',
         '.tonepad-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}'
       ].join('');
@@ -774,10 +778,11 @@ export async function mountTonepad() {
           '<div class="tonepad-layers" data-layers></div>' +
           '<button type="button" class="tonepad-mode-btn tonepad-icon-btn" data-mode aria-pressed="false" aria-label="Switch active layer to drum" title="Switch to drum mode">' + TP_ICONS.melody + '</button>' +
         '</div>' +
-        '<div class="tonepad-knobs">' +
+        '<div class="tonepad-knobs" data-fx-mode="melodic">' +
           '<div class="tonepad-knob" data-k="vel"><span class="tonepad-knob-label">VEL</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>70</span></div>' +
           '<div class="tonepad-knob" data-k="prob"><span class="tonepad-knob-label">PROB</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>100</span></div>' +
           '<div class="tonepad-knob" data-k="hum"><span class="tonepad-knob-label">HUM</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>12</span></div>' +
+          '<span class="tonepad-knob-divider" aria-hidden="true"></span>' +
           '<div class="tonepad-knob" data-k="fx0"><span class="tonepad-knob-label" data-klabel>FX</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>0</span></div>' +
           '<div class="tonepad-knob" data-k="fx1"><span class="tonepad-knob-label" data-klabel>FX</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>0</span></div>' +
           '<div class="tonepad-knob" data-k="fx2"><span class="tonepad-knob-label" data-klabel>FX</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>0</span></div>' +
@@ -788,7 +793,7 @@ export async function mountTonepad() {
 
     const canvas = layer.querySelector('canvas.tonepad-canvas');
     const g = canvas.getContext('2d');
-    const tpTheme = { knobTrack: 'rgba(120,130,118,.35)', knobAccent: '#e1cc8b', knobFill: '#f0d99a', gridOff: 'rgba(28,32,30,0.92)', gridPlayheadA: 0.55, isLight: false, icon: 'rgba(154,171,158,0.82)' };
+    const tpTheme = { knobTrack: 'rgba(120,130,118,.35)', knobAccent: '#e1cc8b', knobFill: '#f0d99a', melodyAccent: '#7fe0e8', melodyFill: '#9ff0f5', drumAccent: '#f2c94c', drumFill: '#f7d978', gridOff: 'rgba(28,32,30,0.92)', gridPlayheadA: 0.55, isLight: false, icon: 'rgba(154,171,158,0.82)' };
     function resolveTpTheme() {
       try {
         tpTheme.isLight = !!(document.documentElement.classList.contains('theme-light') || document.body.classList.contains('theme-light'));
@@ -797,6 +802,10 @@ export async function mountTonepad() {
         tpTheme.knobTrack = v('--tp-knob-track', tpTheme.knobTrack);
         tpTheme.knobAccent = v('--tp-knob-accent', tpTheme.knobAccent);
         tpTheme.knobFill = v('--tp-knob-val', tpTheme.knobFill);
+        tpTheme.melodyAccent = v('--tp-melody-accent', tpTheme.melodyAccent);
+        tpTheme.melodyFill = v('--tp-melody-fill', tpTheme.melodyFill);
+        tpTheme.drumAccent = v('--tp-drum-accent', tpTheme.drumAccent);
+        tpTheme.drumFill = v('--tp-drum-fill', tpTheme.drumFill);
         tpTheme.gridOff = v('--tp-grid-off', tpTheme.gridOff);
         tpTheme.icon = v('--tp-layer-btn-fg', tpTheme.icon);
         const a = parseFloat(v('--tp-grid-playhead-a', ''));
@@ -933,6 +942,10 @@ export async function mountTonepad() {
         const t = Math.max(0, Math.min(1, getV()));
         if (val) val.textContent = String(Math.round(t * 100));
         if (!kg) return;
+        const isFx = /^fx\d+$/.test(key);
+        const drum = isFx && modeOf(activeLayer) === 'drum';
+        const accent = isFx ? (drum ? tpTheme.drumAccent : tpTheme.melodyAccent) : tpTheme.knobAccent;
+        const fill = isFx ? (drum ? tpTheme.drumFill : tpTheme.melodyFill) : tpTheme.knobFill;
         const s = kc.width, cx = s / 2, cy = s / 2, rad = s * 0.34;
         const a0 = Math.PI * 0.75, span = Math.PI * 1.5, a1 = a0 + span * t;
         kg.clearRect(0, 0, s, s);
@@ -941,10 +954,10 @@ export async function mountTonepad() {
         kg.strokeStyle = tpTheme.knobTrack;
         kg.beginPath(); kg.arc(cx, cy, rad, a0, a0 + span); kg.stroke();
         if (t > 0) {
-          kg.strokeStyle = tpTheme.knobAccent;
+          kg.strokeStyle = accent;
           kg.beginPath(); kg.arc(cx, cy, rad, a0, a1); kg.stroke();
         }
-        kg.fillStyle = tpTheme.knobFill;
+        kg.fillStyle = fill;
         kg.beginPath(); kg.arc(cx + Math.cos(a1) * rad, cy + Math.sin(a1) * rad, s * 0.07, 0, Math.PI * 2); kg.fill();
       };
       knobRepaint.push(paint);
@@ -978,6 +991,9 @@ export async function mountTonepad() {
     }
     function refreshFxKnobs() {
       const defs = currentFxDefs();
+      const mode = modeOf(activeLayer);
+      const knobsEl = layer ? layer.querySelector('.tonepad-knobs') : null;
+      if (knobsEl) knobsEl.setAttribute('data-fx-mode', mode);
       for (let i = 0; i < 5; i++) {
         const h = fxKnobHandles[i]; const d = defs[i];
         if (h && d) { h.setLabel(d.label); h.paint(); }
