@@ -73,6 +73,52 @@ export async function mountTonepad() {
     const fxToneMul = (v) => Math.pow(2, (clamp01(v, 0.5) - 0.5) * 2.2);   // 0.5->1.0, ~0.47..2.14
     const fxDecayMul = (v) => Math.pow(2, (clamp01(v, 0.5) - 0.5) * 2.64); // 0.5->1.0, ~0.4..2.5
     const fxTuneMul = (v) => Math.pow(2, (clamp01(v, 0.5) - 0.5) * 1.0);   // 0.5->1.0, ~0.707..1.414 (±6st)
+    let tpSends = null; // lazy shared reverb+delay, created on first non-zero send; defaults add no nodes
+    function makeImpulse(ctx, dur, decay) {
+      const len = Math.max(1, Math.floor(ctx.sampleRate * dur));
+      const buf = ctx.createBuffer(2, len, ctx.sampleRate);
+      for (let ch = 0; ch < 2; ch++) {
+        const d = buf.getChannelData(ch);
+        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+      }
+      return buf;
+    }
+    function ensureTpSends() {
+      if (tpSends || !audioCtx) return tpSends;
+      const ctx = audioCtx;
+      const master = getAudioMaster?.() || ctx.destination;
+      const revIn = ctx.createGain(); revIn.gain.value = 1;
+      const convolver = ctx.createConvolver(); convolver.buffer = makeImpulse(ctx, 1.15, 2.6);
+      const revOut = ctx.createGain(); revOut.gain.value = 0; // faded in when used
+      revIn.connect(convolver); convolver.connect(revOut); revOut.connect(master);
+      const dlyIn = ctx.createGain(); dlyIn.gain.value = 1;
+      const delay = ctx.createDelay(1.0); delay.delayTime.value = 0.22;
+      const fb = ctx.createGain(); fb.gain.value = 0.28; // capped feedback
+      const dlyOut = ctx.createGain(); dlyOut.gain.value = 0;
+      dlyIn.connect(delay); delay.connect(fb); fb.connect(delay); delay.connect(dlyOut); dlyOut.connect(master);
+      tpSends = { ctx, revIn, revOut, convolver, dlyIn, delay, fb, dlyOut, revOn: false, dlyOn: false };
+      return tpSends;
+    }
+    function fadeSendGain(g, target, t0) {
+      try { g.gain.cancelScheduledValues(t0); g.gain.setValueAtTime(Math.max(0.0001, g.gain.value || 0.0001), t0); g.gain.linearRampToValueAtTime(target, t0 + 0.03); }
+      catch (_) { try { g.gain.value = target; } catch (_) {} }
+    }
+    function tapSend(source, kind, level, nodes, tEnd) {
+      if (!(level > 0.001) || !audioCtx || !source) return;
+      const s = ensureTpSends(); if (!s) return;
+      const t0 = audioCtx.currentTime;
+      if (kind === 'rev') { if (!s.revOn) { s.revOn = true; fadeSendGain(s.revOut, 0.42, t0); } }
+      else { if (!s.dlyOn) { s.dlyOn = true; fadeSendGain(s.dlyOut, 0.32, t0); } }
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(Math.max(0, Math.min(1, level)) * 0.55, t0);
+      source.connect(g); g.connect(kind === 'rev' ? s.revIn : s.dlyIn);
+      if (nodes) nodes.push(g);
+      // disconnect tap after voice ends; shared bus stays (cheap, 2 fx) until page lifecycle
+      if (tEnd && isFinite(tEnd)) {
+        const ms = Math.max(40, Math.ceil((tEnd - t0 + 0.15) * 1000));
+        try { setTimeout(() => { try { source.disconnect(g); } catch(_){} try { g.disconnect(); } catch(_){} }, ms); } catch(_) {}
+      }
+    }
     const melodicFx = Array.from({ length: LAYER_COUNT }, MELO_FX_DEFAULT);
     const drumFx = Array.from({ length: LAYER_COUNT }, DRUM_FX_DEFAULT);
     function clamp01(v, fb) { return Number.isFinite(+v) ? Math.max(0, Math.min(1, +v)) : fb; }
@@ -319,6 +365,7 @@ export async function mountTonepad() {
         const lp = audioCtx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(freq, t0); lp.Q.setValueAtTime(0.5, t0);
         chainIn.connect(lp); nodes.push(lp); return lp;
       };
+      let voiceDur = 0.2;
 
       if (voice === 'kick' || voice === 'lowtom' || voice === 'hightom') {
         const isTom = voice !== 'kick';
@@ -350,7 +397,7 @@ export async function mountTonepad() {
         drumTrack(nodes, osc, dur);
       } else if (voice === 'snare') {
         const p = kit.snare || KITS.classic.snare;
-        const dur = p.dur * dm, bodyDur = p.bodyDur * dm, peak = p.peak * (0.45 + v * 0.7);
+        const dur = voiceDur = p.dur * dm, bodyDur = p.bodyDur * dm, peak = p.peak * (0.45 + v * 0.7);
         const nsrc = audioCtx.createBufferSource(); nsrc.buffer = getDrumNoise(audioCtx);
         const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(p.bp * tm, t0); bp.Q.setValueAtTime(p.bpQ, t0);
         const hp = audioCtx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.setValueAtTime(p.hp * tm, t0);
@@ -369,7 +416,7 @@ export async function mountTonepad() {
       } else if (voice === 'ch' || voice === 'oh') {
         if (voice === 'ch') chokeOpenHats(t0);
         const p = kit[voice] || KITS.classic[voice];
-        const dur = p.dur * dm, peak = p.peak * (0.45 + v * 0.7);
+        const dur = voiceDur = p.dur * dm, peak = p.peak * (0.45 + v * 0.7);
         const nsrc = audioCtx.createBufferSource(); nsrc.buffer = getDrumNoise(audioCtx);
         const hp = audioCtx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.setValueAtTime(p.hp * tm, t0);
         const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(p.bp * tm, t0); bp.Q.setValueAtTime(p.bpQ || 0.9, t0);
@@ -388,7 +435,7 @@ export async function mountTonepad() {
         }
       } else if (voice === 'clap') {
         const p = kit.clap || KITS.classic.clap;
-        const dur = p.dur * dm, peak = p.peak * (0.45 + v * 0.7);
+        const dur = voiceDur = p.dur * dm, peak = p.peak * (0.45 + v * 0.7);
         let lastSrc = null;
         [0, 0.011, 0.023].forEach((off, k) => {
           const nsrc = audioCtx.createBufferSource(); nsrc.buffer = getDrumNoise(audioCtx);
@@ -402,7 +449,7 @@ export async function mountTonepad() {
         drumTrack(nodes, lastSrc, dur);
       } else if (voice === 'rim' || voice === 'perc') {
         const p = kit[voice] || KITS.classic[voice] || KITS.classic.rim;
-        const dur = p.dur * dm, peak = p.peak * (0.45 + v * 0.7);
+        const dur = voiceDur = p.dur * dm, peak = p.peak * (0.45 + v * 0.7);
         const nsrc = audioCtx.createBufferSource(); nsrc.buffer = getDrumNoise(audioCtx);
         const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass';
         bp.frequency.setValueAtTime(p.bp * tm, t0); bp.Q.setValueAtTime(p.bpQ, t0);
@@ -413,7 +460,7 @@ export async function mountTonepad() {
         nsrc.start(t0); nsrc.stop(t0 + dur + 0.04);
         drumTrack(nodes, nsrc, dur);
       } else {
-        const dur = 0.08;
+        const dur = voiceDur = 0.08;
         const nsrc = audioCtx.createBufferSource(); nsrc.buffer = getDrumNoise(audioCtx);
         const g = audioCtx.createGain(); g.gain.setValueAtTime(0.0001, t0);
         g.gain.exponentialRampToValueAtTime(0.2 * v, t0 + 0.002); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
@@ -421,6 +468,7 @@ export async function mountTonepad() {
         nsrc.start(t0); nsrc.stop(t0 + dur + 0.04);
         drumTrack(nodes, nsrc, dur);
       }
+      tapSend(out, 'rev', clamp01(dfx.space, 0) * 0.7, nodes, t0 + voiceDur + 0.25);
     }
     function trigger(row, when, vel, soundId, mode, fxLayer) {
       if (!audioCtx || !bus) return;
@@ -569,7 +617,11 @@ export async function mountTonepad() {
         makePartial('sine', f, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f * 2.0, 0.25, 0, t0, peak, attack, sustain, release, mix);
       }
+    
+      tapSend(fil, 'rev', clamp01(mfx.reverb, 0), null, t0 + 8);
+      tapSend(fil, 'dly', clamp01(mfx.delay, 0), null, t0 + 8);
     }
+
     function scheduleAhead() {
       if (!playing || !audioCtx) return;
       const sd = stepDur();
