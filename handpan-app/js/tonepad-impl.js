@@ -506,7 +506,7 @@ export async function mountTonepad() {
         const peak = 0.05 + v * 0.09;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(0.7, t0);
-        fil.frequency.Math.min(4200, f * 5.5)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.setValueAtTime(clampFreq((Math.min(4200, f * 5.5)) * tmf), t0);
         fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(1800, f * 2.2)) * tmf), t0 + (attack + sustain + release) * 0.85);
         makePartial('sine', f, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f, 0.42, 5.5, t0, peak, attack, sustain, release, mix);
@@ -520,7 +520,7 @@ export async function mountTonepad() {
         const peak = 0.07 + v * 0.11;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(1.1, t0);
-        fil.frequency.Math.min(5200, f * 6.5)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.setValueAtTime(clampFreq((Math.min(5200, f * 6.5)) * tmf), t0);
         fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(1400, f * 2.4)) * tmf), t0 + release * 0.7);
         makePartial('sine', f, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f * 2.0, 0.38, 3, t0, peak, attack, sustain, release * 0.85, mix);
@@ -534,7 +534,7 @@ export async function mountTonepad() {
         const peak = 0.09 + v * 0.12;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(0.9, t0);
-        fil.frequency.Math.min(6500, f * 8)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.setValueAtTime(clampFreq((Math.min(6500, f * 8)) * tmf), t0);
         fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(2200, f * 3)) * tmf), t0 + release * 0.6);
         makePartial('sine', f, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f * 6.27, 0.32 * v, 0, t0, peak, attack, sustain, release * 0.35, mix);
@@ -546,7 +546,7 @@ export async function mountTonepad() {
         const peak = 0.08 + v * 0.11;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(1.4, t0);
-        fil.frequency.Math.min(4800, f * 5.8)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.setValueAtTime(clampFreq((Math.min(4800, f * 5.8)) * tmf), t0);
         fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(1600, f * 2.1)) * tmf), t0 + release * 0.55);
         makePartial('sine', f, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f * 3.92, 0.28, 8, t0, peak, attack, sustain, release * 0.4, mix);
@@ -559,7 +559,7 @@ export async function mountTonepad() {
         const peak = 0.055 + v * 0.08;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(0.6, t0);
-        fil.frequency.Math.min(7000, f * 9)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.setValueAtTime(clampFreq((Math.min(7000, f * 9)) * tmf), t0);
         fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(2500, f * 3.5)) * tmf), t0 + release * 0.8);
         makePartial('sine', f, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f * 2.71, 0.45, 4, t0, peak, attack, sustain, release * 0.9, mix);
@@ -573,7 +573,7 @@ export async function mountTonepad() {
         const peak = 0.1 + v * 0.12;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(2.2, t0);
-        fil.frequency.Math.min(7800, f * 10 + 800)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.setValueAtTime(clampFreq((Math.min(7800, f * 10 + 800)) * tmf), t0);
         fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(900, f * 1.6)) * tmf), t0 + release * 0.85);
         makePartial('sawtooth', f, 0.55, 0, t0, peak, attack, sustain, release, mix);
         makePartial('triangle', f * 1.002, 0.4, 3, t0, peak, attack, sustain, release * 0.9, mix);
@@ -585,7 +585,7 @@ export async function mountTonepad() {
         const peak = 0.06 + v * 0.09;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(0.85, t0);
-        fil.frequency.Math.min(3800, f * 4.8)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.setValueAtTime(clampFreq((Math.min(3800, f * 4.8)) * tmf), t0);
         fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(1200, f * 2.0)) * tmf), t0 + (attack + sustain + release) * 0.75);
         makePartial('sine', f, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f * 2.0, 0.28, 4, t0, peak, attack, sustain, release * 0.8, mix);
@@ -598,7 +598,7 @@ export async function mountTonepad() {
         const peak = 0.04 + v * 0.07;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(0.5, t0);
-        fil.frequency.Math.min(2800, f * 3.8)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.setValueAtTime(clampFreq((Math.min(2800, f * 3.8)) * tmf), t0);
         fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(900, f * 1.6)) * tmf), t0 + (attack + sustain + release) * 0.9);
         makePartial('sine', f, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f, 0.55, 8, t0, peak, attack, sustain, release, mix);
@@ -613,7 +613,7 @@ export async function mountTonepad() {
         const ff = Math.max(35, f * 0.5);
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(0.9, t0);
-        fil.frequency.Math.min(420, ff * 4.5)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.setValueAtTime(clampFreq((Math.min(420, ff * 4.5)) * tmf), t0);
         fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(180, ff * 2.2)) * tmf), t0 + (attack + sustain + release) * 0.7);
         makePartial('sine', ff, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('triangle', ff * 1.01, 0.22, 0, t0, peak, attack, sustain, release * 0.85, mix);
@@ -625,7 +625,7 @@ export async function mountTonepad() {
         const peak = 0.05 + v * 0.09;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(0.7, t0);
-        fil.frequency.Math.min(4200, f * 5.5)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.setValueAtTime(clampFreq((Math.min(4200, f * 5.5)) * tmf), t0);
         makePartial('sine', f, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f * 2.0, 0.25, 0, t0, peak, attack, sustain, release, mix);
       }
