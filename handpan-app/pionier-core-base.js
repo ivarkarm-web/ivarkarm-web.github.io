@@ -540,81 +540,63 @@ KEYS.forEach((k, i) => {
 
 function renderInstrumentMenu() {
   const menu = document.getElementById('instrumentMenu');
-  if (!menu) {
-    return;
+  if (!menu) return;
+  let select = menu.querySelector('select[data-instrument-native]');
+  if (!select) {
+    select = document.createElement('select');
+    select.dataset.instrumentNative = '1';
+    select.className = 'pionier-native-select instrument-native-select';
+    select.setAttribute('aria-label', 'Choose instrument');
+    select.style.width = '100%';
+    select.style.minHeight = '44px';
+    menu.appendChild(select);
   }
-  menu.innerHTML = '';
-  const results = document.createElement('div');
-  results.className = 'instrument-menu-results';
-  menu.appendChild(results);
+  menu.hidden = true;
+  select.replaceChildren();
   const seen = new Set();
   const groups = new Map();
   const INSTRUMENT_FAMILY_LABELS = {
     'HANDPAN & TUNED PERCUSSION': 'HANDPAN & TUNED PERCUSSION',
-    PERCUSSION: 'PERCUSSION',
-    WIND: 'WIND',
-    STRINGS: 'STRINGS',
+    PERCUSSION: 'PERCUSSION', WIND: 'WIND', STRINGS: 'STRINGS',
     'DRONES & ATMOSPHERIC': 'DRONES & ATMOSPHERIC',
     'ELECTRONIC & SYNTH': 'ELECTRONIC & SYNTH',
-    library: 'Library',
-    arp: 'Arps',
+    library: 'Library', arp: 'Arps',
   };
   function instrumentGroupId(item) {
     const c = (item.category || item.engineKind || 'other').toString().toLowerCase();
-    if (c.includes('arp')) {
-      return 'arp';
-    }
+    if (c.includes('arp')) return 'arp';
     return item.category || 'library';
   }
-  const groupLabel = (gid) => INSTRUMENT_FAMILY_LABELS[gid] || gid;
   for (const item of InstrumentRegistry.list()) {
-    if (!item || !item.id || seen.has(item.id)) {
-      continue;
-    }
+    if (!item || !item.id || seen.has(item.id)) continue;
     seen.add(item.id);
     const gid = instrumentGroupId(item);
-    if (!groups.has(gid)) {
-      groups.set(gid, []);
-    }
+    if (!groups.has(gid)) groups.set(gid, []);
     groups.get(gid).push(item);
   }
   for (const [gid, items] of groups) {
-    const section = document.createElement('div');
-    section.className = 'instrument-menu-section';
-    const h = document.createElement('div');
-    h.className = 'instrument-menu-group';
-    h.textContent = groupLabel(gid);
-    section.appendChild(h);
+    const og = document.createElement('optgroup');
+    og.label = INSTRUMENT_FAMILY_LABELS[gid] || gid;
     for (const item of items) {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      const active = InstrumentRegistry.active?.id === item.id;
-      btn.className = 'instrument-menu-item pionier-menu-option' + (active ? ' is-active' : '');
-      btn.setAttribute('role', 'menuitem');
-      btn.dataset.instrumentId = item.id;
-      const nameSpan = document.createElement('span');
-      nameSpan.textContent = item.name || item.id;
-      btn.appendChild(nameSpan);
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setInstrument(item.id).catch(() => {});
-        if (window.PionierOverlay) {
-          window.PionierOverlay.closePickers();
-        } else {
-          menu.hidden = true;
-          menu.setAttribute('hidden', '');
-          document
-            .getElementById('instrumentDropdownToggle')
-            ?.setAttribute('aria-expanded', 'false');
-        }
-      });
-      try {
-        window.PionierFavorites?.decorateInstrumentItem?.(btn, item);
-      } catch (_) {}
-      section.appendChild(btn);
+      const opt = document.createElement('option');
+      opt.value = item.id;
+      opt.textContent = item.name || item.id;
+      if (InstrumentRegistry.active?.id === item.id) opt.selected = true;
+      og.appendChild(opt);
     }
-    results.appendChild(section);
+    select.appendChild(og);
+  }
+  if (!select._wired) {
+    select._wired = true;
+    select.addEventListener('change', () => {
+      setInstrument(select.value).catch(() => {});
+      menu.hidden = true;
+      document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false');
+      try { document.getElementById('instrumentDropdownToggle')?.focus({ preventScroll: true }); } catch (_) {}
+    });
+    select.addEventListener('blur', () => {
+      setTimeout(() => { menu.hidden = true; document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false'); }, 150);
+    });
   }
 }
 window.__pionierRenderInstrumentMenu = renderInstrumentMenu;
@@ -623,8 +605,20 @@ document.addEventListener('pionier:picker-open', (e) => {
     renderInstrumentMenu();
   }
 });
-document.getElementById('instrumentDropdownToggle')?.addEventListener('click', () => {
+document.getElementById('instrumentDropdownToggle')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
   renderInstrumentMenu();
+  const menu = document.getElementById('instrumentMenu');
+  const select = menu?.querySelector('select[data-instrument-native]');
+  if (menu && select) {
+    menu.hidden = false;
+    menu.style.position = 'absolute';
+    menu.style.zIndex = '60';
+    select.focus();
+    try { select.showPicker?.(); } catch (_) {}
+  }
+  document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'true');
 });
 document.getElementById('voicePrev')?.addEventListener('click', () => {
   const list = InstrumentRegistry.list();
