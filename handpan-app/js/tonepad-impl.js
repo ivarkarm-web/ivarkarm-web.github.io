@@ -175,9 +175,157 @@ export async function mountTonepad() {
       osc.stop(t0 + life + 0.06);
       return life;
     }
+    let drumNoiseBuf = null;
+    let drumNoiseCtx = null;
+    let activeDrumVoices = 0;
+    const DRUM_VOICE_CAP = 24;
+    let openHatChokes = [];
+    function getDrumNoise(ctx) {
+      if (drumNoiseBuf && drumNoiseCtx === ctx) return drumNoiseBuf;
+      const len = Math.max(1, Math.floor(ctx.sampleRate * 1.0));
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      drumNoiseBuf = buf; drumNoiseCtx = ctx;
+      return buf;
+    }
+    function drumTrack(nodes, src, life, onDone) {
+      activeDrumVoices += 1;
+      let done = false;
+      const finish = () => {
+        if (done) return; done = true;
+        activeDrumVoices = Math.max(0, activeDrumVoices - 1);
+        try { nodes.forEach((n) => { try { n.disconnect(); } catch (_) {} }); } catch (_) {}
+        if (typeof onDone === 'function') try { onDone(); } catch (_) {}
+      };
+      try { src.onended = finish; } catch (_) {}
+      try { setTimeout(finish, Math.max(50, Math.ceil((life + 0.12) * 1000))); } catch (_) {}
+    }
+    function chokeOpenHats(t0) {
+      const list = openHatChokes.slice();
+      openHatChokes = [];
+      list.forEach((ch) => {
+        try {
+          const g = ch.g;
+          g.gain.cancelScheduledValues(t0);
+          g.gain.setValueAtTime(Math.max(0.0001, g.gain.value), t0);
+          g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.02);
+          try { ch.src.stop(t0 + 0.03); } catch (_) {}
+        } catch (_) {}
+      });
+    }
+    function triggerDrum(row, when, vel) {
+      if (!audioCtx || !bus) return;
+      if (activeDrumVoices >= DRUM_VOICE_CAP) return;
+      const t0 = Math.max(audioCtx.currentTime + 0.003, when);
+      const v = Math.max(0.05, Math.min(1, vel == null ? 0.6 : vel));
+      const voice = DRUM_VOICES[Math.max(0, Math.min(DRUM_VOICES.length - 1, row))] || 'kick';
+      const out = audioCtx.createGain();
+      out.connect(bus);
+      const nodes = [out];
+
+      if (voice === 'kick' || voice === 'lowtom' || voice === 'hightom') {
+        const isTom = voice !== 'kick';
+        const base = voice === 'kick' ? 52 : (voice === 'lowtom' ? 110 : 165);
+        const peak = (voice === 'kick' ? 0.95 : 0.55) * (0.5 + v * 0.7);
+        const dur = voice === 'kick' ? 0.42 : 0.32;
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(base * (voice === 'kick' ? 3.2 : 2.1), t0);
+        osc.frequency.exponentialRampToValueAtTime(base, t0 + (isTom ? 0.09 : 0.06));
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(peak, t0 + 0.004);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        osc.connect(g); g.connect(out); nodes.push(osc, g);
+        if (voice === 'kick') {
+          const o2 = audioCtx.createOscillator(); const g2 = audioCtx.createGain();
+          o2.type = 'triangle'; o2.frequency.setValueAtTime(90, t0);
+          o2.frequency.exponentialRampToValueAtTime(42, t0 + 0.07);
+          g2.gain.setValueAtTime(0.0001, t0); g2.gain.exponentialRampToValueAtTime(peak * 0.35, t0 + 0.005);
+          g2.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.22);
+          o2.connect(g2); g2.connect(out); nodes.push(o2, g2);
+          o2.start(t0); o2.stop(t0 + 0.28);
+        }
+        osc.start(t0); osc.stop(t0 + dur + 0.04);
+        drumTrack(nodes, osc, dur);
+      } else if (voice === 'snare') {
+        const dur = 0.22;
+        const nsrc = audioCtx.createBufferSource(); nsrc.buffer = getDrumNoise(audioCtx);
+        const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(1800, t0); bp.Q.setValueAtTime(0.7, t0);
+        const hp = audioCtx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.setValueAtTime(700, t0);
+        const ng = audioCtx.createGain();
+        const peak = 0.55 * (0.45 + v * 0.7);
+        ng.gain.setValueAtTime(0.0001, t0); ng.gain.exponentialRampToValueAtTime(peak, t0 + 0.003);
+        ng.gain.exponentialRampToValueAtTime(peak * 0.25, t0 + 0.04); ng.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        nsrc.connect(hp); hp.connect(bp); bp.connect(ng); ng.connect(out);
+        const osc = audioCtx.createOscillator(); const og = audioCtx.createGain();
+        osc.type = 'triangle'; osc.frequency.setValueAtTime(220, t0); osc.frequency.exponentialRampToValueAtTime(160, t0 + 0.06);
+        og.gain.setValueAtTime(0.0001, t0); og.gain.exponentialRampToValueAtTime(peak * 0.45, t0 + 0.003);
+        og.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.11);
+        osc.connect(og); og.connect(out);
+        nodes.push(nsrc, bp, hp, ng, osc, og);
+        nsrc.start(t0); nsrc.stop(t0 + dur + 0.04); osc.start(t0); osc.stop(t0 + 0.15);
+        drumTrack(nodes, nsrc, dur);
+      } else if (voice === 'ch' || voice === 'oh') {
+        if (voice === 'ch') chokeOpenHats(t0);
+        const dur = voice === 'ch' ? 0.055 : 0.42;
+        const nsrc = audioCtx.createBufferSource(); nsrc.buffer = getDrumNoise(audioCtx);
+        const hp = audioCtx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.setValueAtTime(voice === 'ch' ? 6500 : 5200, t0);
+        const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(9500, t0); bp.Q.setValueAtTime(0.9, t0);
+        const g = audioCtx.createGain();
+        const peak = (voice === 'ch' ? 0.22 : 0.18) * (0.45 + v * 0.7);
+        g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(peak, t0 + 0.002);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        nsrc.connect(hp); hp.connect(bp); bp.connect(g); g.connect(out);
+        nodes.push(nsrc, hp, bp, g);
+        nsrc.start(t0); nsrc.stop(t0 + dur + 0.04);
+        if (voice === 'oh') {
+          const entry = { g, src: nsrc };
+          openHatChokes.push(entry);
+          drumTrack(nodes, nsrc, dur, () => { openHatChokes = openHatChokes.filter((x) => x !== entry); });
+        } else {
+          drumTrack(nodes, nsrc, dur);
+        }
+      } else if (voice === 'clap') {
+        const dur = 0.24;
+        const peak = 0.38 * (0.45 + v * 0.7);
+        let lastSrc = null;
+        [0, 0.011, 0.023].forEach((off, k) => {
+          const nsrc = audioCtx.createBufferSource(); nsrc.buffer = getDrumNoise(audioCtx);
+          const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(1400 + k * 120, t0 + off); bp.Q.setValueAtTime(0.8, t0 + off);
+          const g = audioCtx.createGain();
+          g.gain.setValueAtTime(0.0001, t0 + off); g.gain.exponentialRampToValueAtTime(peak * (k === 2 ? 1 : 0.65), t0 + off + 0.002);
+          g.gain.exponentialRampToValueAtTime(0.0001, t0 + off + (k === 2 ? dur : 0.03));
+          nsrc.connect(bp); bp.connect(g); g.connect(out); nodes.push(nsrc, bp, g);
+          nsrc.start(t0 + off); nsrc.stop(t0 + off + dur + 0.04); lastSrc = nsrc;
+        });
+        drumTrack(nodes, lastSrc, dur);
+      } else if (voice === 'rim' || voice === 'perc') {
+        const dur = voice === 'rim' ? 0.045 : 0.09;
+        const nsrc = audioCtx.createBufferSource(); nsrc.buffer = getDrumNoise(audioCtx);
+        const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass';
+        bp.frequency.setValueAtTime(voice === 'rim' ? 1800 : 3200, t0); bp.Q.setValueAtTime(voice === 'rim' ? 5 : 2.2, t0);
+        const g = audioCtx.createGain();
+        const peak = (voice === 'rim' ? 0.28 : 0.2) * (0.45 + v * 0.7);
+        g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(peak, t0 + 0.001);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        nsrc.connect(bp); bp.connect(g); g.connect(out); nodes.push(nsrc, bp, g);
+        nsrc.start(t0); nsrc.stop(t0 + dur + 0.04);
+        drumTrack(nodes, nsrc, dur);
+      } else {
+        const dur = 0.08;
+        const nsrc = audioCtx.createBufferSource(); nsrc.buffer = getDrumNoise(audioCtx);
+        const g = audioCtx.createGain(); g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.2 * v, t0 + 0.002); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        nsrc.connect(g); g.connect(out); nodes.push(nsrc, g);
+        nsrc.start(t0); nsrc.stop(t0 + dur + 0.04);
+        drumTrack(nodes, nsrc, dur);
+      }
+    }
     function trigger(row, when, vel, soundId, mode) {
       if (!audioCtx || !bus) return;
-      if (mode === 'drum') return; // drum voices added in step 2
+      if (mode === 'drum') { triggerDrum(row, when, vel); return; }
       const f = freqForRow(row);
       const t0 = Math.max(audioCtx.currentTime + 0.003, when);
       const v = Math.max(0.05, Math.min(1, vel == null ? 0.6 : vel));
