@@ -74,8 +74,26 @@ const shellCritical = [
   './js/instruments/handpan.js',
 ];
 for (const asset of shellCritical) {
+<<<<<<< HEAD
   if (serviceWorker.includes(asset)) ok('SW SHELL lists offline-critical ' + asset);
   else fail('SW SHELL missing offline-critical ' + asset);
+=======
+  if (serviceWorker.includes(asset)) {
+    ok('SW SHELL lists offline-critical ' + asset);
+  } else {
+    fail('SW SHELL missing offline-critical ' + asset);
+  }
+}
+if (fs.existsSync(path.join(root, 'handpan-app/APP_VERSION'))) {
+  ok('APP_VERSION source of truth is present');
+} else {
+  fail('handpan-app/APP_VERSION missing');
+}
+if (!appHtml.includes('fonts.googleapis.com')) {
+  ok('No Google Fonts CDN dependency in index');
+} else {
+  fail('index still loads fonts.googleapis.com');
+>>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
 }
 if (fs.existsSync(path.join(root, 'handpan-app/APP_VERSION'))) ok('APP_VERSION source of truth is present');
 else fail('handpan-app/APP_VERSION missing');

@@ -83,13 +83,13 @@ const CACHE_VERSION = 'pionier-v205';
 >>>>>>> parent of f52bd2ab (fix(handpan): restore working looper and surface recorder errors (v206))
 
 const ASSETS = [
-  './assets/app-B57XWJuW.js',
-  './assets/app-DcaMDsYD.css',
+  './assets/app-CRHcBIKF.js',
+  './assets/app-cryg2zR7.css',
   './assets/audio-core-BKBAUavA.js',
   './assets/fx-editor-GJ25akPZ.js',
   './assets/handpan-D4MvzjUi.js',
   './assets/handpan-DvBPp9R-.js',
-  './assets/library-BV1ko3Fb.js',
+  './assets/library-BR_n9QcD.js',
   './assets/master-clock-985qe0Q5.js',
   './assets/note-plus-Cc8DzZ59.js',
 >>>>>>> parent of 0d5f19cc (fix(handpan): add visible Sensitivity control (v209))
@@ -98,6 +98,7 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_VERSION);
+<<<<<<< HEAD
     const failed = [];
     await Promise.all(SHELL.map(async (url) => {
       try {
@@ -114,6 +115,15 @@ self.addEventListener('install', (event) => {
     if (failed.length > 0) {
       throw new Error('SW install failed: ' + failed.join(', '));
     }
+=======
+    // Pre-cache hashed assets (immutable, cache-first)
+    await Promise.all(ASSETS.map(async (url) => {
+      try {
+        const res = await fetch(url, { cache: 'no-cache' });
+        if (res && res.ok) await cache.put(url, res);
+      } catch (_) {}
+    }));
+>>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
     await self.skipWaiting();
   })());
 });
@@ -171,12 +181,21 @@ self.addEventListener('fetch', (event) => {
             caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});
           }
           return res;
+<<<<<<< HEAD
         })
         .catch(() => caches.match(req))
     );
     return;
   }
 
+=======
+        });
+      });
+    return;
+  }
+
+  // Other same-origin GET: cache-first, then network
+>>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
@@ -187,6 +206,11 @@ self.addEventListener('fetch', (event) => {
         }
         return res;
       });
+<<<<<<< HEAD
     })
   );
+=======
+    });
+  });
+>>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
 });

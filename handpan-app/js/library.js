@@ -146,10 +146,28 @@ if (panel) {
       if (button.dataset.action === 'export') download(record);
       if (button.dataset.action === 'rename') {
         const name = window.prompt('Name this composition', record.name);
+<<<<<<< HEAD
         if (name !== null && name.trim()) { await renameComposition(record.id, name); await render(); }
       }
       if (button.dataset.action === 'delete' && window.confirm(`Delete “${record.name}” from this browser?`)) { await deleteComposition(record.id); await render(); }
     } catch (error) { setStatus(error.message || 'That library action failed.'); }
+=======
+        if (name !== null && name.trim()) {
+          await renameComposition(record.id, name);
+          await render();
+        }
+      }
+      if (
+        button.dataset.action === 'delete' &&
+        window.confirm(`Delete “${record.name}” from this browser?`)
+      ) {
+        await deleteComposition(record.id);
+        await render();
+      }
+    } catch (error) {
+      setStatus(error.message || 'That library action failed.');
+    }
+>>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
   });
   (async () => {
     try {

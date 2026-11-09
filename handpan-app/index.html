@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en" class="dark">
+<<<<<<< HEAD
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -60,6 +61,89 @@
     <div class="welcome-masthead">
       <span class="welcome-brand"><span class="welcome-brand-main">PIONIER</span><span class="welcome-brand-audio">AUDIO</span><span class="welcome-brand-handpan">HANDPAN</span></span>
       <span class="welcome-edition">POCKET INSTRUMENT&nbsp; / &nbsp;NO. 01</span>
+=======
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; child-src 'self'; img-src 'self' data:; connect-src 'self';"
+    />
+    <link rel="stylesheet" href="./pionier-base.css" />
+    <link rel="stylesheet" href="./pionier-controls.css" />
+    <link rel="stylesheet" href="./library.css" />
+    <link rel="stylesheet" href="./css-parts/sequence-carousel.css" />
+    <title>Pionier Synth — Play, Explore, Create</title>
+    <meta
+      name="description"
+      content="Pionier Synth is a touch-responsive musical instrument for exploring resonant handpan sounds, world instruments, expressive effects and looping."
+    />
+    <meta name="theme-color" content="#070708" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Pionier Audio" />
+    <meta property="og:title" content="Pionier Audio — Handpan" />
+    <meta
+      property="og:description"
+      content="A minimal, touch-responsive virtual handpan. Explore resonant sounds, scales and loops."
+    />
+    <meta
+      property="og:image"
+      content="https://ivarkarm-web.github.io/handpan-app/og-pionier-audio.svg"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <style>
+      .backdrop-player {
+        display: none !important;
+      }
+      .play-pill,
+      #modePlay,
+      #btnHelp,
+      #btnExit,
+      .top-actions,
+      #createLaunch,
+      .create-launch,
+      #createPage,
+      .create-page {
+        display: none !important;
+      }
+      .stage {
+        --stage-bottom-reserve: calc(var(--chrome-bottom, 160px) + var(--pan-bottom-gap, 10px));
+        padding: max(8px, var(--chrome-top, 48px)) 8px var(--stage-bottom-reserve) 8px !important;
+        flex-direction: column;
+        position: relative !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        overflow: hidden !important;
+        min-height: 0 !important;
+        flex: 1 1 auto !important;
+        box-sizing: border-box !important;
+      }
+      #pan {
+        display: block !important;
+        aspect-ratio: 1 !important;
+        margin-bottom: 0 !important;
+      }
+      #portraitLock[hidden] {
+        display: none !important;
+        pointer-events: none !important;
+      }
+      #tonepadToggle.is-active {
+        color: #e1cc8b;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="portraitLock" class="portrait-lock" hidden aria-live="polite">
+      <p class="portrait-lock-msg">Rotate your phone to portrait</p>
+    </div>
+    <div id="appStatus" class="app-status" data-state="loading" role="status" aria-live="polite">
+      <span id="appStatusMessage">Starting Pionier…</span>
+      <button type="button" id="appStatusRetry" class="app-status-retry" hidden>Retry</button>
+>>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
     </div>
     <div class="pionier-welcome-content">
       <span class="welcome-kicker"><span class="welcome-kicker-dot"></span> SOUND, SHAPED BY YOU</span>
@@ -233,6 +317,7 @@
         </div>
         <div class="scale-menu" id="scaleMenu" role="menu" aria-label="Choose scale" hidden></div>
       </div>
+<<<<<<< HEAD
       <div class="control-row">
         <div class="control-block control-half">
           <label class="control-label">Base Note</label>
@@ -240,8 +325,99 @@
             <button type="button" class="step" id="rootPrev" aria-label="Previous base note">‹</button>
             <span class="step-value" id="rootLabel">D3</span>
             <button type="button" class="step" id="rootNext" aria-label="Next base note">›</button>
+=======
+      <main class="stage" id="stage">
+        <canvas
+          id="pan"
+          width="680"
+          height="680"
+          role="img"
+          aria-label="Handpan instrument"
+        ></canvas>
+      </main>
+    </div>
+    <div class="top-nav-group" id="topNavGroup" aria-label="Pionier controls">
+      <button
+        type="button"
+        class="top-nav-btn library-open-btn"
+        id="openLibrary"
+        aria-label="Open My Library"
+        title="My Library"
+      >
+        ▤
+      </button>
+      <button
+        type="button"
+        class="top-nav-btn favorites-open-btn"
+        id="favoritesOpenBtn"
+        aria-label="Open Favourites"
+        title="Favourites"
+        aria-expanded="false"
+      >
+        ♡
+      </button>
+      <button
+        type="button"
+        class="top-nav-btn about-open-btn"
+        id="aboutBtn"
+        aria-label="About Pionier"
+        title="About"
+      >
+        ?
+      </button>
+    </div>
+    <section
+      id="libraryPanel"
+      class="library-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="libraryTitle"
+      aria-hidden="true"
+      hidden
+    >
+      <header class="library-header">
+        <div>
+          <p class="library-eyebrow">PIONIER · LOCAL RECORDINGS</p>
+          <h2 id="libraryTitle">My Library</h2>
+        </div>
+        <button type="button" id="closeLibrary" aria-label="Close My Library">×</button>
+      </header>
+      <p class="library-intro">Your compositions, kept on this device.</p>
+      <div id="libraryList" class="library-list" aria-live="polite"></div>
+      <p id="libraryStatus" class="library-status" role="status"></p>
+      <footer class="library-footer">
+        <span id="libraryUsage">Checking browser storage…</span>
+        <p>
+          Browser recordings can be erased when site data is cleared or browser storage is
+          reclaimed. Export WAV copies to keep permanent backups outside this browser.
+        </p>
+      </footer>
+    </section>
+    <div id="fxPanel" class="fx-panel" hidden>
+      <header class="fx-panel-header">
+        <h2>Effects</h2>
+        <button type="button" id="fxPanelClose" class="icon-btn" aria-label="Close effects">
+          ×
+        </button>
+      </header>
+      <div class="fx-panel-body knobs-panel">
+        <div class="effect-knob-wrap" id="knobCompress">
+          <canvas class="knob-canvas" width="68" height="68"></canvas>
+          <div class="fx-knob-label-row">
+            <span class="knob-label">Comp</span
+            ><button
+              type="button"
+              class="fx-settings-shortcut"
+              data-fx-editor-open="compressor"
+              aria-label="Open Compressor curve and presets"
+              title="Open advanced settings"
+            >
+              s
+            </button>
+>>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
           </div>
         </div>
+<<<<<<< HEAD
         <div class="control-block control-half">
           <label class="control-label">Notes</label>
           <div class="stepper">
@@ -249,6 +425,71 @@
             <span class="step-value" id="noteCountLabel">8</span>
             <button type="button" class="step" id="noteCountNext" aria-label="More notes">›</button>
           </div>
+=======
+        <div class="effect-knob-wrap" id="knobDelay">
+          <canvas class="knob-canvas" width="68" height="68"></canvas>
+          <div class="fx-knob-label-row">
+            <span class="knob-label">Delay</span
+            ><button
+              type="button"
+              class="fx-settings-shortcut"
+              data-fx-editor-open="delay"
+              aria-label="Open Delay curve and presets"
+              title="Open advanced settings"
+            >
+              s
+            </button>
+          </div>
+          <span class="knob-val" id="valDelay">15%</span>
+        </div>
+        <div class="effect-knob-wrap" id="knobFilter">
+          <canvas class="knob-canvas" width="68" height="68"></canvas>
+          <div class="fx-knob-label-row">
+            <span class="knob-label">Filter</span
+            ><button
+              type="button"
+              class="fx-settings-shortcut"
+              data-fx-editor-open="filter"
+              aria-label="Open Filter curve and presets"
+              title="Open advanced settings"
+            >
+              s
+            </button>
+          </div>
+          <span class="knob-val" id="valFilter">12%</span>
+        </div>
+        <div class="effect-knob-wrap" id="knobReverb">
+          <canvas class="knob-canvas" width="72" height="72"></canvas>
+          <div class="fx-knob-label-row">
+            <span class="knob-label">Reverb</span
+            ><button
+              type="button"
+              class="fx-settings-shortcut"
+              data-fx-editor-open="reverb"
+              aria-label="Open Reverb curve and presets"
+              title="Open advanced settings"
+            >
+              s
+            </button>
+          </div>
+          <span class="knob-val" id="valReverb">25%</span>
+        </div>
+        <div class="effect-knob-wrap" id="knobBass">
+          <canvas class="knob-canvas" width="72" height="72"></canvas
+          ><span class="knob-label">Bass</span><span class="knob-val" id="valBass">50%</span>
+        </div>
+        <div class="effect-knob-wrap" id="knobLow">
+          <canvas class="knob-canvas" width="72" height="72"></canvas
+          ><span class="knob-label">Low</span><span class="knob-val" id="valLow">50%</span>
+        </div>
+        <div class="effect-knob-wrap" id="knobMid">
+          <canvas class="knob-canvas" width="72" height="72"></canvas
+          ><span class="knob-label">Mid</span><span class="knob-val" id="valMid">50%</span>
+        </div>
+        <div class="effect-knob-wrap" id="knobMaster">
+          <canvas class="knob-canvas" width="72" height="72"></canvas
+          ><span class="knob-label">Master</span><span class="knob-val" id="valMaster">82%</span>
+>>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
         </div>
       </div>
     </aside>

@@ -130,6 +130,7 @@ function renderSw(cacheVersion, shell) {
   p(' *  - On activate: drop all caches except current CACHE_VERSION');
   p(' * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.');
   p(' */');
+<<<<<<< HEAD
   p("const CACHE_VERSION = '" + cacheVersion + "';");
   p('');
   p('const SHELL = [');
@@ -155,17 +156,41 @@ function renderSw(cacheVersion, shell) {
   p('    if (failed.length > 0) {');
   p("      throw new Error('SW install failed: ' + failed.join(', '));");
   p('    }');
+=======
+  p("");
+  p("const CACHE_VERSION = '" + cacheVersion + "';");
+  p("");
+  p('const ASSETS = [');
+  for (const a of shellAssets) {
+    p("  '" + a + "',");
+  }
+  p('];');
+  p("");
+  p('const HTML_SHELL = [\'.\', \'./index.html\'];');
+  p("");
+  p('self.addEventListener(\'install\', (event) => {');
+  p('  event.waitUntil((async () => {');
+  p('    const cache = await caches.open(CACHE_VERSION);');
+  p('    // Pre-cache hashed assets (immutable, cache-first)');
+  p('    await Promise.all(ASSETS.map(async (url) => {');
+  p('      try {');
+  p('        const res = await fetch(url, { cache: \'no-cache\' });');
+  p('        if (res && res.ok) await cache.put(url, res);');
+  p('      } catch (_) {}');
+  p('    }));');
+>>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
   p('    await self.skipWaiting();');
   p('  })());');
   p('});');
-  p('');
-  p("self.addEventListener('activate', (event) => {");
+  p("");
+  p('self.addEventListener(\'activate\', (event) => {');
   p('  event.waitUntil((async () => {');
   p('    const keys = await caches.keys();');
   p('    await Promise.all(keys.filter((k) => k !== CACHE_VERSION).map((k) => caches.delete(k)));');
   p('    await self.clients.claim();');
   p('  })());');
   p('});');
+<<<<<<< HEAD
   p('');
   p("self.addEventListener('message', (event) => {");
   p("  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();");
@@ -189,6 +214,24 @@ function renderSw(cacheVersion, shell) {
   p('  if (url.origin !== self.location.origin) return;');
   p('');
   p('  if (isDocumentRequest(req, url)) {');
+=======
+  p("");
+  p('self.addEventListener(\'fetch\', (event) => {');
+  p('  const req = event.request;');
+  p("  if (req.method !== 'GET') return;");
+  p('  const url = new URL(req.url);');
+  p("  if (url.origin !== self.location.origin) return;");
+  p("");
+  p('  // HTML / navigations: network-first, cache fallback');
+  p('  const isDoc =');
+  p("    req.mode === 'navigate' ||");
+  p("    req.destination === 'document' ||");
+  p("    url.pathname.endsWith('.html') ||");
+  p("    url.pathname.endsWith('/') ||");
+  p("    url.pathname.endsWith('/handpan-app');");
+  p('');
+  p('  if (isDoc) {');
+>>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
   p('    event.respondWith(');
   p('      fetch(req)');
   p('        .then((res) => {');
@@ -203,35 +246,62 @@ function renderSw(cacheVersion, shell) {
   p('    return;');
   p('  }');
   p('');
+<<<<<<< HEAD
   p("  if (isVersionedAsset(url) && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {");
   p('    event.respondWith(');
   p('      fetch(req)');
   p('        .then((res) => {');
   p('          if (res && res.ok) {');
+=======
+  p('  // Hashed assets: cache-first, immutable');
+  p('  const isAsset = url.pathname.startsWith(\'/assets/\');');
+  p('  if (isAsset) {');
+  p('    event.respondWith(');
+  p('      caches.match(req).then((cached) => {');
+  p('        if (cached) return cached;');
+  p('        return fetch(req).then((res) => {');
+  p('          if (res && res.status === 200 && res.type !== \'opaque\') {');
+>>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
   p('            const copy = res.clone();');
   p('            caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});');
   p('          }');
   p('          return res;');
+<<<<<<< HEAD
   p('        })');
   p('        .catch(() => caches.match(req))');
   p('    );');
   p('    return;');
   p('  }');
   p('');
+=======
+  p('        });');
+  p('      });');
+  p('    return;');
+  p('  }');
+  p('');
+  p('  // Other same-origin GET: cache-first, then network');
+>>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
   p('  event.respondWith(');
   p('    caches.match(req).then((cached) => {');
   p('      if (cached) return cached;');
   p('      return fetch(req).then((res) => {');
-  p("        if (res && res.status === 200 && res.type !== 'opaque') {");
+  p('        if (res && res.status === 200 && res.type !== \'opaque\') {');
   p('          const copy = res.clone();');
   p('          caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});');
   p('        }');
   p('        return res;');
   p('      });');
+<<<<<<< HEAD
   p('    })');
   p('  );');
   p('});');
   p('');
+=======
+  p('    });');
+  p('  });');
+  p('});');
+  p("");
+>>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
   return L.join('\n');
 }
 
@@ -264,8 +334,13 @@ function main() {
     const curVer = extractCacheVersion(current);
     const curShell = extractShell(current);
     let ok = true;
+<<<<<<< HEAD
     if (curVer !== cacheVersion) {
       console.error('CACHE_VERSION mismatch: sw has ' + curVer + ', expected ' + cacheVersion);
+=======
+    if ((curVer && curVer[1]) !== cacheVersion) {
+      console.error('CACHE_VERSION mismatch: sw has ' + (curVer && curVer[1]) + ', expected ' + cacheVersion);
+>>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
       ok = false;
     }
     if (JSON.stringify(curShell) !== JSON.stringify(shell)) {
