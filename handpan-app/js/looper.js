@@ -150,10 +150,16 @@ export function mountLooper({ root } = {}) {
   syncBtn.title = SYNC_MODES[0].title;
 
   const layers = [];
-  const exportBtn = ensureTimingButton('looperExportBtn', 'looper-export-btn', 'Export loop as WAV', '<span class="looper-timing-main">WAV</span>');
-  exportBtn.disabled = true;
-  rail.appendChild(exportBtn);
-  exportBtn.addEventListener('click', exportWav);
+  const tonepadBtn = ensureTimingButton('tonepadToggle', 'looper-export-btn', 'Toggle TonePad sequencer', '<span class="looper-timing-main">SEQ</span>');
+  tonepadBtn.disabled = false;
+  tonepadBtn.dataset.tpWired = '1';
+  rail.appendChild(tonepadBtn);
+  tonepadBtn.addEventListener('click', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    try {
+      if (window.PionierTonepad && typeof window.PionierTonepad.toggle === 'function') window.PionierTonepad.toggle();
+    } catch (_) {}
+  });
   const saveBtn = ensureTimingButton('looperSaveBtn', 'looper-save-btn', 'Save composition to My Library', '<span class="looper-timing-main">Save</span>');
   saveBtn.disabled = true;
   rail.appendChild(saveBtn);
@@ -455,11 +461,13 @@ export function mountLooper({ root } = {}) {
 
   function setBtnState() {
     const hasLayers = layers.length > 0;
-    exportBtn.hidden = !hasLayers;
+    if (tonepadBtn) {
+      tonepadBtn.hidden = false;
+      tonepadBtn.disabled = false;
+      tonepadBtn.setAttribute('aria-disabled', 'false');
+    }
     saveBtn.hidden = !hasLayers;
-    exportBtn.disabled = !hasLayers || recording || pendingLoopStop || countInPending;
     saveBtn.disabled = !hasLayers || recording || pendingLoopStop || countInPending;
-    exportBtn.setAttribute('aria-disabled', String(exportBtn.disabled));
     saveBtn.setAttribute('aria-disabled', String(saveBtn.disabled));
     saveBtn.classList.toggle('is-available', hasLayers && !saveBtn.disabled);
     btn.disabled = !recording && !pendingLoopStop && !countInPending && layers.length >= MAX_LAYERS;
