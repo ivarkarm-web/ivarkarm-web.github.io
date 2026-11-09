@@ -1,2 +1,2 @@
 /** Native-module entry point for the TonePad sequencer. */
-export { mountTonepad } from './tonepad-impl.js?v=5';
+export { mountTonepad } from './tonepad-impl.js?v=6';
