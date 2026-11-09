@@ -150,9 +150,10 @@ export async function mountTonepad() {
     function activeRows() { return rowsForLayer(activeLayer); }
     function activeGrid() { return gridForLayer(activeLayer); }
     function layerHasNotes(i) {
-      const g = gridForLayer(i);
-      if (!g) return false;
-      for (let n = 0; n < g.length; n++) if (g[n]) return true;
+      // count either pattern (melodic or drum) for playback advancement and filled indicators
+      const mg = layers[i], dg = drumLayers[i];
+      if (mg) for (let n = 0; n < mg.length; n++) if (mg[n]) return true;
+      if (dg) for (let n = 0; n < dg.length; n++) if (dg[n]) return true;
       return false;
     }
     function nextNonEmptyLayer(from) {
@@ -645,25 +646,38 @@ export async function mountTonepad() {
           playLayer = nextNonEmptyLayer(playLayer);
         }
         playLayer = ((playLayer % LAYER_COUNT) + LAYER_COUNT) % LAYER_COUNT;
-        const mode = modeOf(playLayer);
-        const gPlay = gridForLayer(playLayer);
-        const rows = rowsForLayer(playLayer);
-        if (!gPlay) continue;
         const when = anchor + lastVisStep * sd;
-        for (let row = 0; row < rows; row++) {
-          if (!gPlay[idx(step, row)]) continue;
-          if (Math.random() > probability) continue;
-          const accent = (step % 4 === 0) ? 1.15 : (step % 2 === 0 ? 1.05 : 0.92);
-          const baseVel = 0.35 + velocity * 0.55;
-          const jitterV = (Math.random() - 0.5) * 2 * humanize * 0.2;
-          const jitterT = (Math.random() - 0.5) * 2 * humanize * sd * 0.35;
-          let swingT = 0;
-          if (mode === 'drum' && (step % 2) === 1) {
-            const sw = clamp01((drumFx[playLayer] && drumFx[playLayer].swing) || 0, 0);
-            if (sw > 0) swingT = Math.min(sw * sd * 0.45, sd * 0.45, 0.12);
+        // melodic pass (same step/clock); no drum voice cap involvement
+        const mg = layers[playLayer];
+        if (mg) {
+          for (let row = 0; row < MELO_ROWS; row++) {
+            if (!mg[idx(step, row)]) continue;
+            if (Math.random() > probability) continue;
+            const accent = (step % 4 === 0) ? 1.15 : (step % 2 === 0 ? 1.05 : 0.92);
+            const baseVel = 0.35 + velocity * 0.55;
+            const jitterV = (Math.random() - 0.5) * 2 * humanize * 0.2;
+            const jitterT = (Math.random() - 0.5) * 2 * humanize * sd * 0.35;
+            trigger(row, when + jitterT, Math.max(0.05, Math.min(1, baseVel * accent + jitterV)), layerSounds[playLayer], 'melodic', playLayer);
           }
-          const tOff = Math.max(0, jitterT + swingT); // never earlier than step; swing default 0 => jitterT preserved when >=0
-          trigger(row, when + (swingT > 0 ? tOff : jitterT), Math.max(0.05, Math.min(1, baseVel * accent + jitterV)), layerSounds[playLayer], mode, playLayer);
+        }
+        // drum pass (same step/clock); swing applies only to this pass
+        const dg = drumLayers[playLayer];
+        if (dg) {
+          let drumSwingT = 0;
+          if ((step % 2) === 1) {
+            const sw = clamp01((drumFx[playLayer] && drumFx[playLayer].swing) || 0, 0);
+            if (sw > 0) drumSwingT = Math.min(sw * sd * 0.45, sd * 0.45, 0.12);
+          }
+          for (let row = 0; row < DRUM_ROWS; row++) {
+            if (!dg[idx(step, row)]) continue;
+            if (Math.random() > probability) continue;
+            const accent = (step % 4 === 0) ? 1.15 : (step % 2 === 0 ? 1.05 : 0.92);
+            const baseVel = 0.35 + velocity * 0.55;
+            const jitterV = (Math.random() - 0.5) * 2 * humanize * 0.2;
+            const jitterT = (Math.random() - 0.5) * 2 * humanize * sd * 0.35;
+            const tOff = Math.max(0, jitterT + drumSwingT);
+            trigger(row, when + (drumSwingT > 0 ? tOff : jitterT), Math.max(0.05, Math.min(1, baseVel * accent + jitterV)), kitOf(playLayer), 'drum', playLayer);
+          }
         }
       }
     }
