@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <link rel="stylesheet" href="./pionier-base.css?v=12" />
+  <link rel="stylesheet" href="./pionier-base.css?v=13" />
   <link rel="stylesheet" href="./pionier-controls.css?v=6" />
   <link rel="stylesheet" href="./library.css?v=2" />
   <link rel="stylesheet" href="./pionier-layout.css?v=4" />
@@ -71,6 +71,20 @@
       <span>LISTEN&nbsp; · &nbsp;EXPLORE&nbsp; · &nbsp;CREATE</span>
       <span class="welcome-foot-rule"></span>
       <span>MADE FOR THE MOMENT</span>
+    </div>
+    <div id="pionierStorageNotice" class="pionier-storage-notice" role="dialog" aria-modal="false" aria-labelledby="pionierStorageNoticeTitle" hidden>
+      <h2 id="pionierStorageNoticeTitle" class="pionier-storage-notice-title">Local storage &amp; cache</h2>
+      <p class="pionier-storage-notice-text">Pionier keeps a few things on this device to remember your setup and load faster. It does not use advertising or analytics tracking.</p>
+      <div id="pionierStorageNoticeDetails" class="pionier-storage-notice-details" hidden>
+        <p><strong>Local storage:</strong> remembers app preferences on this device (for example your instrument, settings, or TonePad patterns).</p>
+        <p><strong>Browser cache:</strong> stores app resources to help Pionier load faster and can help it open offline after it has loaded once.</p>
+        <p><strong>Saved library data:</strong> Your saved library data is stored locally in your browser's database (IndexedDB) on this device. It isn't uploaded to a Pionier account or remote profile.</p>
+        <p><strong>Your control:</strong> clearing browser data may reset preferences, remove cached resources, or remove saved library data.</p>
+      </div>
+      <div class="pionier-storage-notice-actions">
+        <button type="button" id="pionierStorageNoticeDetailsBtn" class="pionier-storage-notice-btn pionier-storage-notice-btn--secondary" aria-expanded="false" aria-controls="pionierStorageNoticeDetails">Privacy details</button>
+        <button type="button" id="pionierStorageNoticeContinue" class="pionier-storage-notice-btn pionier-storage-notice-btn--primary">Continue</button>
+      </div>
     </div>
   </section>
   <div id="headphonesHint" role="status" aria-live="polite"><span class="headphones-word headphones-word-one">Headphones</span><span class="headphones-word headphones-word-two">recommended</span></div>
@@ -189,7 +203,7 @@
   <script src="./js/ambient-fx.js?v=12"></script>
   <script src="./js/skin-mandala.js?v=6"></script>
   <script type="module" src="./pionier-app.js?v=296"></script>
-  <script src="./welcome-screen.js?v=9"></script>
+  <script src="./welcome-screen.js?v=10"></script>
   <script src="./js/portrait-lock.js?v=2"></script>
   <script src="./registerSW.js?v=2"></script>
 </body>

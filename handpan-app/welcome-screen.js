@@ -11,6 +11,35 @@
   window.PionierWelcomeState.hideTonefields = true;
   let entered = false;
 
+  const STORAGE_NOTICE_KEY = 'pionier-storage-notice-seen-v1';
+  const storageNotice = document.getElementById('pionierStorageNotice');
+  const storageContinue = document.getElementById('pionierStorageNoticeContinue');
+  const storageDetailsBtn = document.getElementById('pionierStorageNoticeDetailsBtn');
+  const storageDetails = document.getElementById('pionierStorageNoticeDetails');
+  function showStorageNoticeIfNeeded() {
+    if (!storageNotice) return;
+    let seen = false;
+    try { seen = localStorage.getItem(STORAGE_NOTICE_KEY) === '1'; } catch (_) {}
+    if (seen) { storageNotice.hidden = true; return; }
+    storageNotice.hidden = false;
+    // sensible focus: move to Continue without trapping; Enter remains reachable
+    try { storageContinue && storageContinue.focus({ preventScroll: true }); } catch (_) {}
+  }
+  function acknowledgeStorageNotice() {
+    try { localStorage.setItem(STORAGE_NOTICE_KEY, '1'); } catch (_) {}
+    if (storageNotice) storageNotice.hidden = true;
+    try { enter && !entered && enter.focus({ preventScroll: true }); } catch (_) {}
+  }
+  if (storageContinue) storageContinue.addEventListener('click', acknowledgeStorageNotice);
+  if (storageDetailsBtn && storageDetails) {
+    storageDetailsBtn.addEventListener('click', () => {
+      const expanded = storageDetailsBtn.getAttribute('aria-expanded') === 'true';
+      storageDetailsBtn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      storageDetails.hidden = expanded;
+    });
+  }
+  showStorageNoticeIfNeeded();
+
   function unlockAudio() {
     try {
       const HA = window.HandpanAudio;
