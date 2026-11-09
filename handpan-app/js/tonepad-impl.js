@@ -350,33 +350,36 @@ export async function mountTonepad() {
       draw();
     }
 
-    if (!document.getElementById('tonepad-css-v45')) {
+    const tpStyleId = 'tonepad-css-v46-theme';
+    const tpOldStyle = document.getElementById('tonepad-css-v45');
+    if (tpOldStyle) tpOldStyle.remove();
+    if (!document.getElementById(tpStyleId)) {
       const style = document.createElement('style');
-      style.id = 'tonepad-css-v45';
+      style.id = tpStyleId;
       style.textContent = [
-        '.tonepad-layer{touch-action:none;position:fixed;z-index:40;box-sizing:border-box;background:rgba(8,10,9,.94);border-radius:12px;overflow:hidden;transform:translate3d(100vw,0,0);transition:transform var(--tp-tr,0s) var(--tp-ease,cubic-bezier(0.22,1,0.36,1));will-change:transform;display:flex;flex-direction:column;padding:8px;gap:6px}',
+        '.tonepad-layer{touch-action:none;position:fixed;z-index:40;box-sizing:border-box;background:var(--tp-layer-bg,rgba(8,10,9,.94));border-radius:12px;overflow:hidden;transform:translate3d(100vw,0,0);transition:transform var(--tp-tr,0s) var(--tp-ease,cubic-bezier(0.22,1,0.36,1));will-change:transform;display:flex;flex-direction:column;padding:8px;gap:6px}',
         'body.tonepad-open .tonepad-layer{pointer-events:auto}',
         '#pan{transition:transform var(--tp-tr,0s) var(--tp-ease,cubic-bezier(0.22,1,0.36,1));will-change:transform}',
         'body.tonepad-open #pan{pointer-events:none}',
         '.tonepad-chrome{display:flex;flex-direction:row;align-items:center;gap:8px;flex-wrap:wrap}',
         '.tonepad-knobs{display:flex;gap:8px;align-items:center}',
         '.tonepad-knob{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:40px}',
-        '.tonepad-knob-label{font:600 9px/1 system-ui,sans-serif;letter-spacing:.06em;color:#c9b06a}',
-        '.tonepad-knob-dial{width:36px;height:36px;border-radius:8px;border:1px solid rgba(232,212,138,.4);background:#141a14;cursor:ns-resize;touch-action:none}',
+        '.tonepad-knob-label{font:600 9px/1 system-ui,sans-serif;letter-spacing:.06em;color:var(--tp-knob-label,#c9b06a)}',
+        '.tonepad-knob-dial{width:36px;height:36px;border-radius:8px;border:1px solid var(--tp-knob-dial-border,rgba(232,212,138,.4));background:var(--tp-knob-dial-bg,#141a14);cursor:ns-resize;touch-action:none}',
         '.tonepad-knob-dial canvas{width:100%;height:100%;display:block;pointer-events:none}',
-        '.tonepad-knob-val{font:600 10px/1 system-ui,sans-serif;color:#f0d99a}',
+        '.tonepad-knob-val{font:600 10px/1 system-ui,sans-serif;color:var(--tp-knob-val,#f0d99a)}',
         '.tonepad-layers{display:flex;gap:4px}',
-        '.tonepad-layer-btn{min-width:28px;height:28px;border-radius:6px;border:1px solid rgba(160,170,160,.35);background:rgba(20,24,20,.9);color:#9aab9e;font:600 11px system-ui;cursor:pointer;transition:border-color .15s,box-shadow .15s,color .15s,background .15s}',
-        '.tonepad-layer-btn.is-active{border-color:var(--layer-accent,#e1cc8b);color:var(--layer-accent,#f0d99a);background:rgba(40,36,20,.95);box-shadow:0 0 10px color-mix(in srgb,var(--layer-accent,#e1cc8b) 35%,transparent)}',
+        '.tonepad-layer-btn{min-width:28px;height:28px;border-radius:6px;border:1px solid var(--tp-layer-btn-border,rgba(160,170,160,.35));background:var(--tp-layer-btn-bg,rgba(20,24,20,.9));color:var(--tp-layer-btn-fg,#9aab9e);font:600 11px system-ui;cursor:pointer;transition:border-color .15s,box-shadow .15s,color .15s,background .15s}',
+        '.tonepad-layer-btn.is-active{border-color:var(--layer-accent,#e1cc8b);color:var(--layer-accent,#f0d99a);background:var(--tp-layer-btn-active-bg,rgba(40,36,20,.95));box-shadow:0 0 10px color-mix(in srgb,var(--layer-accent,#e1cc8b) 35%,transparent)}',
         '.tonepad-layer-btn.is-empty{opacity:.4}',
-        '.tonepad-play{min-width:52px;height:28px;border-radius:6px;border:1px solid rgba(120,200,140,.5);background:rgba(30,50,35,.9);color:#b8e0c0;font:600 11px system-ui;cursor:pointer}',
-        '.tonepad-clear{min-width:44px;height:28px;border-radius:6px;border:1px solid rgba(200,120,100,.45);background:rgba(50,24,20,.9);color:#e8b0a0;font:600 11px system-ui;cursor:pointer}',
-        '.tonepad-canvas{flex:1;width:100%;min-height:100px;touch-action:none;border-radius:8px;background:#0a0c0a}',
+        '.tonepad-play{min-width:52px;height:28px;border-radius:6px;border:1px solid var(--tp-play-border,rgba(120,200,140,.5));background:var(--tp-play-bg,rgba(30,50,35,.9));color:var(--tp-play-fg,#b8e0c0);font:600 11px system-ui;cursor:pointer}',
+        '.tonepad-clear{min-width:44px;height:28px;border-radius:6px;border:1px solid var(--tp-clear-border,rgba(200,120,100,.45));background:var(--tp-clear-bg,rgba(50,24,20,.9));color:var(--tp-clear-fg,#e8b0a0);font:600 11px system-ui;cursor:pointer}',
+        '.tonepad-canvas{flex:1;width:100%;min-height:100px;touch-action:none;border-radius:8px;background:var(--tp-canvas-bg,#0a0c0a)}',
         '.tonepad-sounds{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:2px 0 0;flex-shrink:0}',
         '@media (max-width:400px){.tonepad-sounds{grid-template-columns:repeat(3,minmax(0,1fr))}}',
-        '.tonepad-sound-btn{min-height:28px;padding:4px 2px;border-radius:8px;border:1px solid rgba(160,170,160,.28);background:rgba(16,20,16,.92);color:#9aab9e;font:600 9px/1.15 system-ui,sans-serif;letter-spacing:.02em;cursor:pointer;touch-action:manipulation;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
-        '.tonepad-sound-btn.is-active{border-color:rgba(240,217,154,.95);color:#fff3c4;background:rgba(48,42,16,.98);box-shadow:0 0 0 1px rgba(240,217,154,.45),0 0 12px rgba(240,217,154,.55),0 0 28px rgba(225,190,80,.35);text-shadow:0 0 8px rgba(240,217,154,.5);animation:tp-sound-pulse 2.4s ease-in-out infinite}',
-        '@keyframes tp-sound-pulse{0%,100%{box-shadow:0 0 0 1px rgba(240,217,154,.4),0 0 10px rgba(240,217,154,.4),0 0 22px rgba(225,190,80,.25)}50%{box-shadow:0 0 0 1px rgba(240,217,154,.55),0 0 16px rgba(240,217,154,.7),0 0 36px rgba(225,190,80,.45)}}'
+        '.tonepad-sound-btn{min-height:28px;padding:4px 2px;border-radius:8px;border:1px solid var(--tp-sound-border,rgba(160,170,160,.28));background:var(--tp-sound-bg,rgba(16,20,16,.92));color:var(--tp-sound-fg,#9aab9e);font:600 9px/1.15 system-ui,sans-serif;letter-spacing:.02em;cursor:pointer;touch-action:manipulation;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+        '.tonepad-sound-btn.is-active{border-color:var(--tp-sound-active-border,rgba(240,217,154,.95));color:var(--tp-sound-active-fg,#fff3c4);background:var(--tp-sound-active-bg,rgba(48,42,16,.98));box-shadow:0 0 0 1px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 45%,transparent),0 0 12px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 55%,transparent),0 0 28px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 35%,transparent);text-shadow:0 0 8px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 50%,transparent);animation:tp-sound-pulse 2.4s ease-in-out infinite}',
+        '@keyframes tp-sound-pulse{0%,100%{box-shadow:0 0 0 1px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 40%,transparent),0 0 10px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 40%,transparent),0 0 22px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 25%,transparent)}50%{box-shadow:0 0 0 1px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 55%,transparent),0 0 16px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 70%,transparent),0 0 36px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 45%,transparent)}}'
       ].join('');
       document.head.appendChild(style);
     }
@@ -411,6 +414,25 @@ export async function mountTonepad() {
 
     const canvas = layer.querySelector('canvas.tonepad-canvas');
     const g = canvas.getContext('2d');
+    const tpTheme = { knobTrack: 'rgba(120,130,118,.35)', knobAccent: '#e1cc8b', knobFill: '#f0d99a', gridOff: 'rgba(28,32,30,0.92)', gridPlayheadA: 0.55, isLight: false };
+    function resolveTpTheme() {
+      try {
+        tpTheme.isLight = !!(document.documentElement.classList.contains('theme-light') || document.body.classList.contains('theme-light'));
+        const cs = getComputedStyle(document.documentElement);
+        const v = (n, fb) => (cs.getPropertyValue(n) || '').trim() || fb;
+        tpTheme.knobTrack = v('--tp-knob-track', tpTheme.knobTrack);
+        tpTheme.knobAccent = v('--tp-knob-accent', tpTheme.knobAccent);
+        tpTheme.knobFill = v('--tp-knob-val', tpTheme.knobFill);
+        tpTheme.gridOff = v('--tp-grid-off', tpTheme.gridOff);
+        const a = parseFloat(v('--tp-grid-playhead-a', ''));
+        if (!Number.isNaN(a)) tpTheme.gridPlayheadA = a;
+      } catch (_) {}
+    }
+    resolveTpTheme();
+    const tpThemeObserver = (typeof MutationObserver !== 'undefined')
+      ? new MutationObserver(() => { resolveTpTheme(); try { if (Array.isArray(knobRepaint)) knobRepaint.forEach((fn) => { try { fn(); } catch (_) {} }); } catch (_) {} try { draw(); } catch (_) {} })
+      : null;
+    if (tpThemeObserver) tpThemeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     const layersEl = layer.querySelector('[data-layers]');
     const soundsEl = layer.querySelector('[data-sounds]');
     for (let i = 0; i < LAYER_COUNT; i++) {
@@ -496,13 +518,13 @@ export async function mountTonepad() {
         kg.clearRect(0, 0, s, s);
         kg.lineWidth = s * 0.1;
         kg.lineCap = 'round';
-        kg.strokeStyle = 'rgba(120,130,118,.35)';
+        kg.strokeStyle = tpTheme.knobTrack;
         kg.beginPath(); kg.arc(cx, cy, rad, a0, a0 + span); kg.stroke();
         if (t > 0) {
-          kg.strokeStyle = '#e1cc8b';
+          kg.strokeStyle = tpTheme.knobAccent;
           kg.beginPath(); kg.arc(cx, cy, rad, a0, a1); kg.stroke();
         }
-        kg.fillStyle = '#f0d99a';
+        kg.fillStyle = tpTheme.knobFill;
         kg.beginPath(); kg.arc(cx + Math.cos(a1) * rad, cy + Math.sin(a1) * rad, s * 0.07, 0, Math.PI * 2); kg.fill();
       };
       knobRepaint.push(paint);
@@ -722,21 +744,27 @@ export async function mountTonepad() {
             grad.addColorStop(1, 'hsla(' + (theme.h + rowShift - 8) + ',' + (theme.s + 5) + '%,' + Math.max(28, theme.l - 10) + '%,0.9)');
             g.fillStyle = grad;
           } else if (c === visStep) {
-            g.fillStyle = 'hsla(' + theme.h + ',25%,28%,0.55)';
+            g.fillStyle = tpTheme.isLight
+              ? 'hsla(' + theme.h + ',22%,84%,' + tpTheme.gridPlayheadA + ')'
+              : 'hsla(' + theme.h + ',25%,28%,' + tpTheme.gridPlayheadA + ')';
           } else {
-            g.fillStyle = 'rgba(28,32,30,0.92)';
+            g.fillStyle = tpTheme.gridOff;
           }
           g.beginPath();
           if (g.roundRect) g.roundRect(x, y, cw, ch, rad);
           else g.rect(x, y, cw, ch);
           g.fill();
           if (on) {
-            g.strokeStyle = 'hsla(' + theme.h + ',' + theme.s + '%,' + Math.min(80, theme.l + 20) + '%,0.45)';
+            g.strokeStyle = tpTheme.isLight
+              ? 'hsla(' + theme.h + ',' + theme.s + '%,' + Math.max(28, theme.l - 8) + '%,0.4)'
+              : 'hsla(' + theme.h + ',' + theme.s + '%,' + Math.min(80, theme.l + 20) + '%,0.45)';
             g.lineWidth = 1;
             g.stroke();
           }
           if (c === visStep) {
-            g.strokeStyle = 'hsla(' + theme.h + ',70%,75%,0.85)';
+            g.strokeStyle = tpTheme.isLight
+              ? 'hsla(' + theme.h + ',55%,42%,0.75)'
+              : 'hsla(' + theme.h + ',70%,75%,0.85)';
             g.lineWidth = 1.5;
             g.beginPath();
             if (g.roundRect) g.roundRect(x + 0.5, y + 0.5, cw - 1, ch - 1, rad);
