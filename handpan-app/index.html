@@ -254,10 +254,34 @@
     </aside>
       </div>
     </div>
+<<<<<<< HEAD
     <div id="looperRail" class="looper-rail" aria-label="Looper">
       <button type="button" id="looperClearBtn" class="looper-clear-btn" aria-label="Clear loops" title="Clear">×</button>
       <div id="looperRecordCluster" class="looper-record-cluster">
         <button type="button" id="looperBtn" class="looper-btn looper-record" aria-label="Record loop" title="Record loop"><span class="looper-btn-ring" aria-hidden="true"></span><span class="looper-btn-core" aria-hidden="true"></span></button>
+=======
+    <div id="fxEditorBackdrop" class="fx-editor-backdrop" hidden></div>
+    <section
+      id="fxEditor"
+      class="fx-editor"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="fxEditorTitle"
+      hidden
+    >
+      <header class="fx-editor-header fx-editor-header-compact">
+        <span id="fxEditorTitle" class="fx-editor-current-title">Comp</span>
+        <span id="fxEditorSubtitle" hidden></span>
+        <button type="button" id="fxEditorClose" class="icon-btn" aria-label="Close effect editor">
+          ×
+        </button>
+      </header>
+      <div class="fx-editor-toolbar">
+        <div id="fxEditorPresets" class="fx-editor-presets" aria-label="Effect presets"></div>
+        <button type="button" id="fxEditorBypass" class="fx-editor-bypass" aria-pressed="false">
+          Bypass
+        </button>
+>>>>>>> parent of bf992a40 (fix(handpan): native selects and non-blocking FX editor (v208))
       </div>
       <div id="looperLayers" class="looper-layers" role="group" aria-label="Loop layers"></div>
     </div>

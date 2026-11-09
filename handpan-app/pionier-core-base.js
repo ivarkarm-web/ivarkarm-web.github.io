@@ -431,7 +431,13 @@ KEYS.forEach((k, i) => { KEY_TO_PAD[k] = i; });
 
 function renderInstrumentMenu() {
   const menu = document.getElementById('instrumentMenu');
+<<<<<<< HEAD
   if (!menu) return;
+=======
+  if (!menu) {
+    return;
+  }
+>>>>>>> parent of bf992a40 (fix(handpan): native selects and non-blocking FX editor (v208))
   menu.innerHTML = '';
   const results = document.createElement('div');
   results.className = 'instrument-menu-results';
@@ -446,19 +452,29 @@ function renderInstrumentMenu() {
     'DRONES & ATMOSPHERIC': 'DRONES & ATMOSPHERIC',
     'ELECTRONIC & SYNTH': 'ELECTRONIC & SYNTH',
     library: 'Library',
+<<<<<<< HEAD
     arp: 'Arps'
+=======
+    arp: 'Arps',
+>>>>>>> parent of bf992a40 (fix(handpan): native selects and non-blocking FX editor (v208))
   };
   function instrumentGroupId(item) {
     const c = (item.category || item.engineKind || 'other').toString().toLowerCase();
-    if (c.includes('arp')) return 'arp';
+    if (c.includes('arp')) {
+      return 'arp';
+    }
     return item.category || 'library';
   }
   const groupLabel = (gid) => INSTRUMENT_FAMILY_LABELS[gid] || gid;
   for (const item of InstrumentRegistry.list()) {
-    if (!item || !item.id || seen.has(item.id)) continue;
+    if (!item || !item.id || seen.has(item.id)) {
+      continue;
+    }
     seen.add(item.id);
     const gid = instrumentGroupId(item);
-    if (!groups.has(gid)) groups.set(gid, []);
+    if (!groups.has(gid)) {
+      groups.set(gid, []);
+    }
     groups.get(gid).push(item);
   }
   for (const [gid, items] of groups) {
@@ -479,6 +495,7 @@ function renderInstrumentMenu() {
       nameSpan.textContent = item.name || item.id;
       btn.appendChild(nameSpan);
       btn.addEventListener('click', (e) => {
+<<<<<<< HEAD
         e.preventDefault(); e.stopPropagation();
         setInstrument(item.id).catch(() => {});
         if (window.PionierOverlay) window.PionierOverlay.closePickers();
@@ -489,6 +506,24 @@ function renderInstrumentMenu() {
         }
       });
       try { window.PionierFavorites?.decorateInstrumentItem?.(btn, item); } catch (_) {}
+=======
+        e.preventDefault();
+        e.stopPropagation();
+        setInstrument(item.id).catch(() => {});
+        if (window.PionierOverlay) {
+          window.PionierOverlay.closePickers();
+        } else {
+          menu.hidden = true;
+          menu.setAttribute('hidden', '');
+          document
+            .getElementById('instrumentDropdownToggle')
+            ?.setAttribute('aria-expanded', 'false');
+        }
+      });
+      try {
+        window.PionierFavorites?.decorateInstrumentItem?.(btn, item);
+      } catch (_) {}
+>>>>>>> parent of bf992a40 (fix(handpan): native selects and non-blocking FX editor (v208))
       section.appendChild(btn);
     }
     results.appendChild(section);

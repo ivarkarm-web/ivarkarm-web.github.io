@@ -14,6 +14,7 @@
 const CACHE_VERSION = 'pionier-v205';
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 const SHELL = [
   './',
   './index.html',
@@ -69,10 +70,13 @@ const SHELL = [
   './welcome-screen.js?v=9',
 =======
 const CACHE_VERSION = 'pionier-v208';
+=======
+const CACHE_VERSION = 'pionier-v207';
+>>>>>>> parent of bf992a40 (fix(handpan): native selects and non-blocking FX editor (v208))
 
 const ASSETS = [
-  './assets/app-DgKdKrPW.css',
-  './assets/app-DvPvskCy.js',
+  './assets/app-DcaMDsYD.css',
+  './assets/app-FxZt483y.js',
   './assets/audio-core-BKBAUavA.js',
   './assets/fx-editor-GJ25akPZ.js',
   './assets/handpan-D4MvzjUi.js',
