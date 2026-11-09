@@ -36,6 +36,11 @@
   --nav-btn-hover-border: rgba(212, 176, 74, 0.35);
   --nav-btn-hover-fg: var(--gold);
   --nav-btn-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --library-open-fg: #dfc47f;
+  --library-open-bg: #121110db;
+  --library-open-border: #dbbe7838;
+  --library-open-hover-fg: #f3dfa0;
+  --library-open-hover-border: #dbbe786b;
   --accent: var(--gold);
   --accent-fg: var(--gold);
 }
@@ -68,6 +73,11 @@ body.theme-light {
   --nav-btn-hover-border: rgba(138, 106, 26, 0.35);
   --nav-btn-hover-fg: #6b5410;
   --nav-btn-shadow: 0 2px 8px rgba(40, 32, 16, 0.08);
+  --library-open-fg: #6b5410;
+  --library-open-bg: rgba(255, 252, 246, 0.92);
+  --library-open-border: rgba(107, 84, 16, 0.28);
+  --library-open-hover-fg: #7a5c12;
+  --library-open-hover-border: rgba(107, 84, 16, 0.42);
   --accent: #8a6a1a;
   --accent-fg: #6b5410;
 }
@@ -2836,10 +2846,10 @@ html:not(.pionier-welcome-active) #app {
   padding: 0 6px;
   max-width: min(92vw, 340px);
   margin: 0 auto;
-  background: rgba(18, 18, 20, 0.7);
-  border: 1px solid rgba(230, 224, 210, 0.12);
+  background: var(--nav-group-bg);
+  border: 1px solid var(--nav-group-border);
   border-radius: 50px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--nav-group-shadow);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   touch-action: manipulation;
@@ -2856,9 +2866,9 @@ html:not(.pionier-welcome-active) #app {
   min-width: 40px !important;
   min-height: 40px !important;
   border-radius: 50% !important;
-  border: 1px solid rgba(230, 224, 210, 0.12) !important;
-  background: rgba(18, 18, 20, 0.82) !important;
-  color: var(--muted-strong) !important;
+  border: 1px solid var(--nav-btn-border) !important;
+  background: var(--nav-btn-bg) !important;
+  color: var(--nav-btn-fg) !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -2867,15 +2877,15 @@ html:not(.pionier-welcome-active) #app {
   cursor: pointer !important;
   touch-action: manipulation !important;
   transition: color 0.18s var(--ease), border-color 0.18s var(--ease), background 0.18s var(--ease), transform 0.15s var(--ease) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--nav-btn-shadow);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   padding: 0 !important;
 }
 .top-nav-btn:hover {
-  color: var(--gold) !important;
-  border-color: rgba(212, 176, 74, 0.35) !important;
-  background: rgba(28, 28, 32, 0.9) !important;
+  color: var(--nav-btn-hover-fg) !important;
+  border-color: var(--nav-btn-hover-border) !important;
+  background: var(--nav-btn-hover-bg) !important;
 }
 .top-nav-btn:active { transform: scale(0.94); }
 .top-nav-btn:focus-visible {
