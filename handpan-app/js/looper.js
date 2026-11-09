@@ -169,10 +169,30 @@ export function mountLooper({ root } = {}) {
   syncBtn.title = SYNC_MODES[0].title;
 
   const layers = [];
-  const exportBtn = ensureTimingButton('looperExportBtn', 'looper-export-btn', 'Export loop as WAV', '<span class="looper-timing-main">WAV</span>');
-  exportBtn.disabled = true;
-  rail.appendChild(exportBtn);
-  exportBtn.addEventListener('click', exportWav);
+  const oldExportBtn = document.getElementById('looperExportBtn');
+  if (oldExportBtn) oldExportBtn.remove();
+  const seqBtn = ensureTimingButton('looperSeqBtn', 'looper-seq-btn', 'Open sequencer', '<span class="looper-timing-main" aria-hidden="true">▦</span><span class="visually-hidden">Sequencer</span>');
+  seqBtn.type = 'button';
+  seqBtn.setAttribute('aria-pressed', 'false');
+  seqBtn.hidden = false;
+  seqBtn.disabled = false;
+  rail.appendChild(seqBtn);
+  const syncSeqActive = () => {
+    const open = document.body.classList.contains('tonepad-open') || window.PionierTonepad?.isOpen?.();
+    seqBtn.classList.toggle('is-active', !!open);
+    seqBtn.setAttribute('aria-pressed', open ? 'true' : 'false');
+  };
+  seqBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (window.PionierTonepad?.toggle) window.PionierTonepad.toggle();
+    else document.getElementById('tonepadToggle')?.click();
+    setTimeout(syncSeqActive, 0);
+  });
+  try {
+    new MutationObserver(syncSeqActive).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  } catch (_) {}
+  syncSeqActive();
   const saveBtn = ensureTimingButton('looperSaveBtn', 'looper-save-btn', 'Save composition to My Library', '<span class="looper-timing-main">Save</span>');
   saveBtn.disabled = true;
   rail.appendChild(saveBtn);
@@ -474,11 +494,8 @@ export function mountLooper({ root } = {}) {
 
   function setBtnState() {
     const hasLayers = layers.length > 0;
-    exportBtn.hidden = !hasLayers;
     saveBtn.hidden = !hasLayers;
-    exportBtn.disabled = !hasLayers || recording || pendingLoopStop || countInPending;
     saveBtn.disabled = !hasLayers || recording || pendingLoopStop || countInPending;
-    exportBtn.setAttribute('aria-disabled', String(exportBtn.disabled));
     saveBtn.setAttribute('aria-disabled', String(saveBtn.disabled));
     saveBtn.classList.toggle('is-available', hasLayers && !saveBtn.disabled);
     btn.disabled = !recording && !pendingLoopStop && !countInPending && layers.length >= MAX_LAYERS;
