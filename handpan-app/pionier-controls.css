@@ -2997,3 +2997,10 @@ html.theme-light .tonepad-layer,
 html.theme-light .pionier-sequence {
   color: #24221e;
 }
+
+/* Sensitivity (native range, non-modal) */
+.pionier-native-range {
+  accent-color: var(--color-accent, #7a7a7a);
+  background: transparent;
+}
+html.theme-light .pionier-native-range { accent-color: #6b5410; }

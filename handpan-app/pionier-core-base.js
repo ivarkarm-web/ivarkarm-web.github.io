@@ -900,5 +900,19 @@ async function boot() {
   }
 }
 
+(function initTouchSensitivity() {
+  const key = 'pionier-touch-sensitivity';
+  const input = document.getElementById('touchSensitivity');
+  const read = () => { try { return Math.max(40, Math.min(160, +(localStorage.getItem(key) || 100))); } catch (_) { return 100; } };
+  const apply = (v) => {
+    globalThis.PionierTouchSensitivity = Math.max(0.4, Math.min(1.6, v / 100));
+    if (input) input.value = String(Math.round(v));
+    try { localStorage.setItem(key, String(Math.round(v))); } catch (_) {}
+  };
+  apply(read());
+  input?.addEventListener('input', () => apply(+input.value));
+  input?.addEventListener('change', () => apply(+input.value));
+})();
+
 await boot();
 export default window.PionierCore;

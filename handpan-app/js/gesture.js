@@ -49,6 +49,8 @@ export function gestureFromPointer(e, hit = {}, activeTouches = 1, lastStrikeAt 
       }
     }
   }
+  const sens = Math.max(0.4, Math.min(1.6, Number(globalThis.PionierTouchSensitivity) || 1));
+  velocity = Math.max(0.05, Math.min(1, velocity * sens));
   return new Gesture({
     pointerId: e.pointerId,
     x: hit.x ?? e.clientX,
