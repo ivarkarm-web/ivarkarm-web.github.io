@@ -145,7 +145,7 @@ async function loadLibrary() {
 
 async function loadAmbientSequencer() {
   try {
-    const { mountTonepad } = await import(new URL('./js/tonepad.js?v=59', BASE).href);
+    const { mountTonepad } = await import(new URL('./js/tonepad.js?v=60', BASE).href);
     if (typeof mountTonepad === 'function') await mountTonepad();
   } catch (e) {
     console.warn('[boot] tonepad', e);
