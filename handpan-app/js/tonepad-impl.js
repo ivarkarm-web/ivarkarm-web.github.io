@@ -255,6 +255,7 @@ export async function mountTonepad() {
       g.gain.exponentialRampToValueAtTime(0.0001, t0 + life);
       return life;
     }
+    let _curShimmer = 0;
     function makePartial(type, freq, level, cents, t0, peak, attack, sustain, release, dest) {
       const osc = audioCtx.createOscillator();
       const g = audioCtx.createGain();
@@ -262,6 +263,16 @@ export async function mountTonepad() {
       osc.frequency.setValueAtTime(Math.max(20, freq), t0);
       if (cents) osc.detune.setValueAtTime(cents, t0);
       const life = envGain(g, t0, peak * level, attack, sustain, release);
+      if (_curShimmer > 0.001) {
+        try {
+          const depth = _curShimmer * 7; // cents, gentle
+          const dur = Math.max(0.05, life);
+          const n = 64;
+          const curve = new Float32Array(n);
+          for (let i = 0; i < n; i++) curve[i] = (cents || 0) + Math.sin((i / (n - 1)) * Math.PI * 2 * dur * 4.5) * depth;
+          osc.detune.setValueCurveAtTime(curve, t0, dur);
+        } catch (_) {}
+      }
       osc.connect(g);
       g.connect(dest);
       osc.start(t0);
@@ -476,6 +487,7 @@ export async function mountTonepad() {
       if (mode === 'drum') { triggerDrum(row, when, vel, kitOf(fli), fli); return; }
       const mfx = melodicFx[fli] || MELO_FX_DEFAULT();
       const tmf = fxToneMul(mfx.tone), dmf = fxDecayMul(mfx.decay);
+      _curShimmer = clamp01(mfx.shimmer, 0);
       const clampFreq = (hz) => Math.min(18500, Math.max(30, hz));
       const f = freqForRow(row);
       const t0 = Math.max(audioCtx.currentTime + 0.003, when);
