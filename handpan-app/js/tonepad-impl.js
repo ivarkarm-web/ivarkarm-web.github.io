@@ -70,6 +70,9 @@ export async function mountTonepad() {
     let humanize = 0.12;
     const MELO_FX_DEFAULT = () => ({ reverb: 0, delay: 0, tone: 0.5, decay: 0.5, shimmer: 0 });
     const DRUM_FX_DEFAULT = () => ({ tune: 0.5, decay: 0.5, drive: 0, space: 0, swing: 0 });
+    const fxToneMul = (v) => Math.pow(2, (clamp01(v, 0.5) - 0.5) * 2.2);   // 0.5->1.0, ~0.47..2.14
+    const fxDecayMul = (v) => Math.pow(2, (clamp01(v, 0.5) - 0.5) * 2.64); // 0.5->1.0, ~0.4..2.5
+    const fxTuneMul = (v) => Math.pow(2, (clamp01(v, 0.5) - 0.5) * 1.0);   // 0.5->1.0, ~0.707..1.414 (±6st)
     const melodicFx = Array.from({ length: LAYER_COUNT }, MELO_FX_DEFAULT);
     const drumFx = Array.from({ length: LAYER_COUNT }, DRUM_FX_DEFAULT);
     function clamp01(v, fb) { return Number.isFinite(+v) ? Math.max(0, Math.min(1, +v)) : fb; }
@@ -295,13 +298,15 @@ export async function mountTonepad() {
       tribal:  { kick:{base:48,sweep:2.4,sweepEnd:44,sweepT:0.1,peak:0.88,dur:0.5,sub:{f0:75,f1:38,sweepT:0.12,peak:0.4,dur:0.28}}, snare:{dur:0.18,peak:0.4,bp:1300,bpQ:0.5,hp:450,body:170,bodyEnd:125,bodyDur:0.12,bodyPeak:0.38}, clap:{dur:0.2,peak:0.28,bp:1000}, ch:{dur:0.065,peak:0.15,hp:5000,bp:7200}, oh:{dur:0.36,peak:0.13,hp:4000,bp:6800}, lowtom:{base:95,sweep:1.7,sweepEnd:82,sweepT:0.13,peak:0.72,dur:0.46}, hightom:{base:145,sweep:1.7,sweepEnd:128,sweepT:0.12,peak:0.68,dur:0.4}, rim:{dur:0.07,peak:0.3,bp:1200,bpQ:2.5}, perc:{dur:0.12,peak:0.18,bp:2200,bpQ:1.2} },
     };
     function getKit(id) { return KITS[DRUM_KIT_IDS.has(id) ? id : DEFAULT_DRUM_KIT] || KITS.classic; }
-    function triggerDrum(row, when, vel, kitId) {
+    function triggerDrum(row, when, vel, kitId, fxLayer) {
       if (!audioCtx || !bus) return;
       if (activeDrumVoices >= DRUM_VOICE_CAP) return;
       const t0 = Math.max(audioCtx.currentTime + 0.003, when);
       const v = Math.max(0.05, Math.min(1, vel == null ? 0.6 : vel));
       const voice = DRUM_VOICES[Math.max(0, Math.min(DRUM_VOICES.length - 1, row))] || 'kick';
       const kit = getKit(kitId);
+      const dfx = (fxLayer != null && drumFx[fxLayer]) ? drumFx[fxLayer] : DRUM_FX_DEFAULT();
+      const tm = fxTuneMul(dfx.tune), dm = fxDecayMul(dfx.decay);
       const out = audioCtx.createGain();
       const dest = maybeDrive(audioCtx, bus, [out], kit.drive || 0);
       out.connect(dest);
@@ -317,12 +322,12 @@ export async function mountTonepad() {
       if (voice === 'kick' || voice === 'lowtom' || voice === 'hightom') {
         const isTom = voice !== 'kick';
         const p = kit[voice] || KITS.classic[voice];
-        const base = p.base, peak = p.peak * (0.5 + v * 0.7), dur = p.dur;
+        const base = p.base * tm, peak = p.peak * (0.5 + v * 0.7), dur = p.dur * dm;
         const osc = audioCtx.createOscillator();
         const g = audioCtx.createGain();
         osc.type = p.type || 'sine';
         osc.frequency.setValueAtTime(base * p.sweep, t0);
-        osc.frequency.exponentialRampToValueAtTime(p.sweepEnd, t0 + p.sweepT);
+        osc.frequency.exponentialRampToValueAtTime(p.sweepEnd * tm, t0 + p.sweepT * dm);
         g.gain.setValueAtTime(0.0001, t0);
         g.gain.exponentialRampToValueAtTime(peak, t0 + 0.004);
         g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
@@ -330,42 +335,43 @@ export async function mountTonepad() {
         osc.connect(g); tail.connect(out); nodes.push(osc, g);
         if (p.sub) {
           const s = p.sub;
+          const sd = s.dur * dm;
           const o2 = audioCtx.createOscillator(); const g2 = audioCtx.createGain();
-          o2.type = 'triangle'; o2.frequency.setValueAtTime(s.f0, t0);
-          o2.frequency.exponentialRampToValueAtTime(s.f1, t0 + s.sweepT);
+          o2.type = 'triangle'; o2.frequency.setValueAtTime(s.f0 * tm, t0);
+          o2.frequency.exponentialRampToValueAtTime(s.f1 * tm, t0 + s.sweepT * dm);
           g2.gain.setValueAtTime(0.0001, t0); g2.gain.exponentialRampToValueAtTime(peak * s.peak, t0 + 0.005);
-          g2.gain.exponentialRampToValueAtTime(0.0001, t0 + s.dur);
+          g2.gain.exponentialRampToValueAtTime(0.0001, t0 + sd);
           const t2 = addLP(g2, p.lp);
           o2.connect(g2); t2.connect(out); nodes.push(o2, g2);
-          o2.start(t0); o2.stop(t0 + s.dur + 0.06);
+          o2.start(t0); o2.stop(t0 + sd + 0.06);
         }
         osc.start(t0); osc.stop(t0 + dur + 0.04);
         drumTrack(nodes, osc, dur);
       } else if (voice === 'snare') {
         const p = kit.snare || KITS.classic.snare;
-        const dur = p.dur, peak = p.peak * (0.45 + v * 0.7);
+        const dur = p.dur * dm, bodyDur = p.bodyDur * dm, peak = p.peak * (0.45 + v * 0.7);
         const nsrc = audioCtx.createBufferSource(); nsrc.buffer = getDrumNoise(audioCtx);
-        const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(p.bp, t0); bp.Q.setValueAtTime(p.bpQ, t0);
-        const hp = audioCtx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.setValueAtTime(p.hp, t0);
+        const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(p.bp * tm, t0); bp.Q.setValueAtTime(p.bpQ, t0);
+        const hp = audioCtx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.setValueAtTime(p.hp * tm, t0);
         const ng = audioCtx.createGain();
         ng.gain.setValueAtTime(0.0001, t0); ng.gain.exponentialRampToValueAtTime(peak, t0 + 0.003);
         ng.gain.exponentialRampToValueAtTime(peak * 0.25, t0 + 0.04); ng.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
         nsrc.connect(hp); hp.connect(bp); bp.connect(ng); addLP(ng, p.lp).connect(out);
         const osc = audioCtx.createOscillator(); const og = audioCtx.createGain();
-        osc.type = 'triangle'; osc.frequency.setValueAtTime(p.body, t0); osc.frequency.exponentialRampToValueAtTime(p.bodyEnd, t0 + 0.06);
+        osc.type = 'triangle'; osc.frequency.setValueAtTime(p.body * tm, t0); osc.frequency.exponentialRampToValueAtTime(p.bodyEnd * tm, t0 + 0.06 * dm);
         og.gain.setValueAtTime(0.0001, t0); og.gain.exponentialRampToValueAtTime(peak * p.bodyPeak, t0 + 0.003);
-        og.gain.exponentialRampToValueAtTime(0.0001, t0 + p.bodyDur);
+        og.gain.exponentialRampToValueAtTime(0.0001, t0 + bodyDur);
         osc.connect(og); og.connect(out);
         nodes.push(nsrc, bp, hp, ng, osc, og);
-        nsrc.start(t0); nsrc.stop(t0 + dur + 0.04); osc.start(t0); osc.stop(t0 + p.bodyDur + 0.04);
+        nsrc.start(t0); nsrc.stop(t0 + dur + 0.04); osc.start(t0); osc.stop(t0 + bodyDur + 0.04);
         drumTrack(nodes, nsrc, dur);
       } else if (voice === 'ch' || voice === 'oh') {
         if (voice === 'ch') chokeOpenHats(t0);
         const p = kit[voice] || KITS.classic[voice];
-        const dur = p.dur, peak = p.peak * (0.45 + v * 0.7);
+        const dur = p.dur * dm, peak = p.peak * (0.45 + v * 0.7);
         const nsrc = audioCtx.createBufferSource(); nsrc.buffer = getDrumNoise(audioCtx);
-        const hp = audioCtx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.setValueAtTime(p.hp, t0);
-        const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(p.bp, t0); bp.Q.setValueAtTime(p.bpQ || 0.9, t0);
+        const hp = audioCtx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.setValueAtTime(p.hp * tm, t0);
+        const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(p.bp * tm, t0); bp.Q.setValueAtTime(p.bpQ || 0.9, t0);
         const g = audioCtx.createGain();
         g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(peak, t0 + 0.002);
         g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
@@ -381,11 +387,11 @@ export async function mountTonepad() {
         }
       } else if (voice === 'clap') {
         const p = kit.clap || KITS.classic.clap;
-        const dur = p.dur, peak = p.peak * (0.45 + v * 0.7);
+        const dur = p.dur * dm, peak = p.peak * (0.45 + v * 0.7);
         let lastSrc = null;
         [0, 0.011, 0.023].forEach((off, k) => {
           const nsrc = audioCtx.createBufferSource(); nsrc.buffer = getDrumNoise(audioCtx);
-          const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(p.bp + k * 120, t0 + off); bp.Q.setValueAtTime(p.bpQ || 0.8, t0 + off);
+          const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(p.bp * tm + k * 120, t0 + off); bp.Q.setValueAtTime(p.bpQ || 0.8, t0 + off);
           const g = audioCtx.createGain();
           g.gain.setValueAtTime(0.0001, t0 + off); g.gain.exponentialRampToValueAtTime(peak * (k === 2 ? 1 : 0.65), t0 + off + 0.002);
           g.gain.exponentialRampToValueAtTime(0.0001, t0 + off + (k === 2 ? dur : 0.03));
@@ -395,10 +401,10 @@ export async function mountTonepad() {
         drumTrack(nodes, lastSrc, dur);
       } else if (voice === 'rim' || voice === 'perc') {
         const p = kit[voice] || KITS.classic[voice] || KITS.classic.rim;
-        const dur = p.dur, peak = p.peak * (0.45 + v * 0.7);
+        const dur = p.dur * dm, peak = p.peak * (0.45 + v * 0.7);
         const nsrc = audioCtx.createBufferSource(); nsrc.buffer = getDrumNoise(audioCtx);
         const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass';
-        bp.frequency.setValueAtTime(p.bp, t0); bp.Q.setValueAtTime(p.bpQ, t0);
+        bp.frequency.setValueAtTime(p.bp * tm, t0); bp.Q.setValueAtTime(p.bpQ, t0);
         const g = audioCtx.createGain();
         g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(peak, t0 + 0.001);
         g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
@@ -415,13 +421,17 @@ export async function mountTonepad() {
         drumTrack(nodes, nsrc, dur);
       }
     }
-    function trigger(row, when, vel, soundId, mode) {
+    function trigger(row, when, vel, soundId, mode, fxLayer) {
       if (!audioCtx || !bus) return;
-      if (mode === 'drum') { triggerDrum(row, when, vel, kitOf(playLayer)); return; }
+      const fli = (fxLayer != null) ? fxLayer : (playing ? playLayer : activeLayer);
+      if (mode === 'drum') { triggerDrum(row, when, vel, kitOf(fli), fli); return; }
+      const mfx = melodicFx[fli] || MELO_FX_DEFAULT();
+      const tmf = fxToneMul(mfx.tone), dmf = fxDecayMul(mfx.decay);
+      const clampFreq = (hz) => Math.min(18500, Math.max(30, hz));
       const f = freqForRow(row);
       const t0 = Math.max(audioCtx.currentTime + 0.003, when);
       const v = Math.max(0.05, Math.min(1, vel == null ? 0.6 : vel));
-      const id = (soundId && SOUND_IDS.has(soundId)) ? soundId : layerSounds[playLayer] || DEFAULT_SOUND;
+      const id = (soundId && SOUND_IDS.has(soundId)) ? soundId : layerSounds[fli] || DEFAULT_SOUND;
       const fil = audioCtx.createBiquadFilter();
       const mix = audioCtx.createGain();
       mix.gain.setValueAtTime(1, t0);
@@ -431,12 +441,12 @@ export async function mountTonepad() {
       if (id === 'bloom') {
         const attack = 0.09 + (1 - v) * 0.14;
         const sustain = 0.55 + v * 0.9;
-        const release = 2.4 + (MELO_ROWS - row) * 0.08 + v * 1.2;
+        let release = 2.4 + (MELO_ROWS - row) * 0.08 + v * 1.2; release *= dmf;
         const peak = 0.05 + v * 0.09;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(0.7, t0);
-        fil.frequency.setValueAtTime(Math.min(4200, f * 5.5), t0);
-        fil.frequency.exponentialRampToValueAtTime(Math.min(1800, f * 2.2), t0 + (attack + sustain + release) * 0.85);
+        fil.frequency.Math.min(4200, f * 5.5)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(1800, f * 2.2)) * tmf), t0 + (attack + sustain + release) * 0.85);
         makePartial('sine', f, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f, 0.42, 5.5, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f * 2.002, 0.22, 0, t0, peak, attack, sustain, release, mix);
@@ -445,12 +455,12 @@ export async function mountTonepad() {
       } else if (id === 'handpan') {
         const attack = 0.012 + (1 - v) * 0.02;
         const sustain = 0.08;
-        const release = 1.6 + v * 0.9;
+        let release = 1.6 + v * 0.9; release *= dmf;
         const peak = 0.07 + v * 0.11;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(1.1, t0);
-        fil.frequency.setValueAtTime(Math.min(5200, f * 6.5), t0);
-        fil.frequency.exponentialRampToValueAtTime(Math.min(1400, f * 2.4), t0 + release * 0.7);
+        fil.frequency.Math.min(5200, f * 6.5)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(1400, f * 2.4)) * tmf), t0 + release * 0.7);
         makePartial('sine', f, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f * 2.0, 0.38, 3, t0, peak, attack, sustain, release * 0.85, mix);
         makePartial('sine', f * 2.76, 0.22, -4, t0, peak, attack, sustain, release * 0.7, mix);
@@ -459,24 +469,24 @@ export async function mountTonepad() {
       } else if (id === 'kalimba') {
         const attack = 0.004;
         const sustain = 0.02;
-        const release = 0.55 + v * 0.45;
+        let release = 0.55 + v * 0.45; release *= dmf;
         const peak = 0.09 + v * 0.12;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(0.9, t0);
-        fil.frequency.setValueAtTime(Math.min(6500, f * 8), t0);
-        fil.frequency.exponentialRampToValueAtTime(Math.min(2200, f * 3), t0 + release * 0.6);
+        fil.frequency.Math.min(6500, f * 8)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(2200, f * 3)) * tmf), t0 + release * 0.6);
         makePartial('sine', f, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f * 6.27, 0.32 * v, 0, t0, peak, attack, sustain, release * 0.35, mix);
         makePartial('triangle', f * 2.01, 0.15, 0, t0, peak, attack, sustain, release * 0.5, mix);
       } else if (id === 'marimba') {
         const attack = 0.006;
         const sustain = 0.03;
-        const release = 0.7 + v * 0.5;
+        let release = 0.7 + v * 0.5; release *= dmf;
         const peak = 0.08 + v * 0.11;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(1.4, t0);
-        fil.frequency.setValueAtTime(Math.min(4800, f * 5.8), t0);
-        fil.frequency.exponentialRampToValueAtTime(Math.min(1600, f * 2.1), t0 + release * 0.55);
+        fil.frequency.Math.min(4800, f * 5.8)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(1600, f * 2.1)) * tmf), t0 + release * 0.55);
         makePartial('sine', f, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f * 3.92, 0.28, 8, t0, peak, attack, sustain, release * 0.4, mix);
         makePartial('triangle', f * 1.005, 0.22, 0, t0, peak, attack, sustain, release * 0.85, mix);
@@ -484,12 +494,12 @@ export async function mountTonepad() {
       } else if (id === 'bell') {
         const attack = 0.008;
         const sustain = 0.05;
-        const release = 2.8 + v * 1.4;
+        let release = 2.8 + v * 1.4; release *= dmf;
         const peak = 0.055 + v * 0.08;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(0.6, t0);
-        fil.frequency.setValueAtTime(Math.min(7000, f * 9), t0);
-        fil.frequency.exponentialRampToValueAtTime(Math.min(2500, f * 3.5), t0 + release * 0.8);
+        fil.frequency.Math.min(7000, f * 9)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(2500, f * 3.5)) * tmf), t0 + release * 0.8);
         makePartial('sine', f, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f * 2.71, 0.45, 4, t0, peak, attack, sustain, release * 0.9, mix);
         makePartial('sine', f * 5.15, 0.22, -6, t0, peak, attack, sustain, release * 0.7, mix);
@@ -498,24 +508,24 @@ export async function mountTonepad() {
       } else if (id === 'pluck') {
         const attack = 0.003;
         const sustain = 0.01;
-        const release = 0.45 + v * 0.35;
+        let release = 0.45 + v * 0.35; release *= dmf;
         const peak = 0.1 + v * 0.12;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(2.2, t0);
-        fil.frequency.setValueAtTime(Math.min(7800, f * 10 + 800), t0);
-        fil.frequency.exponentialRampToValueAtTime(Math.min(900, f * 1.6), t0 + release * 0.85);
+        fil.frequency.Math.min(7800, f * 10 + 800)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(900, f * 1.6)) * tmf), t0 + release * 0.85);
         makePartial('sawtooth', f, 0.55, 0, t0, peak, attack, sustain, release, mix);
         makePartial('triangle', f * 1.002, 0.4, 3, t0, peak, attack, sustain, release * 0.9, mix);
         makePartial('sine', f * 2.01, 0.18, 0, t0, peak, attack, sustain, release * 0.5, mix);
       } else if (id === 'epiano') {
         const attack = 0.015 + (1 - v) * 0.03;
         const sustain = 0.25 + v * 0.35;
-        const release = 1.4 + v * 0.8;
+        let release = 1.4 + v * 0.8; release *= dmf;
         const peak = 0.06 + v * 0.09;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(0.85, t0);
-        fil.frequency.setValueAtTime(Math.min(3800, f * 4.8), t0);
-        fil.frequency.exponentialRampToValueAtTime(Math.min(1200, f * 2.0), t0 + (attack + sustain + release) * 0.75);
+        fil.frequency.Math.min(3800, f * 4.8)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(1200, f * 2.0)) * tmf), t0 + (attack + sustain + release) * 0.75);
         makePartial('sine', f, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f * 2.0, 0.28, 4, t0, peak, attack, sustain, release * 0.8, mix);
         makePartial('triangle', f * 1.003, 0.18, -2, t0, peak, attack, sustain, release, mix);
@@ -523,12 +533,12 @@ export async function mountTonepad() {
       } else if (id === 'warmpad') {
         const attack = 0.22 + (1 - v) * 0.25;
         const sustain = 1.1 + v * 1.2;
-        const release = 2.8 + v * 1.5;
+        let release = 2.8 + v * 1.5; release *= dmf;
         const peak = 0.04 + v * 0.07;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(0.5, t0);
-        fil.frequency.setValueAtTime(Math.min(2800, f * 3.8), t0);
-        fil.frequency.exponentialRampToValueAtTime(Math.min(900, f * 1.6), t0 + (attack + sustain + release) * 0.9);
+        fil.frequency.Math.min(2800, f * 3.8)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(900, f * 1.6)) * tmf), t0 + (attack + sustain + release) * 0.9);
         makePartial('sine', f, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f, 0.55, 8, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f, 0.4, -7, t0, peak, attack, sustain, release, mix);
@@ -537,24 +547,24 @@ export async function mountTonepad() {
       } else if (id === 'sub') {
         const attack = 0.04 + (1 - v) * 0.06;
         const sustain = 0.35 + v * 0.5;
-        const release = 1.1 + v * 0.7;
+        let release = 1.1 + v * 0.7; release *= dmf;
         const peak = 0.12 + v * 0.14;
         const ff = Math.max(35, f * 0.5);
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(0.9, t0);
-        fil.frequency.setValueAtTime(Math.min(420, ff * 4.5), t0);
-        fil.frequency.exponentialRampToValueAtTime(Math.min(180, ff * 2.2), t0 + (attack + sustain + release) * 0.7);
+        fil.frequency.Math.min(420, ff * 4.5)(clampFreq((setValueAtTime) * tmf), t0);
+        fil.frequency.exponentialRampToValueAtTime(clampFreq((Math.min(180, ff * 2.2)) * tmf), t0 + (attack + sustain + release) * 0.7);
         makePartial('sine', ff, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('triangle', ff * 1.01, 0.22, 0, t0, peak, attack, sustain, release * 0.85, mix);
         makePartial('sine', ff * 2.0, 0.08, 0, t0, peak, attack, sustain, release * 0.5, mix);
       } else {
         const attack = 0.09 + (1 - v) * 0.14;
         const sustain = 0.55 + v * 0.9;
-        const release = 2.4 + v * 1.2;
+        let release = 2.4 + v * 1.2; release *= dmf;
         const peak = 0.05 + v * 0.09;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(0.7, t0);
-        fil.frequency.setValueAtTime(Math.min(4200, f * 5.5), t0);
+        fil.frequency.Math.min(4200, f * 5.5)(clampFreq((setValueAtTime) * tmf), t0);
         makePartial('sine', f, 1.0, 0, t0, peak, attack, sustain, release, mix);
         makePartial('sine', f * 2.0, 0.25, 0, t0, peak, attack, sustain, release, mix);
       }
@@ -582,7 +592,7 @@ export async function mountTonepad() {
           const baseVel = 0.35 + velocity * 0.55;
           const jitterV = (Math.random() - 0.5) * 2 * humanize * 0.2;
           const jitterT = (Math.random() - 0.5) * 2 * humanize * sd * 0.35;
-          trigger(row, when + jitterT, Math.max(0.05, Math.min(1, baseVel * accent + jitterV)), layerSounds[playLayer], mode);
+          trigger(row, when + jitterT, Math.max(0.05, Math.min(1, baseVel * accent + jitterV)), layerSounds[playLayer], mode, playLayer);
         }
       }
     }
@@ -771,7 +781,7 @@ export async function mountTonepad() {
         save();
         if (ensureAudio()) {
           try { resumeAudio?.(); audioCtx?.resume?.(); } catch (_) {}
-          trigger(3, audioCtx.currentTime + 0.02, 0.72, soundSelect.value);
+          trigger(3, audioCtx.currentTime + 0.02, 0.72, soundSelect.value, 'melodic', activeLayer);
         }
       });
     }
