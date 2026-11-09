@@ -91,6 +91,20 @@
   --tp-sound-active-bg: rgba(48,42,16,.98);
   --tp-grid-off: rgba(28,32,30,0.92);
   --tp-grid-playhead-a: 0.55;
+  --tp-icon-play-fg: #5fd97a;
+  --tp-icon-play-bg: rgba(30,56,38,.92);
+  --tp-icon-play-border: rgba(95,217,122,.48);
+  --tp-icon-play-glow: rgba(95,217,122,.22);
+  --tp-icon-stop-fg: #ff6b66;
+  --tp-icon-stop-bg: rgba(62,26,24,.92);
+  --tp-icon-stop-border: rgba(255,107,102,.52);
+  --tp-icon-stop-glow: rgba(255,107,102,.24);
+  --tp-icon-clear-fg: #e8b0a0;
+  --tp-icon-mode-fg: #9aab9e;
+  --tp-icon-mode-active-fg: #f0d99a;
+  --tp-icon-mode-active-bg: rgba(48,42,16,.98);
+  --tp-icon-mode-active-border: rgba(240,217,154,.95);
+  --tp-icon-mode-active-glow: rgba(240,217,154,.28);
   --accent: var(--gold);
   --accent-fg: var(--gold);
 }
@@ -178,6 +192,20 @@ body.theme-light {
   --tp-sound-active-bg: rgba(255,246,214,.98);
   --tp-grid-off: rgba(228,224,214,0.95);
   --tp-grid-playhead-a: 0.45;
+  --tp-icon-play-fg: #1f7a3a;
+  --tp-icon-play-bg: rgba(232,248,236,.96);
+  --tp-icon-play-border: rgba(31,122,58,.38);
+  --tp-icon-play-glow: rgba(31,122,58,.16);
+  --tp-icon-stop-fg: #c23a32;
+  --tp-icon-stop-bg: rgba(252,234,232,.96);
+  --tp-icon-stop-border: rgba(194,58,50,.4);
+  --tp-icon-stop-glow: rgba(194,58,50,.16);
+  --tp-icon-clear-fg: #8a4030;
+  --tp-icon-mode-fg: #5a5244;
+  --tp-icon-mode-active-fg: #6b5410;
+  --tp-icon-mode-active-bg: rgba(255,246,214,.98);
+  --tp-icon-mode-active-border: rgba(138,106,26,.55);
+  --tp-icon-mode-active-glow: rgba(138,106,26,.18);
   --accent: #8a6a1a;
   --accent-fg: #6b5410;
 }

@@ -33,6 +33,14 @@ const SOUNDS = [
   { id: 'sub', name: 'Sub' },
 ];
 const SOUND_IDS = new Set(SOUNDS.map((s) => s.id));
+const _iconSvg = (body) => '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">' + body + '</svg>';
+const TP_ICONS = {
+  play: _iconSvg('<polygon points="6.5,4.5 15.5,10 6.5,15.5" fill="currentColor"/>'),
+  stop: _iconSvg('<rect x="5.5" y="5.5" width="9" height="9" rx="1.5" fill="currentColor"/>'),
+  clear: _iconSvg('<path d="M5.5 5.5L14.5 14.5M14.5 5.5L5.5 14.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/>'),
+  melody: _iconSvg('<circle cx="5" cy="14" r="2.1" fill="currentColor"/><circle cx="10" cy="10" r="2.1" fill="currentColor"/><circle cx="15" cy="6" r="2.1" fill="currentColor"/>'),
+  drum: _iconSvg('<circle cx="10" cy="10" r="6.2" stroke="currentColor" stroke-width="1.9" fill="none"/><circle cx="10" cy="10" r="2.4" fill="currentColor"/>'),
+};
 
 export async function mountTonepad() {
   if (window.__tonepadMounting) return window.__tonepadMounting;
@@ -555,7 +563,11 @@ export async function mountTonepad() {
     }
     function updatePlayButton() {
       const playBtn = layer ? layer.querySelector('[data-play]') : null;
-      if (playBtn) playBtn.textContent = playing ? 'Stop' : 'Play';
+      if (!playBtn) return;
+      playBtn.classList.toggle('is-running', !!playing);
+      playBtn.innerHTML = playing ? TP_ICONS.stop : TP_ICONS.play;
+      playBtn.setAttribute('aria-label', playing ? 'Stop' : 'Play');
+      playBtn.title = playing ? 'Stop' : 'Play';
     }
     function start() {
       if (playing) return;
@@ -582,8 +594,8 @@ export async function mountTonepad() {
       draw();
     }
 
-    const tpStyleId = 'tonepad-css-v48-layout';
-    ['tonepad-css-v45', 'tonepad-css-v46-theme', 'tonepad-css-v47-drum'].forEach((id) => { const el = document.getElementById(id); if (el) el.remove(); });
+    const tpStyleId = 'tonepad-css-v49-icons';
+    ['tonepad-css-v45', 'tonepad-css-v46-theme', 'tonepad-css-v47-drum', 'tonepad-css-v48-layout'].forEach((id) => { const el = document.getElementById(id); if (el) el.remove(); });
     if (!document.getElementById(tpStyleId)) {
       const style = document.createElement('style');
       style.id = tpStyleId;
@@ -607,10 +619,14 @@ export async function mountTonepad() {
         '.tonepad-layer-btn{min-width:28px;min-height:28px;height:28px;border-radius:6px;border:1px solid var(--tp-layer-btn-border,rgba(160,170,160,.35));background:var(--tp-layer-btn-bg,rgba(20,24,20,.9));color:var(--tp-layer-btn-fg,#9aab9e);font:600 11px system-ui;cursor:pointer;transition:border-color .15s,box-shadow .15s,color .15s,background .15s;touch-action:manipulation}',
         '.tonepad-layer-btn.is-active{border-color:var(--layer-accent,#e1cc8b);color:var(--layer-accent,#f0d99a);background:var(--tp-layer-btn-active-bg,rgba(40,36,20,.95));box-shadow:0 0 10px color-mix(in srgb,var(--layer-accent,#e1cc8b) 35%,transparent)}',
         '.tonepad-layer-btn.is-empty{opacity:.4}',
-        '.tonepad-play{min-width:48px;min-height:44px;height:44px;border-radius:8px;border:1px solid var(--tp-play-border,rgba(120,200,140,.5));background:var(--tp-play-bg,rgba(30,50,35,.9));color:var(--tp-play-fg,#b8e0c0);font:600 11px system-ui;cursor:pointer;touch-action:manipulation}',
-        '.tonepad-clear{min-width:44px;min-height:44px;height:44px;padding:0 8px;border-radius:8px;border:1px solid var(--tp-clear-border,rgba(200,120,100,.45));background:var(--tp-clear-bg,rgba(50,24,20,.9));color:var(--tp-clear-fg,#e8b0a0);font:600 11px system-ui;cursor:pointer;touch-action:manipulation}',
-        '.tonepad-mode-btn{min-width:54px;min-height:44px;height:44px;padding:0 8px;border-radius:8px;border:1px solid var(--tp-layer-btn-border,rgba(160,170,160,.35));background:var(--tp-layer-btn-bg,rgba(20,24,20,.9));color:var(--tp-layer-btn-fg,#9aab9e);font:600 11px system-ui;cursor:pointer;touch-action:manipulation}',
-        '.tonepad-mode-btn[aria-pressed="true"]{border-color:var(--tp-sound-active-border,rgba(240,217,154,.95));color:var(--tp-sound-active-fg,#fff3c4);background:var(--tp-sound-active-bg,rgba(48,42,16,.98))}',
+        '.tonepad-icon-btn{display:inline-flex;align-items:center;justify-content:center;min-width:44px;width:44px;min-height:44px;height:44px;padding:0;border-radius:8px;cursor:pointer;touch-action:manipulation;transition:border-color .15s,box-shadow .15s,color .15s,background .15s}',
+        '.tonepad-icon-btn svg{width:20px;height:20px;display:block;pointer-events:none}',
+        '.tonepad-icon-btn:focus-visible{outline:2px solid var(--tp-knob-accent,#e1cc8b);outline-offset:1px}',
+        '.tonepad-play{border:1px solid var(--tp-icon-play-border,rgba(120,200,140,.5));background:var(--tp-icon-play-bg,rgba(30,50,35,.9));color:var(--tp-icon-play-fg,#5fd97a);box-shadow:0 0 0 1px var(--tp-icon-play-glow,transparent)}',
+        '.tonepad-play.is-running{border-color:var(--tp-icon-stop-border,rgba(255,107,102,.52));background:var(--tp-icon-stop-bg,rgba(62,26,24,.92));color:var(--tp-icon-stop-fg,#ff6b66);box-shadow:0 0 0 1px var(--tp-icon-stop-glow,transparent)}',
+        '.tonepad-clear{border:1px solid var(--tp-clear-border,rgba(200,120,100,.45));background:var(--tp-clear-bg,rgba(50,24,20,.9));color:var(--tp-icon-clear-fg,#e8b0a0)}',
+        '.tonepad-mode-btn{border:1px solid var(--tp-layer-btn-border,rgba(160,170,160,.35));background:var(--tp-layer-btn-bg,rgba(20,24,20,.9));color:var(--tp-icon-mode-fg,#9aab9e)}',
+        '.tonepad-mode-btn[aria-pressed="true"]{border-color:var(--tp-icon-mode-active-border,rgba(240,217,154,.95));color:var(--tp-icon-mode-active-fg,#f0d99a);background:var(--tp-icon-mode-active-bg,rgba(48,42,16,.98));box-shadow:0 0 10px var(--tp-icon-mode-active-glow,rgba(240,217,154,.28))}',
         '.tonepad-canvas{flex:1 1 auto;width:100%;min-height:0;touch-action:none;border-radius:8px;background:var(--tp-canvas-bg,#0a0c0a)}',
         '.tonepad-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}'
       ].join('');
@@ -642,10 +658,10 @@ export async function mountTonepad() {
       '<div id="tonepad-drum-row-names" class="tonepad-sr-only">Drum rows, top to bottom: kick, snare, clap, closed hat, open hat, low tom, high tom, rim.</div>' +
       '<div class="tonepad-bottom" data-bottom>' +
         '<div class="tonepad-transport">' +
-          '<button type="button" class="tonepad-play" data-play>Play</button>' +
-          '<button type="button" class="tonepad-clear" data-clear title="Clear active layer">Clear</button>' +
+          '<button type="button" class="tonepad-play tonepad-icon-btn" data-play aria-label="Play" title="Play">' + TP_ICONS.play + '</button>' +
+          '<button type="button" class="tonepad-clear tonepad-icon-btn" data-clear aria-label="Clear active layer" title="Clear active layer">' + TP_ICONS.clear + '</button>' +
           '<div class="tonepad-layers" data-layers></div>' +
-          '<button type="button" class="tonepad-mode-btn" data-mode aria-pressed="false" aria-label="Drum mode for active layer" title="Toggle drum mode">Drum</button>' +
+          '<button type="button" class="tonepad-mode-btn tonepad-icon-btn" data-mode aria-pressed="false" aria-label="Switch active layer to drum" title="Switch to drum mode">' + TP_ICONS.melody + '</button>' +
         '</div>' +
         '<div class="tonepad-knobs">' +
           '<div class="tonepad-knob" data-k="vel"><span class="tonepad-knob-label">VEL</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>70</span></div>' +
@@ -748,7 +764,7 @@ export async function mountTonepad() {
       const modeBtn = layer ? layer.querySelector('[data-mode]') : null;
       if (modeBtn) {
         modeBtn.setAttribute('aria-pressed', drum ? 'true' : 'false');
-        modeBtn.textContent = drum ? 'Melody' : 'Drum';
+        modeBtn.innerHTML = drum ? TP_ICONS.drum : TP_ICONS.melody;
         modeBtn.setAttribute('aria-label', drum ? 'Switch active layer to melody' : 'Switch active layer to drum');
         modeBtn.title = drum ? 'Switch to melody mode' : 'Switch to drum mode';
       }
