@@ -13,6 +13,7 @@
  */
 const CACHE_VERSION = 'pionier-v205';
 
+<<<<<<< HEAD
 const SHELL = [
   './',
   './index.html',
@@ -66,6 +67,21 @@ const SHELL = [
   './registerSW.js',
   './registerSW.js?v=2',
   './welcome-screen.js?v=9',
+=======
+const CACHE_VERSION = 'pionier-v208';
+
+const ASSETS = [
+  './assets/app-DgKdKrPW.css',
+  './assets/app-DvPvskCy.js',
+  './assets/audio-core-BKBAUavA.js',
+  './assets/fx-editor-GJ25akPZ.js',
+  './assets/handpan-D4MvzjUi.js',
+  './assets/handpan-DvBPp9R-.js',
+  './assets/library-BV1ko3Fb.js',
+  './assets/loop-core-D1b8JEmO.js',
+  './assets/master-clock-CG8N4kNY.js',
+  './assets/note-plus-Cc8DzZ59.js',
+>>>>>>> parent of 0d5f19cc (fix(handpan): add visible Sensitivity control (v209))
 ];
 
 self.addEventListener('install', (event) => {
