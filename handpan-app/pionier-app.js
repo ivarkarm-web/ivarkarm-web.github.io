@@ -61,7 +61,7 @@ async function loadMasterClock() {
 
 async function loadLooper() {
   try {
-    const { mountLooper } = await import(new URL('./js/looper.js?v=240', BASE).href);
+    const { mountLooper } = await import(new URL('./js/looper.js?v=241', BASE).href);
     if (typeof mountLooper === 'function') mountLooper();
   } catch (e) {
     console.warn('[boot] looper', e);
@@ -145,7 +145,7 @@ async function loadLibrary() {
 
 async function loadAmbientSequencer() {
   try {
-    const { mountTonepad } = await import(new URL('./js/tonepad.js?v=52', BASE).href);
+    const { mountTonepad } = await import(new URL('./js/tonepad.js?v=53', BASE).href);
     if (typeof mountTonepad === 'function') await mountTonepad();
   } catch (e) {
     console.warn('[boot] tonepad', e);

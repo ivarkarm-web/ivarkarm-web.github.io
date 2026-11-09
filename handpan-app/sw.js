@@ -11,7 +11,7 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.
  */
-const CACHE_VERSION = 'pionier-v205';
+const CACHE_VERSION = 'pionier-v206';
 
 const SHELL = [
   './',
@@ -38,7 +38,7 @@ const SHELL = [
   './js/library.js?v=1',
   './js/loop-core.js',
   './js/looper-recorder-worklet.js?v=1',
-  './js/looper.js?v=240',
+  './js/looper.js?v=241',
   './js/master-clock.js?v=1',
   './js/note-plus.js?v=3',
   './js/overlay-controller.js?v=24',
@@ -49,15 +49,15 @@ const SHELL = [
   './js/settings-panel.js?v=35',
   './js/skin-mandala.js?v=6',
   './js/skin-palette.js?v=3',
-  './js/tonepad-impl.js',
-  './js/tonepad.js?v=52',
-  './library.css?v=1',
+  './js/tonepad-impl.js?v=2',
+  './js/tonepad.js?v=53',
+  './library.css?v=2',
   './looper-circle-progress.js?v=2',
   './looper-side-menus.js?v=10',
   './og-pionier-synth.svg',
   './pionier-ambient.css?v=8',
   './pionier-app.js?v=296',
-  './pionier-base.css?v=9',
+  './pionier-base.css?v=10',
   './pionier-control-layout.js?v=24',
   './pionier-controls.css?v=6',
   './pionier-core-base.js?v=2',
