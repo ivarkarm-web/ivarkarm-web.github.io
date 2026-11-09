@@ -307,8 +307,9 @@ export async function mountTonepad() {
       const kit = getKit(kitId);
       const dfx = (fxLayer != null && drumFx[fxLayer]) ? drumFx[fxLayer] : DRUM_FX_DEFAULT();
       const tm = fxTuneMul(dfx.tune), dm = fxDecayMul(dfx.decay);
+      const effDrive = (kit.drive || 0) + clamp01(dfx.drive, 0) * 2.0; // knob 0 = exact kit drive (0.5 neutral mapped so 0 is default)
       const out = audioCtx.createGain();
-      const dest = maybeDrive(audioCtx, bus, [out], kit.drive || 0);
+      const dest = maybeDrive(audioCtx, bus, [out], effDrive);
       out.connect(dest);
       const nodes = [out];
       if (dest !== bus) nodes.push(dest);
