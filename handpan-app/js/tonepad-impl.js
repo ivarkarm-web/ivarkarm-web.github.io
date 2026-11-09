@@ -559,6 +559,7 @@ export async function mountTonepad() {
         '.tonepad-sounds.is-drum .tonepad-sound-btn{display:none}',
         '.tonepad-drum-kit{display:none;align-items:center;justify-content:center;width:100%;min-height:44px;border-radius:8px;border:1px solid var(--tp-layer-btn-border,rgba(160,170,160,.35));background:var(--tp-layer-btn-bg,rgba(20,24,20,.9));color:var(--tp-layer-btn-fg,#9aab9e);font:600 12px system-ui;letter-spacing:.04em}',
         '.tonepad-sounds.is-drum .tonepad-drum-kit{display:flex}',
+        '.tonepad-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}',
         '@media (max-width:400px){.tonepad-sounds{grid-template-columns:repeat(3,minmax(0,1fr))}}',
         '.tonepad-sound-btn{min-height:28px;padding:4px 2px;border-radius:8px;border:1px solid var(--tp-sound-border,rgba(160,170,160,.28));background:var(--tp-sound-bg,rgba(16,20,16,.92));color:var(--tp-sound-fg,#9aab9e);font:600 9px/1.15 system-ui,sans-serif;letter-spacing:.02em;cursor:pointer;touch-action:manipulation;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
         '.tonepad-sound-btn.is-active{border-color:var(--tp-sound-active-border,rgba(240,217,154,.95));color:var(--tp-sound-active-fg,#fff3c4);background:var(--tp-sound-active-bg,rgba(48,42,16,.98));box-shadow:0 0 0 1px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 45%,transparent),0 0 12px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 55%,transparent),0 0 28px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 35%,transparent);text-shadow:0 0 8px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 50%,transparent);animation:tp-sound-pulse 2.4s ease-in-out infinite}',
@@ -593,12 +594,13 @@ export async function mountTonepad() {
           '<div class="tonepad-knob" data-k="hum"><span class="tonepad-knob-label">HUM</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>12</span></div>' +
         '</div>' +
       '</div>' +
-      '<canvas class="tonepad-canvas"></canvas>' +
+      '<canvas class="tonepad-canvas" aria-label="TonePad sequencer grid" aria-describedby="tonepad-drum-row-names"></canvas>' +
+      '<div id="tonepad-drum-row-names" class="tonepad-sr-only">Drum rows, top to bottom: kick, snare, clap, closed hat, open hat, low tom, high tom, rim.</div>' +
       '<div class="tonepad-sounds" data-sounds><div class="tonepad-drum-kit" data-drum-kit>Drum kit</div></div>';
 
     const canvas = layer.querySelector('canvas.tonepad-canvas');
     const g = canvas.getContext('2d');
-    const tpTheme = { knobTrack: 'rgba(120,130,118,.35)', knobAccent: '#e1cc8b', knobFill: '#f0d99a', gridOff: 'rgba(28,32,30,0.92)', gridPlayheadA: 0.55, isLight: false };
+    const tpTheme = { knobTrack: 'rgba(120,130,118,.35)', knobAccent: '#e1cc8b', knobFill: '#f0d99a', gridOff: 'rgba(28,32,30,0.92)', gridPlayheadA: 0.55, isLight: false, icon: 'rgba(154,171,158,0.82)' };
     function resolveTpTheme() {
       try {
         tpTheme.isLight = !!(document.documentElement.classList.contains('theme-light') || document.body.classList.contains('theme-light'));
@@ -608,6 +610,7 @@ export async function mountTonepad() {
         tpTheme.knobAccent = v('--tp-knob-accent', tpTheme.knobAccent);
         tpTheme.knobFill = v('--tp-knob-val', tpTheme.knobFill);
         tpTheme.gridOff = v('--tp-grid-off', tpTheme.gridOff);
+        tpTheme.icon = v('--tp-layer-btn-fg', tpTheme.icon);
         const a = parseFloat(v('--tp-grid-playhead-a', ''));
         if (!Number.isNaN(a)) tpTheme.gridPlayheadA = a;
       } catch (_) {}
@@ -924,7 +927,7 @@ export async function mountTonepad() {
       const isDrum = (modeOf(activeLayer) === 'drum' && rcount === DRUM_ROWS);
       const pad = Math.max(4, Math.min(w, h) * 0.02);
       const gap = Math.max(1, Math.min(w, h) * 0.01);
-      const labelW = isDrum ? Math.max(14, Math.min(w, h) * 0.055) : 0;
+      const labelW = isDrum ? Math.max(12, Math.min(w, h) * 0.04) : 0;
       const cell = Math.max(1, Math.min(
         (w - pad * 2 - labelW - gap * (COLS - 1)) / COLS,
         (h - pad * 2 - gap * (rcount - 1)) / rcount
@@ -950,14 +953,53 @@ export async function mountTonepad() {
       const theme = LAYER_THEMES[activeLayer] || LAYER_THEMES[0];
       const rad = Math.max(2, Math.min(6, cw * 0.18));
       if (m.isDrum && m.labelW > 0) {
-        const dLabels = ['K','S','CP','CH','OH','LT','HT','RM'];
+        const icons = ['kick','snare','clap','ch','oh','lowtom','hightom','rim'];
+        const gx = (m.x0 - gap) - m.labelW / 2;
         g.save();
-        g.fillStyle = tpTheme.isLight ? 'rgba(42,40,36,0.62)' : 'rgba(232,230,227,0.55)';
-        g.font = '600 ' + Math.max(8, Math.floor(cw * 0.38)) + 'px system-ui,sans-serif';
-        g.textAlign = 'right';
-        g.textBaseline = 'middle';
+        g.strokeStyle = tpTheme.icon;
+        g.fillStyle = tpTheme.icon;
+        g.lineCap = 'round';
+        g.lineJoin = 'round';
         for (let r = 0; r < aRows; r++) {
-          g.fillText(dLabels[r] || '', m.x0 - Math.max(2, gap * 1.5), m.y0 + r * (ch + gap) + ch / 2);
+          const cx = gx;
+          const cy = m.y0 + r * (ch + gap) + ch / 2;
+          const sz = Math.min(m.labelW, ch) * 0.78;
+          const lw = Math.max(1, sz * 0.11);
+          g.lineWidth = lw;
+          const v = icons[r];
+          g.beginPath();
+          if (v === 'kick') {
+            g.arc(cx, cy, sz * 0.44, 0, Math.PI * 2); g.fill();
+          } else if (v === 'snare') {
+            g.arc(cx, cy, sz * 0.36, 0, Math.PI * 2); g.stroke();
+          } else if (v === 'clap') {
+            const ds = sz * 0.16, ox = sz * 0.2;
+            const diamond = (dx) => { g.moveTo(cx+dx, cy-ds); g.lineTo(cx+dx+ds, cy); g.lineTo(cx+dx, cy+ds); g.lineTo(cx+dx-ds, cy); g.closePath(); };
+            diamond(-ox); diamond(ox); g.fill();
+          } else if (v === 'ch') {
+            const bw = sz * 0.42, bh = Math.max(1.5, sz * 0.08);
+            if (g.roundRect) { g.roundRect(cx - bw/2, cy - bh/2, bw, bh, bh/2); } else { g.rect(cx - bw/2, cy - bh/2, bw, bh); }
+            g.fill();
+          } else if (v === 'oh') {
+            g.arc(cx, cy, sz * 0.34, 0, Math.PI * 2); g.stroke();
+            g.beginPath();
+            const bw = sz * 0.36, bh = Math.max(1.5, sz * 0.07);
+            if (g.roundRect) { g.roundRect(cx - bw/2, cy - bh/2, bw, bh, bh/2); } else { g.rect(cx - bw/2, cy - bh/2, bw, bh); }
+            g.fill();
+          } else if (v === 'lowtom') {
+            const rad = sz * 0.4;
+            for (let i = 0; i < 6; i++) { const a = -Math.PI/2 + i * Math.PI/3; const px = cx + Math.cos(a)*rad, py = cy + Math.sin(a)*rad; if(i) g.lineTo(px,py); else g.moveTo(px,py); }
+            g.closePath(); g.fill();
+          } else if (v === 'hightom') {
+            const rad = sz * 0.28;
+            for (let i = 0; i < 6; i++) { const a = -Math.PI/2 + i * Math.PI/3; const px = cx + Math.cos(a)*rad, py = cy + Math.sin(a)*rad; if(i) g.lineTo(px,py); else g.moveTo(px,py); }
+            g.closePath(); g.fill();
+          } else if (v === 'rim') {
+            const rs = sz * 0.2;
+            g.save(); g.translate(cx, cy); g.rotate(Math.PI/4);
+            g.rect(-rs, -rs, rs*2, rs*2); g.restore();
+            g.fill();
+          }
         }
         g.restore();
       }
