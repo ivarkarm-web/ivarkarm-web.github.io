@@ -5,10 +5,14 @@ import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=
 
 const COLS = 16;
 const ROWS = 8;
+const MELO_ROWS = ROWS;
+const DRUM_ROWS = 8; // 10 requested; at 390px-wide (16 cols) cell width is ~20px (<32px), so 8 curated rows for readability
+const DRUM_VOICES = ['kick', 'snare', 'clap', 'ch', 'oh', 'lowtom', 'hightom', 'rim'];
 const PENT = [0, 3, 5, 7, 10];
 const STORE = 'pionier-tonepad-v36';
 const LAYER_COUNT = 5;
 const DEFAULT_SOUND = 'bloom';
+const DEFAULT_MODE = 'melodic';
 
 const LAYER_THEMES = [
   { name: 'Amber',  h: 42,  s: 70, l: 52 },  // L1 warm gold
@@ -33,8 +37,10 @@ const SOUND_IDS = new Set(SOUNDS.map((s) => s.id));
 export async function mountTonepad() {
   if (window.__tonepadMounting) return window.__tonepadMounting;
   window.__tonepadMounting = (async () => {
-    const layers = Array.from({ length: LAYER_COUNT }, () => new Uint8Array(COLS * ROWS));
+    const layers = Array.from({ length: LAYER_COUNT }, () => new Uint8Array(COLS * MELO_ROWS));
+    const drumLayers = Array.from({ length: LAYER_COUNT }, () => new Uint8Array(COLS * DRUM_ROWS));
     const layerSounds = Array.from({ length: LAYER_COUNT }, () => DEFAULT_SOUND);
+    const layerModes = Array.from({ length: LAYER_COUNT }, () => DEFAULT_MODE);
     let activeLayer = 0;
     let playLayer = 0;
     let velocity = 0.7;
@@ -54,8 +60,15 @@ export async function mountTonepad() {
     let rootMidi = 50;
 
     function idx(c, r) { return r * COLS + c; }
+    function modeOf(i) { return layerModes[i] === 'drum' ? 'drum' : 'melodic'; }
+    function rowsForMode(mode) { return mode === 'drum' ? DRUM_ROWS : MELO_ROWS; }
+    function rowsForLayer(i) { return rowsForMode(modeOf(i)); }
+    function gridForLayer(i) { return modeOf(i) === 'drum' ? drumLayers[i] : layers[i]; }
+    function activeRows() { return rowsForLayer(activeLayer); }
+    function activeGrid() { return gridForLayer(activeLayer); }
     function layerHasNotes(i) {
-      const g = layers[i];
+      const g = gridForLayer(i);
+      if (!g) return false;
       for (let n = 0; n < g.length; n++) if (g[n]) return true;
       return false;
     }
@@ -86,6 +99,17 @@ export async function mountTonepad() {
             if (li < LAYER_COUNT && typeof id === 'string' && SOUND_IDS.has(id)) layerSounds[li] = id;
           });
         }
+        if (Array.isArray(s.layerModes)) {
+          s.layerModes.forEach((m, li) => {
+            if (li < LAYER_COUNT && (m === 'melodic' || m === 'drum')) layerModes[li] = m;
+          });
+        }
+        if (Array.isArray(s.drumLayers)) {
+          s.drumLayers.forEach((cells, li) => {
+            if (li >= LAYER_COUNT || !Array.isArray(cells)) return;
+            cells.forEach((v, i) => { if (i < drumLayers[li].length) drumLayers[li][i] = v ? 1 : 0; });
+          });
+        }
       } catch (_) {}
     }
     function save() {
@@ -93,7 +117,10 @@ export async function mountTonepad() {
         localStorage.setItem(STORE, JSON.stringify({
           layers: layers.map((l) => Array.from(l)),
           layerSounds: layerSounds.slice(),
-          velocity, probability, humanize, activeLayer, version: 45
+          velocity, probability, humanize, activeLayer,
+          layerModes: layerModes.slice(),
+          drumLayers: drumLayers.map((l) => Array.from(l)),
+          version: 46
         }));
       } catch (_) {}
     }
@@ -148,8 +175,9 @@ export async function mountTonepad() {
       osc.stop(t0 + life + 0.06);
       return life;
     }
-    function trigger(row, when, vel, soundId) {
+    function trigger(row, when, vel, soundId, mode) {
       if (!audioCtx || !bus) return;
+      if (mode === 'drum') return; // drum voices added in step 2
       const f = freqForRow(row);
       const t0 = Math.max(audioCtx.currentTime + 0.003, when);
       const v = Math.max(0.05, Math.min(1, vel == null ? 0.6 : vel));
@@ -163,7 +191,7 @@ export async function mountTonepad() {
       if (id === 'bloom') {
         const attack = 0.09 + (1 - v) * 0.14;
         const sustain = 0.55 + v * 0.9;
-        const release = 2.4 + (ROWS - row) * 0.08 + v * 1.2;
+        const release = 2.4 + (MELO_ROWS - row) * 0.08 + v * 1.2;
         const peak = 0.05 + v * 0.09;
         fil.type = 'lowpass';
         fil.Q.setValueAtTime(0.7, t0);
@@ -302,17 +330,19 @@ export async function mountTonepad() {
           playLayer = nextNonEmptyLayer(playLayer);
         }
         playLayer = ((playLayer % LAYER_COUNT) + LAYER_COUNT) % LAYER_COUNT;
-        const gPlay = layers[playLayer];
+        const mode = modeOf(playLayer);
+        const gPlay = gridForLayer(playLayer);
+        const rows = rowsForLayer(playLayer);
         if (!gPlay) continue;
         const when = anchor + lastVisStep * sd;
-        for (let row = 0; row < ROWS; row++) {
+        for (let row = 0; row < rows; row++) {
           if (!gPlay[idx(step, row)]) continue;
           if (Math.random() > probability) continue;
           const accent = (step % 4 === 0) ? 1.15 : (step % 2 === 0 ? 1.05 : 0.92);
           const baseVel = 0.35 + velocity * 0.55;
           const jitterV = (Math.random() - 0.5) * 2 * humanize * 0.2;
           const jitterT = (Math.random() - 0.5) * 2 * humanize * sd * 0.35;
-          trigger(row, when + jitterT, Math.max(0.05, Math.min(1, baseVel * accent + jitterV)), layerSounds[playLayer]);
+          trigger(row, when + jitterT, Math.max(0.05, Math.min(1, baseVel * accent + jitterV)), layerSounds[playLayer], mode);
         }
       }
     }
@@ -490,7 +520,8 @@ export async function mountTonepad() {
     }
     layer.querySelector('[data-clear]').addEventListener('click', (e) => {
       e.stopPropagation();
-      layers[activeLayer].fill(0);
+      const g = activeGrid();
+      if (g) g.fill(0);
       draw();
       updateLayerButtons();
       save();
@@ -706,24 +737,26 @@ export async function mountTonepad() {
       }
     }
     // Square pads: cell size is set by the tighter axis and the grid is centred in the canvas.
-    function gridMetrics(w, h) {
+    function gridMetrics(w, h, rows) {
+      const rcount = rows == null ? activeRows() : rows;
       const pad = Math.max(4, Math.min(w, h) * 0.02);
       const gap = Math.max(1, Math.min(w, h) * 0.01);
       const cell = Math.max(1, Math.min(
         (w - pad * 2 - gap * (COLS - 1)) / COLS,
-        (h - pad * 2 - gap * (ROWS - 1)) / ROWS
+        (h - pad * 2 - gap * (rcount - 1)) / rcount
       ));
       const gw = cell * COLS + gap * (COLS - 1);
-      const gh = cell * ROWS + gap * (ROWS - 1);
-      return { gap, cell, x0: (w - gw) / 2, y0: (h - gh) / 2 };
+      const gh = cell * rcount + gap * (rcount - 1);
+      return { gap, cell, x0: (w - gw) / 2, y0: (h - gh) / 2, rows: rcount };
     }
     function draw() {
       if (!g) return;
       const w = canvas.width, h = canvas.height;
       g.clearRect(0, 0, w, h);
-      const m = gridMetrics(w, h);
+      const aRows = activeRows();
+      const m = gridMetrics(w, h, aRows);
       const gap = m.gap, cw = m.cell, ch = m.cell;
-      const gridData = layers[activeLayer];
+      const gridData = activeGrid();
       let visStep = -1;
       if (playing && audioCtx) {
         const sd = stepDur();
@@ -732,12 +765,12 @@ export async function mountTonepad() {
       }
       const theme = LAYER_THEMES[activeLayer] || LAYER_THEMES[0];
       const rad = Math.max(2, Math.min(6, cw * 0.18));
-      for (let r = 0; r < ROWS; r++) {
+      for (let r = 0; r < aRows; r++) {
         for (let c = 0; c < COLS; c++) {
           const x = m.x0 + c * (cw + gap);
           const y = m.y0 + r * (ch + gap);
-          const on = gridData[idx(c, r)];
-          const rowShift = (r / Math.max(1, ROWS - 1)) * 18 - 6;
+          const on = gridData ? gridData[idx(c, r)] : 0;
+          const rowShift = (r / Math.max(1, aRows - 1)) * 18 - 6;
           if (on) {
             const grad = g.createLinearGradient(x, y, x, y + ch);
             grad.addColorStop(0, 'hsla(' + (theme.h + rowShift) + ',' + theme.s + '%,' + Math.min(72, theme.l + 12) + '%,0.95)');
@@ -782,10 +815,11 @@ export async function mountTonepad() {
       const rect = canvas.getBoundingClientRect();
       const x = (cx - rect.left) * (canvas.width / rect.width);
       const y = (cy - rect.top) * (canvas.height / rect.height);
-      const m = gridMetrics(canvas.width, canvas.height);
+      const aRows = activeRows();
+      const m = gridMetrics(canvas.width, canvas.height, aRows);
       const c = Math.floor((x - m.x0) / (m.cell + m.gap));
       const r = Math.floor((y - m.y0) / (m.cell + m.gap));
-      if (c < 0 || r < 0 || c >= COLS || r >= ROWS) return null;
+      if (c < 0 || r < 0 || c >= COLS || r >= aRows) return null;
       return { c, r };
     }
     function applyAt(cx, cy) {
@@ -795,12 +829,14 @@ export async function mountTonepad() {
       if (seen.has(key)) return;
       seen.add(key);
       const i = idx(hit.c, hit.r);
-      if (mode === 'erase') layers[activeLayer][i] = 0;
-      else if (mode === 'paint') layers[activeLayer][i] = 1;
+      const gridData = activeGrid();
+      if (!gridData) return;
+      if (mode === 'erase') gridData[i] = 0;
+      else if (mode === 'paint') gridData[i] = 1;
       else {
-        const on = !layers[activeLayer][i];
+        const on = !gridData[i];
         mode = on ? 'paint' : 'erase';
-        layers[activeLayer][i] = on ? 1 : 0;
+        gridData[i] = on ? 1 : 0;
       }
       draw(); save(); updateLayerButtons();
     }
