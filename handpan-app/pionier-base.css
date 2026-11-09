@@ -3269,6 +3269,22 @@ html:not(.pionier-welcome-active) #app {
   /* reason: surface color */
   background: rgba(28, 28, 32, 0.9) ;
 }
+html.theme-light #topNavGroup {
+  background: rgba(255, 252, 246, 0.88);
+  border-color: rgba(60, 48, 24, 0.14);
+  box-shadow: 0 4px 18px rgba(40, 32, 16, 0.12);
+}
+html.theme-light #topNavGroup .top-nav-btn {
+  border-color: rgba(60, 48, 24, 0.16) !important;
+  background: rgba(255, 255, 255, 0.78) !important;
+  color: #3a3834 !important;
+  box-shadow: 0 2px 8px rgba(40, 32, 16, 0.08);
+}
+html.theme-light .top-nav-btn:hover {
+  color: #6b5410 !important;
+  border-color: rgba(107, 84, 16, 0.32) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+}
 .top-nav-btn:active { transform: scale(0.94); }
 .top-nav-btn:focus-visible {
   outline: 2px solid var(--gold);

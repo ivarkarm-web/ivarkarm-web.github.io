@@ -940,9 +940,11 @@ export async function mountTonepad() {
             );
             g.fillStyle = grad;
           } else if (c === visStep) {
-            g.fillStyle = 'hsla(' + theme.h + ',25%,28%,0.55)';
+            const light = document.documentElement.classList.contains('theme-light') || document.body.classList.contains('theme-light');
+            g.fillStyle = light ? 'hsla(' + theme.h + ',22%,72%,0.55)' : 'hsla(' + theme.h + ',25%,28%,0.55)';
           } else {
-            g.fillStyle = 'rgba(28,32,30,0.92)';
+            const light = document.documentElement.classList.contains('theme-light') || document.body.classList.contains('theme-light');
+            g.fillStyle = light ? 'rgba(232, 228, 218, 0.92)' : 'rgba(28,32,30,0.92)';
           }
           g.beginPath();
           if (g.roundRect) {

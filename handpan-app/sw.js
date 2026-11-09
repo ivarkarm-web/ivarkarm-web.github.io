@@ -10,7 +10,7 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  */
 
-const CACHE_VERSION = 'pionier-v206';
+const CACHE_VERSION = 'pionier-v207';
 
 const ASSETS = [
   './assets/app-DcaMDsYD.css',

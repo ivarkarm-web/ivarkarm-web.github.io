@@ -2945,3 +2945,28 @@ body, .app, button, input, select, textarea {
   font-family: var(--font);
 }
 
+
+/* Bottom/looper quick-access: sequencer (replaces dedicated WAV button) */
+#looperSeqBtn.looper-seq-btn,
+#looperRail .looper-seq-btn {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+#looperSeqBtn .looper-timing-main { font-size: 16px; line-height: 1; }
+#looperSeqBtn.is-active {
+  color: var(--gold, #e6c979);
+  border-color: rgba(212, 176, 74, 0.45);
+  box-shadow: 0 0 0 1px rgba(212, 176, 74, 0.18);
+}
+html.theme-light #looperSeqBtn.is-active {
+  color: #6b5410;
+  border-color: rgba(107, 84, 16, 0.35);
+  box-shadow: 0 0 0 1px rgba(107, 84, 16, 0.12);
+}
+html.theme-light .tonepad-layer,
+html.theme-light .pionier-sequence {
+  color: #24221e;
+}
