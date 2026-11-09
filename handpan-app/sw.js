@@ -16,6 +16,7 @@ const CACHE_VERSION = 'pionier-v205';
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 const SHELL = [
   './',
   './index.html',
@@ -77,17 +78,19 @@ const CACHE_VERSION = 'pionier-v207';
 =======
 const CACHE_VERSION = 'pionier-v206';
 >>>>>>> parent of f224558e (fix(handpan): complete v207 light-mode styles and cache sync)
+=======
+const CACHE_VERSION = 'pionier-v205';
+>>>>>>> parent of f52bd2ab (fix(handpan): restore working looper and surface recorder errors (v206))
 
 const ASSETS = [
+  './assets/app-B57XWJuW.js',
   './assets/app-DcaMDsYD.css',
-  './assets/app-FxZt483y.js',
   './assets/audio-core-BKBAUavA.js',
   './assets/fx-editor-GJ25akPZ.js',
   './assets/handpan-D4MvzjUi.js',
   './assets/handpan-DvBPp9R-.js',
   './assets/library-BV1ko3Fb.js',
-  './assets/loop-core-D1b8JEmO.js',
-  './assets/master-clock-CG8N4kNY.js',
+  './assets/master-clock-985qe0Q5.js',
   './assets/note-plus-Cc8DzZ59.js',
 >>>>>>> parent of 0d5f19cc (fix(handpan): add visible Sensitivity control (v209))
 ];

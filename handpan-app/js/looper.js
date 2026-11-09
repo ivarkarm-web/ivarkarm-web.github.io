@@ -1,45 +1,63 @@
 /**
- * looper.js — seven-layer phrase looper v3
+ * looper.js — seven-layer phrase looper v3 (ES module split).
+ *
+ * Main entry point: owns DOM mounting, event wiring, and the render loop.
+ * Recording, mixing, persistence, and timing logic live in sub-modules
+ * under js/looper/. All share the state object from ./state.mjs.
+ *
  * Record: arm/stop layer (pre-FX instrument bus)
  * Recording uses optional count-in, metronome and tempo controls:
  *   FREE  — independent lengths
  *   LOOP  — secondary tracks snap to exact multiples of layer-1 duration
  *   BEAT  — start/stop quantized to beat grid derived from layer 1
  *   SERIAL — tracks play one after another (song sections)
- * Circles: tap play/pause · double-tap opens track controls · hold asks to confirm delete
- * Clear: wipe all layers
  */
+<<<<<<< HEAD
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
 import { MAX_LAYERS } from './loop-core.js';
+=======
+
+import { state } from './looper/state.mjs';
+import * as Recorder from './looper/recorder.mjs';
+import * as Mixer from './looper/mixer.mjs';
+import * as Persistence from './looper/persistence.mjs';
+import * as Timing from './looper/timing.mjs';
+import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js';
+>>>>>>> parent of f52bd2ab (fix(handpan): restore working looper and surface recorder errors (v206))
 
 const LONG_MS = 480;
 const DEFAULT_LEVEL = 0.92;
-const BEATS_PER_BAR = 4;
-const CLICK_TYPES = [
-  { id:'woodblock', label:'Woodblock', wave:'triangle', frequency:1450, duration:.045 },
-  { id:'soft-wood', label:'Soft Wood', wave:'sine', frequency:950, duration:.055 },
-  { id:'rim-click', label:'Rim Click', wave:'square', frequency:2100, duration:.022 },
-  { id:'handpan-tap', label:'Handpan Tap', wave:'sine', frequency:520, duration:.11 },
-  { id:'bell', label:'Bell', wave:'sine', frequency:1760, duration:.16 },
-  { id:'shaker', label:'Shaker', wave:'sawtooth', frequency:4200, duration:.018 },
-  { id:'tick', label:'Soft Tick', wave:'square', frequency:1200, duration:.012 },
-  { id:'clave', label:'Clave', wave:'triangle', frequency:2500, duration:.03 },
-  { id:'low-pulse', label:'Low Pulse', wave:'sine', frequency:180, duration:.08 },
-  { id:'digital', label:'Digital Click', wave:'square', frequency:3000, duration:.018 },
-];
-
 const SYNC_MODES = [
   { id: 'free', label: 'FREE', title: 'Free — each layer independent' },
   { id: 'loop', label: 'LOOP', title: 'Loop sync — multiples of master length' },
   { id: 'beat', label: 'BEAT', title: 'Beat sync — quantize to master grid' },
-  { id: 'serial', label: 'SERIAL', title: 'Serial — sections play in sequence' }
+  { id: 'serial', label: 'SERIAL', title: 'Serial — sections play in sequence' },
 ];
 
+<<<<<<< HEAD
+=======
+const CLICK_TYPES = [
+  { id: 'woodblock', label: 'Woodblock', wave: 'triangle', frequency: 1450, duration: 0.045 },
+  { id: 'soft-wood', label: 'Soft Wood', wave: 'sine', frequency: 950, duration: 0.055 },
+  { id: 'rim-click', label: 'Rim Click', wave: 'square', frequency: 2100, duration: 0.022 },
+  { id: 'handpan-tap', label: 'Handpan Tap', wave: 'sine', frequency: 520, duration: 0.11 },
+  { id: 'bell', label: 'Bell', wave: 'sine', frequency: 1760, duration: 0.16 },
+  { id: 'shaker', label: 'Shaker', wave: 'sawtooth', frequency: 4200, duration: 0.018 },
+  { id: 'tick', label: 'Soft Tick', wave: 'square', frequency: 1200, duration: 0.012 },
+  { id: 'clave', label: 'Clave', wave: 'triangle', frequency: 2500, duration: 0.03 },
+  { id: 'low-pulse', label: 'Low Pulse', wave: 'sine', frequency: 180, duration: 0.08 },
+  { id: 'digital', label: 'Digital Click', wave: 'square', frequency: 3000, duration: 0.018 },
+];
+
+>>>>>>> parent of f52bd2ab (fix(handpan): restore working looper and surface recorder errors (v206))
 export function mountLooper({ root } = {}) {
   const rail = root || document.getElementById('looperRail');
   if (!rail || rail.dataset.mounted === '1') return null;
+  rail.dataset.mounted = '1';
 
-  // Ensure required controls exist (shell may only ship the rail + clear).
+  state.rail = rail;
+
+  // --- Build required controls ---
   let btn = document.getElementById('looperBtn');
   if (!btn) {
     btn = document.createElement('button');
@@ -47,7 +65,6 @@ export function mountLooper({ root } = {}) {
     btn.id = 'looperBtn';
     rail.appendChild(btn);
   }
-  // Always restore record chrome — shell may ship an empty <button id="looperBtn">.
   btn.className = 'looper-btn looper-record';
   btn.setAttribute('aria-label', 'Record loop');
   btn.title = 'Record loop';
@@ -56,6 +73,8 @@ export function mountLooper({ root } = {}) {
       '<span class="looper-btn-ring" aria-hidden="true"></span>' +
       '<span class="looper-btn-core" aria-hidden="true"></span>';
   }
+  state.btn = btn;
+
   let layersEl = document.getElementById('looperLayers');
   if (!layersEl) {
     layersEl = document.createElement('div');
@@ -65,25 +84,9 @@ export function mountLooper({ root } = {}) {
     layersEl.setAttribute('aria-label', 'Loop layers');
     rail.appendChild(layersEl);
   }
+  state.layersEl = layersEl;
+
   let clearBtn = document.getElementById('looperClearBtn');
-  let syncBtn = document.getElementById('looperSyncBtn');
-  rail.dataset.mounted = '1';
-
-  const legacyPlay = document.getElementById('looperPlayBtn');
-  if (legacyPlay) {
-    legacyPlay.hidden = true;
-    legacyPlay.style.display = 'none';
-  }
-
-  let cluster = document.getElementById('looperRecordCluster');
-  if (!cluster) {
-    cluster = document.createElement('div');
-    cluster.id = 'looperRecordCluster';
-    cluster.className = 'looper-record-cluster';
-    btn.parentElement?.insertBefore(cluster, btn);
-    cluster.appendChild(btn);
-  }
-
   if (!clearBtn) {
     clearBtn = document.createElement('button');
     clearBtn.type = 'button';
@@ -102,26 +105,31 @@ export function mountLooper({ root } = {}) {
     '</span>';
   clearBtn.hidden = false;
   clearBtn.disabled = false;
+  state.clearBtn = clearBtn;
 
   const oldPulse = document.getElementById('looperPulseBtn');
   if (oldPulse) oldPulse.remove();
 
+  let syncBtn = document.getElementById('looperSyncBtn');
   if (!syncBtn) {
     syncBtn = document.createElement('button');
     syncBtn.type = 'button';
     syncBtn.id = 'looperSyncBtn';
   }
-  // Retain the internal FREE sync state for legacy recorded tracks, but replace
-  // the visible sync dial with the Count-in control requested for this workflow.
   syncBtn.className = 'looper-sync-dial';
   syncBtn.hidden = true;
   syncBtn.setAttribute('aria-hidden', 'true');
   syncBtn.innerHTML = '<span class="looper-sync-label">FREE</span>';
   if (syncBtn.parentElement !== cluster) cluster.insertBefore(syncBtn, btn);
+  state.syncBtn = syncBtn;
 
   function ensureTimingButton(id, className, aria, html) {
     let control = document.getElementById(id);
-    if (!control) { control = document.createElement('button'); control.type = 'button'; control.id = id; }
+    if (!control) {
+      control = document.createElement('button');
+      control.type = 'button';
+      control.id = id;
+    }
     control.className = 'looper-timing-btn ' + className;
     control.hidden = false;
     control.removeAttribute('hidden');
@@ -131,85 +139,83 @@ export function mountLooper({ root } = {}) {
     control.innerHTML = html;
     return control;
   }
-  const countInBtn = ensureTimingButton('looperCountInBtn','looper-count-in-btn','Toggle count-in','<svg class="looper-icon looper-countin-icon" viewBox="0 0 18 16" aria-hidden="true"><path d="M2 12V8M6.7 12V4M11.3 12V6M16 12V2.5" /><path d="M1 14.2H17" /></svg><span class="looper-timing-main">1·2·3·4</span>');
-  const metronomeBtn = ensureTimingButton('looperMetronomeBtn','looper-metronome-btn','Toggle metronome','<svg class="looper-icon looper-metronome-icon" viewBox="0 0 18 18" aria-hidden="true"><path d="M5 15.5 7.2 2.5h3.6L13 15.5Z"/><path d="M9 4.3 12.1 7.1M9 4.3 8 10.4"/><circle cx="8" cy="10.4" r="1.15" /></svg><span class="looper-timing-led" aria-hidden="true"></span>');
-  const bpmBtn = ensureTimingButton('looperBpmBtn','looper-bpm-btn','Tempo settings','<svg class="looper-icon looper-tempo-icon" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.1 12.8a7 7 0 1 1 11.8 0"/><path d="M9 9 12.3 5.8"/><circle cx="9" cy="9" r="1.1"/><path d="M4.7 12.8h8.6"/></svg><span class="looper-bpm-value">90</span><span class="looper-bpm-unit">BPM</span>');
-  // Keep every transport control in the same flex row. The previous version
-  // placed timing/save buttons outside the cluster, so the sizing/layout rules
-  // missed them and the row wrapped on mobile.
+
+  const countInBtn = ensureTimingButton(
+    'looperCountInBtn',
+    'looper-count-in-btn',
+    'Toggle count-in',
+    '<svg class="looper-icon looper-countin-icon" viewBox="0 0 18 16" aria-hidden="true"><path d="M2 12V8M6.7 12V4M11.3 12V6M16 12V2.5" /><path d="M1 14.2H17" /></svg><span class="looper-timing-main">1·2·3·4</span>'
+  );
+  const metronomeBtn = ensureTimingButton(
+    'looperMetronomeBtn',
+    'looper-metronome-btn',
+    'Toggle metronome',
+    '<svg class="looper-icon looper-metronome-icon" viewBox="0 0 18 18" aria-hidden="true"><path d="M5 15.5 7.2 2.5h3.6L13 15.5Z"/><path d="M9 4.3 12.1 7.1M9 4.3 8 10.4"/><circle cx="8" cy="10.4" r="1.15" /></svg><span class="looper-timing-led" aria-hidden="true"></span>'
+  );
+  const bpmBtn = ensureTimingButton(
+    'looperBpmBtn',
+    'looper-bpm-btn',
+    'Tempo settings',
+    '<svg class="looper-icon looper-tempo-icon" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.1 12.8a7 7 0 1 1 11.8 0"/><path d="M9 9 12.3 5.8"/><circle cx="9" cy="9" r="1.1"/><path d="M4.7 12.8h8.6"/></svg><span class="looper-bpm-value">90</span><span class="looper-bpm-unit">BPM</span>'
+  );
+  state.countInBtn = countInBtn;
+  state.metronomeBtn = metronomeBtn;
+  state.bpmBtn = bpmBtn;
+
+  const exportBtn = ensureTimingButton(
+    'looperExportBtn',
+    'looper-export-btn',
+    'Export loop as WAV',
+    '<span class="looper-timing-main">WAV</span>'
+  );
+  exportBtn.disabled = true;
+  rail.appendChild(exportBtn);
+  exportBtn.addEventListener('click', () => Persistence.exportWav());
+  state.exportBtn = exportBtn;
+
+  const saveBtn = ensureTimingButton(
+    'looperSaveBtn',
+    'looper-save-btn',
+    'Save composition to My Library',
+    '<span class="looper-timing-main">Save</span>'
+  );
+  saveBtn.disabled = true;
+  rail.appendChild(saveBtn);
+  saveBtn.addEventListener('click', () => {
+    const snap = Persistence.createLibrarySnapshot();
+    window.PionierLibrary?.save?.(snap);
+  });
+  state.saveBtn = saveBtn;
+
+  // --- Utility group ---
   let utilityGroup = document.getElementById('looperUtilityControls');
   if (!utilityGroup) {
     utilityGroup = document.createElement('div');
     utilityGroup.id = 'looperUtilityControls';
     utilityGroup.className = 'looper-utility-controls';
   }
-  if (utilityGroup.parentElement !== rail) rail.insertBefore(utilityGroup, cluster.parentElement === rail ? cluster : null);
+  if (utilityGroup.parentElement !== rail) {
+    rail.insertBefore(utilityGroup, cluster.parentElement === rail ? cluster : null);
+  }
   [countInBtn, metronomeBtn, bpmBtn].forEach((control) => utilityGroup.appendChild(control));
-  if (btn.parentElement !== cluster) cluster.appendChild(btn);
+  state.utilityGroup = utilityGroup;
+
   syncBtn.setAttribute('aria-label', 'Sync mode: Free');
   syncBtn.title = SYNC_MODES[0].title;
 
-  const layers = [];
-  const exportBtn = ensureTimingButton('looperExportBtn', 'looper-export-btn', 'Export loop as WAV', '<span class="looper-timing-main">WAV</span>');
-  exportBtn.disabled = true;
-  rail.appendChild(exportBtn);
-  exportBtn.addEventListener('click', exportWav);
-  const saveBtn = ensureTimingButton('looperSaveBtn', 'looper-save-btn', 'Save composition to My Library', '<span class="looper-timing-main">Save</span>');
-  saveBtn.disabled = true;
-  rail.appendChild(saveBtn);
-  saveBtn.addEventListener('click', () => window.PionierLibrary?.save?.(createLibrarySnapshot()));
-  let recording = false;
-  let recordStartGeneration = 0;
-  let recChunks = null;
-  let processor = null;
-  let silent = null;
-  let tapSource = null;
-  let tapPromise = null;
-  let recorderFlushResolve = null;
-  let pressTimer = null;
-  let longFired = false;
-  let pendingTap = null;
-  let trackPanelEl = null;
-  let trackPanelKeyHandler = null;
-  let trackPanelProgressTimer = null;
-  let openSheetIndex = -1;
-  let sheetEl = null;
-  let sheetPointerHandler = null;
-  let sheetKeyHandler = null;
-  // LOOP is the default: the first recorded phrase becomes the master clock.
-  let syncModeIndex = 1;
-  let pendingLoopStop = false;
-  let pendingLoopStopTimer = null;
-  let progressRaf = 0;
-  let countInEnabled = false;
-  let countInBars = 1;
-  let countInPending = false;
-  let countInCurrent = 0;
-  let countInTimer = null;
-  let metronomeOn = false;
-  let metronomeTimer = null;
-  let bpm = 90;
-  let beatsPerBar = 4;
-  let clickType = 'woodblock';
-  let lastTapTimes = [];
-  let timingMenu = null;
-  let timingMenuType = null;
-  let timingPressTimer = null;
-  let timingLongFired = false;
-  let bpmPointer = null;
-
-  function syncMode() {
-    return SYNC_MODES[syncModeIndex].id;
+  // --- Wire event listeners ---
+  const legacyPlay = document.getElementById('looperPlayBtn');
+  if (legacyPlay) {
+    legacyPlay.hidden = true;
+    legacyPlay.style.display = 'none';
   }
 
-  function getRecordBus() {
-    try {
-      const bus = window.PionierCore?.getInstrumentBus?.();
-      if (bus) return bus;
-    } catch (_) {}
-    return getAudioMaster();
+  const cluster = document.getElementById('looperRecordCluster');
+  if (!cluster) {
+    // Should not happen; rail always has the cluster.
   }
 
+<<<<<<< HEAD
   async function ensureTap() {
     const ctx = getAudioContext();
     const bus = getRecordBus();
@@ -1284,88 +1290,100 @@ export function mountLooper({ root } = {}) {
       addSelect('Count-in length', [{value:1,label:'1 bar'},{value:2,label:'2 bars'},{value:3,label:'3 bars'}], countInBars, (v) => { countInBars = Number(v); setBtnState(); });
       addSelect('Click sound', CLICK_TYPES.map((item) => ({value:item.id,label:item.label})), clickType, (v) => { clickType = v; });
       addSelect('Time signature', [{value:3,label:'3 / 4'},{value:4,label:'4 / 4'},{value:5,label:'5 / 4'},{value:6,label:'6 / 8'}], beatsPerBar, (v) => { beatsPerBar = Number(v); setBtnState(); });
+=======
+  // Pointer handling on the canvas is done in pionier-core-base.js;
+  // here we only wire the transport controls.
+  btn.addEventListener('click', async () => {
+    if (state.recording) {
+      await Recorder.finishRecord();
+>>>>>>> parent of f52bd2ab (fix(handpan): restore working looper and surface recorder errors (v206))
     } else {
-      const value = document.createElement('div'); value.className = 'looper-bpm-editor-value'; value.textContent = Math.round(bpm) + ' BPM'; menu.appendChild(value);
-      const range = document.createElement('input'); range.type = 'range'; range.min = '40'; range.max = '200'; range.step = '1'; range.value = String(Math.round(bpm)); range.className = 'looper-bpm-range'; range.setAttribute('aria-label','Tempo in beats per minute');
-      range.addEventListener('input', () => { setBpm(range.value); value.textContent = Math.round(bpm) + ' BPM'; }); menu.appendChild(range);
-      const row = document.createElement('div'); row.className = 'looper-timing-menu-row';
-      for (const [label, delta] of [['−5',-5],['−1',-1],['+1',1],['+5',5]]) { const b = document.createElement('button'); b.type='button'; b.className='looper-timing-option'; b.textContent=label; b.addEventListener('click',()=>{setBpm(bpm+delta);value.textContent=Math.round(bpm)+' BPM';range.value=String(Math.round(bpm));}); row.appendChild(b); }
-      menu.appendChild(row);
-      addSelect('Time signature', [{value:3,label:'3 / 4'},{value:4,label:'4 / 4'},{value:5,label:'5 / 4'},{value:6,label:'6 / 8'}], beatsPerBar, (v) => { beatsPerBar = Number(v); });
-      const close = document.createElement('button'); close.type='button'; close.className='looper-timing-option'; close.textContent='Done'; close.addEventListener('click',closeTimingMenu); menu.appendChild(close);
+      await Recorder.startRecord();
     }
-    timingMenu = menu;
-    document.body.appendChild(menu);
-    const rect = anchor.getBoundingClientRect();
-    const width = Math.min(280, window.innerWidth - 24);
-    menu.style.width = width + 'px';
-    menu.style.left = Math.max(12, Math.min(rect.left + rect.width / 2 - width / 2, window.innerWidth - width - 12)) + 'px';
-    menu.style.top = 'auto';
-    menu.style.bottom = Math.max(12, window.innerHeight - rect.top + 8) + 'px';
-    menu.style.maxHeight = Math.max(120, Math.min(420, rect.top - 20)) + 'px';
-    menu.querySelector('button,select,input')?.focus({preventScroll:true});
-    requestAnimationFrame(() => menu.classList.add('is-open'));
-  }
-
-  // Route close-button touches at document capture phase. This remains reliable on
-  // mobile even when popup-level handlers or nested touch targets interfere.
-  document.addEventListener('pointerdown', (event) => {
-    const target = event.target instanceof Element ? event.target : event.target?.parentElement;
-    const close = target?.closest('.looper-menu-close, .looper-track-close');
-    if (!close) return;
-    event.preventDefault();
-    event.stopPropagation();
-    if (close.classList.contains('looper-track-close')) closeTrackPanel();
-    else if (close.closest('.looper-sheet')) closeSheet();
-    else if (close.closest('.looper-timing-menu')) closeTimingMenu();
-  }, true);
-
-  function wireTimingToggle(control, type) {
-    let holdTimer = null, held = false;
-    control.addEventListener('pointerdown', (e) => {
-      e.preventDefault(); e.stopPropagation(); held = false;
-      holdTimer = setTimeout(() => { held = true; timingLongFired = true; showTimingMenu(type, control); }, LONG_MS);
-    });
-    const finish = (e) => {
-      e?.preventDefault?.(); e?.stopPropagation?.();
-      if (holdTimer) clearTimeout(holdTimer); holdTimer = null;
-      if (held) return;
-      if (type === 'countin') { countInEnabled = !countInEnabled; setBtnState(); }
-      else setMetronome(!metronomeOn);
-    };
-    control.addEventListener('pointerup', finish);
-    control.addEventListener('pointercancel', () => { if (holdTimer) clearTimeout(holdTimer); holdTimer = null; });
-    control.addEventListener('contextmenu', (e) => e.preventDefault());
-  }
-  wireTimingToggle(countInBtn, 'countin');
-  wireTimingToggle(metronomeBtn, 'metronome');
-
-  let bpmDownX = 0, bpmStart = 90, bpmMoved = false, bpmHeld = false, bpmHoldTimer = null;
-  bpmBtn.addEventListener('pointerdown', (e) => {
-    e.preventDefault(); e.stopPropagation(); bpmDownX = e.clientX; bpmStart = bpm; bpmMoved = false; bpmHeld = false;
-    bpmBtn.setPointerCapture?.(e.pointerId);
-    bpmHoldTimer = setTimeout(() => { bpmHeld = true; showTimingMenu('bpm', bpmBtn); }, LONG_MS);
   });
-  bpmBtn.addEventListener('pointermove', (e) => {
-    if (e.buttons === 0 || !Number.isFinite(e.clientX)) return;
-    const delta = e.clientX - bpmDownX;
-    if (Math.abs(delta) > 4) { bpmMoved = true; if (bpmHoldTimer) clearTimeout(bpmHoldTimer); bpmHoldTimer = null; setBpm(bpmStart + delta * .65); }
+
+  clearBtn.addEventListener('click', () => {
+    Recorder.clearAll();
+    state.layers = [];
+    renderCircles();
   });
-  const endBpm = (e) => {
-    e?.preventDefault?.(); e?.stopPropagation?.();
-    if (bpmHoldTimer) clearTimeout(bpmHoldTimer); bpmHoldTimer = null;
-    if (!bpmMoved && !bpmHeld) {
-      const now = Date.now(); lastTapTimes.push(now); lastTapTimes = lastTapTimes.filter(t => now-t < 2500).slice(-5);
-      if (lastTapTimes.length >= 2) { const intervals = lastTapTimes.slice(1).map((t,i)=>t-lastTapTimes[i]).filter(d=>d>0); if(intervals.length) setBpm(60000/(intervals.reduce((a,b)=>a+b,0)/intervals.length)); }
-    }
-    bpmPointer = null;
+
+  syncBtn.addEventListener('click', () => {
+    Timing.cycleSyncMode();
+  });
+
+  countInBtn.addEventListener('click', () => {
+    state.countInEnabled = !state.countInEnabled;
+    countInBtn.classList.toggle('is-active', state.countInEnabled);
+  });
+
+  metronomeBtn.addEventListener('click', () => {
+    Timing.setMetronome(!state.metronomeOn);
+    metronomeBtn.classList.toggle('is-active', state.metronomeOn);
+  });
+
+  bpmBtn.addEventListener('click', () => {
+    Timing.showTimingMenu('bpm', bpmBtn);
+  });
+
+  exportBtn.addEventListener('click', () => {
+    Persistence.exportWav();
+  });
+
+  saveBtn.addEventListener('click', () => {
+    const snap = Persistence.createLibrarySnapshot();
+    window.PionierLibrary?.save?.(snap);
+  });
+
+  // --- Expose API ---
+  window.PionierLooper = {
+    get layers() {
+      return state.layers;
+    },
+    get recording() {
+      return state.recording;
+    },
+    get bpm() {
+      return state.bpm;
+    },
+    get syncMode() {
+      return Timing.syncMode();
+    },
+    get countInEnabled() {
+      return state.countInEnabled;
+    },
+    get metronomeOn() {
+      return state.metronomeOn;
+    },
+    addLayer: (buffer) => {
+      const layer = {
+        index: state.layers.length,
+        buffer,
+        level: DEFAULT_LEVEL,
+        muted: false,
+        solo: false,
+        paused: false,
+        startedAt: getAudioContext().currentTime,
+      };
+      state.layers.push(layer);
+      renderCircles();
+      return layer.index;
+    },
+    setLayerLevel: (index, level) => {
+      const layer = state.layers[index];
+      if (layer) {
+        layer.level = level;
+        Mixer.applyLayerGain(layer);
+      }
+    },
+    toggleLayer: (index) => Mixer.toggleLayer(index),
+    deleteLayer: (index) => {
+      Mixer.deleteLayer(index);
+      renderCircles();
+    },
   };
-  bpmBtn.addEventListener('pointerup', endBpm);
-  bpmBtn.addEventListener('pointercancel', endBpm);
-  bpmBtn.addEventListener('contextmenu', (e) => e.preventDefault());
-  document.addEventListener('pointerdown', (e) => { if (timingMenu && !timingMenu.contains(e.target) && !e.target.closest('.looper-timing-btn')) closeTimingMenu(); }, true);
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeTimingMenu(); });
 
+<<<<<<< HEAD
   function requestStopRecord() {
     if (countInPending) { cancelCountIn(); return; }
     if (!recording) return;
@@ -1598,14 +1616,31 @@ export function mountLooper({ root } = {}) {
   // Sync modes remain internal for legacy layer timing; the visible control is Count-in.
 
   setBtnState();
+=======
+>>>>>>> parent of f52bd2ab (fix(handpan): restore working looper and surface recorder errors (v206))
   renderCircles();
-  const ctx = getAudioContext();
-  if (ctx) {
-    ctx.addEventListener('statechange', handleContextStateChange);
-  }
-  const api = { clearAll, layers, openTrackPanel, closeTrackPanel, setBpm, setMetronome, getTimingState: () => ({ bpm, metronomeOn, countInEnabled, countInBars, beatsPerBar, clickType }), refresh: () => { renderCircles(); setBtnState(); }, getTransportState: () => { const masterLayer = layers[0]; const ctx = getAudioContext(); const duration = cycleDuration(); const phase = cyclePhase(ctx?.currentTime); const paused = !masterLayer || !masterLayer.buffer || !!masterLayer.paused; const cycle = (!paused && ctx && duration > 0) ? Math.max(0, Math.floor((ctx.currentTime - (masterLayer.startedAt || ctx.currentTime)) / duration)) : 0; return { hasMaster: !!(masterLayer?.buffer && duration > 0), duration, phase, paused, cycle, bpm, currentTime: ctx?.currentTime || 0 }; }, getState: () => ({ maxLayers: MAX_LAYERS, layerCount: layers.length, recording, pendingLoopStop }) };
-  // Keep a stable debug/test handle so browser checks and support diagnostics can
-  // inspect the mounted loop engine without reaching into module internals.
-  window.PionierLooper = api;
-  return api;
+  return state;
+}
+
+function renderCircles() {
+  const layersEl = state.layersEl;
+  if (!layersEl) return;
+  layersEl.innerHTML = '';
+  state.layers.forEach((layer, i) => {
+    const c = document.createElement('button');
+    c.type = 'button';
+    c.className =
+      'looper-circle' +
+      (i === 0 ? ' is-master' : '') +
+      (layer.paused ? ' is-paused' : '') +
+      (layer.muted ? ' is-muted' : '') +
+      (layer.solo ? ' is-solo' : '');
+    c.setAttribute('aria-label', i === 0 ? 'Layer 1, master' : 'Layer ' + (i + 1));
+    c.innerHTML = '<span class="looper-circle-core">' + (i + 1) + '</span>';
+    c.addEventListener('click', () => {
+      Mixer.toggleLayer(i);
+      renderCircles();
+    });
+    layersEl.appendChild(c);
+  });
 }
