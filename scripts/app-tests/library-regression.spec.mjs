@@ -42,7 +42,8 @@ test('My Library button stays in safe viewport and library recordings survive re
   await expect.poll(() => page.evaluate(() => !!window.PionierLibrary && !!window.PionierCore)).toBe(true);
   const button = page.locator('#openLibrary');
   await expect(button).toBeVisible();
-  await expect.poll(() => button.evaluate(el => el.parentElement === document.body)).toBe(true);
+  // Current DOM mounts library control in the top nav group (not document.body); preserve safe-viewport/hit intent.
+  await expect.poll(() => button.evaluate(el => !!el.closest('#topNavGroup'))).toBe(true);
   const box = await button.boundingBox();
   expect(box).toBeTruthy();
   expect(box.x).toBeGreaterThanOrEqual(0); expect(box.y).toBeGreaterThanOrEqual(0);

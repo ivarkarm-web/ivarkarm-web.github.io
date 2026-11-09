@@ -103,7 +103,8 @@ test('phase8: selectors and right-side looper actions remain mounted after defer
 
   const library = page.locator('#openLibrary');
   await expect(library).toBeVisible();
-  await expect.poll(() => library.evaluate((el) => el.parentElement?.tagName)).toBe('BODY');
+  // Current DOM mounts library control in the top nav group (not document.body); preserve mounted/safe-viewport intent.
+  await expect.poll(() => library.evaluate((el) => el.closest('#topNavGroup')?.id)).toBe('topNavGroup');
   const libraryBox = await library.boundingBox();
   expect(libraryBox).toBeTruthy();
   expect(libraryBox.x).toBeGreaterThanOrEqual(0);

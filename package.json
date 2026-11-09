@@ -22,7 +22,9 @@
     "check:handpan-assets": "node scripts/check-dynamic-assets.mjs",
     "lighthouse:app": "node scripts/lighthouse-handpan.mjs",
     "check:release": "npm run check:app && node -e \"console.log('Remember: fill IOS-SAFARI-CHECKLIST.md before claiming production readiness 8/10')\"",
-    "optimize:handpan-css": "node scripts/optimize-handpan-css.mjs"
+    "optimize:handpan-css": "node scripts/optimize-handpan-css.mjs",
+    "report:handpan-source": "node scripts/report-handpan-source.mjs",
+    "check:handpan-production": "node scripts/check-handpan-production-css.mjs"
   },
   "dependencies": {
     "gsap": "3.15.0",

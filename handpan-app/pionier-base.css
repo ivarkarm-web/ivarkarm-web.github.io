@@ -4787,6 +4787,7 @@ html.pionier-boot-failed #appStatus {
   animation: looper-pulse-rec 1s ease-in-out infinite;
   border-color: #ff3b3b;
   box-shadow: 0 0 0 3px rgba(224, 54, 54, 0.22), 0 6px 20px rgba(0, 0, 0, 0.35);
+}
 
 .looper-btn.is-recording .looper-btn-core {
   width: 16px;
@@ -4814,14 +4815,16 @@ html.pionier-boot-failed #appStatus {
   color: #161518;
   font: 700 9px/1 Inter, system-ui, sans-serif;
   pointer-events: none;
+}
 
 .looper-btn.is-pending-stop .looper-btn-ring {
   border-color: #f4cf69;
   animation: looper-pulse-rec 0.7s ease-in-out infinite;
   box-shadow: 0 0 0 3px rgba(212, 176, 74, 0.25), 0 6px 20px rgba(0, 0, 0, 0.35);
+}
 
 .looper-btn.is-pending-stop .looper-btn-core {
   background: #d4b04a;
   border-radius: 3px;
-
+}
 

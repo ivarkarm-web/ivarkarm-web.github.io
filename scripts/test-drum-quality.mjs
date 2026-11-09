@@ -103,7 +103,19 @@ async function main() {
         const buf = await off.startRendering();
         return Array.from(buf.getChannelData(0));
       };
-      const out = { voices: [], chokes: [], errors: [] };
+      // regression: per-kit kick `sat` must affect rendered waveform when drive is not engaged
+      const renderKickSat = async (kitId, satOverride) => {
+        const base = KITS[kitId];
+        const kit = { ...base, kick: { ...base.kick, sat: satOverride } };
+        const dur = Math.max(0.06, kit.kick.dur || 0.3);
+        const len = Math.ceil(SR * Math.min(3.0, Math.max(0.55, dur + 0.30)));
+        const off = new OfflineAudioContext(1, len, SR);
+        const eng = createDrumEngine();
+        eng.triggerDrum(off, { row: 0, when: 0.02, vel: 1, kit, tune: 0.5, decay: 0.5, drive: 0, space: 0, dest: off.destination, tapSend: null });
+        const buf = await off.startRendering();
+        return Array.from(buf.getChannelData(0));
+      };
+      const out = { voices: [], chokes: [], sat: [], errors: [] };
       for (const k of DRUM_KIT_LIST) {
         for (let row = 0; row < DRUM_VOICES.length; row++) {
           try { out.voices.push({ kit: k.id, voice: DRUM_VOICES[row], samples: await renderVoice(k.id, row) }); }
@@ -112,6 +124,17 @@ async function main() {
         try { out.chokes.push({ kit: k.id, samples: await renderChoke(k.id) }); }
         catch (e) { out.errors.push(`${k.id}/choke: ${e && e.message}`); }
       }
+      // kick saturation regression (applies when kit drive not engaged)
+      for (const kid of ['classic','punchy']) {
+        try { out.sat.push({ kit: kid, a: await renderKickSat(kid, 0), b: await renderKickSat(kid, KITS[kid].kick.sat || 0.15) }); }
+        catch (e) { out.errors.push(`${kid}/kick-sat: ${e && e.message}`); }
+      }
+      // DRIVE knob / kit-drive path still functional and safe
+      try {
+        const kit = KITS.classic; const len = Math.ceil(SR * 0.8);
+        const mk = async (drive) => { const off=new OfflineAudioContext(1,len,SR); const eng=createDrumEngine(); eng.triggerDrum(off,{row:0,when:0.02,vel:1,kit,tune:0.5,decay:0.5,drive,space:0,dest:off.destination,tapSend:null}); const b=await off.startRendering(); return Array.from(b.getChannelData(0)); };
+        out.driveTest = { a: await mk(0), b: await mk(1.0) };
+      } catch (e) { out.errors.push(`kick-drive: ${e && e.message}`); }
       return out;
     });
 
@@ -140,8 +163,28 @@ async function main() {
       if (a.maxJump > MAX_JUMP) failures.push(`${c.kit}/choke: discontinuity ${a.maxJump.toFixed(3)}`);
       if (a.endPeak > MAX_END) failures.push(`${c.kit}/choke: not settled ${a.endPeak.toFixed(5)}`);
     }
+    // kick saturation regression: sat must change rendered kick waveform (drive not engaged)
+    for (const s of (result.sat || [])) {
+      const n = Math.min(s.a.length, s.b.length);
+      let diff2 = 0, e2 = 0, pkA = 0, pkB = 0;
+      for (let i = 0; i < n; i++) { const da = Math.abs(s.a[i]), dbb = Math.abs(s.b[i]); if (da>pkA) pkA=da; if (dbb>pkB) pkB=dbb; const d=s.a[i]-s.b[i]; diff2+=d*d; e2+=s.b[i]*s.b[i]; }
+      const rmsDiff = Math.sqrt(diff2/Math.max(1,n)); const rmsB = Math.sqrt(e2/Math.max(1,n));
+      const ratio = rmsB > 1e-9 ? rmsDiff/rmsB : 0;
+      if (ratio < 0.01) failures.push(`${s.kit}/kick-sat: waveform unchanged (diff/rms=${ratio.toFixed(4)}); per-kit sat not affecting body`);
+      if (pkB > MINUS1DB) failures.push(`${s.kit}/kick-sat: saturated peak ${fmt(pkB)} dBFS > -1`);
+      if (pkB < MIN_AUDIBLE) failures.push(`${s.kit}/kick-sat: saturated render silent`);
+      console.log(`  kick-sat ${s.kit}: diff/rms=${ratio.toFixed(4)} peak noSat=${fmt(pkA)} sat=${fmt(pkB)} dB`);
+    }
+    if (result.driveTest) {
+      const a=result.driveTest.a,b=result.driveTest.b,n=Math.min(a.length,b.length); let d2=0,pkB=0; for(let i=0;i<n;i++){const d=a[i]-b[i]; d2+=d*d; const ab=Math.abs(b[i]); if(ab>pkB)pkB=ab;}
+      const ratio=Math.sqrt(d2/Math.max(1,n))/(Math.sqrt(b.reduce((s,x)=>s+x*x,0)/Math.max(1,b.length))||1e-9);
+      if (ratio < 0.01) failures.push(`kick-drive: DRIVE knob produced no waveform change`);
+      if (pkB > MINUS1DB) failures.push(`kick-drive: driven peak ${fmt(pkB)} dBFS > -1`);
+      if (!Number.isFinite(pkB)) failures.push(`kick-drive: runaway`);
+      console.log(`  kick-drive (knob 0 vs 1.0): diff/rms=${ratio.toFixed(4)} peak=${fmt(pkB)} dB`);
+    }
 
-    console.log('DRUM QUALITY (stage 2, v214) — peak dBFS / RMS-100ms dB @ vel 1 (target):');
+    console.log('DRUM QUALITY (v215+quality-8) — peak dBFS / RMS-100ms dB @ vel 1 (target):');
     const kits = ['classic','deep','punchy','lofi','industrial','tribal'];
     for (const voice of ['kick','snare','clap','ch','oh','lowtom','hightom','rim']) {
       const tgt = TARGETS[voice];
