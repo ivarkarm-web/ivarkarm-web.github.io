@@ -25,6 +25,51 @@
   --radius-pill: 999px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --font: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* Surfaces added for theme-aware chrome (dark defaults match prior hardcoded values) */
+  --nav-group-bg: rgba(18, 18, 20, 0.7);
+  --nav-group-border: rgba(230, 224, 210, 0.12);
+  --nav-group-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  --nav-btn-bg: rgba(18, 18, 20, 0.82);
+  --nav-btn-fg: var(--muted-strong);
+  --nav-btn-border: rgba(230, 224, 210, 0.12);
+  --nav-btn-hover-bg: rgba(28, 28, 32, 0.9);
+  --nav-btn-hover-border: rgba(212, 176, 74, 0.35);
+  --nav-btn-hover-fg: var(--gold);
+  --nav-btn-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --accent: var(--gold);
+  --accent-fg: var(--gold);
+}
+
+html.theme-light,
+body.theme-light {
+  --bg: #f4f1eb;
+  --bg-elevated: #faf8f4;
+  --panel: rgba(255, 252, 246, 0.96);
+  --panel-solid: #fffdf8;
+  --stroke: rgba(40, 36, 28, 0.09);
+  --stroke-strong: rgba(40, 36, 28, 0.16);
+  --muted: rgba(42, 40, 36, 0.56);
+  --muted-strong: rgba(42, 40, 36, 0.78);
+  --fg: #1c1b1a;
+  --gold: #8a6a1a;
+  --gold-dim: #6b5410;
+  --gold-soft: rgba(138, 106, 26, 0.16);
+  --gold-glow: rgba(138, 106, 26, 0.1);
+  --steel: rgba(60, 70, 90, 0.12);
+  --shadow-lg: 0 20px 50px rgba(40, 32, 16, 0.14);
+  --shadow-md: 0 10px 28px rgba(40, 32, 16, 0.1);
+  --nav-group-bg: rgba(255, 252, 246, 0.88);
+  --nav-group-border: rgba(40, 36, 28, 0.14);
+  --nav-group-shadow: 0 4px 18px rgba(40, 32, 16, 0.1);
+  --nav-btn-bg: rgba(255, 255, 255, 0.82);
+  --nav-btn-fg: rgba(42, 40, 36, 0.82);
+  --nav-btn-border: rgba(40, 36, 28, 0.16);
+  --nav-btn-hover-bg: rgba(255, 255, 255, 0.96);
+  --nav-btn-hover-border: rgba(138, 106, 26, 0.35);
+  --nav-btn-hover-fg: #6b5410;
+  --nav-btn-shadow: 0 2px 8px rgba(40, 32, 16, 0.08);
+  --accent: #8a6a1a;
+  --accent-fg: #6b5410;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -890,6 +935,15 @@ html, body, #app, .app, .stage {
   --pionier-z-fx: 4400;
   --pionier-z-soundscapes: 5000;
   --pionier-z-status: 6000;
+}
+html.theme-light,
+body.theme-light {
+  --pionier-bg: #f4f1eb;
+  --pionier-fg: #1c1b1a;
+  --pionier-muted: rgba(42, 40, 36, 0.62);
+  --pionier-gold: #8a6a1a;
+  --pionier-line: rgba(40, 36, 28, 0.14);
+  --pionier-panel: rgba(255, 252, 246, 0.96);
 }
 
 /* Hide empty CONTROLS toggle */
