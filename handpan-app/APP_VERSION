@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 205
 =======
 208
@@ -7,3 +8,6 @@
 =======
 207
 >>>>>>> parent of bf992a40 (fix(handpan): native selects and non-blocking FX editor (v208))
+=======
+206
+>>>>>>> parent of f224558e (fix(handpan): complete v207 light-mode styles and cache sync)

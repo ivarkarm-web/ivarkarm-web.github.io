@@ -2310,6 +2310,7 @@ body, .app, button, input, select, textarea {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 /* Bottom/looper quick-access: sequencer (replaces dedicated WAV button) */
@@ -2337,3 +2338,5 @@ html.theme-light .pionier-sequence {
   color: #24221e;
 }
 >>>>>>> parent of 0d5f19cc (fix(handpan): add visible Sensitivity control (v209))
+=======
+>>>>>>> parent of f224558e (fix(handpan): complete v207 light-mode styles and cache sync)

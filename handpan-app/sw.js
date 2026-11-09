@@ -15,6 +15,7 @@ const CACHE_VERSION = 'pionier-v205';
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 const SHELL = [
   './',
   './index.html',
@@ -73,6 +74,9 @@ const CACHE_VERSION = 'pionier-v208';
 =======
 const CACHE_VERSION = 'pionier-v207';
 >>>>>>> parent of bf992a40 (fix(handpan): native selects and non-blocking FX editor (v208))
+=======
+const CACHE_VERSION = 'pionier-v206';
+>>>>>>> parent of f224558e (fix(handpan): complete v207 light-mode styles and cache sync)
 
 const ASSETS = [
   './assets/app-DcaMDsYD.css',
