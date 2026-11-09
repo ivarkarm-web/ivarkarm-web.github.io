@@ -11,7 +11,7 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.
  */
-const CACHE_VERSION = 'pionier-v206';
+const CACHE_VERSION = 'pionier-v207';
 
 const SHELL = [
   './',
@@ -49,8 +49,8 @@ const SHELL = [
   './js/settings-panel.js?v=35',
   './js/skin-mandala.js?v=6',
   './js/skin-palette.js?v=3',
-  './js/tonepad-impl.js?v=2',
-  './js/tonepad.js?v=53',
+  './js/tonepad-impl.js?v=3',
+  './js/tonepad.js?v=54',
   './library.css?v=2',
   './looper-circle-progress.js?v=2',
   './looper-side-menus.js?v=10',
