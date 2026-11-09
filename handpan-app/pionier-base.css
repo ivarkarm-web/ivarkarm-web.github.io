@@ -2819,24 +2819,9 @@ html:not(.pionier-welcome-active) #app {
   padding: 0 !important;
 }
 .top-nav-btn:hover {
-<<<<<<< HEAD
-<<<<<<< HEAD
   color: var(--gold) !important;
   border-color: rgba(212, 176, 74, 0.35) !important;
   background: rgba(28, 28, 32, 0.9) !important;
-=======
-  /* reason: text color */
-  color: var(--gold) ;
-  /* reason: text color */
-  border-color: rgba(212, 176, 74, 0.35) ;
-  /* reason: surface color */
-  background: rgba(28, 28, 32, 0.9) ;
->>>>>>> parent of f224558e (fix(handpan): complete v207 light-mode styles and cache sync)
-=======
-  color: var(--gold) !important;
-  border-color: rgba(212, 176, 74, 0.35) !important;
-  background: rgba(28, 28, 32, 0.9) !important;
->>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
 }
 .top-nav-btn:active { transform: scale(0.94); }
 .top-nav-btn:focus-visible {

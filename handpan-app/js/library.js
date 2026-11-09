@@ -1,20 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 import { saveComposition, listCompositions, getComposition, renameComposition, deleteComposition, createWav, formatDuration } from './library-store.js?v=1';
-=======
-import {
-  saveComposition,
-  listCompositions,
-  getComposition,
-  renameComposition,
-  deleteComposition,
-  createWav,
-  formatDuration,
-} from './library-store.js?v=1';
->>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
-=======
-import { saveComposition, listCompositions, getComposition, renameComposition, deleteComposition, createWav, formatDuration } from './library-store.js?v=1';
->>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
 
 const panel = document.getElementById('libraryPanel');
@@ -162,35 +146,10 @@ if (panel) {
       if (button.dataset.action === 'export') download(record);
       if (button.dataset.action === 'rename') {
         const name = window.prompt('Name this composition', record.name);
-<<<<<<< HEAD
-<<<<<<< HEAD
         if (name !== null && name.trim()) { await renameComposition(record.id, name); await render(); }
       }
       if (button.dataset.action === 'delete' && window.confirm(`Delete “${record.name}” from this browser?`)) { await deleteComposition(record.id); await render(); }
     } catch (error) { setStatus(error.message || 'That library action failed.'); }
-=======
-        if (name !== null && name.trim()) {
-          await renameComposition(record.id, name);
-          await render();
-        }
-      }
-      if (
-        button.dataset.action === 'delete' &&
-        window.confirm(`Delete “${record.name}” from this browser?`)
-      ) {
-        await deleteComposition(record.id);
-        await render();
-      }
-    } catch (error) {
-      setStatus(error.message || 'That library action failed.');
-    }
->>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
-=======
-        if (name !== null && name.trim()) { await renameComposition(record.id, name); await render(); }
-      }
-      if (button.dataset.action === 'delete' && window.confirm(`Delete “${record.name}” from this browser?`)) { await deleteComposition(record.id); await render(); }
-    } catch (error) { setStatus(error.message || 'That library action failed.'); }
->>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   });
   (async () => {
     try {

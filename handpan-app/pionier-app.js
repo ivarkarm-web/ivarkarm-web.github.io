@@ -1,20 +1,7 @@
 /**
  * Pionier app shell: load the vendored local core and optional UI modules.
  */
-<<<<<<< HEAD
-<<<<<<< HEAD
 import { startAmbient, setAmbientLevel, stopAmbient, getAmbientMode } from './js/generative-ambient.js?v=2';
-=======
-import {
-  startAmbient,
-  setAmbientLevel,
-  stopAmbient,
-  getAmbientMode,
-} from './js/generative-ambient.js?v=2';
->>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
-=======
-import { startAmbient, setAmbientLevel, stopAmbient, getAmbientMode } from './js/generative-ambient.js?v=2';
->>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
 
 const BASE = new URL('.', import.meta.url).href;
 const statusEl = document.getElementById('appStatus');
@@ -75,17 +62,7 @@ async function loadMasterClock() {
 async function loadLooper() {
   try {
     const { mountLooper } = await import(new URL('./js/looper.js?v=240', BASE).href);
-<<<<<<< HEAD
-<<<<<<< HEAD
     if (typeof mountLooper === 'function') mountLooper();
-=======
-    if (typeof mountLooper === 'function') {
-      mountLooper();
-    }
->>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
-=======
-    if (typeof mountLooper === 'function') mountLooper();
->>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   } catch (e) {
     console.warn('[boot] looper', e);
   }
@@ -100,15 +77,7 @@ function loadFxEditor() {
     fxEditorLoadPromise = import(new URL('./js/fx-editor.js?v=9', BASE).href)
       .then(() => {
         fxEditorReady = true;
-<<<<<<< HEAD
-<<<<<<< HEAD
         if (pendingFxEditorId != null) {
-=======
-        if (pendingFxEditorId !== null) {
->>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
-=======
-        if (pendingFxEditorId != null) {
->>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
           const id = pendingFxEditorId;
           pendingFxEditorId = null;
           window.dispatchEvent(new CustomEvent('pionier:fx-editor-open', { detail: { id } }));
@@ -134,10 +103,6 @@ function primeFxEditorLoader(target) {
 // for the FX panel or one of its settings shortcuts, and replay one tap that
 // happened before the module (and its listeners) finished loading.
 document.addEventListener('pointerdown', (e) => primeFxEditorLoader(e.target), true);
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
 document.addEventListener('click', (e) => {
   if (fxEditorReady) return;
   const shortcut = e.target?.closest?.('.fx-settings-shortcut[data-fx-editor-open]');
@@ -152,48 +117,6 @@ window.addEventListener('pionier:fx-editor-open', (e) => {
   pendingFxEditorId = e.detail?.id ?? pendingFxEditorId;
   loadFxEditor();
 }, true);
-<<<<<<< HEAD
-
-async function loadArps() {
-  try {
-    const { createArpInstruments } = await import(new URL('./js/instruments/arp-family.js?v=3', BASE).href);
-    if (typeof createArpInstruments === 'function') createArpInstruments();
-  } catch (e) {
-    console.warn('[boot] arps', e);
-  }
-}
-=======
-document.addEventListener(
-  'click',
-  (e) => {
-    if (fxEditorReady) {
-      return;
-    }
-    const shortcut = e.target?.closest?.('.fx-settings-shortcut[data-fx-editor-open]');
-    if (!shortcut) {
-      return;
-    }
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    pendingFxEditorId = shortcut.dataset.fxEditorOpen || pendingFxEditorId;
-    loadFxEditor();
-  },
-  true
-);
-window.addEventListener(
-  'pionier:fx-editor-open',
-  (e) => {
-    if (fxEditorReady) {
-      return;
-    }
-    pendingFxEditorId = e.detail?.id ?? pendingFxEditorId;
-    loadFxEditor();
-  },
-  true
-);
->>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
-=======
->>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
 
 async function loadArps() {
   try {
@@ -223,17 +146,7 @@ async function loadLibrary() {
 async function loadAmbientSequencer() {
   try {
     const { mountTonepad } = await import(new URL('./js/tonepad.js?v=52', BASE).href);
-<<<<<<< HEAD
-<<<<<<< HEAD
     if (typeof mountTonepad === 'function') await mountTonepad();
-=======
-    if (typeof mountTonepad === 'function') {
-      await mountTonepad();
-    }
->>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
-=======
-    if (typeof mountTonepad === 'function') await mountTonepad();
->>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   } catch (e) {
     console.warn('[boot] tonepad', e);
   }
@@ -278,17 +191,7 @@ async function boot() {
   // The looper is optional. Let the core reach ready even if its module load
   // stalls, and arrange the dock as soon as the looper finishes mounting.
   loadLooper().then(() => {
-<<<<<<< HEAD
-<<<<<<< HEAD
     try { window.__pionierArrangeLayout?.(); } catch (_) {}
-=======
-    try {
-      window.__pionierArrangeLayout?.();
-    } catch (_) {}
->>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
-=======
-    try { window.__pionierArrangeLayout?.(); } catch (_) {}
->>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   });
 
   try {
@@ -308,23 +211,8 @@ async function boot() {
 
   document.getElementById('randomizeSetup')?.addEventListener('click', async () => {
     const dice = document.getElementById('randomizeSetup');
-<<<<<<< HEAD
-<<<<<<< HEAD
     if (dice?.dataset.rolling === '1') return;
     if (dice) { dice.dataset.rolling = '1'; dice.classList.add('is-rolling'); }
-=======
-    if (dice?.dataset.rolling === '1') {
-      return;
-    }
-    if (dice) {
-      dice.dataset.rolling = '1';
-      dice.classList.add('is-rolling');
-    }
->>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
-=======
-    if (dice?.dataset.rolling === '1') return;
-    if (dice) { dice.dataset.rolling = '1'; dice.classList.add('is-rolling'); }
->>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
     try {
       unlockAudioFromGesture();
       const core = window.PionierCore;
@@ -350,17 +238,7 @@ async function boot() {
 }
 
 if (document.readyState === 'loading') {
-<<<<<<< HEAD
-<<<<<<< HEAD
   document.addEventListener('DOMContentLoaded', () => { boot().catch(console.error); });
-=======
-  document.addEventListener('DOMContentLoaded', () => {
-    boot().catch(console.error);
-  });
->>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
-=======
-  document.addEventListener('DOMContentLoaded', () => { boot().catch(console.error); });
->>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
 } else {
   boot().catch(console.error);
 }

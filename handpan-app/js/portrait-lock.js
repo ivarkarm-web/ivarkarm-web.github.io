@@ -1,17 +1,6 @@
 /**
-<<<<<<< HEAD
-<<<<<<< HEAD
  * Prefer portrait. Browsers often ignore lock() unless installed as PWA;
  * the CSS gate still blocks phone landscape UI either way.
-=======
- * portrait-lock.js — Prefer portrait. ES module.
- * Kept for Phase 2 module graph; Phase 3 removes the hard portrait lock
- * and provides a usable landscape layout.
->>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
-=======
- * Prefer portrait. Browsers often ignore lock() unless installed as PWA;
- * the CSS gate still blocks phone landscape UI either way.
->>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
  */
 (function portraitLock() {
   function tryLock() {
@@ -29,8 +18,6 @@
     } catch (_) {}
   }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
   function onGesture() {
     tryLock();
   }
@@ -47,51 +34,3 @@
     setTimeout(tryLock, 100);
   });
 })();
-=======
-export function tryLock() {
-  try {
-    const o = screen.orientation || screen.mozOrientation || screen.msOrientation;
-    if (o && typeof o.lock === 'function') {
-      o.lock('portrait').catch(function () {});
-      return;
-    }
-    if (typeof screen.lockOrientation === 'function') {
-      screen.lockOrientation('portrait');
-    } else if (typeof screen.mozLockOrientation === 'function') {
-      screen.mozLockOrientation('portrait');
-    }
-  } catch (_) {}
-}
-=======
-  function onGesture() {
-    tryLock();
-  }
->>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', tryLock);
-  } else {
-    tryLock();
-  }
-
-<<<<<<< HEAD
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', tryLock);
-} else {
-  tryLock();
-}
-
-document.addEventListener('click', onGesture, { once: true, passive: true });
-document.addEventListener('touchstart', onGesture, { once: true, passive: true });
-window.addEventListener('orientationchange', function () {
-  setTimeout(tryLock, 100);
-});
->>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
-=======
-  document.addEventListener('click', onGesture, { once: true, passive: true });
-  document.addEventListener('touchstart', onGesture, { once: true, passive: true });
-  window.addEventListener('orientationchange', function () {
-    setTimeout(tryLock, 100);
-  });
-})();
->>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
