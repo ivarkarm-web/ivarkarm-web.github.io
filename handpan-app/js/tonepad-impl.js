@@ -657,7 +657,13 @@ export async function mountTonepad() {
           const baseVel = 0.35 + velocity * 0.55;
           const jitterV = (Math.random() - 0.5) * 2 * humanize * 0.2;
           const jitterT = (Math.random() - 0.5) * 2 * humanize * sd * 0.35;
-          trigger(row, when + jitterT, Math.max(0.05, Math.min(1, baseVel * accent + jitterV)), layerSounds[playLayer], mode, playLayer);
+          let swingT = 0;
+          if (mode === 'drum' && (step % 2) === 1) {
+            const sw = clamp01((drumFx[playLayer] && drumFx[playLayer].swing) || 0, 0);
+            if (sw > 0) swingT = Math.min(sw * sd * 0.45, sd * 0.45, 0.12);
+          }
+          const tOff = Math.max(0, jitterT + swingT); // never earlier than step; swing default 0 => jitterT preserved when >=0
+          trigger(row, when + (swingT > 0 ? tOff : jitterT), Math.max(0.05, Math.min(1, baseVel * accent + jitterV)), layerSounds[playLayer], mode, playLayer);
         }
       }
     }
