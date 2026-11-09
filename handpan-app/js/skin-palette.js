@@ -10,6 +10,7 @@
     body: ['#2a2c30', '#18191c', '#0c0d0f'],
     rim: [200, 205, 212],
 <<<<<<< HEAD
+<<<<<<< HEAD
     pad: [[70, 74, 82], [36, 38, 44], [18, 19, 22]],
     lip: [160, 165, 175],
     stroke: [190, 195, 205],
@@ -27,11 +28,18 @@
       [140, 150, 170],
     ],
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+    pad: [[70, 74, 82], [36, 38, 44], [18, 19, 22]],
+    lip: [160, 165, 175],
+    stroke: [190, 195, 205],
+    glow: [[230, 235, 245], [140, 150, 170]],
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
     sheen: 0.18,
   };
   const neutralLight = {
     body: ['#d8d6d1', '#b8b5ae', '#8a8780'],
     rim: [60, 62, 68],
+<<<<<<< HEAD
 <<<<<<< HEAD
     pad: [[210, 208, 202], [160, 158, 152], [100, 98, 94]],
     lip: [90, 92, 98],
@@ -50,6 +58,12 @@
       [40, 45, 55],
     ],
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+    pad: [[210, 208, 202], [160, 158, 152], [100, 98, 94]],
+    lip: [90, 92, 98],
+    stroke: [50, 52, 58],
+    glow: [[80, 85, 95], [40, 45, 55]],
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
     sheen: 0.2,
   };
 
@@ -57,16 +71,10 @@
 <<<<<<< HEAD
 =======
     try {
-      if (window.PionierSettings && window.PionierSettings.lightMode === true) {
-        return true;
-      }
-      if (window.PionierSettings && window.PionierSettings.lightMode === false) {
-        return false;
-      }
+      if (window.PionierSettings && window.PionierSettings.lightMode === true) return true;
+      if (window.PionierSettings && window.PionierSettings.lightMode === false) return false;
     } catch (_) {}
-    return !!(
-      document.documentElement && document.documentElement.classList.contains('theme-light')
-    );
+    return !!(document.documentElement && document.documentElement.classList.contains('theme-light'));
   }
 
   function applyPalette() {
@@ -84,6 +92,7 @@
 
   window.addEventListener('pionier:settings', function () {
     applyPalette();
+<<<<<<< HEAD
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
     try {
       if (window.PionierSettings && window.PionierSettings.lightMode === true) return true;
@@ -107,6 +116,8 @@
 
   window.addEventListener('pionier:settings', function () {
     applyPalette();
+=======
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
     try { window.PionierCore?.draw?.(); } catch (_) {}
   });
 
@@ -115,12 +126,16 @@
     const obs = new MutationObserver(function () {
       applyPalette();
 <<<<<<< HEAD
+<<<<<<< HEAD
       try { window.PionierCore?.draw?.(); } catch (_) {}
 =======
       try {
         window.PionierCore?.draw?.();
       } catch (_) {}
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+      try { window.PionierCore?.draw?.(); } catch (_) {}
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
     });
     obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
   } catch (_) {}

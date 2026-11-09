@@ -13,6 +13,7 @@
 (function stableLayoutBoot() {
   'use strict';
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (window.__pionierStableLayoutBootV1) return;
   window.__pionierStableLayoutBootV1 = true;
   var layoutObserver = null;
@@ -72,6 +73,9 @@
   if (window.__pionierStableLayoutBootV1) {
     return;
   }
+=======
+  if (window.__pionierStableLayoutBootV1) return;
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   window.__pionierStableLayoutBootV1 = true;
   var layoutObserver = null;
   var dockResizeObserver = null;
@@ -80,20 +84,13 @@
   function scheduleCenterPan() {
     var currentDock = document.getElementById('pionierBottomDock');
     if (currentDock && currentDock !== observedDock && 'ResizeObserver' in window) {
-      if (!dockResizeObserver) {
-        dockResizeObserver = new ResizeObserver(scheduleCenterPan);
-      }
+      if (!dockResizeObserver) dockResizeObserver = new ResizeObserver(scheduleCenterPan);
       observedDock = currentDock;
       dockResizeObserver.observe(currentDock);
     }
-    if (resizeScheduled) {
-      return;
-    }
+    if (resizeScheduled) return;
     resizeScheduled = true;
-    requestAnimationFrame(function () {
-      resizeScheduled = false;
-      centerPan();
-    });
+    requestAnimationFrame(function () { resizeScheduled = false; centerPan(); });
   }
 
   function centerPan() {
@@ -120,7 +117,7 @@
 
     var pan = document.getElementById('pan');
     if (pan) {
-      ['position', 'left', 'right', 'top', 'bottom', 'margin', 'z-index'].forEach(function (prop) {
+      ['position','left','right','top','bottom','margin','z-index'].forEach(function (prop) {
         pan.style.removeProperty(prop);
       });
     }
@@ -129,14 +126,16 @@
 
   function ensureLooperChrome() {
     var btn = document.getElementById('looperBtn');
-    if (!btn) {
-      return;
-    }
+    if (!btn) return;
     if (!btn.querySelector('.looper-btn-core')) {
       btn.className = 'looper-btn looper-record';
+<<<<<<< HEAD
       btn.innerHTML =
         '<span class="looper-btn-ring" aria-hidden="true"></span><span class="looper-btn-core" aria-hidden="true"></span>';
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+      btn.innerHTML = '<span class="looper-btn-ring" aria-hidden="true"></span><span class="looper-btn-core" aria-hidden="true"></span>';
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
     }
     btn.style.setProperty('width', '52px', 'important');
     btn.style.setProperty('height', '52px', 'important');
@@ -154,6 +153,7 @@
     }
     var dock = document.getElementById('pionierBottomDock');
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (dock) scheduleCenterPan();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
@@ -169,6 +169,12 @@
     boot();
   }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+    if (dock) scheduleCenterPan();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
+  else boot();
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   window.addEventListener('resize', centerPan, { passive: true });
   window.addEventListener('orientationchange', function () {
     setTimeout(centerPan, 100);

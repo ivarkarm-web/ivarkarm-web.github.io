@@ -7,6 +7,7 @@ import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/a
 import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { HandpanInstrument, HANDPAN_SCALES, randomScaleIndex } from './js/instruments/handpan.js?v=13';
 =======
 import {
@@ -15,6 +16,9 @@ import {
   randomScaleIndex,
 } from './js/instruments/handpan.js?v=13';
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+import { HandpanInstrument, HANDPAN_SCALES, randomScaleIndex } from './js/instruments/handpan.js?v=13';
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
 import { createLibraryInstruments } from './js/instruments/library-family.js?v=3';
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';
@@ -440,12 +444,16 @@ KEYS.forEach((k, i) => { KEY_TO_PAD[k] = i; });
 function renderInstrumentMenu() {
   const menu = document.getElementById('instrumentMenu');
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (!menu) return;
 =======
   if (!menu) {
     return;
   }
 >>>>>>> parent of bf992a40 (fix(handpan): native selects and non-blocking FX editor (v208))
+=======
+  if (!menu) return;
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   menu.innerHTML = '';
   const results = document.createElement('div');
   results.className = 'instrument-menu-results';
@@ -461,28 +469,26 @@ function renderInstrumentMenu() {
     'ELECTRONIC & SYNTH': 'ELECTRONIC & SYNTH',
     library: 'Library',
 <<<<<<< HEAD
+<<<<<<< HEAD
     arp: 'Arps'
 =======
     arp: 'Arps',
 >>>>>>> parent of bf992a40 (fix(handpan): native selects and non-blocking FX editor (v208))
+=======
+    arp: 'Arps'
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   };
   function instrumentGroupId(item) {
     const c = (item.category || item.engineKind || 'other').toString().toLowerCase();
-    if (c.includes('arp')) {
-      return 'arp';
-    }
+    if (c.includes('arp')) return 'arp';
     return item.category || 'library';
   }
   const groupLabel = (gid) => INSTRUMENT_FAMILY_LABELS[gid] || gid;
   for (const item of InstrumentRegistry.list()) {
-    if (!item || !item.id || seen.has(item.id)) {
-      continue;
-    }
+    if (!item || !item.id || seen.has(item.id)) continue;
     seen.add(item.id);
     const gid = instrumentGroupId(item);
-    if (!groups.has(gid)) {
-      groups.set(gid, []);
-    }
+    if (!groups.has(gid)) groups.set(gid, []);
     groups.get(gid).push(item);
   }
   for (const [gid, items] of groups) {
@@ -504,6 +510,7 @@ function renderInstrumentMenu() {
       btn.appendChild(nameSpan);
       btn.addEventListener('click', (e) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
         e.preventDefault(); e.stopPropagation();
         setInstrument(item.id).catch(() => {});
         if (window.PionierOverlay) window.PionierOverlay.closePickers();
@@ -517,21 +524,25 @@ function renderInstrumentMenu() {
 =======
         e.preventDefault();
         e.stopPropagation();
+=======
+        e.preventDefault(); e.stopPropagation();
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
         setInstrument(item.id).catch(() => {});
-        if (window.PionierOverlay) {
-          window.PionierOverlay.closePickers();
-        } else {
+        if (window.PionierOverlay) window.PionierOverlay.closePickers();
+        else {
           menu.hidden = true;
           menu.setAttribute('hidden', '');
-          document
-            .getElementById('instrumentDropdownToggle')
-            ?.setAttribute('aria-expanded', 'false');
+          document.getElementById('instrumentDropdownToggle')?.setAttribute('aria-expanded', 'false');
         }
       });
+<<<<<<< HEAD
       try {
         window.PionierFavorites?.decorateInstrumentItem?.(btn, item);
       } catch (_) {}
 >>>>>>> parent of bf992a40 (fix(handpan): native selects and non-blocking FX editor (v208))
+=======
+      try { window.PionierFavorites?.decorateInstrumentItem?.(btn, item); } catch (_) {}
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
       section.appendChild(btn);
     }
     results.appendChild(section);

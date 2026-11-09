@@ -63,12 +63,16 @@ function extractVersionedRefs(source) {
   const re = /(?:href|src)=["'](\.\/[^"']+\?v=\d+)["']/g;
   let m;
 <<<<<<< HEAD
+<<<<<<< HEAD
   while ((m = re.exec(source))) found.add(m[1]);
 =======
   while ((m = re.exec(source))) {
     found.add(m[1]);
   }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+  while ((m = re.exec(source))) found.add(m[1]);
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   return found;
 }
 
@@ -94,17 +98,22 @@ function extractDynamicImports(source) {
 function normalizeShellEntry(entry) {
   let e = entry.trim();
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (!e.startsWith('./') && e !== './') e = './' + e.replace(/^\//, '');
 =======
   if (!e.startsWith('./') && e !== './') {
     e = './' + e.replace(/^\//, '');
   }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+  if (!e.startsWith('./') && e !== './') e = './' + e.replace(/^\//, '');
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   return e;
 }
 
 function buildShell(indexHtml, appJs, coreJs) {
   const shell = new Set();
+<<<<<<< HEAD
 <<<<<<< HEAD
   for (const e of EXTRA_SHELL) shell.add(normalizeShellEntry(e));
   for (const e of extractVersionedRefs(indexHtml)) shell.add(normalizeShellEntry(e));
@@ -126,6 +135,13 @@ function buildShell(indexHtml, appJs, coreJs) {
       shell.add(normalizeShellEntry(e));
     }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+  for (const e of EXTRA_SHELL) shell.add(normalizeShellEntry(e));
+  for (const e of extractVersionedRefs(indexHtml)) shell.add(normalizeShellEntry(e));
+  for (const e of extractDynamicImports(appJs)) shell.add(normalizeShellEntry(e));
+  if (coreJs) {
+    for (const e of extractDynamicImports(coreJs)) shell.add(normalizeShellEntry(e));
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   }
   const priority = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
   const rest = [...shell].filter((e) => !priority.includes(e)).sort();
@@ -156,6 +172,7 @@ function renderSw(cacheVersion, shell) {
   p(' *  - Versioned shell assets (?v=): network-first when online, cache fallback');
   p(' *  - Other same-origin GET: cache-first, then network');
   p(' *  - On activate: drop all caches except current CACHE_VERSION');
+<<<<<<< HEAD
 <<<<<<< HEAD
   p(' * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.');
   p(' */');
@@ -191,14 +208,15 @@ function renderSw(cacheVersion, shell) {
   p(
     ' * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.'
   );
+=======
+  p(' * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.');
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   p(' */');
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   p("const CACHE_VERSION = '" + cacheVersion + "';");
   p('');
   p('const SHELL = [');
-  for (const e of shell) {
-    p("  '" + e + "',");
-  }
+  for (const e of shell) p("  '" + e + "',");
   p('];');
   p('');
   p("self.addEventListener('install', (event) => {");
@@ -295,6 +313,7 @@ function renderSw(cacheVersion, shell) {
   p('');
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   p("  if (isVersionedAsset(url) && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {");
   p('    event.respondWith(');
   p('      fetch(req)');
@@ -314,6 +333,9 @@ function renderSw(cacheVersion, shell) {
   p(
     "  if (isVersionedAsset(url) && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {"
   );
+=======
+  p("  if (isVersionedAsset(url) && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {");
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   p('    event.respondWith(');
   p('      fetch(req)');
   p('        .then((res) => {');
@@ -386,6 +408,7 @@ function extractCacheVersion(swSource) {
 function extractShell(swSource) {
   const m = swSource.match(/const SHELL\s*=\s*\[([\s\S]*?)\];/);
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (!m) return null;
   const entries = [];
   const re = /['"]([^'"]+)['"]/g;
@@ -402,6 +425,13 @@ function extractShell(swSource) {
     entries.push(x[1]);
   }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+  if (!m) return null;
+  const entries = [];
+  const re = /['"]([^'"]+)['"]/g;
+  let x;
+  while ((x = re.exec(m[1]))) entries.push(x[1]);
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   return entries;
 }
 
@@ -438,6 +468,7 @@ function main() {
       const curSet = new Set(curShell || []);
       const nextSet = new Set(shell);
 <<<<<<< HEAD
+<<<<<<< HEAD
       for (const e of shell) if (!curSet.has(e)) console.error('  missing in sw:', e);
       for (const e of curShell || []) if (!nextSet.has(e)) console.error('  extra in sw:', e);
 =======
@@ -452,6 +483,10 @@ function main() {
         }
       }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+      for (const e of shell) if (!curSet.has(e)) console.error('  missing in sw:', e);
+      for (const e of curShell || []) if (!nextSet.has(e)) console.error('  extra in sw:', e);
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
       ok = false;
     }
     if (!ok) {

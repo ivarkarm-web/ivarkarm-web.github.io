@@ -18,6 +18,7 @@
     "test:axe": "npx playwright test phase6-axe",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "check:app": "npm run check:handpan-cache && npm run test && npm run test:app && npm run lighthouse:app && npx playwright test",
 =======
     "ci-guard": "node scripts/ci-guard.mjs",
@@ -26,6 +27,9 @@
 =======
     "check:app": "npm run lint && npm run format:check && npm run check:handpan-cache && node scripts/doc-drift.mjs && npm run test && npm run test:app && npm run lighthouse:app && npx playwright test",
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+    "check:app": "npm run check:handpan-cache && npm run test && npm run test:app && npm run lighthouse:app && npx playwright test",
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
     "sync:handpan": "node scripts/sync-handpan-cache.mjs",
     "check:handpan-cache": "node scripts/sync-handpan-cache.mjs --check",
     "check:handpan-assets": "node scripts/check-dynamic-assets.mjs",

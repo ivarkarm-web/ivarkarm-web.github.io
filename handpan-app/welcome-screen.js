@@ -5,12 +5,16 @@
   const enter = document.getElementById('enterPionier');
   const hint = document.getElementById('headphonesHint');
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (!welcome || !enter) return;
 =======
   if (!welcome || !enter) {
     return;
   }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+  if (!welcome || !enter) return;
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
 
   root.classList.add('pionier-welcome-active');
   window.PionierWelcomeState = window.PionierWelcomeState || { hideTonefields: true };

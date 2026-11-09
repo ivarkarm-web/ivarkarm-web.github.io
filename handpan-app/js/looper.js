@@ -43,16 +43,16 @@ const DEFAULT_LEVEL = 0.92;
 const BEATS_PER_BAR = 4;
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
 const CLICK_TYPES = [
-  { id: 'woodblock', label: 'Woodblock', wave: 'triangle', frequency: 1450, duration: 0.045 },
-  { id: 'soft-wood', label: 'Soft Wood', wave: 'sine', frequency: 950, duration: 0.055 },
-  { id: 'rim-click', label: 'Rim Click', wave: 'square', frequency: 2100, duration: 0.022 },
-  { id: 'handpan-tap', label: 'Handpan Tap', wave: 'sine', frequency: 520, duration: 0.11 },
-  { id: 'bell', label: 'Bell', wave: 'sine', frequency: 1760, duration: 0.16 },
-  { id: 'shaker', label: 'Shaker', wave: 'sawtooth', frequency: 4200, duration: 0.018 },
-  { id: 'tick', label: 'Soft Tick', wave: 'square', frequency: 1200, duration: 0.012 },
-  { id: 'clave', label: 'Clave', wave: 'triangle', frequency: 2500, duration: 0.03 },
-  { id: 'low-pulse', label: 'Low Pulse', wave: 'sine', frequency: 180, duration: 0.08 },
-  { id: 'digital', label: 'Digital Click', wave: 'square', frequency: 3000, duration: 0.018 },
+  { id:'woodblock', label:'Woodblock', wave:'triangle', frequency:1450, duration:.045 },
+  { id:'soft-wood', label:'Soft Wood', wave:'sine', frequency:950, duration:.055 },
+  { id:'rim-click', label:'Rim Click', wave:'square', frequency:2100, duration:.022 },
+  { id:'handpan-tap', label:'Handpan Tap', wave:'sine', frequency:520, duration:.11 },
+  { id:'bell', label:'Bell', wave:'sine', frequency:1760, duration:.16 },
+  { id:'shaker', label:'Shaker', wave:'sawtooth', frequency:4200, duration:.018 },
+  { id:'tick', label:'Soft Tick', wave:'square', frequency:1200, duration:.012 },
+  { id:'clave', label:'Clave', wave:'triangle', frequency:2500, duration:.03 },
+  { id:'low-pulse', label:'Low Pulse', wave:'sine', frequency:180, duration:.08 },
+  { id:'digital', label:'Digital Click', wave:'square', frequency:3000, duration:.018 },
 ];
 
 <<<<<<< HEAD
@@ -62,7 +62,7 @@ const SYNC_MODES = [
   { id: 'free', label: 'FREE', title: 'Free — each layer independent' },
   { id: 'loop', label: 'LOOP', title: 'Loop sync — multiples of master length' },
   { id: 'beat', label: 'BEAT', title: 'Beat sync — quantize to master grid' },
-  { id: 'serial', label: 'SERIAL', title: 'Serial — sections play in sequence' },
+  { id: 'serial', label: 'SERIAL', title: 'Serial — sections play in sequence' }
 ];
 
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
@@ -152,11 +152,7 @@ export function mountLooper({ root } = {}) {
 
   function ensureTimingButton(id, className, aria, html) {
     let control = document.getElementById(id);
-    if (!control) {
-      control = document.createElement('button');
-      control.type = 'button';
-      control.id = id;
-    }
+    if (!control) { control = document.createElement('button'); control.type = 'button'; control.id = id; }
     control.className = 'looper-timing-btn ' + className;
     control.hidden = false;
     control.removeAttribute('hidden');
@@ -166,24 +162,9 @@ export function mountLooper({ root } = {}) {
     control.innerHTML = html;
     return control;
   }
-  const countInBtn = ensureTimingButton(
-    'looperCountInBtn',
-    'looper-count-in-btn',
-    'Toggle count-in',
-    '<svg class="looper-icon looper-countin-icon" viewBox="0 0 18 16" aria-hidden="true"><path d="M2 12V8M6.7 12V4M11.3 12V6M16 12V2.5" /><path d="M1 14.2H17" /></svg><span class="looper-timing-main">1·2·3·4</span>'
-  );
-  const metronomeBtn = ensureTimingButton(
-    'looperMetronomeBtn',
-    'looper-metronome-btn',
-    'Toggle metronome',
-    '<svg class="looper-icon looper-metronome-icon" viewBox="0 0 18 18" aria-hidden="true"><path d="M5 15.5 7.2 2.5h3.6L13 15.5Z"/><path d="M9 4.3 12.1 7.1M9 4.3 8 10.4"/><circle cx="8" cy="10.4" r="1.15" /></svg><span class="looper-timing-led" aria-hidden="true"></span>'
-  );
-  const bpmBtn = ensureTimingButton(
-    'looperBpmBtn',
-    'looper-bpm-btn',
-    'Tempo settings',
-    '<svg class="looper-icon looper-tempo-icon" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.1 12.8a7 7 0 1 1 11.8 0"/><path d="M9 9 12.3 5.8"/><circle cx="9" cy="9" r="1.1"/><path d="M4.7 12.8h8.6"/></svg><span class="looper-bpm-value">90</span><span class="looper-bpm-unit">BPM</span>'
-  );
+  const countInBtn = ensureTimingButton('looperCountInBtn','looper-count-in-btn','Toggle count-in','<svg class="looper-icon looper-countin-icon" viewBox="0 0 18 16" aria-hidden="true"><path d="M2 12V8M6.7 12V4M11.3 12V6M16 12V2.5" /><path d="M1 14.2H17" /></svg><span class="looper-timing-main">1·2·3·4</span>');
+  const metronomeBtn = ensureTimingButton('looperMetronomeBtn','looper-metronome-btn','Toggle metronome','<svg class="looper-icon looper-metronome-icon" viewBox="0 0 18 18" aria-hidden="true"><path d="M5 15.5 7.2 2.5h3.6L13 15.5Z"/><path d="M9 4.3 12.1 7.1M9 4.3 8 10.4"/><circle cx="8" cy="10.4" r="1.15" /></svg><span class="looper-timing-led" aria-hidden="true"></span>');
+  const bpmBtn = ensureTimingButton('looperBpmBtn','looper-bpm-btn','Tempo settings','<svg class="looper-icon looper-tempo-icon" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.1 12.8a7 7 0 1 1 11.8 0"/><path d="M9 9 12.3 5.8"/><circle cx="9" cy="9" r="1.1"/><path d="M4.7 12.8h8.6"/></svg><span class="looper-bpm-value">90</span><span class="looper-bpm-unit">BPM</span>');
   // Keep every transport control in the same flex row. The previous version
   // placed timing/save buttons outside the cluster, so the sizing/layout rules
   // missed them and the row wrapped on mobile.
@@ -193,30 +174,18 @@ export function mountLooper({ root } = {}) {
     utilityGroup.id = 'looperUtilityControls';
     utilityGroup.className = 'looper-utility-controls';
   }
-  if (utilityGroup.parentElement !== rail) {
-    rail.insertBefore(utilityGroup, cluster.parentElement === rail ? cluster : null);
-  }
+  if (utilityGroup.parentElement !== rail) rail.insertBefore(utilityGroup, cluster.parentElement === rail ? cluster : null);
   [countInBtn, metronomeBtn, bpmBtn].forEach((control) => utilityGroup.appendChild(control));
   if (btn.parentElement !== cluster) cluster.appendChild(btn);
   syncBtn.setAttribute('aria-label', 'Sync mode: Free');
   syncBtn.title = SYNC_MODES[0].title;
 
   const layers = [];
-  const exportBtn = ensureTimingButton(
-    'looperExportBtn',
-    'looper-export-btn',
-    'Export loop as WAV',
-    '<span class="looper-timing-main">WAV</span>'
-  );
+  const exportBtn = ensureTimingButton('looperExportBtn', 'looper-export-btn', 'Export loop as WAV', '<span class="looper-timing-main">WAV</span>');
   exportBtn.disabled = true;
   rail.appendChild(exportBtn);
   exportBtn.addEventListener('click', exportWav);
-  const saveBtn = ensureTimingButton(
-    'looperSaveBtn',
-    'looper-save-btn',
-    'Save composition to My Library',
-    '<span class="looper-timing-main">Save</span>'
-  );
+  const saveBtn = ensureTimingButton('looperSaveBtn', 'looper-save-btn', 'Save composition to My Library', '<span class="looper-timing-main">Save</span>');
   saveBtn.disabled = true;
   rail.appendChild(saveBtn);
   saveBtn.addEventListener('click', () => window.PionierLibrary?.save?.(createLibrarySnapshot()));
@@ -1364,12 +1333,8 @@ export function mountLooper({ root } = {}) {
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
     }
     if (processor && tapSource && tapSource !== bus) {
-      try {
-        tapSource.disconnect(processor);
-      } catch (_) {}
-      try {
-        bus.connect(processor);
-      } catch (_) {}
+      try { tapSource.disconnect(processor); } catch (_) {}
+      try { bus.connect(processor); } catch (_) {}
       tapSource = bus;
       return ctx;
     }
@@ -1381,16 +1346,10 @@ export function mountLooper({ root } = {}) {
         let source = null;
         try {
           await ctx.audioWorklet.addModule('./js/looper-recorder-worklet.js?v=1');
-          if (getAudioContext() !== ctx) {
-            throw new Error('Audio context changed while preparing recorder');
-          }
+          if (getAudioContext() !== ctx) throw new Error('Audio context changed while preparing recorder');
           node = new AudioWorkletNode(ctx, 'pionier-looper-recorder', {
-            numberOfInputs: 1,
-            numberOfOutputs: 1,
-            outputChannelCount: [2],
-            channelCount: 2,
-            channelCountMode: 'explicit',
-            channelInterpretation: 'discrete',
+            numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [2],
+            channelCount: 2, channelCountMode: 'explicit', channelInterpretation: 'discrete'
           });
           node.port.onmessage = (event) => {
             const data = event.data;
@@ -1400,21 +1359,15 @@ export function mountLooper({ root } = {}) {
               return;
             }
             if (!recChunks || !data || !data.left) return;
-            recChunks.push({
-              L: new Float32Array(data.left),
-              R: new Float32Array(data.right || data.left),
-            });
+            recChunks.push({ L: new Float32Array(data.left), R: new Float32Array(data.right || data.left) });
           };
           mute = ctx.createGain();
           mute.gain.value = 0;
-          try {
-            bus.connect(node);
-            source = bus;
-          } catch (err) {
+          try { bus.connect(node); source = bus; }
+          catch (err) {
             const master = getAudioMaster();
             if (!master) throw err;
-            master.connect(node);
-            source = master;
+            master.connect(node); source = master;
           }
           node.connect(mute);
           mute.connect(ctx.destination);
@@ -1422,15 +1375,9 @@ export function mountLooper({ root } = {}) {
           silent = mute;
           tapSource = source;
         } catch (err) {
-          try {
-            if (source && node) source.disconnect(node);
-          } catch (_) {}
-          try {
-            node?.disconnect();
-          } catch (_) {}
-          try {
-            mute?.disconnect();
-          } catch (_) {}
+          try { if (source && node) source.disconnect(node); } catch (_) {}
+          try { node?.disconnect(); } catch (_) {}
+          try { mute?.disconnect(); } catch (_) {}
           processor = null;
           silent = null;
           tapSource = null;
@@ -1741,8 +1688,8 @@ export function mountLooper({ root } = {}) {
     if (L0.paused) return (L0.offset || 0) % dur;
     const ctx = getAudioContext();
     if (!ctx) return 0;
-    const t = now !== null ? now : ctx.currentTime;
-    return (((t - (L0.startedAt || t)) % dur) + dur) % dur;
+    const t = now != null ? now : ctx.currentTime;
+    return ((t - (L0.startedAt || t)) % dur + dur) % dur;
   }
 
   function anySolo() {
@@ -1772,46 +1719,20 @@ export function mountLooper({ root } = {}) {
   function createLibrarySnapshot() {
     const app = window.PionierAppState?.get?.() || {};
     const ctx = getAudioContext();
-    const savedLayers = layers
-      .filter((layer) => layer?.buffer)
-      .map((layer) => ({
-        sampleRate: layer.buffer.sampleRate || ctx?.sampleRate || 44100,
-        channels: Array.from({ length: layer.buffer.numberOfChannels || 1 }, (_, channel) =>
-          layer.buffer.getChannelData(channel).slice()
-        ),
-        offset: Number(layer.offset) || 0,
-        level: Number.isFinite(layer.level) ? layer.level : DEFAULT_LEVEL,
-        pan: Number(layer.pan) || 0,
-        muted: !!layer.muted,
-        solo: !!layer.solo,
-        delayAmount: Number(layer.delayAmount) || 0,
-        cutoff: Number(layer.cutoff) || 20000,
-        quantize: layer.quantize || 'off',
-        duration: layer.buffer.duration,
-      }));
-    const duration = savedLayers.length
-      ? Math.max(...savedLayers.map((layer) => layer.offset + layer.duration))
-      : 0;
+    const savedLayers = layers.filter(layer => layer?.buffer).map(layer => ({
+      sampleRate: layer.buffer.sampleRate || ctx?.sampleRate || 44100,
+      channels: Array.from({ length: layer.buffer.numberOfChannels || 1 }, (_, channel) => layer.buffer.getChannelData(channel).slice()),
+      offset: Number(layer.offset) || 0, level: Number.isFinite(layer.level) ? layer.level : DEFAULT_LEVEL,
+      pan: Number(layer.pan) || 0, muted: !!layer.muted, solo: !!layer.solo,
+      delayAmount: Number(layer.delayAmount) || 0, cutoff: Number(layer.cutoff) || 20000,
+      quantize: layer.quantize || 'off', duration: layer.buffer.duration
+    }));
+    const duration = savedLayers.length ? Math.max(...savedLayers.map(layer => layer.offset + layer.duration)) : 0;
     return {
-      duration,
-      sampleRate: savedLayers[0]?.sampleRate || ctx?.sampleRate || 44100,
-      settings: {
-        instrumentId: app.instrumentId || 'handpan',
-        scaleIndex: app.scaleIndex ?? 0,
-        rootIndex: app.rootIndex ?? 0,
-        noteCount: app.noteCount ?? 9,
-        fx: app.fx || null,
-      },
-      timing: {
-        bpm,
-        metronomeOn,
-        countInEnabled,
-        countInBars,
-        beatsPerBar,
-        clickType,
-        syncMode: syncMode(),
-      },
-      layers: savedLayers,
+      duration, sampleRate: savedLayers[0]?.sampleRate || ctx?.sampleRate || 44100,
+      settings: { instrumentId: app.instrumentId || 'handpan', scaleIndex: app.scaleIndex ?? 0,
+        rootIndex: app.rootIndex ?? 0, noteCount: app.noteCount ?? 9, fx: app.fx || null },
+      timing: { bpm, metronomeOn, countInEnabled, countInBars, beatsPerBar, clickType, syncMode: syncMode() }, layers: savedLayers
     };
   }
 
@@ -1819,12 +1740,9 @@ export function mountLooper({ root } = {}) {
     const audible = layers.filter((layer) => layer?.buffer && !effectiveMuted(layer));
     if (!audible.length) return;
     const sampleRate = audible[0].buffer.sampleRate || getAudioContext()?.sampleRate || 44100;
-    const totalFrames = Math.max(
-      1,
-      ...audible.map((layer) =>
-        Math.round((Math.max(0, Number(layer.offset) || 0) + layer.buffer.duration) * sampleRate)
-      )
-    );
+    const totalFrames = Math.max(1, ...audible.map((layer) =>
+      Math.round((Math.max(0, Number(layer.offset) || 0) + layer.buffer.duration) * sampleRate)
+    ));
     const dataBytes = totalFrames * 4;
     const wav = new ArrayBuffer(44 + dataBytes);
     const view = new DataView(wav);
@@ -1858,10 +1776,7 @@ export function mountLooper({ root } = {}) {
         const sourceLeft = buffer.getChannelData(0);
         const sourceRight = buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : sourceLeft;
         const offset = Math.round(Math.max(0, Number(layer.offset) || 0) * sampleRate);
-        const level = Math.max(
-          0,
-          Math.min(2, Number.isFinite(layer.level) ? layer.level : DEFAULT_LEVEL)
-        );
+        const level = Math.max(0, Math.min(2, Number.isFinite(layer.level) ? layer.level : DEFAULT_LEVEL));
         const pan = Math.max(-1, Math.min(1, Number(layer.pan) || 0));
         const leftGain = pan > 0 ? 1 - pan : 1;
         const rightGain = pan < 0 ? 1 + pan : 1;
@@ -1909,24 +1824,16 @@ export function mountLooper({ root } = {}) {
     btn.classList.toggle('is-pending-stop', pendingLoopStop);
     const targetLayer = Math.min(layers.length + 1, MAX_LAYERS);
     const recordingLabel = 'Layer ' + targetLayer;
-    if (recording || pendingLoopStop || countInPending) {
-      btn.dataset.recordingLayer = String(targetLayer);
-    } else delete btn.dataset.recordingLayer;
+    if (recording || pendingLoopStop || countInPending) btn.dataset.recordingLayer = String(targetLayer);
+    else delete btn.dataset.recordingLayer;
     btn.title = recording
-      ? pendingLoopStop
-        ? 'Layer ' + targetLayer + ' · waiting for cycle end…'
-        : 'Recording layer ' + targetLayer + ' · press to stop'
+      ? (pendingLoopStop ? 'Layer ' + targetLayer + ' · waiting for cycle end…' : 'Recording layer ' + targetLayer + ' · press to stop')
       : layers.length >= MAX_LAYERS
         ? 'Max layers (' + MAX_LAYERS + ')'
         : hasLayers
           ? 'Record next layer'
           : 'Start loop recording';
-    btn.setAttribute(
-      'aria-label',
-      recording || pendingLoopStop || countInPending
-        ? recordingLabel + ' · ' + btn.title
-        : btn.title
-    );
+    btn.setAttribute('aria-label', (recording || pendingLoopStop || countInPending) ? recordingLabel + ' · ' + btn.title : btn.title);
     clearBtn.classList.toggle('has-layers', hasLayers || recording);
     clearBtn.hidden = false;
 
@@ -1943,18 +1850,12 @@ export function mountLooper({ root } = {}) {
     countInBtn.classList.toggle('is-active', countInEnabled);
     countInBtn.classList.toggle('is-counting', countInPending);
     const countLabel = countInBtn.querySelector('.looper-timing-main');
-    if (countLabel) {
-      countLabel.textContent = countInPending ? String(countInCurrent || '•') : '1·2·3·4';
-    }
+    if (countLabel) countLabel.textContent = countInPending ? String(countInCurrent || '•') : '1·2·3·4';
     countInBtn.setAttribute('aria-pressed', String(countInEnabled));
-    countInBtn.title = countInEnabled
-      ? 'Count-in on · hold for settings'
-      : 'Count-in off · hold for settings';
+    countInBtn.title = countInEnabled ? 'Count-in on · hold for settings' : 'Count-in off · hold for settings';
     metronomeBtn.classList.toggle('is-active', metronomeOn);
     metronomeBtn.setAttribute('aria-pressed', String(metronomeOn));
-    metronomeBtn.title = metronomeOn
-      ? 'Metronome on · hold for click sounds'
-      : 'Metronome off · hold for click sounds';
+    metronomeBtn.title = metronomeOn ? 'Metronome on · hold for click sounds' : 'Metronome off · hold for click sounds';
     const bpmValue = bpmBtn.querySelector('.looper-bpm-value');
     if (bpmValue) bpmValue.textContent = String(Math.round(bpm));
     bpmBtn.title = 'Tempo ' + Math.round(bpm) + ' BPM · drag to adjust, hold for settings';
@@ -1963,9 +1864,7 @@ export function mountLooper({ root } = {}) {
   function startLayerSource(layer, offset, delaySeconds = 0) {
     const ctx = getAudioContext();
     if (!ctx || !layer.gain || layer.paused) return;
-    try {
-      layer.source?.stop();
-    } catch (_) {}
+    try { layer.source?.stop(); } catch (_) {}
     const source = ctx.createBufferSource();
     source.buffer = layer.buffer;
     source.loop = syncMode() !== 'serial';
@@ -2001,11 +1900,8 @@ export function mountLooper({ root } = {}) {
     if (!ctx) return;
     const now = ctx.currentTime;
     const dur = layer.buffer.duration || 1;
-    layer.offset =
-      layer.startedAt > now ? 0 : (((now - (layer.startedAt || now)) % dur) + dur) % dur;
-    try {
-      layer.source?.stop();
-    } catch (_) {}
+    layer.offset = layer.startedAt > now ? 0 : ((now - (layer.startedAt || now)) % dur + dur) % dur;
+    try { layer.source?.stop(); } catch (_) {}
     layer.source = null;
     layer.paused = true;
     renderCircles();
@@ -2027,9 +1923,7 @@ export function mountLooper({ root } = {}) {
     if (!layer || !layer.paused) return;
     resumeAudio();
     if (syncMode() === 'serial') {
-      layers.forEach((l, i) => {
-        if (i !== index && !l.paused) pauseLayer(i);
-      });
+      layers.forEach((l, i) => { if (i !== index && !l.paused) pauseLayer(i); });
     }
     layer.paused = false;
     const mode = syncMode();
@@ -2047,20 +1941,9 @@ export function mountLooper({ root } = {}) {
   }
 
   function disconnectLayer(layer) {
-    try {
-      layer.source?.stop();
-    } catch (_) {}
-    for (const node of [
-      layer.gain,
-      layer.filter,
-      layer.delay,
-      layer.feedback,
-      layer.delayWet,
-      layer.panner,
-    ]) {
-      try {
-        node?.disconnect();
-      } catch (_) {}
+    try { layer.source?.stop(); } catch (_) {}
+    for (const node of [layer.gain, layer.filter, layer.delay, layer.feedback, layer.delayWet, layer.panner]) {
+      try { node?.disconnect(); } catch (_) {}
     }
     layer.source = null;
   }
@@ -2117,10 +2000,7 @@ export function mountLooper({ root } = {}) {
       document.removeEventListener('keydown', trackPanelKeyHandler);
       trackPanelKeyHandler = null;
     }
-    if (trackPanelProgressTimer) {
-      clearInterval(trackPanelProgressTimer);
-      trackPanelProgressTimer = null;
-    }
+    if (trackPanelProgressTimer) { clearInterval(trackPanelProgressTimer); trackPanelProgressTimer = null; }
     if (trackPanelEl) {
       window.removeEventListener('resize', trackPanelEl._placePanel);
       window.removeEventListener('scroll', trackPanelEl._placePanel, true);
@@ -2172,9 +2052,7 @@ export function mountLooper({ root } = {}) {
     const panel = overlay.querySelector('.looper-track-panel');
     const close = () => closeTrackPanel();
     const placePanel = () => {
-      const target = anchor?.isConnected
-        ? anchor
-        : document.querySelectorAll('.looper-circle')[index];
+      const target = anchor?.isConnected ? anchor : document.querySelectorAll('.looper-circle')[index];
       if (!target || !panel) return;
       const rect = target.getBoundingClientRect();
       const margin = 10;
@@ -2184,12 +2062,7 @@ export function mountLooper({ root } = {}) {
       const panelHeight = Math.min(panel.scrollHeight || 420, window.innerHeight - margin * 2);
       let left = rect.right + 10;
       if (left + width > window.innerWidth - margin) left = rect.left - width - 10;
-      if (left < margin) {
-        left = Math.max(
-          margin,
-          Math.min(window.innerWidth - width - margin, rect.left + rect.width / 2 - width / 2)
-        );
-      }
+      if (left < margin) left = Math.max(margin, Math.min(window.innerWidth - width - margin, rect.left + rect.width / 2 - width / 2));
       let top = rect.top + rect.height / 2 - panelHeight / 2;
       top = Math.max(margin, Math.min(window.innerHeight - panelHeight - margin, top));
       panel.style.left = left + 'px';
@@ -2200,30 +2073,12 @@ export function mountLooper({ root } = {}) {
     overlay._placePanel = placePanel;
     window.addEventListener('resize', placePanel);
     window.addEventListener('scroll', placePanel, true);
-    overlay.addEventListener('pointerdown', (event) => {
-      if (event.target === overlay) close();
-    });
+    overlay.addEventListener('pointerdown', event => { if (event.target === overlay) close(); });
     const trackCloseButton = overlay.querySelector('.looper-track-close');
     trackCloseButton.style.pointerEvents = 'auto';
-    trackCloseButton.addEventListener(
-      'pointerdown',
-      (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        closeTrackPanel();
-      },
-      { capture: true }
-    );
-    trackCloseButton.addEventListener('pointerup', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      closeTrackPanel();
-    });
-    trackCloseButton.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      close();
-    });
+    trackCloseButton.addEventListener('pointerdown', event => { event.preventDefault(); event.stopPropagation(); closeTrackPanel(); }, { capture: true });
+    trackCloseButton.addEventListener('pointerup', event => { event.preventDefault(); event.stopPropagation(); closeTrackPanel(); });
+    trackCloseButton.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); close(); });
     const play = overlay.querySelector('.looper-track-play');
     const status = overlay.querySelector('.looper-track-status');
     const updateTransport = () => {
@@ -2232,10 +2087,7 @@ export function mountLooper({ root } = {}) {
       play.textContent = current.paused ? '▶  Play track' : 'Ⅱ  Pause track';
       status.textContent = current.paused ? 'PAUSED' : 'PLAYING';
     };
-    play.addEventListener('click', () => {
-      toggleLayer(index);
-      updateTransport();
-    });
+    play.addEventListener('click', () => { toggleLayer(index); updateTransport(); });
     const position = panel.querySelector('[data-control="position"]');
     const elapsed = panel.querySelector('.looper-track-elapsed');
     const waveform = panel.querySelector('.looper-waveform');
@@ -2250,20 +2102,14 @@ export function mountLooper({ root } = {}) {
       const dpr = Math.min(2, window.devicePixelRatio || 1);
       const width = Math.max(1, Math.round(rect.width * dpr));
       const height = Math.max(1, Math.round(rect.height * dpr));
-      if (waveform.width !== width || waveform.height !== height) {
-        waveform.width = width;
-        waveform.height = height;
-      }
+      if (waveform.width !== width || waveform.height !== height) { waveform.width = width; waveform.height = height; }
       const ctx2d = waveform.getContext('2d');
       if (!ctx2d) return;
       ctx2d.clearRect(0, 0, width, height);
       const mid = height / 2;
       ctx2d.strokeStyle = 'rgba(232,220,177,.12)';
       ctx2d.lineWidth = 1 * dpr;
-      ctx2d.beginPath();
-      ctx2d.moveTo(0, mid);
-      ctx2d.lineTo(width, mid);
-      ctx2d.stroke();
+      ctx2d.beginPath(); ctx2d.moveTo(0, mid); ctx2d.lineTo(width, mid); ctx2d.stroke();
       const samples = layer.buffer.getChannelData(0);
       const bins = Math.max(1, Math.floor(width / (2 * dpr)));
       if (waveformPeakWidth !== bins || waveformPeaks.length !== bins) {
@@ -2279,29 +2125,22 @@ export function mountLooper({ root } = {}) {
         waveformPeakWidth = bins;
       }
       for (let x = 0; x < bins; x++) {
-        const bar = Math.max(1.2 * dpr, waveformPeaks[x] * height * 0.78);
-        const px = (x * width) / bins;
+        const bar = Math.max(1.2 * dpr, waveformPeaks[x] * height * .78);
+        const px = x * width / bins;
         const t = (x / bins) * duration;
         const insideCrop = t >= cropStart && t <= cropEnd;
         ctx2d.fillStyle = insideCrop
-          ? px <= (playhead / duration) * width
-            ? 'rgba(246,218,132,.98)'
-            : 'rgba(210,190,125,.72)'
+          ? (px <= (playhead / duration) * width ? 'rgba(246,218,132,.98)' : 'rgba(210,190,125,.72)')
           : 'rgba(15,15,18,.48)';
-        ctx2d.fillRect(px, mid - bar / 2, Math.max(1, (width / bins) * 0.58), bar);
+        ctx2d.fillRect(px, mid - bar / 2, Math.max(1, width / bins * .58), bar);
       }
       if (panel.classList.contains('is-cropping')) {
         ctx2d.fillStyle = 'rgba(4,5,8,.52)';
-        ctx2d.fillRect(0, 0, (cropStart / duration) * width, height);
-        ctx2d.fillRect(
-          (cropEnd / duration) * width,
-          0,
-          width - (cropEnd / duration) * width,
-          height
-        );
+        ctx2d.fillRect(0, 0, cropStart / duration * width, height);
+        ctx2d.fillRect(cropEnd / duration * width, 0, width - cropEnd / duration * width, height);
         ctx2d.fillStyle = '#ffe7a1';
-        ctx2d.fillRect((cropStart / duration) * width - dpr, 0, 2 * dpr, height);
-        ctx2d.fillRect((cropEnd / duration) * width - dpr, 0, 2 * dpr, height);
+        ctx2d.fillRect(cropStart / duration * width - dpr, 0, 2 * dpr, height);
+        ctx2d.fillRect(cropEnd / duration * width - dpr, 0, 2 * dpr, height);
       }
       const headX = Math.max(0, Math.min(width, (playhead / duration) * width));
       ctx2d.fillStyle = '#fff2bd';
@@ -2309,21 +2148,13 @@ export function mountLooper({ root } = {}) {
     };
     const updatePosition = () => {
       const ctx = getAudioContext();
-      const value =
-        layer.paused || !ctx
-          ? layer.offset || 0
-          : layer.startedAt > ctx.currentTime
-            ? 0
-            : (((ctx.currentTime - layer.startedAt) % duration) + duration) % duration;
+      const value = layer.paused || !ctx ? (layer.offset || 0) : layer.startedAt > ctx.currentTime ? 0 : ((ctx.currentTime - layer.startedAt) % duration + duration) % duration;
       if (document.activeElement !== position) position.value = String(Math.min(duration, value));
       elapsed.textContent = formatLoopTime(value);
       drawWaveform(value);
       updateTransport();
     };
-    position.addEventListener('input', () => {
-      elapsed.textContent = formatLoopTime(Number(position.value));
-      drawWaveform(Number(position.value));
-    });
+    position.addEventListener('input', () => { elapsed.textContent = formatLoopTime(Number(position.value)); drawWaveform(Number(position.value)); });
     position.addEventListener('change', () => {
       layer.offset = Math.min(duration, Math.max(0, Number(position.value) || 0));
       if (!layer.paused) startLayerSource(layer, layer.offset);
@@ -2351,17 +2182,13 @@ export function mountLooper({ root } = {}) {
       cropEndOutput.textContent = formatLoopTime(cropEnd);
       drawWaveform(0);
     };
-    const setCropMode = (enabled) => {
+    const setCropMode = enabled => {
       panel.classList.toggle('is-cropping', enabled);
       cropEditor.hidden = !enabled;
       cropToggle.setAttribute('aria-expanded', String(enabled));
       cropToggle.classList.toggle('is-active', enabled);
       cropToggle.textContent = enabled ? 'Close crop' : 'Crop';
-      if (!enabled) {
-        cropStart = 0;
-        cropEnd = duration;
-        drawWaveform(0);
-      }
+      if (!enabled) { cropStart = 0; cropEnd = duration; drawWaveform(0); }
     };
     cropToggle.addEventListener('click', () => {
       if (cropEditor.hidden) {
@@ -2373,32 +2200,17 @@ export function mountLooper({ root } = {}) {
     });
     cropStartInput.addEventListener('input', updateCropPreview);
     cropEndInput.addEventListener('input', updateCropPreview);
-    panel
-      .querySelector('[data-action="crop-cancel"]')
-      .addEventListener('click', () => setCropMode(false));
+    panel.querySelector('[data-action="crop-cancel"]').addEventListener('click', () => setCropMode(false));
     panel.querySelector('[data-action="crop-apply"]').addEventListener('click', () => {
       const ctx = getAudioContext();
       if (!ctx || !layer.buffer) return;
       const start = Math.max(0, Math.min(duration, cropStart));
       const end = Math.max(start + 0.1, Math.min(duration, cropEnd));
-      const startFrame = Math.min(
-        layer.buffer.length - 1,
-        Math.floor(start * layer.buffer.sampleRate)
-      );
-      const endFrame = Math.max(
-        startFrame + 1,
-        Math.min(layer.buffer.length, Math.floor(end * layer.buffer.sampleRate))
-      );
-      const nextBuffer = ctx.createBuffer(
-        layer.buffer.numberOfChannels,
-        endFrame - startFrame,
-        layer.buffer.sampleRate
-      );
+      const startFrame = Math.min(layer.buffer.length - 1, Math.floor(start * layer.buffer.sampleRate));
+      const endFrame = Math.max(startFrame + 1, Math.min(layer.buffer.length, Math.floor(end * layer.buffer.sampleRate)));
+      const nextBuffer = ctx.createBuffer(layer.buffer.numberOfChannels, endFrame - startFrame, layer.buffer.sampleRate);
       for (let channel = 0; channel < layer.buffer.numberOfChannels; channel++) {
-        nextBuffer.copyToChannel(
-          layer.buffer.getChannelData(channel).subarray(startFrame, endFrame),
-          channel
-        );
+        nextBuffer.copyToChannel(layer.buffer.getChannelData(channel).subarray(startFrame, endFrame), channel);
       }
       const wasPlaying = !layer.paused;
       if (wasPlaying) pauseLayer(index);
@@ -2416,10 +2228,7 @@ export function mountLooper({ root } = {}) {
       waveformPeakWidth = 0;
       cropStart = 0;
       cropEnd = nextDuration;
-      if (wasPlaying) {
-        layer.paused = false;
-        startLayerSource(layer, 0);
-      }
+      if (wasPlaying) { layer.paused = false; startLayerSource(layer, 0); }
       setCropMode(false);
       updatePosition();
       renderCircles();
@@ -2427,7 +2236,7 @@ export function mountLooper({ root } = {}) {
     const addKnob = (name, value, min, max, format, apply, scale = 1) => {
       const knob = panel.querySelector(`[data-control="${name}"]`);
       const output = panel.querySelector(`[data-output="${name}"]`);
-      const set = (raw) => {
+      const set = raw => {
         const next = Math.max(min, Math.min(max, Number(raw)));
         knob.dataset.value = String(next);
         knob.style.setProperty('--knob-angle', `${-135 + ((next - min) / (max - min)) * 270}deg`);
@@ -2437,122 +2246,59 @@ export function mountLooper({ root } = {}) {
         apply(next);
       };
       set(value);
-      let dragY = 0,
-        dragValue = value;
-      knob.addEventListener('pointerdown', (event) => {
+      let dragY = 0, dragValue = value;
+      knob.addEventListener('pointerdown', event => {
         if (event.button !== undefined && event.button !== 0) return;
         event.preventDefault();
         dragY = event.clientY;
         dragValue = Number(knob.dataset.value);
         knob.setPointerCapture?.(event.pointerId);
       });
-      knob.addEventListener('pointermove', (event) => {
+      knob.addEventListener('pointermove', event => {
         if (!knob.hasPointerCapture?.(event.pointerId)) return;
-        set(dragValue + ((dragY - event.clientY) * (max - min)) / (140 * scale));
+        set(dragValue + (dragY - event.clientY) * (max - min) / (140 * scale));
       });
-      knob.addEventListener('keydown', (event) => {
+      knob.addEventListener('keydown', event => {
         let next = Number(knob.dataset.value);
         if (event.key === 'ArrowUp' || event.key === 'ArrowRight') next += (max - min) / 100;
         else if (event.key === 'ArrowDown' || event.key === 'ArrowLeft') next -= (max - min) / 100;
         else if (event.key === 'Home') next = min;
         else if (event.key === 'End') next = max;
         else return;
-        event.preventDefault();
-        set(next);
+        event.preventDefault(); set(next);
       });
     };
     trackPanelProgressTimer = setInterval(updatePosition, 120);
     const master = getAudioMaster();
-    addKnob(
-      'level',
-      layer.level ?? DEFAULT_LEVEL,
-      0,
-      1,
-      (v) => `${Math.round(v * 100)}%`,
-      (v) => {
-        layer.level = v;
-        applyLayerGain(layer);
-      }
-    );
-    addKnob(
-      'master',
-      master?.gain?.value ?? 1.15,
-      0,
-      1.5,
-      (v) => `${Math.round(v * 100)}%`,
-      (v) => {
-        if (master) master.gain.setTargetAtTime(v, getAudioContext()?.currentTime || 0, 0.025);
-      }
-    );
-    addKnob(
-      'delay',
-      layer.delayAmount ?? 0,
-      0,
-      0.75,
-      (v) => `${Math.round(v * 100)}%`,
-      (v) => {
-        layer.delayAmount = v;
-        if (layer.delayWet?.gain) {
-          layer.delayWet.gain.setTargetAtTime(v, getAudioContext()?.currentTime || 0, 0.025);
-        }
-      }
-    );
-    addKnob(
-      'cut',
-      layer.cutoff ?? 20000,
-      300,
-      20000,
-      (v) => (v >= 19990 ? 'Open' : `${Math.round(v)} Hz`),
-      (v) => {
-        layer.cutoff = v;
-        if (layer.filter?.frequency) {
-          layer.filter.frequency.setTargetAtTime(v, getAudioContext()?.currentTime || 0, 0.025);
-        }
-      },
-      1.5
-    );
+    addKnob('level', layer.level ?? DEFAULT_LEVEL, 0, 1, v => `${Math.round(v * 100)}%`, v => { layer.level = v; applyLayerGain(layer); });
+    addKnob('master', master?.gain?.value ?? 1.15, 0, 1.5, v => `${Math.round(v * 100)}%`, v => { if (master) master.gain.setTargetAtTime(v, getAudioContext()?.currentTime || 0, 0.025); });
+    addKnob('delay', layer.delayAmount ?? 0, 0, 0.75, v => `${Math.round(v * 100)}%`, v => {
+      layer.delayAmount = v;
+      if (layer.delayWet?.gain) layer.delayWet.gain.setTargetAtTime(v, getAudioContext()?.currentTime || 0, 0.025);
+    });
+    addKnob('cut', layer.cutoff ?? 20000, 300, 20000, v => v >= 19990 ? 'Open' : `${Math.round(v)} Hz`, v => {
+      layer.cutoff = v;
+      if (layer.filter?.frequency) layer.filter.frequency.setTargetAtTime(v, getAudioContext()?.currentTime || 0, 0.025);
+    }, 1.5);
     const quantize = panel.querySelector('[data-control="quantize"]');
     quantize.value = layer.quantize || 'off';
-    quantize.addEventListener('change', () => {
-      layer.quantize = quantize.value;
-    });
+    quantize.addEventListener('change', () => { layer.quantize = quantize.value; });
     const mute = overlay.querySelector('.looper-track-mute');
-    const updateMute = () => {
-      mute.textContent = layer.muted ? 'Unmute track' : 'Cut / mute track';
-      mute.classList.toggle('is-active', layer.muted);
-    };
-    mute.addEventListener('click', () => {
-      layer.muted = !layer.muted;
-      applyLayerGain(layer);
-      updateMute();
-      renderCircles();
-    });
-    overlay.querySelector('.looper-track-delete').addEventListener('click', () => {
-      deleteLayer(index);
-      closeTrackPanel();
-    });
+    const updateMute = () => { mute.textContent = layer.muted ? 'Unmute track' : 'Cut / mute track'; mute.classList.toggle('is-active', layer.muted); };
+    mute.addEventListener('click', () => { layer.muted = !layer.muted; applyLayerGain(layer); updateMute(); renderCircles(); });
+    overlay.querySelector('.looper-track-delete').addEventListener('click', () => { deleteLayer(index); closeTrackPanel(); });
     updateTransport();
     updateMute();
-    trackPanelKeyHandler = (event) => {
-      if (event.key === 'Escape') closeTrackPanel();
-    };
+    trackPanelKeyHandler = event => { if (event.key === 'Escape') closeTrackPanel(); };
     document.addEventListener('keydown', trackPanelKeyHandler);
     overlay.querySelector('.looper-track-close').focus({ preventScroll: true });
   }
 
   function closeSheet() {
-    if (sheetPointerHandler) {
-      document.removeEventListener('pointerdown', sheetPointerHandler, true);
-      sheetPointerHandler = null;
-    }
-    if (sheetKeyHandler) {
-      document.removeEventListener('keydown', sheetKeyHandler);
-      sheetKeyHandler = null;
-    }
+    if (sheetPointerHandler) { document.removeEventListener('pointerdown', sheetPointerHandler, true); sheetPointerHandler = null; }
+    if (sheetKeyHandler) { document.removeEventListener('keydown', sheetKeyHandler); sheetKeyHandler = null; }
     if (sheetEl) {
-      try {
-        sheetEl.remove();
-      } catch (_) {}
+      try { sheetEl.remove(); } catch (_) {}
       sheetEl = null;
     }
     openSheetIndex = -1;
@@ -2570,39 +2316,17 @@ export function mountLooper({ root } = {}) {
 
     const sheet = document.createElement('div');
     sheet.className = 'looper-sheet';
-    sheet.innerHTML =
-      '<header class="looper-sheet-header"><div class="looper-sheet-title">Layer ' +
-      (index + 1) +
-      '</div><button type="button" class="looper-menu-close" aria-label="Close layer controls">×</button></header>';
+    sheet.innerHTML = '<header class="looper-sheet-header"><div class="looper-sheet-title">Layer ' + (index + 1) + '</div><button type="button" class="looper-menu-close" aria-label="Close layer controls">×</button></header>';
     const sheetCloseButton = sheet.querySelector('.looper-menu-close');
     sheetCloseButton.style.pointerEvents = 'auto';
-    sheetCloseButton.addEventListener(
-      'pointerdown',
-      (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        closeSheet();
-      },
-      { capture: true }
-    );
-    sheetCloseButton.addEventListener('pointerup', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      closeSheet();
-    });
-    sheetCloseButton.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      closeSheet();
-    });
+    sheetCloseButton.addEventListener('pointerdown', event => { event.preventDefault(); event.stopPropagation(); closeSheet(); }, { capture: true });
+    sheetCloseButton.addEventListener('pointerup', event => { event.preventDefault(); event.stopPropagation(); closeSheet(); });
+    sheetCloseButton.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); closeSheet(); });
     document.body.appendChild(sheet);
     sheetEl = sheet;
 
     const level = document.createElement('input');
-    level.type = 'range';
-    level.min = '0';
-    level.max = '1';
-    level.step = '0.01';
+    level.type = 'range'; level.min = '0'; level.max = '1'; level.step = '0.01';
     level.value = String(layer.level ?? DEFAULT_LEVEL);
     level.addEventListener('input', () => {
       layer.level = Number(level.value);
@@ -2611,16 +2335,11 @@ export function mountLooper({ root } = {}) {
     sheet.appendChild(level);
 
     const pan = document.createElement('input');
-    pan.type = 'range';
-    pan.min = '-1';
-    pan.max = '1';
-    pan.step = '0.01';
+    pan.type = 'range'; pan.min = '-1'; pan.max = '1'; pan.step = '0.01';
     pan.value = String(layer.pan ?? 0);
     pan.addEventListener('input', () => {
       layer.pan = Number(pan.value);
-      try {
-        layer.panner.pan.value = layer.pan;
-      } catch (_) {}
+      try { layer.panner.pan.value = layer.pan; } catch (_) {}
     });
     sheet.appendChild(pan);
 
@@ -2666,14 +2385,10 @@ export function mountLooper({ root } = {}) {
     const onDoc = (ev) => {
       if (!sheet.contains(ev.target) && ev.target !== anchorEl) closeSheet();
     };
-    const onKey = (ev) => {
-      if (ev.key === 'Escape') closeSheet();
-    };
+    const onKey = (ev) => { if (ev.key === 'Escape') closeSheet(); };
     sheetPointerHandler = onDoc;
     sheetKeyHandler = onKey;
-    setTimeout(() => {
-      if (sheetEl === sheet) document.addEventListener('pointerdown', onDoc, true);
-    }, 0);
+    setTimeout(() => { if (sheetEl === sheet) document.addEventListener('pointerdown', onDoc, true); }, 0);
     document.addEventListener('keydown', onKey);
   }
 
@@ -2700,9 +2415,7 @@ export function mountLooper({ root } = {}) {
       if (layers[index] === layer) deleteLayer(index);
       dialog.close();
     });
-    dialog.addEventListener('click', (event) => {
-      if (event.target === dialog) dialog.close();
-    });
+    dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
     dialog.addEventListener('close', () => dialog.remove(), { once: true });
     if (typeof dialog.showModal === 'function') dialog.showModal();
     else dialog.setAttribute('open', '');
@@ -2714,12 +2427,7 @@ export function mountLooper({ root } = {}) {
     layers.forEach((layer, i) => {
       const c = document.createElement('button');
       c.type = 'button';
-      c.className =
-        'looper-circle' +
-        (i === 0 ? ' is-master' : '') +
-        (layer.paused ? ' is-paused' : ' is-playing') +
-        (layer.muted ? ' is-muted' : '') +
-        (layer.solo ? ' is-solo' : '');
+      c.className = 'looper-circle' + (i === 0 ? ' is-master' : '') + (layer.paused ? ' is-paused' : ' is-playing') + (layer.muted ? ' is-muted' : '') + (layer.solo ? ' is-solo' : '');
       c.setAttribute('aria-label', i === 0 ? 'Layer 1, master' : 'Layer ' + (i + 1));
       c.innerHTML = '<span class="looper-circle-core">' + (i + 1) + '</span>';
       c.addEventListener('pointerdown', (e) => {
@@ -2728,35 +2436,24 @@ export function mountLooper({ root } = {}) {
         longFired = false;
         pressTimer = setTimeout(() => {
           longFired = true;
-          if (pendingTap) {
-            clearTimeout(pendingTap.timer);
-            pendingTap = null;
-          }
+          if (pendingTap) { clearTimeout(pendingTap.timer); pendingTap = null; }
           openTrackPanel(i, c);
         }, LONG_MS);
       });
       const end = (e) => {
-        if (pressTimer) {
-          clearTimeout(pressTimer);
-          pressTimer = null;
-        }
+        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
         if (longFired || e.type !== 'pointerup') return;
-        if (pendingTap) {
-          clearTimeout(pendingTap.timer);
-          pendingTap = null;
-        }
+        if (pendingTap) { clearTimeout(pendingTap.timer); pendingTap = null; }
         toggleLayer(i);
       };
       c.addEventListener('pointerup', end);
       c.addEventListener('pointercancel', end);
       c.addEventListener('contextmenu', (e) => e.preventDefault());
-      c.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      });
+      c.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
       layersEl.appendChild(c);
     });
   }
+
 
   async function beginRecording(generation = recordStartGeneration) {
     if (layers.length >= MAX_LAYERS) return;
@@ -2779,9 +2476,7 @@ export function mountLooper({ root } = {}) {
       reportRecorderError();
       return;
     }
-    try {
-      window.PionierCore?.ensureAudio?.();
-    } catch (_) {}
+    try { window.PionierCore?.ensureAudio?.(); } catch (_) {}
     ensureTap();
     // Initialize chunk array AFTER all async checks pass
     recChunks = [];
@@ -2832,11 +2527,8 @@ export function mountLooper({ root } = {}) {
       if (countInCurrent >= total) {
         countInTimer = setTimeout(() => {
           if (!countInPending) return;
-          countInPending = false;
-          countInCurrent = 0;
-          countInTimer = null;
-          setBtnState();
-          beginRecording(generation);
+          countInPending = false; countInCurrent = 0; countInTimer = null;
+          setBtnState(); beginRecording(generation);
         }, beatMs);
       } else countInTimer = setTimeout(tick, beatMs);
     };
@@ -2847,7 +2539,6 @@ export function mountLooper({ root } = {}) {
     if (layers.length >= MAX_LAYERS || recording || pendingLoopStop || countInPending) return;
     // Guard against concurrent initialization from rapid button presses
     if (tapPromise) {
-      // prettier-ignore
       console.warn('[looper] Recorder initialization already in progress, ignoring duplicate start');
       return;
     }
@@ -2857,14 +2548,9 @@ export function mountLooper({ root } = {}) {
       if (!ctx) throw new Error('AudioWorklet recorder is unavailable');
       if (generation !== recordStartGeneration) return;
       resumeAudio();
-      try {
-        window.PionierCore?.ensureAudio?.();
-      } catch (_) {}
+      try { window.PionierCore?.ensureAudio?.(); } catch (_) {}
       ensureTap();
-      if (countInEnabled) {
-        runCountIn(generation);
-        return;
-      }
+      if (countInEnabled) { runCountIn(generation); return; }
       await beginRecording(generation);
     } catch (err) {
       recording = false;
@@ -2916,28 +2602,13 @@ export function mountLooper({ root } = {}) {
     const menu = document.createElement('div');
     menu.className = 'looper-timing-menu';
     menu.setAttribute('role', 'dialog');
-    menu.setAttribute(
-      'aria-label',
-      type === 'metronome'
-        ? 'Metronome settings'
-        : type === 'countin'
-          ? 'Count-in settings'
-          : 'Tempo settings'
-    );
-    const header = document.createElement('div');
-    header.className = 'looper-timing-menu-header';
-    const title = document.createElement('div');
-    title.className = 'looper-timing-menu-title';
-    title.textContent =
-      type === 'metronome' ? 'Metronome' : type === 'countin' ? 'Count-in' : 'Tempo';
-    const closeButton = document.createElement('button');
-    closeButton.type = 'button';
-    closeButton.className = 'looper-menu-close';
-    closeButton.setAttribute('aria-label', 'Close menu');
-    closeButton.textContent = '×';
-    closeButton.style.cssText +=
-      ';position:relative;z-index:9999;pointer-events:auto;touch-action:manipulation;min-width:36px;min-height:36px;flex-shrink:0';
-    const closeFromButton = (event) => {
+    menu.setAttribute('aria-label', type === 'metronome' ? 'Metronome settings' : type === 'countin' ? 'Count-in settings' : 'Tempo settings');
+    const header = document.createElement('div'); header.className = 'looper-timing-menu-header';
+    const title = document.createElement('div'); title.className = 'looper-timing-menu-title';
+    title.textContent = type === 'metronome' ? 'Metronome' : type === 'countin' ? 'Count-in' : 'Tempo';
+    const closeButton = document.createElement('button'); closeButton.type = 'button'; closeButton.className = 'looper-menu-close'; closeButton.setAttribute('aria-label', 'Close menu'); closeButton.textContent = '×';
+    closeButton.style.cssText += ';position:relative;z-index:9999;pointer-events:auto;touch-action:manipulation;min-width:36px;min-height:36px;flex-shrink:0';
+    const closeFromButton = event => {
       event.preventDefault();
       event.stopImmediatePropagation();
       event.stopPropagation();
@@ -2948,289 +2619,111 @@ export function mountLooper({ root } = {}) {
     closeButton.addEventListener('touchend', closeFromButton, { passive: false });
     closeButton.addEventListener('pointerup', closeFromButton, true);
     closeButton.addEventListener('click', closeFromButton, true);
-    header.append(title, closeButton);
-    menu.appendChild(header);
+    header.append(title, closeButton); menu.appendChild(header);
     const addSelect = (labelText, values, selected, onChange) => {
-      const label = document.createElement('label');
-      label.className = 'looper-timing-field';
-      const text = document.createElement('span');
-      text.textContent = labelText;
-      label.appendChild(text);
-      const select = document.createElement('select');
-      select.className = 'looper-timing-select';
-      values.forEach((entry) => {
-        const option = document.createElement('option');
-        option.value = entry.value;
-        option.textContent = entry.label;
-        select.appendChild(option);
-      });
-      select.value = String(selected);
-      select.addEventListener('change', () => onChange(select.value));
-      label.appendChild(select);
-      menu.appendChild(label);
+      const label = document.createElement('label'); label.className = 'looper-timing-field';
+      const text = document.createElement('span'); text.textContent = labelText; label.appendChild(text);
+      const select = document.createElement('select'); select.className = 'looper-timing-select';
+      values.forEach((entry) => { const option = document.createElement('option'); option.value = entry.value; option.textContent = entry.label; select.appendChild(option); });
+      select.value = String(selected); select.addEventListener('change', () => onChange(select.value)); label.appendChild(select); menu.appendChild(label);
     };
     if (type === 'metronome') {
-      const options = document.createElement('div');
-      options.className = 'looper-click-options';
+      const options = document.createElement('div'); options.className = 'looper-click-options';
       CLICK_TYPES.forEach((spec) => {
-        const option = document.createElement('button');
-        option.type = 'button';
-        option.className = 'looper-timing-option' + (spec.id === clickType ? ' is-active' : '');
-        option.textContent = spec.label;
-        option.addEventListener('click', () => {
-          clickType = spec.id;
-          closeTimingMenu();
-          showTimingMenu(type, anchor);
-        });
+        const option = document.createElement('button'); option.type = 'button'; option.className = 'looper-timing-option' + (spec.id === clickType ? ' is-active' : '');
+        option.textContent = spec.label; option.addEventListener('click', () => { clickType = spec.id; closeTimingMenu(); showTimingMenu(type, anchor); });
         options.appendChild(option);
       });
       menu.appendChild(options);
-      addSelect(
-        'Time signature',
-        [
-          { value: 3, label: '3 / 4' },
-          { value: 4, label: '4 / 4' },
-          { value: 5, label: '5 / 4' },
-          { value: 6, label: '6 / 8' },
-        ],
-        beatsPerBar,
-        (v) => {
-          beatsPerBar = Number(v);
-          setBtnState();
-        }
-      );
+      addSelect('Time signature', [{value:3,label:'3 / 4'},{value:4,label:'4 / 4'},{value:5,label:'5 / 4'},{value:6,label:'6 / 8'}], beatsPerBar, (v) => { beatsPerBar = Number(v); setBtnState(); });
     } else if (type === 'countin') {
-      addSelect(
-        'Count-in length',
-        [
-          { value: 1, label: '1 bar' },
-          { value: 2, label: '2 bars' },
-          { value: 3, label: '3 bars' },
-        ],
-        countInBars,
-        (v) => {
-          countInBars = Number(v);
-          setBtnState();
-        }
-      );
-      addSelect(
-        'Click sound',
-        CLICK_TYPES.map((item) => ({ value: item.id, label: item.label })),
-        clickType,
-        (v) => {
-          clickType = v;
-        }
-      );
-      addSelect(
-        'Time signature',
-        [
-          { value: 3, label: '3 / 4' },
-          { value: 4, label: '4 / 4' },
-          { value: 5, label: '5 / 4' },
-          { value: 6, label: '6 / 8' },
-        ],
-        beatsPerBar,
-        (v) => {
-          beatsPerBar = Number(v);
-          setBtnState();
-        }
-      );
+      addSelect('Count-in length', [{value:1,label:'1 bar'},{value:2,label:'2 bars'},{value:3,label:'3 bars'}], countInBars, (v) => { countInBars = Number(v); setBtnState(); });
+      addSelect('Click sound', CLICK_TYPES.map((item) => ({value:item.id,label:item.label})), clickType, (v) => { clickType = v; });
+      addSelect('Time signature', [{value:3,label:'3 / 4'},{value:4,label:'4 / 4'},{value:5,label:'5 / 4'},{value:6,label:'6 / 8'}], beatsPerBar, (v) => { beatsPerBar = Number(v); setBtnState(); });
     } else {
-      const value = document.createElement('div');
-      value.className = 'looper-bpm-editor-value';
-      value.textContent = Math.round(bpm) + ' BPM';
-      menu.appendChild(value);
-      const range = document.createElement('input');
-      range.type = 'range';
-      range.min = '40';
-      range.max = '200';
-      range.step = '1';
-      range.value = String(Math.round(bpm));
-      range.className = 'looper-bpm-range';
-      range.setAttribute('aria-label', 'Tempo in beats per minute');
-      range.addEventListener('input', () => {
-        setBpm(range.value);
-        value.textContent = Math.round(bpm) + ' BPM';
-      });
-      menu.appendChild(range);
-      const row = document.createElement('div');
-      row.className = 'looper-timing-menu-row';
-      for (const [label, delta] of [
-        ['−5', -5],
-        ['−1', -1],
-        ['+1', 1],
-        ['+5', 5],
-      ]) {
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'looper-timing-option';
-        b.textContent = label;
-        b.addEventListener('click', () => {
-          setBpm(bpm + delta);
-          value.textContent = Math.round(bpm) + ' BPM';
-          range.value = String(Math.round(bpm));
-        });
-        row.appendChild(b);
-      }
+      const value = document.createElement('div'); value.className = 'looper-bpm-editor-value'; value.textContent = Math.round(bpm) + ' BPM'; menu.appendChild(value);
+      const range = document.createElement('input'); range.type = 'range'; range.min = '40'; range.max = '200'; range.step = '1'; range.value = String(Math.round(bpm)); range.className = 'looper-bpm-range'; range.setAttribute('aria-label','Tempo in beats per minute');
+      range.addEventListener('input', () => { setBpm(range.value); value.textContent = Math.round(bpm) + ' BPM'; }); menu.appendChild(range);
+      const row = document.createElement('div'); row.className = 'looper-timing-menu-row';
+      for (const [label, delta] of [['−5',-5],['−1',-1],['+1',1],['+5',5]]) { const b = document.createElement('button'); b.type='button'; b.className='looper-timing-option'; b.textContent=label; b.addEventListener('click',()=>{setBpm(bpm+delta);value.textContent=Math.round(bpm)+' BPM';range.value=String(Math.round(bpm));}); row.appendChild(b); }
       menu.appendChild(row);
-      addSelect(
-        'Time signature',
-        [
-          { value: 3, label: '3 / 4' },
-          { value: 4, label: '4 / 4' },
-          { value: 5, label: '5 / 4' },
-          { value: 6, label: '6 / 8' },
-        ],
-        beatsPerBar,
-        (v) => {
-          beatsPerBar = Number(v);
-        }
-      );
-      const close = document.createElement('button');
-      close.type = 'button';
-      close.className = 'looper-timing-option';
-      close.textContent = 'Done';
-      close.addEventListener('click', closeTimingMenu);
-      menu.appendChild(close);
+      addSelect('Time signature', [{value:3,label:'3 / 4'},{value:4,label:'4 / 4'},{value:5,label:'5 / 4'},{value:6,label:'6 / 8'}], beatsPerBar, (v) => { beatsPerBar = Number(v); });
+      const close = document.createElement('button'); close.type='button'; close.className='looper-timing-option'; close.textContent='Done'; close.addEventListener('click',closeTimingMenu); menu.appendChild(close);
     }
     timingMenu = menu;
     document.body.appendChild(menu);
     const rect = anchor.getBoundingClientRect();
     const width = Math.min(280, window.innerWidth - 24);
     menu.style.width = width + 'px';
-    menu.style.left =
-      Math.max(
-        12,
-        Math.min(rect.left + rect.width / 2 - width / 2, window.innerWidth - width - 12)
-      ) + 'px';
+    menu.style.left = Math.max(12, Math.min(rect.left + rect.width / 2 - width / 2, window.innerWidth - width - 12)) + 'px';
     menu.style.top = 'auto';
     menu.style.bottom = Math.max(12, window.innerHeight - rect.top + 8) + 'px';
     menu.style.maxHeight = Math.max(120, Math.min(420, rect.top - 20)) + 'px';
-    menu.querySelector('button,select,input')?.focus({ preventScroll: true });
+    menu.querySelector('button,select,input')?.focus({preventScroll:true});
     requestAnimationFrame(() => menu.classList.add('is-open'));
   }
 
   // Route close-button touches at document capture phase. This remains reliable on
   // mobile even when popup-level handlers or nested touch targets interfere.
-  document.addEventListener(
-    'pointerdown',
-    (event) => {
-      const target = event.target instanceof Element ? event.target : event.target?.parentElement;
-      const close = target?.closest('.looper-menu-close, .looper-track-close');
-      if (!close) return;
-      event.preventDefault();
-      event.stopPropagation();
-      if (close.classList.contains('looper-track-close')) closeTrackPanel();
-      else if (close.closest('.looper-sheet')) closeSheet();
-      else if (close.closest('.looper-timing-menu')) closeTimingMenu();
-    },
-    true
-  );
+  document.addEventListener('pointerdown', (event) => {
+    const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+    const close = target?.closest('.looper-menu-close, .looper-track-close');
+    if (!close) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (close.classList.contains('looper-track-close')) closeTrackPanel();
+    else if (close.closest('.looper-sheet')) closeSheet();
+    else if (close.closest('.looper-timing-menu')) closeTimingMenu();
+  }, true);
 
   function wireTimingToggle(control, type) {
-    let holdTimer = null,
-      held = false;
+    let holdTimer = null, held = false;
     control.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      held = false;
-      holdTimer = setTimeout(() => {
-        held = true;
-        timingLongFired = true;
-        showTimingMenu(type, control);
-      }, LONG_MS);
+      e.preventDefault(); e.stopPropagation(); held = false;
+      holdTimer = setTimeout(() => { held = true; timingLongFired = true; showTimingMenu(type, control); }, LONG_MS);
     });
     const finish = (e) => {
-      e?.preventDefault?.();
-      e?.stopPropagation?.();
-      if (holdTimer) clearTimeout(holdTimer);
-      holdTimer = null;
+      e?.preventDefault?.(); e?.stopPropagation?.();
+      if (holdTimer) clearTimeout(holdTimer); holdTimer = null;
       if (held) return;
-      if (type === 'countin') {
-        countInEnabled = !countInEnabled;
-        setBtnState();
-      } else setMetronome(!metronomeOn);
+      if (type === 'countin') { countInEnabled = !countInEnabled; setBtnState(); }
+      else setMetronome(!metronomeOn);
     };
     control.addEventListener('pointerup', finish);
-    control.addEventListener('pointercancel', () => {
-      if (holdTimer) clearTimeout(holdTimer);
-      holdTimer = null;
-    });
+    control.addEventListener('pointercancel', () => { if (holdTimer) clearTimeout(holdTimer); holdTimer = null; });
     control.addEventListener('contextmenu', (e) => e.preventDefault());
   }
   wireTimingToggle(countInBtn, 'countin');
   wireTimingToggle(metronomeBtn, 'metronome');
 
-  let bpmDownX = 0,
-    bpmStart = 90,
-    bpmMoved = false,
-    bpmHeld = false,
-    bpmHoldTimer = null;
+  let bpmDownX = 0, bpmStart = 90, bpmMoved = false, bpmHeld = false, bpmHoldTimer = null;
   bpmBtn.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    bpmDownX = e.clientX;
-    bpmStart = bpm;
-    bpmMoved = false;
-    bpmHeld = false;
+    e.preventDefault(); e.stopPropagation(); bpmDownX = e.clientX; bpmStart = bpm; bpmMoved = false; bpmHeld = false;
     bpmBtn.setPointerCapture?.(e.pointerId);
-    bpmHoldTimer = setTimeout(() => {
-      bpmHeld = true;
-      showTimingMenu('bpm', bpmBtn);
-    }, LONG_MS);
+    bpmHoldTimer = setTimeout(() => { bpmHeld = true; showTimingMenu('bpm', bpmBtn); }, LONG_MS);
   });
   bpmBtn.addEventListener('pointermove', (e) => {
     if (e.buttons === 0 || !Number.isFinite(e.clientX)) return;
     const delta = e.clientX - bpmDownX;
-    if (Math.abs(delta) > 4) {
-      bpmMoved = true;
-      if (bpmHoldTimer) clearTimeout(bpmHoldTimer);
-      bpmHoldTimer = null;
-      setBpm(bpmStart + delta * 0.65);
-    }
+    if (Math.abs(delta) > 4) { bpmMoved = true; if (bpmHoldTimer) clearTimeout(bpmHoldTimer); bpmHoldTimer = null; setBpm(bpmStart + delta * .65); }
   });
   const endBpm = (e) => {
-    e?.preventDefault?.();
-    e?.stopPropagation?.();
-    if (bpmHoldTimer) clearTimeout(bpmHoldTimer);
-    bpmHoldTimer = null;
+    e?.preventDefault?.(); e?.stopPropagation?.();
+    if (bpmHoldTimer) clearTimeout(bpmHoldTimer); bpmHoldTimer = null;
     if (!bpmMoved && !bpmHeld) {
-      const now = Date.now();
-      lastTapTimes.push(now);
-      lastTapTimes = lastTapTimes.filter((t) => now - t < 2500).slice(-5);
-      if (lastTapTimes.length >= 2) {
-        const intervals = lastTapTimes
-          .slice(1)
-          .map((t, i) => t - lastTapTimes[i])
-          .filter((d) => d > 0);
-        if (intervals.length) {
-          setBpm(60000 / (intervals.reduce((a, b) => a + b, 0) / intervals.length));
-        }
-      }
+      const now = Date.now(); lastTapTimes.push(now); lastTapTimes = lastTapTimes.filter(t => now-t < 2500).slice(-5);
+      if (lastTapTimes.length >= 2) { const intervals = lastTapTimes.slice(1).map((t,i)=>t-lastTapTimes[i]).filter(d=>d>0); if(intervals.length) setBpm(60000/(intervals.reduce((a,b)=>a+b,0)/intervals.length)); }
     }
     bpmPointer = null;
   };
   bpmBtn.addEventListener('pointerup', endBpm);
   bpmBtn.addEventListener('pointercancel', endBpm);
   bpmBtn.addEventListener('contextmenu', (e) => e.preventDefault());
-  document.addEventListener(
-    'pointerdown',
-    (e) => {
-      if (timingMenu && !timingMenu.contains(e.target) && !e.target.closest('.looper-timing-btn')) {
-        closeTimingMenu();
-      }
-    },
-    true
-  );
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeTimingMenu();
-  });
+  document.addEventListener('pointerdown', (e) => { if (timingMenu && !timingMenu.contains(e.target) && !e.target.closest('.looper-timing-btn')) closeTimingMenu(); }, true);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeTimingMenu(); });
 
   function requestStopRecord() {
-    if (countInPending) {
-      cancelCountIn();
-      return;
-    }
+    if (countInPending) { cancelCountIn(); return; }
     if (!recording) return;
     const mode = syncMode();
     if (mode === 'loop' && layers.length > 0 && cycleDuration() > 0.2) {
@@ -3243,13 +2736,10 @@ export function mountLooper({ root } = {}) {
       const phase = cyclePhase();
       let waitSeconds = duration - phase;
       if (waitSeconds < 0.025) waitSeconds = duration;
-      pendingLoopStopTimer = setTimeout(
-        () => {
-          pendingLoopStopTimer = null;
-          if (recording && pendingLoopStop) finishRecord();
-        },
-        Math.max(20, waitSeconds * 1000)
-      );
+      pendingLoopStopTimer = setTimeout(() => {
+        pendingLoopStopTimer = null;
+        if (recording && pendingLoopStop) finishRecord();
+      }, Math.max(20, waitSeconds * 1000));
       return;
     }
     finishRecord();
@@ -3263,7 +2753,6 @@ export function mountLooper({ root } = {}) {
         processor.port.postMessage({ type: 'flush' });
         // Increased timeout from 120ms to 500ms to ensure all audio chunks are flushed
         // 120ms was too short and could cause incomplete recordings on slower devices
-        // prettier-ignore
         setTimeout(() => { if (recorderFlushResolve === resolve) recorderFlushResolve = null; resolve(); }, 500);
       });
     }
@@ -3336,24 +2825,10 @@ export function mountLooper({ root } = {}) {
     panner.connect(master);
 
     const layer = {
-      buffer,
-      source: null,
-      gain,
-      panner,
-      filter,
-      delay,
-      feedback,
-      delayWet,
-      level: DEFAULT_LEVEL,
-      pan: 0,
-      muted: false,
-      solo: false,
-      delayAmount: 0,
-      cutoff: 20000,
-      quantize: 'off',
-      startedAt: ctx.currentTime,
-      offset: 0,
-      paused: false,
+      buffer, source: null, gain, panner, filter, delay, feedback, delayWet,
+      level: DEFAULT_LEVEL, pan: 0, muted: false, solo: false,
+      delayAmount: 0, cutoff: 20000, quantize: 'off',
+      startedAt: ctx.currentTime, offset: 0, paused: false
     };
     layers.push(layer);
     applyLayerGain(layer);
@@ -3393,15 +2868,10 @@ export function mountLooper({ root } = {}) {
     for (const layer of layers) disconnectLayer(layer);
     layers.length = 0;
     // Disconnect and cleanup AudioWorklet recorder to prevent CPU waste
-    // prettier-ignore
     try { if (processor?.port) processor.port.onmessage = null; } catch (_) {}
-    // prettier-ignore
     try { processor?.disconnect(); } catch (_) {}
-    // prettier-ignore
     try { silent?.disconnect(); } catch (_) {}
-    try {
-      tapSource?.disconnect(processor);
-    } catch (_) {}
+    try { tapSource?.disconnect(processor); } catch (_) {}
     processor = null;
     silent = null;
     tapSource = null;
@@ -3458,14 +2928,12 @@ export function mountLooper({ root } = {}) {
       layers.forEach((l, i) => {
         if (!l.paused) {
           const off = cyclePhase();
-          startLayerSource(l, i === 0 ? l.offset || 0 : off);
+          startLayerSource(l, i === 0 ? (l.offset || 0) : off);
         }
       });
     }
     setBtnState();
-    try {
-      if (navigator.vibrate) navigator.vibrate(10);
-    } catch (_) {}
+    try { if (navigator.vibrate) navigator.vibrate(10); } catch (_) {}
   }
 
   btn.addEventListener('pointerdown', onPressStart);
@@ -3491,55 +2959,7 @@ export function mountLooper({ root } = {}) {
   if (ctx) {
     ctx.addEventListener('statechange', handleContextStateChange);
   }
-  const api = {
-    clearAll,
-    layers,
-    openTrackPanel,
-    closeTrackPanel,
-    setBpm,
-    setMetronome,
-    getTimingState: () => ({
-      bpm,
-      metronomeOn,
-      countInEnabled,
-      countInBars,
-      beatsPerBar,
-      clickType,
-    }),
-    refresh: () => {
-      renderCircles();
-      setBtnState();
-    },
-    getTransportState: () => {
-      const masterLayer = layers[0];
-      const ctx = getAudioContext();
-      const duration = cycleDuration();
-      const phase = cyclePhase(ctx?.currentTime);
-      const paused = !masterLayer || !masterLayer.buffer || !!masterLayer.paused;
-      const cycle =
-        !paused && ctx && duration > 0
-          ? Math.max(
-              0,
-              Math.floor((ctx.currentTime - (masterLayer.startedAt || ctx.currentTime)) / duration)
-            )
-          : 0;
-      return {
-        hasMaster: !!(masterLayer?.buffer && duration > 0),
-        duration,
-        phase,
-        paused,
-        cycle,
-        bpm,
-        currentTime: ctx?.currentTime || 0,
-      };
-    },
-    getState: () => ({
-      maxLayers: MAX_LAYERS,
-      layerCount: layers.length,
-      recording,
-      pendingLoopStop,
-    }),
-  };
+  const api = { clearAll, layers, openTrackPanel, closeTrackPanel, setBpm, setMetronome, getTimingState: () => ({ bpm, metronomeOn, countInEnabled, countInBars, beatsPerBar, clickType }), refresh: () => { renderCircles(); setBtnState(); }, getTransportState: () => { const masterLayer = layers[0]; const ctx = getAudioContext(); const duration = cycleDuration(); const phase = cyclePhase(ctx?.currentTime); const paused = !masterLayer || !masterLayer.buffer || !!masterLayer.paused; const cycle = (!paused && ctx && duration > 0) ? Math.max(0, Math.floor((ctx.currentTime - (masterLayer.startedAt || ctx.currentTime)) / duration)) : 0; return { hasMaster: !!(masterLayer?.buffer && duration > 0), duration, phase, paused, cycle, bpm, currentTime: ctx?.currentTime || 0 }; }, getState: () => ({ maxLayers: MAX_LAYERS, layerCount: layers.length, recording, pendingLoopStop }) };
   // Keep a stable debug/test handle so browser checks and support diagnostics can
   // inspect the mounted loop engine without reaching into module internals.
   window.PionierLooper = api;

@@ -4,18 +4,23 @@
  */
 (function () {
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (window.__pionierLooperCircleProgress) return;
 =======
   if (window.__pionierLooperCircleProgress) {
     return;
   }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+  if (window.__pionierLooperCircleProgress) return;
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   window.__pionierLooperCircleProgress = true;
 
   const BINS = 48;
   const peakCache = new WeakMap();
 
   function computePeaks(buffer) {
+<<<<<<< HEAD
 <<<<<<< HEAD
     if (!buffer) return new Array(BINS).fill(0.08);
     if (peakCache.has(buffer)) return peakCache.get(buffer);
@@ -27,6 +32,10 @@
       return peakCache.get(buffer);
     }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+    if (!buffer) return new Array(BINS).fill(0.08);
+    if (peakCache.has(buffer)) return peakCache.get(buffer);
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
     const ch = buffer.getChannelData(0);
     const len = ch.length;
     const peaks = new Array(BINS);
@@ -38,6 +47,7 @@
       const end = Math.min(len, start + step);
       for (let j = start; j < end; j++) {
         const v = Math.abs(ch[j]);
+<<<<<<< HEAD
 <<<<<<< HEAD
         if (v > peak) peak = v;
 =======
@@ -220,15 +230,21 @@
 =======
     for (let i = 0; i < BINS; i++) {
       peaks[i] = Math.max(0.06, peaks[i] / max);
+=======
+        if (v > peak) peak = v;
+      }
+      const n = Math.min(1, peak * 2.4);
+      peaks[i] = n;
+      if (n > max) max = n;
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
     }
+    for (let i = 0; i < BINS; i++) peaks[i] = Math.max(0.06, peaks[i] / max);
     peakCache.set(buffer, peaks);
     return peaks;
   }
 
   function drawRadial(canvas, peaks, progress01, opts) {
-    if (!canvas || !peaks) {
-      return;
-    }
+    if (!canvas || !peaks) return;
     const size = canvas.clientWidth || 42;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const px = Math.max(28, Math.round(size * dpr));
@@ -258,13 +274,9 @@
       g.lineTo(cx + Math.cos(a1) * h, cy + Math.sin(a1) * h);
       g.lineTo(cx + Math.cos(a1) * inner, cy + Math.sin(a1) * inner);
       g.closePath();
-      if (muted) {
-        g.fillStyle = 'rgba(180,180,190,0.22)';
-      } else if (paused) {
-        g.fillStyle = lit ? 'rgba(210,195,150,0.35)' : 'rgba(255,255,255,0.10)';
-      } else {
-        g.fillStyle = lit ? 'rgba(246,218,132,0.95)' : 'rgba(212,176,74,0.28)';
-      }
+      if (muted) g.fillStyle = 'rgba(180,180,190,0.22)';
+      else if (paused) g.fillStyle = lit ? 'rgba(210,195,150,0.35)' : 'rgba(255,255,255,0.10)';
+      else g.fillStyle = lit ? 'rgba(246,218,132,0.95)' : 'rgba(212,176,74,0.28)';
       g.fill();
     }
     if (!paused && !muted) {
@@ -282,22 +294,16 @@
   function getCtx() {
     try {
       const c = window.PionierCore?.getAudioContext?.();
-      if (c && c.state !== 'closed') {
-        return c;
-      }
+      if (c && c.state !== 'closed') return c;
     } catch (_) {}
     return null;
   }
 
   function layerPhase(layer, now) {
-    if (!layer?.buffer) {
-      return 0;
-    }
+    if (!layer?.buffer) return 0;
     const dur = layer.buffer.duration || 1;
-    if (layer.paused) {
-      return (((layer.offset || 0) % dur) + dur) % dur;
-    }
-    return (((now - (layer.startedAt || now)) % dur) + dur) % dur;
+    if (layer.paused) return ((layer.offset || 0) % dur + dur) % dur;
+    return ((now - (layer.startedAt || now)) % dur + dur) % dur;
   }
 
   function anySolo(layers) {
@@ -305,19 +311,13 @@
   }
 
   function effectiveMuted(layer, layers) {
-    if (layer.muted) {
-      return true;
-    }
-    if (anySolo(layers) && !layer.solo) {
-      return true;
-    }
+    if (layer.muted) return true;
+    if (anySolo(layers) && !layer.solo) return true;
     return false;
   }
 
   function ensureChrome(btn, index) {
-    if (btn.dataset.radialReady === '1') {
-      return btn._radialCanvas;
-    }
+    if (btn.dataset.radialReady === '1') return btn._radialCanvas;
     btn.dataset.radialReady = '1';
     btn.style.setProperty('--i', String(index));
     if (!btn.querySelector('.looper-circle-progress')) {
@@ -354,20 +354,14 @@
     const api = window.PionierLooper;
     const layers = api?.layers;
     const rail = document.getElementById('looperLayers');
-    if (!rail || !layers) {
-      return;
-    }
+    if (!rail || !layers) return;
 
     const buttons = rail.querySelectorAll('.looper-circle');
     if (buttons.length !== lastLayerCount) {
       lastLayerCount = buttons.length;
-      buttons.forEach((b) => {
-        delete b.dataset.radialReady;
-      });
+      buttons.forEach((b) => { delete b.dataset.radialReady; });
     }
-    if (!buttons.length) {
-      return;
-    }
+    if (!buttons.length) return;
 
     const ctx = getCtx();
     const now = ctx?.currentTime ?? performance.now() / 1000;
@@ -376,9 +370,7 @@
 
     buttons.forEach((btn, i) => {
       const layer = layers[i];
-      if (!layer || !layer.buffer) {
-        return;
-      }
+      if (!layer || !layer.buffer) return;
       const canvas = ensureChrome(btn, i);
       const dur = layer.buffer.duration || 1;
       const phase = layerPhase(layer, now);
@@ -389,7 +381,7 @@
       btn.classList.toggle('is-paused', !!layer.paused);
       btn.classList.toggle('is-playing', !layer.paused);
       if (beat > 0.02 && !layer.paused && !muted) {
-        btn.classList.toggle('is-beat', phase % beat < Math.min(0.09, beat * 0.18));
+        btn.classList.toggle('is-beat', (phase % beat) < Math.min(0.09, beat * 0.18));
       } else {
         btn.classList.remove('is-beat');
       }
@@ -399,9 +391,7 @@
   }
 
   function boot() {
-    if (!raf) {
-      raf = requestAnimationFrame(tick);
-    }
+    if (!raf) raf = requestAnimationFrame(tick);
   }
 
   if (document.readyState === 'loading') {

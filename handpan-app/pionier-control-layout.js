@@ -3,6 +3,7 @@
 (function () {
   'use strict';
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (window.__pionierLayoutRecoveryV16) return;
   window.__pionierLayoutRecoveryV16 = true;
 
@@ -162,6 +163,9 @@
   if (window.__pionierLayoutRecoveryV16) {
     return;
   }
+=======
+  if (window.__pionierLayoutRecoveryV16) return;
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   window.__pionierLayoutRecoveryV16 = true;
 
   var scheduled = false;
@@ -171,37 +175,24 @@
     var el = document.getElementById(id);
     if (!el) {
       el = document.createElement(tag);
-      if (id) {
-        el.id = id;
-      }
-      if (className) {
-        el.className = className;
-      }
+      if (id) el.id = id;
+      if (className) el.className = className;
     } else if (className) {
-      className.split(/\s+/).forEach(function (c) {
-        if (c && !el.classList.contains(c)) {
-          el.classList.add(c);
-        }
-      });
+      className.split(/\s+/).forEach(function (c) { if (c && !el.classList.contains(c)) el.classList.add(c); });
     }
     return el;
   }
 
   function appendIfNeeded(parent, child) {
-    if (parent && child && child.parentElement !== parent) {
-      parent.appendChild(child);
-    }
+    if (parent && child && child.parentElement !== parent) parent.appendChild(child);
   }
 
   function welcomeIsVisible() {
     var welcome = document.getElementById('pionierWelcome');
-    return !!(
-      welcome &&
-      !welcome.hidden &&
+    return !!(welcome && !welcome.hidden &&
       getComputedStyle(welcome).display !== 'none' &&
       getComputedStyle(welcome).visibility !== 'hidden' &&
-      welcome.getAttribute('aria-hidden') !== 'true'
-    );
+      welcome.getAttribute('aria-hidden') !== 'true');
   }
 
   function arrange() {
@@ -212,28 +203,16 @@
     var app = document.getElementById('app');
     var topbar = app && app.querySelector('.topbar');
     var rail = document.getElementById('looperRail');
-    if (!app || !topbar || !rail) {
-      return;
-    }
+    if (!app || !topbar || !rail) return;
     /* Wait for the looper module to build its controls first; it expects its
        record cluster and layers to still be inside #looperRail while mounting. */
-    if (rail.dataset.mounted !== '1') {
-      return;
-    }
+    if (rail.dataset.mounted !== '1') return;
 
     var selectors = make('div', 'pionierSelectorRow', 'pionier-selector-stack');
     var scaleRow = make('div', 'pionierScaleRow', 'pionier-selector-row pionier-scale-row');
-    var instrumentRow = make(
-      'div',
-      'pionierInstrumentRow',
-      'pionier-selector-row pionier-instrument-row'
-    );
+    var instrumentRow = make('div', 'pionierInstrumentRow', 'pionier-selector-row pionier-instrument-row');
     var dock = make('div', 'pionierBottomDock', 'pionier-bottom-dock');
-    var instrumentGroup = make(
-      'div',
-      'pionierInstrumentGroup',
-      'pionier-selector-group pionier-instrument-group'
-    );
+    var instrumentGroup = make('div', 'pionierInstrumentGroup', 'pionier-selector-group pionier-instrument-group');
     var scaleGroup = make('div', 'pionierScaleGroup', 'pionier-selector-group pionier-scale-group');
     var toolbar = make('div', 'pionierLooperToolbar', 'pionier-looper-toolbar');
     var loopControls = make('div', 'pionierLooperControls', 'pionier-looper-controls');
@@ -263,9 +242,7 @@
     });
     appendIfNeeded(instrumentGroup, instrumentStepper);
     appendIfNeeded(instrumentGroup, randomize);
-    if (nav && nav !== instrumentGroup && nav.children.length === 0) {
-      nav.remove();
-    }
+    if (nav && nav !== instrumentGroup && nav.children.length === 0) nav.remove();
 
     var scaleBlock = app.querySelector('.control-scale');
     var rootGroup = make('div', 'pionierRootGroup', 'pionier-root-control');
@@ -273,9 +250,7 @@
     appendIfNeeded(scaleGroup, scaleBlock);
     appendIfNeeded(scaleGroup, rootGroup);
     /* Base note is its own button beside the scale pill, not inside it. */
-    if (rootBtn) {
-      appendIfNeeded(rootGroup, rootBtn);
-    }
+    if (rootBtn) appendIfNeeded(rootGroup, rootBtn);
 
     var clear = document.getElementById('looperClearBtn');
     var recordCluster = document.getElementById('looperRecordCluster');
@@ -290,15 +265,11 @@
       Array.prototype.slice.call(utilityGroup.children).forEach(function (control) {
         appendIfNeeded(loopControls, control);
       });
-      if (utilityGroup.parentElement) {
-        utilityGroup.remove();
-      }
+      if (utilityGroup.parentElement) utilityGroup.remove();
     }
     ['looperCountInBtn', 'looperMetronomeBtn', 'looperBpmBtn'].forEach(function (id) {
       var control = document.getElementById(id);
-      if (control) {
-        appendIfNeeded(loopControls, control);
-      }
+      if (control) appendIfNeeded(loopControls, control);
     });
     appendIfNeeded(toolbar, recordCluster);
 
@@ -309,13 +280,9 @@
     /* Keep My Library in the centred top navigation group. */
     if (library) {
       var navGroup = document.getElementById('topNavGroup');
-      if (navGroup && library.parentElement !== navGroup) {
-        navGroup.appendChild(library);
-      }
+      if (navGroup && library.parentElement !== navGroup) navGroup.appendChild(library);
     }
-    [tonepad, fx, customize].forEach(function (el) {
-      appendIfNeeded(actionGroup, el);
-    });
+    [tonepad, fx, customize].forEach(function (el) { appendIfNeeded(actionGroup, el); });
     appendIfNeeded(actionGroup, document.getElementById('looperExportBtn'));
     appendIfNeeded(actionGroup, document.getElementById('looperSaveBtn'));
 
@@ -325,46 +292,32 @@
     // Keep menus at app level so transformed/overflowing selector rows cannot clip them.
     var scaleMenu = document.getElementById('scaleMenu');
     var instrumentMenu = document.getElementById('instrumentMenu');
-    if (scaleMenu && scaleMenu.parentElement !== app) {
-      app.appendChild(scaleMenu);
-    }
-    if (instrumentMenu && instrumentMenu.parentElement !== app) {
-      app.appendChild(instrumentMenu);
-    }
+    if (scaleMenu && scaleMenu.parentElement !== app) app.appendChild(scaleMenu);
+    if (instrumentMenu && instrumentMenu.parentElement !== app) app.appendChild(instrumentMenu);
 
     app.classList.add('pionier-layout-recovered');
-    if (typeof window.__pionierCenterPan === 'function') {
-      window.__pionierCenterPan();
-    }
+    if (typeof window.__pionierCenterPan === 'function') window.__pionierCenterPan();
   }
-  window.__pionierArrangeLayout = function () {
-    arrange();
-  };
+  window.__pionierArrangeLayout = function () { arrange(); };
 
   function schedule() {
-    if (scheduled) {
-      return;
-    }
+    if (scheduled) return;
     scheduled = true;
     requestAnimationFrame(arrange);
   }
 
   function boot() {
     schedule();
-    if (observer) {
-      return;
-    }
+    if (observer) return;
     observer = new MutationObserver(schedule);
     observer.observe(document.body, { childList: true, subtree: true });
     document.addEventListener('pionier:welcome-closed', schedule);
     var enter = document.getElementById('enterPionier');
-    if (enter) {
-      enter.addEventListener('click', function () {
-        setTimeout(schedule, 0);
-        setTimeout(schedule, 180);
-        setTimeout(schedule, 500);
-      });
-    }
+    if (enter) enter.addEventListener('click', function () {
+      setTimeout(schedule, 0);
+      setTimeout(schedule, 180);
+      setTimeout(schedule, 500);
+    });
   }
 
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)

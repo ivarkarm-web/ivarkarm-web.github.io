@@ -85,9 +85,7 @@
 
   function setOffline(offline) {
     const pill = el('pionierNetPill');
-    if (!pill) {
-      return;
-    }
+    if (!pill) return;
     pill.hidden = !offline;
     pill.dataset.state = offline ? 'offline' : 'online';
   }
@@ -95,9 +93,7 @@
   function showUpdateToast(reg) {
     const toast = el('pionierUpdateToast');
     const btn = el('pionierUpdateReload');
-    if (!toast || !btn) {
-      return;
-    }
+    if (!toast || !btn) return;
     toast.hidden = false;
     btn.disabled = false;
     btn.textContent = 'Reload';
@@ -122,16 +118,18 @@
   }
 
   function wireServiceWorker() {
-    if (!('serviceWorker' in navigator)) {
-      return;
-    }
+    if (!('serviceWorker' in navigator)) return;
 
     let refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
+<<<<<<< HEAD
       if (refreshing) {
         return;
       }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+      if (refreshing) return;
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
       if (document.documentElement.dataset.pionierSwReload === '1') {
         refreshing = true;
         window.location.reload();
@@ -151,12 +149,16 @@
           reg.addEventListener('updatefound', () => {
             const w = reg.installing;
 <<<<<<< HEAD
+<<<<<<< HEAD
             if (!w) return;
 =======
             if (!w) {
               return;
             }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+            if (!w) return;
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
             w.addEventListener('statechange', () => {
               if (w.state === 'installed' && navigator.serviceWorker.controller) {
                 showUpdateToast(reg);

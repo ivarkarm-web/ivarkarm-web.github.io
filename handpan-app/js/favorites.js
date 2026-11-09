@@ -11,12 +11,16 @@
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (!raw) return { scales: [], instruments: [] };
 =======
       if (!raw) {
         return { scales: [], instruments: [] };
       }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+      if (!raw) return { scales: [], instruments: [] };
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
       const p = JSON.parse(raw);
       return {
         scales: Array.isArray(p.scales) ? p.scales : [],
@@ -253,9 +257,7 @@
   }
 
   function save(state) {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (_) {}
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
   }
 
   let state = load();
@@ -268,30 +270,20 @@
   }
 
   function toggleScale(entry) {
-    if (!entry || !entry.id) {
-      return false;
-    }
+    if (!entry || !entry.id) return false;
     const i = state.scales.findIndex((x) => x.id === entry.id);
-    if (i >= 0) {
-      state.scales.splice(i, 1);
-    } else {
-      state.scales.unshift({ id: entry.id, label: entry.label || entry.id, index: entry.index });
-    }
+    if (i >= 0) state.scales.splice(i, 1);
+    else state.scales.unshift({ id: entry.id, label: entry.label || entry.id, index: entry.index });
     save(state);
     refreshUI();
     return isScaleFav(entry.id);
   }
 
   function toggleInstrument(entry) {
-    if (!entry || !entry.id) {
-      return false;
-    }
+    if (!entry || !entry.id) return false;
     const i = state.instruments.findIndex((x) => x.id === entry.id);
-    if (i >= 0) {
-      state.instruments.splice(i, 1);
-    } else {
-      state.instruments.unshift({ id: entry.id, name: entry.name || entry.id });
-    }
+    if (i >= 0) state.instruments.splice(i, 1);
+    else state.instruments.unshift({ id: entry.id, name: entry.name || entry.id });
     save(state);
     refreshUI();
     return isInstrumentFav(entry.id);
@@ -313,48 +305,32 @@
   }
 
   function decorateScaleItem(button, scale, index) {
-    if (!button || !scale) {
-      return;
-    }
+    if (!button || !scale) return;
     const existing = button.querySelector('.fav-heart-btn');
-    if (existing) {
-      existing.remove();
-    }
-    const id = scale.id || 'scale-' + index;
+    if (existing) existing.remove();
+    const id = scale.id || ('scale-' + index);
     const active = isScaleFav(id);
-    const heart = makeHeartBtn(
-      active,
-      active ? 'Remove from favorites' : 'Add to favorites',
-      () => {
-        const now = toggleScale({ id, label: scale.label || scale.short || id, index });
-        heart.classList.toggle('is-fav', now);
-        heart.setAttribute('aria-pressed', now ? 'true' : 'false');
-        heart.textContent = now ? HEART : HEART_OUTLINE;
-      }
-    );
+    const heart = makeHeartBtn(active, active ? 'Remove from favorites' : 'Add to favorites', () => {
+      const now = toggleScale({ id, label: scale.label || scale.short || id, index });
+      heart.classList.toggle('is-fav', now);
+      heart.setAttribute('aria-pressed', now ? 'true' : 'false');
+      heart.textContent = now ? HEART : HEART_OUTLINE;
+    });
     button.classList.add('fav-row');
     button.appendChild(heart);
   }
 
   function decorateInstrumentItem(button, item) {
-    if (!button || !item || !item.id) {
-      return;
-    }
+    if (!button || !item || !item.id) return;
     const existing = button.querySelector('.fav-heart-btn');
-    if (existing) {
-      existing.remove();
-    }
+    if (existing) existing.remove();
     const active = isInstrumentFav(item.id);
-    const heart = makeHeartBtn(
-      active,
-      active ? 'Remove from favorites' : 'Add to favorites',
-      () => {
-        const now = toggleInstrument({ id: item.id, name: item.name || item.id });
-        heart.classList.toggle('is-fav', now);
-        heart.setAttribute('aria-pressed', now ? 'true' : 'false');
-        heart.textContent = now ? HEART : HEART_OUTLINE;
-      }
-    );
+    const heart = makeHeartBtn(active, active ? 'Remove from favorites' : 'Add to favorites', () => {
+      const now = toggleInstrument({ id: item.id, name: item.name || item.id });
+      heart.classList.toggle('is-fav', now);
+      heart.setAttribute('aria-pressed', now ? 'true' : 'false');
+      heart.textContent = now ? HEART : HEART_OUTLINE;
+    });
     button.classList.add('fav-row');
     button.appendChild(heart);
   }
@@ -401,9 +377,7 @@
 
   function buildBody() {
     const body = document.getElementById('favoritesSheetBody');
-    if (!body) {
-      return;
-    }
+    if (!body) return;
     body.innerHTML = '';
 
     const instSec = document.createElement('section');
@@ -457,11 +431,8 @@
         pick.addEventListener('click', () => {
           const core = window.PionierCore;
           const scales = window.HANDPAN_SCALES || [];
-          let idx =
-            typeof item.index === 'number' ? item.index : scales.findIndex((s) => s.id === item.id);
-          if (idx < 0) {
-            idx = scales.findIndex((s) => (s.label || s.short) === item.label);
-          }
+          let idx = typeof item.index === 'number' ? item.index : scales.findIndex((s) => s.id === item.id);
+          if (idx < 0) idx = scales.findIndex((s) => (s.label || s.short) === item.label);
           if (idx >= 0 && typeof core?.setScaleIndex === 'function') {
             core.setScaleIndex(idx);
             core.draw?.();
@@ -503,9 +474,7 @@
   }
 
   function refreshUI() {
-    if (open) {
-      buildBody();
-    }
+    if (open) buildBody();
   }
 
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
@@ -513,6 +482,7 @@
     const els = ensureDom();
     els.btn.addEventListener('click', (e) => {
       e.preventDefault();
+<<<<<<< HEAD
 <<<<<<< HEAD
       if (open) closeSheet();
       else openSheet();
@@ -523,10 +493,15 @@
         openSheet();
       }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+      if (open) closeSheet();
+      else openSheet();
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
     });
     els.backdrop.addEventListener('click', closeSheet);
     document.getElementById('favoritesSheetClose')?.addEventListener('click', closeSheet);
     document.addEventListener('keydown', (e) => {
+<<<<<<< HEAD
 <<<<<<< HEAD
       if (e.key === 'Escape' && open) closeSheet();
 =======
@@ -534,6 +509,9 @@
         closeSheet();
       }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+      if (e.key === 'Escape' && open) closeSheet();
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
     });
   }
 
@@ -548,6 +526,7 @@
   };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 =======
@@ -557,4 +536,8 @@
     boot();
   }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
 })();

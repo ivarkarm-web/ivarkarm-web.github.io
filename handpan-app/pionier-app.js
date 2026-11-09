@@ -2,6 +2,7 @@
  * Pionier app shell: load the vendored local core and optional UI modules.
  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { startAmbient, setAmbientLevel, stopAmbient, getAmbientMode } from './js/generative-ambient.js?v=2';
 =======
 import {
@@ -11,6 +12,9 @@ import {
   getAmbientMode,
 } from './js/generative-ambient.js?v=2';
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+import { startAmbient, setAmbientLevel, stopAmbient, getAmbientMode } from './js/generative-ambient.js?v=2';
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
 
 const BASE = new URL('.', import.meta.url).href;
 const statusEl = document.getElementById('appStatus');
@@ -20,25 +24,17 @@ const statusRetry = document.getElementById('appStatusRetry');
 function setBootStatus(state, message = '', retry = false) {
   window.PionierBootState = state;
   document.documentElement.classList.toggle('pionier-boot-failed', state === 'failed');
-  if (!statusEl) {
-    return;
-  }
+  if (!statusEl) return;
   statusEl.dataset.state = state;
   statusEl.hidden = state === 'ready';
   statusEl.setAttribute('role', state === 'failed' ? 'alert' : 'status');
-  if (statusMessage) {
-    statusMessage.textContent = message;
-  }
-  if (statusRetry) {
-    statusRetry.hidden = !retry;
-  }
+  if (statusMessage) statusMessage.textContent = message;
+  if (statusRetry) statusRetry.hidden = !retry;
 }
 
 statusRetry?.addEventListener('click', () => window.location.reload());
 window.addEventListener('error', (event) => {
-  if (!event.message || window.PionierBootState === 'failed') {
-    return;
-  }
+  if (!event.message || window.PionierBootState === 'failed') return;
   console.error('[pionier] runtime error', event.error || event.message);
   setBootStatus('degraded', 'A feature encountered an error. The instrument may still work; reload to retry.', true);
 });
@@ -80,12 +76,16 @@ async function loadLooper() {
   try {
     const { mountLooper } = await import(new URL('./js/looper.js?v=240', BASE).href);
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (typeof mountLooper === 'function') mountLooper();
 =======
     if (typeof mountLooper === 'function') {
       mountLooper();
     }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+    if (typeof mountLooper === 'function') mountLooper();
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   } catch (e) {
     console.warn('[boot] looper', e);
   }
@@ -101,10 +101,14 @@ function loadFxEditor() {
       .then(() => {
         fxEditorReady = true;
 <<<<<<< HEAD
+<<<<<<< HEAD
         if (pendingFxEditorId != null) {
 =======
         if (pendingFxEditorId !== null) {
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+        if (pendingFxEditorId != null) {
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
           const id = pendingFxEditorId;
           pendingFxEditorId = null;
           window.dispatchEvent(new CustomEvent('pionier:fx-editor-open', { detail: { id } }));
@@ -118,17 +122,11 @@ function loadFxEditor() {
 }
 
 function primeFxEditorLoader(target) {
-  if (fxEditorReady) {
-    return;
-  }
+  if (fxEditorReady) return;
   const trigger = target?.closest?.('#fxPanelOpen, .fx-settings-shortcut[data-fx-editor-open]');
-  if (!trigger) {
-    return;
-  }
+  if (!trigger) return;
   const id = trigger.dataset?.fxEditorOpen;
-  if (id) {
-    pendingFxEditorId = id;
-  }
+  if (id) pendingFxEditorId = id;
   loadFxEditor();
 }
 
@@ -137,6 +135,9 @@ function primeFxEditorLoader(target) {
 // happened before the module (and its listeners) finished loading.
 document.addEventListener('pointerdown', (e) => primeFxEditorLoader(e.target), true);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
 document.addEventListener('click', (e) => {
   if (fxEditorReady) return;
   const shortcut = e.target?.closest?.('.fx-settings-shortcut[data-fx-editor-open]');
@@ -151,6 +152,7 @@ window.addEventListener('pionier:fx-editor-open', (e) => {
   pendingFxEditorId = e.detail?.id ?? pendingFxEditorId;
   loadFxEditor();
 }, true);
+<<<<<<< HEAD
 
 async function loadArps() {
   try {
@@ -190,15 +192,13 @@ window.addEventListener(
   true
 );
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
 
 async function loadArps() {
   try {
-    const { createArpInstruments } = await import(
-      new URL('./js/instruments/arp-family.js?v=3', BASE).href
-    );
-    if (typeof createArpInstruments === 'function') {
-      createArpInstruments();
-    }
+    const { createArpInstruments } = await import(new URL('./js/instruments/arp-family.js?v=3', BASE).href);
+    if (typeof createArpInstruments === 'function') createArpInstruments();
   } catch (e) {
     console.warn('[boot] arps', e);
   }
@@ -224,21 +224,23 @@ async function loadAmbientSequencer() {
   try {
     const { mountTonepad } = await import(new URL('./js/tonepad.js?v=52', BASE).href);
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (typeof mountTonepad === 'function') await mountTonepad();
 =======
     if (typeof mountTonepad === 'function') {
       await mountTonepad();
     }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+    if (typeof mountTonepad === 'function') await mountTonepad();
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   } catch (e) {
     console.warn('[boot] tonepad', e);
   }
 }
 
 function scheduleDeferredFeatures() {
-  if (deferredStarted) {
-    return;
-  }
+  if (deferredStarted) return;
   deferredStarted = true;
   const run = () => {
     loadMasterClock().then(() => {
@@ -277,12 +279,16 @@ async function boot() {
   // stalls, and arrange the dock as soon as the looper finishes mounting.
   loadLooper().then(() => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     try { window.__pionierArrangeLayout?.(); } catch (_) {}
 =======
     try {
       window.__pionierArrangeLayout?.();
     } catch (_) {}
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+    try { window.__pionierArrangeLayout?.(); } catch (_) {}
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   });
 
   try {
@@ -303,6 +309,7 @@ async function boot() {
   document.getElementById('randomizeSetup')?.addEventListener('click', async () => {
     const dice = document.getElementById('randomizeSetup');
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (dice?.dataset.rolling === '1') return;
     if (dice) { dice.dataset.rolling = '1'; dice.classList.add('is-rolling'); }
 =======
@@ -314,6 +321,10 @@ async function boot() {
       dice.classList.add('is-rolling');
     }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+    if (dice?.dataset.rolling === '1') return;
+    if (dice) { dice.dataset.rolling = '1'; dice.classList.add('is-rolling'); }
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
     try {
       unlockAudioFromGesture();
       const core = window.PionierCore;
@@ -340,12 +351,16 @@ async function boot() {
 
 if (document.readyState === 'loading') {
 <<<<<<< HEAD
+<<<<<<< HEAD
   document.addEventListener('DOMContentLoaded', () => { boot().catch(console.error); });
 =======
   document.addEventListener('DOMContentLoaded', () => {
     boot().catch(console.error);
   });
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+  document.addEventListener('DOMContentLoaded', () => { boot().catch(console.error); });
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
 } else {
   boot().catch(console.error);
 }

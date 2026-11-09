@@ -1,6 +1,9 @@
 <!doctype html>
 <html lang="en" class="dark">
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -61,6 +64,7 @@
     <div class="welcome-masthead">
       <span class="welcome-brand"><span class="welcome-brand-main">PIONIER</span><span class="welcome-brand-audio">AUDIO</span><span class="welcome-brand-handpan">HANDPAN</span></span>
       <span class="welcome-edition">POCKET INSTRUMENT&nbsp; / &nbsp;NO. 01</span>
+<<<<<<< HEAD
 =======
   <head>
     <meta charset="UTF-8" />
@@ -161,6 +165,20 @@
       <span class="welcome-foot-rule"></span>
       <span>MADE FOR THE MOMENT</span>
     </div>
+=======
+    </div>
+    <div class="pionier-welcome-content">
+      <span class="welcome-kicker"><span class="welcome-kicker-dot"></span> SOUND, SHAPED BY YOU</span>
+      <h1 class="welcome-headline">A little space<br><em>to make sound.</em></h1>
+      <p class="welcome-deck">A touch-responsive instrument for exploring tones, textures and loops.</p>
+      <button type="button" id="enterPionier"><span>Enter Pionier</span><span class="welcome-enter-arrow" aria-hidden="true">↗</span></button>
+    </div>
+    <div class="welcome-foot">
+      <span>LISTEN&nbsp; · &nbsp;EXPLORE&nbsp; · &nbsp;CREATE</span>
+      <span class="welcome-foot-rule"></span>
+      <span>MADE FOR THE MOMENT</span>
+    </div>
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   </section>
   <div id="headphonesHint" role="status" aria-live="polite"><span class="headphones-word headphones-word-one">Headphones</span><span class="headphones-word headphones-word-two">recommended</span></div>
   <div id="app" class="app">
@@ -173,6 +191,7 @@
           <button type="button" class="icon-btn" id="tonepadToggle" aria-label="Sequencer" title="Sequencer" aria-pressed="false">▦</button>
           <button type="button" class="icon-btn" id="fxPanelOpen" aria-label="Open effects" title="Effects" aria-expanded="false" aria-controls="fxPanel">✦</button>
           <button type="button" class="randomize-setup-btn" id="randomizeSetup" aria-label="Randomize" title="Surprise me">🎲</button>
+<<<<<<< HEAD
 =======
     <div id="app" class="app">
       <header class="topbar topbar-minimal">
@@ -301,6 +320,8 @@
             </div>
           </aside>
 >>>>>>> parent of 0d5f19cc (fix(handpan): add visible Sensitivity control (v209))
+=======
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
         </div>
       </div>
     </header>
@@ -309,6 +330,7 @@
       <button type="button" class="mobile-controls-toggle" id="mobileControlsToggle" hidden aria-expanded="false" aria-controls="mobileControlPanel">
         <span class="mobile-controls-grip" aria-hidden="true"></span>
         <span class="mobile-controls-label">Controls</span>
+<<<<<<< HEAD
       </button>
       <div class="mobile-control-panel" id="mobileControlPanel">
     <aside class="sidebar left">
@@ -349,41 +371,19 @@
         title="My Library"
       >
         ▤
+=======
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
       </button>
-      <button
-        type="button"
-        class="top-nav-btn favorites-open-btn"
-        id="favoritesOpenBtn"
-        aria-label="Open Favourites"
-        title="Favourites"
-        aria-expanded="false"
-      >
-        ♡
-      </button>
-      <button
-        type="button"
-        class="top-nav-btn about-open-btn"
-        id="aboutBtn"
-        aria-label="About Pionier"
-        title="About"
-      >
-        ?
-      </button>
-    </div>
-    <section
-      id="libraryPanel"
-      class="library-panel"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="libraryTitle"
-      aria-hidden="true"
-      hidden
-    >
-      <header class="library-header">
-        <div>
-          <p class="library-eyebrow">PIONIER · LOCAL RECORDINGS</p>
-          <h2 id="libraryTitle">My Library</h2>
+      <div class="mobile-control-panel" id="mobileControlPanel">
+    <aside class="sidebar left">
+      <div class="control-block control-scale">
+        <label class="control-label">Scale</label>
+        <div class="stepper scale-stepper">
+          <button type="button" class="step" id="scalePrev" aria-label="Previous scale">‹</button>
+          <button type="button" class="step-value scale-name scale-dropdown-toggle" id="scaleLabel" aria-haspopup="true" aria-expanded="false" aria-controls="scaleMenu" title="Choose scale">D3 Kurd ▾</button>
+          <button type="button" class="step" id="scaleNext" aria-label="Next scale">›</button>
         </div>
+<<<<<<< HEAD
         <button type="button" id="closeLibrary" aria-label="Close My Library">×</button>
       </header>
       <p class="library-intro">Your compositions, kept on this device.</p>
@@ -422,12 +422,26 @@
           </div>
         </div>
 <<<<<<< HEAD
+=======
+        <div class="scale-menu" id="scaleMenu" role="menu" aria-label="Choose scale" hidden></div>
+      </div>
+      <div class="control-row">
+        <div class="control-block control-half">
+          <label class="control-label">Base Note</label>
+          <div class="stepper">
+            <button type="button" class="step" id="rootPrev" aria-label="Previous base note">‹</button>
+            <span class="step-value" id="rootLabel">D3</span>
+            <button type="button" class="step" id="rootNext" aria-label="Next base note">›</button>
+          </div>
+        </div>
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
         <div class="control-block control-half">
           <label class="control-label">Notes</label>
           <div class="stepper">
             <button type="button" class="step" id="noteCountPrev" aria-label="Fewer notes">‹</button>
             <span class="step-value" id="noteCountLabel">8</span>
             <button type="button" class="step" id="noteCountNext" aria-label="More notes">›</button>
+<<<<<<< HEAD
           </div>
 =======
         <div class="effect-knob-wrap" id="knobDelay">
@@ -494,16 +508,23 @@
           <canvas class="knob-canvas" width="72" height="72"></canvas
           ><span class="knob-label">Master</span><span class="knob-val" id="valMaster">82%</span>
 >>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
+=======
+          </div>
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
         </div>
       </div>
     </aside>
       </div>
     </div>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
     <div id="looperRail" class="looper-rail" aria-label="Looper">
       <button type="button" id="looperClearBtn" class="looper-clear-btn" aria-label="Clear loops" title="Clear">×</button>
       <div id="looperRecordCluster" class="looper-record-cluster">
         <button type="button" id="looperBtn" class="looper-btn looper-record" aria-label="Record loop" title="Record loop"><span class="looper-btn-ring" aria-hidden="true"></span><span class="looper-btn-core" aria-hidden="true"></span></button>
+<<<<<<< HEAD
 =======
     <div id="fxEditorBackdrop" class="fx-editor-backdrop" hidden></div>
     <section
@@ -529,6 +550,9 @@
 >>>>>>> parent of bf992a40 (fix(handpan): native selects and non-blocking FX editor (v208))
       </div>
 <<<<<<< HEAD
+=======
+      </div>
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
       <div id="looperLayers" class="looper-layers" role="group" aria-label="Loop layers"></div>
     </div>
     <main class="stage" id="stage">
@@ -592,6 +616,7 @@
   <script src="./js/portrait-lock.js?v=2"></script>
   <script src="./registerSW.js?v=2"></script>
 </body>
+<<<<<<< HEAD
 =======
       <div class="fx-editor-curve-wrap">
         <canvas
@@ -628,4 +653,6 @@
     <script src="./registerSW.js?v=2"></script>
   </body>
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
 </html>

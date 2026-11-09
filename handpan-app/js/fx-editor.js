@@ -231,6 +231,9 @@ function renderPresets(){
  picker.append(trigger,list);host.appendChild(picker);
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
 function openEditor(id){
  const def=DEFS[id],m=window.PionierCore?.getFxModule?.(id);if(!def||!m||!dialog||!backdrop)return;
  activeId=id;activeModule=m;ensureSettings(id,m);lastFocus=document.activeElement;
@@ -238,6 +241,7 @@ function openEditor(id){
  $('fxEditorBypass').setAttribute('aria-pressed',String(!!m.bypassed));$('fxEditorBypass').textContent=m.bypassed?'Bypassed':'Bypass';
  renderPresets();drawKnobs();backdrop.hidden=false;dialog.hidden=false;document.body.classList.add('is-fx-editor-open');
  requestAnimationFrame(()=>{drawCurve();$('fxEditorClose')?.focus();});
+<<<<<<< HEAD
 =======
 function refresh() {
   activeModule?._apply?.(audio());
@@ -733,6 +737,8 @@ function graphCoords(e) {
     y: clamp((e.clientY - r.top - 12) / Math.max(1, r.height - 27), 0, 1),
   };
 >>>>>>> parent of bf992a40 (fix(handpan): native selects and non-blocking FX editor (v208))
+=======
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
 }
 function closeEditor(){if(!dialog||dialog.hidden)return;dialog.hidden=true;backdrop.hidden=true;document.body.classList.remove('is-fx-editor-open');activeId=null;activeModule=null;draggingCurve=false;lastFocus?.focus?.();}
 function graphCoords(e){const r=curve.getBoundingClientRect();return{x:clamp((e.clientX-r.left-24)/Math.max(1,r.width-36),0,1),y:clamp((e.clientY-r.top-12)/Math.max(1,r.height-27),0,1)};}

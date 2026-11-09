@@ -63,15 +63,20 @@ const SHELL = [
   './looper-side-menus.js?v=10',
   './og-pionier-synth.svg',
 <<<<<<< HEAD
+<<<<<<< HEAD
   './pionier-ambient.css?v=8',
 =======
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+  './pionier-ambient.css?v=8',
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   './pionier-app.js?v=296',
   './pionier-base.css?v=9',
   './pionier-control-layout.js?v=24',
   './pionier-controls.css?v=6',
   './pionier-core-base.js?v=2',
   './pionier-core.js?v=82',
+<<<<<<< HEAD
 <<<<<<< HEAD
   './pionier-layout.css?v=4',
   './registerSW.js',
@@ -151,55 +156,51 @@ function isDocumentRequest(req, url) {
   if (req.mode === 'navigate') return true;
   if (req.destination === 'document') return true;
 =======
+=======
+  './pionier-layout.css?v=4',
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   './registerSW.js',
   './registerSW.js?v=2',
   './welcome-screen.js?v=9',
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    (async () => {
-      const cache = await caches.open(CACHE_VERSION);
-      const failed = [];
-      await Promise.all(
-        SHELL.map(async (url) => {
-          try {
-            const res = await fetch(url, { cache: 'no-cache' });
-            if (res && res.ok) {
-              await cache.put(url, res);
-            } else {
-              failed.push(url);
-            }
-          } catch (_) {
-            failed.push(url);
-          }
-        })
-      );
-      if (failed.length > 0) {
-        throw new Error('SW install failed: ' + failed.join(', '));
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_VERSION);
+    const failed = [];
+    await Promise.all(SHELL.map(async (url) => {
+      try {
+        const res = await fetch(url, { cache: 'no-cache' });
+        if (res && res.ok) {
+          await cache.put(url, res);
+        } else {
+          failed.push(url);
+        }
+      } catch (_) {
+        failed.push(url);
       }
-      await self.skipWaiting();
-    })()
-  );
+    }));
+    if (failed.length > 0) {
+      throw new Error('SW install failed: ' + failed.join(', '));
+    }
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    (async () => {
-      const keys = await caches.keys();
-      await Promise.all(keys.filter((k) => k !== CACHE_VERSION).map((k) => caches.delete(k)));
-      await self.clients.claim();
-    })()
-  );
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter((k) => k !== CACHE_VERSION).map((k) => caches.delete(k)));
+    await self.clients.claim();
+  })());
 });
 
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 function isDocumentRequest(req, url) {
+<<<<<<< HEAD
   if (req.mode === 'navigate') {
     return true;
   }
@@ -207,6 +208,10 @@ function isDocumentRequest(req, url) {
     return true;
   }
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+=======
+  if (req.mode === 'navigate') return true;
+  if (req.destination === 'document') return true;
+>>>>>>> parent of 217ab58e (phase-1 safety net: lint, format, CSP, debug guard, doc drift)
   const path = url.pathname;
   return path.endsWith('.html') || path.endsWith('/') || path.endsWith('/handpan-app');
 }
@@ -217,13 +222,9 @@ function isVersionedAsset(url) {
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
-  if (req.method !== 'GET') {
-    return;
-  }
+  if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  if (url.origin !== self.location.origin) {
-    return;
-  }
+  if (url.origin !== self.location.origin) return;
 
   if (isDocumentRequest(req, url)) {
     event.respondWith(
@@ -231,10 +232,7 @@ self.addEventListener('fetch', (event) => {
         .then((res) => {
           if (res && res.ok) {
             const copy = res.clone();
-            caches
-              .open(CACHE_VERSION)
-              .then((c) => c.put(req, copy))
-              .catch(() => {});
+            caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});
           }
           return res;
         })
@@ -249,10 +247,7 @@ self.addEventListener('fetch', (event) => {
         .then((res) => {
           if (res && res.ok) {
             const copy = res.clone();
-            caches
-              .open(CACHE_VERSION)
-              .then((c) => c.put(req, copy))
-              .catch(() => {});
+            caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});
           }
           return res;
 <<<<<<< HEAD
@@ -281,16 +276,11 @@ self.addEventListener('fetch', (event) => {
 >>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   event.respondWith(
     caches.match(req).then((cached) => {
-      if (cached) {
-        return cached;
-      }
+      if (cached) return cached;
       return fetch(req).then((res) => {
         if (res && res.status === 200 && res.type !== 'opaque') {
           const copy = res.clone();
-          caches
-            .open(CACHE_VERSION)
-            .then((c) => c.put(req, copy))
-            .catch(() => {});
+          caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});
         }
         return res;
       });
