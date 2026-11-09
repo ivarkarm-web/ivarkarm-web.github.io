@@ -41,6 +41,20 @@ const TP_ICONS = {
   melody: _iconSvg('<circle cx="5" cy="14" r="2.1" fill="currentColor"/><circle cx="10" cy="10" r="2.1" fill="currentColor"/><circle cx="15" cy="6" r="2.1" fill="currentColor"/>'),
   drum: _iconSvg('<circle cx="10" cy="10" r="6.2" stroke="currentColor" stroke-width="1.9" fill="none"/><circle cx="10" cy="10" r="2.4" fill="currentColor"/>'),
 };
+const MELO_FX_KNOBS = [
+  { k: 'reverb', label: 'REV' },
+  { k: 'delay', label: 'DLY' },
+  { k: 'tone', label: 'TONE' },
+  { k: 'decay', label: 'DEC' },
+  { k: 'shimmer', label: 'SHIM' },
+];
+const DRUM_FX_KNOBS = [
+  { k: 'tune', label: 'TUNE' },
+  { k: 'decay', label: 'DEC' },
+  { k: 'drive', label: 'DRV' },
+  { k: 'space', label: 'SPC' },
+  { k: 'swing', label: 'SWNG' },
+];
 
 export async function mountTonepad() {
   if (window.__tonepadMounting) return window.__tonepadMounting;
@@ -54,6 +68,18 @@ export async function mountTonepad() {
     let velocity = 0.7;
     let probability = 1;
     let humanize = 0.12;
+    const MELO_FX_DEFAULT = () => ({ reverb: 0, delay: 0, tone: 0.5, decay: 0.5, shimmer: 0 });
+    const DRUM_FX_DEFAULT = () => ({ tune: 0.5, decay: 0.5, drive: 0, space: 0, swing: 0 });
+    const melodicFx = Array.from({ length: LAYER_COUNT }, MELO_FX_DEFAULT);
+    const drumFx = Array.from({ length: LAYER_COUNT }, DRUM_FX_DEFAULT);
+    function clamp01(v, fb) { return Number.isFinite(+v) ? Math.max(0, Math.min(1, +v)) : fb; }
+    function loadFxArr(src, defs, out) {
+      if (!Array.isArray(src)) return;
+      src.forEach((o, li) => {
+        if (li >= LAYER_COUNT || !o || typeof o !== 'object') return;
+        const d = defs(); Object.keys(d).forEach((k) => { out[li][k] = clamp01(o[k], d[k]); });
+      });
+    }
     let playing = false;
     let open = false;
     let page = 0;
@@ -101,6 +127,8 @@ export async function mountTonepad() {
         if (Number.isFinite(s.velocity)) velocity = Math.max(0, Math.min(1, +s.velocity));
         if (Number.isFinite(s.probability)) probability = Math.max(0, Math.min(1, +s.probability));
         if (Number.isFinite(s.humanize)) humanize = Math.max(0, Math.min(1, +s.humanize));
+        loadFxArr(s.fxMelodic, MELO_FX_DEFAULT, melodicFx);
+        loadFxArr(s.fxDrum, DRUM_FX_DEFAULT, drumFx);
         if (Number.isFinite(s.activeLayer)) activeLayer = Math.max(0, Math.min(LAYER_COUNT - 1, s.activeLayer | 0));
         if (Array.isArray(s.layerSounds)) {
           s.layerSounds.forEach((id, li) => {
@@ -134,7 +162,9 @@ export async function mountTonepad() {
           layerModes: layerModes.slice(),
           drumLayers: drumLayers.map((l) => Array.from(l)),
           drumKits: drumKits.slice(),
-          version: 47
+          fxMelodic: melodicFx.map((o) => ({ ...o })),
+          fxDrum: drumFx.map((o) => ({ ...o })),
+          version: 48
         }));
       } catch (_) {}
     }
@@ -667,6 +697,11 @@ export async function mountTonepad() {
           '<div class="tonepad-knob" data-k="vel"><span class="tonepad-knob-label">VEL</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>70</span></div>' +
           '<div class="tonepad-knob" data-k="prob"><span class="tonepad-knob-label">PROB</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>100</span></div>' +
           '<div class="tonepad-knob" data-k="hum"><span class="tonepad-knob-label">HUM</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>12</span></div>' +
+          '<div class="tonepad-knob" data-k="fx0"><span class="tonepad-knob-label" data-klabel>FX</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>0</span></div>' +
+          '<div class="tonepad-knob" data-k="fx1"><span class="tonepad-knob-label" data-klabel>FX</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>0</span></div>' +
+          '<div class="tonepad-knob" data-k="fx2"><span class="tonepad-knob-label" data-klabel>FX</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>0</span></div>' +
+          '<div class="tonepad-knob" data-k="fx3"><span class="tonepad-knob-label" data-klabel>FX</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>0</span></div>' +
+          '<div class="tonepad-knob" data-k="fx4"><span class="tonepad-knob-label" data-klabel>FX</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>0</span></div>' +
         '</div>' +
       '</div>';
 
@@ -774,6 +809,7 @@ export async function mountTonepad() {
         const k = kitOf(activeLayer);
         if (kitSelect.value !== k) kitSelect.value = k;
       }
+      try { refreshFxKnobs(); } catch (_) {}
     }
     function updateSoundButtons() {
       updateModeUI();
@@ -805,14 +841,16 @@ export async function mountTonepad() {
     const knobRepaint = [];
     function wireKnob(key, getV, setV) {
       const root = layer.querySelector('[data-k="' + key + '"]');
+      if (!root) return null;
       const dial = root.querySelector('[data-dial]');
       const val = root.querySelector('[data-val]');
+      const labelEl = root.querySelector('[data-klabel]');
       const kc = dial.querySelector('canvas');
       const kg = kc ? kc.getContext('2d') : null;
       let drag = false, y0 = 0, v0 = 0;
       const paint = () => {
         const t = Math.max(0, Math.min(1, getV()));
-        val.textContent = String(Math.round(t * 100));
+        if (val) val.textContent = String(Math.round(t * 100));
         if (!kg) return;
         const s = kc.width, cx = s / 2, cy = s / 2, rad = s * 0.34;
         const a0 = Math.PI * 0.75, span = Math.PI * 1.5, a1 = a0 + span * t;
@@ -843,10 +881,28 @@ export async function mountTonepad() {
       dial.addEventListener('pointerup', end);
       dial.addEventListener('pointercancel', end);
       paint();
+      return { paint, setLabel: (t) => { if (labelEl) labelEl.textContent = t; } };
     }
     wireKnob('vel', () => velocity, (v) => { velocity = v; });
     wireKnob('prob', () => probability, (v) => { probability = v; });
     wireKnob('hum', () => humanize, (v) => { humanize = v; });
+    const fxKnobHandles = [];
+    function currentFxDefs() { return modeOf(activeLayer) === 'drum' ? DRUM_FX_KNOBS : MELO_FX_KNOBS; }
+    function currentFxObj() { return modeOf(activeLayer) === 'drum' ? drumFx[activeLayer] : melodicFx[activeLayer]; }
+    for (let i = 0; i < 5; i++) {
+      fxKnobHandles.push(wireKnob('fx' + i,
+        () => { const d = currentFxDefs()[i]; const o = currentFxObj(); return d && o ? (o[d.k] ?? 0) : 0; },
+        (v) => { const d = currentFxDefs()[i]; const o = currentFxObj(); if (d && o) o[d.k] = Math.max(0, Math.min(1, v)); }
+      ));
+    }
+    function refreshFxKnobs() {
+      const defs = currentFxDefs();
+      for (let i = 0; i < 5; i++) {
+        const h = fxKnobHandles[i]; const d = defs[i];
+        if (h && d) { h.setLabel(d.label); h.paint(); }
+      }
+    }
+    refreshFxKnobs();
 
     function homeBox() {
       const pan = document.getElementById('pan');
