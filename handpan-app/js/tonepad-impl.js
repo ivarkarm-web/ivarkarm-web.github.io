@@ -528,8 +528,8 @@ export async function mountTonepad() {
       draw();
     }
 
-    const tpStyleId = 'tonepad-css-v47-drum';
-    ['tonepad-css-v45', 'tonepad-css-v46-theme'].forEach((id) => { const el = document.getElementById(id); if (el) el.remove(); });
+    const tpStyleId = 'tonepad-css-v48-layout';
+    ['tonepad-css-v45', 'tonepad-css-v46-theme', 'tonepad-css-v47-drum'].forEach((id) => { const el = document.getElementById(id); if (el) el.remove(); });
     if (!document.getElementById(tpStyleId)) {
       const style = document.createElement('style');
       style.id = tpStyleId;
@@ -538,32 +538,27 @@ export async function mountTonepad() {
         'body.tonepad-open .tonepad-layer{pointer-events:auto}',
         '#pan{transition:transform var(--tp-tr,0s) var(--tp-ease,cubic-bezier(0.22,1,0.36,1));will-change:transform}',
         'body.tonepad-open #pan{pointer-events:none}',
-        '.tonepad-chrome{display:flex;flex-direction:row;align-items:center;gap:8px;flex-wrap:wrap}',
-        '.tonepad-knobs{display:flex;gap:8px;align-items:center}',
-        '.tonepad-knob{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:40px}',
-        '.tonepad-knob-label{font:600 9px/1 system-ui,sans-serif;letter-spacing:.06em;color:var(--tp-knob-label,#c9b06a)}',
-        '.tonepad-knob-dial{width:36px;height:36px;border-radius:8px;border:1px solid var(--tp-knob-dial-border,rgba(232,212,138,.4));background:var(--tp-knob-dial-bg,#141a14);cursor:ns-resize;touch-action:none}',
+        '.tonepad-top{flex:0 0 auto;display:flex;align-items:center;gap:6px}',
+        '.tonepad-select{width:100%;min-height:44px;height:44px;padding:0 34px 0 12px;border-radius:10px;border:1px solid var(--tp-layer-btn-border,rgba(160,170,160,.35));background:var(--tp-layer-btn-bg,rgba(20,24,20,.9));color:var(--tp-layer-btn-fg,#9aab9e);font:600 13px system-ui;cursor:pointer;appearance:none;-webkit-appearance:none;touch-action:manipulation;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 16px) 18px,calc(100% - 11px) 18px;background-size:5px 5px,5px 5px;background-repeat:no-repeat}',
+        '.tonepad-select:focus-visible{outline:2px solid var(--tp-knob-accent,#e1cc8b);outline-offset:1px}',
+        '.tonepad-bottom{flex:0 0 auto;display:flex;flex-direction:row;align-items:center;gap:6px;flex-wrap:wrap}',
+        '.tonepad-transport{display:flex;flex-direction:row;align-items:center;gap:6px;flex-wrap:wrap;flex:1 1 auto;min-width:0}',
+        '.tonepad-knobs{display:flex;gap:6px;align-items:center;flex:0 0 auto}',
+        '.tonepad-knob{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:34px}',
+        '.tonepad-knob-label{font:600 8px/1 system-ui,sans-serif;letter-spacing:.05em;color:var(--tp-knob-label,#c9b06a)}',
+        '.tonepad-knob-dial{width:32px;height:32px;border-radius:8px;border:1px solid var(--tp-knob-dial-border,rgba(232,212,138,.4));background:var(--tp-knob-dial-bg,#141a14);cursor:ns-resize;touch-action:none}',
         '.tonepad-knob-dial canvas{width:100%;height:100%;display:block;pointer-events:none}',
-        '.tonepad-knob-val{font:600 10px/1 system-ui,sans-serif;color:var(--tp-knob-val,#f0d99a)}',
+        '.tonepad-knob-val{font:600 9px/1 system-ui,sans-serif;color:var(--tp-knob-val,#f0d99a)}',
         '.tonepad-layers{display:flex;gap:4px}',
-        '.tonepad-layer-btn{min-width:28px;height:28px;border-radius:6px;border:1px solid var(--tp-layer-btn-border,rgba(160,170,160,.35));background:var(--tp-layer-btn-bg,rgba(20,24,20,.9));color:var(--tp-layer-btn-fg,#9aab9e);font:600 11px system-ui;cursor:pointer;transition:border-color .15s,box-shadow .15s,color .15s,background .15s}',
+        '.tonepad-layer-btn{min-width:28px;min-height:28px;height:28px;border-radius:6px;border:1px solid var(--tp-layer-btn-border,rgba(160,170,160,.35));background:var(--tp-layer-btn-bg,rgba(20,24,20,.9));color:var(--tp-layer-btn-fg,#9aab9e);font:600 11px system-ui;cursor:pointer;transition:border-color .15s,box-shadow .15s,color .15s,background .15s;touch-action:manipulation}',
         '.tonepad-layer-btn.is-active{border-color:var(--layer-accent,#e1cc8b);color:var(--layer-accent,#f0d99a);background:var(--tp-layer-btn-active-bg,rgba(40,36,20,.95));box-shadow:0 0 10px color-mix(in srgb,var(--layer-accent,#e1cc8b) 35%,transparent)}',
         '.tonepad-layer-btn.is-empty{opacity:.4}',
-        '.tonepad-play{min-width:52px;height:28px;border-radius:6px;border:1px solid var(--tp-play-border,rgba(120,200,140,.5));background:var(--tp-play-bg,rgba(30,50,35,.9));color:var(--tp-play-fg,#b8e0c0);font:600 11px system-ui;cursor:pointer}',
-        '.tonepad-clear{min-width:44px;height:28px;border-radius:6px;border:1px solid var(--tp-clear-border,rgba(200,120,100,.45));background:var(--tp-clear-bg,rgba(50,24,20,.9));color:var(--tp-clear-fg,#e8b0a0);font:600 11px system-ui;cursor:pointer}',
-        '.tonepad-mode-btn{min-width:56px;min-height:44px;height:44px;padding:0 10px;border-radius:8px;border:1px solid var(--tp-layer-btn-border,rgba(160,170,160,.35));background:var(--tp-layer-btn-bg,rgba(20,24,20,.9));color:var(--tp-layer-btn-fg,#9aab9e);font:600 11px system-ui;cursor:pointer;touch-action:manipulation}',
+        '.tonepad-play{min-width:48px;min-height:44px;height:44px;border-radius:8px;border:1px solid var(--tp-play-border,rgba(120,200,140,.5));background:var(--tp-play-bg,rgba(30,50,35,.9));color:var(--tp-play-fg,#b8e0c0);font:600 11px system-ui;cursor:pointer;touch-action:manipulation}',
+        '.tonepad-clear{min-width:44px;min-height:44px;height:44px;padding:0 8px;border-radius:8px;border:1px solid var(--tp-clear-border,rgba(200,120,100,.45));background:var(--tp-clear-bg,rgba(50,24,20,.9));color:var(--tp-clear-fg,#e8b0a0);font:600 11px system-ui;cursor:pointer;touch-action:manipulation}',
+        '.tonepad-mode-btn{min-width:54px;min-height:44px;height:44px;padding:0 8px;border-radius:8px;border:1px solid var(--tp-layer-btn-border,rgba(160,170,160,.35));background:var(--tp-layer-btn-bg,rgba(20,24,20,.9));color:var(--tp-layer-btn-fg,#9aab9e);font:600 11px system-ui;cursor:pointer;touch-action:manipulation}',
         '.tonepad-mode-btn[aria-pressed="true"]{border-color:var(--tp-sound-active-border,rgba(240,217,154,.95));color:var(--tp-sound-active-fg,#fff3c4);background:var(--tp-sound-active-bg,rgba(48,42,16,.98))}',
-        '.tonepad-canvas{flex:1;width:100%;min-height:100px;touch-action:none;border-radius:8px;background:var(--tp-canvas-bg,#0a0c0a)}',
-        '.tonepad-sounds{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:2px 0 0;flex-shrink:0}',
-        '.tonepad-sounds.is-drum{display:flex;align-items:center;min-height:44px}',
-        '.tonepad-sounds.is-drum .tonepad-sound-btn{display:none}',
-        '.tonepad-drum-kit{display:none;align-items:center;justify-content:center;width:100%;min-height:44px;border-radius:8px;border:1px solid var(--tp-layer-btn-border,rgba(160,170,160,.35));background:var(--tp-layer-btn-bg,rgba(20,24,20,.9));color:var(--tp-layer-btn-fg,#9aab9e);font:600 12px system-ui;letter-spacing:.04em}',
-        '.tonepad-sounds.is-drum .tonepad-drum-kit{display:flex}',
-        '.tonepad-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}',
-        '@media (max-width:400px){.tonepad-sounds{grid-template-columns:repeat(3,minmax(0,1fr))}}',
-        '.tonepad-sound-btn{min-height:28px;padding:4px 2px;border-radius:8px;border:1px solid var(--tp-sound-border,rgba(160,170,160,.28));background:var(--tp-sound-bg,rgba(16,20,16,.92));color:var(--tp-sound-fg,#9aab9e);font:600 9px/1.15 system-ui,sans-serif;letter-spacing:.02em;cursor:pointer;touch-action:manipulation;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
-        '.tonepad-sound-btn.is-active{border-color:var(--tp-sound-active-border,rgba(240,217,154,.95));color:var(--tp-sound-active-fg,#fff3c4);background:var(--tp-sound-active-bg,rgba(48,42,16,.98));box-shadow:0 0 0 1px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 45%,transparent),0 0 12px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 55%,transparent),0 0 28px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 35%,transparent);text-shadow:0 0 8px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 50%,transparent);animation:tp-sound-pulse 2.4s ease-in-out infinite}',
-        '@keyframes tp-sound-pulse{0%,100%{box-shadow:0 0 0 1px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 40%,transparent),0 0 10px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 40%,transparent),0 0 22px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 25%,transparent)}50%{box-shadow:0 0 0 1px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 55%,transparent),0 0 16px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 70%,transparent),0 0 36px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 45%,transparent)}}'
+        '.tonepad-canvas{flex:1 1 auto;width:100%;min-height:0;touch-action:none;border-radius:8px;background:var(--tp-canvas-bg,#0a0c0a)}',
+        '.tonepad-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}'
       ].join('');
       document.head.appendChild(style);
     }
@@ -583,20 +578,27 @@ export async function mountTonepad() {
       document.body.appendChild(layer);
     }
     layer.innerHTML =
-      '<div class="tonepad-chrome">' +
-        '<button type="button" class="tonepad-play" data-play>Play</button>' +
-        '<button type="button" class="tonepad-clear" data-clear title="Clear active layer">Clear</button>' +
-        '<div class="tonepad-layers" data-layers></div>' +
-        '<button type="button" class="tonepad-mode-btn" data-mode aria-pressed="false" aria-label="Drum mode for active layer" title="Toggle drum mode">Drum</button>' +
+      '<div class="tonepad-top" data-top>' +
+        '<label class="tonepad-sr-only" for="tpSoundSelect">Instrument</label>' +
+        '<select id="tpSoundSelect" class="tonepad-select" data-sound-select aria-label="Instrument for active layer"></select>' +
+        '<label class="tonepad-sr-only" for="tpKitSelect">Drum kit</label>' +
+        '<select id="tpKitSelect" class="tonepad-select" data-kit-select aria-label="Drum kit for active layer" hidden><option value="classic">Classic</option></select>' +
+      '</div>' +
+      '<canvas class="tonepad-canvas" aria-label="TonePad sequencer grid" aria-describedby="tonepad-drum-row-names"></canvas>' +
+      '<div id="tonepad-drum-row-names" class="tonepad-sr-only">Drum rows, top to bottom: kick, snare, clap, closed hat, open hat, low tom, high tom, rim.</div>' +
+      '<div class="tonepad-bottom" data-bottom>' +
+        '<div class="tonepad-transport">' +
+          '<button type="button" class="tonepad-play" data-play>Play</button>' +
+          '<button type="button" class="tonepad-clear" data-clear title="Clear active layer">Clear</button>' +
+          '<div class="tonepad-layers" data-layers></div>' +
+          '<button type="button" class="tonepad-mode-btn" data-mode aria-pressed="false" aria-label="Drum mode for active layer" title="Toggle drum mode">Drum</button>' +
+        '</div>' +
         '<div class="tonepad-knobs">' +
           '<div class="tonepad-knob" data-k="vel"><span class="tonepad-knob-label">VEL</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>70</span></div>' +
           '<div class="tonepad-knob" data-k="prob"><span class="tonepad-knob-label">PROB</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>100</span></div>' +
           '<div class="tonepad-knob" data-k="hum"><span class="tonepad-knob-label">HUM</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>12</span></div>' +
         '</div>' +
-      '</div>' +
-      '<canvas class="tonepad-canvas" aria-label="TonePad sequencer grid" aria-describedby="tonepad-drum-row-names"></canvas>' +
-      '<div id="tonepad-drum-row-names" class="tonepad-sr-only">Drum rows, top to bottom: kick, snare, clap, closed hat, open hat, low tom, high tom, rim.</div>' +
-      '<div class="tonepad-sounds" data-sounds><div class="tonepad-drum-kit" data-drum-kit>Drum kit</div></div>';
+      '</div>';
 
     const canvas = layer.querySelector('canvas.tonepad-canvas');
     const g = canvas.getContext('2d');
@@ -621,7 +623,8 @@ export async function mountTonepad() {
       : null;
     if (tpThemeObserver) tpThemeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     const layersEl = layer.querySelector('[data-layers]');
-    const soundsEl = layer.querySelector('[data-sounds]');
+    const soundSelect = layer.querySelector('[data-sound-select]');
+    const kitSelect = layer.querySelector('[data-kit-select]');
     for (let i = 0; i < LAYER_COUNT; i++) {
       const b = document.createElement('button');
       b.type = 'button';
@@ -650,25 +653,23 @@ export async function mountTonepad() {
         b.classList.toggle('is-empty', !layerHasNotes(i));
       });
     }
-    SOUNDS.forEach((s) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'tonepad-sound-btn';
-      b.textContent = s.name;
-      b.dataset.sound = s.id;
-      b.title = s.name;
-      b.addEventListener('click', (e) => {
+    if (soundSelect) {
+      soundSelect.innerHTML = '';
+      SOUNDS.forEach((s) => {
+        const o = document.createElement('option');
+        o.value = s.id; o.textContent = s.name;
+        soundSelect.appendChild(o);
+      });
+      soundSelect.addEventListener('change', (e) => {
         e.stopPropagation();
-        layerSounds[activeLayer] = s.id;
-        updateSoundButtons();
+        layerSounds[activeLayer] = soundSelect.value;
         save();
         if (ensureAudio()) {
           try { resumeAudio?.(); audioCtx?.resume?.(); } catch (_) {}
-          trigger(3, audioCtx.currentTime + 0.02, 0.72, s.id);
+          trigger(3, audioCtx.currentTime + 0.02, 0.72, soundSelect.value);
         }
       });
-      soundsEl.appendChild(b);
-    });
+    }
     function updateModeUI() {
       const drum = modeOf(activeLayer) === 'drum';
       const modeBtn = layer ? layer.querySelector('[data-mode]') : null;
@@ -678,23 +679,13 @@ export async function mountTonepad() {
         modeBtn.setAttribute('aria-label', drum ? 'Switch active layer to melody' : 'Switch active layer to drum');
         modeBtn.title = drum ? 'Switch to melody mode' : 'Switch to drum mode';
       }
-      if (soundsEl) {
-        soundsEl.classList.toggle('is-drum', drum);
-        soundsEl.querySelectorAll('.tonepad-sound-btn').forEach((b) => {
-          b.disabled = drum;
-          b.setAttribute('aria-hidden', drum ? 'true' : 'false');
-          b.tabIndex = drum ? -1 : 0;
-        });
-        const kit = soundsEl.querySelector('[data-drum-kit]');
-        if (kit) kit.setAttribute('aria-hidden', drum ? 'false' : 'true');
-      }
+      if (soundSelect) soundSelect.hidden = drum;
+      if (kitSelect) kitSelect.hidden = !drum;
     }
     function updateSoundButtons() {
       updateModeUI();
       const cur = layerSounds[activeLayer] || DEFAULT_SOUND;
-      soundsEl.querySelectorAll('.tonepad-sound-btn').forEach((b) => {
-        b.classList.toggle('is-active', b.dataset.sound === cur);
-      });
+      if (soundSelect && soundSelect.value !== cur) soundSelect.value = cur;
     }
     layer.querySelector('[data-clear]').addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1097,7 +1088,7 @@ export async function mountTonepad() {
 
     const EDGE = 40;
     const BUILD = 'tp42';
-    const SWIPE_IGNORE = '#looperRail,.topbar,#pionierBottomDock,#fxPanel,button,a,input,.tonepad-knob-dial';
+    const SWIPE_IGNORE = '#looperRail,.topbar,#pionierBottomDock,#fxPanel,button,a,input,select,.tonepad-knob-dial';
     const HAS_TOUCH = 'ontouchstart' in window;
     let swipe = null;
 
