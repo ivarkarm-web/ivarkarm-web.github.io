@@ -66,8 +66,19 @@ test('boot chain is local and does not fetch or rewrite executable source at run
   assert.ok(fs.existsSync(path.join(app, 'js/library.js')));
   assert.ok(fs.existsSync(path.join(app, 'js/library-store.js')));
   assert.match(read('handpan-app/pionier-app.js'), /js\/library\.js/);
+<<<<<<< HEAD
   assert.doesNotMatch(read('handpan-app/index.html'), /soundscapesPanel|soundscapeAudio|openSoundscapes/);
   assert.match(read('handpan-app/js/looper.js'), /window\.PionierLibrary\?\.save\?\.\(createLibrarySnapshot\(\)\)/);
+=======
+  assert.doesNotMatch(
+    read('handpan-app/index.html'),
+    /soundscapesPanel|soundscapeAudio|openSoundscapes/
+  );
+  assert.match(
+    read('handpan-app/js/looper.js'),
+    /window\.PionierLibrary\?\.save\?\.\(createLibrarySnapshot\(\)\)/
+  );
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
 });
 
 test('the app exposes instrument switching, audio controls and mobile drawer hooks', () => {

@@ -6,7 +6,15 @@
 import { getAudioContext, getAudioMaster, resumeAudio, audioState } from './js/audio-core.js?v=2';
 import { InstrumentRegistry } from './js/instrument.js';
 import { GestureTracker, gestureFromPointer } from './js/gesture.js';
+<<<<<<< HEAD
 import { HandpanInstrument, HANDPAN_SCALES, randomScaleIndex } from './js/instruments/handpan.js?v=13';
+=======
+import {
+  HandpanInstrument,
+  HANDPAN_SCALES,
+  randomScaleIndex,
+} from './js/instruments/handpan.js?v=13';
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
 import { createLibraryInstruments } from './js/instruments/library-family.js?v=3';
 import { FxChain } from './js/fx.js';
 import { CatchMode } from './js/catch-mode.js?v=4';

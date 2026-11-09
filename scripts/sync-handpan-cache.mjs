@@ -62,7 +62,13 @@ function extractVersionedRefs(source) {
   const found = new Set();
   const re = /(?:href|src)=["'](\.\/[^"']+\?v=\d+)["']/g;
   let m;
+<<<<<<< HEAD
   while ((m = re.exec(source))) found.add(m[1]);
+=======
+  while ((m = re.exec(source))) {
+    found.add(m[1]);
+  }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   return found;
 }
 
@@ -87,17 +93,39 @@ function extractDynamicImports(source) {
 
 function normalizeShellEntry(entry) {
   let e = entry.trim();
+<<<<<<< HEAD
   if (!e.startsWith('./') && e !== './') e = './' + e.replace(/^\//, '');
+=======
+  if (!e.startsWith('./') && e !== './') {
+    e = './' + e.replace(/^\//, '');
+  }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   return e;
 }
 
 function buildShell(indexHtml, appJs, coreJs) {
   const shell = new Set();
+<<<<<<< HEAD
   for (const e of EXTRA_SHELL) shell.add(normalizeShellEntry(e));
   for (const e of extractVersionedRefs(indexHtml)) shell.add(normalizeShellEntry(e));
   for (const e of extractDynamicImports(appJs)) shell.add(normalizeShellEntry(e));
   if (coreJs) {
     for (const e of extractDynamicImports(coreJs)) shell.add(normalizeShellEntry(e));
+=======
+  for (const e of EXTRA_SHELL) {
+    shell.add(normalizeShellEntry(e));
+  }
+  for (const e of extractVersionedRefs(indexHtml)) {
+    shell.add(normalizeShellEntry(e));
+  }
+  for (const e of extractDynamicImports(appJs)) {
+    shell.add(normalizeShellEntry(e));
+  }
+  if (coreJs) {
+    for (const e of extractDynamicImports(coreJs)) {
+      shell.add(normalizeShellEntry(e));
+    }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   }
   const priority = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
   const rest = [...shell].filter((e) => !priority.includes(e)).sort();
@@ -128,6 +156,7 @@ function renderSw(cacheVersion, shell) {
   p(' *  - Versioned shell assets (?v=): network-first when online, cache fallback');
   p(' *  - Other same-origin GET: cache-first, then network');
   p(' *  - On activate: drop all caches except current CACHE_VERSION');
+<<<<<<< HEAD
   p(' * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.');
   p(' */');
 <<<<<<< HEAD
@@ -158,32 +187,48 @@ function renderSw(cacheVersion, shell) {
   p('    }');
 =======
   p("");
+=======
+  p(
+    ' * Offline readiness: shell + core modules must be listed in SHELL and pre-cached on install.'
+  );
+  p(' */');
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   p("const CACHE_VERSION = '" + cacheVersion + "';");
-  p("");
-  p('const ASSETS = [');
-  for (const a of shellAssets) {
-    p("  '" + a + "',");
+  p('');
+  p('const SHELL = [');
+  for (const e of shell) {
+    p("  '" + e + "',");
   }
   p('];');
-  p("");
-  p('const HTML_SHELL = [\'.\', \'./index.html\'];');
-  p("");
-  p('self.addEventListener(\'install\', (event) => {');
+  p('');
+  p("self.addEventListener('install', (event) => {");
   p('  event.waitUntil((async () => {');
   p('    const cache = await caches.open(CACHE_VERSION);');
-  p('    // Pre-cache hashed assets (immutable, cache-first)');
-  p('    await Promise.all(ASSETS.map(async (url) => {');
+  p('    const failed = [];');
+  p('    await Promise.all(SHELL.map(async (url) => {');
   p('      try {');
-  p('        const res = await fetch(url, { cache: \'no-cache\' });');
-  p('        if (res && res.ok) await cache.put(url, res);');
-  p('      } catch (_) {}');
+  p("        const res = await fetch(url, { cache: 'no-cache' });");
+  p('        if (res && res.ok) {');
+  p('          await cache.put(url, res);');
+  p('        } else {');
+  p('          failed.push(url);');
+  p('        }');
+  p('      } catch (_) {');
+  p('        failed.push(url);');
+  p('      }');
   p('    }));');
+<<<<<<< HEAD
 >>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
+=======
+  p('    if (failed.length > 0) {');
+  p("      throw new Error('SW install failed: ' + failed.join(', '));");
+  p('    }');
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   p('    await self.skipWaiting();');
   p('  })());');
   p('});');
-  p("");
-  p('self.addEventListener(\'activate\', (event) => {');
+  p('');
+  p("self.addEventListener('activate', (event) => {");
   p('  event.waitUntil((async () => {');
   p('    const keys = await caches.keys();');
   p('    await Promise.all(keys.filter((k) => k !== CACHE_VERSION).map((k) => caches.delete(k)));');
@@ -191,6 +236,9 @@ function renderSw(cacheVersion, shell) {
   p('  })());');
   p('});');
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   p('');
   p("self.addEventListener('message', (event) => {");
   p("  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();");
@@ -208,6 +256,7 @@ function renderSw(cacheVersion, shell) {
   p('}');
   p('');
   p("self.addEventListener('fetch', (event) => {");
+<<<<<<< HEAD
   p('  const req = event.request;');
   p("  if (req.method !== 'GET') return;");
   p('  const url = new URL(req.url);');
@@ -217,21 +266,19 @@ function renderSw(cacheVersion, shell) {
 =======
   p("");
   p('self.addEventListener(\'fetch\', (event) => {');
+=======
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   p('  const req = event.request;');
   p("  if (req.method !== 'GET') return;");
   p('  const url = new URL(req.url);');
-  p("  if (url.origin !== self.location.origin) return;");
-  p("");
-  p('  // HTML / navigations: network-first, cache fallback');
-  p('  const isDoc =');
-  p("    req.mode === 'navigate' ||");
-  p("    req.destination === 'document' ||");
-  p("    url.pathname.endsWith('.html') ||");
-  p("    url.pathname.endsWith('/') ||");
-  p("    url.pathname.endsWith('/handpan-app');");
+  p('  if (url.origin !== self.location.origin) return;');
   p('');
+<<<<<<< HEAD
   p('  if (isDoc) {');
 >>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
+=======
+  p('  if (isDocumentRequest(req, url)) {');
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   p('    event.respondWith(');
   p('      fetch(req)');
   p('        .then((res) => {');
@@ -246,6 +293,7 @@ function renderSw(cacheVersion, shell) {
   p('    return;');
   p('  }');
   p('');
+<<<<<<< HEAD
 <<<<<<< HEAD
   p("  if (isVersionedAsset(url) && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {");
   p('    event.respondWith(');
@@ -262,10 +310,20 @@ function renderSw(cacheVersion, shell) {
   p('        return fetch(req).then((res) => {');
   p('          if (res && res.status === 200 && res.type !== \'opaque\') {');
 >>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
+=======
+  p(
+    "  if (isVersionedAsset(url) && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {"
+  );
+  p('    event.respondWith(');
+  p('      fetch(req)');
+  p('        .then((res) => {');
+  p('          if (res && res.ok) {');
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   p('            const copy = res.clone();');
   p('            caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});');
   p('          }');
   p('          return res;');
+<<<<<<< HEAD
 <<<<<<< HEAD
   p('        })');
   p('        .catch(() => caches.match(req))');
@@ -281,16 +339,25 @@ function renderSw(cacheVersion, shell) {
   p('');
   p('  // Other same-origin GET: cache-first, then network');
 >>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
+=======
+  p('        })');
+  p('        .catch(() => caches.match(req))');
+  p('    );');
+  p('    return;');
+  p('  }');
+  p('');
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   p('  event.respondWith(');
   p('    caches.match(req).then((cached) => {');
   p('      if (cached) return cached;');
   p('      return fetch(req).then((res) => {');
-  p('        if (res && res.status === 200 && res.type !== \'opaque\') {');
+  p("        if (res && res.status === 200 && res.type !== 'opaque') {");
   p('          const copy = res.clone();');
   p('          caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});');
   p('        }');
   p('        return res;');
   p('      });');
+<<<<<<< HEAD
 <<<<<<< HEAD
   p('    })');
   p('  );');
@@ -302,6 +369,12 @@ function renderSw(cacheVersion, shell) {
   p('});');
   p("");
 >>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
+=======
+  p('    })');
+  p('  );');
+  p('});');
+  p('');
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   return L.join('\n');
 }
 
@@ -312,11 +385,23 @@ function extractCacheVersion(swSource) {
 
 function extractShell(swSource) {
   const m = swSource.match(/const SHELL\s*=\s*\[([\s\S]*?)\];/);
+<<<<<<< HEAD
   if (!m) return null;
   const entries = [];
   const re = /['"]([^'"]+)['"]/g;
   let x;
   while ((x = re.exec(m[1]))) entries.push(x[1]);
+=======
+  if (!m) {
+    return null;
+  }
+  const entries = [];
+  const re = /['"]([^'"]+)['"]/g;
+  let x;
+  while ((x = re.exec(m[1]))) {
+    entries.push(x[1]);
+  }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   return entries;
 }
 
@@ -335,20 +420,38 @@ function main() {
     const curShell = extractShell(current);
     let ok = true;
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (curVer !== cacheVersion) {
       console.error('CACHE_VERSION mismatch: sw has ' + curVer + ', expected ' + cacheVersion);
 =======
     if ((curVer && curVer[1]) !== cacheVersion) {
       console.error('CACHE_VERSION mismatch: sw has ' + (curVer && curVer[1]) + ', expected ' + cacheVersion);
 >>>>>>> parent of a8b23cfd (chore(handpan): baseline phase-4-styling working tree (tokens, a11y, sw/tooling))
+=======
+    if (curVer !== cacheVersion) {
+      console.error('CACHE_VERSION mismatch: sw has ' + curVer + ', expected ' + cacheVersion);
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
       ok = false;
     }
     if (JSON.stringify(curShell) !== JSON.stringify(shell)) {
       console.error('SHELL list mismatch between sw.js and index/app imports.');
       const curSet = new Set(curShell || []);
       const nextSet = new Set(shell);
+<<<<<<< HEAD
       for (const e of shell) if (!curSet.has(e)) console.error('  missing in sw:', e);
       for (const e of curShell || []) if (!nextSet.has(e)) console.error('  extra in sw:', e);
+=======
+      for (const e of shell) {
+        if (!curSet.has(e)) {
+          console.error('  missing in sw:', e);
+        }
+      }
+      for (const e of curShell || []) {
+        if (!nextSet.has(e)) {
+          console.error('  extra in sw:', e);
+        }
+      }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
       ok = false;
     }
     if (!ok) {

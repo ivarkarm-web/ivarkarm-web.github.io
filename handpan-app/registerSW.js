@@ -37,6 +37,7 @@
       toast.appendChild(btn);
       document.body.appendChild(toast);
     }
+<<<<<<< HEAD
   }
 
   function setOffline(offline) {
@@ -79,6 +80,58 @@
     let refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (refreshing) return;
+=======
+  }
+
+  function setOffline(offline) {
+    const pill = el('pionierNetPill');
+    if (!pill) {
+      return;
+    }
+    pill.hidden = !offline;
+    pill.dataset.state = offline ? 'offline' : 'online';
+  }
+
+  function showUpdateToast(reg) {
+    const toast = el('pionierUpdateToast');
+    const btn = el('pionierUpdateReload');
+    if (!toast || !btn) {
+      return;
+    }
+    toast.hidden = false;
+    btn.disabled = false;
+    btn.textContent = 'Reload';
+    btn.onclick = () => {
+      document.documentElement.dataset.pionierSwReload = '1';
+      btn.disabled = true;
+      btn.textContent = 'Reloading…';
+      if (reg && reg.waiting) {
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    };
+  }
+
+  function wireNetwork() {
+    const sync = () => setOffline(typeof navigator !== 'undefined' && navigator.onLine === false);
+    window.addEventListener('online', sync);
+    window.addEventListener('offline', sync);
+    sync();
+  }
+
+  function wireServiceWorker() {
+    if (!('serviceWorker' in navigator)) {
+      return;
+    }
+
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) {
+        return;
+      }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
       if (document.documentElement.dataset.pionierSwReload === '1') {
         refreshing = true;
         window.location.reload();
@@ -97,7 +150,13 @@
 
           reg.addEventListener('updatefound', () => {
             const w = reg.installing;
+<<<<<<< HEAD
             if (!w) return;
+=======
+            if (!w) {
+              return;
+            }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
             w.addEventListener('statechange', () => {
               if (w.state === 'installed' && navigator.serviceWorker.controller) {
                 showUpdateToast(reg);

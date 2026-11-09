@@ -6,7 +6,15 @@
   const STORAGE_KEY = 'pionier.settings.v2';
 
   function systemPrefersLight() {
+<<<<<<< HEAD
     try { return window.matchMedia('(prefers-color-scheme: light)').matches; } catch (_) { return false; }
+=======
+    try {
+      return window.matchMedia('(prefers-color-scheme: light)').matches;
+    } catch (_) {
+      return false;
+    }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   }
 
   const DEFAULTS = {
@@ -32,6 +40,7 @@
 
   function natureApi() {
     return window.PionierAmbientBeds || null;
+<<<<<<< HEAD
   }
 
   function applyNatureSound(state) {
@@ -58,6 +67,43 @@
 
   function resolveLightMode(state) {
     if (state && (state.lightMode === true || state.lightMode === false)) return !!state.lightMode;
+=======
+  }
+
+  function applyNatureSound(state) {
+    const api = natureApi();
+    if (!api) {
+      return;
+    }
+    const mode = state.natureSound || 'off';
+    if (mode === 'off') {
+      api.stop();
+    } else {
+      api.start(mode, state.natureVolume);
+    }
+  }
+
+  // Audio cannot start before a user gesture. If the owner left a bed
+  // selected, resume it on the first interaction once the app is ready.
+  function armNatureResume(state) {
+    if (!state.natureSound || state.natureSound === 'off') {
+      return;
+    }
+    const resume = () => {
+      if (window.PionierBootState && window.PionierBootState !== 'ready') {
+        setTimeout(resume, 250);
+        return;
+      }
+      applyNatureSound(state);
+    };
+    document.addEventListener('pointerdown', resume, { once: true });
+  }
+
+  function resolveLightMode(state) {
+    if (state && (state.lightMode === true || state.lightMode === false)) {
+      return !!state.lightMode;
+    }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
     return systemPrefersLight();
   }
 
@@ -69,16 +115,29 @@
   function load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('pionier.settings.v1');
+<<<<<<< HEAD
       if (!raw) return { ...DEFAULTS, led: { ...DEFAULTS.led }, lightMode: null };
       const parsed = JSON.parse(raw);
       const { skin: _s, mandala: _m, auraStyle: _a, tonefield: _t, ...rest } = parsed;
       const lightMode = (rest.lightMode === true || rest.lightMode === false) ? rest.lightMode : null;
+=======
+      if (!raw) {
+        return { ...DEFAULTS, led: { ...DEFAULTS.led }, lightMode: null };
+      }
+      const parsed = JSON.parse(raw);
+      const { skin: _s, mandala: _m, auraStyle: _a, tonefield: _t, ...rest } = parsed;
+      const lightMode = rest.lightMode === true || rest.lightMode === false ? rest.lightMode : null;
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
       return {
         ...DEFAULTS,
         ...rest,
         lightMode,
         led: { ...DEFAULTS.led, ...(parsed.led || {}) },
+<<<<<<< HEAD
         transparency: parsed.transparency != null ? Number(parsed.transparency) : 1,
+=======
+        transparency: parsed.transparency !== null ? Number(parsed.transparency) : 1,
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
         highContrast: rest.highContrast === true,
       };
     } catch {
@@ -87,7 +146,13 @@
   }
 
   function save(state) {
+<<<<<<< HEAD
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
+=======
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (_) {}
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   }
 
   function apply(state) {
@@ -99,11 +164,27 @@
     document.body.classList.toggle('high-contrast', state.highContrast === true);
     document.documentElement.dataset.ambient = state.ambient || 'none';
     const led = state.led || DEFAULTS.led;
+<<<<<<< HEAD
     document.documentElement.style.setProperty('--led-color', 'rgb(' + led.r + ',' + led.g + ',' + led.b + ')');
     document.documentElement.style.setProperty('--led-strength', String(led.strength));
     document.documentElement.style.setProperty('--handpan-alpha', String(state.transparency));
     window.PionierSettings = {
       get: () => ({ ...state, lightMode: resolveLightMode(state), led: { ...led }, highContrast: state.highContrast === true }),
+=======
+    document.documentElement.style.setProperty(
+      '--led-color',
+      'rgb(' + led.r + ',' + led.g + ',' + led.b + ')'
+    );
+    document.documentElement.style.setProperty('--led-strength', String(led.strength));
+    document.documentElement.style.setProperty('--handpan-alpha', String(state.transparency));
+    window.PionierSettings = {
+      get: () => ({
+        ...state,
+        lightMode: resolveLightMode(state),
+        led: { ...led },
+        highContrast: state.highContrast === true,
+      }),
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
       ambient: state.ambient,
       transparency: state.transparency,
       mandala: false,
@@ -116,8 +197,17 @@
       led: { ...led },
     };
     const meta = document.querySelector('meta[name="theme-color"]');
+<<<<<<< HEAD
     if (meta) meta.setAttribute('content', light ? '#e8e6e1' : '#070708');
     window.dispatchEvent(new CustomEvent('pionier:settings', { detail: { ...state, led: { ...led } } }));
+=======
+    if (meta) {
+      meta.setAttribute('content', light ? '#e8e6e1' : '#070708');
+    }
+    window.dispatchEvent(
+      new CustomEvent('pionier:settings', { detail: { ...state, led: { ...led } } })
+    );
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   }
 
   function isLightTheme() {
@@ -133,31 +223,75 @@
   let openToggleEl = null;
 
   function closeMenus() {
+<<<<<<< HEAD
     if (openMenuEl) { openMenuEl.hidden = true; openMenuEl.classList.remove('is-open'); openMenuEl = null; }
     if (openToggleEl) { openToggleEl.setAttribute('aria-expanded', 'false'); openToggleEl = null; }
+=======
+    if (openMenuEl) {
+      openMenuEl.hidden = true;
+      openMenuEl.classList.remove('is-open');
+      openMenuEl = null;
+    }
+    if (openToggleEl) {
+      openToggleEl.setAttribute('aria-expanded', 'false');
+      openToggleEl = null;
+    }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   }
 
   function positionMenu(menu, toggle) {
     const rect = toggle.getBoundingClientRect();
     const width = Math.max(rect.width, Math.min(320, window.innerWidth - 24));
     let left = rect.left;
+<<<<<<< HEAD
     if (left + width > window.innerWidth - 12) left = window.innerWidth - 12 - width;
     if (left < 12) left = 12;
+=======
+    if (left + width > window.innerWidth - 12) {
+      left = window.innerWidth - 12 - width;
+    }
+    if (left < 12) {
+      left = 12;
+    }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
     const spaceBelow = Math.max(80, window.innerHeight - rect.bottom - 16);
     const spaceAbove = Math.max(80, rect.top - 16);
     const preferBelow = spaceBelow >= 140 || spaceBelow >= spaceAbove;
     const maxH = Math.min(window.innerHeight * 0.55, 360, preferBelow ? spaceBelow : spaceAbove);
+<<<<<<< HEAD
     let top = preferBelow ? (rect.bottom + 6) : (rect.top - 6 - maxH);
     if (top < 8) top = 8;
+=======
+    let top = preferBelow ? rect.bottom + 6 : rect.top - 6 - maxH;
+    if (top < 8) {
+      top = 8;
+    }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
     const light = isLightTheme();
     const surface = light ? '#fcfbf8' : '#17171a';
     const text = light ? '#24221e' : '#e6e0d2';
     const border = light ? 'rgba(46,40,28,0.085)' : 'rgba(230,224,210,0.09)';
     menu.style.cssText = [
+<<<<<<< HEAD
       'position:fixed', 'z-index:99999', 'left:' + left + 'px', 'top:' + top + 'px',
       'width:' + width + 'px', 'max-height:' + maxH + 'px', 'display:block',
       'background:' + surface, 'color:' + text, 'border:1px solid ' + border,
       'border-radius:16px', 'padding:8px', 'overflow-y:auto',
+=======
+      'position:fixed',
+      'z-index:99999',
+      'left:' + left + 'px',
+      'top:' + top + 'px',
+      'width:' + width + 'px',
+      'max-height:' + maxH + 'px',
+      'display:block',
+      'background:' + surface,
+      'color:' + text,
+      'border:1px solid ' + border,
+      'border-radius:16px',
+      'padding:8px',
+      'overflow-y:auto',
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
     ].join(';');
   }
 
@@ -165,9 +299,23 @@
     const row = document.createElement('div');
     row.className = 'settings-dd';
     row.innerHTML =
+<<<<<<< HEAD
       '<div class="settings-dd-label">' + label + '</div>' +
       '<button type="button" class="settings-dd-toggle" id="' + id + 'Toggle" aria-haspopup="listbox" aria-expanded="false">' +
       '<span class="settings-dd-value" id="' + id + 'Value">' + labelFor(items, activeId) + '</span>' +
+=======
+      '<div class="settings-dd-label">' +
+      label +
+      '</div>' +
+      '<button type="button" class="settings-dd-toggle" id="' +
+      id +
+      'Toggle" aria-haspopup="listbox" aria-expanded="false">' +
+      '<span class="settings-dd-value" id="' +
+      id +
+      'Value">' +
+      labelFor(items, activeId) +
+      '</span>' +
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
       '<span class="settings-dd-chevron" aria-hidden="true">\u25BE</span></button>';
     sectionEl.appendChild(row);
     let menu = document.getElementById(id + 'Menu');
@@ -198,7 +346,12 @@
         b.setAttribute('role', 'option');
         b.textContent = item.label;
         b.addEventListener('click', (e) => {
+<<<<<<< HEAD
           e.preventDefault(); e.stopPropagation();
+=======
+          e.preventDefault();
+          e.stopPropagation();
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
           activeId = item.id;
           valueEl.textContent = item.label;
           onPick(item.id);
@@ -208,10 +361,20 @@
       });
     }
     toggle.addEventListener('click', (e) => {
+<<<<<<< HEAD
       e.preventDefault(); e.stopPropagation();
       const wasOpen = openMenuEl === menu && !menu.hidden;
       closeMenus();
       if (wasOpen) return;
+=======
+      e.preventDefault();
+      e.stopPropagation();
+      const wasOpen = openMenuEl === menu && !menu.hidden;
+      closeMenus();
+      if (wasOpen) {
+        return;
+      }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
       renderMenu();
       menu.hidden = false;
       menu.removeAttribute('hidden');
@@ -222,6 +385,7 @@
       openToggleEl = toggle;
     });
   }
+<<<<<<< HEAD
 
   function ensureDom() {
     let btn = document.getElementById('settingsOpenBtn');
@@ -440,5 +604,278 @@
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
+=======
+
+  function ensureDom() {
+    let btn = document.getElementById('settingsOpenBtn');
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = 'settingsOpenBtn';
+      btn.className = 'settings-open-btn';
+      btn.setAttribute('aria-label', 'Open settings');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.setAttribute('aria-controls', 'settingsSheet');
+      btn.innerHTML =
+        '<svg class="settings-orbit-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"></circle><circle cx="12" cy="12" r="2.3"></circle></svg>';
+      document.body.appendChild(btn);
+    }
+    const bottomBtn = document.getElementById('btnSettings');
+    let backdrop = document.getElementById('settingsSheetBackdrop');
+    if (!backdrop) {
+      backdrop = document.createElement('div');
+      backdrop.id = 'settingsSheetBackdrop';
+      backdrop.className = 'settings-sheet-backdrop';
+      backdrop.hidden = true;
+      document.body.appendChild(backdrop);
+    }
+    let sheet = document.getElementById('settingsSheet');
+    if (!sheet) {
+      sheet = document.createElement('div');
+      sheet.id = 'settingsSheet';
+      sheet.className = 'settings-sheet';
+      sheet.setAttribute('role', 'dialog');
+      sheet.setAttribute('aria-modal', 'true');
+      sheet.setAttribute('aria-labelledby', 'settingsSheetTitle');
+      sheet.hidden = true;
+      sheet.innerHTML =
+        '<div class="settings-sheet-header">' +
+        '  <span class="settings-sheet-title" id="settingsSheetTitle">Customize</span>' +
+        '  <button type="button" class="settings-sheet-close" id="settingsSheetClose" aria-label="Close">\u00D7</button>' +
+        '</div><div class="settings-sheet-body" id="settingsSheetBody"></div>';
+      document.body.appendChild(sheet);
+    }
+    return { btn, sheet, backdrop, bottomBtn };
+  }
+
+  function buildBody(state) {
+    const body = document.getElementById('settingsSheetBody');
+    if (!body) {
+      return;
+    }
+    body.innerHTML = '';
+    const cat = catalog();
+
+    const app = document.createElement('section');
+    app.className = 'settings-section';
+    app.innerHTML =
+      '<div class="settings-section-label">Appearance</div>' +
+      '<div class="settings-row">' +
+      '  <span class="settings-row-label">Light mode</span>' +
+      '  <label class="settings-toggle"><input type="checkbox" id="settingLightMode" /><span class="settings-toggle-track"></span></label>' +
+      '</div>' +
+      '<div class="settings-row settings-row-touch-feedback">' +
+      '  <div class="settings-row-copy"><span class="settings-row-label">Touch ripples</span><span class="settings-row-hint">Expanding rings + haptic feedback</span></div>' +
+      '  <label class="settings-toggle"><input type="checkbox" id="settingTouchFeedback" /><span class="settings-toggle-track"></span></label>' +
+      '</div>' +
+      '<div class="settings-row settings-row-high-contrast">' +
+      '  <div class="settings-row-copy"><span class="settings-row-label">High contrast</span><span class="settings-row-hint">Stronger text and control edges (WCAG)</span></div>' +
+      '  <label class="settings-toggle"><input type="checkbox" id="settingHighContrast" /><span class="settings-toggle-track"></span></label>' +
+      '</div>';
+    body.appendChild(app);
+
+    const trSec = document.createElement('section');
+    trSec.className = 'settings-section';
+    trSec.innerHTML =
+      '<div class="settings-section-label">Handpan transparency</div>' +
+      '<div class="settings-row settings-slider-row">' +
+      '  <input type="range" id="settingTransparency" min="35" max="100" value="' +
+      Math.round(state.transparency * 100) +
+      '" />' +
+      '  <span class="settings-rgb-val" id="settingTransparencyVal">' +
+      Math.round(state.transparency * 100) +
+      '%</span>' +
+      '</div>';
+    body.appendChild(trSec);
+
+    const ambSec = document.createElement('section');
+    ambSec.className = 'settings-section';
+    ambSec.innerHTML = '<div class="settings-section-label">Background atmosphere</div>';
+    body.appendChild(ambSec);
+    buildDropdown(ambSec, {
+      id: 'settingAmbient',
+      label: 'Ambient',
+      items: cat.AMBIENTS,
+      activeId: state.ambient,
+      onPick: (id) => {
+        state.ambient = id;
+        save(state);
+        apply(state);
+      },
+    });
+
+    const natureSec = document.createElement('section');
+    natureSec.className = 'settings-section';
+    natureSec.innerHTML =
+      '<div class="settings-section-label">Nature ambience</div>' +
+      '<p class="settings-row-hint">Procedural sound beds, generated on this device.</p>';
+    body.appendChild(natureSec);
+    buildDropdown(natureSec, {
+      id: 'settingNatureSound',
+      label: 'Sound bed',
+      items: NATURE_ITEMS,
+      activeId: state.natureSound || 'off',
+      onPick: (id) => {
+        state.natureSound = id;
+        save(state);
+        applyNatureSound(state);
+      },
+    });
+    const natureVolRow = document.createElement('div');
+    natureVolRow.className = 'settings-row settings-slider-row';
+    natureVolRow.innerHTML =
+      '<input type="range" id="settingNatureVolume" min="0" max="100" value="' +
+      Math.round((state.natureVolume ?? 0.22) * 100) +
+      '" aria-label="Nature ambience volume" />' +
+      '<span class="settings-rgb-val" id="settingNatureVolumeVal">' +
+      Math.round((state.natureVolume ?? 0.22) * 100) +
+      '%</span>';
+    natureSec.appendChild(natureVolRow);
+    const natureVol = natureVolRow.querySelector('#settingNatureVolume');
+    const natureVolVal = natureVolRow.querySelector('#settingNatureVolumeVal');
+    natureVol.addEventListener('input', () => {
+      state.natureVolume = Number(natureVol.value) / 100;
+      natureVolVal.textContent = natureVol.value + '%';
+      save(state);
+      natureApi()?.setLevel(state.natureVolume);
+    });
+
+    const light = document.getElementById('settingLightMode');
+    if (light) {
+      light.checked = resolveLightMode(state);
+      light.addEventListener('change', () => {
+        state.lightMode = light.checked;
+        save(state);
+        apply(state);
+      });
+    }
+    const touchFeedback = document.getElementById('settingTouchFeedback');
+    if (touchFeedback) {
+      touchFeedback.checked = state.touchFeedback === true;
+      touchFeedback.addEventListener('change', () => {
+        state.touchFeedback = touchFeedback.checked;
+        save(state);
+        apply(state);
+      });
+    }
+    const highContrast = document.getElementById('settingHighContrast');
+    if (highContrast) {
+      highContrast.checked = state.highContrast === true;
+      highContrast.addEventListener('change', () => {
+        state.highContrast = highContrast.checked;
+        save(state);
+        apply(state);
+      });
+    }
+    const tr = document.getElementById('settingTransparency');
+    const trVal = document.getElementById('settingTransparencyVal');
+    function syncRangeFill(el) {
+      if (!el) {
+        return;
+      }
+      const min = Number(el.min) || 0;
+      const max = Number(el.max) || 100;
+      const val = Number(el.value);
+      const pct = max === min ? 0 : ((val - min) / (max - min)) * 100;
+      el.style.setProperty('--range-fill', pct + '%');
+    }
+    if (tr) {
+      syncRangeFill(tr);
+      tr.addEventListener('input', () => {
+        state.transparency = Number(tr.value) / 100;
+        if (trVal) {
+          trVal.textContent = tr.value + '%';
+        }
+        syncRangeFill(tr);
+        save(state);
+        apply(state);
+        try {
+          window.PionierCore?.draw?.();
+        } catch (_) {}
+      });
+    }
+  }
+
+  function openSheet(els, state) {
+    const fx = document.getElementById('fxPanel');
+    if (fx && !fx.hidden) {
+      fx.hidden = true;
+      document.getElementById('fxPanelOpen')?.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('is-fx-open');
+    }
+    buildBody(state);
+    els.sheet.hidden = false;
+    els.sheet.removeAttribute('hidden');
+    els.backdrop.hidden = false;
+    els.backdrop.removeAttribute('hidden');
+    els.backdrop.classList.add('is-open');
+    requestAnimationFrame(() => els.sheet.classList.add('is-open'));
+    els.btn.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeSheet(els) {
+    closeMenus();
+    els.sheet.classList.remove('is-open');
+    els.backdrop.classList.remove('is-open');
+    els.btn.setAttribute('aria-expanded', 'false');
+    setTimeout(() => {
+      els.sheet.hidden = true;
+      els.backdrop.hidden = true;
+    }, 220);
+  }
+
+  function wire(state, els) {
+    if (els.btn.dataset.settingsWired === '1') {
+      return;
+    }
+    els.btn.dataset.settingsWired = '1';
+    const open = () => openSheet(els, state);
+    els.btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      open();
+    });
+    if (els.bottomBtn) {
+      els.bottomBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        open();
+      });
+    }
+    document.getElementById('settingsSheetClose')?.addEventListener('click', () => closeSheet(els));
+    els.backdrop.addEventListener('click', () => closeSheet(els));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeSheet(els);
+      }
+    });
+    document.addEventListener(
+      'pointerdown',
+      (e) => {
+        if (!openMenuEl) {
+          return;
+        }
+        const t = e.target;
+        if (t && (openMenuEl.contains(t) || (openToggleEl && openToggleEl.contains(t)))) {
+          return;
+        }
+        closeMenus();
+      },
+      true
+    );
+  }
+
+  function boot() {
+    const state = load();
+    apply(state);
+    armNatureResume(state);
+    const els = ensureDom();
+    wire(state, els);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   setTimeout(boot, 300);
 })();

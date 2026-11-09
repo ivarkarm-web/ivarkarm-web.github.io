@@ -1,4 +1,16 @@
+<<<<<<< HEAD
 import { saveComposition, listCompositions, getComposition, renameComposition, deleteComposition, createWav, formatDuration } from './library-store.js?v=1';
+=======
+import {
+  saveComposition,
+  listCompositions,
+  getComposition,
+  renameComposition,
+  deleteComposition,
+  createWav,
+  formatDuration,
+} from './library-store.js?v=1';
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
 import { getAudioContext, getAudioMaster, resumeAudio } from './audio-core.js?v=2';
 
 const panel = document.getElementById('libraryPanel');

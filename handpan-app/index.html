@@ -67,12 +67,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; child-src 'self'; img-src 'self' data:; connect-src 'self';"
+      content="default-src 'self'; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; child-src 'self'; img-src 'self' data:; connect-src 'self';"
     />
-    <link rel="stylesheet" href="./pionier-base.css" />
-    <link rel="stylesheet" href="./pionier-controls.css" />
-    <link rel="stylesheet" href="./library.css" />
-    <link rel="stylesheet" href="./css-parts/sequence-carousel.css" />
+    <link rel="stylesheet" href="./pionier-base.css?v=9" />
+    <link rel="stylesheet" href="./pionier-controls.css?v=6" />
+    <link rel="stylesheet" href="./library.css?v=1" />
+    <link rel="stylesheet" href="./css-parts/sequence-carousel.css?v=9" />
     <title>Pionier Synth — Play, Explore, Create</title>
     <meta
       name="description"
@@ -95,6 +95,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="icon" type="image/svg+xml" href="./icon.svg" />
     <link rel="manifest" href="./manifest.webmanifest" />
+    <script>
+      document.documentElement.classList.add('pionier-welcome-active');
+      window.PionierWelcomeState = { hideTonefields: true };
+    </script>
     <style>
       .backdrop-player {
         display: none !important;
@@ -524,6 +528,7 @@
         </button>
 >>>>>>> parent of bf992a40 (fix(handpan): native selects and non-blocking FX editor (v208))
       </div>
+<<<<<<< HEAD
       <div id="looperLayers" class="looper-layers" role="group" aria-label="Loop layers"></div>
     </div>
     <main class="stage" id="stage">
@@ -587,4 +592,40 @@
   <script src="./js/portrait-lock.js?v=2"></script>
   <script src="./registerSW.js?v=2"></script>
 </body>
+=======
+      <div class="fx-editor-curve-wrap">
+        <canvas
+          id="fxEditorCurve"
+          class="fx-editor-curve"
+          aria-label="Interactive effect response curve"
+          role="img"
+        ></canvas>
+        <div class="fx-editor-axis-labels" hidden>
+          <span id="fxEditorAxisX"></span><span id="fxEditorAxisY"></span>
+        </div>
+      </div>
+      <div id="fxEditorKnobs" class="fx-editor-knobs" aria-label="Effect parameters"></div>
+      <footer class="fx-editor-footer">
+        <span id="fxEditorStatus" role="status">Changes apply live</span
+        ><button type="button" id="fxEditorReset" class="fx-editor-reset">Reset effect</button>
+      </footer>
+    </section>
+    <script src="./js/skin-palette.js?v=3"></script>
+    <script src="./js/customization-catalog.js?v=7"></script>
+    <script src="./js/overlay-controller.js?v=24"></script>
+    <script src="./js/layout-boot.js?v=70"></script>
+    <script src="./pionier-control-layout.js?v=24"></script>
+    <script src="./looper-side-menus.js?v=10"></script>
+    <script src="./looper-circle-progress.js?v=2"></script>
+    <script src="./js/settings-panel.js?v=35"></script>
+    <script src="./js/favorites.js?v=1"></script>
+    <script src="./js/about-window.js?v=1"></script>
+    <script src="./js/ambient-fx.js?v=12"></script>
+    <script src="./js/skin-mandala.js?v=6"></script>
+    <script type="module" src="./pionier-app.js?v=296"></script>
+    <script src="./welcome-screen.js?v=9"></script>
+    <script src="./js/portrait-lock.js?v=2"></script>
+    <script src="./registerSW.js?v=2"></script>
+  </body>
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
 </html>

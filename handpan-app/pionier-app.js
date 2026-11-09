@@ -1,7 +1,16 @@
 /**
  * Pionier app shell: load the vendored local core and optional UI modules.
  */
+<<<<<<< HEAD
 import { startAmbient, setAmbientLevel, stopAmbient, getAmbientMode } from './js/generative-ambient.js?v=2';
+=======
+import {
+  startAmbient,
+  setAmbientLevel,
+  stopAmbient,
+  getAmbientMode,
+} from './js/generative-ambient.js?v=2';
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
 
 const BASE = new URL('.', import.meta.url).href;
 const statusEl = document.getElementById('appStatus');
@@ -11,17 +20,25 @@ const statusRetry = document.getElementById('appStatusRetry');
 function setBootStatus(state, message = '', retry = false) {
   window.PionierBootState = state;
   document.documentElement.classList.toggle('pionier-boot-failed', state === 'failed');
-  if (!statusEl) return;
+  if (!statusEl) {
+    return;
+  }
   statusEl.dataset.state = state;
   statusEl.hidden = state === 'ready';
   statusEl.setAttribute('role', state === 'failed' ? 'alert' : 'status');
-  if (statusMessage) statusMessage.textContent = message;
-  if (statusRetry) statusRetry.hidden = !retry;
+  if (statusMessage) {
+    statusMessage.textContent = message;
+  }
+  if (statusRetry) {
+    statusRetry.hidden = !retry;
+  }
 }
 
 statusRetry?.addEventListener('click', () => window.location.reload());
 window.addEventListener('error', (event) => {
-  if (!event.message || window.PionierBootState === 'failed') return;
+  if (!event.message || window.PionierBootState === 'failed') {
+    return;
+  }
   console.error('[pionier] runtime error', event.error || event.message);
   setBootStatus('degraded', 'A feature encountered an error. The instrument may still work; reload to retry.', true);
 });
@@ -62,7 +79,13 @@ async function loadMasterClock() {
 async function loadLooper() {
   try {
     const { mountLooper } = await import(new URL('./js/looper.js?v=240', BASE).href);
+<<<<<<< HEAD
     if (typeof mountLooper === 'function') mountLooper();
+=======
+    if (typeof mountLooper === 'function') {
+      mountLooper();
+    }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   } catch (e) {
     console.warn('[boot] looper', e);
   }
@@ -77,7 +100,11 @@ function loadFxEditor() {
     fxEditorLoadPromise = import(new URL('./js/fx-editor.js?v=9', BASE).href)
       .then(() => {
         fxEditorReady = true;
+<<<<<<< HEAD
         if (pendingFxEditorId != null) {
+=======
+        if (pendingFxEditorId !== null) {
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
           const id = pendingFxEditorId;
           pendingFxEditorId = null;
           window.dispatchEvent(new CustomEvent('pionier:fx-editor-open', { detail: { id } }));
@@ -91,11 +118,17 @@ function loadFxEditor() {
 }
 
 function primeFxEditorLoader(target) {
-  if (fxEditorReady) return;
+  if (fxEditorReady) {
+    return;
+  }
   const trigger = target?.closest?.('#fxPanelOpen, .fx-settings-shortcut[data-fx-editor-open]');
-  if (!trigger) return;
+  if (!trigger) {
+    return;
+  }
   const id = trigger.dataset?.fxEditorOpen;
-  if (id) pendingFxEditorId = id;
+  if (id) {
+    pendingFxEditorId = id;
+  }
   loadFxEditor();
 }
 
@@ -103,6 +136,7 @@ function primeFxEditorLoader(target) {
 // for the FX panel or one of its settings shortcuts, and replay one tap that
 // happened before the module (and its listeners) finished loading.
 document.addEventListener('pointerdown', (e) => primeFxEditorLoader(e.target), true);
+<<<<<<< HEAD
 document.addEventListener('click', (e) => {
   if (fxEditorReady) return;
   const shortcut = e.target?.closest?.('.fx-settings-shortcut[data-fx-editor-open]');
@@ -122,6 +156,49 @@ async function loadArps() {
   try {
     const { createArpInstruments } = await import(new URL('./js/instruments/arp-family.js?v=3', BASE).href);
     if (typeof createArpInstruments === 'function') createArpInstruments();
+  } catch (e) {
+    console.warn('[boot] arps', e);
+  }
+}
+=======
+document.addEventListener(
+  'click',
+  (e) => {
+    if (fxEditorReady) {
+      return;
+    }
+    const shortcut = e.target?.closest?.('.fx-settings-shortcut[data-fx-editor-open]');
+    if (!shortcut) {
+      return;
+    }
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    pendingFxEditorId = shortcut.dataset.fxEditorOpen || pendingFxEditorId;
+    loadFxEditor();
+  },
+  true
+);
+window.addEventListener(
+  'pionier:fx-editor-open',
+  (e) => {
+    if (fxEditorReady) {
+      return;
+    }
+    pendingFxEditorId = e.detail?.id ?? pendingFxEditorId;
+    loadFxEditor();
+  },
+  true
+);
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
+
+async function loadArps() {
+  try {
+    const { createArpInstruments } = await import(
+      new URL('./js/instruments/arp-family.js?v=3', BASE).href
+    );
+    if (typeof createArpInstruments === 'function') {
+      createArpInstruments();
+    }
   } catch (e) {
     console.warn('[boot] arps', e);
   }
@@ -146,14 +223,22 @@ async function loadLibrary() {
 async function loadAmbientSequencer() {
   try {
     const { mountTonepad } = await import(new URL('./js/tonepad.js?v=52', BASE).href);
+<<<<<<< HEAD
     if (typeof mountTonepad === 'function') await mountTonepad();
+=======
+    if (typeof mountTonepad === 'function') {
+      await mountTonepad();
+    }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   } catch (e) {
     console.warn('[boot] tonepad', e);
   }
 }
 
 function scheduleDeferredFeatures() {
-  if (deferredStarted) return;
+  if (deferredStarted) {
+    return;
+  }
   deferredStarted = true;
   const run = () => {
     loadMasterClock().then(() => {
@@ -191,7 +276,13 @@ async function boot() {
   // The looper is optional. Let the core reach ready even if its module load
   // stalls, and arrange the dock as soon as the looper finishes mounting.
   loadLooper().then(() => {
+<<<<<<< HEAD
     try { window.__pionierArrangeLayout?.(); } catch (_) {}
+=======
+    try {
+      window.__pionierArrangeLayout?.();
+    } catch (_) {}
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
   });
 
   try {
@@ -211,8 +302,18 @@ async function boot() {
 
   document.getElementById('randomizeSetup')?.addEventListener('click', async () => {
     const dice = document.getElementById('randomizeSetup');
+<<<<<<< HEAD
     if (dice?.dataset.rolling === '1') return;
     if (dice) { dice.dataset.rolling = '1'; dice.classList.add('is-rolling'); }
+=======
+    if (dice?.dataset.rolling === '1') {
+      return;
+    }
+    if (dice) {
+      dice.dataset.rolling = '1';
+      dice.classList.add('is-rolling');
+    }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
     try {
       unlockAudioFromGesture();
       const core = window.PionierCore;
@@ -238,7 +339,13 @@ async function boot() {
 }
 
 if (document.readyState === 'loading') {
+<<<<<<< HEAD
   document.addEventListener('DOMContentLoaded', () => { boot().catch(console.error); });
+=======
+  document.addEventListener('DOMContentLoaded', () => {
+    boot().catch(console.error);
+  });
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
 } else {
   boot().catch(console.error);
 }

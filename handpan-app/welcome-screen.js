@@ -4,7 +4,13 @@
   const welcome = document.getElementById('pionierWelcome');
   const enter = document.getElementById('enterPionier');
   const hint = document.getElementById('headphonesHint');
+<<<<<<< HEAD
   if (!welcome || !enter) return;
+=======
+  if (!welcome || !enter) {
+    return;
+  }
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
 
   root.classList.add('pionier-welcome-active');
   window.PionierWelcomeState = window.PionierWelcomeState || { hideTonefields: true };

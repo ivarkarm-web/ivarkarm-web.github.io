@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
 import { MIN_NOTES, ringAngles, ringPadScale } from './pad-layout.js?v=3';
 export const WORLD_ZONE_INDICES = [0, 1, 3, 5, 7];
 const ADD_NOTE_MS = 520;

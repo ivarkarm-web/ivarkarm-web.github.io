@@ -26,7 +26,12 @@ read('styles.css');
 read('script.js');
 const appHtml = read('handpan-app/index.html');
 const shell = read('handpan-app/pionier-app.js');
+<<<<<<< HEAD
 const coreSrc = read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js');
+=======
+const coreSrc =
+  read('handpan-app/pionier-core-base.js') + '\n' + read('handpan-app/pionier-core.js');
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
 const loopControls = read('handpan-app/js/looper.js');
 const loopStyles = read('handpan-app/pionier-base.css');
 read('handpan-app/pionier-controls.css');
@@ -58,12 +63,38 @@ else fail('Portfolio HTML document is incomplete');
 if (appHtml.includes('id="pan"') && appHtml.includes('id="instrumentDropdownToggle"')) ok('Pionier has its real instrument entry surface');
 else fail('Pionier instrument entry surface is missing');
 
+<<<<<<< HEAD
 if (/export function mountLooper/.test(loopControls) && /startRecording|recording/.test(loopControls) && /clearAll/.test(loopControls)) ok('Looper mounts with record/play/clear surface');
 else fail('Looper mount or record/clear surface is incomplete');
 if (!/repository-loop-save/.test(loopControls) && !/uploadLoopToRepository/.test(loopControls)) ok('Looper does not import community upload modules');
 else fail('Looper still references community upload modules');
 if (/\.looper-/.test(loopStyles) && /pionier-base\.css\?v=\d+/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) ok('Looper styles and service-worker declare cache versions');
 else fail('Looper styles or service-worker cache versions missing');
+=======
+if (
+  /export function mountLooper/.test(loopControls) &&
+  /startRecording|recording/.test(loopControls) &&
+  /clearAll/.test(loopControls)
+) {
+  ok('Looper mounts with record/play/clear surface');
+} else {
+  fail('Looper mount or record/clear surface is incomplete');
+}
+if (!/repository-loop-save/.test(loopControls) && !/uploadLoopToRepository/.test(loopControls)) {
+  ok('Looper does not import community upload modules');
+} else {
+  fail('Looper still references community upload modules');
+}
+if (
+  /\.looper-/.test(loopStyles) &&
+  /pionier-base\.css\?v=\d+/.test(appHtml) &&
+  /pionier-v\d+/.test(serviceWorker)
+) {
+  ok('Looper styles and service-worker declare cache versions');
+} else {
+  fail('Looper styles or service-worker cache versions missing');
+}
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
 
 // Offline shell: critical instrument path must be listed in SHELL for airplane-mode play.
 const shellCritical = [
@@ -101,10 +132,32 @@ if (!appHtml.includes('fonts.googleapis.com')) ok('No Google Fonts CDN dependenc
 else fail('index still loads fonts.googleapis.com');
 
 const scaleSelector = read('handpan-app/js/scale-selector.js');
+<<<<<<< HEAD
 if ((/Search instruments/.test(coreSrc) || /instrumentMenu/.test(appHtml) || /instrumentDropdownToggle/.test(appHtml)) && (/Search scales/.test(scaleSelector) || /scaleMenu/.test(appHtml) || /scaleLabel/.test(appHtml))) ok('Instrument and scale pickers are present');
 else fail('Scale/instrument picker wiring is incomplete');
 if (/pionier-controls\.css\?v=\d+/.test(appHtml) && /pionier-app\.js\?v=\d+/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) ok('Picker assets use versioned cache stamps');
 else fail('Picker asset cache versions are stale');
+=======
+if (
+  (/Search instruments/.test(coreSrc) ||
+    /instrumentMenu/.test(appHtml) ||
+    /instrumentDropdownToggle/.test(appHtml)) &&
+  (/Search scales/.test(scaleSelector) || /scaleMenu/.test(appHtml) || /scaleLabel/.test(appHtml))
+) {
+  ok('Instrument and scale pickers are present');
+} else {
+  fail('Scale/instrument picker wiring is incomplete');
+}
+if (
+  /pionier-controls\.css\?v=\d+/.test(appHtml) &&
+  /pionier-app\.js\?v=\d+/.test(appHtml) &&
+  /pionier-v\d+/.test(serviceWorker)
+) {
+  ok('Picker assets use versioned cache stamps');
+} else {
+  fail('Picker asset cache versions are stale');
+}
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
 
 if (appHtml.includes('id="openLibrary"') && appHtml.includes('id="libraryPanel"') && appHtml.includes('id="libraryList"')) ok('My Library shell is present');
 else fail('My Library shell is missing');
@@ -135,6 +188,7 @@ if (/window\.PionierCore/.test(coreSrc) && /async function setInstrument/.test(c
 }
 
 const fxEditor = read('handpan-app/js/fx-editor.js');
+<<<<<<< HEAD
 if (/fxEditorCurve/.test(fxEditor) && /fxEditorPresets/.test(fxEditor) && /fx-settings-shortcut/.test(appHtml)) ok('FX settings shortcuts and touch-safe curve editor wiring are present');
 else fail('FX editor shortcut, curve, or preset wiring is missing');
 if ((appHtml.match(/class="fx-settings-shortcut"/g) || []).length === 4) ok('All four effects expose an S shortcut to advanced settings');
@@ -145,6 +199,45 @@ if (/looperBtn|looper-btn/.test(loopControls) && /looperClearBtn|looper-clear/.t
 else fail('Looper record/clear controls are incomplete');
 if (appHtml.includes('pionier-base.css?') && /pionier-v\d+/.test(serviceWorker)) ok('Looper CSS and service worker declare cache versions');
 else fail('Looper CSS or service worker cache versions missing');
+=======
+if (
+  /fxEditorCurve/.test(fxEditor) &&
+  /fxEditorPresets/.test(fxEditor) &&
+  /fx-settings-shortcut/.test(appHtml)
+) {
+  ok('FX settings shortcuts and touch-safe curve editor wiring are present');
+} else {
+  fail('FX editor shortcut, curve, or preset wiring is missing');
+}
+if ((appHtml.match(/class="fx-settings-shortcut"/g) || []).length === 4) {
+  ok('All four effects expose an S shortcut to advanced settings');
+} else {
+  fail('Expected S shortcuts for Comp, Delay, Reverb, and Filter');
+}
+if (
+  appHtml.includes('id="randomizeSetup"') &&
+  !appHtml.includes('id="learnPanel"') &&
+  !shell.includes('learn-mode.js') &&
+  !shell.includes('learn-mode.css')
+) {
+  ok('Learn system is removed and the dice randomizer replaces it');
+} else {
+  fail('Learn removal or randomizer replacement is incomplete');
+}
+if (
+  /looperBtn|looper-btn/.test(loopControls) &&
+  /looperClearBtn|looper-clear/.test(loopControls + appHtml)
+) {
+  ok('Looper record and clear controls are present');
+} else {
+  fail('Looper record/clear controls are incomplete');
+}
+if (appHtml.includes('pionier-base.css?') && /pionier-v\d+/.test(serviceWorker)) {
+  ok('Looper CSS and service worker declare cache versions');
+} else {
+  fail('Looper CSS or service worker cache versions missing');
+}
+>>>>>>> parent of 163cd411 (phase-2 build architecture: ES modules, Vite bundling, hashed assets, looper split)
 
 if (!/repository-loop-save/.test(serviceWorker) && !/community-api/.test(serviceWorker)) ok('Service worker shell does not reference community upload modules');
 else fail('Service worker still references community upload modules');
