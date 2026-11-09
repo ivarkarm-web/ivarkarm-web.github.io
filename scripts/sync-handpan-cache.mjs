@@ -80,7 +80,7 @@ function renderSw(cacheVersion, shellAssets) {
   p('        if (res && res.ok) await cache.put(url, res); else failed.push(url);');
   p('      } catch (_) { failed.push(url); }');
   p('    }));');
-  p('    if (failed.length > 0) throw new Error("SW install failed: " + failed.join(","));');
+  p("    if (failed.length > 0) console.warn('[sw] precache skipped:', failed.join(', '));");
   p('    await self.skipWaiting();');
   p('  }));');
   p('});');

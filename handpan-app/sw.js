@@ -10,11 +10,11 @@
  *  - On activate: drop all caches except current CACHE_VERSION
  */
 
-const CACHE_VERSION = 'pionier-v209';
+const CACHE_VERSION = 'pionier-v210';
 
 const ASSETS = [
-  './assets/app-Cb2jFTBV.js',
-  './assets/app-DtXKnJQc.css',
+  './assets/app-C7UilF0n.css',
+  './assets/app-CSZfdJmD.js',
   './assets/audio-core-BKBAUavA.js',
   './assets/fx-editor-Ib0mot0D.js',
   './assets/handpan-D4MvzjUi.js',
@@ -38,7 +38,7 @@ self.addEventListener('install', (event) => {
         if (res && res.ok) await cache.put(url, res); else failed.push(url);
       } catch (_) { failed.push(url); }
     }));
-    if (failed.length > 0) throw new Error("SW install failed: " + failed.join(","));
+    if (failed.length > 0) console.warn('[sw] precache skipped:', failed.join(', '));
     await self.skipWaiting();
   }));
 });
