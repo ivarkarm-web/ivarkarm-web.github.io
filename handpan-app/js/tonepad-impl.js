@@ -528,9 +528,8 @@ export async function mountTonepad() {
       draw();
     }
 
-    const tpStyleId = 'tonepad-css-v46-theme';
-    const tpOldStyle = document.getElementById('tonepad-css-v45');
-    if (tpOldStyle) tpOldStyle.remove();
+    const tpStyleId = 'tonepad-css-v47-drum';
+    ['tonepad-css-v45', 'tonepad-css-v46-theme'].forEach((id) => { const el = document.getElementById(id); if (el) el.remove(); });
     if (!document.getElementById(tpStyleId)) {
       const style = document.createElement('style');
       style.id = tpStyleId;
@@ -552,8 +551,14 @@ export async function mountTonepad() {
         '.tonepad-layer-btn.is-empty{opacity:.4}',
         '.tonepad-play{min-width:52px;height:28px;border-radius:6px;border:1px solid var(--tp-play-border,rgba(120,200,140,.5));background:var(--tp-play-bg,rgba(30,50,35,.9));color:var(--tp-play-fg,#b8e0c0);font:600 11px system-ui;cursor:pointer}',
         '.tonepad-clear{min-width:44px;height:28px;border-radius:6px;border:1px solid var(--tp-clear-border,rgba(200,120,100,.45));background:var(--tp-clear-bg,rgba(50,24,20,.9));color:var(--tp-clear-fg,#e8b0a0);font:600 11px system-ui;cursor:pointer}',
+        '.tonepad-mode-btn{min-width:56px;min-height:44px;height:44px;padding:0 10px;border-radius:8px;border:1px solid var(--tp-layer-btn-border,rgba(160,170,160,.35));background:var(--tp-layer-btn-bg,rgba(20,24,20,.9));color:var(--tp-layer-btn-fg,#9aab9e);font:600 11px system-ui;cursor:pointer;touch-action:manipulation}',
+        '.tonepad-mode-btn[aria-pressed="true"]{border-color:var(--tp-sound-active-border,rgba(240,217,154,.95));color:var(--tp-sound-active-fg,#fff3c4);background:var(--tp-sound-active-bg,rgba(48,42,16,.98))}',
         '.tonepad-canvas{flex:1;width:100%;min-height:100px;touch-action:none;border-radius:8px;background:var(--tp-canvas-bg,#0a0c0a)}',
         '.tonepad-sounds{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:2px 0 0;flex-shrink:0}',
+        '.tonepad-sounds.is-drum{display:flex;align-items:center;min-height:44px}',
+        '.tonepad-sounds.is-drum .tonepad-sound-btn{display:none}',
+        '.tonepad-drum-kit{display:none;align-items:center;justify-content:center;width:100%;min-height:44px;border-radius:8px;border:1px solid var(--tp-layer-btn-border,rgba(160,170,160,.35));background:var(--tp-layer-btn-bg,rgba(20,24,20,.9));color:var(--tp-layer-btn-fg,#9aab9e);font:600 12px system-ui;letter-spacing:.04em}',
+        '.tonepad-sounds.is-drum .tonepad-drum-kit{display:flex}',
         '@media (max-width:400px){.tonepad-sounds{grid-template-columns:repeat(3,minmax(0,1fr))}}',
         '.tonepad-sound-btn{min-height:28px;padding:4px 2px;border-radius:8px;border:1px solid var(--tp-sound-border,rgba(160,170,160,.28));background:var(--tp-sound-bg,rgba(16,20,16,.92));color:var(--tp-sound-fg,#9aab9e);font:600 9px/1.15 system-ui,sans-serif;letter-spacing:.02em;cursor:pointer;touch-action:manipulation;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
         '.tonepad-sound-btn.is-active{border-color:var(--tp-sound-active-border,rgba(240,217,154,.95));color:var(--tp-sound-active-fg,#fff3c4);background:var(--tp-sound-active-bg,rgba(48,42,16,.98));box-shadow:0 0 0 1px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 45%,transparent),0 0 12px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 55%,transparent),0 0 28px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 35%,transparent);text-shadow:0 0 8px color-mix(in srgb,var(--tp-sound-active-border,rgba(240,217,154,.95)) 50%,transparent);animation:tp-sound-pulse 2.4s ease-in-out infinite}',
@@ -581,6 +586,7 @@ export async function mountTonepad() {
         '<button type="button" class="tonepad-play" data-play>Play</button>' +
         '<button type="button" class="tonepad-clear" data-clear title="Clear active layer">Clear</button>' +
         '<div class="tonepad-layers" data-layers></div>' +
+        '<button type="button" class="tonepad-mode-btn" data-mode aria-pressed="false" aria-label="Drum mode for active layer" title="Toggle drum mode">Drum</button>' +
         '<div class="tonepad-knobs">' +
           '<div class="tonepad-knob" data-k="vel"><span class="tonepad-knob-label">VEL</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>70</span></div>' +
           '<div class="tonepad-knob" data-k="prob"><span class="tonepad-knob-label">PROB</span><div class="tonepad-knob-dial" data-dial><canvas width="72" height="72"></canvas></div><span class="tonepad-knob-val" data-val>100</span></div>' +
@@ -588,7 +594,7 @@ export async function mountTonepad() {
         '</div>' +
       '</div>' +
       '<canvas class="tonepad-canvas"></canvas>' +
-      '<div class="tonepad-sounds" data-sounds></div>';
+      '<div class="tonepad-sounds" data-sounds><div class="tonepad-drum-kit" data-drum-kit>Drum kit</div></div>';
 
     const canvas = layer.querySelector('canvas.tonepad-canvas');
     const g = canvas.getContext('2d');
@@ -660,7 +666,28 @@ export async function mountTonepad() {
       });
       soundsEl.appendChild(b);
     });
+    function updateModeUI() {
+      const drum = modeOf(activeLayer) === 'drum';
+      const modeBtn = layer ? layer.querySelector('[data-mode]') : null;
+      if (modeBtn) {
+        modeBtn.setAttribute('aria-pressed', drum ? 'true' : 'false');
+        modeBtn.textContent = drum ? 'Melody' : 'Drum';
+        modeBtn.setAttribute('aria-label', drum ? 'Switch active layer to melody' : 'Switch active layer to drum');
+        modeBtn.title = drum ? 'Switch to melody mode' : 'Switch to drum mode';
+      }
+      if (soundsEl) {
+        soundsEl.classList.toggle('is-drum', drum);
+        soundsEl.querySelectorAll('.tonepad-sound-btn').forEach((b) => {
+          b.disabled = drum;
+          b.setAttribute('aria-hidden', drum ? 'true' : 'false');
+          b.tabIndex = drum ? -1 : 0;
+        });
+        const kit = soundsEl.querySelector('[data-drum-kit]');
+        if (kit) kit.setAttribute('aria-hidden', drum ? 'false' : 'true');
+      }
+    }
     function updateSoundButtons() {
+      updateModeUI();
       const cur = layerSounds[activeLayer] || DEFAULT_SOUND;
       soundsEl.querySelectorAll('.tonepad-sound-btn').forEach((b) => {
         b.classList.toggle('is-active', b.dataset.sound === cur);
@@ -678,6 +705,13 @@ export async function mountTonepad() {
       e.stopPropagation();
       if (playing) stop();
       else start();
+    });
+    layer.querySelector('[data-mode]').addEventListener('click', (e) => {
+      e.stopPropagation();
+      layerModes[activeLayer] = modeOf(activeLayer) === 'drum' ? 'melodic' : 'drum';
+      updateModeUI();
+      draw();
+      save();
     });
 
     const knobRepaint = [];
@@ -887,15 +921,17 @@ export async function mountTonepad() {
     // Square pads: cell size is set by the tighter axis and the grid is centred in the canvas.
     function gridMetrics(w, h, rows) {
       const rcount = rows == null ? activeRows() : rows;
+      const isDrum = (modeOf(activeLayer) === 'drum' && rcount === DRUM_ROWS);
       const pad = Math.max(4, Math.min(w, h) * 0.02);
       const gap = Math.max(1, Math.min(w, h) * 0.01);
+      const labelW = isDrum ? Math.max(14, Math.min(w, h) * 0.055) : 0;
       const cell = Math.max(1, Math.min(
-        (w - pad * 2 - gap * (COLS - 1)) / COLS,
+        (w - pad * 2 - labelW - gap * (COLS - 1)) / COLS,
         (h - pad * 2 - gap * (rcount - 1)) / rcount
       ));
       const gw = cell * COLS + gap * (COLS - 1);
       const gh = cell * rcount + gap * (rcount - 1);
-      return { gap, cell, x0: (w - gw) / 2, y0: (h - gh) / 2, rows: rcount };
+      return { gap, cell, x0: pad + labelW + (w - pad * 2 - labelW - gw) / 2, y0: (h - gh) / 2, rows: rcount, labelW: labelW, isDrum: isDrum };
     }
     function draw() {
       if (!g) return;
@@ -913,6 +949,18 @@ export async function mountTonepad() {
       }
       const theme = LAYER_THEMES[activeLayer] || LAYER_THEMES[0];
       const rad = Math.max(2, Math.min(6, cw * 0.18));
+      if (m.isDrum && m.labelW > 0) {
+        const dLabels = ['K','S','CP','CH','OH','LT','HT','RM'];
+        g.save();
+        g.fillStyle = tpTheme.isLight ? 'rgba(42,40,36,0.62)' : 'rgba(232,230,227,0.55)';
+        g.font = '600 ' + Math.max(8, Math.floor(cw * 0.38)) + 'px system-ui,sans-serif';
+        g.textAlign = 'right';
+        g.textBaseline = 'middle';
+        for (let r = 0; r < aRows; r++) {
+          g.fillText(dLabels[r] || '', m.x0 - Math.max(2, gap * 1.5), m.y0 + r * (ch + gap) + ch / 2);
+        }
+        g.restore();
+      }
       for (let r = 0; r < aRows; r++) {
         for (let c = 0; c < COLS; c++) {
           const x = m.x0 + c * (cw + gap);
