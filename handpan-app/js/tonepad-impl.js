@@ -724,6 +724,25 @@ export async function mountTonepad() {
         }
       });
     }
+    if (kitSelect) {
+      kitSelect.innerHTML = '';
+      DRUM_KIT_LIST.forEach((k) => {
+        const o = document.createElement('option');
+        o.value = k.id; o.textContent = k.name;
+        kitSelect.appendChild(o);
+      });
+      kitSelect.addEventListener('change', (e) => {
+        e.stopPropagation();
+        drumKits[activeLayer] = kitSelect.value;
+        save();
+        if (ensureAudio()) {
+          try { resumeAudio?.(); audioCtx?.resume?.(); } catch (_) {}
+          const t = audioCtx.currentTime + 0.02;
+          triggerDrum(0, t, 0.82, kitSelect.value);
+          triggerDrum(1, t + 0.18, 0.72, kitSelect.value);
+        }
+      });
+    }
     function updateModeUI() {
       const drum = modeOf(activeLayer) === 'drum';
       const modeBtn = layer ? layer.querySelector('[data-mode]') : null;
@@ -734,12 +753,17 @@ export async function mountTonepad() {
         modeBtn.title = drum ? 'Switch to melody mode' : 'Switch to drum mode';
       }
       if (soundSelect) soundSelect.hidden = drum;
-      if (kitSelect) kitSelect.hidden = !drum;
+      if (kitSelect) {
+        kitSelect.hidden = !drum;
+        const k = kitOf(activeLayer);
+        if (kitSelect.value !== k) kitSelect.value = k;
+      }
     }
     function updateSoundButtons() {
       updateModeUI();
       const cur = layerSounds[activeLayer] || DEFAULT_SOUND;
       if (soundSelect && soundSelect.value !== cur) soundSelect.value = cur;
+      if (kitSelect) { const k = kitOf(activeLayer); if (kitSelect.value !== k) kitSelect.value = k; }
     }
     layer.querySelector('[data-clear]').addEventListener('click', (e) => {
       e.stopPropagation();
