@@ -7,6 +7,7 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; child-src 'self'; img-src 'self' data:; connect-src 'self';"
     />
+    <link rel="stylesheet" href="./css-parts/_tokens.css" />
     <link rel="stylesheet" href="./pionier-base.css" />
     <link rel="stylesheet" href="./pionier-controls.css" />
     <link rel="stylesheet" href="./library.css" />
@@ -65,19 +66,12 @@
         aspect-ratio: 1 !important;
         margin-bottom: 0 !important;
       }
-      #portraitLock[hidden] {
-        display: none !important;
-        pointer-events: none !important;
-      }
       #tonepadToggle.is-active {
         color: #e1cc8b;
       }
     </style>
   </head>
   <body>
-    <div id="portraitLock" class="portrait-lock" hidden aria-live="polite">
-      <p class="portrait-lock-msg">Rotate your phone to portrait</p>
-    </div>
     <div id="appStatus" class="app-status" data-state="loading" role="status" aria-live="polite">
       <span id="appStatusMessage">Starting Pionier…</span>
       <button type="button" id="appStatusRetry" class="app-status-retry" hidden>Retry</button>
@@ -272,7 +266,10 @@
           height="680"
           role="img"
           aria-label="Handpan instrument"
+          tabindex="0"
+          aria-describedby="pan-help"
         ></canvas>
+        <span id="pan-help" class="visually-hidden">Play pads with keys Q W E R T Y U I O P A S D F. Use arrow keys to move focus between pads.</span>
       </main>
     </div>
     <div class="top-nav-group" id="topNavGroup" aria-label="Pionier controls">
@@ -342,6 +339,20 @@
       <div class="fx-panel-body knobs-panel">
         <div class="effect-knob-wrap" id="knobCompress">
           <canvas class="knob-canvas" width="68" height="68"></canvas>
+          <input
+            type="range"
+            class="fx-knob-slider"
+            id="sliderCompress"
+            role="slider"
+            aria-label="Compressor"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="40"
+            aria-valuetext="40 percent"
+            min="0"
+            max="100"
+            value="40"
+          />
           <div class="fx-knob-label-row">
             <span class="knob-label">Comp</span
             ><button
@@ -349,15 +360,32 @@
               class="fx-settings-shortcut"
               data-fx-editor-open="compressor"
               aria-label="Open Compressor curve and presets"
-              title="Open advanced settings"
+              title="Compressor settings"
+              aria-describedby="fx-compressor-tooltip"
             >
-              s
+              <span class="fx-shortcut-icon" aria-hidden="true">⚙</span>
+              <span class="visually-hidden">Compressor settings</span>
             </button>
+            <span id="fx-compressor-tooltip" class="visually-hidden">Compressor: shape dynamics</span>
           </div>
           <span class="knob-val" id="valCompress">40%</span>
         </div>
         <div class="effect-knob-wrap" id="knobDelay">
           <canvas class="knob-canvas" width="68" height="68"></canvas>
+          <input
+            type="range"
+            class="fx-knob-slider"
+            id="sliderDelay"
+            role="slider"
+            aria-label="Delay"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="15"
+            aria-valuetext="15 percent"
+            min="0"
+            max="100"
+            value="15"
+          />
           <div class="fx-knob-label-row">
             <span class="knob-label">Delay</span
             ><button
@@ -365,15 +393,32 @@
               class="fx-settings-shortcut"
               data-fx-editor-open="delay"
               aria-label="Open Delay curve and presets"
-              title="Open advanced settings"
+              title="Delay settings"
+              aria-describedby="fx-delay-tooltip"
             >
-              s
+              <span class="fx-shortcut-icon" aria-hidden="true">⚙</span>
+              <span class="visually-hidden">Delay settings</span>
             </button>
+            <span id="fx-delay-tooltip" class="visually-hidden">Delay: echo effect</span>
           </div>
           <span class="knob-val" id="valDelay">15%</span>
         </div>
         <div class="effect-knob-wrap" id="knobFilter">
           <canvas class="knob-canvas" width="68" height="68"></canvas>
+          <input
+            type="range"
+            class="fx-knob-slider"
+            id="sliderFilter"
+            role="slider"
+            aria-label="Filter"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="12"
+            aria-valuetext="12 percent"
+            min="0"
+            max="100"
+            value="12"
+          />
           <div class="fx-knob-label-row">
             <span class="knob-label">Filter</span
             ><button
@@ -381,15 +426,32 @@
               class="fx-settings-shortcut"
               data-fx-editor-open="filter"
               aria-label="Open Filter curve and presets"
-              title="Open advanced settings"
+              title="Filter settings"
+              aria-describedby="fx-filter-tooltip"
             >
-              s
+              <span class="fx-shortcut-icon" aria-hidden="true">⚙</span>
+              <span class="visually-hidden">Filter settings</span>
             </button>
+            <span id="fx-filter-tooltip" class="visually-hidden">Filter: tone shaping</span>
           </div>
           <span class="knob-val" id="valFilter">12%</span>
         </div>
         <div class="effect-knob-wrap" id="knobReverb">
           <canvas class="knob-canvas" width="72" height="72"></canvas>
+          <input
+            type="range"
+            class="fx-knob-slider"
+            id="sliderReverb"
+            role="slider"
+            aria-label="Reverb"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="25"
+            aria-valuetext="25 percent"
+            min="0"
+            max="100"
+            value="25"
+          />
           <div class="fx-knob-label-row">
             <span class="knob-label">Reverb</span
             ><button
@@ -397,28 +459,84 @@
               class="fx-settings-shortcut"
               data-fx-editor-open="reverb"
               aria-label="Open Reverb curve and presets"
-              title="Open advanced settings"
+              title="Reverb settings"
+              aria-describedby="fx-reverb-tooltip"
             >
-              s
+              <span class="fx-shortcut-icon" aria-hidden="true">⚙</span>
+              <span class="visually-hidden">Reverb settings</span>
             </button>
+            <span id="fx-reverb-tooltip" class="visually-hidden">Reverb: space and decay</span>
           </div>
           <span class="knob-val" id="valReverb">25%</span>
         </div>
         <div class="effect-knob-wrap" id="knobBass">
-          <canvas class="knob-canvas" width="72" height="72"></canvas
-          ><span class="knob-label">Bass</span><span class="knob-val" id="valBass">50%</span>
+          <canvas class="knob-canvas" width="72" height="72"></canvas>
+          <input
+            type="range"
+            class="fx-knob-slider"
+            id="sliderBass"
+            role="slider"
+            aria-label="Bass"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="50"
+            aria-valuetext="50 percent"
+            min="0"
+            max="100"
+            value="50"
+          />
+          <span class="knob-label">Bass</span><span class="knob-val" id="valBass">50%</span>
         </div>
         <div class="effect-knob-wrap" id="knobLow">
           <canvas class="knob-canvas" width="72" height="72"></canvas
-          ><span class="knob-label">Low</span><span class="knob-val" id="valLow">50%</span>
+          ><input
+            type="range"
+            class="fx-knob-slider"
+            id="sliderLow"
+            role="slider"
+            aria-label="Low"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="50"
+            aria-valuetext="50 percent"
+            min="0"
+            max="100"
+            value="50"
+          /><span class="knob-label">Low</span><span class="knob-val" id="valLow">50%</span>
         </div>
         <div class="effect-knob-wrap" id="knobMid">
           <canvas class="knob-canvas" width="72" height="72"></canvas
-          ><span class="knob-label">Mid</span><span class="knob-val" id="valMid">50%</span>
+          ><input
+            type="range"
+            class="fx-knob-slider"
+            id="sliderMid"
+            role="slider"
+            aria-label="Mid"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="50"
+            aria-valuetext="50 percent"
+            min="0"
+            max="100"
+            value="50"
+          /><span class="knob-label">Mid</span><span class="knob-val" id="valMid">50%</span>
         </div>
         <div class="effect-knob-wrap" id="knobMaster">
           <canvas class="knob-canvas" width="72" height="72"></canvas
-          ><span class="knob-label">Master</span><span class="knob-val" id="valMaster">82%</span>
+          ><input
+            type="range"
+            class="fx-knob-slider"
+            id="sliderMaster"
+            role="slider"
+            aria-label="Master"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="82"
+            aria-valuetext="82 percent"
+            min="0"
+            max="100"
+            value="82"
+          /><span class="knob-label">Master</span><span class="knob-val" id="valMaster">82%</span>
         </div>
       </div>
     </div>

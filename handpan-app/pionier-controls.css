@@ -1,3 +1,8 @@
+/* ===== Cascade layers ===== */
+@layer base, components, utilities;
+
+@import './css-parts/_tokens.css';
+
 
 /* ===== settings-panel.css ===== */
 /* Settings button + sheet */
@@ -255,14 +260,18 @@
   -webkit-overflow-scrolling: touch;
   border-radius: 12px;
   border: 1px solid rgba(230, 224, 210, 0.18);
-  background: #141416 !important;
-  background-image: none !important;
+  /* reason: surface color */
+  background: #141416 ;
+  /* reason: utility override */
+  background-image: none ;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(230, 224, 210, 0.06);
   padding: 8px;
   color: #e6e0d2;
 }
-.settings-dd-menu[hidden] { display: none !important; }
-.settings-dd-menu.is-open { display: block !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; z-index: 4500 !important; }
+  /* reason: hidden state */
+.settings-dd-menu[hidden] { display: none ; }
+  /* reason: stacking context */
+.settings-dd-menu.is-open { display: block ; visibility: visible ; opacity: 1 ; pointer-events: auto ; z-index: 4500 ; }
 .settings-dd-group {
   padding: 8px 10px 4px;
   font-size: 10px;
@@ -295,118 +304,166 @@ html.theme-light body {
   color-scheme: light;
 }
 html.theme-light body {
-  background: #ebe8e2 !important;
-  color: #1c1b1a !important;
+  /* reason: surface color */
+  background: #ebe8e2 ;
+  /* reason: text color */
+  color: #1c1b1a ;
 }
 html.theme-light body::before {
   background:
     radial-gradient(ellipse 90% 55% at 50% 40%, rgba(255, 255, 255, 0.85) 0%, transparent 65%),
     radial-gradient(ellipse 55% 35% at 50% 100%, rgba(196, 160, 70, 0.07) 0%, transparent 55%),
-    linear-gradient(180deg, #f4f1eb 0%, #e5e1d9 100%) !important;
+  /* reason: utility override */
+    linear-gradient(180deg, #f4f1eb 0%, #e5e1d9 100%) ;
 }
 
 /* --- Settings sheet --- */
 html.theme-light .settings-sheet {
-  background: linear-gradient(180deg, #faf8f4 0%, #f0ebe3 100%) !important;
-  border: 1px solid rgba(40, 36, 28, 0.12) !important;
-  border-bottom: none !important;
-  box-shadow: 0 -16px 48px rgba(40, 30, 10, 0.18) !important;
-  color: #1c1b1a !important;
+  /* reason: surface color */
+  background: linear-gradient(180deg, #faf8f4 0%, #f0ebe3 100%) ;
+  /* reason: border style */
+  border: 1px solid rgba(40, 36, 28, 0.12) ;
+  /* reason: utility override */
+  border-bottom: none ;
+  /* reason: elevation */
+  box-shadow: 0 -16px 48px rgba(40, 30, 10, 0.18) ;
+  /* reason: text color */
+  color: #1c1b1a ;
 }
 html.theme-light .settings-sheet-title {
-  color: #1c1b1a !important;
+  /* reason: text color */
+  color: #1c1b1a ;
 }
 html.theme-light .settings-sheet-close {
-  background: rgba(40, 36, 28, 0.06) !important;
-  border: 1px solid rgba(40, 36, 28, 0.12) !important;
-  color: #3a3834 !important;
+  /* reason: surface color */
+  background: rgba(40, 36, 28, 0.06) ;
+  /* reason: border style */
+  border: 1px solid rgba(40, 36, 28, 0.12) ;
+  /* reason: text color */
+  color: #3a3834 ;
 }
 html.theme-light .settings-sheet-close:hover {
-  background: rgba(40, 36, 28, 0.1) !important;
-  color: #1c1b1a !important;
+  /* reason: surface color */
+  background: rgba(40, 36, 28, 0.1) ;
+  /* reason: text color */
+  color: #1c1b1a ;
 }
 html.theme-light .settings-sheet-backdrop {
-  background: rgba(30, 28, 24, 0.35) !important;
+  /* reason: surface color */
+  background: rgba(30, 28, 24, 0.35) ;
 }
 html.theme-light .settings-section-label {
-  color: rgba(40, 36, 28, 0.45) !important;
+  /* reason: text color */
+  color: rgba(40, 36, 28, 0.45) ;
 }
 html.theme-light .settings-row-label,
 html.theme-light .settings-row span,
 html.theme-light .settings-row {
-  color: #2a2824 !important;
+  /* reason: text color */
+  color: #2a2824 ;
 }
 html.theme-light .settings-dd-label {
-  color: rgba(40, 36, 28, 0.5) !important;
+  /* reason: text color */
+  color: rgba(40, 36, 28, 0.5) ;
 }
 html.theme-light .settings-dd-toggle {
-  background: #ffffff !important;
-  border: 1px solid rgba(40, 36, 28, 0.14) !important;
-  color: #1c1b1a !important;
-  box-shadow: 0 1px 2px rgba(40, 30, 10, 0.04) !important;
+  /* reason: surface color */
+  background: #ffffff ;
+  /* reason: border style */
+  border: 1px solid rgba(40, 36, 28, 0.14) ;
+  /* reason: text color */
+  color: #1c1b1a ;
+  /* reason: elevation */
+  box-shadow: 0 1px 2px rgba(40, 30, 10, 0.04) ;
 }
 html.theme-light .settings-dd-toggle:hover,
 html.theme-light .settings-dd-toggle[aria-expanded="true"] {
-  border-color: rgba(160, 120, 30, 0.45) !important;
-  background: #fffdf8 !important;
-  color: #1c1b1a !important;
+  /* reason: text color */
+  border-color: rgba(160, 120, 30, 0.45) ;
+  /* reason: surface color */
+  background: #fffdf8 ;
+  /* reason: text color */
+  color: #1c1b1a ;
 }
 html.theme-light .settings-dd-value {
-  color: #1c1b1a !important;
+  /* reason: text color */
+  color: #1c1b1a ;
 }
 html.theme-light .settings-dd-chevron {
-  color: rgba(40, 36, 28, 0.5) !important;
-  opacity: 1 !important;
+  /* reason: text color */
+  color: rgba(40, 36, 28, 0.5) ;
+  /* reason: opacity toggle */
+  opacity: 1 ;
 }
 html.theme-light .settings-dd-menu {
-  background: #faf8f4 !important;
-  background-image: none !important;
-  border: 1px solid rgba(40, 36, 28, 0.14) !important;
-  box-shadow: 0 16px 40px rgba(40, 30, 10, 0.16) !important;
-  color: #1c1b1a !important;
+  /* reason: surface color */
+  background: #faf8f4 ;
+  /* reason: utility override */
+  background-image: none ;
+  /* reason: border style */
+  border: 1px solid rgba(40, 36, 28, 0.14) ;
+  /* reason: elevation */
+  box-shadow: 0 16px 40px rgba(40, 30, 10, 0.16) ;
+  /* reason: text color */
+  color: #1c1b1a ;
 }
 html.theme-light .settings-dd-item {
-  background: transparent !important;
-  color: #2a2824 !important;
+  /* reason: surface color */
+  background: transparent ;
+  /* reason: text color */
+  color: #2a2824 ;
 }
 html.theme-light .settings-dd-item:hover {
-  background: rgba(40, 36, 28, 0.06) !important;
-  color: #1c1b1a !important;
+  /* reason: surface color */
+  background: rgba(40, 36, 28, 0.06) ;
+  /* reason: text color */
+  color: #1c1b1a ;
 }
 html.theme-light .settings-dd-item.is-active {
-  background: rgba(196, 160, 70, 0.22) !important;
-  color: #6b4e0e !important;
+  /* reason: surface color */
+  background: rgba(196, 160, 70, 0.22) ;
+  /* reason: text color */
+  color: #6b4e0e ;
 }
 html.theme-light .settings-dd-group {
-  color: rgba(40, 36, 28, 0.4) !important;
+  /* reason: text color */
+  color: rgba(40, 36, 28, 0.4) ;
 }
 
 /* Toggles / sliders / values inside sheet */
 html.theme-light .settings-sheet input[type="range"] {
-  accent-color: #b8922e !important;
+  /* reason: text color */
+  accent-color: #b8922e ;
 }
 html.theme-light .settings-sheet .settings-value,
 html.theme-light .settings-sheet .settings-slider-value,
 html.theme-light .settings-transparency-val,
 html.theme-light .settings-sheet output {
-  color: #3a3834 !important;
+  /* reason: text color */
+  color: #3a3834 ;
 }
 html.theme-light .settings-switch,
 html.theme-light .settings-toggle {
-  background: rgba(40, 36, 28, 0.15) !important;
+  /* reason: surface color */
+  background: rgba(40, 36, 28, 0.15) ;
 }
 html.theme-light .settings-led-label,
 html.theme-light .settings-sheet label {
-  color: #2a2824 !important;
+  /* reason: text color */
+  color: #2a2824 ;
 }
 
 /* Gear button */
 html.theme-light .settings-open-btn,
 html.theme-light #settingsOpenBtn {
-  background: #ffffff !important;
-  border: 1px solid rgba(40, 36, 28, 0.12) !important;
-  color: #3a3834 !important;
-  box-shadow: 0 2px 8px rgba(40, 30, 10, 0.08) !important;
+  /* reason: surface color */
+  background: #ffffff ;
+  /* reason: border style */
+  border: 1px solid rgba(40, 36, 28, 0.12) ;
+  /* reason: text color */
+  color: #3a3834 ;
+  /* reason: elevation */
+  box-shadow: 0 2px 8px rgba(40, 30, 10, 0.08) ;
 }
 
 /* Catch-all text inside open sheet */
@@ -418,7 +475,8 @@ html.theme-light .settings-sheet p,
 html.theme-light .settings-sheet h2,
 html.theme-light .settings-sheet h3,
 html.theme-light .settings-sheet div.settings-row-label {
-  color: #1c1b1a !important;
+  /* reason: text color */
+  color: #1c1b1a ;
 }
 
 /* Stage / bottom bar leftovers */
@@ -430,62 +488,88 @@ html.theme-light #stageScaleBar {
     rgba(244, 241, 235, 0.9) 50%,
     rgba(244, 241, 235, 0.4) 85%,
     transparent 100%
-  ) !important;
-  border-top-color: rgba(40, 36, 28, 0.08) !important;
+  /* reason: utility override */
+  ) ;
+  /* reason: text color */
+  border-top-color: rgba(40, 36, 28, 0.08) ;
 }
 html.theme-light .instrument-name,
 html.theme-light .stage-scale-btn,
 html.theme-light .stage-instrument-nav .instrument-name {
-  background: #ffffff !important;
-  color: #1c1b1a !important;
-  border-color: rgba(40, 36, 28, 0.12) !important;
+  /* reason: surface color */
+  background: #ffffff ;
+  /* reason: text color */
+  color: #1c1b1a ;
+  /* reason: text color */
+  border-color: rgba(40, 36, 28, 0.12) ;
 }
 html.theme-light .icon-btn {
-  color: #3a3834 !important;
+  /* reason: text color */
+  color: #3a3834 ;
 }
 html.theme-light .bottom-bar {
-  background: linear-gradient(180deg, transparent, rgba(235, 232, 226, 0.94)) !important;
+  /* reason: surface color */
+  background: linear-gradient(180deg, transparent, rgba(235, 232, 226, 0.94)) ;
 }
 html.theme-light .app-status {
-  background: rgba(250, 248, 244, 0.95) !important;
-  color: #1c1b1a !important;
-  border-color: rgba(40, 36, 28, 0.1) !important;
+  /* reason: surface color */
+  background: rgba(250, 248, 244, 0.95) ;
+  /* reason: text color */
+  color: #1c1b1a ;
+  /* reason: text color */
+  border-color: rgba(40, 36, 28, 0.1) ;
 }
 html.theme-light .mobile-control-drawer {
-  background: linear-gradient(180deg, #faf8f4, #efeae2) !important;
-  border-color: rgba(40, 36, 28, 0.1) !important;
-  box-shadow: 0 -8px 40px rgba(40, 30, 10, 0.12) !important;
-  color: #1c1b1a !important;
+  /* reason: surface color */
+  background: linear-gradient(180deg, #faf8f4, #efeae2) ;
+  /* reason: text color */
+  border-color: rgba(40, 36, 28, 0.1) ;
+  /* reason: elevation */
+  box-shadow: 0 -8px 40px rgba(40, 30, 10, 0.12) ;
+  /* reason: text color */
+  color: #1c1b1a ;
 }
-html.theme-light .mobile-controls-toggle { color: rgba(40, 36, 28, 0.65) !important; }
+  /* reason: text color */
+html.theme-light .mobile-controls-toggle { color: rgba(40, 36, 28, 0.65) ; }
 html.theme-light .mobile-controls-grip {
-  background: rgba(40, 36, 28, 0.2) !important;
+  /* reason: surface color */
+  background: rgba(40, 36, 28, 0.2) ;
 }
 
 html.theme-light .settings-toggle-track {
-  background: rgba(40, 36, 28, 0.12) !important;
-  border: 1px solid rgba(40, 36, 28, 0.14) !important;
+  /* reason: surface color */
+  background: rgba(40, 36, 28, 0.12) ;
+  /* reason: border style */
+  border: 1px solid rgba(40, 36, 28, 0.14) ;
 }
 html.theme-light .settings-toggle-track::after {
-  background: #ffffff !important;
-  box-shadow: 0 1px 3px rgba(40, 30, 10, 0.2) !important;
+  /* reason: surface color */
+  background: #ffffff ;
+  /* reason: elevation */
+  box-shadow: 0 1px 3px rgba(40, 30, 10, 0.2) ;
 }
 html.theme-light .settings-toggle input:checked + .settings-toggle-track {
-  background: rgba(184, 146, 46, 0.55) !important;
-  border-color: rgba(160, 120, 30, 0.5) !important;
+  /* reason: surface color */
+  background: rgba(184, 146, 46, 0.55) ;
+  /* reason: text color */
+  border-color: rgba(160, 120, 30, 0.5) ;
 }
 html.theme-light .settings-rgb-grid {
-  color: #3a3834 !important;
+  /* reason: text color */
+  color: #3a3834 ;
 }
 html.theme-light .settings-rgb-grid label {
-  color: #3a3834 !important;
+  /* reason: text color */
+  color: #3a3834 ;
 }
 html.theme-light .settings-rgb-val {
-  color: #2a2824 !important;
+  /* reason: text color */
+  color: #2a2824 ;
 }
 html.theme-light .settings-slider-row input[type="range"],
 html.theme-light .settings-rgb-grid input[type="range"] {
-  accent-color: #b8922e !important;
+  /* reason: text color */
+  accent-color: #b8922e ;
 }
 
 
@@ -524,17 +608,25 @@ html.theme-light .settings-rgb-grid input[type="range"] {
   scrollbar-width: thin;
   scrollbar-color: rgba(190, 151, 53, .48) transparent;
   /* Avoid costly blur while a long option list is moving under the finger. */
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, .24) !important;
-  border-radius: 16px !important;
-  padding: 6px !important;
+  /* reason: utility override */
+  -webkit-backdrop-filter: none ;
+  /* reason: utility override */
+  backdrop-filter: none ;
+  /* reason: elevation */
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .24) ;
+  /* reason: component shape */
+  border-radius: 16px ;
+  /* reason: spacing override */
+  padding: 6px ;
 }
 .settings-dd-item {
   min-height: 42px;
-  border-radius: 10px !important;
-  padding: 10px 12px !important;
-  transition: background-color 140ms ease, color 140ms ease, transform 140ms ease !important;
+  /* reason: component shape */
+  border-radius: 10px ;
+  /* reason: spacing override */
+  padding: 10px 12px ;
+  /* reason: utility override */
+  transition: background-color 140ms ease, color 140ms ease, transform 140ms ease ;
   touch-action: manipulation;
 }
 .settings-dd-item:active {
@@ -545,7 +637,8 @@ html.theme-light .settings-rgb-grid input[type="range"] {
 .settings-open-btn {
   touch-action: manipulation;
   transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease,
-    box-shadow 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1) !important;
+  /* reason: utility override */
+    box-shadow 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1) ;
 }
 .settings-dd-toggle:active,
 .settings-sheet-close:active,
@@ -553,41 +646,59 @@ html.theme-light .settings-rgb-grid input[type="range"] {
   transform: scale(.975);
 }
 .settings-toggle {
-  width: 46px !important;
-  height: 28px !important;
+  /* reason: width override */
+  width: 46px ;
+  /* reason: height override */
+  height: 28px ;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 .settings-toggle input {
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  margin: 0 !important;
+  /* reason: utility override */
+  inset: 0 ;
+  /* reason: width override */
+  width: 100% ;
+  /* reason: height override */
+  height: 100% ;
+  /* reason: margin reset */
+  margin: 0 ;
   cursor: pointer;
   z-index: 2;
 }
 .settings-toggle-track {
-  border: 1px solid transparent !important;
-  outline: none !important;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,.12) !important;
+  /* reason: border style */
+  border: 1px solid transparent ;
+  /* reason: utility override */
+  outline: none ;
+  /* reason: elevation */
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.12) ;
   transition: background-color 220ms cubic-bezier(.2,.8,.2,1),
-    box-shadow 220ms cubic-bezier(.2,.8,.2,1) !important;
+  /* reason: utility override */
+    box-shadow 220ms cubic-bezier(.2,.8,.2,1) ;
 }
 .settings-toggle-track::after {
-  top: 3px !important;
-  left: 3px !important;
-  width: 20px !important;
-  height: 20px !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,.18) !important;
+  /* reason: utility override */
+  top: 3px ;
+  /* reason: utility override */
+  left: 3px ;
+  /* reason: width override */
+  width: 20px ;
+  /* reason: height override */
+  height: 20px ;
+  /* reason: elevation */
+  box-shadow: 0 1px 3px rgba(0,0,0,.18) ;
   transition: transform 260ms cubic-bezier(.2,.85,.25,1.25),
-    background-color 180ms ease, box-shadow 180ms ease !important;
+  /* reason: utility override */
+    background-color 180ms ease, box-shadow 180ms ease ;
   will-change: transform;
 }
 .settings-toggle input:checked + .settings-toggle-track::after {
-  transform: translateX(18px) !important;
+  /* reason: utility override */
+  transform: translateX(18px) ;
 }
 .settings-toggle input:focus-visible + .settings-toggle-track {
-  outline: 2px solid rgba(190,151,53,.72) !important;
+  /* reason: utility override */
+  outline: 2px solid rgba(190,151,53,.72) ;
   outline-offset: 3px;
 }
 .settings-sheet input[type="range"],
@@ -652,29 +763,43 @@ html.theme-light .settings-rgb-grid input[type="range"] {
   outline: none;
 }
 html.theme-light .settings-toggle-track {
-  border-color: transparent !important;
-  background: rgba(64, 58, 46, .17) !important;
-  box-shadow: inset 0 1px 2px rgba(40,30,10,.12) !important;
+  /* reason: text color */
+  border-color: transparent ;
+  /* reason: surface color */
+  background: rgba(64, 58, 46, .17) ;
+  /* reason: elevation */
+  box-shadow: inset 0 1px 2px rgba(40,30,10,.12) ;
 }
 html.theme-light .settings-toggle input:checked + .settings-toggle-track {
-  border-color: transparent !important;
-  background: #c5a04a !important;
-  box-shadow: inset 0 1px 2px rgba(90,60,10,.12) !important;
+  /* reason: text color */
+  border-color: transparent ;
+  /* reason: surface color */
+  background: #c5a04a ;
+  /* reason: elevation */
+  box-shadow: inset 0 1px 2px rgba(90,60,10,.12) ;
 }
 html.theme-light .settings-toggle-track::after {
-  background: #fffdf8 !important;
-  box-shadow: 0 1px 3px rgba(40,30,10,.2) !important;
+  /* reason: surface color */
+  background: #fffdf8 ;
+  /* reason: elevation */
+  box-shadow: 0 1px 3px rgba(40,30,10,.2) ;
 }
 html.theme-light .settings-dd-menu {
-  box-shadow: 0 10px 28px rgba(43,35,20,.13) !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
+  /* reason: elevation */
+  box-shadow: 0 10px 28px rgba(43,35,20,.13) ;
+  /* reason: utility override */
+  -webkit-backdrop-filter: none ;
+  /* reason: utility override */
+  backdrop-filter: none ;
 }
 @media (prefers-reduced-motion: reduce) {
   .settings-sheet *, .settings-dd-menu, .settings-dd-menu * {
-    scroll-behavior: auto !important;
-    transition-duration: .01ms !important;
-    animation-duration: .01ms !important;
+  /* reason: utility override */
+    scroll-behavior: auto ;
+  /* reason: utility override */
+    transition-duration: .01ms ;
+  /* reason: utility override */
+    animation-duration: .01ms ;
   }
 }
 
@@ -682,206 +807,314 @@ html.theme-light .settings-dd-menu {
 /* PIONIER refinement pass — remove legacy boxed toggle styling and unify the
    customization sheet with the quiet, premium instrument controls. */
 .settings-sheet {
-  width: min(410px, 100vw) !important;
-  max-height: min(80dvh, 660px) !important;
-  border: 1px solid rgba(230,224,210,.085) !important;
-  border-left: 1px solid rgba(230,224,210,.085) !important;
-  border-bottom: 0 !important;
-  border-radius: 24px 24px 0 0 !important;
-  background: linear-gradient(160deg, #17171a 0%, #111113 72%, #0e0e10 100%) !important;
-  box-shadow: 0 -18px 54px rgba(0,0,0,.34) !important;
-  backdrop-filter: blur(24px) saturate(118%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(118%) !important;
+  /* reason: width override */
+  width: min(410px, 100vw) ;
+  /* reason: height override */
+  max-height: min(80dvh, 660px) ;
+  /* reason: border style */
+  border: 1px solid rgba(230,224,210,.085) ;
+  /* reason: utility override */
+  border-left: 1px solid rgba(230,224,210,.085) ;
+  /* reason: utility override */
+  border-bottom: 0 ;
+  /* reason: component shape */
+  border-radius: 24px 24px 0 0 ;
+  /* reason: surface color */
+  background: linear-gradient(160deg, #17171a 0%, #111113 72%, #0e0e10 100%) ;
+  /* reason: elevation */
+  box-shadow: 0 -18px 54px rgba(0,0,0,.34) ;
+  /* reason: utility override */
+  backdrop-filter: blur(24px) saturate(118%) ;
+  /* reason: utility override */
+  -webkit-backdrop-filter: blur(24px) saturate(118%) ;
 }
 .settings-sheet-header {
-  padding: 18px 20px 12px !important;
+  /* reason: spacing override */
+  padding: 18px 20px 12px ;
 }
 .settings-sheet-title {
-  font-size: 14px !important;
-  letter-spacing: .075em !important;
+  /* reason: type scale override */
+  font-size: 14px ;
+  /* reason: utility override */
+  letter-spacing: .075em ;
   text-transform: uppercase;
 }
 .settings-sheet-body {
-  padding: 6px 20px max(28px, env(safe-area-inset-bottom)) !important;
+  /* reason: spacing override */
+  padding: 6px 20px max(28px, env(safe-area-inset-bottom)) ;
   scroll-padding-block: 12px;
 }
 .settings-section {
-  margin-bottom: 22px !important;
+  /* reason: utility override */
+  margin-bottom: 22px ;
 }
 .settings-section-label {
-  margin-bottom: 12px !important;
-  letter-spacing: .12em !important;
-  font-size: 10px !important;
+  /* reason: utility override */
+  margin-bottom: 12px ;
+  /* reason: utility override */
+  letter-spacing: .12em ;
+  /* reason: type scale override */
+  font-size: 10px ;
 }
 .settings-row {
   min-height: 44px;
-  padding: 7px 0 !important;
+  /* reason: spacing override */
+  padding: 7px 0 ;
 }
 .settings-row-label {
   letter-spacing: .005em;
 }
 .settings-toggle {
-  display: inline-flex !important;
+  /* reason: utility override */
+  display: inline-flex ;
   align-items: center;
   justify-content: flex-start;
-  width: 46px !important;
+  /* reason: width override */
+  width: 46px ;
   min-width: 46px;
-  height: 28px !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border: 0 !important;
-  outline: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  border-radius: 999px !important;
+  /* reason: height override */
+  height: 28px ;
+  /* reason: spacing override */
+  padding: 0 ;
+  /* reason: margin reset */
+  margin: 0 ;
+  /* reason: border style */
+  border: 0 ;
+  /* reason: utility override */
+  outline: 0 ;
+  /* reason: surface color */
+  background: transparent ;
+  /* reason: elevation */
+  box-shadow: none ;
+  /* reason: component shape */
+  border-radius: 999px ;
   isolation: isolate;
 }
 .settings-toggle:hover,
 .settings-toggle:active,
 .settings-toggle:focus,
 .settings-toggle:focus-within {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
+  /* reason: surface color */
+  background: transparent ;
+  /* reason: border style */
+  border: 0 ;
+  /* reason: elevation */
+  box-shadow: none ;
 }
 .settings-toggle input {
   appearance: none;
   -webkit-appearance: none;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
+  /* reason: utility override */
+  inset: 0 ;
+  /* reason: width override */
+  width: 100% ;
+  /* reason: height override */
+  height: 100% ;
   opacity: 0;
   z-index: 3;
   cursor: pointer;
 }
 .settings-toggle-track {
-  inset: 0 !important;
-  border: 0 !important;
-  border-radius: 999px !important;
-  background: rgba(230,224,210,.14) !important;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,.22) !important;
-  transition: background-color 240ms cubic-bezier(.2,.8,.2,1), box-shadow 240ms ease !important;
+  /* reason: utility override */
+  inset: 0 ;
+  /* reason: border style */
+  border: 0 ;
+  /* reason: component shape */
+  border-radius: 999px ;
+  /* reason: surface color */
+  background: rgba(230,224,210,.14) ;
+  /* reason: elevation */
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.22) ;
+  /* reason: utility override */
+  transition: background-color 240ms cubic-bezier(.2,.8,.2,1), box-shadow 240ms ease ;
 }
 .settings-toggle-track::after {
-  top: 4px !important;
-  left: 4px !important;
-  width: 20px !important;
-  height: 20px !important;
-  background: #f2eee5 !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,.2) !important;
-  transition: transform 280ms cubic-bezier(.2,.85,.25,1.15), background-color 180ms ease !important;
+  /* reason: utility override */
+  top: 4px ;
+  /* reason: utility override */
+  left: 4px ;
+  /* reason: width override */
+  width: 20px ;
+  /* reason: height override */
+  height: 20px ;
+  /* reason: surface color */
+  background: #f2eee5 ;
+  /* reason: elevation */
+  box-shadow: 0 1px 4px rgba(0,0,0,.2) ;
+  /* reason: utility override */
+  transition: transform 280ms cubic-bezier(.2,.85,.25,1.15), background-color 180ms ease ;
 }
 .settings-toggle input:checked + .settings-toggle-track {
-  background: #b99752 !important;
-  border: 0 !important;
-  box-shadow: inset 0 1px 2px rgba(70,45,8,.15) !important;
+  /* reason: surface color */
+  background: #b99752 ;
+  /* reason: border style */
+  border: 0 ;
+  /* reason: elevation */
+  box-shadow: inset 0 1px 2px rgba(70,45,8,.15) ;
 }
 .settings-toggle input:checked + .settings-toggle-track::after {
-  transform: translateX(18px) !important;
+  /* reason: utility override */
+  transform: translateX(18px) ;
 }
 .settings-toggle input:focus-visible + .settings-toggle-track {
-  outline: 2px solid rgba(197,160,74,.78) !important;
+  /* reason: utility override */
+  outline: 2px solid rgba(197,160,74,.78) ;
   outline-offset: 3px;
 }
 .settings-dd {
-  margin-bottom: 14px !important;
+  /* reason: utility override */
+  margin-bottom: 14px ;
 }
 .settings-dd-toggle {
-  min-height: 48px !important;
-  padding: 11px 15px !important;
-  border-radius: 15px !important;
-  border: 1px solid rgba(230,224,210,.095) !important;
-  background: rgba(255,255,255,.025) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
-  transition: background-color 180ms ease, border-color 180ms ease, transform 220ms cubic-bezier(.2,.8,.2,1) !important;
+  /* reason: height override */
+  min-height: 48px ;
+  /* reason: spacing override */
+  padding: 11px 15px ;
+  /* reason: component shape */
+  border-radius: 15px ;
+  /* reason: border style */
+  border: 1px solid rgba(230,224,210,.095) ;
+  /* reason: surface color */
+  background: rgba(255,255,255,.025) ;
+  /* reason: elevation */
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) ;
+  /* reason: utility override */
+  transition: background-color 180ms ease, border-color 180ms ease, transform 220ms cubic-bezier(.2,.8,.2,1) ;
 }
 .settings-dd-toggle:hover,
 .settings-dd-toggle[aria-expanded="true"] {
-  background: rgba(200,164,114,.055) !important;
-  border-color: rgba(200,164,114,.26) !important;
+  /* reason: surface color */
+  background: rgba(200,164,114,.055) ;
+  /* reason: text color */
+  border-color: rgba(200,164,114,.26) ;
 }
 .settings-dd-toggle:active { transform: scale(.99); }
 .settings-dd-menu {
-  border-radius: 16px !important;
-  border: 1px solid rgba(230,224,210,.09) !important;
-  padding: 6px !important;
-  box-shadow: 0 14px 38px rgba(0,0,0,.26) !important;
+  /* reason: component shape */
+  border-radius: 16px ;
+  /* reason: border style */
+  border: 1px solid rgba(230,224,210,.09) ;
+  /* reason: spacing override */
+  padding: 6px ;
+  /* reason: elevation */
+  box-shadow: 0 14px 38px rgba(0,0,0,.26) ;
 }
 .settings-dd-item {
-  min-height: 44px !important;
-  padding: 11px 13px !important;
-  border-radius: 11px !important;
-  transition: background-color 160ms ease, color 160ms ease, transform 180ms cubic-bezier(.2,.8,.2,1) !important;
+  /* reason: height override */
+  min-height: 44px ;
+  /* reason: spacing override */
+  padding: 11px 13px ;
+  /* reason: component shape */
+  border-radius: 11px ;
+  /* reason: utility override */
+  transition: background-color 160ms ease, color 160ms ease, transform 180ms cubic-bezier(.2,.8,.2,1) ;
 }
 .settings-dd-item:active { transform: scale(.99); }
 .settings-sheet-close {
-  border: 1px solid transparent !important;
-  background: rgba(255,255,255,.045) !important;
-  transition: background-color 180ms ease, transform 220ms cubic-bezier(.2,.8,.2,1) !important;
+  /* reason: border style */
+  border: 1px solid transparent ;
+  /* reason: surface color */
+  background: rgba(255,255,255,.045) ;
+  /* reason: utility override */
+  transition: background-color 180ms ease, transform 220ms cubic-bezier(.2,.8,.2,1) ;
 }
-.settings-sheet-close:hover { background: rgba(255,255,255,.085) !important; }
+  /* reason: surface color */
+.settings-sheet-close:hover { background: rgba(255,255,255,.085) ; }
 .settings-sheet-close:active { transform: scale(.94); }
 
 /* Light theme: clean porcelain, not a beige card; toggles never inherit a box. */
 html.theme-light .settings-sheet {
-  background: linear-gradient(160deg, #fbfaf7 0%, #f7f6f2 100%) !important;
-  border: 1px solid rgba(46,40,28,.075) !important;
-  border-left: 1px solid rgba(46,40,28,.075) !important;
-  border-bottom: 0 !important;
-  box-shadow: 0 -16px 48px rgba(34,29,19,.12) !important;
-  color: #25231f !important;
+  /* reason: surface color */
+  background: linear-gradient(160deg, #fbfaf7 0%, #f7f6f2 100%) ;
+  /* reason: border style */
+  border: 1px solid rgba(46,40,28,.075) ;
+  /* reason: utility override */
+  border-left: 1px solid rgba(46,40,28,.075) ;
+  /* reason: utility override */
+  border-bottom: 0 ;
+  /* reason: elevation */
+  box-shadow: 0 -16px 48px rgba(34,29,19,.12) ;
+  /* reason: text color */
+  color: #25231f ;
 }
 html.theme-light .settings-sheet-header {
   border-bottom: 1px solid rgba(46,40,28,.055);
 }
-html.theme-light .settings-sheet-title { color: #25231f !important; }
-html.theme-light .settings-section-label { color: rgba(48,43,34,.48) !important; }
-html.theme-light .settings-row-label { color: #302d27 !important; }
+  /* reason: text color */
+html.theme-light .settings-sheet-title { color: #25231f ; }
+  /* reason: text color */
+html.theme-light .settings-section-label { color: rgba(48,43,34,.48) ; }
+  /* reason: text color */
+html.theme-light .settings-row-label { color: #302d27 ; }
 html.theme-light .settings-toggle,
 html.theme-light .settings-toggle:hover,
 html.theme-light .settings-toggle:active,
 html.theme-light .settings-toggle:focus,
 html.theme-light .settings-toggle:focus-within {
-  background: transparent !important;
-  border: 0 !important;
-  outline: 0 !important;
-  box-shadow: none !important;
+  /* reason: surface color */
+  background: transparent ;
+  /* reason: border style */
+  border: 0 ;
+  /* reason: utility override */
+  outline: 0 ;
+  /* reason: elevation */
+  box-shadow: none ;
 }
 html.theme-light .settings-toggle-track {
-  background: #e5e2db !important;
-  border: 0 !important;
-  box-shadow: inset 0 1px 2px rgba(48,39,22,.10) !important;
+  /* reason: surface color */
+  background: #e5e2db ;
+  /* reason: border style */
+  border: 0 ;
+  /* reason: elevation */
+  box-shadow: inset 0 1px 2px rgba(48,39,22,.10) ;
 }
 html.theme-light .settings-toggle-track::after {
-  background: #fff !important;
-  box-shadow: 0 1px 3px rgba(48,39,22,.16) !important;
+  /* reason: surface color */
+  background: #fff ;
+  /* reason: elevation */
+  box-shadow: 0 1px 3px rgba(48,39,22,.16) ;
 }
 html.theme-light .settings-toggle input:checked + .settings-toggle-track {
-  background: #b99752 !important;
-  border: 0 !important;
+  /* reason: surface color */
+  background: #b99752 ;
+  /* reason: border style */
+  border: 0 ;
 }
 html.theme-light .settings-dd-toggle {
-  background: rgba(255,255,255,.72) !important;
-  border-color: rgba(46,40,28,.085) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.8) !important;
+  /* reason: surface color */
+  background: rgba(255,255,255,.72) ;
+  /* reason: text color */
+  border-color: rgba(46,40,28,.085) ;
+  /* reason: elevation */
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8) ;
 }
 html.theme-light .settings-dd-toggle:hover,
 html.theme-light .settings-dd-toggle[aria-expanded="true"] {
-  background: #fff !important;
-  border-color: rgba(151,116,43,.30) !important;
+  /* reason: surface color */
+  background: #fff ;
+  /* reason: text color */
+  border-color: rgba(151,116,43,.30) ;
 }
 html.theme-light .settings-dd-menu {
-  background: #fcfbf8 !important;
-  border-color: rgba(46,40,28,.085) !important;
-  box-shadow: 0 14px 36px rgba(34,29,19,.14) !important;
+  /* reason: surface color */
+  background: #fcfbf8 ;
+  /* reason: text color */
+  border-color: rgba(46,40,28,.085) ;
+  /* reason: elevation */
+  box-shadow: 0 14px 36px rgba(34,29,19,.14) ;
 }
-html.theme-light .settings-dd-item:hover { background: rgba(46,40,28,.045) !important; }
-html.theme-light .settings-dd-item.is-active { background: rgba(185,151,82,.14) !important; color: #624b1d !important; }
+  /* reason: surface color */
+html.theme-light .settings-dd-item:hover { background: rgba(46,40,28,.045) ; }
+  /* reason: surface color */
+html.theme-light .settings-dd-item.is-active { background: rgba(185,151,82,.14) ; color: #624b1d ; }
 html.theme-light .settings-sheet-close {
-  color: #37332c !important;
-  background: rgba(46,40,28,.045) !important;
+  /* reason: text color */
+  color: #37332c ;
+  /* reason: surface color */
+  background: rgba(46,40,28,.045) ;
 }
-html.theme-light .settings-sheet-close:hover { background: rgba(46,40,28,.085) !important; }
+  /* reason: surface color */
+html.theme-light .settings-sheet-close:hover { background: rgba(46,40,28,.085) ; }
 
 @media (hover: none) {
   .settings-dd-toggle:hover,
@@ -889,8 +1122,10 @@ html.theme-light .settings-sheet-close:hover { background: rgba(46,40,28,.085) !
 }
 @media (prefers-reduced-motion: reduce) {
   .settings-sheet, .settings-sheet *, .settings-dd-menu, .settings-dd-menu * {
-    transition-duration: .01ms !important;
-    animation-duration: .01ms !important;
+  /* reason: utility override */
+    transition-duration: .01ms ;
+  /* reason: utility override */
+    animation-duration: .01ms ;
   }
 }
 
@@ -921,7 +1156,8 @@ html.theme-light .settings-row-hint {
 }
 .settings-row-touch-feedback .settings-toggle {
   flex: 0 0 46px;
-  margin-left: 12px !important;
+  /* reason: utility override */
+  margin-left: 12px ;
 }
 @media (max-width: 380px) {
   .settings-row-hint { max-width: 210px; font-size: 10.5px; }
@@ -1000,10 +1236,14 @@ body::before {
   isolation: isolate;
 }
 .topbar {
-  border: 1px solid rgba(230,224,210,.105) !important;
-  border-radius: 999px !important;
-  background: linear-gradient(135deg, rgba(27,27,31,.84), rgba(10,10,12,.74)) !important;
-  box-shadow: 0 12px 42px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.055) !important;
+  /* reason: border style */
+  border: 1px solid rgba(230,224,210,.105) ;
+  /* reason: component shape */
+  border-radius: 999px ;
+  /* reason: surface color */
+  background: linear-gradient(135deg, rgba(27,27,31,.84), rgba(10,10,12,.74)) ;
+  /* reason: elevation */
+  box-shadow: 0 12px 42px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.055) ;
   backdrop-filter: blur(28px) saturate(135%);
   -webkit-backdrop-filter: blur(28px) saturate(135%);
 }
@@ -1013,22 +1253,28 @@ body::before {
     border-color .28s ease,
     background-color .28s ease,
     box-shadow .32s ease,
-    transform .32s var(--ease-out) !important;
+  /* reason: utility override */
+    transform .32s var(--ease-out) ;
 }
 .icon-btn, .pill, .instrument-name {
-  border-color: rgba(230,224,210,.12) !important;
+  /* reason: text color */
+  border-color: rgba(230,224,210,.12) ;
 }
 .icon-btn:hover, .icon-btn:focus-visible,
 .pill:hover, .pill:focus-visible,
 .instrument-name:hover, .instrument-name:focus-visible {
-  border-color: rgba(200,164,114,.42) !important;
-  background-color: rgba(200,164,114,.09) !important;
+  /* reason: text color */
+  border-color: rgba(200,164,114,.42) ;
+  /* reason: text color */
+  background-color: rgba(200,164,114,.09) ;
   box-shadow: 0 0 0 3px rgba(200,164,114,.045), 0 6px 22px rgba(0,0,0,.18);
   outline: none;
 }
-button:active { transition-duration: .08s !important; }
+  /* reason: utility override */
+button:active { transition-duration: .08s ; }
 button:focus-visible, [role="button"]:focus-visible, [role="slider"]:focus-visible {
-  outline: 2px solid rgba(200,164,114,.72) !important;
+  /* reason: utility override */
+  outline: 2px solid rgba(200,164,114,.72) ;
   outline-offset: 3px;
 }
 
@@ -1036,41 +1282,53 @@ button:focus-visible, [role="button"]:focus-visible, [role="slider"]:focus-visib
 .sidebar, .mobile-control-panel, .instrument-menu, .scale-menu,
 .effect-bubble, .sound-dock, .loop-controls,
 .settings-panel, .settings-sheet, .control-panel {
-  border-color: rgba(230,224,210,.12) !important;
+  /* reason: text color */
+  border-color: rgba(230,224,210,.12) ;
   background:
-    linear-gradient(145deg, rgba(35,34,35,.76), rgba(10,10,12,.91)) !important;
-  box-shadow: var(--atelier-shadow) !important;
+  /* reason: utility override */
+    linear-gradient(145deg, rgba(35,34,35,.76), rgba(10,10,12,.91)) ;
+  /* reason: elevation */
+  box-shadow: var(--atelier-shadow) ;
   backdrop-filter: blur(26px) saturate(125%);
   -webkit-backdrop-filter: blur(26px) saturate(125%);
 }
 .sidebar, .mobile-control-panel, .instrument-menu, .scale-menu,
 .effect-bubble, .sound-dock {
-  border-radius: 20px !important;
+  /* reason: component shape */
+  border-radius: 20px ;
 }
 .control-label, .dock-kicker, .knob-name-row, .knob-name-row span {
-  color: rgba(230,224,210,.56) !important;
+  /* reason: text color */
+  color: rgba(230,224,210,.56) ;
   letter-spacing: .13em;
 }
 .step, .step-value, .scale-dropdown-toggle, .knob-effect-trigger,
 .effect-choice-list button, .fx-type-btn {
   transition: background .24s ease, color .24s ease, border-color .24s ease,
-    transform .24s var(--ease-out), box-shadow .24s ease !important;
+  /* reason: utility override */
+    transform .24s var(--ease-out), box-shadow .24s ease ;
 }
 .step, .step-value, .scale-dropdown-toggle, .knob-effect-trigger {
-  border-color: rgba(230,224,210,.12) !important;
-  background: rgba(255,255,255,.025) !important;
-  border-radius: 10px !important;
+  /* reason: text color */
+  border-color: rgba(230,224,210,.12) ;
+  /* reason: surface color */
+  background: rgba(255,255,255,.025) ;
+  /* reason: component shape */
+  border-radius: 10px ;
 }
 .step:hover, .scale-dropdown-toggle:hover, .knob-effect-trigger:hover,
 .effect-choice-list button:hover, .fx-type-btn:hover {
-  border-color: rgba(200,164,114,.36) !important;
-  background: rgba(200,164,114,.085) !important;
+  /* reason: text color */
+  border-color: rgba(200,164,114,.36) ;
+  /* reason: surface color */
+  background: rgba(200,164,114,.085) ;
 }
 .step:active, .effect-choice-list button:active, .fx-type-btn:active {
   transform: scale(.96);
 }
 .step-value, .scale-name, .instrument-name {
-  color: var(--bone) !important;
+  /* reason: text color */
+  color: var(--bone) ;
 }
 .scale-menu [role="menuitem"], .instrument-menu [role="menuitem"],
 .scale-menu button, .instrument-menu button {
@@ -1079,7 +1337,8 @@ button:focus-visible, [role="button"]:focus-visible, [role="slider"]:focus-visib
 }
 .scale-menu button:hover, .instrument-menu button:hover,
 .scale-menu [role="menuitem"]:hover, .instrument-menu [role="menuitem"]:hover {
-  background: rgba(200,164,114,.1) !important;
+  /* reason: surface color */
+  background: rgba(200,164,114,.1) ;
 }
 
 /* The instrument stays visually dominant: ambient halos live behind it,
@@ -1092,38 +1351,51 @@ button:focus-visible, [role="button"]:focus-visible, [role="slider"]:focus-visib
   filter: drop-shadow(0 0 12px rgba(200,164,114,.14));
 }
 .knob-value {
-  color: rgba(230,224,210,.9) !important;
+  /* reason: text color */
+  color: rgba(230,224,210,.9) ;
 }
 .knob-canvas { filter: drop-shadow(0 4px 10px rgba(0,0,0,.28)); }
 
 /* More intentional state language for the looper and mode controls. */
 .loop-orb {
-  border-color: rgba(220,190,125,.42) !important;
+  /* reason: text color */
+  border-color: rgba(220,190,125,.42) ;
   background:
     radial-gradient(circle at 35% 28%, rgba(255,246,214,.2), transparent 35%),
-    radial-gradient(circle at 50% 52%, rgba(200,164,114,.13), rgba(10,10,12,.35) 68%) !important;
+  /* reason: utility override */
+    radial-gradient(circle at 50% 52%, rgba(200,164,114,.13), rgba(10,10,12,.35) 68%) ;
   box-shadow: 0 0 0 1px rgba(200,164,114,.055), 0 0 32px rgba(200,164,114,.1),
-    inset 0 1px 0 rgba(255,255,255,.08) !important;
+  /* reason: utility override */
+    inset 0 1px 0 rgba(255,255,255,.08) ;
 }
 .loop-orb:hover { transform: translateY(-2px) scale(1.025); }
 .loop-orb.is-recording {
-  border-color: rgba(255,113,94,.62) !important;
-  box-shadow: 0 0 42px rgba(255,95,76,.18), inset 0 0 24px rgba(255,95,76,.09) !important;
+  /* reason: text color */
+  border-color: rgba(255,113,94,.62) ;
+  /* reason: elevation */
+  box-shadow: 0 0 42px rgba(255,95,76,.18), inset 0 0 24px rgba(255,95,76,.09) ;
 }
 .app-modebar {
-  border-color: rgba(230,224,210,.13) !important;
-  background: rgba(13,13,15,.82) !important;
-  box-shadow: 0 18px 55px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.04) !important;
+  /* reason: text color */
+  border-color: rgba(230,224,210,.13) ;
+  /* reason: surface color */
+  background: rgba(13,13,15,.82) ;
+  /* reason: elevation */
+  box-shadow: 0 18px 55px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.04) ;
   backdrop-filter: blur(24px) saturate(130%);
   -webkit-backdrop-filter: blur(24px) saturate(130%);
 }
 .app-mode {
-  transition: background .25s ease, color .25s ease, transform .25s var(--ease-out) !important;
+  /* reason: utility override */
+  transition: background .25s ease, color .25s ease, transform .25s var(--ease-out) ;
 }
 .app-mode.is-active {
-  color: #f4ead5 !important;
-  background: linear-gradient(135deg, rgba(200,164,114,.2), rgba(111,138,148,.09)) !important;
-  box-shadow: inset 0 0 0 1px rgba(200,164,114,.18), 0 4px 18px rgba(0,0,0,.15) !important;
+  /* reason: text color */
+  color: #f4ead5 ;
+  /* reason: surface color */
+  background: linear-gradient(135deg, rgba(200,164,114,.2), rgba(111,138,148,.09)) ;
+  /* reason: elevation */
+  box-shadow: inset 0 0 0 1px rgba(200,164,114,.18), 0 4px 18px rgba(0,0,0,.15) ;
 }
 
 /* Refined edges, typography and selection states in utility panels. */
@@ -1134,21 +1406,26 @@ select, input:not([type="range"]), textarea {
   border-color: rgba(230,224,210,.14);
 }
 hr, .divider, .dock-section {
-  border-color: rgba(230,224,210,.085) !important;
+  /* reason: text color */
+  border-color: rgba(230,224,210,.085) ;
 }
-[hidden] { display: none !important; }
+  /* reason: hidden state */
+[hidden] { display: none ; }
 
 /* On smaller screens: less chrome, more instrument, respect device safe areas. */
 @media (max-width: 700px) {
   .topbar {
-    border-radius: 18px !important;
-    background: linear-gradient(145deg, rgba(28,28,31,.88), rgba(9,9,11,.84)) !important;
+  /* reason: component shape */
+    border-radius: 18px ;
+  /* reason: surface color */
+    background: linear-gradient(145deg, rgba(28,28,31,.88), rgba(9,9,11,.84)) ;
     backdrop-filter: blur(22px) saturate(125%);
     -webkit-backdrop-filter: blur(22px) saturate(125%);
   }
   .sidebar, .mobile-control-panel, .instrument-menu, .scale-menu,
   .effect-bubble, .sound-dock {
-    border-radius: 16px !important;
+  /* reason: component shape */
+    border-radius: 16px ;
   }
 }
 @media (max-height: 560px) and (orientation: landscape) {
@@ -1156,10 +1433,14 @@ hr, .divider, .dock-section {
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: .01ms !important;
+  /* reason: utility override */
+    animation-duration: .01ms ;
+  /* reason: utility override */
+    animation-iteration-count: 1 ;
+  /* reason: utility override */
+    scroll-behavior: auto ;
+  /* reason: utility override */
+    transition-duration: .01ms ;
   }
   body::before { animation: none; }
 }
@@ -1186,7 +1467,8 @@ button {
     background-color .2s ease,
     border-color .2s ease,
     box-shadow .2s ease,
-    color .2s ease !important;
+  /* reason: utility override */
+    color .2s ease ;
 }
 button:hover:not(:disabled) {
   border-color: var(--control-edge-hover);
@@ -1207,39 +1489,57 @@ button:disabled {
 .stage-scale-row .stage-scale-step,
 #pionierTopDock #looperBtn, #pionierTopDock #looperSyncBtn,
 #pionierTopDock #looperClearBtn {
-  border-radius: 12px !important;
-  border: 1px solid rgba(230,224,210,.17) !important;
+  /* reason: component shape */
+  border-radius: 12px ;
+  /* reason: border style */
+  border: 1px solid rgba(230,224,210,.17) ;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.07),
-    0 4px 13px rgba(0,0,0,.18) !important;
+  /* reason: utility override */
+    0 4px 13px rgba(0,0,0,.18) ;
 }
 .instrument-name, #instrumentDropdownToggle, #scaleLabel,
 .stage-instrument-nav .instrument-name, .stage-scale-row .stage-scale-btn {
-  border-radius: 15px !important;
-  border: 1px solid rgba(230,224,210,.19) !important;
-  background-color: rgba(24,24,28,.72) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
-  backdrop-filter: blur(20px) saturate(140%) !important;
+  /* reason: component shape */
+  border-radius: 15px ;
+  /* reason: border style */
+  border: 1px solid rgba(230,224,210,.19) ;
+  /* reason: text color */
+  background-color: rgba(24,24,28,.72) ;
+  /* reason: utility override */
+  -webkit-backdrop-filter: blur(20px) saturate(140%) ;
+  /* reason: utility override */
+  backdrop-filter: blur(20px) saturate(140%) ;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.075),
-    0 5px 18px rgba(0,0,0,.18) !important;
+  /* reason: utility override */
+    0 5px 18px rgba(0,0,0,.18) ;
 }
 #pionierTopDock .looper-rail {
-  border-color: rgba(230,224,210,.14) !important;
-  background: linear-gradient(145deg, rgba(32,32,36,.72), rgba(12,12,15,.82)) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(135%) !important;
-  backdrop-filter: blur(24px) saturate(135%) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 10px 26px rgba(0,0,0,.22) !important;
+  /* reason: text color */
+  border-color: rgba(230,224,210,.14) ;
+  /* reason: surface color */
+  background: linear-gradient(145deg, rgba(32,32,36,.72), rgba(12,12,15,.82)) ;
+  /* reason: utility override */
+  -webkit-backdrop-filter: blur(24px) saturate(135%) ;
+  /* reason: utility override */
+  backdrop-filter: blur(24px) saturate(135%) ;
+  /* reason: elevation */
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 10px 26px rgba(0,0,0,.22) ;
 }
 #pionierTopDock #looperClearBtn {
-  background: rgba(255,255,255,.035) !important;
+  /* reason: surface color */
+  background: rgba(255,255,255,.035) ;
 }
 #pionierTopDock #looperBtn, #pionierTopDock #looperSyncBtn {
-  -webkit-backdrop-filter: blur(18px) saturate(145%) !important;
-  backdrop-filter: blur(18px) saturate(145%) !important;
+  /* reason: utility override */
+  -webkit-backdrop-filter: blur(18px) saturate(145%) ;
+  /* reason: utility override */
+  backdrop-filter: blur(18px) saturate(145%) ;
 }
 @media (prefers-reduced-motion: reduce) {
-  button { transition: none !important; }
+  /* reason: utility override */
+  button { transition: none ; }
 }
 
 
@@ -1252,26 +1552,36 @@ html body .instrument-menu button,
 html body .scale-menu button,
 html body .mobile-control-panel button,
 html body .settings-panel button {
-  border-radius: 14px !important;
-  border-color: rgba(230,224,210,.19) !important;
-  background-image: linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.012)) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.075), 0 5px 17px rgba(0,0,0,.19) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(135%) !important;
-  backdrop-filter: blur(18px) saturate(135%) !important;
+  /* reason: component shape */
+  border-radius: 14px ;
+  /* reason: text color */
+  border-color: rgba(230,224,210,.19) ;
+  /* reason: utility override */
+  background-image: linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.012)) ;
+  /* reason: elevation */
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.075), 0 5px 17px rgba(0,0,0,.19) ;
+  /* reason: utility override */
+  -webkit-backdrop-filter: blur(18px) saturate(135%) ;
+  /* reason: utility override */
+  backdrop-filter: blur(18px) saturate(135%) ;
 }
 html body button:hover:not(:disabled),
 html body .app button:hover:not(:disabled),
 html body #stageScaleBar button:hover:not(:disabled),
 html body #pionierTopDock button:hover:not(:disabled) {
-  border-color: rgba(200,164,114,.52) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 0 0 1px rgba(200,164,114,.05), 0 8px 23px rgba(0,0,0,.22) !important;
+  /* reason: text color */
+  border-color: rgba(200,164,114,.52) ;
+  /* reason: elevation */
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 0 0 1px rgba(200,164,114,.05), 0 8px 23px rgba(0,0,0,.22) ;
 }
 html body #stageScaleBar #instrumentDropdownToggle,
 html body #stageScaleBar #scaleLabel {
-  border-radius: 18px !important;
+  /* reason: component shape */
+  border-radius: 18px ;
 }
 html body #stageScaleBar #looperRail #looperClearBtn {
-  border-radius: 12px !important;
+  /* reason: component shape */
+  border-radius: 12px ;
 }
 
 
@@ -1284,38 +1594,50 @@ html body .instrument-menu button,
 html body .scale-menu button,
 html body .mobile-control-panel button,
 html body .settings-panel button {
-  border-radius: 999px !important;
-  border-color: rgba(230,224,210,.10) !important;
-  box-shadow: none !important;
+  /* reason: component shape */
+  border-radius: 999px ;
+  /* reason: text color */
+  border-color: rgba(230,224,210,.10) ;
+  /* reason: elevation */
+  box-shadow: none ;
 }
 html body button:hover:not(:disabled),
 html body .app button:hover:not(:disabled),
 html body #stageScaleBar button:hover:not(:disabled),
 html body #pionierTopDock button:hover:not(:disabled) {
-  border-color: rgba(230,224,210,.16) !important;
-  box-shadow: none !important;
-  filter: none !important;
+  /* reason: text color */
+  border-color: rgba(230,224,210,.16) ;
+  /* reason: elevation */
+  box-shadow: none ;
+  /* reason: utility override */
+  filter: none ;
 }
 html body #stageScaleBar #instrumentDropdownToggle,
 html body #stageScaleBar #scaleLabel,
 html body #stageScaleBar #looperRail,
 html body #stageScaleBar #looperRail #looperClearBtn {
-  border-radius: 999px !important;
-  box-shadow: none !important;
+  /* reason: component shape */
+  border-radius: 999px ;
+  /* reason: elevation */
+  box-shadow: none ;
 }
 html body .loop-orb,
 html body .loop-orb:hover,
 html body .loop-orb.is-recording {
-  box-shadow: none !important;
+  /* reason: elevation */
+  box-shadow: none ;
 }
 
 
 /* stepper pills owned by pionier bottom bar — do not restyle as separate chips */
 #stageScaleBar .stepper .step,
 #stageScaleBar .stepper .step-value {
-  border-color: transparent !important;
-  border-radius: 0 !important;
-  background: transparent !important;
+  /* reason: text color */
+  border-color: transparent ;
+  /* reason: component shape */
+  border-radius: 0 ;
+  /* reason: surface color */
+  background: transparent ;
 }
 
 
@@ -1330,85 +1652,141 @@ html body #stageScaleBar #instrumentNav,
 html body #stageScaleBar #stageScaleRow,
 html body #stageScaleBar .stage-control-scale,
 html body #stageScaleBar .scale-stepper {
-  box-sizing: border-box !important;
-  min-width: 0 !important;
+  /* reason: utility override */
+  box-sizing: border-box ;
+  /* reason: width override */
+  min-width: 0 ;
 }
 
 html body #stageScaleBar .stage-instrument-nav,
 html body #stageScaleBar #instrumentNav,
 html body #stageScaleBar #stageScaleRow {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 6px !important;
-  width: max-content !important;
-  max-width: 100% !important;
-  margin-inline: auto !important;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: utility override */
+  flex-wrap: nowrap ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: alignment override */
+  justify-content: center ;
+  /* reason: gap override */
+  gap: 6px ;
+  /* reason: width override */
+  width: max-content ;
+  /* reason: width override */
+  max-width: 100% ;
+  /* reason: utility override */
+  margin-inline: auto ;
 }
 
 html body #stageScaleBar .stage-instrument-nav #instrumentDropdownToggle,
 html body #stageScaleBar #instrumentNav #instrumentDropdownToggle,
 html body #stageScaleBar #stageScaleRow #scaleLabel,
 html body #stageScaleBar .stage-control-scale #scaleLabel {
-  box-sizing: border-box !important;
-  display: inline-flex !important;
-  flex: 0 0 clamp(116px, 34vw, 176px) !important;
-  width: clamp(116px, 34vw, 176px) !important;
-  min-width: 0 !important;
-  max-width: calc(100vw - 120px) !important;
-  height: 40px !important;
-  min-height: 40px !important;
-  max-height: 40px !important;
-  align-items: center !important;
-  justify-content: center !important;
-  overflow: hidden !important;
-  white-space: nowrap !important;
-  text-overflow: ellipsis !important;
-  font-variant-numeric: tabular-nums !important;
-  letter-spacing: 0 !important;
-  line-height: 1.15 !important;
-  margin: 0 !important;
-  padding: 0 10px !important;
-  transform: none !important;
+  /* reason: utility override */
+  box-sizing: border-box ;
+  /* reason: utility override */
+  display: inline-flex ;
+  /* reason: flex layout override */
+  flex: 0 0 clamp(116px, 34vw, 176px) ;
+  /* reason: width override */
+  width: clamp(116px, 34vw, 176px) ;
+  /* reason: width override */
+  min-width: 0 ;
+  /* reason: width override */
+  max-width: calc(100vw - 120px) ;
+  /* reason: height override */
+  height: 40px ;
+  /* reason: height override */
+  min-height: 40px ;
+  /* reason: height override */
+  max-height: 40px ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: alignment override */
+  justify-content: center ;
+  /* reason: scroll containment */
+  overflow: hidden ;
+  /* reason: utility override */
+  white-space: nowrap ;
+  /* reason: scroll containment */
+  text-overflow: ellipsis ;
+  /* reason: utility override */
+  font-variant-numeric: tabular-nums ;
+  /* reason: utility override */
+  letter-spacing: 0 ;
+  /* reason: height override */
+  line-height: 1.15 ;
+  /* reason: margin reset */
+  margin: 0 ;
+  /* reason: spacing override */
+  padding: 0 10px ;
+  /* reason: utility override */
+  transform: none ;
 }
 
 html body #stageScaleBar .stage-instrument-nav #voicePrev,
 html body #stageScaleBar .stage-instrument-nav #voiceNext,
 html body #stageScaleBar #stageScaleRow #scalePrev,
 html body #stageScaleBar #stageScaleRow #scaleNext {
-  box-sizing: border-box !important;
-  flex: 0 0 34px !important;
-  width: 34px !important;
-  min-width: 34px !important;
-  max-width: 34px !important;
-  height: 34px !important;
-  min-height: 34px !important;
-  max-height: 34px !important;
-  padding: 0 !important;
-  transform: none !important;
+  /* reason: utility override */
+  box-sizing: border-box ;
+  /* reason: flex layout override */
+  flex: 0 0 34px ;
+  /* reason: width override */
+  width: 34px ;
+  /* reason: width override */
+  min-width: 34px ;
+  /* reason: width override */
+  max-width: 34px ;
+  /* reason: height override */
+  height: 34px ;
+  /* reason: height override */
+  min-height: 34px ;
+  /* reason: height override */
+  max-height: 34px ;
+  /* reason: spacing override */
+  padding: 0 ;
+  /* reason: utility override */
+  transform: none ;
 }
 
 
 
 html body #stageScaleBar .stage-control-scale,
 html body #stageScaleBar .stage-control-scale .scale-stepper {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex-wrap: nowrap !important;
-  gap: 6px !important;
-  width: max-content !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  margin-inline: auto !important;
-  border: 0 !important;
-  outline: 0 !important;
-  background: transparent !important;
-  background-image: none !important;
-  box-shadow: none !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: alignment override */
+  justify-content: center ;
+  /* reason: utility override */
+  flex-wrap: nowrap ;
+  /* reason: gap override */
+  gap: 6px ;
+  /* reason: width override */
+  width: max-content ;
+  /* reason: width override */
+  max-width: 100% ;
+  /* reason: width override */
+  min-width: 0 ;
+  /* reason: utility override */
+  margin-inline: auto ;
+  /* reason: border style */
+  border: 0 ;
+  /* reason: utility override */
+  outline: 0 ;
+  /* reason: surface color */
+  background: transparent ;
+  /* reason: utility override */
+  background-image: none ;
+  /* reason: elevation */
+  box-shadow: none ;
+  /* reason: utility override */
+  -webkit-backdrop-filter: none ;
+  /* reason: utility override */
+  backdrop-filter: none ;
 }
 
 html body #stageScaleBar .step-value,
@@ -1416,22 +1794,32 @@ html body #stageScaleBar .stage-root-row .step-value,
 html body #stageScaleBar #rootLabel,
 html body #stageScaleBar #noteCountLabel,
 html body #stageScaleBar .stepper .step-value {
-  box-sizing: border-box !important;
-  min-width: 2.8ch !important;
-  width: 2.8ch !important;
-  flex: 0 0 2.8ch !important;
-  text-align: center !important;
-  white-space: nowrap !important;
-  font-variant-numeric: tabular-nums !important;
-  font-feature-settings: "tnum" 1 !important;
+  /* reason: utility override */
+  box-sizing: border-box ;
+  /* reason: width override */
+  min-width: 2.8ch ;
+  /* reason: width override */
+  width: 2.8ch ;
+  /* reason: flex layout override */
+  flex: 0 0 2.8ch ;
+  /* reason: utility override */
+  text-align: center ;
+  /* reason: utility override */
+  white-space: nowrap ;
+  /* reason: utility override */
+  font-variant-numeric: tabular-nums ;
+  /* reason: utility override */
+  font-feature-settings: "tnum" 1 ;
 }
 
 html body #stageScaleBar .stage-control-scale::before,
 html body #stageScaleBar .stage-control-scale::after,
 html body #stageScaleBar .stage-control-scale .scale-stepper::before,
 html body #stageScaleBar .stage-control-scale .scale-stepper::after {
-  content: none !important;
-  display: none !important;
+  /* reason: utility override */
+  content: none ;
+  /* reason: hidden state */
+  display: none ;
 }
 
 /* Theme tokens for menus portalled to body as well as menus inside the app.
@@ -1452,14 +1840,22 @@ html.theme-light .instrument-menu.picker-sheet,
 html.theme-light .scale-menu.picker-popover,
 html.theme-light .instrument-menu.picker-popover,
 html.theme-light .looper-sheet {
-  background: #faf8f4 !important;
-  background-color: #faf8f4 !important;
-  background-image: linear-gradient(180deg, #fffdf9 0%, #f1ede5 100%) !important;
-  color: #24221e !important;
-  border-color: rgba(52, 44, 28, 0.14) !important;
-  box-shadow: 0 16px 42px rgba(43, 35, 20, 0.16) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(115%) !important;
-  backdrop-filter: blur(20px) saturate(115%) !important;
+  /* reason: surface color */
+  background: #faf8f4 ;
+  /* reason: text color */
+  background-color: #faf8f4 ;
+  /* reason: utility override */
+  background-image: linear-gradient(180deg, #fffdf9 0%, #f1ede5 100%) ;
+  /* reason: text color */
+  color: #24221e ;
+  /* reason: text color */
+  border-color: rgba(52, 44, 28, 0.14) ;
+  /* reason: elevation */
+  box-shadow: 0 16px 42px rgba(43, 35, 20, 0.16) ;
+  /* reason: utility override */
+  -webkit-backdrop-filter: blur(20px) saturate(115%) ;
+  /* reason: utility override */
+  backdrop-filter: blur(20px) saturate(115%) ;
 }
 
 html.theme-light .settings-dd-group,
@@ -1470,82 +1866,107 @@ html.theme-light .settings-dd-item,
 html.theme-light .scale-menu-item,
 html.theme-light .instrument-menu-item,
 body.theme-light .settings-dd-item {
-  color: #302d27 !important;
+  /* reason: text color */
+  color: #302d27 ;
 }
 
 html.theme-light .settings-dd-item,
 html.theme-light .scale-menu-item,
 html.theme-light .instrument-menu-item,
 html.theme-light .looper-sheet button {
-  background-color: transparent !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
+  /* reason: text color */
+  background-color: transparent ;
+  /* reason: text color */
+  border-color: transparent ;
+  /* reason: elevation */
+  box-shadow: none ;
 }
 
 html.theme-light .settings-dd-item:hover,
 html.theme-light .scale-menu-item:hover,
 html.theme-light .instrument-menu-item:hover,
 html.theme-light .looper-sheet button:hover {
-  background: rgba(73, 59, 30, 0.07) !important;
-  color: #171613 !important;
+  /* reason: surface color */
+  background: rgba(73, 59, 30, 0.07) ;
+  /* reason: text color */
+  color: #171613 ;
 }
 
 html.theme-light .settings-dd-item.is-active,
 html.theme-light .scale-menu-item.is-active,
 html.theme-light .instrument-menu-item.is-active {
-  background: rgba(190, 151, 53, 0.18) !important;
-  color: #654b12 !important;
+  /* reason: surface color */
+  background: rgba(190, 151, 53, 0.18) ;
+  /* reason: text color */
+  color: #654b12 ;
 }
 
 html.theme-light .settings-dd-group,
 html.theme-light .scale-menu-group,
 html.theme-light .instrument-menu-group {
-  color: rgba(45, 40, 31, 0.58) !important;
+  /* reason: text color */
+  color: rgba(45, 40, 31, 0.58) ;
 }
 
 html.theme-light .settings-dd-menu,
 html.theme-light .scale-menu,
 html.theme-light .instrument-menu,
 html.theme-light .looper-sheet {
-  border-radius: 18px !important;
+  /* reason: component shape */
+  border-radius: 18px ;
 }
 
 html.theme-light .settings-dd-item,
 html.theme-light .scale-menu-item,
 html.theme-light .instrument-menu-item {
-  min-height: 42px !important;
-  border-radius: 11px !important;
-  transition: background-color 120ms ease, color 120ms ease !important;
+  /* reason: height override */
+  min-height: 42px ;
+  /* reason: component shape */
+  border-radius: 11px ;
+  /* reason: utility override */
+  transition: background-color 120ms ease, color 120ms ease ;
 }
 
 /* Keep light-mode dropdowns legible even if the theme class is mirrored to body. */
 body.theme-light .settings-dd-menu,
 body.theme-light .scale-menu,
 body.theme-light .instrument-menu {
-  background: #faf8f4 !important;
-  background-color: #faf8f4 !important;
-  color: #24221e !important;
+  /* reason: surface color */
+  background: #faf8f4 ;
+  /* reason: text color */
+  background-color: #faf8f4 ;
+  /* reason: text color */
+  color: #24221e ;
 }
 
 @media (max-width: 420px) {
   html body #stageScaleBar .stage-instrument-nav,
   html body #stageScaleBar #instrumentNav,
   html body #stageScaleBar #stageScaleRow {
-    gap: 4px !important;
+  /* reason: gap override */
+    gap: 4px ;
   }
 
   html body #stageScaleBar .stage-instrument-nav #instrumentDropdownToggle,
   html body #stageScaleBar #instrumentNav #instrumentDropdownToggle,
   html body #stageScaleBar #stageScaleRow #scaleLabel,
   html body #stageScaleBar .stage-control-scale #scaleLabel {
-    flex-basis: clamp(108px, 35vw, 138px) !important;
-    width: clamp(108px, 35vw, 138px) !important;
-    max-width: calc(100vw - 116px) !important;
-    height: 38px !important;
-    min-height: 38px !important;
-    max-height: 38px !important;
-    padding-inline: 8px !important;
-    font-size: 12px !important;
+  /* reason: utility override */
+    flex-basis: clamp(108px, 35vw, 138px) ;
+  /* reason: width override */
+    width: clamp(108px, 35vw, 138px) ;
+  /* reason: width override */
+    max-width: calc(100vw - 116px) ;
+  /* reason: height override */
+    height: 38px ;
+  /* reason: height override */
+    min-height: 38px ;
+  /* reason: height override */
+    max-height: 38px ;
+  /* reason: utility override */
+    padding-inline: 8px ;
+  /* reason: type scale override */
+    font-size: 12px ;
   }
 }
 
@@ -1554,101 +1975,171 @@ body.theme-light .instrument-menu {
    This targets the actual runtime rows assembled by layout-boot.js. */
 html body #stageScaleBar > #stageInstrumentRow,
 html body #stageScaleBar > #stageScaleRow {
-  box-sizing: border-box !important;
-  display: flex !important;
-  flex: 0 1 auto !important;
-  flex-flow: row nowrap !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  width: min(520px, calc(100vw - 24px)) !important;
-  min-width: 0 !important;
-  max-width: calc(100vw - 24px) !important;
-  margin: 0 auto !important;
-  padding: 0 !important;
-  border: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  overflow: visible !important;
+  /* reason: utility override */
+  box-sizing: border-box ;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: flex layout override */
+  flex: 0 1 auto ;
+  /* reason: utility override */
+  flex-flow: row nowrap ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: alignment override */
+  justify-content: center ;
+  /* reason: gap override */
+  gap: 8px ;
+  /* reason: width override */
+  width: min(520px, calc(100vw - 24px)) ;
+  /* reason: width override */
+  min-width: 0 ;
+  /* reason: width override */
+  max-width: calc(100vw - 24px) ;
+  /* reason: margin reset */
+  margin: 0 auto ;
+  /* reason: spacing override */
+  padding: 0 ;
+  /* reason: border style */
+  border: 0 ;
+  /* reason: surface color */
+  background: transparent ;
+  /* reason: elevation */
+  box-shadow: none ;
+  /* reason: scroll containment */
+  overflow: visible ;
 }
 
 html body #stageScaleBar #stageInstrumentRow .stage-instrument-nav {
-  box-sizing: border-box !important;
-  display: flex !important;
-  flex: 1 1 auto !important;
-  flex-flow: row nowrap !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 6px !important;
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
-  margin: 0 !important;
+  /* reason: utility override */
+  box-sizing: border-box ;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: flex layout override */
+  flex: 1 1 auto ;
+  /* reason: utility override */
+  flex-flow: row nowrap ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: alignment override */
+  justify-content: center ;
+  /* reason: gap override */
+  gap: 6px ;
+  /* reason: width override */
+  width: auto ;
+  /* reason: width override */
+  min-width: 0 ;
+  /* reason: width override */
+  max-width: 100% ;
+  /* reason: margin reset */
+  margin: 0 ;
 }
 
 html body #stageScaleBar #instrumentDropdownToggle,
 html body #stageScaleBar #stageScaleRow #scaleLabel {
-  box-sizing: border-box !important;
-  flex: 0 0 clamp(136px, calc(100vw - 220px), 190px) !important;
-  width: clamp(136px, calc(100vw - 220px), 190px) !important;
-  min-width: 0 !important;
-  max-width: min(190px, calc(100vw - 220px)) !important;
-  height: 40px !important;
-  min-height: 40px !important;
-  max-height: 40px !important;
-  padding: 0 12px !important;
-  overflow: hidden !important;
-  white-space: nowrap !important;
-  text-overflow: ellipsis !important;
-  font-variant-numeric: tabular-nums !important;
-  font-feature-settings: "tnum" 1 !important;
-  letter-spacing: 0 !important;
-  line-height: 1.2 !important;
-  transform: none !important;
+  /* reason: utility override */
+  box-sizing: border-box ;
+  /* reason: flex layout override */
+  flex: 0 0 clamp(136px, calc(100vw - 220px), 190px) ;
+  /* reason: width override */
+  width: clamp(136px, calc(100vw - 220px), 190px) ;
+  /* reason: width override */
+  min-width: 0 ;
+  /* reason: width override */
+  max-width: min(190px, calc(100vw - 220px)) ;
+  /* reason: height override */
+  height: 40px ;
+  /* reason: height override */
+  min-height: 40px ;
+  /* reason: height override */
+  max-height: 40px ;
+  /* reason: spacing override */
+  padding: 0 12px ;
+  /* reason: scroll containment */
+  overflow: hidden ;
+  /* reason: utility override */
+  white-space: nowrap ;
+  /* reason: scroll containment */
+  text-overflow: ellipsis ;
+  /* reason: utility override */
+  font-variant-numeric: tabular-nums ;
+  /* reason: utility override */
+  font-feature-settings: "tnum" 1 ;
+  /* reason: utility override */
+  letter-spacing: 0 ;
+  /* reason: height override */
+  line-height: 1.2 ;
+  /* reason: utility override */
+  transform: none ;
 }
 
 html body #stageScaleBar #instrumentDropdownToggle {
-  flex-shrink: 0 !important;
+  /* reason: utility override */
+  flex-shrink: 0 ;
 }
 
 html body #stageScaleBar #stageInstrumentRow .icon-btn,
 html body #stageScaleBar #stageScaleRow #scalePrev,
 html body #stageScaleBar #stageScaleRow #scaleNext {
-  box-sizing: border-box !important;
-  flex: 0 0 34px !important;
-  width: 34px !important;
-  min-width: 34px !important;
-  max-width: 34px !important;
-  height: 34px !important;
-  min-height: 34px !important;
-  max-height: 34px !important;
-  padding: 0 !important;
-  margin: 0 !important;
+  /* reason: utility override */
+  box-sizing: border-box ;
+  /* reason: flex layout override */
+  flex: 0 0 34px ;
+  /* reason: width override */
+  width: 34px ;
+  /* reason: width override */
+  min-width: 34px ;
+  /* reason: width override */
+  max-width: 34px ;
+  /* reason: height override */
+  height: 34px ;
+  /* reason: height override */
+  min-height: 34px ;
+  /* reason: height override */
+  max-height: 34px ;
+  /* reason: spacing override */
+  padding: 0 ;
+  /* reason: margin reset */
+  margin: 0 ;
 }
 
 html body #stageScaleBar #stageBaseOnly,
 html body #stageScaleBar #stageNotesSlot {
-  box-sizing: border-box !important;
-  display: flex !important;
-  flex: 0 0 auto !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 4px !important;
-  min-width: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  /* reason: utility override */
+  box-sizing: border-box ;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: flex layout override */
+  flex: 0 0 auto ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: alignment override */
+  justify-content: center ;
+  /* reason: gap override */
+  gap: 4px ;
+  /* reason: width override */
+  min-width: 0 ;
+  /* reason: margin reset */
+  margin: 0 ;
+  /* reason: spacing override */
+  padding: 0 ;
 }
 
-html body #stageScaleBar #stageBaseOnly { max-width: 88px !important; }
-html body #stageScaleBar #stageNotesSlot { max-width: 78px !important; }
+  /* reason: width override */
+html body #stageScaleBar #stageBaseOnly { max-width: 88px ; }
+  /* reason: width override */
+html body #stageScaleBar #stageNotesSlot { max-width: 78px ; }
 
 html body #stageScaleBar #rootLabel,
 html body #stageScaleBar #noteCountLabel,
 html body #stageScaleBar .step-value {
-  font-variant-numeric: tabular-nums !important;
-  font-feature-settings: "tnum" 1 !important;
-  white-space: nowrap !important;
-  text-align: center !important;
+  /* reason: utility override */
+  font-variant-numeric: tabular-nums ;
+  /* reason: utility override */
+  font-feature-settings: "tnum" 1 ;
+  /* reason: utility override */
+  white-space: nowrap ;
+  /* reason: utility override */
+  text-align: center ;
 }
 
 /* Portal pickers: a light theme must remain light after JS positions them. */
@@ -1656,31 +2147,44 @@ html.theme-light body #instrumentMenu,
 html.theme-light body #scaleMenu,
 body.theme-light #instrumentMenu,
 body.theme-light #scaleMenu {
-  color-scheme: light !important;
-  color: #24221e !important;
-  background: #faf8f4 !important;
-  background-color: #faf8f4 !important;
-  background-image: linear-gradient(180deg, #fffdf9 0%, #f1ede5 100%) !important;
-  border: 1px solid rgba(52, 44, 28, 0.14) !important;
-  box-shadow: 0 16px 42px rgba(43, 35, 20, 0.16) !important;
+  /* reason: utility override */
+  color-scheme: light ;
+  /* reason: text color */
+  color: #24221e ;
+  /* reason: surface color */
+  background: #faf8f4 ;
+  /* reason: text color */
+  background-color: #faf8f4 ;
+  /* reason: utility override */
+  background-image: linear-gradient(180deg, #fffdf9 0%, #f1ede5 100%) ;
+  /* reason: border style */
+  border: 1px solid rgba(52, 44, 28, 0.14) ;
+  /* reason: elevation */
+  box-shadow: 0 16px 42px rgba(43, 35, 20, 0.16) ;
 }
 
 html.theme-light body #instrumentMenu button,
 html.theme-light body #scaleMenu button,
 body.theme-light #instrumentMenu button,
 body.theme-light #scaleMenu button {
-  color: #302d27 !important;
-  background-color: transparent !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
+  /* reason: text color */
+  color: #302d27 ;
+  /* reason: text color */
+  background-color: transparent ;
+  /* reason: text color */
+  border-color: transparent ;
+  /* reason: elevation */
+  box-shadow: none ;
 }
 
 html.theme-light body #instrumentMenu button:hover,
 html.theme-light body #scaleMenu button:hover,
 body.theme-light #instrumentMenu button:hover,
 body.theme-light #scaleMenu button:hover {
-  color: #171613 !important;
-  background: rgba(73, 59, 30, 0.07) !important;
+  /* reason: text color */
+  color: #171613 ;
+  /* reason: surface color */
+  background: rgba(73, 59, 30, 0.07) ;
 }
 
 html.theme-light body #instrumentMenu button[aria-selected="true"],
@@ -1689,35 +2193,50 @@ html.theme-light body #instrumentMenu button.active,
 html.theme-light body #scaleMenu button.active,
 html.theme-light body #instrumentMenu button.is-active,
 html.theme-light body #scaleMenu button.is-active {
-  color: #654b12 !important;
-  background: rgba(190, 151, 53, 0.18) !important;
+  /* reason: text color */
+  color: #654b12 ;
+  /* reason: surface color */
+  background: rgba(190, 151, 53, 0.18) ;
 }
 
 @media (max-width: 420px) {
   html body #stageScaleBar > #stageInstrumentRow,
   html body #stageScaleBar > #stageScaleRow {
-    width: calc(100vw - 20px) !important;
-    max-width: calc(100vw - 20px) !important;
-    gap: 5px !important;
+  /* reason: width override */
+    width: calc(100vw - 20px) ;
+  /* reason: width override */
+    max-width: calc(100vw - 20px) ;
+  /* reason: gap override */
+    gap: 5px ;
   }
 
   html body #stageScaleBar #stageInstrumentRow .stage-instrument-nav {
-    gap: 4px !important;
+  /* reason: gap override */
+    gap: 4px ;
   }
 
   html body #stageScaleBar #instrumentDropdownToggle,
   html body #stageScaleBar #stageScaleRow #scaleLabel {
-    flex-basis: clamp(124px, calc(100vw - 220px), 190px) !important;
-    width: clamp(124px, calc(100vw - 220px), 190px) !important;
-    max-width: calc(100vw - 220px) !important;
-    height: 38px !important;
-    min-height: 38px !important;
-    max-height: 38px !important;
-    padding-inline: 8px !important;
-    font-size: 12px !important;
+  /* reason: utility override */
+    flex-basis: clamp(124px, calc(100vw - 220px), 190px) ;
+  /* reason: width override */
+    width: clamp(124px, calc(100vw - 220px), 190px) ;
+  /* reason: width override */
+    max-width: calc(100vw - 220px) ;
+  /* reason: height override */
+    height: 38px ;
+  /* reason: height override */
+    min-height: 38px ;
+  /* reason: height override */
+    max-height: 38px ;
+  /* reason: utility override */
+    padding-inline: 8px ;
+  /* reason: type scale override */
+    font-size: 12px ;
   }
 
-  html body #stageScaleBar #stageBaseOnly { max-width: 78px !important; }
+  /* reason: width override */
+  html body #stageScaleBar #stageBaseOnly { max-width: 78px ; }
 }
 
 
@@ -1736,20 +2255,29 @@ html.theme-light body .scale-menu.picker-sheet:not([hidden]),
 html.theme-light body .instrument-menu.picker-sheet:not([hidden]),
 html.theme-light body .scale-menu.picker-popover:not([hidden]),
 html.theme-light body .instrument-menu.picker-popover:not([hidden]) {
-  color: #302d27 !important;
-  background: #faf8f4 !important;
-  background-color: #faf8f4 !important;
-  background-image: none !important;
-  border: 1px solid rgba(62, 54, 40,  0.14) !important;
-  box-shadow: 0 14px 36px rgba(56, 44, 24, 0.14) !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
+  /* reason: text color */
+  color: #302d27 ;
+  /* reason: surface color */
+  background: #faf8f4 ;
+  /* reason: text color */
+  background-color: #faf8f4 ;
+  /* reason: utility override */
+  background-image: none ;
+  /* reason: border style */
+  border: 1px solid rgba(62, 54, 40,  0.14) ;
+  /* reason: elevation */
+  box-shadow: 0 14px 36px rgba(56, 44, 24, 0.14) ;
+  /* reason: utility override */
+  -webkit-backdrop-filter: none ;
+  /* reason: utility override */
+  backdrop-filter: none ;
 }
 
 html.theme-light body .settings-dd-menu .settings-dd-group,
 html.theme-light body .scale-menu .scale-menu-group,
 html.theme-light body .instrument-menu .instrument-menu-group {
-  color: #82796b !important;
+  /* reason: text color */
+  color: #82796b ;
 }
 
 html.theme-light body .settings-dd-menu .settings-dd-item,
@@ -1757,11 +2285,16 @@ html.theme-light body .scale-menu .scale-menu-item,
 html.theme-light body .instrument-menu .instrument-menu-item,
 html.theme-light body .scale-menu [role="menuitem"],
 html.theme-light body .instrument-menu [role="menuitem"] {
-  color: #39352e !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
+  /* reason: text color */
+  color: #39352e ;
+  /* reason: surface color */
+  background: transparent ;
+  /* reason: text color */
+  background-color: transparent ;
+  /* reason: text color */
+  border-color: transparent ;
+  /* reason: elevation */
+  box-shadow: none ;
 }
 
 html.theme-light body .settings-dd-menu .settings-dd-item:hover,
@@ -1770,24 +2303,32 @@ html.theme-light body .scale-menu .scale-menu-item:hover,
 html.theme-light body .scale-menu .scale-menu-item:focus-visible,
 html.theme-light body .instrument-menu .instrument-menu-item:hover,
 html.theme-light body .instrument-menu .instrument-menu-item:focus-visible {
-  color: #24211b !important;
-  background: rgba(174, 137, 46, 0.10) !important;
-  background-color: rgba(174, 137, 46, 0.10) !important;
-  outline-color: rgba(174, 137, 46, 0.42) !important;
+  /* reason: text color */
+  color: #24211b ;
+  /* reason: surface color */
+  background: rgba(174, 137, 46, 0.10) ;
+  /* reason: text color */
+  background-color: rgba(174, 137, 46, 0.10) ;
+  /* reason: text color */
+  outline-color: rgba(174, 137, 46, 0.42) ;
 }
 
 html.theme-light body .settings-dd-menu .settings-dd-item.is-active,
 html.theme-light body .scale-menu .scale-menu-item.is-active,
 html.theme-light body .instrument-menu .instrument-menu-item.is-active {
-  color: #70541a !important;
-  background: rgba(174, 137, 46, 0.14) !important;
-  background-color: rgba(174, 137, 46, 0.14) !important;
-  box-shadow: inset 2px 0 0 rgba(174, 137, 46, 0.72) !important;
+  /* reason: text color */
+  color: #70541a ;
+  /* reason: surface color */
+  background: rgba(174, 137, 46, 0.14) ;
+  /* reason: text color */
+  background-color: rgba(174, 137, 46, 0.14) ;
+  /* reason: elevation */
+  box-shadow: inset 2px 0 0 rgba(174, 137, 46, 0.72) ;
 }
 
 
 /* Final light-mode cascade repair.
-   atelier.css gives every button a dark !important gradient. Removing only its
+   atelier.css gives every button a dark  gradient. Removing only its
    background-color is insufficient: the gradient still paints the menu items. */
 html.theme-light body .settings-dd-menu,
 html.theme-light body .settings-dd-menu *,
@@ -1803,7 +2344,8 @@ body.theme-light #scaleMenu,
 body.theme-light #instrumentMenu,
 body.theme-light #scaleMenu *,
 body.theme-light #instrumentMenu * {
-  color-scheme: light !important;
+  /* reason: utility override */
+  color-scheme: light ;
 }
 html.theme-light body .settings-dd-menu,
 html.theme-light body #settingSkinMenu,
@@ -1814,14 +2356,22 @@ html.theme-light body #instrumentMenu,
 body.theme-light .settings-dd-menu,
 body.theme-light #scaleMenu,
 body.theme-light #instrumentMenu {
-  background: #faf8f4 !important;
-  background-color: #faf8f4 !important;
-  background-image: none !important;
-  color: #302d27 !important;
-  border-color: rgba(62,54,40,.14) !important;
-  box-shadow: 0 14px 36px rgba(56,44,24,.14) !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
+  /* reason: surface color */
+  background: #faf8f4 ;
+  /* reason: text color */
+  background-color: #faf8f4 ;
+  /* reason: utility override */
+  background-image: none ;
+  /* reason: text color */
+  color: #302d27 ;
+  /* reason: text color */
+  border-color: rgba(62,54,40,.14) ;
+  /* reason: elevation */
+  box-shadow: 0 14px 36px rgba(56,44,24,.14) ;
+  /* reason: utility override */
+  -webkit-backdrop-filter: none ;
+  /* reason: utility override */
+  backdrop-filter: none ;
 }
 html.theme-light body .settings-dd-menu button,
 html.theme-light body #scaleMenu button,
@@ -1829,18 +2379,27 @@ html.theme-light body #instrumentMenu button,
 body.theme-light .settings-dd-menu button,
 body.theme-light #scaleMenu button,
 body.theme-light #instrumentMenu button {
-  color: #39352e !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
+  /* reason: text color */
+  color: #39352e ;
+  /* reason: surface color */
+  background: transparent ;
+  /* reason: text color */
+  background-color: transparent ;
+  /* reason: utility override */
+  background-image: none ;
+  /* reason: text color */
+  border-color: transparent ;
+  /* reason: elevation */
+  box-shadow: none ;
+  /* reason: utility override */
+  -webkit-backdrop-filter: none ;
+  /* reason: utility override */
+  backdrop-filter: none ;
 }
 html.theme-light body .settings-dd-menu .settings-dd-group,
 body.theme-light .settings-dd-menu .settings-dd-group {
-  color: #82796b !important;
+  /* reason: text color */
+  color: #82796b ;
 }
 html.theme-light body .settings-dd-menu button:hover,
 html.theme-light body #scaleMenu button:hover,
@@ -1848,10 +2407,14 @@ html.theme-light body #instrumentMenu button:hover,
 body.theme-light .settings-dd-menu button:hover,
 body.theme-light #scaleMenu button:hover,
 body.theme-light #instrumentMenu button:hover {
-  color: #24211b !important;
-  background: rgba(174,137,46,.10) !important;
-  background-color: rgba(174,137,46,.10) !important;
-  background-image: none !important;
+  /* reason: text color */
+  color: #24211b ;
+  /* reason: surface color */
+  background: rgba(174,137,46,.10) ;
+  /* reason: text color */
+  background-color: rgba(174,137,46,.10) ;
+  /* reason: utility override */
+  background-image: none ;
 }
 html.theme-light body .settings-dd-menu button.is-active,
 html.theme-light body #scaleMenu button.is-active,
@@ -1861,52 +2424,76 @@ html.theme-light body #instrumentMenu button[aria-selected="true"],
 body.theme-light .settings-dd-menu button.is-active,
 body.theme-light #scaleMenu button.is-active,
 body.theme-light #instrumentMenu button.is-active {
-  color: #70541a !important;
-  background: rgba(174,137,46,.14) !important;
-  background-color: rgba(174,137,46,.14) !important;
-  background-image: none !important;
+  /* reason: text color */
+  color: #70541a ;
+  /* reason: surface color */
+  background: rgba(174,137,46,.14) ;
+  /* reason: text color */
+  background-color: rgba(174,137,46,.14) ;
+  /* reason: utility override */
+  background-image: none ;
 }
 
 
 /* Base-note and note-count steppers: seamless, rounded controls without boxed arrows. */
 html body #stageScaleBar .stepper {
-  border:1px solid rgba(230,224,210,.12) !important;
-  border-radius:999px !important;
-  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.018)) !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 3px 10px rgba(0,0,0,.10) !important;
-  overflow:hidden !important;
+  /* reason: border style */
+  border:1px solid rgba(230,224,210,.12) ;
+  /* reason: component shape */
+  border-radius:999px ;
+  /* reason: surface color */
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.018)) ;
+  /* reason: elevation */
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 3px 10px rgba(0,0,0,.10) ;
+  /* reason: scroll containment */
+  overflow:hidden ;
 }
 html body #stageScaleBar .stepper > .step,
 html body #stageScaleBar .stepper > .step:first-child,
 html body #stageScaleBar .stepper > .step:last-child {
-  border:0 !important;
-  border-radius:999px !important;
-  background:transparent !important;
-  color:rgba(230,224,210,.62) !important;
+  /* reason: border style */
+  border:0 ;
+  /* reason: component shape */
+  border-radius:999px ;
+  /* reason: surface color */
+  background:transparent ;
+  /* reason: text color */
+  color:rgba(230,224,210,.62) ;
 }
-html body #stageScaleBar .stepper > .step:first-child { padding-left:2px !important; }
-html body #stageScaleBar .stepper > .step:last-child { padding-right:2px !important; }
+  /* reason: utility override */
+html body #stageScaleBar .stepper > .step:first-child { padding-left:2px ; }
+  /* reason: utility override */
+html body #stageScaleBar .stepper > .step:last-child { padding-right:2px ; }
 html body #stageScaleBar .stepper > .step:hover,
 html body #stageScaleBar .stepper > .step:focus-visible {
-  background:rgba(212,176,74,.10) !important;
-  color:#f0d17b !important;
-  outline:none !important;
+  /* reason: surface color */
+  background:rgba(212,176,74,.10) ;
+  /* reason: text color */
+  color:#f0d17b ;
+  /* reason: utility override */
+  outline:none ;
 }
 html body #stageScaleBar .stepper > .step-value {
-  border:0 !important;
-  background:transparent !important;
-  box-shadow:none !important;
+  /* reason: border style */
+  border:0 ;
+  /* reason: surface color */
+  background:transparent ;
+  /* reason: elevation */
+  box-shadow:none ;
 }
 html.theme-light body #stageScaleBar .stepper {
-  border-color:rgba(80,65,35,.16) !important;
-  background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(240,235,225,.72)) !important;
+  /* reason: text color */
+  border-color:rgba(80,65,35,.16) ;
+  /* reason: surface color */
+  background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(240,235,225,.72)) ;
 }
 
 
 
 /* ===== fx-editor.css ===== */
 /* Responsive FX editor: dark glass, fixed-ratio graph, touch-friendly controls. */
-.fx-editor-backdrop[hidden], .fx-editor[hidden] { display:none !important; }
+  /* reason: utility override */
+.fx-editor-backdrop[hidden], .fx-editor[hidden] { display:none ; }
 .fx-editor-backdrop {
   position:fixed; inset:0; z-index:8800;
   background:rgba(0,0,0,.58);
@@ -1950,7 +2537,8 @@ html.theme-light body #stageScaleBar .stepper {
   .fx-editor-toolbar { gap:7px; }
   .fx-editor-knobs { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
-@media (prefers-reduced-motion:reduce) { .fx-editor,.fx-editor-backdrop { transition:none !important; animation:none !important; } }
+  /* reason: utility override */
+@media (prefers-reduced-motion:reduce) { .fx-editor,.fx-editor-backdrop { transition:none ; animation:none ; } }
 
 
 .fx-editor-knob { display:flex; flex-direction:column; align-items:center; gap:5px; padding:8px 4px; border:1px solid rgba(235,229,215,.075); border-radius:12px; background:rgba(255,255,255,.018); }
@@ -1958,15 +2546,22 @@ html.theme-light body #stageScaleBar .stepper {
 .fx-editor-knob-name { color:rgba(242,238,229,.68); font-size:11px; text-align:center; }
 .fx-editor-knob-value { color:rgba(242,238,229,.92); font-size:12px; font-variant-numeric:tabular-nums; text-align:center; }
 .fx-settings-shortcut {
-  display:inline-grid !important; place-items:center !important; flex:0 0 44px !important;
-  width:44px !important; height:44px !important; min-width:44px !important; min-height:44px !important;
-  padding:0 !important; border:1px solid rgba(235,229,215,.13) !important; border-radius:50% !important;
-  color:rgba(242,238,229,.84) !important; background:rgba(255,255,255,.045) !important;
-  box-shadow:none !important; font-size:13px !important; line-height:1 !important;
+  /* reason: flex layout override */
+  display:inline-grid ; place-items:center ; flex:0 0 44px ;
+  /* reason: width override */
+  width:44px ; height:44px ; min-width:44px ; min-height:44px ;
+  /* reason: component shape */
+  padding:0 ; border:1px solid rgba(235,229,215,.13) ; border-radius:50% ;
+  /* reason: surface color */
+  color:rgba(242,238,229,.84) ; background:rgba(255,255,255,.045) ;
+  /* reason: height override */
+  box-shadow:none ; font-size:13px ; line-height:1 ;
 }
 .fx-settings-shortcut:hover,.fx-settings-shortcut:focus-visible {
-  color:#f1eee6 !important; background:rgba(255,255,255,.085) !important;
-  border-color:rgba(235,229,215,.26) !important; outline:none;
+  /* reason: surface color */
+  color:#f1eee6 ; background:rgba(255,255,255,.085) ;
+  /* reason: text color */
+  border-color:rgba(235,229,215,.26) ; outline:none;
 }
 
 
@@ -1986,25 +2581,44 @@ html.theme-light body #stageScaleBar .stepper {
   text-align: left;
 }
 .fx-settings-shortcut {
-  display: inline-grid !important;
-  place-items: center !important;
-  flex: 0 0 28px !important;
-  width: 28px !important;
-  height: 28px !important;
-  min-width: 28px !important;
-  min-height: 28px !important;
-  max-width: 28px !important;
-  max-height: 28px !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  box-sizing: border-box !important;
-  border: 1px solid rgba(235,229,215,.13) !important;
-  border-radius: 50% !important;
-  color: rgba(242,238,229,.84) !important;
-  background: rgba(255,255,255,.045) !important;
-  box-shadow: none !important;
-  font: 500 11px/1 Inter, sans-serif !important;
-  text-transform: lowercase !important;
+  /* reason: utility override */
+  display: inline-grid ;
+  /* reason: utility override */
+  place-items: center ;
+  /* reason: flex layout override */
+  flex: 0 0 28px ;
+  /* reason: width override */
+  width: 28px ;
+  /* reason: height override */
+  height: 28px ;
+  /* reason: width override */
+  min-width: 28px ;
+  /* reason: height override */
+  min-height: 28px ;
+  /* reason: width override */
+  max-width: 28px ;
+  /* reason: height override */
+  max-height: 28px ;
+  /* reason: spacing override */
+  padding: 0 ;
+  /* reason: margin reset */
+  margin: 0 ;
+  /* reason: utility override */
+  box-sizing: border-box ;
+  /* reason: border style */
+  border: 1px solid rgba(235,229,215,.13) ;
+  /* reason: component shape */
+  border-radius: 50% ;
+  /* reason: text color */
+  color: rgba(242,238,229,.84) ;
+  /* reason: surface color */
+  background: rgba(255,255,255,.045) ;
+  /* reason: elevation */
+  box-shadow: none ;
+  /* reason: utility override */
+  font: 500 11px/1 Inter, sans-serif ;
+  /* reason: utility override */
+  text-transform: lowercase ;
 }
 
 /* ========== Light mode — FX editor readable on light surfaces ========== */
@@ -2053,15 +2667,21 @@ html.theme-light .fx-editor-knob-value {
   color: rgba(28, 28, 32, 0.92);
 }
 html.theme-light .fx-settings-shortcut {
-  color: rgba(28, 28, 32, 0.75) !important;
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
+  /* reason: text color */
+  color: rgba(28, 28, 32, 0.75) ;
+  /* reason: surface color */
+  background: rgba(0, 0, 0, 0.04) ;
+  /* reason: text color */
+  border-color: rgba(0, 0, 0, 0.1) ;
 }
 html.theme-light .fx-settings-shortcut:hover,
 html.theme-light .fx-settings-shortcut:focus-visible {
-  color: #1a1a1c !important;
-  background: rgba(0, 0, 0, 0.07) !important;
-  border-color: rgba(0, 0, 0, 0.16) !important;
+  /* reason: text color */
+  color: #1a1a1c ;
+  /* reason: surface color */
+  background: rgba(0, 0, 0, 0.07) ;
+  /* reason: text color */
+  border-color: rgba(0, 0, 0, 0.16) ;
 }
 html.theme-light .fx-knob-label-row .knob-label {
   color: rgba(28, 28, 32, 0.75);
@@ -2220,7 +2840,8 @@ html.high-contrast .welcome-deck,
 html.high-contrast .welcome-brand,
 html.high-contrast .app-status,
 html.high-contrast #appStatusMessage {
-  color: var(--hc-fg) !important;
+  /* reason: text color */
+  color: var(--hc-fg) ;
 }
 
 html.high-contrast .settings-section-label,
@@ -2229,7 +2850,8 @@ html.high-contrast .settings-row-hint,
 html.high-contrast .welcome-kicker,
 html.high-contrast .welcome-foot,
 html.high-contrast .welcome-edition {
-  color: var(--hc-fg-muted) !important;
+  /* reason: text color */
+  color: var(--hc-fg-muted) ;
 }
 
 /* Buttons / controls — stronger borders and fills */
@@ -2244,30 +2866,39 @@ html.high-contrast #fxPanelOpen,
 html.high-contrast .settings-dd-toggle,
 html.high-contrast .settings-sheet-close,
 html.high-contrast .scale-dropdown-toggle {
-  border-color: var(--hc-border) !important;
-  color: var(--hc-fg) !important;
-  background-color: var(--hc-surface) !important;
+  /* reason: text color */
+  border-color: var(--hc-border) ;
+  /* reason: text color */
+  color: var(--hc-fg) ;
+  /* reason: text color */
+  background-color: var(--hc-surface) ;
 }
 
 html.high-contrast .instrument-name,
 html.high-contrast .scale-name,
 html.high-contrast .step-value {
-  border-color: var(--hc-border) !important;
-  background-color: var(--hc-surface) !important;
+  /* reason: text color */
+  border-color: var(--hc-border) ;
+  /* reason: text color */
+  background-color: var(--hc-surface) ;
 }
 
 /* Gold accents stay readable */
 html.high-contrast .looper-btn.is-recording,
 html.high-contrast .looper-btn.looper-record.is-active,
 html.high-contrast .settings-dd-item.is-active {
-  color: var(--hc-gold) !important;
-  border-color: var(--hc-gold) !important;
+  /* reason: text color */
+  color: var(--hc-gold) ;
+  /* reason: text color */
+  border-color: var(--hc-gold) ;
 }
 
 /* Focus rings stronger in HC */
 html.high-contrast :focus-visible {
-  outline: 3px solid var(--hc-focus) !important;
-  outline-offset: 3px !important;
+  /* reason: utility override */
+  outline: 3px solid var(--hc-focus) ;
+  /* reason: utility override */
+  outline-offset: 3px ;
 }
 
 /* Surfaces */
@@ -2276,9 +2907,12 @@ html.high-contrast .settings-dd-menu,
 html.high-contrast .fx-panel,
 html.high-contrast .fx-editor,
 html.high-contrast .mobile-control-drawer {
-  background: var(--hc-bg) !important;
-  border-color: var(--hc-border) !important;
-  color: var(--hc-fg) !important;
+  /* reason: surface color */
+  background: var(--hc-bg) ;
+  /* reason: text color */
+  border-color: var(--hc-border) ;
+  /* reason: text color */
+  color: var(--hc-fg) ;
 }
 
 /* Light theme + high contrast */
@@ -2293,8 +2927,10 @@ html.theme-light.high-contrast {
 }
 
 html.theme-light.high-contrast body {
-  background: var(--hc-bg) !important;
-  color: var(--hc-fg) !important;
+  /* reason: surface color */
+  background: var(--hc-bg) ;
+  /* reason: text color */
+  color: var(--hc-fg) ;
 }
 
 

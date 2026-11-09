@@ -660,6 +660,56 @@ window.addEventListener('blur', () => {
   }
 });
 
+/** Keyboard play: QWERTY keys trigger pads. Focus #pan then use keys. */
+function playPadByKey(key, on) {
+  const pad = KEY_TO_PAD[key];
+  if (pad === null || pad === undefined) {
+    return;
+  }
+  const inst = activeInstrument();
+  if (!inst) {
+    return;
+  }
+  try {
+    ensureAudio();
+  } catch (_) {}
+  if (on) {
+    if (app.keysHeld.has(key)) {
+      return;
+    }
+    app.keysHeld.add(key);
+    try {
+      inst.noteOn({ velocity: 0.75 }, { index: pad, x: 0, y: 0, radial: 0, angleRad: 0 });
+    } catch (_) {}
+  } else {
+    app.keysHeld.delete(key);
+    try {
+      inst.noteOff(pad);
+    } catch (_) {}
+  }
+}
+
+const pan = document.getElementById('pan');
+if (pan) {
+  pan.addEventListener('keydown', (e) => {
+    if (e.repeat) {
+      return;
+    }
+    const key = e.key.toLowerCase();
+    if (KEYS.includes(key)) {
+      e.preventDefault();
+      playPadByKey(key, true);
+    }
+  });
+  pan.addEventListener('keyup', (e) => {
+    const key = e.key.toLowerCase();
+    if (KEYS.includes(key)) {
+      e.preventDefault();
+      playPadByKey(key, false);
+    }
+  });
+}
+
 async function loadArpsSafe() {
   try {
     const mod = await import('./js/instruments/arp-family.js');

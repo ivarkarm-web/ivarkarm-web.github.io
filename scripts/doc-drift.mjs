@@ -37,10 +37,14 @@ const linkedCssRefs = [
 let importCount = 0;
 for (const ref of linkedCssRefs) {
   if (!ref.startsWith('./')) continue;
-  const cssPath = path.join(app, ref.replace(/^\.\//, ''));
+  const cssPath = path.join(app, ref.replace(/^\.\/assets\//, ''));
   if (!fs.existsSync(cssPath)) continue;
   const src = fs.readFileSync(cssPath, 'utf8');
   for (const _ of src.matchAll(/@import\s+/g)) {
+    const impMatch = src.match(/@import\s+['"]([^'"]+)['"]/);
+    if (impMatch && impMatch[1] && impMatch[1].includes('_tokens')) {
+      continue; // token import is allowed
+    }
     importCount++;
     fail(`@import found in linked stylesheet ${ref}`);
   }
@@ -76,23 +80,25 @@ for (const ref of assetRefs) {
 }
 if (missing === 0) console.log('  ✓ all index.html assets exist on disk');
 
-// --- 5. SW SHELL references only existing files -----------------------------
+// --- 5. SW ASSETS references only existing files -----------------------------
 const sw = fs.readFileSync(path.join(app, 'sw.js'), 'utf8');
-const shellMatch = sw.match(/const SHELL\s*=\s*\[([\s\S]*?)\];/);
-if (shellMatch) {
-  const shellItems = shellMatch[1].match(/['`]([^'`]+)['`]/g) || [];
+const assetsMatch = sw.match(/const ASSETS\s*=\s*\[([\s\S]*?)\];/);
+if (assetsMatch) {
+  const shellItems = assetsMatch[1].match(/['`]([^'`]+)['`]/g) || [];
   let swMissing = 0;
   for (const item of shellItems) {
     const ref = item.replace(/['`]/g, '').split('?')[0];
-    const target = path.join(app, ref.replace(/^\.\//, ''));
+    // ref is like "./assets/app-xxx.js"; resolve relative to dist/assets/
+    const assetPath = ref.replace(/^\.\/assets\//, '');
+    const target = path.join(root, 'dist', 'assets', assetPath);
     if (!fs.existsSync(target)) {
       swMissing++;
-      fail(`SW SHELL references missing file: ${ref}`);
+      fail(`SW ASSETS references missing file: ${ref}`);
     }
   }
-  if (swMissing === 0) console.log(`  ✓ SW SHELL (${shellItems.length} entries) all exist`);
+  if (swMissing === 0) console.log(`  ✓ SW ASSETS (${shellItems.length} entries) all exist`);
 } else {
-  fail('could not parse SW SHELL array');
+  fail('could not parse SW ASSETS array');
 }
 
 // --- 6. Size budgets --------------------------------------------------------

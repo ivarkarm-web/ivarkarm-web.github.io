@@ -46,7 +46,7 @@ async function runInstall(fetchImpl) {
 
   let threw = null;
   try {
-    await installPromise;
+    await installPromise();
   } catch (err) {
     threw = err;
   }
@@ -57,7 +57,7 @@ async function runInstall(fetchImpl) {
 test('sw install throws and does not skipWaiting when any shell asset fetch fails', async () => {
   globalThis.fetch = async (url) => {
     const u = String(url);
-    if (u.includes('looper.js')) {
+    if (u.includes('/assets/')) {
       throw new Error('Network error: asset unreachable');
     }
     return new Response('ok', { status: 200 });
@@ -82,7 +82,7 @@ test('sw install calls skipWaiting when all shell asset fetches succeed', async 
 test('sw install treats non-ok responses (e.g. 404) as failures', async () => {
   globalThis.fetch = async (url) => {
     const u = String(url);
-    if (u.includes('looper.js')) {
+    if (u.includes('/assets/')) {
       return new Response('not found', { status: 404 });
     }
     return new Response('ok', { status: 200 });

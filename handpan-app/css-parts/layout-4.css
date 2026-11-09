@@ -43,7 +43,7 @@ html.theme-light body #scaleMenu, html.theme-light body #instrumentMenu, html.th
   border-radius:10px !important; color:var(--sel-text) !important; box-shadow:none !important;
 }
 :is(html, html.theme-light) body #scaleMenu .picker-search:focus, :is(html, html.theme-light) body #instrumentMenu .picker-search:focus {
-  border-color:var(--sel-focus) !important; box-shadow:none !important; outline:none !important;
+  border-color:var(--sel-focus) !important; box-shadow:none !important; outline:2px solid var(--sel-focus) !important; outline-offset:2px !important;
 }
 :is(html, html.theme-light) body #scaleMenu .picker-search::placeholder, :is(html, html.theme-light) body #instrumentMenu .picker-search::placeholder { color:var(--sel-faint) !important; }
 :is(html, html.theme-light) body #scaleMenu .picker-close, :is(html, html.theme-light) body #instrumentMenu .picker-close {

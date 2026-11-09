@@ -23,7 +23,7 @@ async function runAxe(page, { colorContrast = false } = {}) {
   await page.addScriptTag({ url: AXE_CDN });
   return page.evaluate(async (enableContrast) => {
     const results = await axe.run(document, {
-      runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa'] },
+      runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
       rules: {
         'color-contrast': { enabled: !!enableContrast },
         'aria-prohibited-attr': { enabled: false },

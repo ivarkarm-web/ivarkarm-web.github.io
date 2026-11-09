@@ -17,7 +17,10 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const appDir = path.join(root, 'handpan-app');
 
 const errors = [];
-const fail = (msg) => { errors.push(msg); console.error('  ✗', msg); };
+const fail = (msg) => {
+  errors.push(msg);
+  console.error('  ✗', msg);
+};
 
 // Modules that have been removed and must not be imported.
 const REMOVED_MODULES = [
@@ -126,4 +129,6 @@ if (errors.length) {
   console.error('CI guard failed: ' + errors.length + ' error(s)');
   process.exit(1);
 }
-console.log('CI guard: OK (' + jsFiles.length + ' modules checked, 0 circular imports, 0 removed imports)');
+console.log(
+  'CI guard: OK (' + jsFiles.length + ' modules checked, 0 circular imports, 0 removed imports)'
+);

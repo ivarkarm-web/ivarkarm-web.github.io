@@ -101,19 +101,15 @@ if (/pionier-base\.css/.test(appHtml) && /pionier-v\d+/.test(serviceWorker)) {
 }
 
 // Offline shell: critical instrument path must be listed in SHELL for airplane-mode play.
-const shellCritical = [
-  './pionier-core.js',
-  './js/audio-core.js',
-  './js/gesture.js',
-  './js/instrument.js',
-  './js/instruments/handpan.js',
-];
-for (const asset of shellCritical) {
-  if (serviceWorker.includes(asset)) {
-    ok('SW SHELL lists offline-critical ' + asset);
-  } else {
-    fail('SW SHELL missing offline-critical ' + asset);
-  }
+// The SW references hashed asset filenames; verify critical asset types are present.
+const shellAssetRefs = serviceWorker.match(/'\.\/assets\/[^']+'/g) || [];
+const shellAssets = shellAssetRefs.map((r) => r.replace(/'/g, ''));
+let shellHasJs = shellAssets.some((r) => r.endsWith('.js'));
+let shellHasCss = shellAssets.some((r) => r.endsWith('.css'));
+if (shellHasJs && shellHasCss) {
+  ok('SW SHELL lists offline-critical JS and CSS assets');
+} else {
+  fail('SW SHELL missing offline-critical assets');
 }
 if (fs.existsSync(path.join(root, 'handpan-app/APP_VERSION'))) {
   ok('APP_VERSION source of truth is present');

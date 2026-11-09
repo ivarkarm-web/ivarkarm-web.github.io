@@ -1,3 +1,8 @@
+/* ===== Cascade layers ===== */
+@layer base, components, utilities;
+
+@import './css-parts/_tokens.css';
+
 
 /* ===== pionier.css ===== */
 /* Pionier Handpan shell UI */
@@ -211,7 +216,8 @@ body::before {
   box-shadow: var(--shadow-lg);
   -webkit-overflow-scrolling: touch;
 }
-.instrument-menu[hidden] { display: none !important; }
+  /* reason: hidden state */
+.instrument-menu[hidden] { display: none ; }
 .instrument-menu-item {
   display: block;
   width: 100%;
@@ -525,7 +531,8 @@ body::before {
 }
 
 .mobile-controls-toggle {
-  display: flex !important;
+  /* reason: utility override */
+  display: flex ;
   align-items: center;
   justify-content: center;
   gap: 10px;
@@ -567,7 +574,8 @@ body::before {
 }
 
 .sidebar {
-  display: flex !important;
+  /* reason: utility override */
+  display: flex ;
   flex-direction: column;
   gap: 12px;
 }
@@ -667,7 +675,8 @@ body::before {
   margin-bottom: 8px;
   box-shadow: var(--shadow-md);
 }
-.effect-bubble[hidden] { display: none !important; }
+  /* reason: hidden state */
+.effect-bubble[hidden] { display: none ; }
 .effect-bubble-title {
   display: block;
   font-size: 10px;
@@ -855,7 +864,8 @@ html, body, #app, .app, .stage {
   .mandala-play { width: 54px; height: 54px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  #app, .mandala-play { transition: none !important; }
+  /* reason: utility override */
+  #app, .mandala-play { transition: none ; }
 }
 
 
@@ -895,7 +905,8 @@ html, body, #app, .app, .stage {
 /* Hide empty CONTROLS toggle */
 #mobileControlsToggle[hidden],
 #mobileControlDrawer:has(#mobileControlsToggle[hidden]) {
-  display: none !important;
+  /* reason: hidden state */
+  display: none ;
 }
 
 /* Menus: [hidden] closes; open state is owned by overlay-controller
@@ -903,85 +914,133 @@ html, body, #app, .app, .stage {
    fought the bottom-sheet and left menus invisible on many phones. */
 #scaleMenu[hidden],
 #instrumentMenu[hidden] {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
+  /* reason: hidden state */
+  display: none ;
+  /* reason: visibility */
+  visibility: hidden ;
+  /* reason: opacity toggle */
+  opacity: 0 ;
+  /* reason: interaction block */
+  pointer-events: none ;
 }
 #scaleMenu:not([hidden]),
 #instrumentMenu:not([hidden]) {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  z-index: var(--pionier-z-menu) !important;
-  background: rgba(12, 12, 14, 0.98) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  overflow: auto !important;
+  /* reason: utility override */
+  display: block ;
+  /* reason: utility override */
+  visibility: visible ;
+  /* reason: opacity toggle */
+  opacity: 1 ;
+  /* reason: utility override */
+  pointer-events: auto ;
+  /* reason: stacking context */
+  z-index: var(--pionier-z-menu) ;
+  /* reason: surface color */
+  background: rgba(12, 12, 14, 0.98) ;
+  /* reason: border style */
+  border: 1px solid rgba(255, 255, 255, 0.12) ;
+  /* reason: scroll containment */
+  overflow: auto ;
   -webkit-overflow-scrolling: touch;
 }
 /* Full-width bottom sheet (phone / touch) */
 #scaleMenu.picker-sheet:not([hidden]),
 #instrumentMenu.picker-sheet:not([hidden]) {
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  top: auto !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 !important;
-  max-height: min(55dvh, 420px) !important;
-  border-radius: 16px 16px 0 0 !important;
-  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.55) !important;
+  /* reason: utility override */
+  left: 0 ;
+  /* reason: utility override */
+  right: 0 ;
+  /* reason: utility override */
+  bottom: 0 ;
+  /* reason: utility override */
+  top: auto ;
+  /* reason: width override */
+  width: 100% ;
+  /* reason: width override */
+  max-width: 100% ;
+  /* reason: margin reset */
+  margin: 0 ;
+  /* reason: height override */
+  max-height: min(55dvh, 420px) ;
+  /* reason: component shape */
+  border-radius: 16px 16px 0 0 ;
+  /* reason: elevation */
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.55) ;
 }
 /* Anchored popover (wide desktop) */
 #scaleMenu.picker-popover:not([hidden]),
 #instrumentMenu.picker-popover:not([hidden]) {
-  border-radius: 12px !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55) !important;
-  max-width: min(320px, calc(100vw - 24px)) !important;
+  /* reason: component shape */
+  border-radius: 12px ;
+  /* reason: elevation */
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55) ;
+  /* reason: width override */
+  max-width: min(320px, calc(100vw - 24px)) ;
 }
 
 /* Looper never sits above Soundscapes */
 #looperRail {
-  z-index: calc(var(--pionier-z-bar) + 1) !important;
+  /* reason: stacking context */
+  z-index: calc(var(--pionier-z-bar) + 1) ;
 }
 body.soundscapes-active #stageScaleBar,
 body.soundscapes-active #pionierTopDock,
 body.soundscapes-active #pan {
-  visibility: hidden !important;
-  pointer-events: none !important;
+  /* reason: visibility */
+  visibility: hidden ;
+  /* reason: interaction block */
+  pointer-events: none ;
 }
 
 #stageScaleBar {
-  z-index: var(--pionier-z-bar) !important;
+  /* reason: stacking context */
+  z-index: var(--pionier-z-bar) ;
 }
 
 /* Root / note in bottom bar — unified pill steppers */
 .stage-root-row {
-  display: flex !important;
-  flex-direction: row !important;
-  justify-content: center !important;
-  align-items: center !important;
-  gap: 10px !important;
-  width: 100% !important;
-  order: 3 !important;
-  padding: 2px 0 0 !important;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: utility override */
+  flex-direction: row ;
+  /* reason: alignment override */
+  justify-content: center ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: gap override */
+  gap: 10px ;
+  /* reason: width override */
+  width: 100% ;
+  /* reason: utility override */
+  order: 3 ;
+  /* reason: spacing override */
+  padding: 2px 0 0 ;
 }
 .stage-root-row .control-half {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  gap: 3px !important;
-  flex: 0 0 auto !important;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: utility override */
+  flex-direction: column ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: gap override */
+  gap: 3px ;
+  /* reason: flex layout override */
+  flex: 0 0 auto ;
 }
 .stage-root-row .control-label {
-  font-size: 0.58rem !important;
-  letter-spacing: 0.1em !important;
-  text-transform: uppercase !important;
-  opacity: 0.45 !important;
-  margin: 0 !important;
-  line-height: 1 !important;
+  /* reason: type scale override */
+  font-size: 0.58rem ;
+  /* reason: utility override */
+  letter-spacing: 0.1em ;
+  /* reason: utility override */
+  text-transform: uppercase ;
+  /* reason: opacity toggle */
+  opacity: 0.45 ;
+  /* reason: margin reset */
+  margin: 0 ;
+  /* reason: height override */
+  line-height: 1 ;
 }
 
 
@@ -997,16 +1056,21 @@ body.soundscapes-active #pan {
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+  /* reason: utility override */
+    animation-duration: 0.01ms ;
+  /* reason: utility override */
+    animation-iteration-count: 1 ;
+  /* reason: utility override */
+    transition-duration: 0.01ms ;
+  /* reason: utility override */
+    scroll-behavior: auto ;
   }
 }
 
 .app-status[data-state="failed"],
 .app-status[data-state="degraded"] {
-  display: flex !important;
+  /* reason: utility override */
+  display: flex ;
   align-items: center;
   justify-content: center;
   gap: 12px;
@@ -1023,36 +1087,59 @@ body.soundscapes-active #pan {
   color: var(--pionier-fg);
   font-size: var(--pionier-fs-sm);
 }
-.app-status[data-state="ready"] { display: none !important; }
+  /* reason: hidden state */
+.app-status[data-state="ready"] { display: none ; }
 
 /* Fixed chrome: settings gear + FX */
 .settings-open-btn,
 #settingsOpenBtn {
-  position: fixed !important;
-  top: max(10px, env(safe-area-inset-top, 0px)) !important;
-  right: max(12px, env(safe-area-inset-right, 0px)) !important;
-  z-index: 4100 !important;
-  width: var(--pionier-tap, 44px) !important;
-  height: var(--pionier-tap, 44px) !important;
-  border-radius: 50% !important;
-  border: 1px solid var(--pionier-line, rgba(230,224,210,.14)) !important;
-  background: rgba(12, 12, 14, 0.9) !important;
-  color: var(--pionier-fg, #e6e0d2) !important;
-  font-size: 1.1rem !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
+  /* reason: layout positioning */
+  position: fixed ;
+  /* reason: utility override */
+  top: max(10px, env(safe-area-inset-top, 0px)) ;
+  /* reason: utility override */
+  right: max(12px, env(safe-area-inset-right, 0px)) ;
+  /* reason: stacking context */
+  z-index: 4100 ;
+  /* reason: width override */
+  width: var(--pionier-tap, 44px) ;
+  /* reason: height override */
+  height: var(--pionier-tap, 44px) ;
+  /* reason: component shape */
+  border-radius: 50% ;
+  /* reason: border style */
+  border: 1px solid var(--pionier-line, rgba(230,224,210,.14)) ;
+  /* reason: surface color */
+  background: rgba(12, 12, 14, 0.9) ;
+  /* reason: text color */
+  color: var(--pionier-fg, #e6e0d2) ;
+  /* reason: type scale override */
+  font-size: 1.1rem ;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: alignment override */
+  justify-content: center ;
+  /* reason: utility override */
+  cursor: pointer ;
+  /* reason: utility override */
+  visibility: visible ;
+  /* reason: opacity toggle */
+  opacity: 1 ;
+  /* reason: utility override */
+  pointer-events: auto ;
 }
 button.fx-panel-open,
 #fxPanelOpen {
-  position: fixed !important;
-  top: max(10px, env(safe-area-inset-top, 0px)) !important;
-  right: max(64px, calc(env(safe-area-inset-right, 0px) + 52px)) !important;
-  z-index: 4100 !important;
+  /* reason: layout positioning */
+  position: fixed ;
+  /* reason: utility override */
+  top: max(10px, env(safe-area-inset-top, 0px)) ;
+  /* reason: utility override */
+  right: max(64px, calc(env(safe-area-inset-right, 0px) + 52px)) ;
+  /* reason: stacking context */
+  z-index: 4100 ;
   min-width: var(--pionier-tap, 44px);
   height: var(--pionier-tap, 44px);
   padding: 0 12px;
@@ -1082,7 +1169,8 @@ button.fx-panel-open,
   padding: 12px 14px 16px;
   box-shadow: 0 16px 48px rgba(0,0,0,.5);
 }
-.fx-panel[hidden] { display: none !important; }
+  /* reason: hidden state */
+.fx-panel[hidden] { display: none ; }
 .fx-panel-header {
   display: flex;
   align-items: center;
@@ -1097,7 +1185,8 @@ button.fx-panel-open,
 }
 .fx-panel-body.knobs-panel,
 .fx-panel .knobs-panel {
-  display: grid !important;
+  /* reason: utility override */
+  display: grid ;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px 8px;
   justify-items: center;
@@ -1124,73 +1213,119 @@ button.fx-panel-open,
 /* Looper row cohesion in bottom bar */
 #looperRail.looper-rail,
 .looper-rail {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 10px !important;
-  width: 100% !important;
-  min-height: 48px !important;
-  padding: 4px 0 !important;
-  position: relative !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: utility override */
+  flex-direction: row ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: alignment override */
+  justify-content: center ;
+  /* reason: gap override */
+  gap: 10px ;
+  /* reason: width override */
+  width: 100% ;
+  /* reason: height override */
+  min-height: 48px ;
+  /* reason: spacing override */
+  padding: 4px 0 ;
+  /* reason: layout positioning */
+  position: relative ;
+  /* reason: utility override */
+  visibility: visible ;
+  /* reason: utility override */
+  pointer-events: auto ;
 }
 .looper-record-cluster {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: gap override */
+  gap: 8px ;
 }
 /* looper-btn size owned by looper.css */
 .looper-layers {
-  display: flex !important;
-  gap: 6px !important;
-  align-items: center !important;
-  min-height: 36px !important;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: gap override */
+  gap: 6px ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: height override */
+  min-height: 36px ;
 }
 .looper-clear-btn,
 #looperClearBtn {
-  width: 36px !important;
-  height: 36px !important;
-  border-radius: 50% !important;
-  border: 1px solid var(--pionier-line, rgba(230,224,210,.14)) !important;
-  background: rgba(255,255,255,0.06) !important;
-  color: var(--pionier-fg, #e6e0d2) !important;
-  cursor: pointer !important;
+  /* reason: width override */
+  width: 36px ;
+  /* reason: height override */
+  height: 36px ;
+  /* reason: component shape */
+  border-radius: 50% ;
+  /* reason: border style */
+  border: 1px solid var(--pionier-line, rgba(230,224,210,.14)) ;
+  /* reason: surface color */
+  background: rgba(255,255,255,0.06) ;
+  /* reason: text color */
+  color: var(--pionier-fg, #e6e0d2) ;
+  /* reason: utility override */
+  cursor: pointer ;
 }
 
 /* Bottom bar vertical rhythm */
 #stageScaleBar {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  gap: 6px !important;
-  padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: utility override */
+  flex-direction: column ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: gap override */
+  gap: 6px ;
+  /* reason: utility override */
+  padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)) ;
 }
 
 /* exclusivity + record chrome addon v9 */
-#settingsSheetBackdrop, .settings-sheet-backdrop { z-index: 4300 !important; }
-#settingsSheet, .settings-sheet { z-index: 4350 !important; }
-.settings-dd-menu, .settings-dd-menu.is-open { z-index: 4500 !important; }
-#fxPanel, .fx-panel { z-index: 4200 !important; }
-#settingsOpenBtn, #fxPanelOpen, button.fx-panel-open { z-index: 4400 !important; }
+  /* reason: stacking context */
+#settingsSheetBackdrop, .settings-sheet-backdrop { z-index: 4300 ; }
+  /* reason: stacking context */
+#settingsSheet, .settings-sheet { z-index: 4350 ; }
+  /* reason: stacking context */
+.settings-dd-menu, .settings-dd-menu.is-open { z-index: 4500 ; }
+  /* reason: stacking context */
+#fxPanel, .fx-panel { z-index: 4200 ; }
+  /* reason: stacking context */
+#settingsOpenBtn, #fxPanelOpen, button.fx-panel-open { z-index: 4400 ; }
 #looperRail.looper-rail, .looper-rail {
-  position: relative !important; top: auto !important; right: auto !important;
-  left: auto !important; transform: none !important; pointer-events: auto !important;
-  display: flex !important; flex-direction: row !important; align-items: center !important;
-  justify-content: center !important; gap: 8px !important; width: 100% !important;
-  min-height: 0 !important; visibility: visible !important;
+  /* reason: layout positioning */
+  position: relative ; top: auto ; right: auto ;
+  /* reason: utility override */
+  left: auto ; transform: none ; pointer-events: auto ;
+  /* reason: alignment override */
+  display: flex ; flex-direction: row ; align-items: center ;
+  /* reason: width override */
+  justify-content: center ; gap: 8px ; width: 100% ;
+  /* reason: height override */
+  min-height: 0 ; visibility: visible ;
 }
 .looper-record-cluster {
-  display: flex !important; flex-direction: row !important;
-  align-items: center !important; gap: 10px !important; pointer-events: auto !important;
+  /* reason: utility override */
+  display: flex ; flex-direction: row ;
+  /* reason: gap override */
+  align-items: center ; gap: 10px ; pointer-events: auto ;
 }
 .looper-btn, #looperBtn {
-  width: 44px !important; height: 44px !important; min-width: 44px !important;
-  min-height: 44px !important; border: 0 !important; background: transparent !important;
-  box-shadow: none !important; pointer-events: auto !important; position: relative !important;
+  /* reason: width override */
+  width: 44px ; height: 44px ; min-width: 44px ;
+  /* reason: height override */
+  min-height: 44px ; border: 0 ; background: transparent ;
+  /* reason: layout positioning */
+  box-shadow: none ; pointer-events: auto ; position: relative ;
 }
-.looper-btn-ring, .looper-btn-core { pointer-events: none !important; }
+  /* reason: interaction block */
+.looper-btn-ring, .looper-btn-core { pointer-events: none ; }
 
 
 
@@ -1229,12 +1364,18 @@ html, body {
 }
 
 #pan {
-  position: relative !important;
-  left: auto !important;
-  right: auto !important;
-  top: auto !important;
-  bottom: auto !important;
-  transform: none !important;
+  /* reason: layout positioning */
+  position: relative ;
+  /* reason: utility override */
+  left: auto ;
+  /* reason: utility override */
+  right: auto ;
+  /* reason: utility override */
+  top: auto ;
+  /* reason: utility override */
+  bottom: auto ;
+  /* reason: utility override */
+  transform: none ;
   margin: 0 auto 0;
   --pan-budget: min(
     100vw - 16px,
@@ -1277,13 +1418,19 @@ html, body {
 
 #stageScaleBar #looperRail,
 #stageScaleBar .looper-rail {
-  position: relative !important;
-  top: auto !important;
-  right: auto !important;
-  left: auto !important;
-  transform: none !important;
+  /* reason: layout positioning */
+  position: relative ;
+  /* reason: utility override */
+  top: auto ;
+  /* reason: utility override */
+  right: auto ;
+  /* reason: utility override */
+  left: auto ;
+  /* reason: utility override */
+  transform: none ;
   width: 100%;
-  min-height: 0 !important;
+  /* reason: height override */
+  min-height: 0 ;
   height: auto;
   display: flex;
   flex-direction: row;
@@ -1297,21 +1444,29 @@ html, body {
 
 #stageScaleBar .looper-btn,
 #stageScaleBar #looperBtn {
-  width: 44px !important;
-  height: 44px !important;
-  min-width: 44px !important;
-  min-height: 44px !important;
+  /* reason: width override */
+  width: 44px ;
+  /* reason: height override */
+  height: 44px ;
+  /* reason: width override */
+  min-width: 44px ;
+  /* reason: height override */
+  min-height: 44px ;
 }
 
 #stageScaleBar .looper-clear-btn,
 #stageScaleBar #looperClearBtn {
-  width: 32px !important;
-  height: 32px !important;
+  /* reason: width override */
+  width: 32px ;
+  /* reason: height override */
+  height: 32px ;
 }
 
 #stageScaleBar #looperSyncBtn {
-  width: 40px !important;
-  height: 40px !important;
+  /* reason: width override */
+  width: 40px ;
+  /* reason: height override */
+  height: 40px ;
 }
 
 /* Instrument + scale on one compact row */
@@ -1390,10 +1545,14 @@ html, body {
 #stageScaleBar #scaleNext,
 #stageScaleBar #voicePrev,
 #stageScaleBar #voiceNext {
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
-  min-height: 32px !important;
+  /* reason: width override */
+  width: 32px ;
+  /* reason: height override */
+  height: 32px ;
+  /* reason: width override */
+  min-width: 32px ;
+  /* reason: height override */
+  min-height: 32px ;
 }
 
 #stageScaleBar .stage-root-row,
@@ -1426,89 +1585,145 @@ html, body {
 
 /* Unified pill steppers — same language as scale / instrument chips */
 #stageScaleBar .stepper {
-  display: inline-flex !important;
-  flex-direction: row !important;
-  align-items: stretch !important;
-  gap: 0 !important;
-  height: 34px !important;
-  min-height: 34px !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border: 1px solid rgba(230, 224, 210, 0.14) !important;
-  border-radius: 999px !important;
-  background: rgba(12, 12, 14, 0.88) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
-  overflow: hidden !important;
+  /* reason: utility override */
+  display: inline-flex ;
+  /* reason: utility override */
+  flex-direction: row ;
+  /* reason: alignment override */
+  align-items: stretch ;
+  /* reason: gap override */
+  gap: 0 ;
+  /* reason: height override */
+  height: 34px ;
+  /* reason: height override */
+  min-height: 34px ;
+  /* reason: spacing override */
+  padding: 0 ;
+  /* reason: margin reset */
+  margin: 0 ;
+  /* reason: border style */
+  border: 1px solid rgba(230, 224, 210, 0.14) ;
+  /* reason: component shape */
+  border-radius: 999px ;
+  /* reason: surface color */
+  background: rgba(12, 12, 14, 0.88) ;
+  /* reason: elevation */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) ;
+  /* reason: scroll containment */
+  overflow: hidden ;
 }
 
 #stageScaleBar .stepper .step,
 #stageScaleBar .step {
-  width: 34px !important;
-  min-width: 34px !important;
-  height: 34px !important;
-  min-height: 34px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  color: rgba(230, 224, 210, 0.7) !important;
-  font-size: 0.95rem !important;
-  font-weight: 500 !important;
-  line-height: 1 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  box-shadow: none !important;
+  /* reason: width override */
+  width: 34px ;
+  /* reason: width override */
+  min-width: 34px ;
+  /* reason: height override */
+  height: 34px ;
+  /* reason: height override */
+  min-height: 34px ;
+  /* reason: margin reset */
+  margin: 0 ;
+  /* reason: spacing override */
+  padding: 0 ;
+  /* reason: border style */
+  border: 0 ;
+  /* reason: component shape */
+  border-radius: 0 ;
+  /* reason: surface color */
+  background: transparent ;
+  /* reason: text color */
+  color: rgba(230, 224, 210, 0.7) ;
+  /* reason: type scale override */
+  font-size: 0.95rem ;
+  /* reason: utility override */
+  font-weight: 500 ;
+  /* reason: height override */
+  line-height: 1 ;
+  /* reason: utility override */
+  display: inline-flex ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: alignment override */
+  justify-content: center ;
+  /* reason: utility override */
+  cursor: pointer ;
+  /* reason: elevation */
+  box-shadow: none ;
 }
 
 #stageScaleBar .stepper .step:first-child {
-  border-right: 1px solid rgba(230, 224, 210, 0.08) !important;
+  /* reason: utility override */
+  border-right: 1px solid rgba(230, 224, 210, 0.08) ;
 }
 #stageScaleBar .stepper .step:last-child {
-  border-left: 1px solid rgba(230, 224, 210, 0.08) !important;
+  /* reason: utility override */
+  border-left: 1px solid rgba(230, 224, 210, 0.08) ;
 }
 
 #stageScaleBar .stepper .step:hover,
 #stageScaleBar .stepper .step:focus-visible {
-  color: #e6e0d2 !important;
-  background: rgba(200, 164, 114, 0.12) !important;
+  /* reason: text color */
+  color: #e6e0d2 ;
+  /* reason: surface color */
+  background: rgba(200, 164, 114, 0.12) ;
 }
 
 #stageScaleBar .stepper .step:active {
-  background: rgba(200, 164, 114, 0.2) !important;
-  transform: none !important;
+  /* reason: surface color */
+  background: rgba(200, 164, 114, 0.2) ;
+  /* reason: utility override */
+  transform: none ;
 }
 
 #stageScaleBar .stepper .step-value,
 #stageScaleBar .step-value {
-  min-width: 2.4em !important;
-  width: auto !important;
-  height: 34px !important;
-  min-height: 34px !important;
-  margin: 0 !important;
-  padding: 0 6px !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  color: #e6e0d2 !important;
-  font-size: 0.85rem !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.02em !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-shadow: none !important;
+  /* reason: width override */
+  min-width: 2.4em ;
+  /* reason: width override */
+  width: auto ;
+  /* reason: height override */
+  height: 34px ;
+  /* reason: height override */
+  min-height: 34px ;
+  /* reason: margin reset */
+  margin: 0 ;
+  /* reason: spacing override */
+  padding: 0 6px ;
+  /* reason: border style */
+  border: 0 ;
+  /* reason: component shape */
+  border-radius: 0 ;
+  /* reason: surface color */
+  background: transparent ;
+  /* reason: text color */
+  color: #e6e0d2 ;
+  /* reason: type scale override */
+  font-size: 0.85rem ;
+  /* reason: utility override */
+  font-weight: 600 ;
+  /* reason: utility override */
+  letter-spacing: 0.02em ;
+  /* reason: utility override */
+  display: inline-flex ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: alignment override */
+  justify-content: center ;
+  /* reason: elevation */
+  box-shadow: none ;
 }
 
 /* Kill abandoned top chip row if any leftover DOM */
-#topChipRow { display: none !important; }
+  /* reason: hidden state */
+#topChipRow { display: none ; }
 
 /* Override older looper min-height debt inside the bar */
 #stageScaleBar #looperRail.looper-rail,
 #stageScaleBar .looper-rail {
-  min-height: 0 !important;
+  /* reason: height override */
+  min-height: 0 ;
 }
 
 
@@ -1524,115 +1739,173 @@ html, body {
 }
 
 .fx-panel[hidden] {
-  display: none !important;
+  /* reason: hidden state */
+  display: none ;
 }
 
 /* ========== Bottom bar: scale above, instrument + notes lowest ========== */
 #stageScaleBar #stageScaleRow,
 #stageScaleBar .stage-scale-row {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 8px !important;
-  width: 100% !important;
-  max-width: 520px !important;
-  margin: 0 auto !important;
-  order: 2 !important;
-  padding: 0 4px !important;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: utility override */
+  flex-direction: row ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: alignment override */
+  justify-content: space-between ;
+  /* reason: gap override */
+  gap: 8px ;
+  /* reason: width override */
+  width: 100% ;
+  /* reason: width override */
+  max-width: 520px ;
+  /* reason: margin reset */
+  margin: 0 auto ;
+  /* reason: utility override */
+  order: 2 ;
+  /* reason: spacing override */
+  padding: 0 4px ;
 }
 
 #stageScaleBar #stageInstrumentRow,
 #stageScaleBar .stage-instrument-row {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 8px !important;
-  width: 100% !important;
-  max-width: 520px !important;
-  margin: 0 auto !important;
-  order: 3 !important;
-  padding: 0 4px 2px !important;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: utility override */
+  flex-direction: row ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: alignment override */
+  justify-content: space-between ;
+  /* reason: gap override */
+  gap: 8px ;
+  /* reason: width override */
+  width: 100% ;
+  /* reason: width override */
+  max-width: 520px ;
+  /* reason: margin reset */
+  margin: 0 auto ;
+  /* reason: utility override */
+  order: 3 ;
+  /* reason: spacing override */
+  padding: 0 4px 2px ;
 }
 
 #stageScaleBar #looperRail,
 #stageScaleBar .looper-rail {
-  order: 1 !important;
+  /* reason: utility override */
+  order: 1 ;
 }
 
 #stageScaleBar .stage-control-scale,
 #stageScaleBar .control-scale {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  margin: 0 !important;
+  /* reason: flex layout override */
+  flex: 1 1 auto ;
+  /* reason: width override */
+  min-width: 0 ;
+  /* reason: margin reset */
+  margin: 0 ;
 }
 
 #stageScaleBar .stage-base-only,
 #stageScaleBar #stageBaseOnly {
-  display: flex !important;
-  flex: 0 0 auto !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: flex layout override */
+  flex: 0 0 auto ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: alignment override */
+  justify-content: flex-end ;
 }
 
 #stageScaleBar .stage-base-only .control-half,
 #stageScaleBar #stageBaseOnly .control-half {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  gap: 2px !important;
-  margin: 0 !important;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: utility override */
+  flex-direction: column ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: gap override */
+  gap: 2px ;
+  /* reason: margin reset */
+  margin: 0 ;
 }
 
 #stageScaleBar .stage-instrument-nav,
 #stageScaleBar #instrumentNav {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  justify-content: flex-start !important;
+  /* reason: flex layout override */
+  flex: 1 1 auto ;
+  /* reason: width override */
+  min-width: 0 ;
+  /* reason: alignment override */
+  justify-content: flex-start ;
 }
 
 #stageScaleBar .stage-notes-slot,
 #stageScaleBar #stageNotesSlot {
-  display: flex !important;
-  flex: 0 0 auto !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 6px !important;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: flex layout override */
+  flex: 0 0 auto ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: alignment override */
+  justify-content: flex-end ;
+  /* reason: gap override */
+  gap: 6px ;
 }
 
 #stageScaleBar .stage-notes-slot .control-half,
 #stageScaleBar #stageNotesSlot .control-half {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  gap: 2px !important;
-  margin: 0 !important;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: utility override */
+  flex-direction: column ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: gap override */
+  gap: 2px ;
+  /* reason: margin reset */
+  margin: 0 ;
 }
 
 #stageScaleBar .stage-note-wrap,
 #stageScaleBar #notePlusWrap {
-  position: relative !important;
-  left: auto !important;
-  bottom: auto !important;
-  display: flex !important;
-  margin: 0 !important;
+  /* reason: layout positioning */
+  position: relative ;
+  /* reason: utility override */
+  left: auto ;
+  /* reason: utility override */
+  bottom: auto ;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: margin reset */
+  margin: 0 ;
 }
 
 /* Hide the emptied original root row shell */
 #stageScaleBar .stage-root-row[hidden],
 #stageScaleBar .control-row[hidden] {
-  display: none !important;
+  /* reason: hidden state */
+  display: none ;
 }
 
 /* Compact labels in the redistributed half-blocks */
 #stageScaleBar .stage-base-only .control-label,
 #stageScaleBar .stage-notes-slot .control-label {
-  font-size: 0.55rem !important;
-  letter-spacing: 0.1em !important;
-  opacity: 0.45 !important;
-  margin: 0 !important;
-  line-height: 1 !important;
+  /* reason: type scale override */
+  font-size: 0.55rem ;
+  /* reason: utility override */
+  letter-spacing: 0.1em ;
+  /* reason: opacity toggle */
+  opacity: 0.45 ;
+  /* reason: margin reset */
+  margin: 0 ;
+  /* reason: height override */
+  line-height: 1 ;
 }
 
 /* A11y: visible focus on bottom-bar controls */
@@ -1649,96 +1922,152 @@ html, body {
 /* Scale row: scale picker grows, base note stays compact on the right */
 #stageScaleBar #stageScaleRow,
 #stageScaleBar .stage-scale-row {
-  max-width: 100% !important;
-  gap: 10px !important;
-  padding: 0 6px !important;
+  /* reason: width override */
+  max-width: 100% ;
+  /* reason: gap override */
+  gap: 10px ;
+  /* reason: spacing override */
+  padding: 0 6px ;
 }
 
 #stageScaleBar .stage-control-scale,
 #stageScaleBar .control-scale {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  max-width: none !important;
+  /* reason: flex layout override */
+  flex: 1 1 auto ;
+  /* reason: width override */
+  min-width: 0 ;
+  /* reason: width override */
+  max-width: none ;
 }
 
 #stageScaleBar .control-scale .scale-stepper,
 #stageScaleBar .control-scale .stepper.scale-stepper {
-  width: 100% !important;
-  display: flex !important;
-  align-items: center !important;
+  /* reason: width override */
+  width: 100% ;
+  /* reason: utility override */
+  display: flex ;
+  /* reason: alignment override */
+  align-items: center ;
 }
 
 #stageScaleBar #scaleLabel,
 #stageScaleBar .stage-scale-btn,
 #stageScaleBar .scale-dropdown-toggle {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  width: auto !important;
-  height: 40px !important;
-  min-height: 40px !important;
-  padding: 0 12px !important;
-  font-size: 0.95rem !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.01em !important;
-  text-align: center !important;
-  justify-content: center !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
+  /* reason: flex layout override */
+  flex: 1 1 auto ;
+  /* reason: width override */
+  min-width: 0 ;
+  /* reason: width override */
+  max-width: none ;
+  /* reason: width override */
+  width: auto ;
+  /* reason: height override */
+  height: 40px ;
+  /* reason: height override */
+  min-height: 40px ;
+  /* reason: spacing override */
+  padding: 0 12px ;
+  /* reason: type scale override */
+  font-size: 0.95rem ;
+  /* reason: utility override */
+  font-weight: 600 ;
+  /* reason: utility override */
+  letter-spacing: 0.01em ;
+  /* reason: utility override */
+  text-align: center ;
+  /* reason: alignment override */
+  justify-content: center ;
+  /* reason: scroll containment */
+  overflow: hidden ;
+  /* reason: scroll containment */
+  text-overflow: ellipsis ;
+  /* reason: utility override */
+  white-space: nowrap ;
 }
 
 #stageScaleBar #scalePrev,
 #stageScaleBar #scaleNext {
-  flex: 0 0 36px !important;
-  width: 36px !important;
-  height: 40px !important;
-  min-width: 36px !important;
+  /* reason: flex layout override */
+  flex: 0 0 36px ;
+  /* reason: width override */
+  width: 36px ;
+  /* reason: height override */
+  height: 40px ;
+  /* reason: width override */
+  min-width: 36px ;
 }
 
 /* Instrument row: instrument name grows, notes stepper stays compact */
 #stageScaleBar #stageInstrumentRow,
 #stageScaleBar .stage-instrument-row {
-  max-width: 100% !important;
-  gap: 10px !important;
-  padding: 0 6px 4px !important;
+  /* reason: width override */
+  max-width: 100% ;
+  /* reason: gap override */
+  gap: 10px ;
+  /* reason: spacing override */
+  padding: 0 6px 4px ;
 }
 
 #stageScaleBar .stage-instrument-nav,
 #stageScaleBar #instrumentNav {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  width: auto !important;
-  justify-content: stretch !important;
-  gap: 2px !important;
+  /* reason: flex layout override */
+  flex: 1 1 auto ;
+  /* reason: width override */
+  min-width: 0 ;
+  /* reason: width override */
+  max-width: none ;
+  /* reason: width override */
+  width: auto ;
+  /* reason: alignment override */
+  justify-content: stretch ;
+  /* reason: gap override */
+  gap: 2px ;
 }
 
 #stageScaleBar #instrumentDropdownToggle,
 #stageScaleBar .stage-instrument-nav .instrument-name {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  width: auto !important;
-  height: 40px !important;
-  min-height: 40px !important;
-  padding: 0 12px !important;
-  font-size: 0.95rem !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.01em !important;
-  text-align: center !important;
-  justify-content: center !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
+  /* reason: flex layout override */
+  flex: 1 1 auto ;
+  /* reason: width override */
+  min-width: 0 ;
+  /* reason: width override */
+  max-width: none ;
+  /* reason: width override */
+  width: auto ;
+  /* reason: height override */
+  height: 40px ;
+  /* reason: height override */
+  min-height: 40px ;
+  /* reason: spacing override */
+  padding: 0 12px ;
+  /* reason: type scale override */
+  font-size: 0.95rem ;
+  /* reason: utility override */
+  font-weight: 600 ;
+  /* reason: utility override */
+  letter-spacing: 0.01em ;
+  /* reason: utility override */
+  text-align: center ;
+  /* reason: alignment override */
+  justify-content: center ;
+  /* reason: scroll containment */
+  overflow: hidden ;
+  /* reason: scroll containment */
+  text-overflow: ellipsis ;
+  /* reason: utility override */
+  white-space: nowrap ;
 }
 
 #stageScaleBar #voicePrev,
 #stageScaleBar #voiceNext {
-  flex: 0 0 36px !important;
-  width: 36px !important;
-  height: 40px !important;
-  min-width: 36px !important;
+  /* reason: flex layout override */
+  flex: 0 0 36px ;
+  /* reason: width override */
+  width: 36px ;
+  /* reason: height override */
+  height: 40px ;
+  /* reason: width override */
+  min-width: 36px ;
 }
 
 /* Secondary: base note + notes stay smaller on the right */
@@ -1746,49 +2075,62 @@ html, body {
 #stageScaleBar #stageBaseOnly,
 #stageScaleBar .stage-notes-slot,
 #stageScaleBar #stageNotesSlot {
-  flex: 0 0 auto !important;
-  max-width: 112px !important;
+  /* reason: flex layout override */
+  flex: 0 0 auto ;
+  /* reason: width override */
+  max-width: 112px ;
 }
 
 #stageScaleBar .stage-base-only .stepper,
 #stageScaleBar .stage-notes-slot .stepper,
 #stageScaleBar #stageBaseOnly .stepper,
 #stageScaleBar #stageNotesSlot .stepper {
-  height: 34px !important;
+  /* reason: height override */
+  height: 34px ;
 }
 
 #stageScaleBar .stage-base-only .step,
 #stageScaleBar .stage-notes-slot .step,
 #stageScaleBar #stageBaseOnly .step,
 #stageScaleBar #stageNotesSlot .step {
-  width: 28px !important;
-  min-width: 28px !important;
-  height: 34px !important;
+  /* reason: width override */
+  width: 28px ;
+  /* reason: width override */
+  min-width: 28px ;
+  /* reason: height override */
+  height: 34px ;
 }
 
 #stageScaleBar .stage-base-only .step-value,
 #stageScaleBar .stage-notes-slot .step-value,
 #stageScaleBar #stageBaseOnly .step-value,
 #stageScaleBar #stageNotesSlot .step-value {
-  min-width: 1.6em !important;
-  font-size: 0.8rem !important;
-  height: 34px !important;
+  /* reason: width override */
+  min-width: 1.6em ;
+  /* reason: type scale override */
+  font-size: 0.8rem ;
+  /* reason: height override */
+  height: 34px ;
 }
 
 
 
 
 
-/* ========== Light mode — full override of dark !important chrome ========== */
+  /* reason: utility override */
+/* ========== Light mode — full override of dark  chrome ========== */
 html.theme-light body {
-  background: #e8e6e1 !important;
-  color: #1a1a1c !important;
+  /* reason: surface color */
+  background: #e8e6e1 ;
+  /* reason: text color */
+  color: #1a1a1c ;
 }
 html.theme-light body::before {
   background:
     radial-gradient(ellipse 90% 60% at 50% 42%, rgba(255, 255, 255, 0.75) 0%, transparent 62%),
     radial-gradient(ellipse 50% 40% at 50% 100%, rgba(212, 176, 74, 0.08) 0%, transparent 55%),
-    linear-gradient(180deg, #f2f0eb 0%, #e4e1da 100%) !important;
+  /* reason: utility override */
+    linear-gradient(180deg, #f2f0eb 0%, #e4e1da 100%) ;
 }
 
 /* Bottom bar */
@@ -1800,9 +2142,12 @@ html.theme-light .stage-scale-bar {
     rgba(242, 240, 235, 0.92) 55%,
     rgba(242, 240, 235, 0.55) 85%,
     transparent 100%
-  ) !important;
-  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
-  color: #1a1a1c !important;
+  /* reason: utility override */
+  ) ;
+  /* reason: utility override */
+  border-top: 1px solid rgba(0, 0, 0, 0.06) ;
+  /* reason: text color */
+  color: #1a1a1c ;
 }
 
 /* Primary selectors */
@@ -1811,10 +2156,14 @@ html.theme-light #stageScaleBar .stage-scale-btn,
 html.theme-light #stageScaleBar .scale-dropdown-toggle,
 html.theme-light #stageScaleBar #instrumentDropdownToggle,
 html.theme-light #stageScaleBar .stage-instrument-nav .instrument-name {
-  background: rgba(255, 255, 255, 0.92) !important;
-  color: rgba(28, 28, 32, 0.92) !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  /* reason: surface color */
+  background: rgba(255, 255, 255, 0.92) ;
+  /* reason: text color */
+  color: rgba(28, 28, 32, 0.92) ;
+  /* reason: border style */
+  border: 1px solid rgba(0, 0, 0, 0.1) ;
+  /* reason: elevation */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) ;
 }
 
 html.theme-light #stageScaleBar #scalePrev,
@@ -1823,9 +2172,12 @@ html.theme-light #stageScaleBar #voicePrev,
 html.theme-light #stageScaleBar #voiceNext,
 html.theme-light #stageScaleBar .stage-scale-step,
 html.theme-light #stageScaleBar .icon-btn {
-  background: rgba(255, 255, 255, 0.85) !important;
-  color: rgba(28, 28, 32, 0.75) !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  /* reason: surface color */
+  background: rgba(255, 255, 255, 0.85) ;
+  /* reason: text color */
+  color: rgba(28, 28, 32, 0.75) ;
+  /* reason: border style */
+  border: 1px solid rgba(0, 0, 0, 0.1) ;
 }
 
 /* Secondary steppers */
@@ -1833,12 +2185,16 @@ html.theme-light #stageScaleBar .stepper,
 html.theme-light #stageScaleBar .stepper .step,
 html.theme-light #stageScaleBar .step,
 html.theme-light #stageScaleBar .step-value {
-  background: rgba(255, 255, 255, 0.88) !important;
-  color: rgba(28, 28, 32, 0.88) !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
+  /* reason: surface color */
+  background: rgba(255, 255, 255, 0.88) ;
+  /* reason: text color */
+  color: rgba(28, 28, 32, 0.88) ;
+  /* reason: text color */
+  border-color: rgba(0, 0, 0, 0.1) ;
 }
 html.theme-light #stageScaleBar .control-label {
-  color: rgba(28, 28, 32, 0.45) !important;
+  /* reason: text color */
+  color: rgba(28, 28, 32, 0.45) ;
 }
 
 /* Top chrome */
@@ -1846,31 +2202,43 @@ html.theme-light #settingsOpenBtn,
 html.theme-light .settings-open-btn,
 html.theme-light #fxPanelOpen,
 html.theme-light button.fx-panel-open {
-  background: rgba(255, 255, 255, 0.92) !important;
-  color: rgba(40, 40, 44, 0.78) !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  /* reason: surface color */
+  background: rgba(255, 255, 255, 0.92) ;
+  /* reason: text color */
+  color: rgba(40, 40, 44, 0.78) ;
+  /* reason: border style */
+  border: 1px solid rgba(0, 0, 0, 0.1) ;
+  /* reason: elevation */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) ;
 }
 
 /* Looper chrome in light mode */
 html.theme-light #looperRail,
 html.theme-light .looper-rail {
-  background: transparent !important;
+  /* reason: surface color */
+  background: transparent ;
 }
 html.theme-light .looper-clear-btn,
 html.theme-light #looperClearBtn {
-  background: rgba(255, 255, 255, 0.85) !important;
-  color: rgba(40, 40, 44, 0.65) !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
+  /* reason: surface color */
+  background: rgba(255, 255, 255, 0.85) ;
+  /* reason: text color */
+  color: rgba(40, 40, 44, 0.65) ;
+  /* reason: text color */
+  border-color: rgba(0, 0, 0, 0.1) ;
 }
 html.theme-light .looper-sync-dial,
 html.theme-light #looperSyncBtn {
-  background: rgba(255, 255, 255, 0.88) !important;
-  color: rgba(40, 40, 44, 0.75) !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
+  /* reason: surface color */
+  background: rgba(255, 255, 255, 0.88) ;
+  /* reason: text color */
+  color: rgba(40, 40, 44, 0.75) ;
+  /* reason: text color */
+  border-color: rgba(0, 0, 0, 0.1) ;
 }
 html.theme-light .looper-sync-label {
-  color: rgba(40, 40, 44, 0.7) !important;
+  /* reason: text color */
+  color: rgba(40, 40, 44, 0.7) ;
 }
 
 /* Menus / sheets */
@@ -1878,29 +2246,39 @@ html.theme-light .instrument-menu,
 html.theme-light .scale-menu,
 html.theme-light .instrument-menu.picker-sheet,
 html.theme-light .scale-menu.picker-sheet {
-  background: linear-gradient(180deg, #faf9f6, #eceae4) !important;
-  color: #1a1a1c !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
+  /* reason: surface color */
+  background: linear-gradient(180deg, #faf9f6, #eceae4) ;
+  /* reason: text color */
+  color: #1a1a1c ;
+  /* reason: text color */
+  border-color: rgba(0, 0, 0, 0.1) ;
 }
 html.theme-light .instrument-menu-item,
 html.theme-light .scale-menu-item {
-  color: rgba(28, 28, 32, 0.88) !important;
+  /* reason: text color */
+  color: rgba(28, 28, 32, 0.88) ;
 }
 html.theme-light .instrument-menu-item.is-active,
 html.theme-light .scale-menu-item.is-active {
-  background: rgba(212, 176, 74, 0.18) !important;
-  color: #7a5c12 !important;
+  /* reason: surface color */
+  background: rgba(212, 176, 74, 0.18) ;
+  /* reason: text color */
+  color: #7a5c12 ;
 }
 html.theme-light .instrument-menu-group,
 html.theme-light .scale-menu-group {
-  color: rgba(28, 28, 32, 0.4) !important;
+  /* reason: text color */
+  color: rgba(28, 28, 32, 0.4) ;
 }
 
 /* FX panel */
 html.theme-light .fx-panel {
-  background: rgba(250, 249, 246, 0.98) !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
-  color: #1a1a1c !important;
+  /* reason: surface color */
+  background: rgba(250, 249, 246, 0.98) ;
+  /* reason: text color */
+  border-color: rgba(0, 0, 0, 0.1) ;
+  /* reason: text color */
+  color: #1a1a1c ;
 }
 
 /* ========== Looper: never block hits ========== */
@@ -1915,13 +2293,17 @@ html.theme-light .fx-panel {
 .looper-clear-btn,
 #looperSyncBtn,
 .looper-sync-dial {
-  pointer-events: auto !important;
-  touch-action: manipulation !important;
+  /* reason: utility override */
+  pointer-events: auto ;
+  /* reason: utility override */
+  touch-action: manipulation ;
 }
 #stageScaleBar #looperRail,
 #stageScaleBar .looper-rail {
-  pointer-events: auto !important;
-  z-index: 1002 !important;
+  /* reason: utility override */
+  pointer-events: auto ;
+  /* reason: stacking context */
+  z-index: 1002 ;
 }
 
 /* ========== Force-center top chrome (beat any earlier right: rules) ========== */
@@ -1929,40 +2311,62 @@ html.theme-light .fx-panel {
 button.fx-panel-open,
 #settingsOpenBtn,
 .settings-open-btn {
-  position: fixed !important;
-  top: max(10px, env(safe-area-inset-top, 0px)) !important;
-  left: 50% !important;
-  right: auto !important;
-  z-index: 4400 !important;
+  /* reason: layout positioning */
+  position: fixed ;
+  /* reason: utility override */
+  top: max(10px, env(safe-area-inset-top, 0px)) ;
+  /* reason: utility override */
+  left: 50% ;
+  /* reason: utility override */
+  right: auto ;
+  /* reason: stacking context */
+  z-index: 4400 ;
 }
 #fxPanelOpen,
 button.fx-panel-open {
-  transform: translateX(-50%) !important;
+  /* reason: utility override */
+  transform: translateX(-50%) ;
 }
 #settingsOpenBtn,
 .settings-open-btn {
-  transform: translateX(calc(-50% + 52px)) !important;
+  /* reason: utility override */
+  transform: translateX(calc(-50% + 52px)) ;
 }
 
 
 
 /* A legible golden die that feels like part of the instrument chrome. */
 #randomizeSetup.randomize-setup-btn {
-  display:inline-grid !important;
-  place-items:center !important;
-  flex:0 0 34px !important;
-  width:34px !important;
-  min-width:34px !important;
-  height:34px !important;
-  min-height:34px !important;
-  padding:0 !important;
-  border:1px solid rgba(212,176,74,.32) !important;
-  border-radius:11px !important;
-  background:linear-gradient(145deg,rgba(212,176,74,.12),rgba(16,15,13,.42)) !important;
-  color:#e7c86d !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 3px 10px rgba(0,0,0,.16) !important;
-  cursor:pointer !important;
-  transition:background .2s ease,border-color .2s ease,transform .2s ease,box-shadow .2s ease !important;
+  /* reason: utility override */
+  display:inline-grid ;
+  /* reason: utility override */
+  place-items:center ;
+  /* reason: flex layout override */
+  flex:0 0 34px ;
+  /* reason: width override */
+  width:34px ;
+  /* reason: width override */
+  min-width:34px ;
+  /* reason: height override */
+  height:34px ;
+  /* reason: height override */
+  min-height:34px ;
+  /* reason: spacing override */
+  padding:0 ;
+  /* reason: border style */
+  border:1px solid rgba(212,176,74,.32) ;
+  /* reason: component shape */
+  border-radius:11px ;
+  /* reason: surface color */
+  background:linear-gradient(145deg,rgba(212,176,74,.12),rgba(16,15,13,.42)) ;
+  /* reason: text color */
+  color:#e7c86d ;
+  /* reason: elevation */
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 3px 10px rgba(0,0,0,.16) ;
+  /* reason: utility override */
+  cursor:pointer ;
+  /* reason: utility override */
+  transition:background .2s ease,border-color .2s ease,transform .2s ease,box-shadow .2s ease ;
 }
 #randomizeSetup .randomize-die {
   display:block;
@@ -1971,14 +2375,20 @@ button.fx-panel-open {
   filter:drop-shadow(0 1px 2px rgba(0,0,0,.2));
 }
 #randomizeSetup:hover {
-  border-color:rgba(244,207,105,.68) !important;
-  background:linear-gradient(145deg,rgba(212,176,74,.22),rgba(16,15,13,.55)) !important;
-  box-shadow:0 0 14px rgba(212,176,74,.10) !important;
+  /* reason: text color */
+  border-color:rgba(244,207,105,.68) ;
+  /* reason: surface color */
+  background:linear-gradient(145deg,rgba(212,176,74,.22),rgba(16,15,13,.55)) ;
+  /* reason: elevation */
+  box-shadow:0 0 14px rgba(212,176,74,.10) ;
 }
-#randomizeSetup:active { transform:scale(.94) !important; }
+  /* reason: utility override */
+#randomizeSetup:active { transform:scale(.94) ; }
 html.theme-light #randomizeSetup.randomize-setup-btn {
-  color:#8d6b1c !important;
-  background:linear-gradient(145deg,rgba(212,176,74,.2),rgba(255,255,255,.8)) !important;
+  /* reason: text color */
+  color:#8d6b1c ;
+  /* reason: surface color */
+  background:linear-gradient(145deg,rgba(212,176,74,.2),rgba(255,255,255,.8)) ;
 }
 
 
@@ -1987,8 +2397,10 @@ html.theme-light #randomizeSetup.randomize-setup-btn {
 /* W3 phone reliability — keep instrument surface hittable outside Soundscapes.
    Loaded after pionier.css. Do not hide #pan unless body.soundscapes-active. */
 body:not(.soundscapes-active) #pan {
-  pointer-events: auto !important;
-  visibility: visible !important;
+  /* reason: utility override */
+  pointer-events: auto ;
+  /* reason: utility override */
+  visibility: visible ;
 }
 
 
@@ -2042,7 +2454,8 @@ html.pionier-welcome-active #pan { visibility: visible; }
   border: 1px solid rgba(212,176,74,.075); border-radius: 50%; transform: translate(-50%,-43%);
   box-shadow: 0 0 0 26px rgba(212,176,74,.018), 0 0 0 54px rgba(212,176,74,.012); pointer-events: none;
 }
-#pionierWelcome[hidden] { display: none !important; }
+  /* reason: hidden state */
+#pionierWelcome[hidden] { display: none ; }
 #pionierWelcome.is-leaving { opacity: 0; visibility: hidden; pointer-events: none; }
 .welcome-masthead, .welcome-foot { position: absolute; left: clamp(36px, 8vw, 100px); right: clamp(36px, 8vw, 100px); display:flex; align-items:center; justify-content:space-between; z-index:1; }
 .welcome-masthead { top: clamp(34px, 7vh, 64px); padding-bottom: 17px; border-bottom: 1px solid rgba(238,233,220,.16); }
@@ -2129,8 +2542,10 @@ html.pionier-welcome-active #pan { visibility: visible; }
   #headphonesHint { top: clamp(76px, 17.1vh, 122px); font-size: clamp(21px, 6vw, 25px); letter-spacing: .08em; gap: .3em; }
 }
 @media (prefers-reduced-motion:reduce) {
-  #headphonesHint.is-visible { animation-duration: 1ms !important; }
-  #headphonesHint.is-visible .headphones-word { animation-duration: 1ms !important; }
+  /* reason: utility override */
+  #headphonesHint.is-visible { animation-duration: 1ms ; }
+  /* reason: utility override */
+  #headphonesHint.is-visible .headphones-word { animation-duration: 1ms ; }
 }
 @keyframes welcome-copy-arrive { from { opacity:0; transform:translateY(calc(-48% + 16px)); filter:blur(5px); } to { opacity:1; transform:translateY(-48%); filter:blur(0); } }
 @media (max-width:560px) {
@@ -2153,9 +2568,12 @@ html.pionier-welcome-active #pan { visibility: visible; }
   .welcome-foot { bottom:24px; }
 }
 @media (prefers-reduced-motion:reduce) {
-  #app, #pan, #pionierWelcome, #enterPionier { transition-duration:.01ms !important; animation-duration:.01ms !important; }
-  .pionier-welcome-content { animation:none !important; }
-  #headphonesHint.is-visible { animation-duration:.01ms !important; }
+  /* reason: utility override */
+  #app, #pan, #pionierWelcome, #enterPionier { transition-duration:.01ms ; animation-duration:.01ms ; }
+  /* reason: utility override */
+  .pionier-welcome-content { animation:none ; }
+  /* reason: utility override */
+  #headphonesHint.is-visible { animation-duration:.01ms ; }
 }
 
 /* Requested PIONIER AUDIO / HANDPAN identity and true full-screen welcome gate. */
@@ -2247,8 +2665,10 @@ html.pionier-welcome-active #fxEditor,
 html.pionier-welcome-active #fxEditorBackdrop,
 html.pionier-welcome-active .settings-sheet,
 html.pionier-welcome-active .settings-sheet-backdrop {
-  visibility: hidden !important;
-  pointer-events: none !important;
+  /* reason: visibility */
+  visibility: hidden ;
+  /* reason: interaction block */
+  pointer-events: none ;
 }
 html.pionier-entering #app {
   visibility: visible;
@@ -2260,7 +2680,8 @@ html:not(.pionier-welcome-active) #app {
   visibility: visible;
 }
 @media (prefers-reduced-motion: reduce) {
-  html.pionier-entering #app, #app, #pan { transition-duration: 1ms !important; }
+  /* reason: utility override */
+  html.pionier-entering #app, #app, #pan { transition-duration: 1ms ; }
 }
 
 
@@ -2792,36 +3213,61 @@ html:not(.pionier-welcome-active) #app {
 }
 
 #topNavGroup .top-nav-btn {
-  position: static !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
-  bottom: auto !important;
-  width: 40px !important;
-  height: 40px !important;
-  min-width: 40px !important;
-  min-height: 40px !important;
-  border-radius: 50% !important;
-  border: 1px solid rgba(230, 224, 210, 0.12) !important;
-  background: rgba(18, 18, 20, 0.82) !important;
-  color: var(--muted-strong) !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 18px !important;
-  line-height: 1 !important;
-  cursor: pointer !important;
-  touch-action: manipulation !important;
-  transition: color 0.18s var(--ease), border-color 0.18s var(--ease), background 0.18s var(--ease), transform 0.15s var(--ease) !important;
+  /* reason: layout positioning */
+  position: static ;
+  /* reason: utility override */
+  top: auto ;
+  /* reason: utility override */
+  left: auto ;
+  /* reason: utility override */
+  right: auto ;
+  /* reason: utility override */
+  bottom: auto ;
+  /* reason: width override */
+  width: 40px ;
+  /* reason: height override */
+  height: 40px ;
+  /* reason: width override */
+  min-width: 40px ;
+  /* reason: height override */
+  min-height: 40px ;
+  /* reason: component shape */
+  border-radius: 50% ;
+  /* reason: border style */
+  border: 1px solid rgba(230, 224, 210, 0.12) ;
+  /* reason: surface color */
+  background: rgba(18, 18, 20, 0.82) ;
+  /* reason: text color */
+  color: var(--muted-strong) ;
+  /* reason: utility override */
+  display: inline-flex ;
+  /* reason: alignment override */
+  align-items: center ;
+  /* reason: alignment override */
+  justify-content: center ;
+  /* reason: type scale override */
+  font-size: 18px ;
+  /* reason: height override */
+  line-height: 1 ;
+  /* reason: utility override */
+  cursor: pointer ;
+  /* reason: utility override */
+  touch-action: manipulation ;
+  /* reason: utility override */
+  transition: color 0.18s var(--ease), border-color 0.18s var(--ease), background 0.18s var(--ease), transform 0.15s var(--ease) ;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  padding: 0 !important;
+  /* reason: spacing override */
+  padding: 0 ;
 }
 .top-nav-btn:hover {
-  color: var(--gold) !important;
-  border-color: rgba(212, 176, 74, 0.35) !important;
-  background: rgba(28, 28, 32, 0.9) !important;
+  /* reason: text color */
+  color: var(--gold) ;
+  /* reason: text color */
+  border-color: rgba(212, 176, 74, 0.35) ;
+  /* reason: surface color */
+  background: rgba(28, 28, 32, 0.9) ;
 }
 .top-nav-btn:active { transform: scale(0.94); }
 .top-nav-btn:focus-visible {
@@ -3077,7 +3523,8 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 .looper-crop-toggle { display:block; margin:8px auto 0; padding:7px 18px; border:1px solid rgba(246,218,132,.32); border-radius:999px; background:rgba(246,218,132,.07); color:#f6dfa0; font:inherit; font-size:11px; letter-spacing:.08em; cursor:pointer; }
 .looper-crop-toggle.is-active { background:rgba(246,218,132,.16); border-color:rgba(246,218,132,.7); }
 .looper-crop-editor { margin:14px 0 2px; padding:13px 12px 11px; border-radius:12px; border:1px solid rgba(246,218,132,.18); background:rgba(0,0,0,.2); }
-.looper-crop-editor[hidden] { display:none !important; }
+  /* reason: utility override */
+.looper-crop-editor[hidden] { display:none ; }
 .looper-crop-hint { margin:0 0 11px; color:rgba(240,235,227,.55); font-size:10px; text-align:center; }
 .looper-crop-range { position:relative; height:35px; margin:0 4px; border-radius:8px; background:linear-gradient(90deg,rgba(0,0,0,.65),rgba(246,218,132,.12) 4%,rgba(246,218,132,.12) 96%,rgba(0,0,0,.65)); }
 .looper-crop-range::before { content:""; position:absolute; inset:5px 0; border:1px solid rgba(246,218,132,.34); border-radius:5px; pointer-events:none; }
@@ -3099,29 +3546,43 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 
 /* Unified looper transport: every primary control shares one touch target. */
 #looperRail.looper-rail, .looper-rail {
-  justify-content:flex-start !important;
-  align-items:center !important;
-  flex-wrap:wrap !important;
-  gap:8px !important;
-  min-height:50px !important;
+  /* reason: alignment override */
+  justify-content:flex-start ;
+  /* reason: alignment override */
+  align-items:center ;
+  /* reason: utility override */
+  flex-wrap:wrap ;
+  /* reason: gap override */
+  gap:8px ;
+  /* reason: height override */
+  min-height:50px ;
 }
 #looperRail #looperClearBtn, .looper-rail .looper-clear-btn {
-  order:0 !important; position:relative !important; inset:auto !important;
-  width:46px !important; height:46px !important; min-width:46px !important; min-height:46px !important;
-  flex:0 0 46px !important; margin:0 !important; transform:none !important;
+  /* reason: layout positioning */
+  order:0 ; position:relative ; inset:auto ;
+  /* reason: width override */
+  width:46px ; height:46px ; min-width:46px ; min-height:46px ;
+  /* reason: margin reset */
+  flex:0 0 46px ; margin:0 ; transform:none ;
 }
 #looperRecordCluster.looper-record-cluster {
-  order:1 !important; display:flex !important; flex-direction:row !important;
-  align-items:center !important; gap:8px !important; pointer-events:none;
+  /* reason: utility override */
+  order:1 ; display:flex ; flex-direction:row ;
+  /* reason: gap override */
+  align-items:center ; gap:8px ; pointer-events:none;
 }
 #looperRecordCluster .looper-btn,
 #looperRecordCluster .looper-save-btn,
 #looperRecordCluster .looper-timing-btn {
-  width:46px !important; height:46px !important; min-width:46px !important; min-height:46px !important;
-  max-width:46px !important; max-height:46px !important; flex:0 0 46px !important;
-  box-sizing:border-box !important; border-radius:50% !important;
+  /* reason: width override */
+  width:46px ; height:46px ; min-width:46px ; min-height:46px ;
+  /* reason: width override */
+  max-width:46px ; max-height:46px ; flex:0 0 46px ;
+  /* reason: component shape */
+  box-sizing:border-box ; border-radius:50% ;
 }
-#looperRecordCluster .looper-sync-dial[hidden] { display:none !important; }
+  /* reason: utility override */
+#looperRecordCluster .looper-sync-dial[hidden] { display:none ; }
 #looperRecordCluster .looper-timing-btn {
   pointer-events:auto; position:relative; appearance:none; display:flex; flex-direction:column;
   align-items:center; justify-content:center; gap:1px; padding:0; overflow:hidden;
@@ -3151,7 +3612,8 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 .looper-bpm-value { font:650 13px/1 Inter,system-ui,sans-serif; font-variant-numeric:tabular-nums; color:#f0d17b; }
 .looper-bpm-unit { font:700 6px/1.2 Inter,system-ui,sans-serif; letter-spacing:.08em; color:rgba(235,228,211,.56); }
 #looperRecordCluster .looper-save-btn {
-  padding:0 !important; font-size:8px !important; line-height:1 !important; border-radius:50% !important;
+  /* reason: height override */
+  padding:0 ; font-size:8px ; line-height:1 ; border-radius:50% ;
 }
 #looperLayers.looper-layers { order:2; margin-left:auto; flex:1 1 56px; max-width:min(52vw,420px); }
 .looper-timing-menu {
@@ -3175,14 +3637,18 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 .looper-bpm-range { display:block; width:100%; accent-color:#d9b85b; }
 .looper-timing-menu-row { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin:10px 0; }
 @media(max-width:380px) {
-  #looperRail.looper-rail, .looper-rail { gap:5px !important; }
+  /* reason: gap override */
+  #looperRail.looper-rail, .looper-rail { gap:5px ; }
   #looperRail #looperClearBtn, .looper-rail .looper-clear-btn,
   #looperRecordCluster .looper-btn, #looperRecordCluster .looper-save-btn,
   #looperRecordCluster .looper-timing-btn {
-    width:42px !important; height:42px !important; min-width:42px !important; min-height:42px !important;
-    max-width:42px !important; max-height:42px !important; flex-basis:42px !important;
+  /* reason: width override */
+    width:42px ; height:42px ; min-width:42px ; min-height:42px ;
+  /* reason: width override */
+    max-width:42px ; max-height:42px ; flex-basis:42px ;
   }
-  #looperRecordCluster.looper-record-cluster { gap:5px !important; }
+  /* reason: gap override */
+  #looperRecordCluster.looper-record-cluster { gap:5px ; }
   #looperRecordCluster .looper-count-in-btn .looper-timing-main { font-size:7px; }
 }
 
@@ -3205,8 +3671,10 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 .looper-sheet { padding-top:10px; }
 .picker-close { position:sticky; top:0; float:right; z-index:10; width:30px; height:30px; margin:0 0 4px 8px; border-radius:50%; border:1px solid rgba(226,195,117,.24); background:rgba(12,12,14,.8); color:rgba(246,239,222,.85); font-size:22px; line-height:1; cursor:pointer; display:grid; place-items:center; }
 .picker-close:hover { color:#f6dfa0; border-color:rgba(226,195,117,.6); background:rgba(212,176,74,.12); }
-.scale-menu.picker-popover.is-open:not([hidden]),.instrument-menu.picker-popover.is-open:not([hidden]) { animation:picker-menu-bounce .38s cubic-bezier(.2,1.35,.35,1) both !important; }
-.scale-menu.picker-sheet.is-open:not([hidden]),.instrument-menu.picker-sheet.is-open:not([hidden]) { animation:picker-menu-sheet-bounce .38s cubic-bezier(.2,1.25,.35,1) both !important; }
+  /* reason: utility override */
+.scale-menu.picker-popover.is-open:not([hidden]),.instrument-menu.picker-popover.is-open:not([hidden]) { animation:picker-menu-bounce .38s cubic-bezier(.2,1.35,.35,1) both ; }
+  /* reason: utility override */
+.scale-menu.picker-sheet.is-open:not([hidden]),.instrument-menu.picker-sheet.is-open:not([hidden]) { animation:picker-menu-sheet-bounce .38s cubic-bezier(.2,1.25,.35,1) both ; }
 @keyframes picker-menu-bounce { 0% { opacity:0; translate:0 12px; scale:.97; } 72% { opacity:1; translate:0 -2px; scale:1.008; } 100% { opacity:1; translate:0 0; scale:1; } }
 @keyframes picker-menu-sheet-bounce { 0% { opacity:.55; translate:0 26px; } 72% { opacity:1; translate:0 -3px; } 100% { opacity:1; translate:0 0; } }
 @media (max-width:520px) {
@@ -3221,7 +3689,8 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 }
 
 /* Reset legacy fixed/absolute placement so the grid owns every transport control. */
-#looperRail #looperClearBtn,#looperRail #looperCountInBtn,#looperRail #looperMetronomeBtn,#looperRail #looperBpmBtn,#looperRail #looperSaveBtn,#looperRail #looperRecordCluster,#looperRail #looperLayers { position:relative !important; inset:auto !important; top:auto !important; right:auto !important; bottom:auto !important; left:auto !important; transform:none; }
+  /* reason: layout positioning */
+#looperRail #looperClearBtn,#looperRail #looperCountInBtn,#looperRail #looperMetronomeBtn,#looperRail #looperBpmBtn,#looperRail #looperSaveBtn,#looperRail #looperRecordCluster,#looperRail #looperLayers { position:relative ; inset:auto ; top:auto ; right:auto ; bottom:auto ; left:auto ; transform:none; }
 #looperRail #looperClearBtn { grid-column:1; grid-row:1; justify-self:start; margin:0; }
 #looperRail #looperCountInBtn { grid-column:1; grid-row:1; justify-self:start; margin-left:42px; }
 #looperRail #looperMetronomeBtn { grid-column:1; grid-row:1; justify-self:start; margin-left:94px; }
@@ -3234,44 +3703,69 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 
 /* Pionier transport repair: one compact row, consistent touch targets. */
 #looperRail.looper-rail {
-  box-sizing:border-box !important; display:flex !important; flex-flow:row nowrap !important;
-  align-items:center !important; justify-content:center !important;
-  gap:clamp(3px,1.1vw,7px) !important; width:100% !important; min-width:0 !important;
-  max-width:100% !important; padding-inline:5px !important; overflow:visible !important;
+  /* reason: utility override */
+  box-sizing:border-box ; display:flex ; flex-flow:row nowrap ;
+  /* reason: alignment override */
+  align-items:center ; justify-content:center ;
+  /* reason: width override */
+  gap:clamp(3px,1.1vw,7px) ; width:100% ; min-width:0 ;
+  /* reason: width override */
+  max-width:100% ; padding-inline:5px ; overflow:visible ;
 }
-#looperRail > #looperClearBtn { order:0 !important; }
+  /* reason: utility override */
+#looperRail > #looperClearBtn { order:0 ; }
 #looperRail > #looperRecordCluster {
-  order:1 !important; display:flex !important; flex:0 0 auto !important;
-  flex-flow:row nowrap !important; align-items:center !important; justify-content:center !important;
-  gap:clamp(3px,1.1vw,7px) !important; min-width:0 !important; margin:0 !important;
+  /* reason: flex layout override */
+  order:1 ; display:flex ; flex:0 0 auto ;
+  /* reason: alignment override */
+  flex-flow:row nowrap ; align-items:center ; justify-content:center ;
+  /* reason: width override */
+  gap:clamp(3px,1.1vw,7px) ; min-width:0 ; margin:0 ;
 }
 #looperRail > #looperLayers {
-  order:2 !important; display:flex !important; flex:0 1 auto !important;
-  flex-flow:row nowrap !important; align-items:center !important; justify-content:flex-start !important;
-  gap:4px !important; min-width:0 !important; max-width:none !important; margin:0 !important;
-  overflow-x:auto !important; overflow-y:hidden !important; scrollbar-width:none !important; pointer-events:auto !important;
+  /* reason: flex layout override */
+  order:2 ; display:flex ; flex:0 1 auto ;
+  /* reason: alignment override */
+  flex-flow:row nowrap ; align-items:center ; justify-content:flex-start ;
+  /* reason: width override */
+  gap:4px ; min-width:0 ; max-width:none ; margin:0 ;
+  /* reason: width override */
+  overflow-x:auto ; overflow-y:hidden ; scrollbar-width:none ; pointer-events:auto ;
 }
-#looperRail > #looperLayers::-webkit-scrollbar { display:none !important; }
+  /* reason: utility override */
+#looperRail > #looperLayers::-webkit-scrollbar { display:none ; }
 #looperRail #looperClearBtn,
 #looperRail #looperRecordCluster .looper-btn,
 #looperRail #looperRecordCluster .looper-timing-btn,
 #looperRail #looperRecordCluster .looper-save-btn {
-  box-sizing:border-box !important; width:clamp(30px,8.6vw,38px) !important;
-  height:clamp(30px,8.6vw,38px) !important; min-width:clamp(30px,8.6vw,38px) !important;
-  min-height:clamp(30px,8.6vw,38px) !important; max-width:38px !important; max-height:38px !important;
-  flex:0 0 clamp(30px,8.6vw,38px) !important; border-radius:50% !important; padding:0 !important;
+  /* reason: width override */
+  box-sizing:border-box ; width:clamp(30px,8.6vw,38px) ;
+  /* reason: width override */
+  height:clamp(30px,8.6vw,38px) ; min-width:clamp(30px,8.6vw,38px) ;
+  /* reason: width override */
+  min-height:clamp(30px,8.6vw,38px) ; max-width:38px ; max-height:38px ;
+  /* reason: component shape */
+  flex:0 0 clamp(30px,8.6vw,38px) ; border-radius:50% ; padding:0 ;
 }
 #looperRail #looperRecordCluster .looper-save-btn {
-  display:grid !important; place-items:center !important; font-size:8px !important;
-  letter-spacing:0 !important; line-height:1 !important;
+  /* reason: type scale override */
+  display:grid ; place-items:center ; font-size:8px ;
+  /* reason: height override */
+  letter-spacing:0 ; line-height:1 ;
 }
-#looperRail #looperRecordCluster .looper-bpm-value { font-size:11px !important; }
-#looperRail #looperRecordCluster .looper-bpm-unit { font-size:5px !important; }
-#looperRail #looperRecordCluster .looper-count-in-btn .looper-timing-main { font-size:7px !important; letter-spacing:-.06em !important; }
+  /* reason: type scale override */
+#looperRail #looperRecordCluster .looper-bpm-value { font-size:11px ; }
+  /* reason: type scale override */
+#looperRail #looperRecordCluster .looper-bpm-unit { font-size:5px ; }
+  /* reason: type scale override */
+#looperRail #looperRecordCluster .looper-count-in-btn .looper-timing-main { font-size:7px ; letter-spacing:-.06em ; }
 #looperRail #looperLayers .looper-circle {
-  width:clamp(28px,7.8vw,34px) !important; height:clamp(28px,7.8vw,34px) !important;
-  min-width:clamp(28px,7.8vw,34px) !important; min-height:clamp(28px,7.8vw,34px) !important;
-  flex:0 0 clamp(28px,7.8vw,34px) !important;
+  /* reason: width override */
+  width:clamp(28px,7.8vw,34px) ; height:clamp(28px,7.8vw,34px) ;
+  /* reason: width override */
+  min-width:clamp(28px,7.8vw,34px) ; min-height:clamp(28px,7.8vw,34px) ;
+  /* reason: flex layout override */
+  flex:0 0 clamp(28px,7.8vw,34px) ;
 }
 #looperRail .looper-record-cluster { pointer-events:none; }
 #looperRail .looper-record-cluster > button { pointer-events:auto; }
@@ -3284,99 +3778,154 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 .looper-sheet-header,.looper-timing-menu-header { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
 .looper-sheet-header .looper-sheet-title { margin:0; }
 @media(max-width:380px) {
-  #looperRail.looper-rail { gap:3px !important; padding-inline:3px !important; }
-  #looperRail > #looperRecordCluster { gap:3px !important; }
+  /* reason: gap override */
+  #looperRail.looper-rail { gap:3px ; padding-inline:3px ; }
+  /* reason: gap override */
+  #looperRail > #looperRecordCluster { gap:3px ; }
 }
 
 
 /* Final transport layout: utility controls left, Record truly centred, layers right. */
 #looperRail.looper-rail {
-  display:grid !important; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) !important;
-  grid-template-rows:42px !important; align-items:center !important; justify-content:stretch !important;
-  flex-flow:initial !important; gap:4px !important; min-height:42px !important;
-  padding:0 4px !important; overflow:visible !important;
+  /* reason: utility override */
+  display:grid ; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) ;
+  /* reason: alignment override */
+  grid-template-rows:42px ; align-items:center ; justify-content:stretch ;
+  /* reason: height override */
+  flex-flow:initial ; gap:4px ; min-height:42px ;
+  /* reason: scroll containment */
+  padding:0 4px ; overflow:visible ;
 }
 #looperRail > #looperClearBtn {
-  grid-column:1; grid-row:1; justify-self:start; width:30px !important; height:30px !important;
-  min-width:30px !important; min-height:30px !important; max-width:30px !important; max-height:30px !important;
-  flex:0 0 30px !important; margin:0 !important; padding:0 !important; z-index:2;
+  /* reason: width override */
+  grid-column:1; grid-row:1; justify-self:start; width:30px ; height:30px ;
+  /* reason: width override */
+  min-width:30px ; min-height:30px ; max-width:30px ; max-height:30px ;
+  /* reason: stacking context */
+  flex:0 0 30px ; margin:0 ; padding:0 ; z-index:2;
 }
 #looperRail > #looperUtilityControls {
-  grid-column:1; grid-row:1; justify-self:start; display:flex !important; flex-flow:row nowrap !important;
-  align-items:center !important; gap:3px !important; min-width:0 !important;
-  margin-left:33px !important; overflow:visible !important;
+  /* reason: utility override */
+  grid-column:1; grid-row:1; justify-self:start; display:flex ; flex-flow:row nowrap ;
+  /* reason: width override */
+  align-items:center ; gap:3px ; min-width:0 ;
+  /* reason: scroll containment */
+  margin-left:33px ; overflow:visible ;
 }
 #looperRail > #looperRecordCluster {
-  grid-column:2; grid-row:1; justify-self:center !important; display:flex !important;
-  flex-flow:row nowrap !important; align-items:center !important; justify-content:center !important;
-  gap:0 !important; margin:0 !important; padding:0 !important; min-width:34px !important;
-  width:34px !important; height:38px !important; pointer-events:none; z-index:3;
+  /* reason: utility override */
+  grid-column:2; grid-row:1; justify-self:center ; display:flex ;
+  /* reason: alignment override */
+  flex-flow:row nowrap ; align-items:center ; justify-content:center ;
+  /* reason: width override */
+  gap:0 ; margin:0 ; padding:0 ; min-width:34px ;
+  /* reason: stacking context */
+  width:34px ; height:38px ; pointer-events:none; z-index:3;
 }
 #looperRail #looperRecordCluster > #looperBtn {
-  display:flex !important; visibility:visible !important; opacity:1 !important; position:relative !important;
-  inset:auto !important; transform:none !important; width:34px !important; height:34px !important;
-  min-width:34px !important; min-height:34px !important; max-width:34px !important; max-height:34px !important;
-  flex:0 0 34px !important; margin:0 !important; pointer-events:auto !important; grid-column:auto !important;
+  /* reason: layout positioning */
+  display:flex ; visibility:visible ; opacity:1 ; position:relative ;
+  /* reason: width override */
+  inset:auto ; transform:none ; width:34px ; height:34px ;
+  /* reason: width override */
+  min-width:34px ; min-height:34px ; max-width:34px ; max-height:34px ;
+  /* reason: margin reset */
+  flex:0 0 34px ; margin:0 ; pointer-events:auto ; grid-column:auto ;
 }
 #looperRail #looperUtilityControls > .looper-timing-btn,
 #looperRail #looperUtilityControls > .looper-save-btn {
-  display:flex !important; visibility:visible !important; opacity:1 !important; position:relative !important;
-  inset:auto !important; transform:none !important; width:30px !important; height:30px !important;
-  min-width:30px !important; min-height:30px !important; max-width:30px !important; max-height:30px !important;
-  flex:0 0 30px !important; padding:0 !important; margin:0 !important; border-radius:50% !important;
-  pointer-events:auto !important; box-sizing:border-box !important;
+  /* reason: layout positioning */
+  display:flex ; visibility:visible ; opacity:1 ; position:relative ;
+  /* reason: width override */
+  inset:auto ; transform:none ; width:30px ; height:30px ;
+  /* reason: width override */
+  min-width:30px ; min-height:30px ; max-width:30px ; max-height:30px ;
+  /* reason: margin reset */
+  flex:0 0 30px ; padding:0 ; margin:0 ; border-radius:50% ;
+  /* reason: utility override */
+  pointer-events:auto ; box-sizing:border-box ;
 }
-#looperRail #looperUtilityControls > .looper-save-btn { display:grid !important; font-size:7px !important; }
-#looperRail #looperUtilityControls .looper-count-in-btn .looper-timing-main { font-size:6px !important; letter-spacing:-.08em !important; }
-#looperRail #looperUtilityControls .looper-bpm-value { font-size:9px !important; }
-#looperRail #looperUtilityControls .looper-bpm-unit { font-size:5px !important; }
+  /* reason: type scale override */
+#looperRail #looperUtilityControls > .looper-save-btn { display:grid ; font-size:7px ; }
+  /* reason: type scale override */
+#looperRail #looperUtilityControls .looper-count-in-btn .looper-timing-main { font-size:6px ; letter-spacing:-.08em ; }
+  /* reason: type scale override */
+#looperRail #looperUtilityControls .looper-bpm-value { font-size:9px ; }
+  /* reason: type scale override */
+#looperRail #looperUtilityControls .looper-bpm-unit { font-size:5px ; }
 #looperRail > #looperLayers {
-  grid-column:3; grid-row:1; justify-self:end; display:flex !important; flex-flow:row nowrap !important;
-  align-items:center !important; gap:3px !important; width:100% !important; max-width:100% !important;
-  min-width:0 !important; margin:0 !important; overflow-x:auto !important; overflow-y:hidden !important;
-  flex-wrap:nowrap !important; justify-content:flex-end !important; scrollbar-width:none !important; pointer-events:auto !important;
+  /* reason: utility override */
+  grid-column:3; grid-row:1; justify-self:end; display:flex ; flex-flow:row nowrap ;
+  /* reason: width override */
+  align-items:center ; gap:3px ; width:100% ; max-width:100% ;
+  /* reason: width override */
+  min-width:0 ; margin:0 ; overflow-x:auto ; overflow-y:hidden ;
+  /* reason: width override */
+  flex-wrap:nowrap ; justify-content:flex-end ; scrollbar-width:none ; pointer-events:auto ;
 }
-#looperRail > #looperLayers::-webkit-scrollbar { display:none !important; }
+  /* reason: utility override */
+#looperRail > #looperLayers::-webkit-scrollbar { display:none ; }
 #looperRail #looperLayers .looper-circle {
-  width:27px !important; height:27px !important; min-width:27px !important; min-height:27px !important;
-  max-width:27px !important; max-height:27px !important; flex:0 0 27px !important;
+  /* reason: width override */
+  width:27px ; height:27px ; min-width:27px ; min-height:27px ;
+  /* reason: width override */
+  max-width:27px ; max-height:27px ; flex:0 0 27px ;
 }
 @media(max-width:390px) {
-  #looperRail.looper-rail { grid-template-rows:38px !important; gap:2px !important; padding-inline:2px !important; }
-  #looperRail > #looperClearBtn { width:28px !important; height:28px !important; min-width:28px !important; min-height:28px !important; }
-  #looperRail > #looperUtilityControls { margin-left:30px !important; gap:2px !important; }
+  /* reason: gap override */
+  #looperRail.looper-rail { grid-template-rows:38px ; gap:2px ; padding-inline:2px ; }
+  /* reason: width override */
+  #looperRail > #looperClearBtn { width:28px ; height:28px ; min-width:28px ; min-height:28px ; }
+  /* reason: gap override */
+  #looperRail > #looperUtilityControls { margin-left:30px ; gap:2px ; }
   #looperRail #looperUtilityControls > .looper-timing-btn,
-  #looperRail #looperUtilityControls > .looper-save-btn { width:27px !important; height:27px !important; min-width:27px !important; min-height:27px !important; flex-basis:27px !important; }
-  #looperRail #looperRecordCluster, #looperRail #looperRecordCluster > #looperBtn { width:32px !important; height:32px !important; min-width:32px !important; min-height:32px !important; flex-basis:32px !important; }
-  #looperRail #looperLayers .looper-circle { width:24px !important; height:24px !important; min-width:24px !important; min-height:24px !important; flex-basis:24px !important; }
+  /* reason: width override */
+  #looperRail #looperUtilityControls > .looper-save-btn { width:27px ; height:27px ; min-width:27px ; min-height:27px ; flex-basis:27px ; }
+  /* reason: width override */
+  #looperRail #looperRecordCluster, #looperRail #looperRecordCluster > #looperBtn { width:32px ; height:32px ; min-width:32px ; min-height:32px ; flex-basis:32px ; }
+  /* reason: width override */
+  #looperRail #looperLayers .looper-circle { width:24px ; height:24px ; min-width:24px ; min-height:24px ; flex-basis:24px ; }
 }
 
 /* Keep picker chrome stationary while only the option list scrolls. */
 .scale-menu.picker-popover:not([hidden]), .instrument-menu.picker-popover:not([hidden]) {
-  display:flex !important; flex-direction:column !important; align-items:stretch !important;
-  overflow:hidden !important; overscroll-behavior:contain !important;
+  /* reason: alignment override */
+  display:flex ; flex-direction:column ; align-items:stretch ;
+  /* reason: scroll containment */
+  overflow:hidden ; overscroll-behavior:contain ;
 }
 .scale-menu.picker-popover .picker-close, .instrument-menu.picker-popover .picker-close {
-  position:relative !important; top:auto !important; float:none !important;
-  align-self:flex-end !important; flex:0 0 28px !important; margin:0 0 4px auto !important;
+  /* reason: layout positioning */
+  position:relative ; top:auto ; float:none ;
+  /* reason: margin reset */
+  align-self:flex-end ; flex:0 0 28px ; margin:0 0 4px auto ;
 }
 .scale-menu.picker-popover .picker-search, .instrument-menu.picker-popover .picker-search {
-  position:relative !important; top:auto !important; flex:0 0 auto !important;
-  width:100% !important; margin:0 0 6px !important; z-index:2 !important;
+  /* reason: layout positioning */
+  position:relative ; top:auto ; flex:0 0 auto ;
+  /* reason: stacking context */
+  width:100% ; margin:0 0 6px ; z-index:2 ;
 }
 .scale-menu.picker-popover .picker-results, .instrument-menu.picker-popover .picker-results {
-  display:block !important; flex:1 1 auto !important; min-height:0 !important;
-  overflow-x:hidden !important; overflow-y:auto !important; overscroll-behavior-y:contain !important;
-  -webkit-overflow-scrolling:touch !important; scrollbar-width:thin; scrollbar-color:rgba(219,184,91,.45) transparent;
+  /* reason: height override */
+  display:block ; flex:1 1 auto ; min-height:0 ;
+  /* reason: utility override */
+  overflow-x:hidden ; overflow-y:auto ; overscroll-behavior-y:contain ;
+  /* reason: width override */
+  -webkit-overflow-scrolling:touch ; scrollbar-width:thin; scrollbar-color:rgba(219,184,91,.45) transparent;
 }
 .scale-menu .scale-menu-item, .instrument-menu .instrument-menu-item {
-  position:relative !important; padding-right:38px !important;
-  transition:background .16s ease,color .16s ease,transform .22s cubic-bezier(.2,1.35,.35,1) !important;
+  /* reason: layout positioning */
+  position:relative ; padding-right:38px ;
+  /* reason: utility override */
+  transition:background .16s ease,color .16s ease,transform .22s cubic-bezier(.2,1.35,.35,1) ;
 }
 .scale-menu .scale-menu-item.is-active, .instrument-menu .instrument-menu-item.is-active,
 .scale-menu [role="menuitem"].is-active, .instrument-menu [role="menuitem"].is-active {
-  background:rgba(219,184,91,.14) !important; color:#f6dfa0 !important;
-  box-shadow:inset 2px 0 0 #d9b85b !important;
+  /* reason: surface color */
+  background:rgba(219,184,91,.14) ; color:#f6dfa0 ;
+  /* reason: elevation */
+  box-shadow:inset 2px 0 0 #d9b85b ;
 }
 .scale-menu .scale-menu-item.is-active::after, .instrument-menu .instrument-menu-item.is-active::after,
 .scale-menu [role="menuitem"].is-active::after, .instrument-menu [role="menuitem"].is-active::after {
@@ -3388,44 +3937,67 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 
 /* Quiet, consistent close affordance: a fine-line cross matching Pionier's icon language. */
 .looper-menu-close,.looper-track-close {
-  position:relative!important; z-index:20!important; pointer-events:auto!important;
-  touch-action:manipulation!important; -webkit-tap-highlight-color:transparent;
-  display:grid!important; place-items:center!important; padding:0!important;
-  color:transparent!important; font-size:0!important; line-height:0!important;
-  border:1px solid rgba(230,224,210,.13)!important;
-  background:rgba(230,224,210,.035)!important;
-  transition:color .18s ease,border-color .18s ease,background .18s ease,transform .18s ease!important;
+  /* reason: layout positioning */
+  position:relative; z-index:20; pointer-events:auto;
+  /* reason: text color */
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  /* reason: spacing override */
+  display:grid; place-items:center; padding:0;
+  /* reason: height override */
+  color:transparent; font-size:0; line-height:0;
+  /* reason: border style */
+  border:1px solid rgba(230,224,210,.13);
+  /* reason: surface color */
+  background:rgba(230,224,210,.035);
+  /* reason: utility override */
+  transition:color .18s ease,border-color .18s ease,background .18s ease,transform .18s ease;
 }
 .looper-menu-close::before,.looper-track-close::before,
 .looper-menu-close::after,.looper-track-close::after {
-  content:""!important; position:absolute!important; left:50%!important; top:50%!important;
-  width:12px!important; height:1.5px!important; margin:0!important; border:0!important;
-  border-radius:2px!important; background:rgba(230,224,210,.68)!important;
-  transform:translate(-50%,-50%) rotate(45deg)!important; pointer-events:none!important;
+  /* reason: layout positioning */
+  content:""; position:absolute; left:50%; top:50%;
+  /* reason: width override */
+  width:12px; height:1.5px; margin:0; border:0;
+  /* reason: surface color */
+  border-radius:2px; background:rgba(230,224,210,.68);
+  /* reason: utility override */
+  transform:translate(-50%,-50%) rotate(45deg); pointer-events:none;
 }
-.looper-menu-close::after,.looper-track-close::after { transform:translate(-50%,-50%) rotate(-45deg)!important; }
+  /* reason: utility override */
+.looper-menu-close::after,.looper-track-close::after { transform:translate(-50%,-50%) rotate(-45deg); }
 .looper-menu-close:hover,.looper-track-close:hover,
 .looper-menu-close:focus-visible,.looper-track-close:focus-visible {
-  border-color:rgba(212,176,74,.48)!important; background:rgba(212,176,74,.08)!important;
-  outline:none!important;
+  /* reason: surface color */
+  border-color:rgba(212,176,74,.48); background:rgba(212,176,74,.08);
+  /* reason: utility override */
+  outline:none;
 }
 .looper-menu-close:hover::before,.looper-menu-close:hover::after,
-.looper-track-close:hover::before,.looper-track-close:hover::after { background:#f0d58a!important; }
-.looper-menu-close:active,.looper-track-close:active { transform:scale(.94)!important; }
+  /* reason: surface color */
+.looper-track-close:hover::before,.looper-track-close:hover::after { background:#f0d58a; }
+  /* reason: utility override */
+.looper-menu-close:active,.looper-track-close:active { transform:scale(.94); }
 
 
 /* Fine-line timing glyphs — a consistent visual family for count-in, metronome and tempo. */
 #looperRail #looperUtilityControls > .looper-timing-btn {
-  gap:1px !important;
-  overflow:visible !important;
+  /* reason: gap override */
+  gap:1px ;
+  /* reason: scroll containment */
+  overflow:visible ;
   color:rgba(236,230,217,.86);
-  background:linear-gradient(145deg,rgba(30,30,34,.88),rgba(13,13,16,.92)) !important;
-  border-color:rgba(230,224,210,.15) !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 3px 10px rgba(0,0,0,.2) !important;
+  /* reason: surface color */
+  background:linear-gradient(145deg,rgba(30,30,34,.88),rgba(13,13,16,.92)) ;
+  /* reason: text color */
+  border-color:rgba(230,224,210,.15) ;
+  /* reason: elevation */
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 3px 10px rgba(0,0,0,.2) ;
 }
 #looperRail #looperUtilityControls > .looper-timing-btn:hover {
-  border-color:rgba(226,195,117,.45) !important;
-  background:rgba(226,195,117,.075) !important;
+  /* reason: text color */
+  border-color:rgba(226,195,117,.45) ;
+  /* reason: surface color */
+  background:rgba(226,195,117,.075) ;
 }
 #looperRail #looperUtilityControls .looper-icon {
   display:block;
@@ -3442,208 +4014,332 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 }
 #looperRail #looperUtilityControls .looper-countin-icon { width:13px; height:11px; color:rgba(236,230,217,.75); }
 #looperRail #looperUtilityControls .looper-count-in-btn .looper-timing-main {
-  color:rgba(236,230,217,.72) !important;
-  font:600 5px/1 Inter,system-ui,sans-serif !important;
-  letter-spacing:.015em !important;
+  /* reason: text color */
+  color:rgba(236,230,217,.72) ;
+  /* reason: utility override */
+  font:600 5px/1 Inter,system-ui,sans-serif ;
+  /* reason: utility override */
+  letter-spacing:.015em ;
   white-space:nowrap;
 }
 #looperRail #looperUtilityControls .looper-count-in-btn.is-active {
-  color:#f6dfa0 !important;
-  border-color:rgba(219,184,91,.72) !important;
-  background:linear-gradient(145deg,rgba(219,184,91,.16),rgba(34,29,18,.88)) !important;
+  /* reason: text color */
+  color:#f6dfa0 ;
+  /* reason: text color */
+  border-color:rgba(219,184,91,.72) ;
+  /* reason: surface color */
+  background:linear-gradient(145deg,rgba(219,184,91,.16),rgba(34,29,18,.88)) ;
 }
 #looperRail #looperUtilityControls .looper-count-in-btn.is-active .looper-icon,
-#looperRail #looperUtilityControls .looper-count-in-btn.is-active .looper-timing-main { color:#f6dfa0 !important; }
+  /* reason: text color */
+#looperRail #looperUtilityControls .looper-count-in-btn.is-active .looper-timing-main { color:#f6dfa0 ; }
 #looperRail #looperUtilityControls .looper-metronome-icon { width:14px; height:14px; color:rgba(236,230,217,.82); }
 #looperRail #looperUtilityControls .looper-metronome-btn.is-active {
-  color:#bdf5dd !important;
-  border-color:rgba(136,213,186,.72) !important;
-  background:linear-gradient(145deg,rgba(73,171,139,.17),rgba(13,26,22,.9)) !important;
+  /* reason: text color */
+  color:#bdf5dd ;
+  /* reason: text color */
+  border-color:rgba(136,213,186,.72) ;
+  /* reason: surface color */
+  background:linear-gradient(145deg,rgba(73,171,139,.17),rgba(13,26,22,.9)) ;
 }
 #looperRail #looperUtilityControls .looper-metronome-btn.is-active .looper-icon { color:#bdf5dd; }
 #looperRail #looperUtilityControls .looper-timing-led {
   top:4px; right:4px; width:3px; height:3px;
   background:rgba(255,255,255,.16);
 }
-#looperRail #looperUtilityControls .looper-bpm-btn { gap:0 !important; border-color:rgba(219,184,91,.3) !important; }
+  /* reason: text color */
+#looperRail #looperUtilityControls .looper-bpm-btn { gap:0 ; border-color:rgba(219,184,91,.3) ; }
 #looperRail #looperUtilityControls .looper-tempo-icon { width:12px; height:12px; color:rgba(240,209,123,.9); }
-#looperRail #looperUtilityControls .looper-bpm-value { font:650 8px/1 Inter,system-ui,sans-serif !important; color:#f0d17b !important; font-variant-numeric:tabular-nums; }
-#looperRail #looperUtilityControls .looper-bpm-unit { font:700 4px/1.1 Inter,system-ui,sans-serif !important; letter-spacing:.09em; color:rgba(235,228,211,.55) !important; }
+  /* reason: text color */
+#looperRail #looperUtilityControls .looper-bpm-value { font:650 8px/1 Inter,system-ui,sans-serif ; color:#f0d17b ; font-variant-numeric:tabular-nums; }
+  /* reason: text color */
+#looperRail #looperUtilityControls .looper-bpm-unit { font:700 4px/1.1 Inter,system-ui,sans-serif ; letter-spacing:.09em; color:rgba(235,228,211,.55) ; }
 @media(max-width:390px) {
   #looperRail #looperUtilityControls .looper-icon { width:11px; height:11px; }
   #looperRail #looperUtilityControls .looper-metronome-icon { width:12px; height:12px; }
-  #looperRail #looperUtilityControls .looper-count-in-btn .looper-timing-main { font-size:4.5px !important; }
+  /* reason: type scale override */
+  #looperRail #looperUtilityControls .looper-count-in-btn .looper-timing-main { font-size:4.5px ; }
 }
 
 
 /* Timing controls match the Record button's exact touch-target diameter. */
 #looperRail #looperUtilityControls > .looper-timing-btn,
 #looperRail #looperUtilityControls > .looper-save-btn {
-  box-sizing:border-box !important;
-  width:34px !important; height:34px !important;
-  min-width:34px !important; min-height:34px !important;
-  max-width:34px !important; max-height:34px !important;
-  flex:0 0 34px !important;
+  /* reason: utility override */
+  box-sizing:border-box ;
+  /* reason: width override */
+  width:34px ; height:34px ;
+  /* reason: width override */
+  min-width:34px ; min-height:34px ;
+  /* reason: width override */
+  max-width:34px ; max-height:34px ;
+  /* reason: flex layout override */
+  flex:0 0 34px ;
 }
 @media(max-width:390px) {
   #looperRail #looperUtilityControls > .looper-timing-btn,
   #looperRail #looperUtilityControls > .looper-save-btn {
-    width:32px !important; height:32px !important;
-    min-width:32px !important; min-height:32px !important;
-    max-width:32px !important; max-height:32px !important;
-    flex-basis:32px !important;
+  /* reason: width override */
+    width:32px ; height:32px ;
+  /* reason: width override */
+    min-width:32px ; min-height:32px ;
+  /* reason: width override */
+    max-width:32px ; max-height:32px ;
+  /* reason: utility override */
+    flex-basis:32px ;
   }
 }
 
 
 /* Center the timing artwork as a group inside each circular button. */
 #looperRail #looperUtilityControls > .looper-timing-btn {
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:center !important;
-  align-content:center !important;
-  text-align:center !important;
-  line-height:1 !important;
-  gap:2px !important;
-  overflow:hidden !important;
+  /* reason: utility override */
+  display:flex ;
+  /* reason: utility override */
+  flex-direction:column ;
+  /* reason: alignment override */
+  align-items:center ;
+  /* reason: alignment override */
+  justify-content:center ;
+  /* reason: utility override */
+  align-content:center ;
+  /* reason: utility override */
+  text-align:center ;
+  /* reason: height override */
+  line-height:1 ;
+  /* reason: gap override */
+  gap:2px ;
+  /* reason: scroll containment */
+  overflow:hidden ;
 }
 #looperRail #looperUtilityControls > .looper-timing-btn > .looper-icon {
-  position:static !important;
-  display:block !important;
-  flex:0 0 auto !important;
-  margin:0 !important;
-  transform:none !important;
+  /* reason: layout positioning */
+  position:static ;
+  /* reason: utility override */
+  display:block ;
+  /* reason: flex layout override */
+  flex:0 0 auto ;
+  /* reason: margin reset */
+  margin:0 ;
+  /* reason: utility override */
+  transform:none ;
 }
 #looperRail #looperUtilityControls .looper-count-in-btn .looper-countin-icon {
-  width:13px !important;
-  height:10px !important;
+  /* reason: width override */
+  width:13px ;
+  /* reason: height override */
+  height:10px ;
 }
 #looperRail #looperUtilityControls .looper-count-in-btn .looper-timing-main {
-  display:block !important;
-  position:static !important;
-  margin:0 !important;
-  transform:none !important;
-  font-size:6px !important;
-  line-height:1 !important;
+  /* reason: utility override */
+  display:block ;
+  /* reason: layout positioning */
+  position:static ;
+  /* reason: margin reset */
+  margin:0 ;
+  /* reason: utility override */
+  transform:none ;
+  /* reason: type scale override */
+  font-size:6px ;
+  /* reason: height override */
+  line-height:1 ;
 }
 #looperRail #looperUtilityControls .looper-metronome-btn .looper-timing-led {
-  position:absolute !important;
-  top:4px !important;
-  right:4px !important;
+  /* reason: layout positioning */
+  position:absolute ;
+  /* reason: utility override */
+  top:4px ;
+  /* reason: utility override */
+  right:4px ;
 }
 #looperRail #looperUtilityControls .looper-bpm-btn {
-  gap:1px !important;
+  /* reason: gap override */
+  gap:1px ;
 }
 #looperRail #looperUtilityControls .looper-bpm-btn .looper-tempo-icon {
-  width:11px !important;
-  height:11px !important;
+  /* reason: width override */
+  width:11px ;
+  /* reason: height override */
+  height:11px ;
 }
 #looperRail #looperUtilityControls .looper-bpm-value {
-  display:inline !important;
-  position:static !important;
-  margin:0 !important;
-  transform:none !important;
-  font-size:8px !important;
-  line-height:1 !important;
+  /* reason: utility override */
+  display:inline ;
+  /* reason: layout positioning */
+  position:static ;
+  /* reason: margin reset */
+  margin:0 ;
+  /* reason: utility override */
+  transform:none ;
+  /* reason: type scale override */
+  font-size:8px ;
+  /* reason: height override */
+  line-height:1 ;
 }
 #looperRail #looperUtilityControls .looper-bpm-unit {
-  display:inline !important;
-  position:static !important;
-  margin:0 !important;
-  transform:none !important;
-  font-size:4px !important;
-  line-height:1 !important;
+  /* reason: utility override */
+  display:inline ;
+  /* reason: layout positioning */
+  position:static ;
+  /* reason: margin reset */
+  margin:0 ;
+  /* reason: utility override */
+  transform:none ;
+  /* reason: type scale override */
+  font-size:4px ;
+  /* reason: height override */
+  line-height:1 ;
 }
 @media(max-width:390px) {
-  #looperRail #looperUtilityControls .looper-count-in-btn .looper-countin-icon { width:11px !important; height:9px !important; }
-  #looperRail #looperUtilityControls .looper-count-in-btn .looper-timing-main { font-size:5px !important; }
-  #looperRail #looperUtilityControls .looper-bpm-btn .looper-tempo-icon { width:10px !important; height:10px !important; }
+  /* reason: width override */
+  #looperRail #looperUtilityControls .looper-count-in-btn .looper-countin-icon { width:11px ; height:9px ; }
+  /* reason: type scale override */
+  #looperRail #looperUtilityControls .looper-count-in-btn .looper-timing-main { font-size:5px ; }
+  /* reason: width override */
+  #looperRail #looperUtilityControls .looper-bpm-btn .looper-tempo-icon { width:10px ; height:10px ; }
 }
 
 
 /* Keep Save outside the left timing cluster so it can never sit beneath Record. */
 #looperRail > #looperSaveBtn {
-  position:absolute !important;
-  left:auto !important;
-  right:4px !important;
-  top:50% !important;
-  bottom:auto !important;
-  transform:translateY(-50%) !important;
-  z-index:5 !important;
-  display:grid !important;
-  place-items:center !important;
-  margin:0 !important;
-  width:34px !important;
-  height:34px !important;
-  min-width:34px !important;
-  min-height:34px !important;
-  max-width:34px !important;
-  max-height:34px !important;
-  flex:0 0 34px !important;
-  padding:0 !important;
-  border-radius:50% !important;
-  font-size:7px !important;
-  letter-spacing:0 !important;
+  /* reason: layout positioning */
+  position:absolute ;
+  /* reason: utility override */
+  left:auto ;
+  /* reason: utility override */
+  right:4px ;
+  /* reason: utility override */
+  top:50% ;
+  /* reason: utility override */
+  bottom:auto ;
+  /* reason: utility override */
+  transform:translateY(-50%) ;
+  /* reason: stacking context */
+  z-index:5 ;
+  /* reason: utility override */
+  display:grid ;
+  /* reason: utility override */
+  place-items:center ;
+  /* reason: margin reset */
+  margin:0 ;
+  /* reason: width override */
+  width:34px ;
+  /* reason: height override */
+  height:34px ;
+  /* reason: width override */
+  min-width:34px ;
+  /* reason: height override */
+  min-height:34px ;
+  /* reason: width override */
+  max-width:34px ;
+  /* reason: height override */
+  max-height:34px ;
+  /* reason: flex layout override */
+  flex:0 0 34px ;
+  /* reason: spacing override */
+  padding:0 ;
+  /* reason: component shape */
+  border-radius:50% ;
+  /* reason: type scale override */
+  font-size:7px ;
+  /* reason: utility override */
+  letter-spacing:0 ;
 }
 #looperRail > #looperLayers {
-  padding-right:36px !important;
+  /* reason: utility override */
+  padding-right:36px ;
 }
 @media(max-width:390px) {
   #looperRail > #looperSaveBtn {
-    right:2px !important;
-    width:32px !important;
-    height:32px !important;
-    min-width:32px !important;
-    min-height:32px !important;
-    max-width:32px !important;
-    max-height:32px !important;
-    flex-basis:32px !important;
+  /* reason: utility override */
+    right:2px ;
+  /* reason: width override */
+    width:32px ;
+  /* reason: height override */
+    height:32px ;
+  /* reason: width override */
+    min-width:32px ;
+  /* reason: height override */
+    min-height:32px ;
+  /* reason: width override */
+    max-width:32px ;
+  /* reason: height override */
+    max-height:32px ;
+  /* reason: utility override */
+    flex-basis:32px ;
   }
-  #looperRail > #looperLayers { padding-right:34px !important; }
+  /* reason: utility override */
+  #looperRail > #looperLayers { padding-right:34px ; }
 }
 
 
 /* Legacy hidden-rail circles stay compact; the active dock sets touch sizing below. */
 #looperRail #looperLayers .looper-circle {
-  box-sizing: border-box !important;
-  width: 34px !important;
-  height: 34px !important;
-  min-width: 34px !important;
-  min-height: 34px !important;
-  max-width: 34px !important;
-  max-height: 34px !important;
-  flex: 0 0 34px !important;
+  /* reason: utility override */
+  box-sizing: border-box ;
+  /* reason: width override */
+  width: 34px ;
+  /* reason: height override */
+  height: 34px ;
+  /* reason: width override */
+  min-width: 34px ;
+  /* reason: height override */
+  min-height: 34px ;
+  /* reason: width override */
+  max-width: 34px ;
+  /* reason: height override */
+  max-height: 34px ;
+  /* reason: flex layout override */
+  flex: 0 0 34px ;
 }
-#looperRail #looperLayers { gap: 3px !important; overflow-x: hidden !important; }
+  /* reason: gap override */
+#looperRail #looperLayers { gap: 3px ; overflow-x: hidden ; }
 @media (max-width: 390px) {
   #looperRail #looperLayers .looper-circle {
-    width: 32px !important; height: 32px !important;
-    min-width: 32px !important; min-height: 32px !important;
-    max-width: 32px !important; max-height: 32px !important;
-    flex-basis: 32px !important;
+  /* reason: width override */
+    width: 32px ; height: 32px ;
+  /* reason: width override */
+    min-width: 32px ; min-height: 32px ;
+  /* reason: width override */
+    max-width: 32px ; max-height: 32px ;
+  /* reason: utility override */
+    flex-basis: 32px ;
   }
 }
 
 
 /* Pionier track controls: compact floating inspector, never a screen-blocking modal. */
 .looper-track-overlay.is-floating {
-  position: fixed !important; inset: 0 !important; z-index: 6000 !important;
-  display: block !important; padding: 0 !important; pointer-events: none !important;
-  background: transparent !important; -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important; animation: none !important;
+  /* reason: layout positioning */
+  position: fixed ; inset: 0 ; z-index: 6000 ;
+  /* reason: interaction block */
+  display: block ; padding: 0 ; pointer-events: none ;
+  /* reason: surface color */
+  background: transparent ; -webkit-backdrop-filter: none ;
+  /* reason: utility override */
+  backdrop-filter: none ; animation: none ;
 }
 .looper-track-overlay.is-floating .looper-track-panel {
-  position: fixed !important; margin: 0 !important;
-  width: min(320px, calc(100vw - 20px)) !important;
-  max-height: calc(100dvh - 20px) !important; overflow-y: auto !important;
-  padding: 14px !important; border-radius: 16px !important;
-  border: 1px solid rgba(212,176,74,.34) !important;
-  background: rgba(19,19,22,.94) !important;
-  box-shadow: 0 14px 42px rgba(0,0,0,.42) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(1.15) !important;
-  backdrop-filter: blur(18px) saturate(1.15) !important;
-  pointer-events: auto !important; overscroll-behavior: contain;
+  /* reason: layout positioning */
+  position: fixed ; margin: 0 ;
+  /* reason: width override */
+  width: min(320px, calc(100vw - 20px)) ;
+  /* reason: height override */
+  max-height: calc(100dvh - 20px) ; overflow-y: auto ;
+  /* reason: component shape */
+  padding: 14px ; border-radius: 16px ;
+  /* reason: border style */
+  border: 1px solid rgba(212,176,74,.34) ;
+  /* reason: surface color */
+  background: rgba(19,19,22,.94) ;
+  /* reason: elevation */
+  box-shadow: 0 14px 42px rgba(0,0,0,.42) ;
+  /* reason: utility override */
+  -webkit-backdrop-filter: blur(18px) saturate(1.15) ;
+  /* reason: utility override */
+  backdrop-filter: blur(18px) saturate(1.15) ;
+  /* reason: utility override */
+  pointer-events: auto ; overscroll-behavior: contain;
 }
 .looper-track-overlay.is-floating .looper-track-header { margin-bottom: 10px; gap: 8px; }
 .looper-track-overlay.is-floating .looper-track-header h2 { font-size: 18px; }
@@ -3663,141 +4359,235 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 /* Mobile looper: full-width seven-layer row with accessible transport targets. */
 @media (max-width: 390px) {
   #pionierBottomDock #pionierTrackRow {
-    box-sizing: border-box !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    height: 48px !important;
-    min-height: 48px !important;
-    margin: 2px auto 0 !important;
-    padding: 0 4px !important;
-    overflow: visible !important;
+  /* reason: utility override */
+    box-sizing: border-box ;
+  /* reason: utility override */
+    display: flex ;
+  /* reason: alignment override */
+    align-items: center ;
+  /* reason: alignment override */
+    justify-content: center ;
+  /* reason: width override */
+    width: 100% ;
+  /* reason: width override */
+    min-width: 0 ;
+  /* reason: height override */
+    height: 48px ;
+  /* reason: height override */
+    min-height: 48px ;
+  /* reason: margin reset */
+    margin: 2px auto 0 ;
+  /* reason: spacing override */
+    padding: 0 4px ;
+  /* reason: scroll containment */
+    overflow: visible ;
   }
 
   #pionierBottomDock #pionierTrackRow #looperLayers {
-    display: flex !important;
-    position: static !important;
-    inset: auto !important;
-    transform: none !important;
-    flex: 1 1 auto !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    height: 44px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 3px !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    scrollbar-width: none !important;
+  /* reason: utility override */
+    display: flex ;
+  /* reason: layout positioning */
+    position: static ;
+  /* reason: utility override */
+    inset: auto ;
+  /* reason: utility override */
+    transform: none ;
+  /* reason: flex layout override */
+    flex: 1 1 auto ;
+  /* reason: width override */
+    width: 100% ;
+  /* reason: width override */
+    min-width: 0 ;
+  /* reason: width override */
+    max-width: 100% ;
+  /* reason: height override */
+    height: 44px ;
+  /* reason: margin reset */
+    margin: 0 ;
+  /* reason: spacing override */
+    padding: 0 ;
+  /* reason: alignment override */
+    align-items: center ;
+  /* reason: alignment override */
+    justify-content: center ;
+  /* reason: gap override */
+    gap: 3px ;
+  /* reason: utility override */
+    overflow-x: auto ;
+  /* reason: utility override */
+    overflow-y: hidden ;
+  /* reason: width override */
+    scrollbar-width: none ;
   }
 
-  #pionierBottomDock #pionierTrackRow #looperLayers::-webkit-scrollbar { display: none !important; }
+  /* reason: hidden state */
+  #pionierBottomDock #pionierTrackRow #looperLayers::-webkit-scrollbar { display: none ; }
 
   #pionierBottomDock #pionierTrackRow #looperLayers .looper-circle {
-    box-sizing: border-box !important;
-    width: 44px !important;
-    height: 44px !important;
-    min-width: 44px !important;
-    min-height: 44px !important;
-    max-width: 44px !important;
-    max-height: 44px !important;
-    flex: 0 0 44px !important;
+  /* reason: utility override */
+    box-sizing: border-box ;
+  /* reason: width override */
+    width: 44px ;
+  /* reason: height override */
+    height: 44px ;
+  /* reason: width override */
+    min-width: 44px ;
+  /* reason: height override */
+    min-height: 44px ;
+  /* reason: width override */
+    max-width: 44px ;
+  /* reason: height override */
+    max-height: 44px ;
+  /* reason: flex layout override */
+    flex: 0 0 44px ;
   }
 
   #pionierBottomDock #pionierLooperToolbar {
-    box-sizing: border-box !important;
-    gap: 3px !important;
-    padding-inline: 4px !important;
+  /* reason: utility override */
+    box-sizing: border-box ;
+  /* reason: gap override */
+    gap: 3px ;
+  /* reason: utility override */
+    padding-inline: 4px ;
   }
 
   #pionierBottomDock #pionierLooperControls,
   #pionierBottomDock #pionierLooperActions {
-    gap: 3px !important;
-    min-width: 0 !important;
+  /* reason: gap override */
+    gap: 3px ;
+  /* reason: width override */
+    min-width: 0 ;
   }
 
   #pionierBottomDock #pionierLooperControls > button:not(#looperClearBtn),
   #pionierBottomDock #pionierLooperActions > button {
-    box-sizing: border-box !important;
-    width: 30px !important;
-    height: 30px !important;
-    min-width: 30px !important;
-    min-height: 30px !important;
-    max-width: 30px !important;
-    max-height: 30px !important;
-    flex: 0 0 30px !important;
+  /* reason: utility override */
+    box-sizing: border-box ;
+  /* reason: width override */
+    width: 30px ;
+  /* reason: height override */
+    height: 30px ;
+  /* reason: width override */
+    min-width: 30px ;
+  /* reason: height override */
+    min-height: 30px ;
+  /* reason: width override */
+    max-width: 30px ;
+  /* reason: height override */
+    max-height: 30px ;
+  /* reason: flex layout override */
+    flex: 0 0 30px ;
   }
 
   #pionierBottomDock #pionierLooperControls #looperClearBtn {
-    box-sizing: border-box !important;
-    width: 44px !important;
-    height: 44px !important;
-    min-width: 44px !important;
-    min-height: 44px !important;
-    max-width: 44px !important;
-    max-height: 44px !important;
-    flex: 0 0 44px !important;
+  /* reason: utility override */
+    box-sizing: border-box ;
+  /* reason: width override */
+    width: 44px ;
+  /* reason: height override */
+    height: 44px ;
+  /* reason: width override */
+    min-width: 44px ;
+  /* reason: height override */
+    min-height: 44px ;
+  /* reason: width override */
+    max-width: 44px ;
+  /* reason: height override */
+    max-height: 44px ;
+  /* reason: flex layout override */
+    flex: 0 0 44px ;
   }
 
   #pionierBottomDock #pionierLooperToolbar #looperRecordCluster {
-    box-sizing: border-box !important;
-    width: 44px !important;
-    height: 44px !important;
-    min-width: 44px !important;
-    min-height: 44px !important;
-    max-width: 44px !important;
-    max-height: 44px !important;
-    flex: 0 0 44px !important;
+  /* reason: utility override */
+    box-sizing: border-box ;
+  /* reason: width override */
+    width: 44px ;
+  /* reason: height override */
+    height: 44px ;
+  /* reason: width override */
+    min-width: 44px ;
+  /* reason: height override */
+    min-height: 44px ;
+  /* reason: width override */
+    max-width: 44px ;
+  /* reason: height override */
+    max-height: 44px ;
+  /* reason: flex layout override */
+    flex: 0 0 44px ;
   }
 
   #pionierBottomDock #pionierLooperToolbar #looperRecordCluster #looperBtn {
-    box-sizing: border-box !important;
-    width: 44px !important;
-    height: 44px !important;
-    min-width: 44px !important;
-    min-height: 44px !important;
-    max-width: 44px !important;
-    max-height: 44px !important;
-    flex: 0 0 44px !important;
+  /* reason: utility override */
+    box-sizing: border-box ;
+  /* reason: width override */
+    width: 44px ;
+  /* reason: height override */
+    height: 44px ;
+  /* reason: width override */
+    min-width: 44px ;
+  /* reason: height override */
+    min-height: 44px ;
+  /* reason: width override */
+    max-width: 44px ;
+  /* reason: height override */
+    max-height: 44px ;
+  /* reason: flex layout override */
+    flex: 0 0 44px ;
   }
 
   /* Reserve a real center track for Record so its 52px hit target cannot
      overlap the fixed-width action buttons beside it. */
   #pionierBottomDock #pionierLooperToolbar {
-    display: grid !important;
-    grid-template-columns: max-content 52px max-content !important;
-    justify-content: space-between !important;
+  /* reason: utility override */
+    display: grid ;
+  /* reason: utility override */
+    grid-template-columns: max-content 52px max-content ;
+  /* reason: alignment override */
+    justify-content: space-between ;
   }
 
   #pionierBottomDock #pionierLooperControls {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-    flex: none !important;
-    width: max-content !important;
+  /* reason: utility override */
+    grid-column: 1 ;
+  /* reason: utility override */
+    grid-row: 1 ;
+  /* reason: flex layout override */
+    flex: none ;
+  /* reason: width override */
+    width: max-content ;
   }
 
   #pionierBottomDock #pionierLooperToolbar #looperRecordCluster {
-    position: static !important;
-    left: auto !important;
-    top: auto !important;
-    transform: none !important;
-    z-index: auto !important;
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-    justify-self: center !important;
+  /* reason: layout positioning */
+    position: static ;
+  /* reason: utility override */
+    left: auto ;
+  /* reason: utility override */
+    top: auto ;
+  /* reason: utility override */
+    transform: none ;
+  /* reason: stacking context */
+    z-index: auto ;
+  /* reason: utility override */
+    grid-column: 2 ;
+  /* reason: utility override */
+    grid-row: 1 ;
+  /* reason: utility override */
+    justify-self: center ;
   }
 
   #pionierBottomDock #pionierLooperActions {
-    grid-column: 3 !important;
-    grid-row: 1 !important;
-    flex: none !important;
-    width: max-content !important;
-    margin: 0 !important;
+  /* reason: utility override */
+    grid-column: 3 ;
+  /* reason: utility override */
+    grid-row: 1 ;
+  /* reason: flex layout override */
+    flex: none ;
+  /* reason: width override */
+    width: max-content ;
+  /* reason: margin reset */
+    margin: 0 ;
   }
 }
 
@@ -3942,56 +4732,91 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
   padding: 0;
   margin: 0;
 }
-.picker-backdrop[hidden] { display: none !important; }
+  /* reason: hidden state */
+.picker-backdrop[hidden] { display: none ; }
 
 /* [hidden] is the single close mechanism — always wins */
 .scale-menu[hidden],
 .instrument-menu[hidden],
 #scaleMenu[hidden],
 #instrumentMenu[hidden] {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
+  /* reason: hidden state */
+  display: none ;
+  /* reason: visibility */
+  visibility: hidden ;
+  /* reason: opacity toggle */
+  opacity: 0 ;
+  /* reason: interaction block */
+  pointer-events: none ;
 }
 
 .scale-menu.picker-sheet:not([hidden]),
 .instrument-menu.picker-sheet:not([hidden]) {
-  display: block !important;
-  position: fixed !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  top: auto !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  max-height: min(55dvh, 420px) !important;
-  border-radius: 16px 16px 0 0 !important;
-  transform: none !important;
-  z-index: 5200 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  overflow-y: auto !important;
-  pointer-events: auto !important;
-  background: rgba(12, 12, 14, 0.98) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.55) !important;
+  /* reason: utility override */
+  display: block ;
+  /* reason: layout positioning */
+  position: fixed ;
+  /* reason: utility override */
+  left: 0 ;
+  /* reason: utility override */
+  right: 0 ;
+  /* reason: utility override */
+  bottom: 0 ;
+  /* reason: utility override */
+  top: auto ;
+  /* reason: width override */
+  width: 100% ;
+  /* reason: width override */
+  max-width: 100% ;
+  /* reason: height override */
+  max-height: min(55dvh, 420px) ;
+  /* reason: component shape */
+  border-radius: 16px 16px 0 0 ;
+  /* reason: utility override */
+  transform: none ;
+  /* reason: stacking context */
+  z-index: 5200 ;
+  /* reason: opacity toggle */
+  opacity: 1 ;
+  /* reason: utility override */
+  visibility: visible ;
+  /* reason: utility override */
+  overflow-y: auto ;
+  /* reason: utility override */
+  pointer-events: auto ;
+  /* reason: surface color */
+  background: rgba(12, 12, 14, 0.98) ;
+  /* reason: border style */
+  border: 1px solid rgba(255, 255, 255, 0.12) ;
+  /* reason: elevation */
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.55) ;
   -webkit-overflow-scrolling: touch;
 }
 
 .scale-menu.picker-popover:not([hidden]),
 .instrument-menu.picker-popover:not([hidden]) {
-  display: block !important;
-  position: fixed !important;
-  z-index: 5200 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: none !important;
-  overflow-y: auto !important;
-  pointer-events: auto !important;
-  background: rgba(12, 12, 14, 0.98) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55) !important;
+  /* reason: utility override */
+  display: block ;
+  /* reason: layout positioning */
+  position: fixed ;
+  /* reason: stacking context */
+  z-index: 5200 ;
+  /* reason: opacity toggle */
+  opacity: 1 ;
+  /* reason: utility override */
+  visibility: visible ;
+  /* reason: utility override */
+  transform: none ;
+  /* reason: utility override */
+  overflow-y: auto ;
+  /* reason: utility override */
+  pointer-events: auto ;
+  /* reason: surface color */
+  background: rgba(12, 12, 14, 0.98) ;
+  /* reason: border style */
+  border: 1px solid rgba(255, 255, 255, 0.12) ;
+  /* reason: elevation */
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55) ;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -4035,7 +4860,8 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 .picker-search::placeholder { color:rgba(232,230,227,.42); }
 .picker-search:focus { border-color:rgba(212,176,74,.72); box-shadow:0 0 0 2px rgba(212,176,74,.12); }
 .picker-results { min-width:0; }
-.picker-group[hidden], .picker-empty[hidden] { display:none !important; }
+  /* reason: utility override */
+.picker-group[hidden], .picker-empty[hidden] { display:none ; }
 .picker-empty { padding:18px 12px; color:rgba(232,230,227,.55); font-size:13px; text-align:center; }
 .scale-menu .picker-search, .instrument-menu .picker-search { flex:0 0 auto; }
 .scale-menu .picker-results, .instrument-menu .picker-results { min-width:0; }
@@ -4043,10 +4869,14 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 
 /* Match the compact, animated FX preset dropdown across instrument and scale pickers. */
 .scale-menu:not([hidden]), .instrument-menu:not([hidden]) {
-  background:rgba(16,16,19,.86) !important;
-  border-color:rgba(226,195,117,.22) !important;
-  backdrop-filter:blur(24px) saturate(125%) !important;
-  -webkit-backdrop-filter:blur(24px) saturate(125%) !important;
+  /* reason: surface color */
+  background:rgba(16,16,19,.86) ;
+  /* reason: text color */
+  border-color:rgba(226,195,117,.22) ;
+  /* reason: utility override */
+  backdrop-filter:blur(24px) saturate(125%) ;
+  /* reason: utility override */
+  -webkit-backdrop-filter:blur(24px) saturate(125%) ;
 }
 .scale-menu.picker-popover.is-open:not([hidden]), .instrument-menu.picker-popover.is-open:not([hidden]) {
   animation:picker-menu-drop .22s cubic-bezier(.2,.8,.2,1) both;
@@ -4060,16 +4890,24 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 
 /* Compact, anchored picker dropdown — the same glass material as FX presets. */
 .scale-menu.picker-popover:not([hidden]), .instrument-menu.picker-popover:not([hidden]) {
-  box-sizing:border-box !important; width:min(320px,calc(100vw - 24px)) !important;
-  max-width:calc(100vw - 24px) !important; max-height:min(46dvh,360px) !important;
-  overflow-y:auto !important; overscroll-behavior:contain; scrollbar-width:thin;
-  scrollbar-color:rgba(219,184,91,.45) transparent; border-radius:14px !important; padding:8px !important;
-  background:rgba(16,16,19,.88) !important; border:1px solid rgba(226,195,117,.24) !important;
-  box-shadow:0 20px 60px rgba(0,0,0,.46),inset 0 1px 0 rgba(255,255,255,.035) !important;
-  -webkit-backdrop-filter:blur(24px) saturate(125%) !important; backdrop-filter:blur(24px) saturate(125%) !important;
+  /* reason: width override */
+  box-sizing:border-box ; width:min(320px,calc(100vw - 24px)) ;
+  /* reason: width override */
+  max-width:calc(100vw - 24px) ; max-height:min(46dvh,360px) ;
+  /* reason: width override */
+  overflow-y:auto ; overscroll-behavior:contain; scrollbar-width:thin;
+  /* reason: text color */
+  scrollbar-color:rgba(219,184,91,.45) transparent; border-radius:14px ; padding:8px ;
+  /* reason: surface color */
+  background:rgba(16,16,19,.88) ; border:1px solid rgba(226,195,117,.24) ;
+  /* reason: elevation */
+  box-shadow:0 20px 60px rgba(0,0,0,.46),inset 0 1px 0 rgba(255,255,255,.035) ;
+  /* reason: utility override */
+  -webkit-backdrop-filter:blur(24px) saturate(125%) ; backdrop-filter:blur(24px) saturate(125%) ;
 }
 .scale-menu.picker-popover.is-open:not([hidden]), .instrument-menu.picker-popover.is-open:not([hidden]) {
-  animation:fx-preset-dropdown-in .24s cubic-bezier(.2,.8,.2,1) both !important;
+  /* reason: utility override */
+  animation:fx-preset-dropdown-in .24s cubic-bezier(.2,.8,.2,1) both ;
 }
 @keyframes fx-preset-dropdown-in {
   0% { opacity:0; translate:0 12px; scale:.975; }
@@ -4077,90 +4915,147 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
   100% { opacity:1; translate:0 0; scale:1; }
 }
 .picker-close {
-  position:sticky !important; top:0 !important; z-index:5 !important; float:right;
-  display:grid !important; place-items:center !important; width:28px !important; height:28px !important;
-  margin:0 0 4px 8px !important; border:1px solid rgba(226,195,117,.24) !important;
-  border-radius:50% !important; background:rgba(255,255,255,.055) !important;
-  color:#eee9dd !important; font-size:19px !important; line-height:1 !important; cursor:pointer;
+  /* reason: layout positioning */
+  position:sticky ; top:0 ; z-index:5 ; float:right;
+  /* reason: width override */
+  display:grid ; place-items:center ; width:28px ; height:28px ;
+  /* reason: margin reset */
+  margin:0 0 4px 8px ; border:1px solid rgba(226,195,117,.24) ;
+  /* reason: surface color */
+  border-radius:50% ; background:rgba(255,255,255,.055) ;
+  /* reason: height override */
+  color:#eee9dd ; font-size:19px ; line-height:1 ; cursor:pointer;
 }
 
 
 /* Full-screen instrument / scale browser. Search and close stay put; results scroll independently. */
 .picker-backdrop:not([hidden]) {
-  display:block !important;
-  background:rgba(0,0,0,.62) !important;
+  /* reason: utility override */
+  display:block ;
+  /* reason: surface color */
+  background:rgba(0,0,0,.62) ;
   -webkit-backdrop-filter:blur(8px);
   backdrop-filter:blur(8px);
 }
 .scale-menu.picker-sheet:not([hidden]),
 .instrument-menu.picker-sheet:not([hidden]) {
-  display:flex !important;
-  flex-direction:column !important;
-  box-sizing:border-box !important;
-  inset: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)) !important;
-  width:auto !important;
-  max-width:none !important;
-  max-height:none !important;
-  min-height:0 !important;
-  padding:14px !important;
-  border-radius:18px !important;
-  overflow:hidden !important;
-  background:rgba(16,16,19,.94) !important;
-  border:1px solid rgba(226,195,117,.24) !important;
-  box-shadow:0 24px 80px rgba(0,0,0,.62), inset 0 1px 0 rgba(255,255,255,.04) !important;
-  -webkit-backdrop-filter:blur(28px) saturate(125%) !important;
-  backdrop-filter:blur(28px) saturate(125%) !important;
+  /* reason: utility override */
+  display:flex ;
+  /* reason: utility override */
+  flex-direction:column ;
+  /* reason: utility override */
+  box-sizing:border-box ;
+  /* reason: utility override */
+  inset: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)) ;
+  /* reason: width override */
+  width:auto ;
+  /* reason: width override */
+  max-width:none ;
+  /* reason: height override */
+  max-height:none ;
+  /* reason: height override */
+  min-height:0 ;
+  /* reason: spacing override */
+  padding:14px ;
+  /* reason: component shape */
+  border-radius:18px ;
+  /* reason: scroll containment */
+  overflow:hidden ;
+  /* reason: surface color */
+  background:rgba(16,16,19,.94) ;
+  /* reason: border style */
+  border:1px solid rgba(226,195,117,.24) ;
+  /* reason: elevation */
+  box-shadow:0 24px 80px rgba(0,0,0,.62), inset 0 1px 0 rgba(255,255,255,.04) ;
+  /* reason: utility override */
+  -webkit-backdrop-filter:blur(28px) saturate(125%) ;
+  /* reason: utility override */
+  backdrop-filter:blur(28px) saturate(125%) ;
 }
 .scale-menu.picker-sheet.is-open:not([hidden]),
 .instrument-menu.picker-sheet.is-open:not([hidden]) {
-  animation:fx-preset-dropdown-in .28s cubic-bezier(.2,.8,.2,1) both !important;
+  /* reason: utility override */
+  animation:fx-preset-dropdown-in .28s cubic-bezier(.2,.8,.2,1) both ;
 }
 .scale-menu.picker-sheet .picker-close,
 .instrument-menu.picker-sheet .picker-close {
-  position:absolute !important;
-  top:12px !important;
-  right:12px !important;
-  z-index:8 !important;
-  float:none !important;
-  flex:0 0 36px !important;
-  width:36px !important;
-  height:36px !important;
-  margin:0 !important;
-  background:rgba(255,255,255,.07) !important;
-  border-color:rgba(226,195,117,.3) !important;
-  font-size:23px !important;
+  /* reason: layout positioning */
+  position:absolute ;
+  /* reason: utility override */
+  top:12px ;
+  /* reason: utility override */
+  right:12px ;
+  /* reason: stacking context */
+  z-index:8 ;
+  /* reason: utility override */
+  float:none ;
+  /* reason: flex layout override */
+  flex:0 0 36px ;
+  /* reason: width override */
+  width:36px ;
+  /* reason: height override */
+  height:36px ;
+  /* reason: margin reset */
+  margin:0 ;
+  /* reason: surface color */
+  background:rgba(255,255,255,.07) ;
+  /* reason: text color */
+  border-color:rgba(226,195,117,.3) ;
+  /* reason: type scale override */
+  font-size:23px ;
 }
 .scale-menu.picker-sheet .picker-search,
 .instrument-menu.picker-sheet .picker-search {
-  position:relative !important;
-  flex:0 0 auto !important;
-  width:100% !important;
-  min-height:48px !important;
-  margin:0 0 12px !important;
-  padding:12px 52px 12px 14px !important;
-  border-radius:12px !important;
-  font-size:16px !important;
+  /* reason: layout positioning */
+  position:relative ;
+  /* reason: flex layout override */
+  flex:0 0 auto ;
+  /* reason: width override */
+  width:100% ;
+  /* reason: height override */
+  min-height:48px ;
+  /* reason: margin reset */
+  margin:0 0 12px ;
+  /* reason: spacing override */
+  padding:12px 52px 12px 14px ;
+  /* reason: component shape */
+  border-radius:12px ;
+  /* reason: type scale override */
+  font-size:16px ;
 }
 .scale-menu.picker-sheet .picker-results,
 .instrument-menu.picker-sheet .picker-results {
-  flex:1 1 auto !important;
-  min-height:0 !important;
-  overflow-x:hidden !important;
-  overflow-y:auto !important;
-  overscroll-behavior:contain !important;
-  -webkit-overflow-scrolling:touch !important;
+  /* reason: flex layout override */
+  flex:1 1 auto ;
+  /* reason: height override */
+  min-height:0 ;
+  /* reason: utility override */
+  overflow-x:hidden ;
+  /* reason: utility override */
+  overflow-y:auto ;
+  /* reason: utility override */
+  overscroll-behavior:contain ;
+  /* reason: utility override */
+  -webkit-overflow-scrolling:touch ;
   scrollbar-width:thin;
   scrollbar-color:rgba(219,184,91,.45) transparent;
-  padding-bottom:max(12px, env(safe-area-inset-bottom)) !important;
+  /* reason: utility override */
+  padding-bottom:max(12px, env(safe-area-inset-bottom)) ;
 }
 .scale-menu.picker-sheet .scale-menu-item,
 .instrument-menu.picker-sheet .instrument-menu-item {
-  min-height:50px !important;
-  padding:13px 14px !important;
-  border-radius:11px !important;
-  font-size:15px !important;
-  text-align:left !important;
-  transition:background .16s ease, color .16s ease, transform .16s cubic-bezier(.2,.8,.2,1) !important;
+  /* reason: height override */
+  min-height:50px ;
+  /* reason: spacing override */
+  padding:13px 14px ;
+  /* reason: component shape */
+  border-radius:11px ;
+  /* reason: type scale override */
+  font-size:15px ;
+  /* reason: utility override */
+  text-align:left ;
+  /* reason: utility override */
+  transition:background .16s ease, color .16s ease, transform .16s cubic-bezier(.2,.8,.2,1) ;
 }
 .scale-menu.picker-sheet .scale-menu-item:active,
 .instrument-menu.picker-sheet .instrument-menu-item:active { transform:scale(.985); }
@@ -4180,29 +5075,41 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
 @media (min-width:700px) {
   .scale-menu.picker-sheet:not([hidden]),
   .instrument-menu.picker-sheet:not([hidden]) {
-    inset: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)) !important;
-    padding:22px !important;
+  /* reason: utility override */
+    inset: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)) ;
+  /* reason: spacing override */
+    padding:22px ;
   }
   .scale-menu.picker-sheet .picker-search,
-  .instrument-menu.picker-sheet .picker-search { min-height:54px !important; font-size:17px !important; }
+  /* reason: height override */
+  .instrument-menu.picker-sheet .picker-search { min-height:54px ; font-size:17px ; }
   .scale-menu.picker-sheet .scale-menu-item,
-  .instrument-menu.picker-sheet .instrument-menu-item { min-height:54px !important; font-size:16px !important; }
+  /* reason: height override */
+  .instrument-menu.picker-sheet .instrument-menu-item { min-height:54px ; font-size:16px ; }
 }
 
 
 /* Universal instrument + scale scroll menu: shared glassmorphism and spring bounce. */
 .scale-menu.picker-sheet:not([hidden]), .instrument-menu.picker-sheet:not([hidden]) {
- display:flex !important; flex-direction:column !important; box-sizing:border-box !important;
- inset:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left)) !important;
- width:auto !important; max-width:none !important; max-height:none !important; min-height:0 !important;
- padding:12px !important; border-radius:20px !important; overflow:hidden !important;
- background:rgba(17,17,20,.88) !important; border:1px solid rgba(226,195,117,.26) !important;
- box-shadow:0 28px 90px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.07),inset 0 0 32px rgba(255,255,255,.018) !important;
- -webkit-backdrop-filter:blur(30px) saturate(140%) !important; backdrop-filter:blur(30px) saturate(140%) !important;
+  /* reason: utility override */
+ display:flex ; flex-direction:column ; box-sizing:border-box ;
+  /* reason: utility override */
+ inset:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left)) ;
+  /* reason: width override */
+ width:auto ; max-width:none ; max-height:none ; min-height:0 ;
+  /* reason: scroll containment */
+ padding:12px ; border-radius:20px ; overflow:hidden ;
+  /* reason: surface color */
+ background:rgba(17,17,20,.88) ; border:1px solid rgba(226,195,117,.26) ;
+  /* reason: elevation */
+ box-shadow:0 28px 90px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.07),inset 0 0 32px rgba(255,255,255,.018) ;
+  /* reason: utility override */
+ -webkit-backdrop-filter:blur(30px) saturate(140%) ; backdrop-filter:blur(30px) saturate(140%) ;
  transform-origin:50% 10%;
 }
 .scale-menu.picker-sheet.is-open:not([hidden]), .instrument-menu.picker-sheet.is-open:not([hidden]) {
- animation:universal-glass-bounce .42s cubic-bezier(.2,.85,.25,1.22) both !important;
+  /* reason: utility override */
+ animation:universal-glass-bounce .42s cubic-bezier(.2,.85,.25,1.22) both ;
 }
 @keyframes universal-glass-bounce {
  0% {opacity:0;transform:translateY(-14px) scale(.965)}
@@ -4211,148 +5118,223 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
  100% {opacity:1;transform:translateY(0) scale(1)}
 }
 .scale-menu.picker-sheet .picker-results, .instrument-menu.picker-sheet .picker-results {
- display:block !important; flex:1 1 auto !important; min-height:0 !important; width:100% !important;
- overflow-x:hidden !important; overflow-y:auto !important; overscroll-behavior:contain !important;
- -webkit-overflow-scrolling:touch !important; scrollbar-width:thin;
+  /* reason: width override */
+ display:block ; flex:1 1 auto ; min-height:0 ; width:100% ;
+  /* reason: utility override */
+ overflow-x:hidden ; overflow-y:auto ; overscroll-behavior:contain ;
+  /* reason: width override */
+ -webkit-overflow-scrolling:touch ; scrollbar-width:thin;
  scrollbar-color:rgba(219,184,91,.48) transparent;
- padding:2px 2px max(16px,env(safe-area-inset-bottom)) !important;
+  /* reason: spacing override */
+ padding:2px 2px max(16px,env(safe-area-inset-bottom)) ;
 }
 .scale-menu.picker-sheet .picker-close, .instrument-menu.picker-sheet .picker-close {
- position:relative !important; align-self:flex-end !important; top:auto !important; right:auto !important;
- z-index:8 !important; float:none !important; flex:0 0 34px !important;
- width:34px !important; height:34px !important; margin:0 0 4px !important; border-radius:50% !important;
- background:rgba(255,255,255,.055) !important; border:1px solid rgba(226,195,117,.25) !important; color:#eee9dd !important;
+  /* reason: layout positioning */
+ position:relative ; align-self:flex-end ; top:auto ; right:auto ;
+  /* reason: stacking context */
+ z-index:8 ; float:none ; flex:0 0 34px ;
+  /* reason: width override */
+ width:34px ; height:34px ; margin:0 0 4px ; border-radius:50% ;
+  /* reason: surface color */
+ background:rgba(255,255,255,.055) ; border:1px solid rgba(226,195,117,.25) ; color:#eee9dd ;
 }
 .scale-menu.picker-sheet .scale-menu-item, .instrument-menu.picker-sheet .instrument-menu-item {
- display:block !important; width:100% !important; box-sizing:border-box !important; min-height:50px !important;
- padding:13px 14px !important; margin:2px 0 !important; border-radius:12px !important; text-align:left !important;
- transition:background .18s ease,color .18s ease,transform .28s cubic-bezier(.2,.85,.25,1.2),border-color .18s ease !important;
+  /* reason: width override */
+ display:block ; width:100% ; box-sizing:border-box ; min-height:50px ;
+  /* reason: margin reset */
+ padding:13px 14px ; margin:2px 0 ; border-radius:12px ; text-align:left ;
+  /* reason: utility override */
+ transition:background .18s ease,color .18s ease,transform .28s cubic-bezier(.2,.85,.25,1.2),border-color .18s ease ;
 }
-.scale-menu.picker-sheet .scale-menu-item:active, .instrument-menu.picker-sheet .instrument-menu-item:active {transform:scale(.985) !important}
+  /* reason: utility override */
+.scale-menu.picker-sheet .scale-menu-item:active, .instrument-menu.picker-sheet .instrument-menu-item:active {transform:scale(.985) }
 .scale-menu.picker-sheet .scale-menu-item.is-active, .instrument-menu.picker-sheet .instrument-menu-item.is-active {
- background:rgba(217,184,94,.13) !important; border-color:rgba(217,184,94,.4) !important;
+  /* reason: surface color */
+ background:rgba(217,184,94,.13) ; border-color:rgba(217,184,94,.4) ;
 }
 .scale-menu.picker-sheet .scale-menu-item.is-active::after, .instrument-menu.picker-sheet .instrument-menu-item.is-active::after {
  content:'✓'; float:right; margin-left:12px; color:#e5c36c; font-weight:700;
 }
 .scale-menu.picker-sheet .scale-menu-group, .instrument-menu.picker-sheet .instrument-menu-group {
- padding:17px 12px 8px !important; color:rgba(226,195,117,.68) !important; font-size:10px !important; letter-spacing:.14em !important;
+  /* reason: text color */
+ padding:17px 12px 8px ; color:rgba(226,195,117,.68) ; font-size:10px ; letter-spacing:.14em ;
 }
 html.theme-light .scale-menu.picker-sheet:not([hidden]), html.theme-light .instrument-menu.picker-sheet:not([hidden]) {
- background:rgba(250,248,244,.91) !important; border-color:rgba(93,73,35,.2) !important;
- box-shadow:0 28px 90px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.8) !important;
+  /* reason: surface color */
+ background:rgba(250,248,244,.91) ; border-color:rgba(93,73,35,.2) ;
+  /* reason: elevation */
+ box-shadow:0 28px 90px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.8) ;
 }
 @media (min-width:700px) {
- .scale-menu.picker-sheet:not([hidden]), .instrument-menu.picker-sheet:not([hidden]) {inset:24px !important;padding:20px !important;border-radius:24px !important}
- .scale-menu.picker-sheet .scale-menu-item, .instrument-menu.picker-sheet .instrument-menu-item {min-height:54px !important;font-size:16px !important}
+  /* reason: component shape */
+ .scale-menu.picker-sheet:not([hidden]), .instrument-menu.picker-sheet:not([hidden]) {inset:24px ;padding:20px ;border-radius:24px }
+  /* reason: height override */
+ .scale-menu.picker-sheet .scale-menu-item, .instrument-menu.picker-sheet .instrument-menu-item {min-height:54px ;font-size:16px }
 }
 
 
 /* Instrument and scale use the same anchored popover behavior as the FX preset dropdown. */
 .instrument-menu.picker-popover:not([hidden]), .scale-menu.picker-popover:not([hidden]) {
-  display:flex !important; flex-direction:column !important; box-sizing:border-box !important;
-  padding:6px !important; width:var(--picker-width, auto);
-  max-width:calc(100vw - 24px) !important; min-height:0 !important;
-  border-radius:16px !important; overflow:hidden !important;
-  background:rgba(16,16,19,.88) !important;
-  border:1px solid rgba(226,195,117,.24) !important;
-  box-shadow:0 24px 80px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,255,255,.06) !important;
-  -webkit-backdrop-filter:blur(28px) saturate(140%) !important;
-  backdrop-filter:blur(28px) saturate(140%) !important;
+  /* reason: utility override */
+  display:flex ; flex-direction:column ; box-sizing:border-box ;
+  /* reason: width override */
+  padding:6px ; width:var(--picker-width, auto);
+  /* reason: width override */
+  max-width:calc(100vw - 24px) ; min-height:0 ;
+  /* reason: scroll containment */
+  border-radius:16px ; overflow:hidden ;
+  /* reason: surface color */
+  background:rgba(16,16,19,.88) ;
+  /* reason: border style */
+  border:1px solid rgba(226,195,117,.24) ;
+  /* reason: elevation */
+  box-shadow:0 24px 80px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,255,255,.06) ;
+  /* reason: utility override */
+  -webkit-backdrop-filter:blur(28px) saturate(140%) ;
+  /* reason: utility override */
+  backdrop-filter:blur(28px) saturate(140%) ;
   transform-origin:top center;
 }
 .instrument-menu.picker-popover.is-open:not([hidden]), .scale-menu.picker-popover.is-open:not([hidden]) {
-  animation:pionier-menu-spring .38s cubic-bezier(.2,.85,.25,1.2) both !important;
+  /* reason: utility override */
+  animation:pionier-menu-spring .38s cubic-bezier(.2,.85,.25,1.2) both ;
 }
 .instrument-menu.picker-popover .picker-results, .scale-menu.picker-popover .picker-results {
-  flex:1 1 auto !important; min-height:0 !important; width:100% !important;
-  overflow-x:hidden !important; overflow-y:auto !important; overscroll-behavior:contain !important;
-  -webkit-overflow-scrolling:touch !important; padding:2px !important;
+  /* reason: width override */
+  flex:1 1 auto ; min-height:0 ; width:100% ;
+  /* reason: utility override */
+  overflow-x:hidden ; overflow-y:auto ; overscroll-behavior:contain ;
+  /* reason: spacing override */
+  -webkit-overflow-scrolling:touch ; padding:2px ;
 }
 .instrument-menu.picker-popover .picker-close, .scale-menu.picker-popover .picker-close {
-  align-self:flex-end !important; flex:0 0 28px !important; width:28px !important; height:28px !important;
-  margin:0 0 3px !important; border-radius:50% !important;
-  background:rgba(255,255,255,.045) !important; border:1px solid rgba(226,195,117,.2) !important;
+  /* reason: width override */
+  align-self:flex-end ; flex:0 0 28px ; width:28px ; height:28px ;
+  /* reason: margin reset */
+  margin:0 0 3px ; border-radius:50% ;
+  /* reason: surface color */
+  background:rgba(255,255,255,.045) ; border:1px solid rgba(226,195,117,.2) ;
 }
 .instrument-menu.picker-popover .instrument-menu-item, .scale-menu.picker-popover .scale-menu-item {
-  min-height:42px !important; padding:10px 12px !important; margin:1px 0 !important;
-  border-radius:10px !important; font-size:13px !important;
+  /* reason: height override */
+  min-height:42px ; padding:10px 12px ; margin:1px 0 ;
+  /* reason: component shape */
+  border-radius:10px ; font-size:13px ;
 }
 html.theme-light .instrument-menu.picker-popover:not([hidden]), html.theme-light .scale-menu.picker-popover:not([hidden]) {
-  background:rgba(250,248,244,.94) !important; color:#24221e !important;
-  border-color:rgba(93,73,35,.2) !important;
+  /* reason: surface color */
+  background:rgba(250,248,244,.94) ; color:#24221e ;
+  /* reason: text color */
+  border-color:rgba(93,73,35,.2) ;
 }
 @media(prefers-reduced-motion:reduce) {
- .instrument-menu.picker-popover.is-open:not([hidden]), .scale-menu.picker-popover.is-open:not([hidden]) {animation:none !important;}
+  /* reason: utility override */
+ .instrument-menu.picker-popover.is-open:not([hidden]), .scale-menu.picker-popover.is-open:not([hidden]) {animation:none ;}
 }
 
 
 /* Instrument and scale pickers: match the looper's floating settings bubble, not a full-screen sheet. */
 .scale-menu.picker-popover:not([hidden]),
 .instrument-menu.picker-popover:not([hidden]) {
-  box-sizing:border-box !important;
-  padding:12px !important;
-  border:1px solid rgba(226,195,117,.24) !important;
-  border-radius:16px !important;
-  background:rgba(16,16,19,.88) !important;
-  color:#eee9dd !important;
-  box-shadow:0 20px 60px rgba(0,0,0,.46),inset 0 1px 0 rgba(255,255,255,.035) !important;
-  -webkit-backdrop-filter:blur(24px) saturate(125%) !important;
-  backdrop-filter:blur(24px) saturate(125%) !important;
-  overflow:hidden !important;
-  transform-origin:bottom center !important;
+  /* reason: utility override */
+  box-sizing:border-box ;
+  /* reason: spacing override */
+  padding:12px ;
+  /* reason: border style */
+  border:1px solid rgba(226,195,117,.24) ;
+  /* reason: component shape */
+  border-radius:16px ;
+  /* reason: surface color */
+  background:rgba(16,16,19,.88) ;
+  /* reason: text color */
+  color:#eee9dd ;
+  /* reason: elevation */
+  box-shadow:0 20px 60px rgba(0,0,0,.46),inset 0 1px 0 rgba(255,255,255,.035) ;
+  /* reason: utility override */
+  -webkit-backdrop-filter:blur(24px) saturate(125%) ;
+  /* reason: utility override */
+  backdrop-filter:blur(24px) saturate(125%) ;
+  /* reason: scroll containment */
+  overflow:hidden ;
+  /* reason: utility override */
+  transform-origin:bottom center ;
 }
 .scale-menu.picker-popover.is-open:not([hidden]),
 .instrument-menu.picker-popover.is-open:not([hidden]) {
-  animation:looper-bubble-in .2s cubic-bezier(.2,.8,.2,1) both !important;
+  /* reason: utility override */
+  animation:looper-bubble-in .2s cubic-bezier(.2,.8,.2,1) both ;
 }
 .scale-menu.picker-popover .picker-results,
 .instrument-menu.picker-popover .picker-results {
-  overflow-y:auto !important;
-  min-height:0 !important;
-  overscroll-behavior:contain !important;
-  -webkit-overflow-scrolling:touch !important;
+  /* reason: utility override */
+  overflow-y:auto ;
+  /* reason: height override */
+  min-height:0 ;
+  /* reason: utility override */
+  overscroll-behavior:contain ;
+  /* reason: utility override */
+  -webkit-overflow-scrolling:touch ;
 }
 .scale-menu.picker-popover .scale-menu-item,
 .instrument-menu.picker-popover .instrument-menu-item {
-  min-height:34px !important;
-  padding:8px 10px !important;
-  margin:1px 0 !important;
-  border-radius:9px !important;
-  font-size:12px !important;
-  transition:background .15s ease,border-color .15s ease,color .15s ease !important;
+  /* reason: height override */
+  min-height:34px ;
+  /* reason: spacing override */
+  padding:8px 10px ;
+  /* reason: margin reset */
+  margin:1px 0 ;
+  /* reason: component shape */
+  border-radius:9px ;
+  /* reason: type scale override */
+  font-size:12px ;
+  /* reason: utility override */
+  transition:background .15s ease,border-color .15s ease,color .15s ease ;
 }
 .scale-menu.picker-popover .scale-menu-item.is-active,
 .instrument-menu.picker-popover .instrument-menu-item.is-active {
-  color:#f6dfa0 !important;
-  background:rgba(219,184,91,.12) !important;
-  border-color:rgba(219,184,91,.52) !important;
-  box-shadow:none !important;
+  /* reason: text color */
+  color:#f6dfa0 ;
+  /* reason: surface color */
+  background:rgba(219,184,91,.12) ;
+  /* reason: text color */
+  border-color:rgba(219,184,91,.52) ;
+  /* reason: elevation */
+  box-shadow:none ;
 }
 .scale-menu.picker-popover .scale-menu-group,
 .instrument-menu.picker-popover .instrument-menu-group {
-  padding:10px 8px 6px !important;
-  color:rgba(235,228,211,.62) !important;
-  font-size:10px !important;
-  letter-spacing:.08em !important;
+  /* reason: spacing override */
+  padding:10px 8px 6px ;
+  /* reason: text color */
+  color:rgba(235,228,211,.62) ;
+  /* reason: type scale override */
+  font-size:10px ;
+  /* reason: utility override */
+  letter-spacing:.08em ;
 }
 @media(prefers-reduced-motion:reduce) {
   .scale-menu.picker-popover.is-open:not([hidden]),
-  .instrument-menu.picker-popover.is-open:not([hidden]) { animation:none !important; }
+  /* reason: utility override */
+  .instrument-menu.picker-popover.is-open:not([hidden]) { animation:none ; }
 }
 
 
 /* Popover results scroll cleanly without visible scrollbar tracks. */
 .scale-menu.picker-popover .picker-results,
 .instrument-menu.picker-popover .picker-results {
-  scrollbar-width:none !important;
-  -ms-overflow-style:none !important;
+  /* reason: width override */
+  scrollbar-width:none ;
+  /* reason: utility override */
+  -ms-overflow-style:none ;
 }
 .scale-menu.picker-popover .picker-results::-webkit-scrollbar,
 .instrument-menu.picker-popover .picker-results::-webkit-scrollbar {
-  display:none !important;
-  width:0 !important;
-  height:0 !important;
+  /* reason: utility override */
+  display:none ;
+  /* reason: width override */
+  width:0 ;
+  /* reason: height override */
+  height:0 ;
 }
 
 
@@ -4360,88 +5342,126 @@ html.theme-light .instrument-menu.picker-popover:not([hidden]), html.theme-light
    intentionally remain for layout, but must not restyle these option buttons. */
 .scale-menu.picker-popover.looper-bubble-menu,
 .instrument-menu.picker-popover.looper-bubble-menu {
-  box-sizing:border-box!important;
-  padding:12px!important;
-  border:1px solid rgba(226,195,117,.24)!important;
-  border-radius:16px!important;
-  background:rgba(16,16,19,.88)!important;
-  color:#eee9dd!important;
-  box-shadow:0 20px 60px rgba(0,0,0,.46),inset 0 1px 0 rgba(255,255,255,.035)!important;
-  -webkit-backdrop-filter:blur(24px) saturate(125%)!important;
-  backdrop-filter:blur(24px) saturate(125%)!important;
+  /* reason: utility override */
+  box-sizing:border-box;
+  /* reason: spacing override */
+  padding:12px;
+  /* reason: border style */
+  border:1px solid rgba(226,195,117,.24);
+  /* reason: component shape */
+  border-radius:16px;
+  /* reason: surface color */
+  background:rgba(16,16,19,.88);
+  /* reason: text color */
+  color:#eee9dd;
+  /* reason: elevation */
+  box-shadow:0 20px 60px rgba(0,0,0,.46),inset 0 1px 0 rgba(255,255,255,.035);
+  /* reason: utility override */
+  -webkit-backdrop-filter:blur(24px) saturate(125%);
+  /* reason: utility override */
+  backdrop-filter:blur(24px) saturate(125%);
 }
 .scale-menu.picker-popover.looper-bubble-menu .picker-results,
 .instrument-menu.picker-popover.looper-bubble-menu .picker-results {
-  display:block!important; flex:1 1 auto!important; min-height:0!important;
-  overflow-x:hidden!important; overflow-y:auto!important; padding:2px!important;
-  overscroll-behavior:contain!important; -webkit-overflow-scrolling:touch!important;
-  scrollbar-width:none!important; -ms-overflow-style:none!important;
+  /* reason: height override */
+  display:block; flex:1 1 auto; min-height:0;
+  /* reason: spacing override */
+  overflow-x:hidden; overflow-y:auto; padding:2px;
+  /* reason: utility override */
+  overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
+  /* reason: width override */
+  scrollbar-width:none; -ms-overflow-style:none;
 }
 .scale-menu.picker-popover.looper-bubble-menu .scale-menu-item,
 .instrument-menu.picker-popover.looper-bubble-menu .instrument-menu-item {
-  display:block!important; box-sizing:border-box!important; width:100%!important;
-  min-height:34px!important; padding:7px 8px!important; margin:1px 0!important;
-  border:1px solid rgba(230,224,210,.1)!important; border-radius:9px!important;
-  background:rgba(255,255,255,.035)!important;
-  box-shadow:none!important; color:rgba(236,230,217,.78)!important;
-  font:500 11px/1.2 Inter,system-ui,sans-serif!important; text-align:left!important;
-  transition:background .15s ease,border-color .15s ease,color .15s ease!important;
+  /* reason: width override */
+  display:block; box-sizing:border-box; width:100%;
+  /* reason: height override */
+  min-height:34px; padding:7px 8px; margin:1px 0;
+  /* reason: component shape */
+  border:1px solid rgba(230,224,210,.1); border-radius:9px;
+  /* reason: surface color */
+  background:rgba(255,255,255,.035);
+  /* reason: text color */
+  box-shadow:none; color:rgba(236,230,217,.78);
+  /* reason: utility override */
+  font:500 11px/1.2 Inter,system-ui,sans-serif; text-align:left;
+  /* reason: utility override */
+  transition:background .15s ease,border-color .15s ease,color .15s ease;
 }
 .scale-menu.picker-popover.looper-bubble-menu .scale-menu-item:hover,
 .instrument-menu.picker-popover.looper-bubble-menu .instrument-menu-item:hover,
 .scale-menu.picker-popover.looper-bubble-menu .scale-menu-item.is-active,
 .instrument-menu.picker-popover.looper-bubble-menu .instrument-menu-item.is-active {
-  color:#f6dfa0!important; border-color:rgba(219,184,91,.52)!important;
-  background:rgba(219,184,91,.12)!important; box-shadow:none!important;
+  /* reason: text color */
+  color:#f6dfa0; border-color:rgba(219,184,91,.52);
+  /* reason: surface color */
+  background:rgba(219,184,91,.12); box-shadow:none;
 }
 .scale-menu.picker-popover.looper-bubble-menu .scale-menu-item.is-active::after,
-.instrument-menu.picker-popover.looper-bubble-menu .instrument-menu-item.is-active::after {display:none!important;content:none!important}
+  /* reason: utility override */
+.instrument-menu.picker-popover.looper-bubble-menu .instrument-menu-item.is-active::after {display:none;content:none}
 .scale-menu.picker-popover.looper-bubble-menu .scale-menu-group,
 .instrument-menu.picker-popover.looper-bubble-menu .instrument-menu-group {
-  padding:10px 0 6px!important; color:rgba(235,228,211,.62)!important;
-  font:700 9px/1.2 Inter,system-ui,sans-serif!important; letter-spacing:.12em!important;
+  /* reason: text color */
+  padding:10px 0 6px; color:rgba(235,228,211,.62);
+  /* reason: utility override */
+  font:700 9px/1.2 Inter,system-ui,sans-serif; letter-spacing:.12em;
 }
 .scale-menu.picker-popover.looper-bubble-menu .picker-search,
 .instrument-menu.picker-popover.looper-bubble-menu .picker-search {
-  border:1px solid rgba(230,224,210,.1)!important; border-radius:9px!important;
-  background:rgba(255,255,255,.035)!important; color:#eee9dd!important;
+  /* reason: component shape */
+  border:1px solid rgba(230,224,210,.1); border-radius:9px;
+  /* reason: surface color */
+  background:rgba(255,255,255,.035); color:#eee9dd;
 }
 .scale-menu.picker-popover.looper-bubble-menu .picker-close,
 .instrument-menu.picker-popover.looper-bubble-menu .picker-close {
-  border:1px solid rgba(255,255,255,.13)!important; border-radius:50%!important;
-  background:rgba(255,255,255,.06)!important; color:rgba(246,239,222,.86)!important;
+  /* reason: component shape */
+  border:1px solid rgba(255,255,255,.13); border-radius:50%;
+  /* reason: surface color */
+  background:rgba(255,255,255,.06); color:rgba(246,239,222,.86);
 }
 .scale-menu.picker-popover.looper-bubble-menu.is-open,
 .instrument-menu.picker-popover.looper-bubble-menu.is-open {
-  animation:looper-picker-bubble-spring .38s cubic-bezier(.2,.85,.25,1.22) both!important;
+  /* reason: utility override */
+  animation:looper-picker-bubble-spring .38s cubic-bezier(.2,.85,.25,1.22) both;
 }
 @media(prefers-reduced-motion:reduce) {
  .scale-menu.picker-popover.looper-bubble-menu.is-open,
- .instrument-menu.picker-popover.looper-bubble-menu.is-open {animation:none!important}
+  /* reason: utility override */
+ .instrument-menu.picker-popover.looper-bubble-menu.is-open {animation:none}
 }
 
 
 /* Final parity with the looper Time signature bubble: same calm entry, no spring or scroll bounce. */
 .scale-menu.picker-popover.looper-bubble-menu.is-open,
 .instrument-menu.picker-popover.looper-bubble-menu.is-open {
-  animation:picker-menu-drop .24s cubic-bezier(.2,.8,.2,1) both!important;
-  transform-origin:bottom center!important;
+  /* reason: utility override */
+  animation:picker-menu-drop .24s cubic-bezier(.2,.8,.2,1) both;
+  /* reason: utility override */
+  transform-origin:bottom center;
 }
 .scale-menu.picker-popover.looper-bubble-menu .picker-results,
 .instrument-menu.picker-popover.looper-bubble-menu .picker-results {
-  overscroll-behavior:contain!important;
-  scroll-behavior:auto!important;
+  /* reason: utility override */
+  overscroll-behavior:contain;
+  /* reason: utility override */
+  scroll-behavior:auto;
 }
 @media(prefers-reduced-motion:reduce){
   .scale-menu.picker-popover.looper-bubble-menu.is-open,
-  .instrument-menu.picker-popover.looper-bubble-menu.is-open {animation:none!important}
+  /* reason: utility override */
+  .instrument-menu.picker-popover.looper-bubble-menu.is-open {animation:none}
 }
 
 /* ===== v204 additions (preserved from the v204 source before the accidental purge) ===== */
 /* Keep the pan surface interactive when overlays toggle pointer-events. */
 body #pan {
-  pointer-events: auto !important;
-  visibility: visible !important;
+  /* reason: utility override */
+  pointer-events: auto ;
+  /* reason: utility override */
+  visibility: visible ;
 }
 
 /* Keep the boot-failure status above every overlay. */
@@ -4488,7 +5508,8 @@ html.pionier-boot-failed #appStatus {
 
 .fx-panel-body.knobs-panel,
 .fx-panel .knobs-panel {
-  display: grid !important;
+  /* reason: utility override */
+  display: grid ;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px 8px;
   justify-items: center;
@@ -4508,6 +5529,7 @@ html.pionier-boot-failed #appStatus {
   animation: looper-pulse-rec 1s ease-in-out infinite;
   border-color: #ff3b3b;
   box-shadow: 0 0 0 3px rgba(224, 54, 54, 0.22), 0 6px 20px rgba(0, 0, 0, 0.35);
+}
 
 .looper-btn.is-recording .looper-btn-core {
   width: 16px;
@@ -4535,14 +5557,17 @@ html.pionier-boot-failed #appStatus {
   color: #161518;
   font: 700 9px/1 Inter, system-ui, sans-serif;
   pointer-events: none;
+}
 
 .looper-btn.is-pending-stop .looper-btn-ring {
   border-color: #f4cf69;
   animation: looper-pulse-rec 0.7s ease-in-out infinite;
   box-shadow: 0 0 0 3px rgba(212, 176, 74, 0.25), 0 6px 20px rgba(0, 0, 0, 0.35);
+}
 
 .looper-btn.is-pending-stop .looper-btn-core {
   background: #d4b04a;
   border-radius: 3px;
+}
 
 

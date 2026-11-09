@@ -13,13 +13,13 @@
 const CACHE_VERSION = 'pionier-v205';
 
 const ASSETS = [
-  './assets/app-CRHcBIKF.js',
-  './assets/app-cryg2zR7.css',
+  './assets/app-B57XWJuW.js',
+  './assets/app-DcaMDsYD.css',
   './assets/audio-core-BKBAUavA.js',
   './assets/fx-editor-GJ25akPZ.js',
   './assets/handpan-D4MvzjUi.js',
   './assets/handpan-DvBPp9R-.js',
-  './assets/library-BR_n9QcD.js',
+  './assets/library-BV1ko3Fb.js',
   './assets/master-clock-985qe0Q5.js',
   './assets/note-plus-Cc8DzZ59.js',
 ];
@@ -30,12 +30,14 @@ self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_VERSION);
     // Pre-cache hashed assets (immutable, cache-first)
+    let failed = [];
     await Promise.all(ASSETS.map(async (url) => {
       try {
         const res = await fetch(url, { cache: 'no-cache' });
-        if (res && res.ok) await cache.put(url, res);
-      } catch (_) {}
+        if (res && res.ok) await cache.put(url, res); else failed.push(url);
+      } catch (_) { failed.push(url); }
     }));
+    if (failed.length > 0) throw new Error("SW install failed: " + failed.join(","));
     await self.skipWaiting();
   }));
 });
@@ -90,9 +92,11 @@ self.addEventListener('fetch', (event) => {
           }
           return res;
         });
-      });
+      })
+    );
     return;
   }
+
 
   // Other same-origin GET: cache-first, then network
   event.respondWith(
@@ -104,7 +108,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_VERSION).then((c) => c.put(req, copy)).catch(() => {});
         }
         return res;
-      });
-    });
+        });
+      })
+    );
   });
-});

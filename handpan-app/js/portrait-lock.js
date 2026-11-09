@@ -1,26 +1,20 @@
 /**
- * portrait-lock.js — Prefer portrait. ES module.
- * Kept for Phase 2 module graph; Phase 3 removes the hard portrait lock
- * and provides a usable landscape layout.
+ * portrait-lock.js — Phase 3: portrait lock removed.
+ *
+ * The app now supports both portrait and landscape. This module is kept for
+ * the module graph but no longer requests a portrait orientation lock.
+ * Orientation-specific layout is handled by CSS (see pionier-base.css and
+ * pionier-controls.css) using @media (orientation: landscape) and
+ * aspect-ratio queries.
  */
 
 export function tryLock() {
-  try {
-    const o = screen.orientation || screen.mozOrientation || screen.msOrientation;
-    if (o && typeof o.lock === 'function') {
-      o.lock('portrait').catch(function () {});
-      return;
-    }
-    if (typeof screen.lockOrientation === 'function') {
-      screen.lockOrientation('portrait');
-    } else if (typeof screen.mozLockOrientation === 'function') {
-      screen.mozLockOrientation('portrait');
-    }
-  } catch (_) {}
+  // Intentionally no-op: do not lock orientation. Let the user choose
+  // portrait or landscape; the UI adapts via CSS media queries.
 }
 
-function onGesture() {
-  tryLock();
+export function releaseLock() {
+  // Intentionally no-op.
 }
 
 if (document.readyState === 'loading') {
@@ -28,9 +22,3 @@ if (document.readyState === 'loading') {
 } else {
   tryLock();
 }
-
-document.addEventListener('click', onGesture, { once: true, passive: true });
-document.addEventListener('touchstart', onGesture, { once: true, passive: true });
-window.addEventListener('orientationchange', function () {
-  setTimeout(tryLock, 100);
-});

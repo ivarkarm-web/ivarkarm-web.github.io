@@ -34,6 +34,122 @@ function download(record) {
   anchor.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
+
+/** Accessible in-app dialogs replacing window.prompt/window.confirm. */
+function createDialog(id, html) {
+  let el = document.getElementById(id);
+  if (!el) {
+    el = document.createElement('dialog');
+    el.id = id;
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.className = 'library-dialog';
+    document.body.appendChild(el);
+  }
+  el.innerHTML = html;
+  return el;
+}
+
+function trapFocus(el) {
+  const focusables = el.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  const onKey = (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      el.close();
+    }
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        last?.focus({ preventScroll: true });
+      } else {
+        first?.focus({ preventScroll: true });
+      }
+    }
+  };
+  el.addEventListener('keydown', onKey);
+  return () => el.removeEventListener('keydown', onKey);
+}
+
+async function promptRename(currentName) {
+  const id = 'library-rename-dialog';
+  const el = createDialog(
+    id,
+    `<form method="dialog">
+      <div class="library-dialog-header">
+        <h3 id="library-rename-title">Rename composition</h3>
+        <button type="button" class="library-dialog-close" aria-label="Close">×</button>
+      </div>
+      <label for="library-rename-input">New name</label>
+      <input type="text" id="library-rename-input" value="${currentName.replace(
+        /"/g,
+        '&quot;'
+      )}" required />
+      <div class="library-dialog-actions">
+        <button type="button" class="library-dialog-cancel">Cancel</button>
+        <button type="submit" class="library-dialog-save">Save</button>
+      </div>
+    </form>`
+  );
+  const input = el.querySelector('#library-rename-input');
+  const cancel = el.querySelector('.library-dialog-cancel');
+  const closeBtn = el.querySelector('.library-dialog-close');
+  const cleanup = trapFocus(el);
+  el.querySelector('.library-dialog-close')?.addEventListener('click', () => el.close());
+  cancel?.addEventListener('click', () => el.close());
+  return new Promise((resolve) => {
+    el.addEventListener(
+      'close',
+      () => {
+        cleanup();
+        const value = input.value.trim();
+        resolve(value === '' ? null : value);
+      },
+      { once: true }
+    );
+    input.focus();
+    el.showModal();
+  });
+}
+
+async function confirmDelete(name) {
+  const id = 'library-delete-dialog';
+  const el = createDialog(
+    id,
+    `<form method="dialog">
+      <div class="library-dialog-header">
+        <h3 id="library-delete-title">Delete composition</h3>
+        <button type="button" class="library-dialog-close" aria-label="Close">×</button>
+      </div>
+      <p id="library-delete-message">Delete “${name.replace(/"/g, '&quot;')}” from this browser? This cannot be undone.</p>
+      <div class="library-dialog-actions">
+        <button type="button" class="library-dialog-cancel">Keep</button>
+        <button type="submit" class="library-dialog-delete">Delete</button>
+      </div>
+    </form>`
+  );
+  const cancel = el.querySelector('.library-dialog-cancel');
+  const closeBtn = el.querySelector('.library-dialog-close');
+  const cleanup = trapFocus(el);
+  el.querySelector('.library-dialog-close')?.addEventListener('click', () => el.close());
+  cancel?.addEventListener('click', () => el.close());
+  return new Promise((resolve) => {
+    el.addEventListener(
+      'close',
+      () => {
+        cleanup();
+        const form = el.querySelector('form');
+        resolve(form?.returnValue === 'delete');
+      },
+      { once: true }
+    );
+    cancel?.focus();
+    el.showModal();
+  });
+}
 function playRecord(record) {
   const ctx = getAudioContext(),
     master = getAudioMaster();
@@ -323,18 +439,18 @@ if (panel) {
         download(record);
       }
       if (button.dataset.action === 'rename') {
-        const name = window.prompt('Name this composition', record.name);
-        if (name !== null && name.trim()) {
+        const name = await promptRename(record.name);
+        if (name) {
           await renameComposition(record.id, name);
           await render();
         }
       }
-      if (
-        button.dataset.action === 'delete' &&
-        window.confirm(`Delete “${record.name}” from this browser?`)
-      ) {
-        await deleteComposition(record.id);
-        await render();
+      if (button.dataset.action === 'delete') {
+        const ok = await confirmDelete(record.name);
+        if (ok) {
+          await deleteComposition(record.id);
+          await render();
+        }
       }
     } catch (error) {
       setStatus(error.message || 'That library action failed.');
