@@ -6,9 +6,11 @@
  * controls, their volume, persistence and actual Web Audio scheduling.
  */
 import { test, expect } from '@playwright/test';
+import { dismissStorageNoticeIfNeeded } from './support/storage-notice.mjs';
 
 async function enterApp(page) {
   await page.goto('/handpan-app/', { waitUntil: 'domcontentloaded' });
+  await dismissStorageNoticeIfNeeded(page);
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) {
     await enter.click();

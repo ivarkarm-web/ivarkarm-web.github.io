@@ -3,8 +3,10 @@
  * Guards landmarks, names, and focus affordances that Phase 3 focus-visible depends on.
  */
 import { test, expect } from '@playwright/test';
+import { dismissStorageNoticeIfNeeded } from './support/storage-notice.mjs';
 
 async function enterIfNeeded(page) {
+  await dismissStorageNoticeIfNeeded(page);
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) {
     await enter.click();
@@ -16,6 +18,7 @@ test('phase5: document language and primary controls have accessible names', asy
   await page.goto('/handpan-app/');
   await expect(page.locator('html')).toHaveAttribute('lang', /en/i);
 
+  await dismissStorageNoticeIfNeeded(page);
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) {
     const label = ((await enter.innerText()) || '').trim();

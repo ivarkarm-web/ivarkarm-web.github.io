@@ -3,12 +3,14 @@
  * Guards the class of bugs where scripts are in the SW shell but missing from index.
  */
 import { test, expect } from '@playwright/test';
+import { dismissStorageNoticeIfNeeded } from './support/storage-notice.mjs';
 
 // Cold boot of the full module graph can exceed the global 60s budget on older
 // hardware; these assertions are interaction checks, not timing checks.
 test.describe.configure({ timeout: 90000 });
 
 async function enterIfNeeded(page) {
+  await dismissStorageNoticeIfNeeded(page);
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) {
     await enter.click();

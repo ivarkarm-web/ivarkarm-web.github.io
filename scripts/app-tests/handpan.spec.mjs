@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs/promises';
+import { dismissStorageNoticeIfNeeded } from './support/storage-notice.mjs';
 
 test.beforeEach(async ({ page }, testInfo) => {
   if (testInfo.title === 'required core boot failure shows recovery UI and retry reloads successfully') {
@@ -25,6 +26,8 @@ test.beforeEach(async ({ page }, testInfo) => {
   };
   try {
     await timed('page.goto', () => page.goto('/handpan-app/index.html', { waitUntil: 'domcontentloaded' }));
+    // First-visit privacy/storage notice can overlay Enter; dismiss via its real Continue action (harness).
+    await dismissStorageNoticeIfNeeded(page);
     // The welcome screen intentionally covers the play surface until the user enters.
     step = 'locating #enterPionier';
     const enter = await timed('locating #enterPionier', () => page.locator('#enterPionier'));
@@ -278,6 +281,7 @@ test('audio context unavailability is visible while the app shell remains presen
     Object.defineProperty(window, 'webkitAudioContext', { configurable: true, value: undefined });
   });
   await page.reload();
+  await dismissStorageNoticeIfNeeded(page);
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) await enter.click();
   await expect(page.locator('#appStatus')).toBeVisible();
@@ -291,6 +295,7 @@ test('blocked storage is reported as degraded without breaking Handpan', async (
     Object.defineProperty(window, 'localStorage', { configurable: true, get() { throw new Error('storage blocked by test'); } });
   });
   await page.reload();
+  await dismissStorageNoticeIfNeeded(page);
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) await enter.click();
   await expect(page.locator('#appStatus')).toBeVisible();
@@ -394,6 +399,9 @@ test('multitouch on one pad does not damp the note until the last pointer releas
 test('removed E Amara preference safely falls back to Handpan', async ({ page }) => {
   await page.evaluate(() => localStorage.setItem('pionier.activeInstrument', 'eamara'));
   await page.reload();
+  await dismissStorageNoticeIfNeeded(page);
+  const enter = page.locator('#enterPionier');
+  if (await enter.isVisible().catch(() => false)) await enter.click();
   await expect(page.locator('#pan')).toBeVisible();
   await expect.poll(() => page.evaluate(() => window.PionierCore?.activeInstrument?.()?.id)).toBe('handpan');
   await expect.poll(() => page.evaluate(() => localStorage.getItem('pionier.activeInstrument'))).toBe('handpan');
@@ -951,6 +959,7 @@ test('Loop Studio keeps a second layer when the recorder flushes one valid chunk
     };
   });
   await page.reload({ waitUntil: 'domcontentloaded' });
+  await dismissStorageNoticeIfNeeded(page);
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) await enter.click();
   await expect.poll(() => page.evaluate(() => window.PionierBootState), { timeout: 15000 }).toBe('ready');

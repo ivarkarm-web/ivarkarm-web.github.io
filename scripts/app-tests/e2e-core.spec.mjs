@@ -3,9 +3,11 @@
  * Guards the failure that bit production: app stuck on "Starting Pionier…" after the welcome screen.
  */
 import { test, expect } from '@playwright/test';
+import { dismissStorageNoticeIfNeeded } from './support/storage-notice.mjs';
 
 async function enter(page) {
   await page.goto('/handpan-app/index.html', { waitUntil: 'domcontentloaded' });
+  await dismissStorageNoticeIfNeeded(page);
   const enterBtn = page.locator('#enterPionier');
   await expect(enterBtn).toBeVisible();
   await enterBtn.click();

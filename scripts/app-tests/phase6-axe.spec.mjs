@@ -6,10 +6,12 @@
  * must pass WCAG 2 AA on critical/serious for the instrument surface.
  */
 import { test, expect } from '@playwright/test';
+import { dismissStorageNoticeIfNeeded } from './support/storage-notice.mjs';
 
 const AXE_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.10.3/axe.min.js';
 
 async function enterIfNeeded(page) {
+  await dismissStorageNoticeIfNeeded(page);
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) {
     await enter.click();

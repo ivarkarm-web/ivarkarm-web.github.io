@@ -5,6 +5,7 @@
  * top-centred navigation group, across mobile and desktop viewports.
  */
 import { test, expect } from '@playwright/test';
+import { dismissStorageNoticeIfNeeded } from './support/storage-notice.mjs';
 
 const GROUP = '#topNavGroup';
 const LIB_BTN = '#openLibrary';
@@ -18,6 +19,7 @@ const ABOUT_BACKDROP = '#aboutBackdrop';
 
 async function enterPionier(page) {
   await page.goto('/handpan-app/index.html', { waitUntil: 'domcontentloaded' });
+  await dismissStorageNoticeIfNeeded(page);
   const enterBtn = page.locator('#enterPionier');
   await expect(enterBtn).toBeVisible();
   await enterBtn.click();

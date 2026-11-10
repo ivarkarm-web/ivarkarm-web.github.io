@@ -3,6 +3,7 @@
  * SW is blocked by playwright.config — this validates the document + boot path.
  */
 import { test, expect } from '@playwright/test';
+import { dismissStorageNoticeIfNeeded } from './support/storage-notice.mjs';
 
 test('phase4: index does not depend on Google Fonts CDN', async ({ page }) => {
   await page.goto('/handpan-app/');
@@ -16,6 +17,7 @@ test('phase4: index does not depend on Google Fonts CDN', async ({ page }) => {
 
 test('phase4: critical offline shell assets are referenced by the app', async ({ page }) => {
   await page.goto('/handpan-app/');
+  await dismissStorageNoticeIfNeeded(page);
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) await enter.click();
   await expect.poll(() => page.evaluate(() => !!window.PionierCore)).toBe(true);
