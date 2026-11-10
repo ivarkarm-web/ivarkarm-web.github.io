@@ -3894,6 +3894,17 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
   max-height: 34px !important;
   flex: 0 0 34px !important;
 }
+/* Active bottom-dock track row: 44px touch targets for all seven layer buttons. */
+#pionierBottomDock #pionierTrackRow #looperLayers .looper-circle {
+  box-sizing: border-box !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  max-width: 44px !important;
+  max-height: 44px !important;
+  flex: 0 0 44px !important;
+}
 #looperRail #looperLayers { gap: 3px !important; overflow-x: hidden !important; }
 @media (max-width: 390px) {
   #looperRail #looperLayers .looper-circle {

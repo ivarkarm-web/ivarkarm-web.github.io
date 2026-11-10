@@ -21,6 +21,9 @@
 }
 #pionierLooperControls #looperClearBtn {
   border:1px solid rgba(235,229,215,.16) !important; background:rgba(255,255,255,.045) !important;
+  flex:0 0 44px !important; width:44px !important; min-width:44px !important;
+  max-width:44px !important; height:44px !important; min-height:44px !important;
+  max-height:44px !important;
 }
 #pionierLooperControls #looperRecordCluster {
   display:flex !important; position:static !important; flex:0 0 auto !important;
