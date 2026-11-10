@@ -3,12 +3,14 @@
  * Guards the class of bugs where scripts are in the SW shell but missing from index.
  */
 import { test, expect } from '@playwright/test';
+import { dismissStorageNoticeIfNeeded } from './support/storage-notice.mjs';
 
 // Cold boot of the full module graph can exceed the global 60s budget on older
 // hardware; these assertions are interaction checks, not timing checks.
 test.describe.configure({ timeout: 90000 });
 
 async function enterIfNeeded(page) {
+  await dismissStorageNoticeIfNeeded(page);
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) {
     await enter.click();
@@ -103,14 +105,24 @@ test('phase8: selectors and right-side looper actions remain mounted after defer
 
   const library = page.locator('#openLibrary');
   await expect(library).toBeVisible();
+  await expect(library).toBeEnabled();
   // Current DOM mounts library control in the top nav group (not document.body); preserve mounted/safe-viewport intent.
   await expect.poll(() => library.evaluate((el) => el.closest('#topNavGroup')?.id)).toBe('topNavGroup');
   const libraryBox = await library.boundingBox();
-  expect(libraryBox).toBeTruthy();
-  expect(libraryBox.x).toBeGreaterThanOrEqual(0);
-  expect(libraryBox.y).toBeGreaterThanOrEqual(0);
-  expect(libraryBox.x).toBeLessThan(24);
-  expect(libraryBox.y).toBeLessThan(24);
+  const navGroupBox = await page.locator('#topNavGroup').boundingBox();
+  const viewport = page.viewportSize();
+  expect(libraryBox, '#openLibrary should have a layout box').toBeTruthy();
+  expect(navGroupBox, '#topNavGroup should have a layout box').toBeTruthy();
+  expect(viewport, 'viewport size should be available').toBeTruthy();
+  expect(libraryBox.x).toBeGreaterThanOrEqual(-1);
+  expect(libraryBox.y).toBeGreaterThanOrEqual(-1);
+  expect(libraryBox.x + libraryBox.width).toBeLessThanOrEqual(viewport.width + 1);
+  expect(libraryBox.y + libraryBox.height).toBeLessThanOrEqual(viewport.height + 1);
+  // Fully contained within #topNavGroup (allow small subpixel tolerance).
+  expect(libraryBox.x).toBeGreaterThanOrEqual(navGroupBox.x - 1);
+  expect(libraryBox.y).toBeGreaterThanOrEqual(navGroupBox.y - 1);
+  expect(libraryBox.x + libraryBox.width).toBeLessThanOrEqual(navGroupBox.x + navGroupBox.width + 1);
+  expect(libraryBox.y + libraryBox.height).toBeLessThanOrEqual(navGroupBox.y + navGroupBox.height + 1);
   await library.click();
   await expect(page.locator('#libraryPanel')).toBeVisible();
   await page.locator('#closeLibrary').click();

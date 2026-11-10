@@ -19,7 +19,6 @@ const excludedRootDirs = new Set(['scripts', 'docs', 'public']);
 const excludedFiles = new Set([
   'package.json', 'package-lock.json', 'vite.config.ts',
   'playwright.config.mjs', 'playwright.measure.config.mjs',
-  'handpan-app/APP_VERSION',
 ]);
 let copied = 0;
 let preserved = 0;

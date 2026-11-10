@@ -5,6 +5,11 @@ import { defineConfig, devices } from '@playwright/test';
  * The `sw-desktop` project allows SW and only runs phase5-sw.spec.mjs (offline shell proof).
  */
 const serveDir = process.env.PW_SERVE_DIR || '.';
+const port = process.env.PW_PORT || '4173';
+const baseURL = process.env.PW_BASE_URL || `http://127.0.0.1:${port}`;
+const reuseExistingServer = process.env.PW_REUSE_SERVER !== undefined
+  ? process.env.PW_REUSE_SERVER === 'true'
+  : !process.env.CI;
 
 export default defineConfig({
   testDir: './scripts/app-tests',
@@ -22,7 +27,7 @@ export default defineConfig({
   workers: process.env.CI ? 2 : 1,
   reporter: process.env.CI ? [['line'], ['html', { open: 'never' }]] : 'list',
   use: {
-    baseURL: 'http://127.0.0.1:4173',
+    baseURL,
     serviceWorkers: 'block',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
@@ -36,9 +41,9 @@ export default defineConfig({
     // variant handles each connection in its own thread.
     // PW_SERVE_DIR overrides the served site root (e.g. "dist") for production-
     // artifact verification; default "." preserves existing behavior and paths.
-    command: `python3 scripts/serve-threaded.py 4173 --bind 127.0.0.1 --directory ${serveDir}`,
-    url: 'http://127.0.0.1:4173/handpan-app/index.html',
-    reuseExistingServer: !process.env.CI,
+    command: `python3 scripts/serve-threaded.py ${port} --bind 127.0.0.1 --directory ${serveDir}`,
+    url: `${baseURL}/handpan-app/index.html`,
+    reuseExistingServer,
     timeout: 15000,
   },
   projects: [

@@ -2389,6 +2389,8 @@ html.pionier-welcome-active #pan { visibility: visible; }
 }
 .headphones-word { opacity: 0; filter: blur(3px); }
 .headphones-word-two { color: var(--welcome-red, #e11d48); }
+html.high-contrast:not(.theme-light) .headphones-word-two { color: var(--hc-fg, #f5f0e6) !important; }
+html.theme-light.high-contrast .headphones-word-two { color: var(--hc-fg, #12110f) !important; }
 #headphonesHint.is-visible .headphones-word-one {
   animation: headphones-word-arrive 850ms cubic-bezier(.16,1,.3,1) 180ms both;
 }
@@ -3894,6 +3896,17 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
   max-height: 34px !important;
   flex: 0 0 34px !important;
 }
+/* Active bottom-dock track row: 44px touch targets for all seven layer buttons. */
+#pionierBottomDock #pionierTrackRow #looperLayers .looper-circle {
+  box-sizing: border-box !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  max-width: 44px !important;
+  max-height: 44px !important;
+  flex: 0 0 44px !important;
+}
 #looperRail #looperLayers { gap: 3px !important; overflow-x: hidden !important; }
 @media (max-width: 390px) {
   #looperRail #looperLayers .looper-circle {
@@ -4077,6 +4090,27 @@ html.theme-light .looper-save-copy, html.theme-light .looper-save-form label { c
     flex: none !important;
     width: max-content !important;
     margin: 0 !important;
+  }
+}
+
+/* 320px-class narrow phones: fit 7×44px layer targets on one row without wrapping
+   (7*44 + 0*gap = 308px). Widen/center layers and force nowrap; 360px+ unaffected. */
+@media (max-width: 340px) {
+  #pionierBottomDock #pionierTrackRow {
+    padding: 0 !important;
+    margin: 0 auto !important;
+    overflow: visible !important;
+    justify-content: center !important;
+  }
+
+  #pionierBottomDock #pionierTrackRow #looperLayers {
+    gap: 0 !important;
+    flex-wrap: nowrap !important;
+    flex: 0 0 308px !important;
+    width: 308px !important;
+    min-width: 308px !important;
+    max-width: none !important;
+    justify-content: center !important;
   }
 }
 

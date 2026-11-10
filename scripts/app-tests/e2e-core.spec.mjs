@@ -3,9 +3,11 @@
  * Guards the failure that bit production: app stuck on "Starting Pionier…" after the welcome screen.
  */
 import { test, expect } from '@playwright/test';
+import { dismissStorageNoticeIfNeeded } from './support/storage-notice.mjs';
 
 async function enter(page) {
   await page.goto('/handpan-app/index.html', { waitUntil: 'domcontentloaded' });
+  await dismissStorageNoticeIfNeeded(page);
   const enterBtn = page.locator('#enterPionier');
   await expect(enterBtn).toBeVisible();
   await enterBtn.click();
@@ -15,10 +17,10 @@ async function enter(page) {
 test('boots to ready after Enter with no errors and no remote code', async ({ page }) => {
   const errors = [];
   const external = new Set();
-  const origin = new URL(page.url() === 'about:blank' ? 'http://127.0.0.1:4173' : page.url()).origin;
+  const allowedOrigin = new URL(process.env.PW_BASE_URL || `http://127.0.0.1:${process.env.PW_PORT || 4173}`).origin;
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
-  page.on('request', (r) => { const u = new URL(r.url()); if (u.protocol.startsWith('http') && u.origin !== 'http://127.0.0.1:4173') external.add(u.origin); });
+  page.on('request', (r) => { const u = new URL(r.url()); if (u.protocol.startsWith('http') && u.origin !== allowedOrigin) external.add(u.origin); });
 
   await enter(page);
   expect(await page.evaluate(() => window.PionierBootState)).toBe('ready');
@@ -26,7 +28,6 @@ test('boots to ready after Enter with no errors and no remote code', async ({ pa
   expect(await page.evaluate(() => !!window.PionierCore)).toBe(true);
   expect(errors).toEqual([]);
   expect([...external]).toEqual([]);
-  void origin;
 });
 
 test('core, looper and FX share one running AudioContext', async ({ page }) => {

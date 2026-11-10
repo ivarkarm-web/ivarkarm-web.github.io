@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { dismissStorageNoticeIfNeeded } from './support/storage-notice.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/handpan-app/index.html', { waitUntil: 'domcontentloaded' });
+  await dismissStorageNoticeIfNeeded(page);
   const enter = page.locator('#enterPionier');
   if (await enter.isVisible().catch(() => false)) {
     await enter.click();
