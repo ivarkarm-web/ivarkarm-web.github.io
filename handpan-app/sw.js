@@ -19,7 +19,7 @@ const SHELL = [
   './manifest.webmanifest',
   './icon.svg',
   './css-parts/sequence-carousel.css?v=9',
-  './js/about-window.js?v=1',
+  './js/about-window.js?v=2',
   './js/ambient-fx.js?v=12',
   './js/app-state.js?v=1',
   './js/audio-core.js?v=2',
