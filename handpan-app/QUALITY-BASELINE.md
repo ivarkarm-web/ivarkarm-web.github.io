@@ -48,15 +48,17 @@ Boot states: `loading` → `ready` | `degraded` | `failed` via `#appStatus`. Opt
 - **T37:** high-contrast headphones hint contrast fix — `.headphones-word-two` uses theme-appropriate high-contrast foreground tokens in dark/light high-contrast modes (normal non-HC styling preserved).
 - **T38:** full configured Playwright regression run (dist v217, all configured projects) completed with **passed status** and **no reported failed tests** (persisted evidence: `.last-run.json` `status: "passed"`, `failedTests: []`). **Exact final test totals/counts were not captured/persisted**; do not treat as new per-test measurements beyond this evidence.
 - **T40:** four reviewed fixes committed locally as `494efc9c6bec257e438708a1652ab6dfd3496034` (`fix: close v217 release verification regressions`) on `opencode/pionier-quality-8` (not pushed/merged/deployed).
+- **iPhone Safari (owner-reported, 2026-11-10, partial):** Real-device testing on an **iPhone (exact model not recorded)**, iOS/Safari versions **not recorded**, APP_VERSION **217** (testing period). Confirmed: app load, first audio on tap, layout fit; individual notes/hold/release/sliding/multitouch; instrument/scale switching, golden dice/randomizer, delay/reverb/FX; master/second-layer looper, mute/unmute, stop/restart; rain/storm/thunder/birds ambience, **all seven looper layers**, **two-minute combined audio session**; portrait/landscape rotation, screen lock/return, app switch/return, page refresh and audio recovery, **five-minute idle recovery**, navigation and drawer resilience. **Only the specific checklist items mapped in `handpan-app/IOS-SAFARI-CHECKLIST.md` are marked passed; the full checklist is NOT signed off.** Unrecorded/not tested include route/call interruption during recording, toolbar expanded/collapsed states, looper button size/clipping details, undo/clear-all/empty-state behavior, WAV export/reopen, airplane-mode offline reload, My Library persistence, VoiceOver, external keyboard.
 
 Automated Playwright evidence does not substitute for device/runtime checks and does **not** establish production readiness.
 
 ## Unresolved release gates (must remain explicit)
 
-- [ ] **Real-device iOS Safari sign-off** (`handpan-app/IOS-SAFARI-CHECKLIST.md` — **hard release gate**), for the shipping `APP_VERSION`.
-- [ ] **Android Chrome device verification** and device-matrix coverage (`docs/DEVICE-CHECKLIST.md`).
-- [ ] **Manual offline/PWA and persistence checks** (service worker/offline reload, storage eviction/My Library behavior on devices).
-- [ ] **Audio reliability and longer-session performance checks** on real devices (latency, interruptions/route changes, sustained play/recording, no degradation).
+- [ ] **Real-device iOS Safari sign-off** (`handpan-app/IOS-SAFARI-CHECKLIST.md` — **hard release gate**), for the shipping `APP_VERSION`. **Partial owner-reported evidence exists (2026-11-10) but full sign-off is NOT completed.**
+- [ ] **Android Chrome device verification** and device-matrix coverage (`docs/DEVICE-CHECKLIST.md`). **Outstanding.**
+- [ ] **Manual offline/PWA and persistence checks** (service worker/offline reload, storage eviction/My Library behavior on devices). **Outstanding (not tested/recorded).**
+- [ ] **Audio reliability and longer-session performance checks** on real devices (latency, interruptions/route changes, sustained play/recording, no degradation). Some resilience checks performed; **remaining items outstanding.**
+- [ ] **WAV export/reopen verification** (My Library/export flow). **Outstanding.**
 - [ ] **Sample licensing/commercial clearance** (owner-gated).
 - [ ] **Final deployment and cache/version verification** (`sync:handpan` / `check:handpan-cache`, correct deploy artifact/root-vs-dist behavior, live smoke for shipped version). No unperformed check is marked passed.
 
