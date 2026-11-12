@@ -8,7 +8,7 @@
 (function aboutWindow() {
   'use strict';
 
-  var APP_VERSION_URL = './APP_VERSION';
+  var APP_RELEASE_VERSION = '1.0.0';
   var backdrop = null;
   var windowEl = null;
   var closeBtn = null;
@@ -79,17 +79,7 @@
 
   function setVersion() {
     if (!versionEl) return;
-    try {
-      fetch(APP_VERSION_URL, { cache: 'no-cache' })
-        .then(function (response) {
-          if (!response.ok) return '';
-          return response.text();
-        })
-        .then(function (text) {
-          var v = (text || '').trim();
-          versionEl.textContent = v ? 'Pionier \u00b7 v' + v : 'Pionier';
-        })['catch'](function () {});
-    } catch (_) {}
+    versionEl.textContent = 'Pionier ' + APP_RELEASE_VERSION;
   }
 
   function applyInert(nodes, value) {
