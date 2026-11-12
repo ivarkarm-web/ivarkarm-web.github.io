@@ -21,7 +21,7 @@ Run on a real iPhone (or iPad) after each release that touches audio, SW, or the
 
 ## Touch & layout
 
-- [ ] Multi-finger chords on the pan do not mute early when one finger lifts. *(Owner reported multitouch as PASS, but this broader result does not establish this specific assertion — e.g. that chords do not mute early when one finger lifts.)*
+- [x] Multi-finger chords on the pan do not mute early when one finger lifts. *(**OWNER-REPORTED PASS, not independently verified** — live production v217, this conversation, date not recorded: owner stated multi-finger chords work and releasing one finger does not mute remaining notes. Toolbar expanded/collapsed states and other chord conditions not separately verified; see “Multi-touch chords with Safari toolbar expanded and collapsed” below.)*
 - [ ] Multi-touch chords with Safari toolbar expanded and collapsed — pan responds and no note cuts out when the toolbar shows/hides.
 - [ ] Scale / instrument sheets open, scroll, and close (item, backdrop, or equivalent) with Safari toolbar expanded and collapsed — picker positioning stays correct in both toolbar states.
 - [ ] FX panel opens on-screen (not off-screen) with Safari toolbar expanded and collapsed; FX preset picker opens and dismisses correctly in both toolbar states.
@@ -64,6 +64,16 @@ Run on a real Android phone using Chrome against the same deployed `APP_VERSION`
 
 Record failures as failures; do not check an item based on desktop emulation.
 
+## Evidence addendum (owner-reported, date not recorded, live v217)
+
+**Source:** owner's direct statements in this conversation following tests on the live production app at `https://ivarkarm-web.github.io/handpan-app/` (v217). **Not independently verified.** Device model, iOS version, Safari version, and test date: **not recorded/invented**.
+
+- **OWNER-REPORTED PASS (specific confirmations):** Production app opens and works; handpan notes produce sound; multi-finger chords work; releasing one finger does not mute the remaining notes; portrait and landscape rotation work; looper recording and playback work.
+- **OWNER-REPORTED GENERAL CONFIRMATION (broad, non-itemized):** Owner stated that all app functions work. This is not decomposed into individual checklist items and does not establish passes for untested/unreported assertions.
+- **Mapping notes:** “Handpan notes produce sound” does not establish “Tap **Enter Pionier** once — first pad strike produces sound without a second gesture.” “Portrait and landscape rotation work” is broad confirmation and does not prove every Safari toolbar/chrome-clearance assertion (the specific rotation checklist item remains unchecked). “Looper recording and playback work” does not prove undo, clear, WAV export/reopen, or persistence. The chord-mute assertion is recorded above as **owner-reported evidence only (not independently verified)**; toolbar expanded/collapsed chord states remain unchecked.
+
+**Full iOS Safari sign-off remains NOT completed. Android real-device testing remains outstanding.**
+
 ## Sign-off
 
 > **Partial evidence only — full iOS Safari release sign-off NOT completed.** Do not treat as a complete hard-gate sign-off until all required checklist items are verified and recorded.
@@ -71,7 +81,7 @@ Record failures as failures; do not check an item based on desktop emulation.
 | Item | Value |
 |------|--------|
 | Device / OS + browser | iPhone (exact model not recorded), iOS version not recorded, Safari (version not recorded) |
-| APP_VERSION | 217 (testing period) |
+| APP_VERSION | 217 (testing period; latest owner-reported feedback on live v217, date not recorded) |
 | Tester | owner |
-| Date | 2026-11-10 |
-| Pass / fail notes | **Partial (owner-reported):** 3 checklist items marked supported — lock-screen return, one-layer record/playback, second overlapping layer. Broader passes reported (app load, audio on tap, multitouch, portrait/landscape rotation) do not establish the specific unchecked “Enter/first pad without a second gesture”, “chords do not mute early when one finger lifts”, or rotation pan-usability/Safari browser-chrome-clearance assertions. Additional passes reported (see evidence note): layout, notes/hold/release/sliding, instrument/scale/randomizer/FX, looper mute/unmute/stop-restart, ambience + 7 layers + 2-min combined session, app switch/return, refresh/audio recovery, 5-min idle recovery, navigation/drawer resilience. **Not a full sign-off:** remaining iOS checklist items (including the unchecked specific assertions above, route/call interruption, toolbar states, size/clipping, undo/clear, WAV export, offline/PWA/My Library, a11y smoke) and Android not verified; device/OS/browser versions not recorded. |
+| Date | 2026-11-10 (prior documented session); additional owner-reported feedback: date not recorded |
+| Pass / fail notes | **Partial (owner-reported):** 4 checklist items marked supported — lock-screen return, **multi-finger chords do not mute early when one finger lifts (OWNER-REPORTED, not independently verified; toolbar states not separately verified)**, one-layer record/playback, second overlapping layer. The existing three formally checked items from 2026-11-10 are preserved. Latest owner-reported confirmations (date not recorded, live v217): app opens/works, notes produce sound, multi-finger chords work, releasing one finger does not mute remaining notes, portrait/landscape rotation works, looper recording/playback works; plus **OWNER-REPORTED GENERAL CONFIRMATION** that all app functions work (non-itemized). Broader confirmations do not establish unchecked specific assertions (Enter/first pad without a second gesture, toolbar expanded/collapsed behaviors, rotation pan-usability/chrome-clearance specifics, route/call interruption, looper size/clipping, undo/clear, WAV export/reopen, offline/PWA/My Library, VoiceOver/external keyboard). **Not a full sign-off.** Android not verified; device/OS/browser versions not recorded. |
