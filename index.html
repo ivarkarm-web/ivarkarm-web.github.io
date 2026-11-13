@@ -30,10 +30,11 @@
         html = html.replace(/js\/scenes\.js\?v=\d+/g, 'js/scenes.js?v=55');
 
         // Add Pionier link if missing from remote navigation
-        if (html.indexOf('handpan-app') === -1) {
+        var archiveNavItem = '<li><a href="#rabbit-hole">Archive</a></li>';
+        if (html.indexOf('handpan-app') === -1 && html.indexOf(archiveNavItem) !== -1) {
           html = html.replace(
-            '<li><a href="#rabbit-hole">Archive</a></li>',
-            '<li><a href="https://ivarkarm-web.github.io/handpan-app/">Pionier</a></li>\n    <li><a href="#rabbit-hole">Archive</a></li>'
+            archiveNavItem,
+            '<li><a href="https://ivarkarm-web.github.io/handpan-app/">Pionier</a></li>\n    ' + archiveNavItem
           );
         }
 
