@@ -67,6 +67,8 @@
         '  </ul>' +
         '  <h3>About</h3>' +
         '  <p>Pionier is an independent musical experiment built around exploration, listening and creative freedom.</p>' +
+        '  <p>Created by <a href="https://ivarkarm-web.github.io/" target="_blank" rel="noopener noreferrer">Ivar Karm</a></p>' +
+        '  <p>Handpan artist and improviser from Eastern Estonia.</p>' +
         '  <p class="about-version">Version <span id="aboutVersion"></span></p>' +
         '</div>';
       document.body.appendChild(windowEl);
