@@ -9,4 +9,7 @@
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
+  <url>
+    <loc>https://ivarkarm-web.github.io/handpan-app/</loc>
+  </url>
 </urlset>
